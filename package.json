@@ -12,7 +12,8 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "spike:fetch": "tsx scripts/providers/fetch-all.ts",
-    "spike:compare": "tsx scripts/providers/compare.ts"
+    "spike:compare": "tsx scripts/providers/compare.ts",
+    "parity:run": "tsx scripts/parity/run-parity.ts"
   },
   "devDependencies": {
     "@types/node": "^24",

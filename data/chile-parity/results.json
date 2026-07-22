@@ -1,0 +1,718 @@
+{
+ "generatedAt": "2026-07-22T20:26:58.942Z",
+ "method": {
+  "scenario": "2022 (doc-literal REFERENCE_DEFAULTS: 100 MW electrolyzer, LCOE-priced renewables 30 USD/MWh, no grid)",
+  "sweep": "pv share of 200 MW total in [0, 0.25, 0.5, 0.75, 1], best combination kept",
+  "caveat": "Site coordinates are inferred from region hints (not published); projects without a hint are excluded. Site-level LCOH is shared by all projects at that site."
+ },
+ "summary": {
+  "projectsTotal": 47,
+  "projectsComputed": 32,
+  "meanPublished2022": 4.51,
+  "meanComputed2022": 4.303,
+  "meanDelta": -0.207,
+  "spearmanRho": 0.85,
+  "publishedColumnMean2022AllProjects": 4.62
+ },
+ "sites": {
+  "magallanes": {
+   "bestPvMw": 0,
+   "bestWindMw": 200,
+   "lcohUsdPerKg": 3.279,
+   "sweep": [
+    {
+     "pvMw": 0,
+     "windMw": 200,
+     "lcoh": 3.279
+    },
+    {
+     "pvMw": 50,
+     "windMw": 150,
+     "lcoh": 3.322
+    },
+    {
+     "pvMw": 100,
+     "windMw": 100,
+     "lcoh": 3.422
+    },
+    {
+     "pvMw": 150,
+     "windMw": 50,
+     "lcoh": 4.295
+    },
+    {
+     "pvMw": 200,
+     "windMw": 0,
+     "lcoh": 7.15
+    }
+   ],
+   "profiles": {
+    "pv_fixed": {
+     "provider": "pvgis-seriescalc",
+     "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.1031
+    },
+    "wind_120": {
+     "provider": "open-meteo",
+     "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.7493
+    }
+   }
+  },
+  "antofagasta": {
+   "bestPvMw": 200,
+   "bestWindMw": 0,
+   "lcohUsdPerKg": 4.658,
+   "sweep": [
+    {
+     "pvMw": 0,
+     "windMw": 200,
+     "lcoh": 6.429
+    },
+    {
+     "pvMw": 50,
+     "windMw": 150,
+     "lcoh": 5.482
+    },
+    {
+     "pvMw": 100,
+     "windMw": 100,
+     "lcoh": 4.915
+    },
+    {
+     "pvMw": 150,
+     "windMw": 50,
+     "lcoh": 4.746
+    },
+    {
+     "pvMw": 200,
+     "windMw": 0,
+     "lcoh": 4.658
+    }
+   ],
+   "profiles": {
+    "pv_fixed": {
+     "provider": "pvgis-seriescalc",
+     "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+     "cacheHit": true,
+     "meanCf": 0.2412
+    },
+    "wind_120": {
+     "provider": "open-meteo",
+     "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.1288
+    }
+   }
+  },
+  "calama": {
+   "bestPvMw": 0,
+   "bestWindMw": 200,
+   "lcohUsdPerKg": 4.104,
+   "sweep": [
+    {
+     "pvMw": 0,
+     "windMw": 200,
+     "lcoh": 4.104
+    },
+    {
+     "pvMw": 50,
+     "windMw": 150,
+     "lcoh": 4.117
+    },
+    {
+     "pvMw": 100,
+     "windMw": 100,
+     "lcoh": 4.209
+    },
+    {
+     "pvMw": 150,
+     "windMw": 50,
+     "lcoh": 4.476
+    },
+    {
+     "pvMw": 200,
+     "windMw": 0,
+     "lcoh": 4.683
+    }
+   ],
+   "profiles": {
+    "pv_fixed": {
+     "provider": "pvgis-seriescalc",
+     "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.2304
+    },
+    "wind_120": {
+     "provider": "open-meteo",
+     "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.3235
+    }
+   }
+  },
+  "metropolitana": {
+   "bestPvMw": 200,
+   "bestWindMw": 0,
+   "lcohUsdPerKg": 5.206,
+   "sweep": [
+    {
+     "pvMw": 0,
+     "windMw": 200,
+     "lcoh": 27.608
+    },
+    {
+     "pvMw": 50,
+     "windMw": 150,
+     "lcoh": 10.927
+    },
+    {
+     "pvMw": 100,
+     "windMw": 100,
+     "lcoh": 7.177
+    },
+    {
+     "pvMw": 150,
+     "windMw": 50,
+     "lcoh": 5.767
+    },
+    {
+     "pvMw": 200,
+     "windMw": 0,
+     "lcoh": 5.206
+    }
+   ],
+   "profiles": {
+    "pv_fixed": {
+     "provider": "pvgis-seriescalc",
+     "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.1805
+    },
+    "wind_120": {
+     "provider": "open-meteo",
+     "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.0175
+    }
+   }
+  },
+  "valparaiso": {
+   "bestPvMw": 200,
+   "bestWindMw": 0,
+   "lcohUsdPerKg": 5.131,
+   "sweep": [
+    {
+     "pvMw": 0,
+     "windMw": 200,
+     "lcoh": 11.877
+    },
+    {
+     "pvMw": 50,
+     "windMw": 150,
+     "lcoh": 8.311
+    },
+    {
+     "pvMw": 100,
+     "windMw": 100,
+     "lcoh": 6.456
+    },
+    {
+     "pvMw": 150,
+     "windMw": 50,
+     "lcoh": 5.612
+    },
+    {
+     "pvMw": 200,
+     "windMw": 0,
+     "lcoh": 5.131
+    }
+   ],
+   "profiles": {
+    "pv_fixed": {
+     "provider": "pvgis-seriescalc",
+     "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.1868
+    },
+    "wind_120": {
+     "provider": "open-meteo",
+     "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.0526
+    }
+   }
+  },
+  "biobio": {
+   "bestPvMw": 100,
+   "bestWindMw": 100,
+   "lcohUsdPerKg": 5.111,
+   "sweep": [
+    {
+     "pvMw": 0,
+     "windMw": 200,
+     "lcoh": 5.421
+    },
+    {
+     "pvMw": 50,
+     "windMw": 150,
+     "lcoh": 5.237
+    },
+    {
+     "pvMw": 100,
+     "windMw": 100,
+     "lcoh": 5.111
+    },
+    {
+     "pvMw": 150,
+     "windMw": 50,
+     "lcoh": 5.368
+    },
+    {
+     "pvMw": 200,
+     "windMw": 0,
+     "lcoh": 5.493
+    }
+   ],
+   "profiles": {
+    "pv_fixed": {
+     "provider": "pvgis-seriescalc",
+     "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.1652
+    },
+    "wind_120": {
+     "provider": "open-meteo",
+     "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.2034
+    }
+   }
+  },
+  "loslagos": {
+   "bestPvMw": 0,
+   "bestWindMw": 200,
+   "lcohUsdPerKg": 4.165,
+   "sweep": [
+    {
+     "pvMw": 0,
+     "windMw": 200,
+     "lcoh": 4.165
+    },
+    {
+     "pvMw": 50,
+     "windMw": 150,
+     "lcoh": 4.251
+    },
+    {
+     "pvMw": 100,
+     "windMw": 100,
+     "lcoh": 4.43
+    },
+    {
+     "pvMw": 150,
+     "windMw": 50,
+     "lcoh": 5.2
+    },
+    {
+     "pvMw": 200,
+     "windMw": 0,
+     "lcoh": 6.285
+    }
+   ],
+   "profiles": {
+    "pv_fixed": {
+     "provider": "pvgis-seriescalc",
+     "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.1296
+    },
+    "wind_120": {
+     "provider": "open-meteo",
+     "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.3512
+    }
+   }
+  },
+  "araucania": {
+   "bestPvMw": 50,
+   "bestWindMw": 150,
+   "lcohUsdPerKg": 5.096,
+   "sweep": [
+    {
+     "pvMw": 0,
+     "windMw": 200,
+     "lcoh": 5.123
+    },
+    {
+     "pvMw": 50,
+     "windMw": 150,
+     "lcoh": 5.096
+    },
+    {
+     "pvMw": 100,
+     "windMw": 100,
+     "lcoh": 5.163
+    },
+    {
+     "pvMw": 150,
+     "windMw": 50,
+     "lcoh": 5.607
+    },
+    {
+     "pvMw": 200,
+     "windMw": 0,
+     "lcoh": 5.944
+    }
+   ],
+   "profiles": {
+    "pv_fixed": {
+     "provider": "pvgis-seriescalc",
+     "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.1434
+    },
+    "wind_120": {
+     "provider": "open-meteo",
+     "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
+     "cacheHit": false,
+     "meanCf": 0.2198
+    }
+   }
+  }
+ },
+ "projects": [
+  {
+   "project_name": "Frontera",
+   "site": "magallanes",
+   "published_2022": 3.31,
+   "computed_2022": 3.279,
+   "delta": -0.031
+  },
+  {
+   "project_name": "Gente Grande",
+   "site": "magallanes",
+   "published_2022": 3.36,
+   "computed_2022": 3.279,
+   "delta": -0.081
+  },
+  {
+   "project_name": "Llaquedona",
+   "site": "magallanes",
+   "published_2022": 3.42,
+   "computed_2022": 3.279,
+   "delta": -0.141
+  },
+  {
+   "project_name": "H2 Magallanes (Total Eren)",
+   "site": "magallanes",
+   "published_2022": 3.44,
+   "computed_2022": 3.279,
+   "delta": -0.161
+  },
+  {
+   "project_name": "HIF Haru Oni (Fase Piloto)",
+   "site": "magallanes",
+   "published_2022": 3.51,
+   "computed_2022": 3.279,
+   "delta": -0.231
+  },
+  {
+   "project_name": "HNH Energy",
+   "site": "magallanes",
+   "published_2022": 3.51,
+   "computed_2022": 3.279,
+   "delta": -0.231
+  },
+  {
+   "project_name": "H1 Magallanes",
+   "site": "magallanes",
+   "published_2022": 3.59,
+   "computed_2022": 3.279,
+   "delta": -0.311
+  },
+  {
+   "project_name": "Cabeza de Mar",
+   "site": "magallanes",
+   "published_2022": 3.62,
+   "computed_2022": 3.279,
+   "delta": -0.341
+  },
+  {
+   "project_name": "HIF Cabo Negro",
+   "site": "magallanes",
+   "published_2022": 3.62,
+   "computed_2022": 3.279,
+   "delta": -0.341
+  },
+  {
+   "project_name": "Enap Cabo Negro",
+   "site": "magallanes",
+   "published_2022": 3.62,
+   "computed_2022": 3.279,
+   "delta": -0.341
+  },
+  {
+   "project_name": "Hydra",
+   "site": null,
+   "published_2022": 3.93,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Distrito Minero Calama",
+   "site": "calama",
+   "published_2022": 4.03,
+   "computed_2022": 4.104,
+   "delta": 0.074
+  },
+  {
+   "project_name": "Faraday",
+   "site": "antofagasta",
+   "published_2022": 4.04,
+   "computed_2022": 4.658,
+   "delta": 0.618
+  },
+  {
+   "project_name": "Cerro Dominador",
+   "site": "antofagasta",
+   "published_2022": 4.11,
+   "computed_2022": 4.658,
+   "delta": 0.548
+  },
+  {
+   "project_name": "Pauna Greener FutureH2",
+   "site": "antofagasta",
+   "published_2022": 4.14,
+   "computed_2022": 4.658,
+   "delta": 0.518
+  },
+  {
+   "project_name": "Paracelsus-Atacama Hydrogen Hub",
+   "site": "antofagasta",
+   "published_2022": 4.14,
+   "computed_2022": 4.658,
+   "delta": 0.518
+  },
+  {
+   "project_name": "Hoasis",
+   "site": "antofagasta",
+   "published_2022": 4.16,
+   "computed_2022": 4.658,
+   "delta": 0.498
+  },
+  {
+   "project_name": "Hyex-Hidrógeno - Fase Industrial",
+   "site": "antofagasta",
+   "published_2022": 4.17,
+   "computed_2022": 4.658,
+   "delta": 0.488
+  },
+  {
+   "project_name": "Cerro Pabellón",
+   "site": "calama",
+   "published_2022": 4.19,
+   "computed_2022": 4.104,
+   "delta": -0.086
+  },
+  {
+   "project_name": "Génesis",
+   "site": null,
+   "published_2022": 4.2,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Planta Móvil H2V",
+   "site": null,
+   "published_2022": 4.21,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Hyex-Síntesis Amoniaco - Fase Piloto",
+   "site": "antofagasta",
+   "published_2022": 4.22,
+   "computed_2022": 4.658,
+   "delta": 0.438
+  },
+  {
+   "project_name": "Amer H2",
+   "site": null,
+   "published_2022": 4.24,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Proyecto Piloto H2V GNA",
+   "site": null,
+   "published_2022": 4.26,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Renewastable Kosten Aike",
+   "site": "magallanes",
+   "published_2022": 4.27,
+   "computed_2022": 3.279,
+   "delta": -0.991
+  },
+  {
+   "project_name": "Zorzal",
+   "site": null,
+   "published_2022": 4.31,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Volta-Etapa 1 y 2",
+   "site": null,
+   "published_2022": 4.73,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Tango",
+   "site": null,
+   "published_2022": 4.73,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Adelaida",
+   "site": null,
+   "published_2022": 4.75,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "H2 Solar Project",
+   "site": null,
+   "published_2022": 5.11,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Minera San Pedro",
+   "site": "metropolitana",
+   "published_2022": 5.22,
+   "computed_2022": 5.206,
+   "delta": -0.014
+  },
+  {
+   "project_name": "Wellboat Patagón X",
+   "site": "loslagos",
+   "published_2022": 5.03,
+   "computed_2022": 4.165,
+   "delta": -0.865
+  },
+  {
+   "project_name": "Estación de Hidrógeno Aeropuerto",
+   "site": "metropolitana",
+   "published_2022": 5.33,
+   "computed_2022": 5.206,
+   "delta": -0.124
+  },
+  {
+   "project_name": "Green Steel Project",
+   "site": null,
+   "published_2022": 5.42,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Hidrogenera Pudahuel",
+   "site": "metropolitana",
+   "published_2022": 5.45,
+   "computed_2022": 5.206,
+   "delta": -0.244
+  },
+  {
+   "project_name": "Wally-Grúas Horquilla",
+   "site": null,
+   "published_2022": 5.49,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "HValleSur",
+   "site": null,
+   "published_2022": 5.51,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "Hydrogen Generation Unit-Ex Las Tórtolas",
+   "site": "metropolitana",
+   "published_2022": 5.57,
+   "computed_2022": 5.206,
+   "delta": -0.364
+  },
+  {
+   "project_name": "Espinos",
+   "site": null,
+   "published_2022": 5.62,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "UCSC",
+   "site": "biobio",
+   "published_2022": 5.66,
+   "computed_2022": 5.111,
+   "delta": -0.549
+  },
+  {
+   "project_name": "USM - CORFO",
+   "site": "valparaiso",
+   "published_2022": 5.86,
+   "computed_2022": 5.131,
+   "delta": -0.729
+  },
+  {
+   "project_name": "Estudio CAP",
+   "site": "biobio",
+   "published_2022": 5.86,
+   "computed_2022": 5.111,
+   "delta": -0.749
+  },
+  {
+   "project_name": "Piloto H2V U. de Concepción",
+   "site": "biobio",
+   "published_2022": 5.87,
+   "computed_2022": 5.111,
+   "delta": -0.759
+  },
+  {
+   "project_name": "Bahía Quintero",
+   "site": "valparaiso",
+   "published_2022": 5.93,
+   "computed_2022": 5.131,
+   "delta": -0.799
+  },
+  {
+   "project_name": "Fertilizantes Araucanía",
+   "site": "araucania",
+   "published_2022": 5.91,
+   "computed_2022": 5.096,
+   "delta": -0.814
+  },
+  {
+   "project_name": "H2GN",
+   "site": null,
+   "published_2022": 6.11,
+   "computed_2022": null,
+   "delta": null
+  },
+  {
+   "project_name": "HyPro Aconcagua",
+   "site": "valparaiso",
+   "published_2022": 6.15,
+   "computed_2022": 5.131,
+   "delta": -1.019
+  }
+ ]
+}
