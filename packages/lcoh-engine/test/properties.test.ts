@@ -9,8 +9,8 @@ import {
   LHV_H2_KWH_PER_KG,
   simulateLCOH,
   type LCOHInputs,
-} from "../src/index.js";
-import { pvOnlyInputs, tiledProfile } from "./helpers.js";
+} from "../src/index";
+import { pvOnlyInputs, tiledProfile } from "./helpers";
 
 const dayShape = fc.array(
   fc.double({ min: 0, max: 1, noNaN: true, noDefaultInfinity: true }),

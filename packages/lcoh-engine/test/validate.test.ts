@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { simulateLCOH } from "../src/index.js";
-import { EngineInputError } from "../src/validate.js";
-import { constantProfile, pvOnlyInputs } from "./helpers.js";
+import { simulateLCOH } from "../src/index";
+import { EngineInputError } from "../src/validate";
+import { constantProfile, pvOnlyInputs } from "./helpers";
 
 describe("input validation", () => {
   it("rejects a profile that is not 8760 hours long", () => {

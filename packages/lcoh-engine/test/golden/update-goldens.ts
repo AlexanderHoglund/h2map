@@ -5,8 +5,8 @@
  * drift as a regression.
  */
 import { writeFileSync } from "node:fs";
-import { simulateLCOH } from "../../src/index.js";
-import { caseNames, expectedPath, loadCase } from "./loader.js";
+import { simulateLCOH } from "../../src/index";
+import { caseNames, expectedPath, loadCase } from "./loader";
 
 for (const name of caseNames()) {
   const { inputs, profiles } = loadCase(name);

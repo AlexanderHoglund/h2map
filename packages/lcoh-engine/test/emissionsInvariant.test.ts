@@ -4,8 +4,8 @@
  * (when a grid emission factor applies) and must never change cost.
  */
 import { describe, expect, it } from "vitest";
-import { simulateLCOH } from "../src/index.js";
-import { constantProfile, pvOnlyInputs } from "./helpers.js";
+import { simulateLCOH } from "../src/index";
+import { constantProfile, pvOnlyInputs } from "./helpers";
 
 describe("water electricity never enters the cost side", () => {
   const profiles = { pv: constantProfile(0.5) };

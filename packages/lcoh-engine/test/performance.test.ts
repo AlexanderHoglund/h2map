@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { REFERENCE_DEFAULTS, simulateLCOH } from "../src/index.js";
-import { constantProfile, tiledProfile } from "./helpers.js";
+import { REFERENCE_DEFAULTS, simulateLCOH } from "../src/index";
+import { constantProfile, tiledProfile } from "./helpers";
 
 describe("performance", () => {
   it("runs a 20-year simulation in under 50 ms", () => {

@@ -1,4 +1,4 @@
-import type { LCOHInputs } from "./types.js";
+import type { LCOHInputs } from "./types";
 
 /** Lower heating value of hydrogen, kWh per kg (source doc, §2). */
 export const LHV_H2_KWH_PER_KG = 33.33;

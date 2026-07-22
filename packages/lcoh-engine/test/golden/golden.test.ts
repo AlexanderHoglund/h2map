@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { simulateLCOH } from "../../src/index.js";
-import { caseNames, diffValues, expectedPath, loadCase } from "./loader.js";
+import { simulateLCOH } from "../../src/index";
+import { caseNames, diffValues, expectedPath, loadCase } from "./loader";
 
 describe("golden files", () => {
   for (const name of caseNames()) {

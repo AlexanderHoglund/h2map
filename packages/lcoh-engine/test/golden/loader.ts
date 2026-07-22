@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { LCOHInputs, ResourceProfiles } from "../../src/types.js";
+import type { LCOHInputs, ResourceProfiles } from "../../src/types";
 
 const CASES_DIR = fileURLToPath(new URL("./cases/", import.meta.url));
 const SPIKE_DIR = fileURLToPath(

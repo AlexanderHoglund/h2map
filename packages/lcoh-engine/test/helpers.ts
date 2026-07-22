@@ -1,5 +1,5 @@
-import { HOURS_PER_YEAR } from "../src/constants.js";
-import type { LCOHInputs } from "../src/types.js";
+import { HOURS_PER_YEAR } from "../src/constants";
+import type { LCOHInputs } from "../src/types";
 
 export function constantProfile(cf: number): number[] {
   return new Array<number>(HOURS_PER_YEAR).fill(cf);

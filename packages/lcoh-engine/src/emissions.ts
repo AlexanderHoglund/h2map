@@ -1,8 +1,8 @@
 import {
   DESAL_KWH_PER_M3,
   PUMP_KWH_PER_M3_PER_100M,
-} from "./constants.js";
-import type { WaterInputs } from "./types.js";
+} from "./constants";
+import type { WaterInputs } from "./types";
 
 /**
  * Electricity attributable to water supply (desalination + pumping), kWh per

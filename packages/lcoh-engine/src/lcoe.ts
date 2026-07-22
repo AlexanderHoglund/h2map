@@ -1,4 +1,4 @@
-import { presentValue } from "./dcf.js";
+import { presentValue } from "./dcf";
 
 /**
  * LCOE of a renewable plant priced via CAPEX/OPEX, per the source equation

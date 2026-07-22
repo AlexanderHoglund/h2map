@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { discountFactors, presentValue } from "../src/dcf.js";
-import { expectRel } from "./helpers.js";
+import { discountFactors, presentValue } from "../src/dcf";
+import { expectRel } from "./helpers";
 
 describe("discountFactors", () => {
   it("starts at 1 and declines by 1/(1+r) each year", () => {

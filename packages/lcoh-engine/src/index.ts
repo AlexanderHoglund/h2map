@@ -1,14 +1,14 @@
-export { simulateLCOH, ENGINE_VERSION } from "./simulate.js";
-export { dispatchYear } from "./dispatch.js";
-export type { DispatchInputs, DispatchResult } from "./dispatch.js";
-export { discountFactors, presentValue } from "./dcf.js";
-export { stackReplacementYears } from "./stackSchedule.js";
-export { lcoeFromCapex, lcoeMix } from "./lcoe.js";
+export { simulateLCOH, ENGINE_VERSION } from "./simulate";
+export { dispatchYear } from "./dispatch";
+export type { DispatchInputs, DispatchResult } from "./dispatch";
+export { discountFactors, presentValue } from "./dcf";
+export { stackReplacementYears } from "./stackSchedule";
+export { lcoeFromCapex, lcoeMix } from "./lcoe";
 export {
   annualEmissionsTco2e,
   waterElectricityKwhPerM3,
-} from "./emissions.js";
-export { EngineInputError, validateInputs } from "./validate.js";
+} from "./emissions";
+export { EngineInputError, validateInputs } from "./validate";
 export {
   DAYS_PER_MONTH,
   DESAL_KWH_PER_M3,
@@ -17,7 +17,7 @@ export {
   PUMP_KWH_PER_M3_PER_100M,
   REFERENCE_DEFAULTS,
   WATER_L_PER_KG_H2,
-} from "./constants.js";
+} from "./constants";
 export type {
   AnnualRow,
   GridInputs,
@@ -29,4 +29,4 @@ export type {
   RenewableSourceInputs,
   ResourceProfiles,
   WaterInputs,
-} from "./types.js";
+} from "./types";

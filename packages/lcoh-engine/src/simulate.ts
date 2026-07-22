@@ -3,19 +3,19 @@ import {
   HOURS_PER_YEAR,
   LHV_H2_KWH_PER_KG,
   WATER_L_PER_KG_H2,
-} from "./constants.js";
-import { discountFactors } from "./dcf.js";
-import { dispatchYear } from "./dispatch.js";
-import { annualEmissionsTco2e } from "./emissions.js";
-import { lcoeFromCapex, lcoeMix } from "./lcoe.js";
-import { stackReplacementYears } from "./stackSchedule.js";
+} from "./constants";
+import { discountFactors } from "./dcf";
+import { dispatchYear } from "./dispatch";
+import { annualEmissionsTco2e } from "./emissions";
+import { lcoeFromCapex, lcoeMix } from "./lcoe";
+import { stackReplacementYears } from "./stackSchedule";
 import type {
   AnnualRow,
   LCOHInputs,
   LCOHResults,
   ResourceProfiles,
-} from "./types.js";
-import { EngineInputError, validateInputs } from "./validate.js";
+} from "./types";
+import { EngineInputError, validateInputs } from "./validate";
 
 export const ENGINE_VERSION = "0.1.0";
 

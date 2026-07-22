@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { HOURS_PER_YEAR } from "../src/constants.js";
-import { dispatchYear } from "../src/dispatch.js";
-import { constantProfile, expectRel } from "./helpers.js";
+import { HOURS_PER_YEAR } from "../src/constants";
+import { dispatchYear } from "../src/dispatch";
+import { constantProfile, expectRel } from "./helpers";
 
 const KW = 1000;
 

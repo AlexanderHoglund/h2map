@@ -1,5 +1,5 @@
-import { HOURS_PER_YEAR } from "./constants.js";
-import type { LCOHInputs, ResourceProfiles } from "./types.js";
+import { HOURS_PER_YEAR } from "./constants";
+import type { LCOHInputs, ResourceProfiles } from "./types";
 
 export class EngineInputError extends Error {
   constructor(

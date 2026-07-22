@@ -1,4 +1,4 @@
-import { HOURS_PER_YEAR } from "./constants.js";
+import { HOURS_PER_YEAR } from "./constants";
 
 export interface DispatchInputs {
   electrolyzerKw: number;

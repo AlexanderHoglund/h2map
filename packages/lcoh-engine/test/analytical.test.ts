@@ -15,13 +15,13 @@ import {
   LHV_H2_KWH_PER_KG,
   WATER_L_PER_KG_H2,
   simulateLCOH,
-} from "../src/index.js";
+} from "../src/index";
 import {
   annuityFactor,
   constantProfile,
   expectRel,
   pvOnlyInputs,
-} from "./helpers.js";
+} from "./helpers";
 
 const E_KWH = 100_000 * HOURS_PER_YEAR; // 876e6 kWh consumed per year
 const H2_KG = (E_KWH * 0.6) / LHV_H2_KWH_PER_KG; // ≈ 15.77e6 kg/yr

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { stackReplacementYears } from "../src/stackSchedule.js";
+import { stackReplacementYears } from "../src/stackSchedule";
 
 describe("stackReplacementYears", () => {
   it("schedules replacements when cumulative hours cross 40 000 h multiples", () => {
