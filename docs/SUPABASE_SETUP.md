@@ -78,14 +78,23 @@ and apply the seed as in §4. Longer-term, migrations merged to `main` should be
 
 ## 8. Connect the Supabase MCP server in Claude Code
 
-Two profiles, per the security policy (dev read-write, prod read-only, both project-scoped):
+The dev project's MCP server is already configured project-scope in `.mcp.json` (ref `vbsfniydnuovmhnlusms`, read-write). To authenticate, run in a regular terminal (not the IDE extension):
 
 ```powershell
-claude mcp add supabase-dev --transport http "https://mcp.supabase.com/mcp?project_ref=<dev-ref>&read_only=false"
-claude mcp add supabase-prod-ro --transport http "https://mcp.supabase.com/mcp?project_ref=<prod-ref>&read_only=true"
+claude /mcp
 ```
 
-The first tool call triggers a browser OAuth login — choose the organization containing the LCOH projects. Never register prod read-write in any MCP client. Schema changes made conversationally must still land as reviewed files in `supabase/migrations/`.
+then select the `supabase` server → Authenticate, and complete the browser OAuth choosing the organization that contains the LCOH projects.
+
+When `lcoh-prod` exists, add it **read-only** (never read-write in any MCP client):
+
+```powershell
+claude mcp add --scope project --transport http supabase-prod-ro "https://mcp.supabase.com/mcp?project_ref=<prod-ref>&read_only=true"
+```
+
+Schema changes made conversationally must still land as reviewed files in `supabase/migrations/`.
+
+Supabase agent skills are installed in `.agents/skills/` (committed) with Claude Code symlinks in `.claude/skills/` (gitignored — absolute paths; regenerate on a new machine with `npx skills add supabase/agent-skills`).
 
 ## 9. Verification checklist
 

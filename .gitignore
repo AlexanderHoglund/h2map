@@ -17,6 +17,10 @@ coverage/
 supabase/.temp/
 supabase/.branches/
 
+# machine-specific absolute symlinks created by `npx skills add`
+# (regenerate with: npx skills add supabase/agent-skills)
+.claude/skills/
+
 # misc
 .DS_Store
 *.tsbuildinfo
