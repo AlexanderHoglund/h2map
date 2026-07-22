@@ -2,36 +2,30 @@
  * Chilean 47-project parity run (plan §parity; data/chile-parity/).
  *
  * For every inferred site: resolve pv_fixed + wind_120 TMY profiles through
- * the profile service (Supabase-cached), then sweep PV/wind capacity mixes at
- * a fixed 200 MW total (the doc's default 100+100) with the doc-literal 2022
- * reference defaults (LCOE-priced renewables at 30 USD/MWh, no grid) and keep
- * the best combination — the published table's "best wind+solar combination
- * per site". Writes data/chile-parity/results.json consumed by /parity.
+ * the profile service (Supabase-cached), then run the shared reference sweep
+ * (scripts/lib/lcohSweep.ts — doc-literal 2022 defaults, best PV/wind mix of
+ * a 200 MW total) and keep the best combination — the published table's
+ * "best wind+solar combination per site". Writes
+ * data/chile-parity/results.json consumed by /parity.
  *
  * Usage: npm run parity:run   (needs apps/web/.env.local incl. SUPABASE_SECRET_KEY)
  */
 import { readFileSync, writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { createClient } from "@supabase/supabase-js";
-import { REFERENCE_DEFAULTS, simulateLCOH } from "@h2map/lcoh-engine";
-import type { LCOHInputs } from "@h2map/lcoh-engine";
 import {
   getResourceProfile,
-  type BuiltProfile,
-  type CachedProfile,
-  type ProfileCache,
-  type ProfileKind,
   type ResourceProfileResult,
-  type TurbineCurve,
 } from "@h2map/profile-service";
+import { PV_SHARES, referenceSweep, TOTAL_RENEWABLE_MW } from "../lib/lcohSweep";
+import {
+  fetchJson,
+  makeCache,
+  makeSupabase,
+  makeTurbineLoader,
+  ROOT,
+} from "../lib/serviceDeps";
 
-const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const DATASET_PATH = `${ROOT}data/chile-parity/chile-47-projects-lcoh.json`;
 const RESULTS_PATH = `${ROOT}data/chile-parity/results.json`;
-
-/** PV capacity shares of the fixed 200 MW renewable total swept per site. */
-const PV_SHARES = [0, 0.25, 0.5, 0.75, 1];
-const TOTAL_RENEWABLE_MW = 200;
 
 interface Dataset {
   meta: { published_column_means: Record<string, number> };
@@ -47,100 +41,13 @@ interface Dataset {
   }[];
 }
 
-function loadEnv(): Record<string, string> {
-  const env: Record<string, string> = {};
-  const raw = readFileSync(`${ROOT}apps/web/.env.local`, "utf8");
-  for (const line of raw.split(/\r?\n/)) {
-    const m = /^\s*([A-Z0-9_]+)\s*=\s*(.+?)\s*$/.exec(line);
-    if (m && !line.trim().startsWith("#")) env[m[1]!] = m[2]!;
-  }
-  return env;
-}
-
-function delay(ms: number): Promise<void> {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-async function fetchJson(url: string, attempts = 3): Promise<unknown> {
-  let lastError: unknown;
-  for (let i = 0; i < attempts; i++) {
-    try {
-      const res = await fetch(url, {
-        headers: { Accept: "application/json" },
-        signal: AbortSignal.timeout(120_000),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-      const json = await res.json();
-      await delay(500); // politeness toward free provider tiers
-      return json;
-    } catch (err) {
-      lastError = err;
-      console.warn(`  retry ${i + 1}/${attempts}: ${String(err)}`);
-      await delay(3000 * (i + 1));
-    }
-  }
-  throw lastError;
-}
-
 async function main(): Promise<void> {
-  const env = loadEnv();
-  const url = env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = env.SUPABASE_SECRET_KEY ?? env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) throw new Error("apps/web/.env.local is missing Supabase URL/key");
-  const db = createClient(url, key, { auth: { persistSession: false } });
-
-  const cache: ProfileCache = {
-    async get(latR: number, lonR: number, kind: ProfileKind) {
-      const { data, error } = await db
-        .from("resource_profiles")
-        .select("lat_r, lon_r, kind, provider, dataset_version, cf")
-        .eq("lat_r", latR)
-        .eq("lon_r", lonR)
-        .eq("kind", kind)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw new Error(error.message);
-      if (!data) return null;
-      return {
-        latR: Number(data.lat_r),
-        lonR: Number(data.lon_r),
-        kind: data.kind as ProfileKind,
-        provider: data.provider as string,
-        datasetVersion: data.dataset_version as string,
-        cf: data.cf as number[],
-      } satisfies CachedProfile;
-    },
-    async put(profile: BuiltProfile) {
-      const { error } = await db.from("resource_profiles").upsert(
-        {
-          lat_r: profile.latR,
-          lon_r: profile.lonR,
-          kind: profile.kind,
-          provider: profile.provider,
-          dataset_version: profile.datasetVersion,
-          years: `[${profile.yearsUsed[0]},${profile.yearsUsed[1]}]`,
-          cf: profile.cf,
-        },
-        { onConflict: "lat_r,lon_r,kind,dataset_version" },
-      );
-      if (error) throw new Error(error.message);
-    },
-  };
-
-  const getTurbineCurve = async (): Promise<TurbineCurve> => {
-    const { data, error } = await db
-      .from("turbine_curves")
-      .select("id, rated_kw, speeds, power_kw")
-      .eq("id", "generic-5.6MW")
-      .single();
-    if (error) throw new Error(error.message);
-    return {
-      id: data.id as string,
-      ratedKw: data.rated_kw as number,
-      speedsMs: data.speeds as number[],
-      powerKw: data.power_kw as number[],
-    };
+  const db = makeSupabase();
+  const deps = {
+    fetchJson,
+    cache: makeCache(db),
+    getTurbineCurve: makeTurbineLoader(db),
+    log: (m: string) => console.log(`  ${m}`),
   };
 
   const dataset = JSON.parse(readFileSync(DATASET_PATH, "utf8")) as Dataset;
@@ -154,41 +61,28 @@ async function main(): Promise<void> {
       bestWindMw: number;
       lcohUsdPerKg: number;
       sweep: { pvMw: number; windMw: number; lcoh: number }[];
-      profiles: Record<string, { provider: string; datasetVersion: string; cacheHit: boolean; meanCf: number }>;
+      profiles: Record<
+        string,
+        { provider: string; datasetVersion: string; cacheHit: boolean; meanCf: number }
+      >;
     }
   > = {};
 
   for (const siteKey of siteKeys) {
     const site = dataset.sites[siteKey]!;
     console.log(`\n=== ${siteKey} (${site.lat}, ${site.lon}) ===`);
-    const deps = { fetchJson, cache, getTurbineCurve, log: (m: string) => console.log(`  ${m}`) };
-    const pv = await getResourceProfile({ lat: site.lat, lon: site.lon, kind: "pv_fixed" }, deps);
+    const pv = await getResourceProfile(
+      { lat: site.lat, lon: site.lon, kind: "pv_fixed" },
+      deps,
+    );
     logProfile("pv_fixed", pv);
-    const wind = await getResourceProfile({ lat: site.lat, lon: site.lon, kind: "wind_120" }, deps);
+    const wind = await getResourceProfile(
+      { lat: site.lat, lon: site.lon, kind: "wind_120" },
+      deps,
+    );
     logProfile("wind_120", wind);
 
-    const sweep: { pvMw: number; windMw: number; lcoh: number }[] = [];
-    for (const share of PV_SHARES) {
-      const pvMw = TOTAL_RENEWABLE_MW * share;
-      const windMw = TOTAL_RENEWABLE_MW - pvMw;
-      const inputs: LCOHInputs = {
-        finance: { ...REFERENCE_DEFAULTS.finance },
-        electrolyzer: { ...REFERENCE_DEFAULTS.electrolyzer },
-        ...(pvMw > 0
-          ? { pv: { capacityMw: pvMw, pricing: { mode: "lcoe", usdPerMwh: 30 } } }
-          : {}),
-        ...(windMw > 0
-          ? { wind: { capacityMw: windMw, pricing: { mode: "lcoe", usdPerMwh: 30 } } }
-          : {}),
-        water: { ...REFERENCE_DEFAULTS.water },
-      };
-      const results = simulateLCOH(inputs, {
-        ...(pvMw > 0 ? { pv: pv.cf } : {}),
-        ...(windMw > 0 ? { wind: wind.cf } : {}),
-      });
-      sweep.push({ pvMw, windMw, lcoh: results.lcohUsdPerKg });
-    }
-    const best = sweep.reduce((a, b) => (b.lcoh < a.lcoh ? b : a));
+    const { best, sweep } = referenceSweep({ pv: pv.cf, wind: wind.cf });
     console.log(
       `  best: pv ${best.pvMw} MW + wind ${best.windMw} MW -> ${best.lcoh.toFixed(3)} USD/kg`,
     );
@@ -225,7 +119,8 @@ async function main(): Promise<void> {
   const output = {
     generatedAt: new Date().toISOString(),
     method: {
-      scenario: "2022 (doc-literal REFERENCE_DEFAULTS: 100 MW electrolyzer, LCOE-priced renewables 30 USD/MWh, no grid)",
+      scenario:
+        "2022 (doc-literal REFERENCE_DEFAULTS: 100 MW electrolyzer, LCOE-priced renewables 30 USD/MWh, no grid)",
       sweep: `pv share of ${TOTAL_RENEWABLE_MW} MW total in [${PV_SHARES.join(", ")}], best combination kept`,
       caveat:
         "Site coordinates are inferred from region hints (not published); projects without a hint are excluded. Site-level LCOH is shared by all projects at that site.",
@@ -242,7 +137,11 @@ async function main(): Promise<void> {
     sites: Object.fromEntries(
       Object.entries(siteResults).map(([k, v]) => [
         k,
-        { ...v, lcohUsdPerKg: round3(v.lcohUsdPerKg), sweep: v.sweep.map((s) => ({ ...s, lcoh: round3(s.lcoh) })) },
+        {
+          ...v,
+          lcohUsdPerKg: round3(v.lcohUsdPerKg),
+          sweep: v.sweep.map((s) => ({ ...s, lcoh: round3(s.lcoh) })),
+        },
       ]),
     ),
     projects,

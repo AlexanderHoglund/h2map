@@ -13,7 +13,8 @@
     "test": "npm run test --workspaces --if-present",
     "spike:fetch": "tsx scripts/providers/fetch-all.ts",
     "spike:compare": "tsx scripts/providers/compare.ts",
-    "parity:run": "tsx scripts/parity/run-parity.ts"
+    "parity:run": "tsx scripts/parity/run-parity.ts",
+    "hex:seed": "tsx scripts/hex/seed-hexes.ts"
   },
   "devDependencies": {
     "@types/node": "^24",

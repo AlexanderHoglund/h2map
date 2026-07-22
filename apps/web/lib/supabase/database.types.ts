@@ -41,6 +41,57 @@ export type Database = {
         }
         Relationships: []
       }
+      hex_lcoh: {
+        Row: {
+          best_pv_mw: number | null
+          best_wind_mw: number | null
+          computed_at: string
+          engine_version: string | null
+          h3: string
+          lat: number
+          lcoh_best: number | null
+          lcoh_solar: number | null
+          lcoh_wind: number | null
+          lon: number
+          res: number
+          solar_cf: number | null
+          status: string
+          wind_cf: number | null
+        }
+        Insert: {
+          best_pv_mw?: number | null
+          best_wind_mw?: number | null
+          computed_at?: string
+          engine_version?: string | null
+          h3: string
+          lat: number
+          lcoh_best?: number | null
+          lcoh_solar?: number | null
+          lcoh_wind?: number | null
+          lon: number
+          res: number
+          solar_cf?: number | null
+          status?: string
+          wind_cf?: number | null
+        }
+        Update: {
+          best_pv_mw?: number | null
+          best_wind_mw?: number | null
+          computed_at?: string
+          engine_version?: string | null
+          h3?: string
+          lat?: number
+          lcoh_best?: number | null
+          lcoh_solar?: number | null
+          lcoh_wind?: number | null
+          lon?: number
+          res?: number
+          solar_cf?: number | null
+          status?: string
+          wind_cf?: number | null
+        }
+        Relationships: []
+      }
       resource_profiles: {
         Row: {
           cf: number[]
@@ -145,6 +196,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_hex_cells: {
+        Args: { p_ids: string[] }
+        Returns: {
+          best_pv_mw: number | null
+          best_wind_mw: number | null
+          computed_at: string
+          engine_version: string | null
+          h3: string
+          lat: number
+          lcoh_best: number | null
+          lcoh_solar: number | null
+          lcoh_wind: number | null
+          lon: number
+          res: number
+          solar_cf: number | null
+          status: string
+          wind_cf: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "hex_lcoh"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_scenario_by_share_token: {
         Args: { p_token: string }
         Returns: {

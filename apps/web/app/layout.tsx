@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import TopBar from "@/components/shell/TopBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,20 +18,26 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "H2MAP — Global LCOH Explorer",
   description:
-    "Click anywhere on the map to estimate the levelized cost of green hydrogen from local wind and solar resources.",
+    "Explore the levelized cost of green hydrogen anywhere on Earth, from local wind and solar resources.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const messages = await getMessages();
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <NextIntlClientProvider messages={messages}>
+          <TopBar />
+          <div className="flex-1 pt-12">{children}</div>
+        </NextIntlClientProvider>
+      </body>
     </html>
   );
 }

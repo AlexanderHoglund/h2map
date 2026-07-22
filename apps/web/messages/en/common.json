@@ -1,0 +1,19 @@
+{
+  "app": {
+    "name": "H2MAP",
+    "tagline": "Global LCOH Explorer"
+  },
+  "nav": {
+    "explorer": "Explorer",
+    "calculator": "Calculator",
+    "scenarios": "Scenarios",
+    "language": "EN",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "footer": {
+    "methodology": "Methodology: Motor de Cálculo LCOH — Ministerio de Energía de Chile, 2024",
+    "dataProviders": "Resource data: Open-Meteo (CC BY 4.0) · PVGIS © EC JRC · NASA POWER",
+    "aboutData": "About the data"
+  }
+}

@@ -118,6 +118,14 @@ export const simulateBodySchema = z
     }
   });
 
+/** Batch H3 cell lookup for the Explorer choropleth. */
+export const hexRequestSchema = z.object({
+  ids: z
+    .array(z.string().regex(/^[0-9a-f]{15}$/))
+    .min(1)
+    .max(4096),
+});
+
 export const defaultsQuerySchema = z.object({
   country: z
     .string()

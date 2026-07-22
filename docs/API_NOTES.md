@@ -72,6 +72,21 @@ shared store before scaling horizontally. (Next 16 note: this lives in the
 route handlers by design; `proxy.ts` explicitly discourages shared-state
 logic.)
 
+## Hex choropleth (`hex_lcoh`, Explorer)
+
+`POST /api/v1/hex` `{ ids: string[] }` (H3 ids, ≤4096) → `{ cells: [...] }` —
+batch lookup of precomputed reference-configuration LCOH per H3 cell
+(via the `get_hex_cells` RPC; id lists don't fit in a query string). Rows are
+written by `npm run hex:seed` (scripts/hex/seed-hexes.ts): per cell centroid,
+profiles through the shared cache, then the reference sweep in
+scripts/lib/lcohSweep.ts (identical to the parity method — 100 MW
+electrolyzer, LCOE 30, best PV/wind mix of 200 MW). `lcoh_solar` /
+`lcoh_wind` are the PV-only / wind-only configurations. Absent id = ocean or
+unseeded (client parent-fills); `computing` = seeder placeholder (re-poll);
+regions seeded so far: northern Chile, Magallanes, Namibia, northern Europe
+at res 2. The seeder is idempotent — re-run to resume/extend, pass a region
+name + res to go finer (`npm run hex:seed -- namibia 3`).
+
 ## Deferred
 
 - Chilean 47-project parity screen — needs the source project dataset

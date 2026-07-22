@@ -1,0 +1,149 @@
+/**
+ * Seed the hex_lcoh choropleth table region by region.
+ *
+ * For every H3 cell of the region polygon at the target resolution:
+ * claim it (status 'computing'), resolve pv_fixed + wind_120 TMY profiles at
+ * the cell centroid through the profile service (shared resource_profiles
+ * cache), run the reference sweep, and flip the row to 'ready'. Idempotent —
+ * ready cells are skipped, so re-runs resume where the last one stopped.
+ *
+ * Usage:
+ *   npm run hex:seed                       # all regions, res 2
+ *   npm run hex:seed -- chile-north 3     # one region at res 3
+ */
+import { cellToLatLng, getResolution, polygonToCells } from "h3-js";
+import { ENGINE_VERSION } from "@h2map/lcoh-engine";
+import { getResourceProfile } from "@h2map/profile-service";
+import { referenceSweep } from "../lib/lcohSweep";
+import {
+  fetchJson,
+  makeCache,
+  makeSupabase,
+  makeTurbineLoader,
+} from "../lib/serviceDeps";
+
+/** Showcase regions as [lat, lng] boxes drawn over land. */
+const REGIONS: Record<string, [number, number][]> = {
+  "chile-north": [
+    [-18, -70.5],
+    [-18, -68],
+    [-27, -68],
+    [-27, -70.7],
+  ],
+  "chile-south": [
+    [-48, -74],
+    [-48, -68.5],
+    [-54, -68.5],
+    [-54, -74],
+  ],
+  namibia: [
+    [-17.5, 12.5],
+    [-17.5, 19],
+    [-28.5, 19],
+    [-28.5, 14.5],
+  ],
+  "north-europe": [
+    [60, 4.5],
+    [60, 15],
+    [47, 15],
+    [47, 4.5],
+  ],
+};
+
+const DEFAULT_RES = 2;
+
+async function main(): Promise<void> {
+  const [regionArg, resArg] = process.argv.slice(2);
+  const res = resArg ? Number(resArg) : DEFAULT_RES;
+  const regions = regionArg ? [regionArg] : Object.keys(REGIONS);
+
+  const db = makeSupabase();
+  const deps = {
+    fetchJson,
+    cache: makeCache(db),
+    getTurbineCurve: makeTurbineLoader(db),
+    log: (m: string) => console.log(`    ${m}`),
+  };
+
+  for (const region of regions) {
+    const polygon = REGIONS[region];
+    if (!polygon) throw new Error(`unknown region ${region}`);
+    const cells = polygonToCells(polygon, res);
+    console.log(`\n=== ${region} @ res ${res}: ${cells.length} cells ===`);
+
+    for (const h3 of cells) {
+      const { data: existing } = await db
+        .from("hex_lcoh")
+        .select("status")
+        .eq("h3", h3)
+        .maybeSingle();
+      if (existing?.status === "ready") {
+        console.log(`  ${h3}: already ready, skipping`);
+        continue;
+      }
+
+      const [lat, lon] = cellToLatLng(h3);
+      const latR = Number(lat.toFixed(4));
+      const lonR = Number(lon.toFixed(4));
+      await db.from("hex_lcoh").upsert({
+        h3,
+        res: getResolution(h3),
+        lat: latR,
+        lon: lonR,
+        status: "computing",
+      });
+
+      try {
+        console.log(`  ${h3} (${latR}, ${lonR}):`);
+        const pv = await getResourceProfile(
+          { lat, lon, kind: "pv_fixed" },
+          deps,
+        );
+        const wind = await getResourceProfile(
+          { lat, lon, kind: "wind_120" },
+          deps,
+        );
+        const sweep = referenceSweep({ pv: pv.cf, wind: wind.cf });
+        const meanCf = (cf: number[]) =>
+          Number((cf.reduce((a, b) => a + b, 0) / cf.length).toFixed(4));
+
+        const { error } = await db.from("hex_lcoh").upsert({
+          h3,
+          res: getResolution(h3),
+          lat: latR,
+          lon: lonR,
+          status: "ready",
+          lcoh_best: round3(sweep.best.lcoh),
+          lcoh_solar: sweep.solarOnly === null ? null : round3(sweep.solarOnly),
+          lcoh_wind: sweep.windOnly === null ? null : round3(sweep.windOnly),
+          best_pv_mw: sweep.best.pvMw,
+          best_wind_mw: sweep.best.windMw,
+          solar_cf: meanCf(pv.cf),
+          wind_cf: meanCf(wind.cf),
+          engine_version: ENGINE_VERSION,
+          computed_at: new Date().toISOString(),
+        });
+        if (error) throw new Error(error.message);
+        console.log(
+          `    ready: best ${sweep.best.lcoh.toFixed(2)} (pv ${sweep.best.pvMw}/wind ${sweep.best.windMw}), solar ${sweep.solarOnly?.toFixed(2)}, wind ${sweep.windOnly?.toFixed(2)}`,
+        );
+      } catch (err) {
+        console.error(`    FAILED: ${String(err)}`);
+        await db
+          .from("hex_lcoh")
+          .update({ status: "failed" })
+          .eq("h3", h3);
+      }
+    }
+  }
+  console.log("\nseeding pass complete");
+}
+
+function round3(x: number): number {
+  return Math.round(x * 1000) / 1000;
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});

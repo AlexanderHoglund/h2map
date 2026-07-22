@@ -1,5 +1,5 @@
-import MapExplorer from "@/components/explorer/MapExplorer";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <MapExplorer />;
+  redirect("/explorer");
 }
