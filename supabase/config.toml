@@ -1,0 +1,7 @@
+# Minimal Supabase CLI config. This repo does NOT run a local Docker stack —
+# migrations are applied to cloud projects via `npx supabase link` +
+# `npx supabase db push` (see docs/SUPABASE_SETUP.md).
+project_id = "h2map"
+
+[db]
+major_version = 17

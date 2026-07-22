@@ -1,0 +1,28 @@
+{
+  "inputs": {
+    "finance": { "lifetimeYears": 25, "discountRate": 0.07 },
+    "electrolyzer": {
+      "capacityMw": 50,
+      "capexUsdPerKw": 900,
+      "opexFractionPerYear": 0.03,
+      "efficiencyLhv": 0.62,
+      "degradationPerYear": 0.01,
+      "stackLifetimeHours": 40000,
+      "stackReplacementCostFraction": 0.3
+    },
+    "pv": { "capacityMw": 40, "pricing": { "mode": "lcoe", "usdPerMwh": 35 } },
+    "wind": { "capacityMw": 60, "pricing": { "mode": "lcoe", "usdPerMwh": 40 } },
+    "grid": { "maxImportMw": 30, "priceUsdPerMwh": 45, "emissionFactorTco2PerMwh": 0.02 },
+    "water": {
+      "priceUsdPerM3": 0.8,
+      "transportUsdPerM3Per100Km": 0.09,
+      "transportDistanceKm": 50,
+      "desalinated": false,
+      "pumpingHeadM": 100
+    }
+  },
+  "profiles": {
+    "pv": { "site": "skane", "file": "pvgis-seriescalc.json", "series": "pvCf" },
+    "wind": { "site": "skane", "file": "open-meteo.json", "series": "windCf" }
+  }
+}

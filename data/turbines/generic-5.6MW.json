@@ -1,0 +1,11 @@
+{
+  "id": "generic-5.6MW",
+  "ratedKw": 5600,
+  "hubHeightsM": [120, 160],
+  "cutInMs": 3.0,
+  "ratedMs": 12.0,
+  "cutOutMs": 25.0,
+  "speedsMs": [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0],
+  "powerKw": [50, 120, 240, 400, 610, 870, 1180, 1540, 1960, 2440, 2970, 3540, 4110, 4640, 5070, 5370, 5530, 5590, 5600, 5600, 5600, 5600, 5600, 5600, 5600, 5600, 5600, 5600, 5600, 5600, 5600, 5600, 5600],
+  "source": "Digitized approximation of a modern 5.6 MW class onshore turbine (Vestas V162-5.6 shape: cut-in 3 m/s, rated ~11.5-12 m/s, cut-out 25 m/s). Not a manufacturer datasheet - defines the profile SHAPE only, per the source methodology's template philosophy; installed capacity scales linearly. Mirrored in supabase/seed.sql (turbine_curves)."
+}

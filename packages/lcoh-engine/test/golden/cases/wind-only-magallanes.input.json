@@ -1,0 +1,25 @@
+{
+  "inputs": {
+    "finance": { "lifetimeYears": 20, "discountRate": 0.08 },
+    "electrolyzer": {
+      "capacityMw": 100,
+      "capexUsdPerKw": 1000,
+      "opexFractionPerYear": 0.03,
+      "efficiencyLhv": 0.6,
+      "degradationPerYear": 0.01,
+      "stackLifetimeHours": 40000,
+      "stackReplacementCostFraction": 0.3
+    },
+    "wind": { "capacityMw": 150, "pricing": { "mode": "lcoe", "usdPerMwh": 25 } },
+    "water": {
+      "priceUsdPerM3": 0.5,
+      "transportUsdPerM3Per100Km": 0.09,
+      "transportDistanceKm": 0,
+      "desalinated": false,
+      "pumpingHeadM": 0
+    }
+  },
+  "profiles": {
+    "wind": { "site": "magallanes", "file": "open-meteo.json", "series": "windCf" }
+  }
+}

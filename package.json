@@ -8,13 +8,14 @@
   ],
   "scripts": {
     "dev": "npm run dev -w web",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc -p scripts/tsconfig.json",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "spike:fetch": "tsx scripts/providers/fetch-all.ts",
     "spike:compare": "tsx scripts/providers/compare.ts"
   },
   "devDependencies": {
+    "@types/node": "^24",
     "eslint": "^9",
     "typescript-eslint": "^8",
     "fast-check": "^4.1.1",
