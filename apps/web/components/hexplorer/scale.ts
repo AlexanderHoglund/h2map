@@ -1,26 +1,30 @@
 /**
- * "Benefit" color scale over a FIXED LCOH domain of 3–8 USD/kg (clamped
+ * "Benefit" color scale over a FIXED LCOH domain of 2.5–8 USD/kg (clamped
  * outside): green = cheap/best, yellow = mid, orange/red = expensive.
  * Identical everywhere — never rescaled to the viewport — so colors are
  * comparable across regions and zoom levels.
  *
- * Calibration: with the 2024 reference configuration nothing on Earth
- * computes below ~3.3 USD/kg, so deep green saturates at ≤3 and world-class
- * sites (Magallanes wind ~3.4, Atacama solar ~4.6) read clearly green;
- * yellow marks the global mid-field (~5.75), red the expensive tail (8+).
+ * Calibration: evenly spread stops so subtle differences in the world-class
+ * band stay visible — Magallanes wind ~3.4 reads deep green, Atacama solar
+ * ~4.6 mid green, central-Chile ~5.2 light green approaching yellow (5.5),
+ * red is the expensive tail (8+).
  */
 
-export const LCOH_DOMAIN: readonly [number, number] = [3, 8];
+export const LCOH_DOMAIN: readonly [number, number] = [2.5, 8];
 
-/** Scale stops: LCOH value (USD/kg) → RGB. Piecewise-linear in between. */
+/**
+ * Scale stops: LCOH value (USD/kg) → RGB. Piecewise-linear in between.
+ * Deliberately saturated (the hex layer renders at ~75 % opacity, which
+ * washes pastels out) with strongly separated greens and a wide yellow band.
+ */
 const STOPS: readonly [number, readonly [number, number, number]][] = [
-  [3.0, [26, 152, 80]], // #1a9850
-  [4.5, [102, 189, 99]], // #66bd63
-  [5.25, [166, 217, 106]], // #a6d96a
-  [5.75, [254, 224, 139]], // #fee08b
-  [6.5, [253, 174, 97]], // #fdae61
-  [7.25, [244, 109, 67]], // #f46d43
-  [8.0, [215, 48, 39]], // #d73027
+  [2.5, [5, 110, 51]], // #056e33 dark forest green
+  [3.5, [47, 158, 79]], // #2f9e4f clear green
+  [4.5, [142, 203, 67]], // #8ecb43 yellow-green
+  [5.25, [245, 213, 37]], // #f5d525 strong yellow
+  [6.0, [245, 155, 45]], // #f59b2d orange
+  [7.0, [232, 84, 46]], // #e8542e orange-red
+  [8.0, [200, 31, 31]], // #c81f1f red
 ];
 
 const FIRST = STOPS[0] ?? [2, [26, 152, 80] as const];

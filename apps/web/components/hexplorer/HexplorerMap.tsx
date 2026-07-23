@@ -57,6 +57,8 @@ export default function HexplorerMap() {
   const visibleIdsRef = useRef<string[]>([]);
   const cameraKeyRef = useRef("");
   const debounceRef = useRef<number | undefined>(undefined);
+  /** Basemap layer the hexes slot beneath, so borders + labels stay on top. */
+  const beforeIdRef = useRef<string | undefined>(undefined);
 
   const { engine, version, bump } = useHexCells();
 
@@ -195,6 +197,12 @@ export default function HexplorerMap() {
     map.on("moveend", onMoveEnd);
     map.on("zoomend", onMoveEnd);
     map.on("load", () => {
+      // First boundary line or label layer of the basemap style — hexes
+      // render beneath it so country borders and place names stay visible.
+      const layers = map.getStyle().layers ?? [];
+      beforeIdRef.current = layers.find(
+        (l) => l.type === "symbol" || l.id.includes("boundary"),
+      )?.id;
       syncCameraHash();
       loadViewport();
     });
@@ -216,6 +224,9 @@ export default function HexplorerMap() {
       layers: [
         new H3HexagonLayer<HexDatum>({
           id: "lcoh-hex",
+          // beforeId is a MapboxOverlay extension prop (absent from the
+          // layer's own prop types): slot the hexes beneath basemap labels.
+          ...({ beforeId: beforeIdRef.current } as unknown as Record<string, never>),
           data,
           visible: layerVisible,
           opacity: opacity / 100,
