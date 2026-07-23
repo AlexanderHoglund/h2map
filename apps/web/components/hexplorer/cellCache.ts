@@ -52,8 +52,14 @@ function readyValue(
   return value == null ? null : { value, data: entry };
 }
 
-/** A cell counts toward coverage when this share of renderable cells is ready. */
-const COVERAGE_THRESHOLD = 0.5;
+/**
+ * Refine to a finer level once this share of renderable cells has own data.
+ * Deliberately lenient: wide viewports usually include unseeded surroundings
+ * that would otherwise hold the whole view coarse until zoomed way in; gaps
+ * render at the same geometry with inherited values, so early refinement
+ * stays visually uniform.
+ */
+const COVERAGE_THRESHOLD = 0.35;
 
 interface Resolved {
   value: number;

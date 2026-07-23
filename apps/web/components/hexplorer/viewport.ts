@@ -28,11 +28,41 @@ export const MIN_RES = 2;
  */
 export const MAX_RES = 4;
 
-/** Smaller hexes early: <2.75 → 2, <4.5 → 3, then 4 (see MAX_RES). */
+/** Smaller hexes early: <2.75 → 2, <4.25 → 3, then 4 (see MAX_RES). */
 export function zoomToRes(zoom: number): number {
   if (zoom < 2.75) return 2;
-  if (zoom < 4.5) return 3;
+  if (zoom < 4.25) return 3;
   return MAX_RES;
+}
+
+/** Wrap a longitude into [-180, 180]. */
+function normLng(lng: number): number {
+  const n = ((((lng + 180) % 360) + 360) % 360) - 180;
+  return n;
+}
+
+function boxCells(
+  south: number,
+  north: number,
+  west: number,
+  east: number,
+  res: number,
+): string[] {
+  if (east - west < 1e-6) return [];
+  const ring: number[][] = [
+    [south, west],
+    [south, east],
+    [north, east],
+    [north, west],
+    [south, west],
+  ];
+  try {
+    return polygonToCells(ring, res);
+  } catch {
+    // h3 rejects degenerate rings near the poles/antimeridian — render
+    // nothing for this frame rather than crash the map.
+    return [];
+  }
 }
 
 function enumerateAtRes(bounds: ViewBounds, res: number): string[] {
@@ -44,14 +74,17 @@ function enumerateAtRes(bounds: ViewBounds, res: number): string[] {
     if (res <= 0) return base;
     return base.flatMap((cell) => cellToChildren(cell, res));
   }
-  const ring: number[][] = [
-    [south, bounds.west],
-    [south, bounds.east],
-    [north, bounds.east],
-    [north, bounds.west],
-    [south, bounds.west],
+  // maplibre bounds can exceed ±180 after panning across the antimeridian;
+  // h3 rejects out-of-range longitudes. Normalize, and when the box wraps,
+  // split it into two h3-legal boxes on either side of the meridian.
+  const west = normLng(bounds.west);
+  let east = normLng(bounds.east);
+  if (east === -180) east = 180;
+  if (west <= east) return boxCells(south, north, west, east, res);
+  return [
+    ...boxCells(south, north, west, 180, res),
+    ...boxCells(south, north, -180, east, res),
   ];
-  return polygonToCells(ring, res);
 }
 
 /**
