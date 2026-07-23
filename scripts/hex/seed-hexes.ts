@@ -36,6 +36,22 @@ const REGIONS: Record<string, [number, number][]> = {
     [-54, -68.5],
     [-54, -74],
   ],
+  // Polygon hugging Chile between Atacama and Magallanes (Andes crest east,
+  // coast west) so the whole country is covered without swallowing Argentina.
+  "chile-central": [
+    [-27, -71.5],
+    [-27, -68.5],
+    [-31, -69.8],
+    [-35, -69.6],
+    [-39, -70.5],
+    [-43, -71.2],
+    [-48, -71.5],
+    [-48, -74],
+    [-43, -74.5],
+    [-37, -73.9],
+    [-33, -72.2],
+    [-30, -71.9],
+  ],
   namibia: [
     [-17.5, 12.5],
     [-17.5, 19],

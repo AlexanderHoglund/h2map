@@ -52,87 +52,82 @@ function readyValue(
   return value == null ? null : { value, data: entry };
 }
 
+/** A cell counts toward coverage when this share of renderable cells is ready. */
+const COVERAGE_THRESHOLD = 0.5;
+
+interface Resolved {
+  value: number;
+  data: CellData;
+  own: boolean;
+}
+
+/** The cell's own value if ready, else its nearest ready ancestor's. */
+function resolve(
+  cache: CellCache,
+  id: string,
+  layer: LayerKey,
+): Resolved | null {
+  const own = readyValue(cache.get(id), layer);
+  if (own) return { ...own, own: true };
+  let res = getResolution(id);
+  let cur = id;
+  while (res > MIN_RES) {
+    cur = cellToParent(cur, res - 1);
+    res -= 1;
+    const hit = readyValue(cache.get(cur), layer);
+    if (hit) return { ...hit, own: false };
+  }
+  return null;
+}
+
 /**
- * Turn the visible cell ids into deck.gl data. Hexes only get smaller where
- * finer data actually exists:
- *
- * - a ready cell renders itself;
- * - a cell without data falls back to its nearest ready ancestor. If that
- *   ancestor has NO ready descendants on screen, the ancestor is drawn once
- *   at its own (larger) geometry — crisp, full opacity. If the ancestor is
- *   partially refined (some children ready), only the missing children are
- *   drawn at child geometry carrying the ancestor's value, so coverage stays
- *   complete without double-drawing;
- * - cells whose whole known ancestry is missing are skipped (ocean stays
- *   intentionally empty).
+ * Turn the visible cell ids into deck.gl data at ONE uniform resolution per
+ * viewport: the finest level (≤ the zoom-mapped one) where at least
+ * COVERAGE_THRESHOLD of the renderable cells have their own ready data.
+ * Cells still missing at the chosen level inherit their nearest ready
+ * ancestor's value at the same geometry (slight alpha dip), so the mosaic
+ * refines as a whole as seeding lands instead of patchworking hex sizes.
+ * Ocean cells (no known ancestry) are never drawn; they are also excluded
+ * from the coverage denominator so coastal viewports still refine.
  */
 export function buildRenderData(
   cache: CellCache,
   visibleIds: string[],
   layer: LayerKey,
 ): HexDatum[] {
-  const out: HexDatum[] = [];
-  const readySelf = new Set<string>();
-  const pending = new Map<
-    string,
-    { ids: string[]; value: number; data: CellData }
-  >();
+  if (visibleIds.length === 0) return [];
+  const mappedRes = getResolution(visibleIds[0]!);
 
-  for (const id of visibleIds) {
-    const own = readyValue(cache.get(id), layer);
-    if (own) {
-      readySelf.add(id);
-      out.push({ h3: id, value: own.value, data: own.data, parentFill: false });
-      continue;
-    }
-    let res = getResolution(id);
-    let cur = id;
-    let hit: { value: number; data: CellData } | null = null;
-    while (res > MIN_RES) {
-      cur = cellToParent(cur, res - 1);
-      res -= 1;
-      hit = readyValue(cache.get(cur), layer);
-      if (hit) break;
-    }
-    if (hit) {
-      const group = pending.get(cur);
-      if (group) group.ids.push(id);
-      else pending.set(cur, { ids: [id], value: hit.value, data: hit.data });
+  let chosenIds = visibleIds;
+  let chosenResolved: (Resolved | null)[] = [];
+  for (let res = mappedRes; res >= MIN_RES; res -= 1) {
+    const ids =
+      res === mappedRes
+        ? visibleIds
+        : [...new Set(visibleIds.map((id) => cellToParent(id, res)))];
+    const resolved = ids.map((id) => resolve(cache, id, layer));
+    const renderable = resolved.filter((r) => r !== null);
+    const ownCount = renderable.filter((r) => r!.own).length;
+    chosenIds = ids;
+    chosenResolved = resolved;
+    if (
+      renderable.length > 0 &&
+      ownCount / renderable.length >= COVERAGE_THRESHOLD
+    ) {
+      break; // finest level with good coverage
     }
   }
 
-  // Drawing an ancestor at its full geometry is only safe when NO other
-  // drawn cell lies inside it — neither a ready leaf nor a finer pending
-  // ancestor (region edges mix fallback depths: some gaps resolve to a res-3
-  // parent while neighbors resolve to the res-2 grandparent that CONTAINS
-  // that parent). Otherwise the big hex would cover the smaller ones, so the
-  // contained group falls back to child-geometry gap-fill.
-  const drawnFiner: string[] = [...readySelf, ...pending.keys()];
-  for (const [ancestor, group] of pending) {
-    const ancestorRes = getResolution(ancestor);
-    let containsDrawnCell = false;
-    for (const other of drawnFiner) {
-      if (
-        other !== ancestor &&
-        getResolution(other) > ancestorRes &&
-        cellToParent(other, ancestorRes) === ancestor
-      ) {
-        containsDrawnCell = true;
-        break;
-      }
-    }
-    if (containsDrawnCell) {
-      for (const id of group.ids) {
-        out.push({ h3: id, value: group.value, data: group.data, parentFill: true });
-      }
-    } else {
-      out.push({
-        h3: ancestor,
-        value: group.value,
-        data: group.data,
-        parentFill: false,
-      });
-    }
+  const out: HexDatum[] = [];
+  for (let i = 0; i < chosenIds.length; i++) {
+    const r = chosenResolved[i];
+    if (!r) continue;
+    out.push({
+      h3: chosenIds[i]!,
+      value: r.value,
+      data: r.data,
+      parentFill: !r.own,
+    });
   }
   return out;
 }
