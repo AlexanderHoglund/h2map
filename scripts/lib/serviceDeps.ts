@@ -41,6 +41,9 @@ export function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/** Deterministic upstream rejection (4xx other than 429) — never retried. */
+class FatalHttpError extends Error {}
+
 export async function fetchJson(url: string, attempts = 4): Promise<unknown> {
   let lastError: unknown;
   for (let i = 0; i < attempts; i++) {
@@ -57,12 +60,19 @@ export async function fetchJson(url: string, attempts = 4): Promise<unknown> {
           await delay(60_000);
           continue;
         }
+        // Other 4xx are deterministic (e.g. PVGIS rejecting open water) —
+        // retrying wastes half a minute per sea cell. Fail fast to the
+        // provider fallback chain instead.
+        if (res.status < 500) {
+          throw new FatalHttpError(`HTTP ${res.status} for ${url}`);
+        }
         throw new Error(`HTTP ${res.status} for ${url}`);
       }
       const json = await res.json();
       await delay(800); // politeness toward free provider tiers
       return json;
     } catch (err) {
+      if (err instanceof FatalHttpError) throw err;
       lastError = err;
       console.warn(`  retry ${i + 1}/${attempts}: ${String(err)}`);
       await delay(5000 * (i + 1));
