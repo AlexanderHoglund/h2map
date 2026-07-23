@@ -53,10 +53,18 @@ function readyValue(
 }
 
 /**
- * Turn the visible cell ids into deck.gl data. A cell that is missing or not
- * ready renders its nearest ready ancestor's value (down to res 2) as a
- * parent-fill; cells whose whole known ancestry is missing are skipped, so
- * ocean stays intentionally empty.
+ * Turn the visible cell ids into deck.gl data. Hexes only get smaller where
+ * finer data actually exists:
+ *
+ * - a ready cell renders itself;
+ * - a cell without data falls back to its nearest ready ancestor. If that
+ *   ancestor has NO ready descendants on screen, the ancestor is drawn once
+ *   at its own (larger) geometry — crisp, full opacity. If the ancestor is
+ *   partially refined (some children ready), only the missing children are
+ *   drawn at child geometry carrying the ancestor's value, so coverage stays
+ *   complete without double-drawing;
+ * - cells whose whole known ancestry is missing are skipped (ocean stays
+ *   intentionally empty).
  */
 export function buildRenderData(
   cache: CellCache,
@@ -64,9 +72,16 @@ export function buildRenderData(
   layer: LayerKey,
 ): HexDatum[] {
   const out: HexDatum[] = [];
+  const readySelf = new Set<string>();
+  const pending = new Map<
+    string,
+    { ids: string[]; value: number; data: CellData }
+  >();
+
   for (const id of visibleIds) {
     const own = readyValue(cache.get(id), layer);
     if (own) {
+      readySelf.add(id);
       out.push({ h3: id, value: own.value, data: own.data, parentFill: false });
       continue;
     }
@@ -80,7 +95,38 @@ export function buildRenderData(
       if (hit) break;
     }
     if (hit) {
-      out.push({ h3: id, value: hit.value, data: hit.data, parentFill: true });
+      const group = pending.get(cur);
+      if (group) group.ids.push(id);
+      else pending.set(cur, { ids: [id], value: hit.value, data: hit.data });
+    }
+  }
+
+  for (const [ancestor, group] of pending) {
+    const ancestorRes = getResolution(ancestor);
+    // Partially refined if any on-screen ready cell descends from this
+    // ancestor — then fill the gaps at child geometry; otherwise draw the
+    // ancestor itself once, at its true (larger) size.
+    let partiallyRefined = false;
+    for (const selfId of readySelf) {
+      if (
+        getResolution(selfId) > ancestorRes &&
+        cellToParent(selfId, ancestorRes) === ancestor
+      ) {
+        partiallyRefined = true;
+        break;
+      }
+    }
+    if (partiallyRefined) {
+      for (const id of group.ids) {
+        out.push({ h3: id, value: group.value, data: group.data, parentFill: true });
+      }
+    } else {
+      out.push({
+        h3: ancestor,
+        value: group.value,
+        data: group.data,
+        parentFill: false,
+      });
     }
   }
   return out;
