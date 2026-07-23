@@ -27,7 +27,8 @@ const DEFAULT_CAMERA = { lat: 10, lon: -20, zoom: 1.6 };
 const VIEWPORT_DEBOUNCE_MS = 250;
 /** Parent-filled cells render at ~45% of the layer opacity. */
 const PARENT_FILL_ALPHA = Math.round(255 * 0.45);
-const MAX_DETAIL_ZOOM = 10;
+/** Zoom past which the resolution stops refining (MAX_RES) — show the note. */
+const MAX_DETAIL_ZOOM = 6.5;
 const SEARCH_FLY_ZOOM = 6;
 
 interface HoverState {

@@ -17,16 +17,22 @@ export interface ViewBounds {
 /** Soft cap on enumerated cells; above it we drop one resolution and retry. */
 const MAX_CELLS = 4000;
 
-/** Coarsest mapped resolution (also the only seeded one today). */
+/** Coarsest mapped resolution (world view). */
 export const MIN_RES = 2;
 
-/** zoom ≤3 → 2, 4–5 → 3, 6–7 → 4, 8–9 → 5, ≥10 → 6 (hard cap). */
+/**
+ * Finest displayed resolution. Capped at the deepest SEEDED resolution:
+ * subdividing further only multiplies identical parent-filled ghosts (every
+ * child inherits the same ancestor value), which reads as "all hexes the same
+ * color". Raise together with deeper seeding passes.
+ */
+export const MAX_RES = 4;
+
+/** Smaller hexes early: <2.75 → 2, <4.5 → 3, then 4 (see MAX_RES). */
 export function zoomToRes(zoom: number): number {
-  if (zoom < 4) return 2;
-  if (zoom < 6) return 3;
-  if (zoom < 8) return 4;
-  if (zoom < 10) return 5;
-  return 6;
+  if (zoom < 2.75) return 2;
+  if (zoom < 4.5) return 3;
+  return MAX_RES;
 }
 
 function enumerateAtRes(bounds: ViewBounds, res: number): string[] {
