@@ -24,14 +24,16 @@ export const MIN_RES = 2;
  * Finest displayed resolution. Capped at the deepest SEEDED resolution:
  * subdividing further only multiplies identical parent-filled ghosts (every
  * child inherits the same ancestor value), which reads as "all hexes the same
- * color". Raise together with deeper seeding passes.
+ * color". Raise together with deeper seeding passes. Res 5 is seeded in the
+ * Magallanes core; elsewhere the coverage chooser stays at 4 or coarser.
  */
-export const MAX_RES = 4;
+export const MAX_RES = 5;
 
-/** Smaller hexes early: <2.75 → 2, <4.25 → 3, then 4 (see MAX_RES). */
+/** Smaller hexes early: <2.75 → 2, <4.25 → 3, <6.25 → 4, then 5. */
 export function zoomToRes(zoom: number): number {
   if (zoom < 2.75) return 2;
   if (zoom < 4.25) return 3;
+  if (zoom < 6.25) return 4;
   return MAX_RES;
 }
 

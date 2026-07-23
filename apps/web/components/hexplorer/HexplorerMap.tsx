@@ -33,7 +33,7 @@ const MOVE_RENDER_THROTTLE_MS = 200;
  */
 const PARENT_FILL_ALPHA = Math.round(255 * 0.8);
 /** Zoom past which the resolution stops refining (MAX_RES) — show the note. */
-const MAX_DETAIL_ZOOM = 6.5;
+const MAX_DETAIL_ZOOM = 8;
 const SEARCH_FLY_ZOOM = 6;
 /** Flip the hover tooltip to the other side of the cursor near the edges. */
 const TOOLTIP_EDGE_X = 180;

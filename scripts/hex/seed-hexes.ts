@@ -135,6 +135,13 @@ const REGIONS: Record<string, [number, number][]> = {
     [49.4, 18.5],
     [50.3, 14.3],
   ],
+  // Deep-detail showcase: Strait of Magellan / Punta Arenas core (res 5).
+  "magallanes-core": [
+    [-52, -72.5],
+    [-52, -69.5],
+    [-54.2, -69.5],
+    [-54.2, -72.5],
+  ],
   // Estonia + Latvia + Lithuania.
   baltics: [
     [59.6, 23],
