@@ -1,3 +1,61 @@
 {
-  "explorer": {}
+  "explorer": {
+    "controls": {
+      "title": "Layers",
+      "collapse": "Collapse layer controls",
+      "expand": "Expand layer controls",
+      "layerGroup": "Data layer",
+      "layers": {
+        "best": "Best combination",
+        "solar": "Solar only",
+        "wind": "Wind only"
+      },
+      "costYear": "Cost year",
+      "costYearSoon": "Cost trajectories coming soon",
+      "opacity": "Hex opacity",
+      "visible": "Show layer"
+    },
+    "legend": {
+      "min": "2",
+      "max": "8+",
+      "caption": "USD/kg H₂",
+      "maxDetail": "Max detail — finest available resolution"
+    },
+    "search": {
+      "label": "Search for a place or coordinates",
+      "placeholder": "Search place or \"lat, lon\""
+    },
+    "tooltip": {
+      "unit": "USD/kg",
+      "sources": {
+        "solar": "solar",
+        "wind": "wind",
+        "mix": "mix"
+      }
+    },
+    "drawer": {
+      "title": "Cell details",
+      "close": "Close",
+      "lcohHeading": "Levelized cost of hydrogen",
+      "unit": "USD/kg H₂",
+      "layers": {
+        "best": "Best combination",
+        "solar": "Solar only",
+        "wind": "Wind only"
+      },
+      "cfHeading": "Capacity factors",
+      "solarCf": "Solar CF",
+      "windCf": "Wind CF",
+      "mixHeading": "Best mix",
+      "pvMw": "PV",
+      "windMw": "Wind",
+      "unitMw": "MW",
+      "trendHeading": "Cost trajectory",
+      "trendCurrent": "2024",
+      "trendPending": "2030/2040/2050 pending trajectory data",
+      "cellId": "Cell {id}",
+      "approximate": "Approximate — value inherited from parent cell",
+      "evaluate": "Evaluate here"
+    }
+  }
 }
