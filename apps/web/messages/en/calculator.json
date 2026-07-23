@@ -1,3 +1,180 @@
 {
-  "calculator": {}
+  "calculator": {
+    "title": "LCOH Calculator",
+    "subtitle": "Levelized cost of hydrogen from local solar, wind, and grid supply — reference methodology: Motor de Cálculo LCOH (2024).",
+    "modified": "Differs from reference defaults",
+    "reset": "Reset",
+    "sections": {
+      "location": "Location",
+      "general": "General",
+      "electrolyzer": "Electrolyzer",
+      "supply": "Electricity supply"
+    },
+    "errors": {
+      "number": "Enter a number",
+      "min": "Must be at least {min}",
+      "max": "Must be at most {max}",
+      "positive": "Must be greater than 0"
+    },
+    "location": {
+      "mapHint": "Drag the marker or click the map to set the site. Coordinates sync with the fields below.",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "country": "Country defaults",
+      "countryNone": "None",
+      "defaultsSource": "Defaults: {source}",
+      "countryUnavailable": "Country defaults are unavailable right now.",
+      "confirmOverride": "Applying country defaults will overwrite your edited discount rate and grid emission factor. Continue?"
+    },
+    "general": {
+      "lifetime": "Project lifetime",
+      "discount": "Discount rate",
+      "waterPrice": "Water cost",
+      "waterTransport": "Water transport cost",
+      "transportDistance": "Transport distance",
+      "emissionsOnly": "Emissions accounting only",
+      "desalinated": "Desalinated water",
+      "pumpingHead": "Pumping head",
+      "constantsNote": "Engine constants: desalination {desal} kWh/m³ · pumping {pump} kWh/m³ per 100 m · water use {water} L/kg H₂"
+    },
+    "electrolyzer": {
+      "capacity": "Capacity",
+      "indicative": "≈ {tons} t H₂/yr at full load",
+      "efficiency": "System efficiency",
+      "capex": "CAPEX",
+      "opex": "OPEX",
+      "stackLifetime": "Stack lifetime",
+      "stackReplacement": "Stack replacement cost",
+      "degradation": "Degradation"
+    },
+    "supply": {
+      "solar": "Solar",
+      "wind": "Wind",
+      "grid": "Grid",
+      "atLeastOne": "Enable at least one electricity source",
+      "activeMix": "Active mix:",
+      "pricingLabel": "Pricing mode",
+      "pricingLcoe": "LCOE",
+      "pricingCapex": "CAPEX + OPEX",
+      "lcoe": "LCOE",
+      "capex": "CAPEX",
+      "opex": "OPEX",
+      "plantSize": "Plant size",
+      "maxPower": "Max hourly power",
+      "arrayConfig": "Array configuration",
+      "pvFixed": "Fixed, optimal tilt",
+      "pv1axis": "1-axis tracking",
+      "pv2axis": "2-axis tracking",
+      "hub": "Turbine",
+      "hub120": "5.6 MW · 120 m hub",
+      "hub160": "5.6 MW · 160 m hub",
+      "gridPrice": "Price",
+      "gridEf": "Emission factor",
+      "coupledOn": "Linked to electrolyzer capacity — click to unlink",
+      "coupledOff": "Unlinked — click to link to electrolyzer capacity",
+      "coupledHint": "Follows electrolyzer capacity"
+    },
+    "help": {
+      "lat": "Site latitude in decimal degrees (−90 to 90). Determines the solar and wind resource profiles.",
+      "lon": "Site longitude in decimal degrees (−180 to 180). Determines the solar and wind resource profiles.",
+      "lifetime": "Project lifetime in years over which costs and production are discounted.",
+      "discount": "Discount rate (WACC) applied to future costs and hydrogen output.",
+      "waterPrice": "Delivered water price at the point of use.",
+      "waterTransport": "Transport cost per m³ of water per 100 km of distance.",
+      "transportDistance": "Distance the water is transported to the site.",
+      "desalinated": "Counts desalination electricity in the emissions ledger only — never in cost.",
+      "pumpingHead": "Water pumping lift in metres. Emissions ledger only.",
+      "capacity": "Electrolyzer nameplate capacity at the system boundary (electrolyzer outlet).",
+      "efficiency": "Average system efficiency on LHV basis, including balance of plant.",
+      "capex": "Installed electrolyzer capital cost per kW.",
+      "opex": "Fixed annual operating cost as a share of electrolyzer CAPEX.",
+      "stackLifetime": "Operating hours before a stack replacement is required.",
+      "stackReplacement": "Cost of each stack replacement as a share of electrolyzer CAPEX.",
+      "degradation": "Annual efficiency degradation of the stack.",
+      "pvKind": "PV array mounting: fixed at optimal tilt, or single- or dual-axis tracking.",
+      "windKind": "Reference 5.6 MW turbine at 120 m or 160 m hub height. Capacity scales linearly.",
+      "lcoe": "Fixed price paid per MWh consumed from this source.",
+      "sourceCapex": "Installed capital cost of the plant per kW. The engine derives an LCOE from CAPEX and OPEX.",
+      "sourceOpex": "Annual operating cost as a share of plant CAPEX.",
+      "plantSize": "Installed plant capacity. Linked to the electrolyzer capacity until you edit it.",
+      "gridPrice": "Price paid per MWh imported from the grid or PPA.",
+      "gridMax": "Maximum power drawn from the grid in any hour. Linked to the electrolyzer capacity until you edit it.",
+      "gridEf": "Grid emission factor in tCO₂ per MWh. Use the country defaults selector for a suggestion."
+    },
+    "run": {
+      "calculate": "Calculate",
+      "fetchingProfiles": "Building resource profiles…",
+      "simulating": "Computing LCOH…",
+      "invalid": "Fix the highlighted fields to calculate",
+      "firstVisitNote": "First visit to an area takes about 1–2 minutes per profile; results are cached afterwards.",
+      "cached": "cached",
+      "computed": "computed",
+      "profilesFailed": "Could not build a resource profile for this location",
+      "resetAll": "Reset all",
+      "copyLink": "Copy link",
+      "copied": "Copied"
+    },
+    "rail": {
+      "title": "Scenario"
+    },
+    "results": {
+      "headline": {
+        "lcoh": "Levelized cost of hydrogen",
+        "capacityFactor": "Capacity factor",
+        "fullLoadHours": "Full-load hours",
+        "annualH2": "Annual H₂"
+      },
+      "waterfall": {
+        "title": "Cost decomposition",
+        "axisY": "USD/kg",
+        "srSummary": "Cost waterfall summing to {total} USD per kg of hydrogen.",
+        "labels": {
+          "pv": "Solar",
+          "wind": "Wind",
+          "grid": "Grid",
+          "capex": "Electrolyzer CAPEX",
+          "stack": "Stack repl.",
+          "opex": "OPEX",
+          "water": "Water",
+          "total": "TOTAL"
+        }
+      },
+      "energy": {
+        "title": "Energy",
+        "avgLoad": "Average electrolyzer load",
+        "srSummary": "Monthly average electrolyzer load in megawatts.",
+        "curtailmentPv": "Solar curtailment (year 1)",
+        "curtailmentWind": "Wind curtailment (year 1)",
+        "curtailmentValue": "{mwh} MWh · {pct}% of generation",
+        "provenance": "Resource data",
+        "sourcePv": "Solar",
+        "sourceWind": "Wind",
+        "inlineProfile": "inline profile"
+      },
+      "heatmap": {
+        "title": "Electrolyzer load — month × hour",
+        "keyLabel": "average load",
+        "srSummary": "Heat map of average electrolyzer load by month and hour of day, up to {max} MW."
+      },
+      "emissions": {
+        "title": "Emissions",
+        "intensity": "Intensity",
+        "annual": "Annual emissions",
+        "gridShare": "Grid share of consumption",
+        "fullyRenewable": "0 kgCO₂e/kg H₂ — fully renewable"
+      },
+      "actions": {
+        "copyLink": "Copy share link",
+        "exportCsv": "Export CSV",
+        "exportJson": "Export JSON",
+        "save": "Save scenario",
+        "saveSoon": "Sign-in coming soon",
+        "compare": "Compare",
+        "compareSoon": "Comparison coming soon"
+      },
+      "meta": "Engine {version} · {mode}",
+      "referenceMode": "reference mode",
+      "customMode": "custom flags"
+    }
+  }
 }
