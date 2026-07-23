@@ -3,6 +3,7 @@
 import { useFormContext } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { NumberField, SelectField, Switch } from "./fields";
+import { BoltIcon, SunIcon, WindIcon } from "./icons";
 import type { CalculatorValues } from "./schema";
 
 /**
@@ -23,7 +24,7 @@ export default function SupplySection() {
   return (
     <div className="space-y-3">
       <SourceCard
-        icon="☀"
+        icon={<SunIcon />}
         title={t("supply.solar")}
         enabled={v.pv.enabled}
         onToggle={(on) => setValue("pv.enabled", on, { shouldValidate: true })}
@@ -45,7 +46,7 @@ export default function SupplySection() {
       </SourceCard>
 
       <SourceCard
-        icon="🌬"
+        icon={<WindIcon />}
         title={t("supply.wind")}
         enabled={v.wind.enabled}
         onToggle={(on) => setValue("wind.enabled", on, { shouldValidate: true })}
@@ -66,7 +67,7 @@ export default function SupplySection() {
       </SourceCard>
 
       <SourceCard
-        icon="🔌"
+        icon={<BoltIcon />}
         title={t("supply.grid")}
         enabled={v.grid.enabled}
         onToggle={(on) => setValue("grid.enabled", on, { shouldValidate: true })}
@@ -104,7 +105,7 @@ export default function SupplySection() {
             <span className="font-medium">{t("supply.activeMix")}</span>
             {v.pv.enabled ? (
               <MixChip
-                icon="☀"
+                icon={<SunIcon className="h-3.5 w-3.5" />}
                 text={`${money(v.pv.capacityMw)} MW · ${
                   v.pv.pricingMode === "lcoe"
                     ? `${money(v.pv.lcoeUsdPerMwh)} USD/MWh`
@@ -114,7 +115,7 @@ export default function SupplySection() {
             ) : null}
             {v.wind.enabled ? (
               <MixChip
-                icon="🌬"
+                icon={<WindIcon className="h-3.5 w-3.5" />}
                 text={`${money(v.wind.capacityMw)} MW · ${
                   v.wind.pricingMode === "lcoe"
                     ? `${money(v.wind.lcoeUsdPerMwh)} USD/MWh`
@@ -124,7 +125,7 @@ export default function SupplySection() {
             ) : null}
             {v.grid.enabled ? (
               <MixChip
-                icon="🔌"
+                icon={<BoltIcon className="h-3.5 w-3.5" />}
                 text={`≤ ${money(v.grid.maxImportMw)} MW · ${money(v.grid.priceUsdPerMwh)} USD/MWh`}
               />
             ) : null}
@@ -135,10 +136,10 @@ export default function SupplySection() {
   );
 }
 
-function MixChip({ icon, text }: { icon: string; text: string }) {
+function MixChip({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2 py-0.5 tabular-nums dark:border-neutral-700 dark:bg-neutral-800">
-      <span aria-hidden>{icon}</span>
+      {icon}
       {text}
     </span>
   );
@@ -151,7 +152,7 @@ function SourceCard({
   onToggle,
   children,
 }: {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   enabled: boolean;
   onToggle: (on: boolean) => void;
@@ -167,7 +168,7 @@ function SourceCard({
     >
       <div className="flex items-center justify-between px-3 py-2.5">
         <span className="flex items-center gap-2 text-sm font-medium">
-          <span aria-hidden>{icon}</span>
+          {icon}
           {title}
         </span>
         <Switch checked={enabled} onChange={onToggle} label={title} />
@@ -212,13 +213,17 @@ function PricingFields({ slot }: { slot: "pv" | "wind" }) {
       <FadeSwitch mode={mode}>
         {(shown) =>
           shown === "lcoe" ? (
-            <NumberField
-              name={`${slot}.lcoeUsdPerMwh`}
-              label={t("supply.lcoe")}
-              unit="USD/MWh"
-              help={t("help.lcoe")}
-              className="mt-3 sm:max-w-56"
-            />
+            /* Same 2-column grid as CAPEX mode (second cell empty) so the
+               card height doesn't jump when switching modes. */
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <NumberField
+                name={`${slot}.lcoeUsdPerMwh`}
+                label={t("supply.lcoe")}
+                unit="USD/MWh"
+                help={t("help.lcoe")}
+              />
+              <div aria-hidden className="hidden sm:block" />
+            </div>
           ) : (
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <NumberField
@@ -245,7 +250,7 @@ function PricingFields({ slot }: { slot: "pv" | "wind" }) {
 
 /**
  * Plant-size / max-power field, live-coupled to the electrolyzer capacity
- * until the user edits it; the link button re-couples.
+ * until the user edits it; the link button (in the label row) re-couples.
  */
 function CoupledCapacityField({
   slot,
@@ -269,36 +274,34 @@ function CoupledCapacityField({
 
   return (
     <div>
-      <div className="relative">
-        <NumberField
-          name={name}
-          label={label}
-          unit="MW"
-          help={slot === "grid" ? t("help.gridMax") : t("help.plantSize")}
-          onUserEdit={() => {
-            if (coupled) setValue(`${slot}.coupled`, false);
-          }}
-        />
-        <button
-          type="button"
-          onClick={recouple}
-          title={coupled ? t("supply.coupledOn") : t("supply.coupledOff")}
-          aria-label={coupled ? t("supply.coupledOn") : t("supply.coupledOff")}
-          aria-pressed={coupled}
-          className={`absolute right-0 top-0 rounded p-0.5 transition-colors duration-150 ease-out ${
-            coupled
-              ? "text-blue-600"
-              : "text-neutral-300 hover:text-neutral-500 dark:text-neutral-600 dark:hover:text-neutral-400"
-          }`}
-        >
-          <LinkIcon />
-        </button>
-      </div>
-      {coupled ? (
-        <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">
-          {t("supply.coupledHint")}
-        </p>
-      ) : null}
+      <NumberField
+        name={name}
+        label={label}
+        unit="MW"
+        help={slot === "grid" ? t("help.gridMax") : t("help.plantSize")}
+        onUserEdit={() => {
+          if (coupled) setValue(`${slot}.coupled`, false);
+        }}
+        labelAction={
+          <button
+            type="button"
+            onClick={recouple}
+            title={coupled ? t("supply.coupledOn") : t("supply.coupledOff")}
+            aria-label={coupled ? t("supply.coupledOn") : t("supply.coupledOff")}
+            aria-pressed={coupled}
+            className={`shrink-0 rounded p-0.5 transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${
+              coupled
+                ? "text-blue-600"
+                : "text-neutral-300 hover:text-neutral-500 dark:text-neutral-600 dark:hover:text-neutral-400"
+            }`}
+          >
+            <LinkIcon />
+          </button>
+        }
+      />
+      <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">
+        {coupled ? t("supply.coupledHint") : t("supply.uncoupledHint")}
+      </p>
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
 import { decodeConfigParam, encodeConfigParam } from "@/lib/url-state";
 import { Section } from "./Accordion";
 import { CheckboxField, NumberField } from "./fields";
+import { BoltIcon, SunIcon, WindIcon } from "./icons";
 import MiniMap from "./MiniMap";
 import {
   anySourceEnabled,
@@ -208,6 +209,26 @@ export default function CalculatorClient() {
   const selectedCountry = values.location.country;
   const countryRow = countries.find((r) => r.iso2 === selectedCountry);
 
+  // Human-readable country options ("Chile (CL)"), sorted by display name.
+  const countryOptions = useMemo(() => {
+    let regionNames: Intl.DisplayNames | null = null;
+    try {
+      regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+    } catch {
+      regionNames = null;
+    }
+    const displayName = (iso2: string) => {
+      try {
+        return regionNames?.of(iso2) ?? iso2;
+      } catch {
+        return iso2;
+      }
+    };
+    return countries
+      .map((r) => ({ iso2: r.iso2, name: displayName(r.iso2) }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [countries]);
+
   return (
     <FormProvider {...form}>
       <main className="mx-auto max-w-6xl px-4 py-6">
@@ -216,7 +237,7 @@ export default function CalculatorClient() {
           {t("subtitle")}
         </p>
 
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start lg:gap-8">
+        <div className="md:grid md:grid-cols-[minmax(0,1fr)_280px] md:items-start md:gap-8">
           <form onSubmit={onCalculate} noValidate className="max-w-2xl space-y-3">
             {/* 1 — Location */}
             <Section
@@ -273,9 +294,9 @@ export default function CalculatorClient() {
                     className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/40 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900"
                   >
                     <option value="">{t("location.countryNone")}</option>
-                    {countries.map((r) => (
+                    {countryOptions.map((r) => (
                       <option key={r.iso2} value={r.iso2}>
-                        {r.iso2}
+                        {r.name === r.iso2 ? r.iso2 : `${r.name} (${r.iso2})`}
                       </option>
                     ))}
                   </select>
@@ -459,7 +480,7 @@ export default function CalculatorClient() {
               <button
                 type="submit"
                 disabled={disabledReason !== null || running}
-                className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 ease-out hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 ease-out hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {running ? (
                   <span className="inline-flex items-center gap-2">
@@ -479,11 +500,11 @@ export default function CalculatorClient() {
               {sim.profileStatuses.length > 0 && sim.phase !== "idle" ? (
                 <ul className="space-y-1 rounded-md border border-neutral-200 px-3 py-2 text-xs dark:border-neutral-800">
                   {sim.profileStatuses.map((s) => (
-                    <li key={s.slot} className="flex items-center gap-2">
+                    <li key={s.slot} className="flex flex-wrap items-center gap-2">
                       {s.state === "building" ? (
                         <Spinner className="text-blue-600" />
                       ) : s.state === "ready" ? (
-                        <span className="text-emerald-600" aria-hidden>✓</span>
+                        <span className="text-emerald-600 dark:text-emerald-400" aria-hidden>✓</span>
                       ) : (
                         <span className="text-red-600" aria-hidden>✕</span>
                       )}
@@ -510,23 +531,29 @@ export default function CalculatorClient() {
               ) : null}
 
               {sim.phase === "error" ? (
-                <p role="alert" className="text-xs text-red-600 dark:text-red-400">
-                  {sim.error ?? t("run.profilesFailed")}
-                </p>
+                <div
+                  role="alert"
+                  className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+                >
+                  <p className="font-medium">{t("run.errorTitle")}</p>
+                  {/* Per-source profile errors already appear in the staged
+                      rows above — only repeat a message when there is one. */}
+                  {sim.error ? <p className="mt-1 text-xs">{sim.error}</p> : null}
+                </div>
               ) : null}
 
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-neutral-400 dark:border-neutral-700 dark:hover:border-neutral-500"
+                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-700 dark:hover:border-neutral-500"
                 >
                   {t("run.resetAll")}
                 </button>
                 <button
                   type="button"
                   onClick={copyLinkWithFlash}
-                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-blue-600 hover:text-blue-600 dark:border-neutral-700"
+                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-blue-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-700"
                 >
                   {copied ? t("run.copied") : t("run.copyLink")}
                 </button>
@@ -534,8 +561,8 @@ export default function CalculatorClient() {
             </div>
           </form>
 
-          {/* Sticky summary rail (desktop) */}
-          <aside className="hidden lg:block">
+          {/* Sticky summary rail (tablet and up) */}
+          <aside className="hidden md:block">
             <div className="sticky top-16 space-y-3 rounded-lg border border-neutral-200 bg-white p-4 text-sm dark:border-neutral-800 dark:bg-neutral-950">
               <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 {t("rail.title")}
@@ -547,9 +574,15 @@ export default function CalculatorClient() {
                 {selectedCountry ? ` · ${selectedCountry}` : ""}
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {values.pv.enabled ? <RailChip icon="☀" label={t("supply.solar")} /> : null}
-                {values.wind.enabled ? <RailChip icon="🌬" label={t("supply.wind")} /> : null}
-                {values.grid.enabled ? <RailChip icon="🔌" label={t("supply.grid")} /> : null}
+                {values.pv.enabled ? (
+                  <RailChip icon={<SunIcon className="h-3.5 w-3.5" />} label={t("supply.solar")} />
+                ) : null}
+                {values.wind.enabled ? (
+                  <RailChip icon={<WindIcon className="h-3.5 w-3.5" />} label={t("supply.wind")} />
+                ) : null}
+                {values.grid.enabled ? (
+                  <RailChip icon={<BoltIcon className="h-3.5 w-3.5" />} label={t("supply.grid")} />
+                ) : null}
                 {!anySource ? (
                   <span className="text-xs text-red-600 dark:text-red-400">
                     {t("supply.atLeastOne")}
@@ -575,8 +608,18 @@ export default function CalculatorClient() {
           </aside>
         </div>
 
+        {/* Screen-reader announcement on success (terse — the visual results
+            subtree is too large for a useful aria-live region). */}
+        <div aria-live="polite" className="sr-only">
+          {sim.phase === "done" && sim.response
+            ? t("results.announce", {
+                lcoh: sim.response.results.lcohUsdPerKg.toFixed(2),
+              })
+            : null}
+        </div>
+
         {/* Results */}
-        <div ref={resultsRef} aria-live="polite" className="mt-8 scroll-mt-16 lg:max-w-none">
+        <div ref={resultsRef} className="mt-8 scroll-mt-16 lg:max-w-none">
           {running ? <ResultsSkeleton /> : null}
           {sim.phase === "done" && sim.response ? (
             <ResultsSection
@@ -591,10 +634,10 @@ export default function CalculatorClient() {
   );
 }
 
-function RailChip({ icon, label }: { icon: string; label: string }) {
+function RailChip({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-blue-600/40 bg-blue-50 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
-      <span aria-hidden>{icon}</span>
+      {icon}
       {label}
     </span>
   );

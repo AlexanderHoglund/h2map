@@ -5,14 +5,14 @@ import { useTranslations } from "next-intl";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTH_INITIALS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
 
-/** Sequential single-hue ramp, light → dark. */
-const RAMP_FROM: [number, number, number] = [0xcd, 0xe2, 0xfb];
-const RAMP_TO: [number, number, number] = [0x0d, 0x36, 0x6b];
-
+/**
+ * Sequential ramp: the theme-aware series color mixed over transparent, with
+ * an 8% floor so near-zero cells stay visible against the card surface.
+ */
 function rampColor(f: number): string {
   const k = Math.max(0, Math.min(1, f));
-  const c = RAMP_FROM.map((a, i) => Math.round(a + (RAMP_TO[i]! - a) * k));
-  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+  const pct = 8 + k * 92;
+  return `color-mix(in oklab, var(--viz-series-1) ${pct.toFixed(1)}%, transparent)`;
 }
 
 /**

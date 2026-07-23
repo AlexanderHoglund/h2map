@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 /**
- * Accordion section: collapsible header with a "modified" dot when the
- * section's values differ from the reference defaults, plus a per-section
- * reset link.
+ * Accordion section: collapsible header (real heading + disclosure button
+ * wired to its panel via aria-controls / aria-labelledby) with a "modified"
+ * dot when the section's values differ from the reference defaults, plus a
+ * per-section reset link.
  */
 export function Section({
   title,
@@ -25,44 +26,55 @@ export function Section({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const headerId = useId();
+  const panelId = useId();
 
   return (
     <section className="rounded-lg border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
-      <div className="flex items-center gap-2 px-4 py-2.5">
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          className="flex flex-1 items-center gap-2 text-left text-sm font-semibold"
-        >
-          <svg
-            viewBox="0 0 16 16"
-            aria-hidden
-            className={`h-3.5 w-3.5 text-neutral-400 transition-transform duration-150 ease-out ${open ? "rotate-90" : ""}`}
+      <div className="flex items-center gap-2 px-4 py-3">
+        <h2 className="contents">
+          <button
+            type="button"
+            id={headerId}
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls={panelId}
+            className="flex flex-1 items-center gap-2 rounded-sm text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
           >
-            <path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {title}
-          {dirty ? (
-            <span
-              title={dirtyLabel}
-              aria-label={dirtyLabel}
-              className="h-1.5 w-1.5 rounded-full bg-blue-600"
-            />
-          ) : null}
-        </button>
+            <svg
+              viewBox="0 0 16 16"
+              aria-hidden
+              className={`h-3.5 w-3.5 text-neutral-400 transition-transform duration-150 ease-out ${open ? "rotate-90" : ""}`}
+            >
+              <path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {title}
+            {dirty ? (
+              <span
+                title={dirtyLabel}
+                aria-label={dirtyLabel}
+                className="h-1.5 w-1.5 rounded-full bg-blue-600"
+              />
+            ) : null}
+          </button>
+        </h2>
         {dirty ? (
           <button
             type="button"
             onClick={onReset}
-            className="text-xs text-neutral-500 underline-offset-2 transition-colors duration-150 ease-out hover:text-blue-600 hover:underline"
+            className="rounded-sm text-xs text-neutral-500 underline underline-offset-2 transition-colors duration-150 ease-out hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
           >
             {resetLabel}
           </button>
         ) : null}
       </div>
       {open ? (
-        <div className="border-t border-neutral-100 px-4 py-4 dark:border-neutral-800/60">
+        <div
+          id={panelId}
+          role="region"
+          aria-labelledby={headerId}
+          className="border-t border-neutral-100 px-4 py-4 dark:border-neutral-800/60"
+        >
           {children}
         </div>
       ) : null}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useId, useState } from "react";
 import { useFormContext, type FieldPath } from "react-hook-form";
 import type { CalculatorValues } from "./schema";
 
@@ -7,8 +8,9 @@ type Name = FieldPath<CalculatorValues>;
 
 /**
  * Form primitives bound to the calculator form context. Numeric fields render
- * the unit inside the input (right-aligned suffix), an optional "?" help
- * tooltip (title attribute), and the inline zod validation message.
+ * a wrapper-as-input (bordered flex container with a bare input plus a static
+ * unit suffix in the flow), an optional "?" help popover, and the inline zod
+ * validation message.
  */
 
 export function NumberField({
@@ -20,6 +22,7 @@ export function NumberField({
   disabled,
   onUserEdit,
   className,
+  labelAction,
 }: {
   name: Name;
   label: string;
@@ -30,45 +33,58 @@ export function NumberField({
   /** Called when the user types into the field (used to decouple linked fields). */
   onUserEdit?: () => void;
   className?: string;
+  /** Optional control rendered right-aligned in the label row (e.g. the recouple button). */
+  labelAction?: React.ReactNode;
 }) {
   const { register, getFieldState, formState } = useFormContext<CalculatorValues>();
   const { error } = getFieldState(name, formState);
-  const id = `field-${name.replace(/\./g, "-")}`;
+  const inputId = `field-${name.replace(/\./g, "-")}`;
+  const errorId = `${inputId}-error`;
 
   return (
     <div className={className}>
-      <label
-        htmlFor={id}
-        className="flex items-center gap-1 text-xs font-medium text-neutral-600 dark:text-neutral-400"
+      <div className="flex items-center justify-between gap-2">
+        <label
+          htmlFor={inputId}
+          className="flex items-center gap-1 text-xs font-medium text-neutral-600 dark:text-neutral-400"
+        >
+          {label}
+          {help ? <Help text={help} /> : null}
+        </label>
+        {labelAction}
+      </div>
+      <div
+        className={`mt-1 flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1.5 transition-colors duration-150 ease-out focus-within:ring-2 dark:bg-neutral-900 ${
+          disabled ? "opacity-50" : ""
+        } ${
+          error
+            ? "border-red-500 focus-within:ring-red-500/30 dark:border-red-500"
+            : "border-neutral-300 focus-within:border-blue-600 focus-within:ring-blue-500/50 dark:border-neutral-700"
+        }`}
       >
-        {label}
-        {help ? <Help text={help} /> : null}
-      </label>
-      <div className="relative mt-1">
         <input
-          id={id}
+          id={inputId}
           type="number"
           step={step}
           disabled={disabled}
           aria-invalid={error ? true : undefined}
+          aria-describedby={error?.message ? errorId : undefined}
           {...register(name, {
             valueAsNumber: true,
             onChange: () => onUserEdit?.(),
           })}
-          className={`w-full rounded-md border bg-white px-2.5 py-1.5 pr-16 text-sm tabular-nums transition-colors duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-blue-600/40 disabled:opacity-50 dark:bg-neutral-900 ${
-            error
-              ? "border-red-500 dark:border-red-500"
-              : "border-neutral-300 focus:border-blue-600 dark:border-neutral-700"
-          }`}
+          className="min-w-0 flex-1 bg-transparent text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
         {unit ? (
-          <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-xs text-neutral-400 dark:text-neutral-500">
+          <span className="shrink-0 text-xs text-neutral-500 dark:text-neutral-500">
             {unit}
           </span>
         ) : null}
       </div>
       {error?.message ? (
-        <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error.message}</p>
+        <p id={errorId} className="mt-1 text-xs text-red-600 dark:text-red-400">
+          {error.message}
+        </p>
       ) : null}
     </div>
   );
@@ -101,7 +117,7 @@ export function SelectField({
       <select
         id={id}
         {...register(name)}
-        className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/40 dark:border-neutral-700 dark:bg-neutral-900"
+        className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-neutral-700 dark:bg-neutral-900"
       >
         {options.map(([value, text]) => (
           <option key={value} value={value}>
@@ -128,7 +144,7 @@ export function CheckboxField({
       <input
         type="checkbox"
         {...register(name)}
-        className="h-4 w-4 accent-blue-600"
+        className="h-4 w-4 accent-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
       />
       <span className="flex items-center gap-1">
         {label}
@@ -138,16 +154,41 @@ export function CheckboxField({
   );
 }
 
-/** Small "?" affordance with a native title tooltip. */
+/**
+ * Small "?" affordance: a focusable button with a hand-rolled popover shown
+ * on hover and keyboard focus (dismissed on blur / mouse-leave / Escape).
+ */
 export function Help({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const tooltipId = useId();
   return (
     <span
-      title={text}
-      aria-label={text}
-      role="img"
-      className="inline-flex h-3.5 w-3.5 cursor-help select-none items-center justify-center rounded-full border border-neutral-300 text-[9px] leading-none text-neutral-400 dark:border-neutral-600 dark:text-neutral-500"
+      className="relative inline-flex"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
     >
-      ?
+      <button
+        type="button"
+        aria-label={text}
+        aria-describedby={open ? tooltipId : undefined}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setOpen(false);
+        }}
+        className="inline-flex h-4 w-4 cursor-help select-none items-center justify-center rounded-full border border-neutral-300 text-[10px] leading-none text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-600 dark:text-neutral-500"
+      >
+        ?
+      </button>
+      {open ? (
+        <div
+          id={tooltipId}
+          role="tooltip"
+          className="absolute left-0 top-full z-20 mt-1.5 w-56 rounded-md border border-neutral-200 bg-white/95 px-2.5 py-1.5 text-xs font-normal normal-case text-neutral-600 backdrop-blur dark:border-neutral-700 dark:bg-neutral-900/95 dark:text-neutral-300"
+        >
+          {text}
+        </div>
+      ) : null}
     </span>
   );
 }
@@ -169,7 +210,7 @@ export function Switch({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-150 ease-out ${
+      className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${
         checked ? "bg-blue-600" : "bg-neutral-300 dark:bg-neutral-600"
       }`}
     >

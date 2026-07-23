@@ -13,10 +13,12 @@
       "costYear": "Cost year",
       "costYearSoon": "Cost trajectories coming soon",
       "opacity": "Hex opacity",
+      "opacityValue": "{value}%",
       "visible": "Show layer"
     },
     "legend": {
-      "min": "2",
+      "min": "≤3",
+      "mid": "5.5",
       "max": "8+",
       "caption": "USD/kg H₂",
       "maxDetail": "Max detail — finest available resolution"

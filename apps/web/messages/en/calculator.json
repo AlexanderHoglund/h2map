@@ -72,7 +72,8 @@
       "gridEf": "Emission factor",
       "coupledOn": "Linked to electrolyzer capacity — click to unlink",
       "coupledOff": "Unlinked — click to link to electrolyzer capacity",
-      "coupledHint": "Follows electrolyzer capacity"
+      "coupledHint": "Follows electrolyzer capacity",
+      "uncoupledHint": "Set independently of electrolyzer capacity"
     },
     "help": {
       "lat": "Site latitude in decimal degrees (−90 to 90). Determines the solar and wind resource profiles.",
@@ -110,6 +111,7 @@
       "cached": "cached",
       "computed": "computed",
       "profilesFailed": "Could not build a resource profile for this location",
+      "errorTitle": "Calculation failed",
       "resetAll": "Reset all",
       "copyLink": "Copy link",
       "copied": "Copied"
@@ -118,6 +120,7 @@
       "title": "Scenario"
     },
     "results": {
+      "announce": "Result ready: {lcoh} USD per kg",
       "headline": {
         "lcoh": "Levelized cost of hydrogen",
         "capacityFactor": "Capacity factor",
@@ -137,6 +140,16 @@
           "opex": "OPEX",
           "water": "Water",
           "total": "TOTAL"
+        },
+        "labelsShort": {
+          "pv": "Solar",
+          "wind": "Wind",
+          "grid": "Grid",
+          "capex": "CAPEX",
+          "stack": "Stack",
+          "opex": "OPEX",
+          "water": "Water",
+          "total": "Total"
         }
       },
       "energy": {

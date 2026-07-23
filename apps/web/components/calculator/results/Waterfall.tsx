@@ -17,6 +17,7 @@ import type { LCOHDecomposition } from "../types";
 interface Row {
   key: string;
   label: string;
+  labelShort: string;
   value: number;
   offset: number;
   pct: number;
@@ -53,6 +54,7 @@ export default function Waterfall({
     rows.push({
       key,
       label: t(`labels.${key}`),
+      labelShort: t(`labelsShort.${key}`),
       value,
       offset: running,
       pct: lcoh > 0 ? (value / lcoh) * 100 : 0,
@@ -63,6 +65,7 @@ export default function Waterfall({
   rows.push({
     key: "total",
     label: t("labels.total"),
+    labelShort: t("labelsShort.total"),
     value: lcoh,
     offset: 0,
     pct: 100,
@@ -77,7 +80,7 @@ export default function Waterfall({
           <BarChart data={rows} margin={{ top: 28, right: 8, left: 4, bottom: 0 }} barCategoryGap="22%">
             <CartesianGrid vertical={false} stroke="var(--viz-grid)" />
             <XAxis
-              dataKey="label"
+              dataKey="labelShort"
               interval={0}
               tickLine={false}
               axisLine={{ stroke: "var(--viz-baseline)" }}
@@ -120,7 +123,10 @@ export default function Waterfall({
   );
 }
 
-/** Two-line direct label: USD/kg on top, % share underneath. */
+/**
+ * Direct label: USD/kg on top; the % share line is dropped on narrow bars
+ * (< 34px) where it would collide with its neighbours.
+ */
 function BarLabel(props: {
   x?: number | string;
   y?: number | string;
@@ -141,14 +147,17 @@ function BarLabel(props: {
   const row = rows[index];
   if (!row) return null;
   const cx = x + width / 2;
+  const showPct = width >= 34;
   return (
     <text textAnchor="middle" fill="var(--viz-ink-secondary)">
-      <tspan x={cx} y={y - 18} fontSize={11} fontWeight={600}>
+      <tspan x={cx} y={showPct ? y - 18 : y - 6} fontSize={11} fontWeight={600}>
         {row.value.toFixed(2)}
       </tspan>
-      <tspan x={cx} y={y - 6} fontSize={9.5} fill="var(--viz-ink-muted)">
-        {row.pct.toFixed(0)}%
-      </tspan>
+      {showPct ? (
+        <tspan x={cx} y={y - 6} fontSize={9.5} fill="var(--viz-ink-muted)">
+          {row.pct.toFixed(0)}%
+        </tspan>
+      ) : null}
     </text>
   );
 }
@@ -161,7 +170,7 @@ function WaterfallTip(props: {
   const row = payload?.find((p) => p.dataKey === "value")?.payload;
   if (!active || !row) return null;
   return (
-    <div className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+    <div className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs dark:border-neutral-700 dark:bg-neutral-900">
       <div className="font-medium">{row.label}</div>
       <div className="tabular-nums text-neutral-500 dark:text-neutral-400">
         {row.value.toFixed(3)} USD/kg · {row.pct.toFixed(1)}%

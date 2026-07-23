@@ -48,7 +48,7 @@ export default function EnergyPanel({
               tickLine={false}
               axisLine={{ stroke: "var(--viz-baseline)" }}
               tick={{ fontSize: 11, fill: "var(--viz-ink-secondary)" }}
-              tickFormatter={(m: string) => m.charAt(0)}
+              tickFormatter={(m: string, i: number) => (i % 2 === 0 ? m : "")}
             />
             <YAxis
               width={44}

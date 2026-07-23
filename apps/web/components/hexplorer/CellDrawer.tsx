@@ -3,7 +3,7 @@
 import { cellToLatLng } from "h3-js";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { LAYER_KEYS, type HexDatum } from "./types";
 
 interface Props {
@@ -25,6 +25,7 @@ function fmtPercent(value: number | null): string {
 export default function CellDrawer({ datum, open, onClose }: Props) {
   const t = useTranslations("explorer");
   const router = useRouter();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const shown = datum;
 
   useEffect(() => {
@@ -35,6 +36,11 @@ export default function CellDrawer({ datum, open, onClose }: Props) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  // Move focus into the drawer when it opens (no trap — deferred).
+  useEffect(() => {
+    if (open) closeButtonRef.current?.focus();
+  }, [open]);
 
   const evaluateHere = () => {
     if (!shown) return;
@@ -65,10 +71,11 @@ export default function CellDrawer({ datum, open, onClose }: Props) {
           <header className="flex items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
             <h2 className="font-medium">{t("drawer.title")}</h2>
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={onClose}
               aria-label={t("drawer.close")}
-              className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+              className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
             >
               <svg
                 aria-hidden="true"

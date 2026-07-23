@@ -16,7 +16,7 @@ import SearchBox from "./SearchBox";
 import { isLayerKey, type HexDatum, type LayerKey } from "./types";
 import { useHexCells } from "./useHexCells";
 import { collectWithAncestors, enumerateViewport } from "./viewport";
-import { viridisColor } from "./viridis";
+import { lcohColor } from "./scale";
 
 const LIGHT_STYLE =
   "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
@@ -34,10 +34,17 @@ const PARENT_FILL_ALPHA = Math.round(255 * 0.8);
 /** Zoom past which the resolution stops refining (MAX_RES) — show the note. */
 const MAX_DETAIL_ZOOM = 6.5;
 const SEARCH_FLY_ZOOM = 6;
+/** Flip the hover tooltip to the other side of the cursor near the edges. */
+const TOOLTIP_EDGE_X = 180;
+const TOOLTIP_EDGE_Y = 80;
+const TOOLTIP_CURSOR_GAP = 12;
 
 interface HoverState {
   x: number;
   y: number;
+  /** Near the right/bottom edge — place the tooltip on the other side. */
+  flipX: boolean;
+  flipY: boolean;
   datum: HexDatum;
 }
 
@@ -130,9 +137,20 @@ export default function HexplorerMap() {
   const onHexHover = useCallback((info: PickingInfo<HexDatum>) => {
     const map = mapRef.current;
     if (map) map.getCanvas().style.cursor = info.object ? "pointer" : "";
-    setHover(
-      info.object ? { x: info.x, y: info.y, datum: info.object } : null,
-    );
+    if (!info.object) {
+      setHover(null);
+      return;
+    }
+    const container = containerRef.current;
+    setHover({
+      x: info.x,
+      y: info.y,
+      flipX:
+        container != null && info.x > container.clientWidth - TOOLTIP_EDGE_X,
+      flipY:
+        container != null && info.y > container.clientHeight - TOOLTIP_EDGE_Y,
+      datum: info.object,
+    });
   }, []);
 
   const onHexClick = useCallback((info: PickingInfo<HexDatum>) => {
@@ -212,7 +230,7 @@ export default function HexplorerMap() {
           lineWidthMaxPixels: 1.5,
           getHexagon: (d) => d.h3,
           getFillColor: (d) => {
-            const [r, g, b] = viridisColor(d.value);
+            const [r, g, b] = lcohColor(d.value);
             return [r, g, b, d.parentFill ? PARENT_FILL_ALPHA : 255];
           },
           onHover: onHexHover,
@@ -262,8 +280,14 @@ export default function HexplorerMap() {
 
       {hover && (
         <div
-          className="pointer-events-none absolute z-30 rounded-md border border-neutral-200 bg-white/95 px-2 py-1 text-xs backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95"
-          style={{ left: hover.x + 12, top: hover.y + 12 }}
+          className="pointer-events-none absolute z-30 rounded-lg border border-neutral-200 bg-white/95 px-2 py-1 text-xs backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95"
+          style={{
+            left:
+              hover.x + (hover.flipX ? -TOOLTIP_CURSOR_GAP : TOOLTIP_CURSOR_GAP),
+            top:
+              hover.y + (hover.flipY ? -TOOLTIP_CURSOR_GAP : TOOLTIP_CURSOR_GAP),
+            transform: `translate(${hover.flipX ? "-100%" : "0"}, ${hover.flipY ? "-100%" : "0"})`,
+          }}
         >
           <p className="tabular-nums font-medium">
             {hover.datum.value.toFixed(2)} {t("tooltip.unit")}
