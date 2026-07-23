@@ -25,6 +25,7 @@ const DARK_STYLE =
 
 const DEFAULT_CAMERA = { lat: 10, lon: -20, zoom: 1.6 };
 const VIEWPORT_DEBOUNCE_MS = 250;
+const MOVE_RENDER_THROTTLE_MS = 200;
 /**
  * Gap-filled children (partially refined ancestor) get a slight alpha dip so
  * the refined cells read as the real signal; unrefined areas render their
@@ -61,6 +62,8 @@ export default function HexplorerMap() {
   const beforeIdRef = useRef<string | undefined>(undefined);
   /** Currently displayed resolution — the floor keeps hex sizes monotonic. */
   const displayedResRef = useRef(0);
+  /** Last rendered frame, kept on screen while replacement cells load. */
+  const lastDataRef = useRef<HexDatum[]>([]);
 
   const { engine, version, bump } = useHexCells();
 
@@ -108,7 +111,31 @@ export default function HexplorerMap() {
     syncCameraHash();
   }, [layerKey, syncCameraHash]);
 
-  /** Enumerate visible cells, fetch unknown ones, and bump the version. */
+  /**
+   * Re-enumerate the viewport and render whatever is already cached. Runs
+   * throttled DURING camera movement so cached areas draw the moment they
+   * scroll into view — no fetches here.
+   */
+  const renderViewport = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const zoom = map.getZoom();
+    const bounds = map.getBounds();
+    setMaxDetail(zoom >= MAX_DETAIL_ZOOM);
+    const { ids } = enumerateViewport(
+      {
+        west: bounds.getWest(),
+        south: bounds.getSouth(),
+        east: bounds.getEast(),
+        north: bounds.getNorth(),
+      },
+      zoom,
+    );
+    visibleIdsRef.current = ids;
+    bump();
+  }, [bump]);
+
+  /** On camera settle: render + fetch anything unknown (incl. ancestors). */
   const loadViewport = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -196,6 +223,16 @@ export default function HexplorerMap() {
         VIEWPORT_DEBOUNCE_MS,
       );
     };
+    // Throttled render during the gesture keeps cached hexes on screen the
+    // moment they scroll into view instead of waiting for the settle.
+    let lastMoveRender = 0;
+    const onMove = () => {
+      const now = performance.now();
+      if (now - lastMoveRender < MOVE_RENDER_THROTTLE_MS) return;
+      lastMoveRender = now;
+      renderViewport();
+    };
+    map.on("move", onMove);
     map.on("moveend", onMoveEnd);
     map.on("zoomend", onMoveEnd);
     map.on("load", () => {
@@ -215,18 +252,31 @@ export default function HexplorerMap() {
       mapRef.current = null;
       overlayRef.current = null;
     };
-  }, [syncCameraHash, loadViewport]);
+  }, [syncCameraHash, loadViewport, renderViewport]);
 
   // Rebuild the deck.gl layer whenever data or display settings change.
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
-    const { data, res } = buildRenderData(
+    let { data, res } = buildRenderData(
       engine.cache,
       visibleIdsRef.current,
       layerKey,
       displayedResRef.current,
     );
+    if (data.length === 0) {
+      // Empty because cells are still in flight (unknown ids) — keep the
+      // previous frame instead of blanking; genuinely empty views (ocean,
+      // all ids known-missing) do clear.
+      const anyUnknown = visibleIdsRef.current.some(
+        (id) => !engine.cache.has(id),
+      );
+      if (anyUnknown && lastDataRef.current.length > 0) {
+        data = lastDataRef.current;
+        res = displayedResRef.current;
+      }
+    }
+    lastDataRef.current = data;
     displayedResRef.current = res;
     overlay.setProps({
       layers: [
