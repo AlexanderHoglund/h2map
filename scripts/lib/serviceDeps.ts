@@ -41,7 +41,7 @@ export function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-export async function fetchJson(url: string, attempts = 3): Promise<unknown> {
+export async function fetchJson(url: string, attempts = 4): Promise<unknown> {
   let lastError: unknown;
   for (let i = 0; i < attempts; i++) {
     try {
@@ -49,14 +49,23 @@ export async function fetchJson(url: string, attempts = 3): Promise<unknown> {
         headers: { Accept: "application/json" },
         signal: AbortSignal.timeout(120_000),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+      if (!res.ok) {
+        // Long cooldown on rate limits — bulk seeding must yield, not hammer.
+        if (res.status === 429) {
+          lastError = new Error(`HTTP 429 for ${url}`);
+          console.warn(`  rate limited, cooling down 60 s (${i + 1}/${attempts})`);
+          await delay(60_000);
+          continue;
+        }
+        throw new Error(`HTTP ${res.status} for ${url}`);
+      }
       const json = await res.json();
-      await delay(500); // politeness toward free provider tiers
+      await delay(800); // politeness toward free provider tiers
       return json;
     } catch (err) {
       lastError = err;
       console.warn(`  retry ${i + 1}/${attempts}: ${String(err)}`);
-      await delay(3000 * (i + 1));
+      await delay(5000 * (i + 1));
     }
   }
   throw lastError;

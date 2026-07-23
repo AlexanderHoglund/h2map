@@ -64,6 +64,21 @@ const REGIONS: Record<string, [number, number][]> = {
     [47, 15],
     [47, 4.5],
   ],
+  // Scandinavian peninsula + Finland, hugging the SW–NE landmass diagonal.
+  scandinavia: [
+    [57.5, 5],
+    [62, 4.5],
+    [67, 11],
+    [70, 15],
+    [71.2, 25],
+    [70, 30.5],
+    [66, 30.5],
+    [61.5, 31],
+    [59.5, 27],
+    [58, 22],
+    [55, 15.5],
+    [55, 11.5],
+  ],
 };
 
 const DEFAULT_RES = 2;
