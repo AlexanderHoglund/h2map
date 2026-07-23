@@ -53,6 +53,14 @@ export default function HexplorerMap() {
 
   const { engine, version, bump } = useHexCells();
 
+  // Matches the basemap style choice made at init; strokes use the surface
+  // tone so adjacent fills read as separated tiles.
+  const [isDark] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches,
+  );
+
   const [layerKey, setLayerKey] = useState<LayerKey>(() => {
     if (typeof window === "undefined") return "best";
     const parsed = parseCameraHash(window.location.hash);
@@ -196,7 +204,12 @@ export default function HexplorerMap() {
           pickable: true,
           filled: true,
           extruded: false,
-          stroked: false,
+          stroked: true,
+          getLineColor: isDark ? [26, 26, 25, 200] : [252, 252, 251, 220],
+          lineWidthUnits: "pixels",
+          getLineWidth: 1,
+          lineWidthMinPixels: 1,
+          lineWidthMaxPixels: 1.5,
           getHexagon: (d) => d.h3,
           getFillColor: (d) => {
             const [r, g, b] = viridisColor(d.value);
@@ -207,7 +220,7 @@ export default function HexplorerMap() {
         }),
       ],
     });
-  }, [version, layerKey, opacity, layerVisible, engine, onHexHover, onHexClick]);
+  }, [version, layerKey, opacity, layerVisible, engine, isDark, onHexHover, onHexClick]);
 
   const flyTo = useCallback((lat: number, lon: number) => {
     const map = mapRef.current;
