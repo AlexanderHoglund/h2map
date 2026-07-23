@@ -59,6 +59,8 @@ export default function HexplorerMap() {
   const debounceRef = useRef<number | undefined>(undefined);
   /** Basemap layer the hexes slot beneath, so borders + labels stay on top. */
   const beforeIdRef = useRef<string | undefined>(undefined);
+  /** Currently displayed resolution — the floor keeps hex sizes monotonic. */
+  const displayedResRef = useRef(0);
 
   const { engine, version, bump } = useHexCells();
 
@@ -219,7 +221,13 @@ export default function HexplorerMap() {
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
-    const data = buildRenderData(engine.cache, visibleIdsRef.current, layerKey);
+    const { data, res } = buildRenderData(
+      engine.cache,
+      visibleIdsRef.current,
+      layerKey,
+      displayedResRef.current,
+    );
+    displayedResRef.current = res;
     overlay.setProps({
       layers: [
         new H3HexagonLayer<HexDatum>({

@@ -89,18 +89,26 @@ function resolve(
  * refines as a whole as seeding lands instead of patchworking hex sizes.
  * Ocean cells (no known ancestry) are never drawn; they are also excluded
  * from the coverage denominator so coastal viewports still refine.
+ *
+ * `floorRes` makes the size progression monotonic across interactions: the
+ * caller passes the currently displayed resolution so zooming/panning never
+ * snaps back to coarser hexes — only a drop in the zoom-mapped ceiling
+ * (zooming out) coarsens the display.
  */
 export function buildRenderData(
   cache: CellCache,
   visibleIds: string[],
   layer: LayerKey,
-): HexDatum[] {
-  if (visibleIds.length === 0) return [];
+  floorRes: number = MIN_RES,
+): { data: HexDatum[]; res: number } {
+  if (visibleIds.length === 0) return { data: [], res: MIN_RES };
   const mappedRes = getResolution(visibleIds[0]!);
+  const floor = Math.max(MIN_RES, Math.min(floorRes, mappedRes));
 
   let chosenIds = visibleIds;
+  let chosenRes = mappedRes;
   let chosenResolved: (Resolved | null)[] = [];
-  for (let res = mappedRes; res >= MIN_RES; res -= 1) {
+  for (let res = mappedRes; res >= floor; res -= 1) {
     const ids =
       res === mappedRes
         ? visibleIds
@@ -109,6 +117,7 @@ export function buildRenderData(
     const renderable = resolved.filter((r) => r !== null);
     const ownCount = renderable.filter((r) => r!.own).length;
     chosenIds = ids;
+    chosenRes = res;
     chosenResolved = resolved;
     if (
       renderable.length > 0 &&
@@ -129,5 +138,5 @@ export function buildRenderData(
       parentFill: !r.own,
     });
   }
-  return out;
+  return { data: out, res: chosenRes };
 }

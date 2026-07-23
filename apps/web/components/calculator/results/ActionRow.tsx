@@ -79,22 +79,6 @@ export default function ActionRow({
       <button type="button" onClick={exportJson} className={secondary}>
         {t("results.actions.exportJson")}
       </button>
-      <button
-        type="button"
-        disabled
-        title={t("results.actions.saveSoon")}
-        className="cursor-not-allowed rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-400 dark:border-neutral-800 dark:text-neutral-600"
-      >
-        {t("results.actions.save")}
-      </button>
-      <button
-        type="button"
-        disabled
-        title={t("results.actions.compareSoon")}
-        className="cursor-not-allowed rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-400 dark:border-neutral-800 dark:text-neutral-600"
-      >
-        {t("results.actions.compare")}
-      </button>
     </div>
   );
 }

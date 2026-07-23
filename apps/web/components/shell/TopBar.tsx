@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 const LINKS = [
   { href: "/explorer", key: "explorer" },
   { href: "/calculator", key: "calculator" },
-  { href: "/scenarios", key: "scenarios" },
 ] as const;
 
 export default function TopBar() {
@@ -43,20 +42,6 @@ export default function TopBar() {
           );
         })}
       </nav>
-      <button
-        type="button"
-        disabled
-        title="More languages coming"
-        className="rounded px-2 py-1 text-xs text-neutral-400"
-      >
-        {t("nav.language")}
-      </button>
-      <Link
-        href="/scenarios"
-        className="rounded border border-neutral-300 px-2.5 py-1 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
-      >
-        {t("nav.signIn")}
-      </Link>
     </header>
   );
 }
