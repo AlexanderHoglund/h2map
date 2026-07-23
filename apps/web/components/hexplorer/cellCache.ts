@@ -101,22 +101,27 @@ export function buildRenderData(
     }
   }
 
+  // Drawing an ancestor at its full geometry is only safe when NO other
+  // drawn cell lies inside it — neither a ready leaf nor a finer pending
+  // ancestor (region edges mix fallback depths: some gaps resolve to a res-3
+  // parent while neighbors resolve to the res-2 grandparent that CONTAINS
+  // that parent). Otherwise the big hex would cover the smaller ones, so the
+  // contained group falls back to child-geometry gap-fill.
+  const drawnFiner: string[] = [...readySelf, ...pending.keys()];
   for (const [ancestor, group] of pending) {
     const ancestorRes = getResolution(ancestor);
-    // Partially refined if any on-screen ready cell descends from this
-    // ancestor — then fill the gaps at child geometry; otherwise draw the
-    // ancestor itself once, at its true (larger) size.
-    let partiallyRefined = false;
-    for (const selfId of readySelf) {
+    let containsDrawnCell = false;
+    for (const other of drawnFiner) {
       if (
-        getResolution(selfId) > ancestorRes &&
-        cellToParent(selfId, ancestorRes) === ancestor
+        other !== ancestor &&
+        getResolution(other) > ancestorRes &&
+        cellToParent(other, ancestorRes) === ancestor
       ) {
-        partiallyRefined = true;
+        containsDrawnCell = true;
         break;
       }
     }
-    if (partiallyRefined) {
+    if (containsDrawnCell) {
       for (const id of group.ids) {
         out.push({ h3: id, value: group.value, data: group.data, parentFill: true });
       }
