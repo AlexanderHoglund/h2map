@@ -227,13 +227,40 @@ async function main(): Promise<void> {
     const deadline = Date.now() + minutes * 60_000;
     console.log(`auto mode: region ladder, ${minutes} min budget`);
     for (const [region, res] of LADDER) {
-      const done = await seedPass(db, deps, region, res, deadline);
+      const polygon = REGIONS[region];
+      if (!polygon) throw new Error(`unknown region ${region}`);
+      const done = await seedCells(
+        db,
+        deps,
+        `${region} @ res ${res}`,
+        polygonToCells(polygon, res),
+        deadline,
+      );
       if (!done) {
         console.log(`\nbudget exhausted during ${region} @ res ${res}`);
         return;
       }
     }
-    console.log("\nladder complete — all regions seeded to target depth");
+    // Priority ladder done — continue with every country on Earth,
+    // depth-first per country, smallest-first (see worldProgram.ts).
+    console.log("\nladder complete — continuing with the world program");
+    const { loadWorldProgram } = await import("./worldProgram");
+    for (const country of loadWorldProgram()) {
+      for (const res of country.small ? [2, 3, 4] : [2, 3]) {
+        const done = await seedCells(
+          db,
+          deps,
+          `${country.name} @ res ${res}`,
+          country.cells(res),
+          deadline,
+        );
+        if (!done) {
+          console.log(`\nbudget exhausted during ${country.name} @ res ${res}`);
+          return;
+        }
+      }
+    }
+    console.log("\nworld program complete — every country at target depth");
     return;
   }
 
@@ -255,8 +282,24 @@ async function seedPass(
 ): Promise<boolean> {
   const polygon = REGIONS[region];
   if (!polygon) throw new Error(`unknown region ${region}`);
-  const cells = polygonToCells(polygon, res);
-  console.log(`\n=== ${region} @ res ${res}: ${cells.length} cells ===`);
+  return seedCells(
+    db,
+    deps,
+    `${region} @ res ${res}`,
+    polygonToCells(polygon, res),
+    deadline,
+  );
+}
+
+/** Seed an explicit cell list; returns false when the deadline hit. */
+async function seedCells(
+  db: ReturnType<typeof makeSupabase>,
+  deps: Deps,
+  label: string,
+  cells: string[],
+  deadline: number,
+): Promise<boolean> {
+  console.log(`\n=== ${label}: ${cells.length} cells ===`);
 
   for (const h3 of cells) {
     if (Date.now() > deadline) return false;
