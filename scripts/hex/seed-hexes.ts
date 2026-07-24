@@ -180,91 +180,151 @@ const REGIONS: Record<string, [number, number][]> = {
 
 const DEFAULT_RES = 2;
 
+/**
+ * Depth-first region ladder for `--auto` (the GitHub Actions cron): each
+ * region completes res 2 → 3 → 4 before the ladder moves to the next.
+ * India/Australia stop at res 3 (their res-4 passes are a deliberate later
+ * decision); the Magallanes core carries the res-5 showcase.
+ */
+const LADDER: [region: string, res: number][] = [
+  ["chile-north", 2], ["chile-north", 3], ["chile-north", 4],
+  ["chile-central", 2], ["chile-central", 3], ["chile-central", 4],
+  ["chile-south", 2], ["chile-south", 3], ["chile-south", 4],
+  ["magallanes-core", 5],
+  ["namibia", 2], ["namibia", 3], ["namibia", 4],
+  ["scandinavia", 2], ["scandinavia", 3], ["scandinavia", 4],
+  ["south-korea", 2], ["south-korea", 3], ["south-korea", 4],
+  ["poland", 2], ["poland", 3], ["poland", 4],
+  ["baltics", 2], ["baltics", 3], ["baltics", 4],
+  ["north-europe", 2], ["north-europe", 3], ["north-europe", 4],
+  ["india", 2], ["india", 3],
+  ["australia", 2], ["australia", 3],
+];
+
+/** Failed cells (mostly transient rate limits) are retried after this long. */
+const FAILED_RETRY_MS = 7 * 24 * 3600 * 1000;
+
+interface Deps {
+  fetchJson: typeof fetchJson;
+  cache: ReturnType<typeof makeCache>;
+  getTurbineCurve: ReturnType<typeof makeTurbineLoader>;
+  log: (m: string) => void;
+}
+
 async function main(): Promise<void> {
   const [regionArg, resArg] = process.argv.slice(2);
-  const res = resArg ? Number(resArg) : DEFAULT_RES;
-  const regions = regionArg ? [regionArg] : Object.keys(REGIONS);
 
   const db = makeSupabase();
-  const deps = {
+  const deps: Deps = {
     fetchJson,
     cache: makeCache(db),
     getTurbineCurve: makeTurbineLoader(db),
     log: (m: string) => console.log(`    ${m}`),
   };
 
-  for (const region of regions) {
-    const polygon = REGIONS[region];
-    if (!polygon) throw new Error(`unknown region ${region}`);
-    const cells = polygonToCells(polygon, res);
-    console.log(`\n=== ${region} @ res ${res}: ${cells.length} cells ===`);
-
-    for (const h3 of cells) {
-      const { data: existing } = await db
-        .from("hex_lcoh")
-        .select("status")
-        .eq("h3", h3)
-        .maybeSingle();
-      if (existing?.status === "ready") {
-        console.log(`  ${h3}: already ready, skipping`);
-        continue;
+  if (regionArg === "--auto") {
+    const minutes = Number(process.env.SEED_MINUTES ?? 50);
+    const deadline = Date.now() + minutes * 60_000;
+    console.log(`auto mode: region ladder, ${minutes} min budget`);
+    for (const [region, res] of LADDER) {
+      const done = await seedPass(db, deps, region, res, deadline);
+      if (!done) {
+        console.log(`\nbudget exhausted during ${region} @ res ${res}`);
+        return;
       }
+    }
+    console.log("\nladder complete — all regions seeded to target depth");
+    return;
+  }
 
-      const [lat, lon] = cellToLatLng(h3);
-      const latR = Number(lat.toFixed(4));
-      const lonR = Number(lon.toFixed(4));
-      await db.from("hex_lcoh").upsert({
+  const res = resArg ? Number(resArg) : DEFAULT_RES;
+  const regions = regionArg ? [regionArg] : Object.keys(REGIONS);
+  for (const region of regions) {
+    await seedPass(db, deps, region, res, Number.POSITIVE_INFINITY);
+  }
+  console.log("\nseeding pass complete");
+}
+
+/** Seed one region at one resolution; returns false when the deadline hit. */
+async function seedPass(
+  db: ReturnType<typeof makeSupabase>,
+  deps: Deps,
+  region: string,
+  res: number,
+  deadline: number,
+): Promise<boolean> {
+  const polygon = REGIONS[region];
+  if (!polygon) throw new Error(`unknown region ${region}`);
+  const cells = polygonToCells(polygon, res);
+  console.log(`\n=== ${region} @ res ${res}: ${cells.length} cells ===`);
+
+  for (const h3 of cells) {
+    if (Date.now() > deadline) return false;
+    const { data: existing } = await db
+      .from("hex_lcoh")
+      .select("status, computed_at")
+      .eq("h3", h3)
+      .maybeSingle();
+    if (existing?.status === "ready") continue;
+    if (
+      existing?.status === "failed" &&
+      existing.computed_at &&
+      Date.now() - Date.parse(existing.computed_at) < FAILED_RETRY_MS
+    ) {
+      continue; // recently failed (likely ocean) — weekly retry cadence
+    }
+
+    const [lat, lon] = cellToLatLng(h3);
+    const latR = Number(lat.toFixed(4));
+    const lonR = Number(lon.toFixed(4));
+    await db.from("hex_lcoh").upsert({
+      h3,
+      res: getResolution(h3),
+      lat: latR,
+      lon: lonR,
+      status: "computing",
+    });
+
+    try {
+      console.log(`  ${h3} (${latR}, ${lonR}):`);
+      const pv = await getResourceProfile({ lat, lon, kind: "pv_fixed" }, deps);
+      const wind = await getResourceProfile(
+        { lat, lon, kind: "wind_120" },
+        deps,
+      );
+      const sweep = referenceSweep({ pv: pv.cf, wind: wind.cf });
+      const meanCf = (cf: number[]) =>
+        Number((cf.reduce((a, b) => a + b, 0) / cf.length).toFixed(4));
+
+      const { error } = await db.from("hex_lcoh").upsert({
         h3,
         res: getResolution(h3),
         lat: latR,
         lon: lonR,
-        status: "computing",
+        status: "ready",
+        lcoh_best: round3(sweep.best.lcoh),
+        lcoh_solar: sweep.solarOnly === null ? null : round3(sweep.solarOnly),
+        lcoh_wind: sweep.windOnly === null ? null : round3(sweep.windOnly),
+        best_pv_mw: sweep.best.pvMw,
+        best_wind_mw: sweep.best.windMw,
+        solar_cf: meanCf(pv.cf),
+        wind_cf: meanCf(wind.cf),
+        engine_version: ENGINE_VERSION,
+        computed_at: new Date().toISOString(),
       });
-
-      try {
-        console.log(`  ${h3} (${latR}, ${lonR}):`);
-        const pv = await getResourceProfile(
-          { lat, lon, kind: "pv_fixed" },
-          deps,
-        );
-        const wind = await getResourceProfile(
-          { lat, lon, kind: "wind_120" },
-          deps,
-        );
-        const sweep = referenceSweep({ pv: pv.cf, wind: wind.cf });
-        const meanCf = (cf: number[]) =>
-          Number((cf.reduce((a, b) => a + b, 0) / cf.length).toFixed(4));
-
-        const { error } = await db.from("hex_lcoh").upsert({
-          h3,
-          res: getResolution(h3),
-          lat: latR,
-          lon: lonR,
-          status: "ready",
-          lcoh_best: round3(sweep.best.lcoh),
-          lcoh_solar: sweep.solarOnly === null ? null : round3(sweep.solarOnly),
-          lcoh_wind: sweep.windOnly === null ? null : round3(sweep.windOnly),
-          best_pv_mw: sweep.best.pvMw,
-          best_wind_mw: sweep.best.windMw,
-          solar_cf: meanCf(pv.cf),
-          wind_cf: meanCf(wind.cf),
-          engine_version: ENGINE_VERSION,
-          computed_at: new Date().toISOString(),
-        });
-        if (error) throw new Error(error.message);
-        console.log(
-          `    ready: best ${sweep.best.lcoh.toFixed(2)} (pv ${sweep.best.pvMw}/wind ${sweep.best.windMw}), solar ${sweep.solarOnly?.toFixed(2)}, wind ${sweep.windOnly?.toFixed(2)}`,
-        );
-      } catch (err) {
-        console.error(`    FAILED: ${String(err)}`);
-        await db
-          .from("hex_lcoh")
-          .update({ status: "failed" })
-          .eq("h3", h3);
-      }
+      if (error) throw new Error(error.message);
+      console.log(
+        `    ready: best ${sweep.best.lcoh.toFixed(2)} (pv ${sweep.best.pvMw}/wind ${sweep.best.windMw}), solar ${sweep.solarOnly?.toFixed(2)}, wind ${sweep.windOnly?.toFixed(2)}`,
+      );
+    } catch (err) {
+      console.error(`    FAILED: ${String(err)}`);
+      await db
+        .from("hex_lcoh")
+        .update({ status: "failed", computed_at: new Date().toISOString() })
+        .eq("h3", h3);
     }
   }
-  console.log("\nseeding pass complete");
+  return true;
 }
 
 function round3(x: number): number {

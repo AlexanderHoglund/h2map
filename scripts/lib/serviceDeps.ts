@@ -19,10 +19,24 @@ export const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
 export function loadEnv(): Record<string, string> {
   const env: Record<string, string> = {};
-  const raw = readFileSync(`${ROOT}apps/web/.env.local`, "utf8");
-  for (const line of raw.split(/\r?\n/)) {
-    const m = /^\s*([A-Z0-9_]+)\s*=\s*(.+?)\s*$/.exec(line);
-    if (m && !line.trim().startsWith("#")) env[m[1]!] = m[2]!;
+  // Local dev reads apps/web/.env.local; CI (GitHub Actions) has no file and
+  // provides the values as real environment variables instead.
+  try {
+    const raw = readFileSync(`${ROOT}apps/web/.env.local`, "utf8");
+    for (const line of raw.split(/\r?\n/)) {
+      const m = /^\s*([A-Z0-9_]+)\s*=\s*(.+?)\s*$/.exec(line);
+      if (m && !line.trim().startsWith("#")) env[m[1]!] = m[2]!;
+    }
+  } catch {
+    // no .env.local — fall through to process.env
+  }
+  for (const key of [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SECRET_KEY",
+  ]) {
+    const value = process.env[key];
+    if (value) env[key] = value;
   }
   return env;
 }

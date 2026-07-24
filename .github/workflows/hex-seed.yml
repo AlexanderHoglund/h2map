@@ -1,0 +1,34 @@
+name: hex-seed
+
+# Continuous choropleth seeding: walks the region ladder (each region
+# completes res 2 -> 3 -> 4 before the next) inside a time budget, then
+# exits. Idempotent - ready cells are skipped, recently-failed cells retry
+# weekly. Provider rate limits (Open-Meteo ~10k calls/day) are respected via
+# in-script cooldowns, so the schedule below stays comfortably polite.
+
+on:
+  schedule:
+    - cron: "0 */4 * * *" # every 4 hours
+  workflow_dispatch:
+
+concurrency:
+  group: hex-seed
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run seeding ladder (time-boxed)
+        run: npm run hex:seed -- --auto
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SEED_MINUTES: "50"
