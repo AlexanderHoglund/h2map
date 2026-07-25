@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { lcohGradientCss } from "./scale";
+import { domainLabels, lcohGradientCss } from "./scale";
 import type { LayerKey } from "./types";
 
 interface Props {
@@ -9,9 +9,10 @@ interface Props {
   maxDetail: boolean;
 }
 
-/** Always-visible legend (bottom-left): fixed 2–8 USD/kg benefit ramp. */
+/** Always-visible legend (bottom-left): benefit ramp over the layer's domain. */
 export default function Legend({ layerKey, maxDetail }: Props) {
   const t = useTranslations("explorer");
+  const [lo, mid, hi] = domainLabels(layerKey);
   return (
     <div className="pointer-events-none absolute bottom-8 left-4 z-10 w-52 rounded-lg border border-neutral-200 bg-white/95 px-3 py-2 text-xs backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
       <div
@@ -21,9 +22,9 @@ export default function Legend({ layerKey, maxDetail }: Props) {
         aria-label={t("legend.caption")}
       />
       <div className="mt-1 flex justify-between tabular-nums text-neutral-600 dark:text-neutral-300">
-        <span>{t("legend.min")}</span>
-        <span>{t("legend.mid")}</span>
-        <span>{t("legend.max")}</span>
+        <span>{lo}</span>
+        <span>{mid}</span>
+        <span>{hi}</span>
       </div>
       <p className="mt-0.5 text-neutral-500 dark:text-neutral-400">
         {t("legend.caption")} ·{" "}

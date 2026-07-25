@@ -299,9 +299,10 @@ export default function HexplorerMap() {
           lineWidthMaxPixels: 1.5,
           getHexagon: (d) => d.h3,
           getFillColor: (d) => {
-            const [r, g, b] = lcohColor(d.value);
+            const [r, g, b] = lcohColor(d.value, layerKey);
             return [r, g, b, d.parentFill ? PARENT_FILL_ALPHA : 255];
           },
+          updateTriggers: { getFillColor: layerKey },
           onHover: onHexHover,
           onClick: onHexClick,
         }),

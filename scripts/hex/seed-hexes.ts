@@ -14,7 +14,7 @@
 import { cellToLatLng, getResolution, polygonToCells } from "h3-js";
 import { ENGINE_VERSION } from "@h2map/lcoh-engine";
 import { getResourceProfile } from "@h2map/profile-service";
-import { referenceSweep } from "../lib/lcohSweep";
+import { mapSweep } from "../lib/lcohSweep";
 import {
   fetchJson,
   makeCache,
@@ -335,7 +335,7 @@ async function seedCells(
         { lat, lon, kind: "wind_120" },
         deps,
       );
-      const sweep = referenceSweep({ pv: pv.cf, wind: wind.cf });
+      const sweep = mapSweep({ pv: pv.cf, wind: wind.cf });
       const meanCf = (cf: number[]) =>
         Number((cf.reduce((a, b) => a + b, 0) / cf.length).toFixed(4));
 

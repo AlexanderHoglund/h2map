@@ -15,6 +15,7 @@
     "spike:compare": "tsx scripts/providers/compare.ts",
     "parity:run": "tsx scripts/parity/run-parity.ts",
     "hex:seed": "tsx scripts/hex/seed-hexes.ts",
+    "hex:recompute": "tsx scripts/hex/recompute.ts",
     "defaults:ingest": "tsx scripts/defaults/ingest-defaults.ts"
   },
   "devDependencies": {
