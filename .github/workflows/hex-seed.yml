@@ -26,6 +26,11 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Refresh country defaults (grid EF + WACC for every country)
+        run: npm run defaults:ingest
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       - name: Run seeding ladder (time-boxed)
         run: npm run hex:seed -- --auto
         env:
