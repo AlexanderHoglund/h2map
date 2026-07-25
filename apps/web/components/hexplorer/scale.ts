@@ -13,22 +13,28 @@ import type { LayerKey } from "./types";
  * (the legend shows each layer's bounds).
  */
 
-/** Domain [cheap, expensive] in USD/kg per layer (see the seeded distribution). */
+/**
+ * Domain [cheap, expensive] in USD/kg per layer. All floor at 2.5 so the
+ * cheapest cells — especially the projected 2050 maps that dip below 3 —
+ * land in the blue "exceptional" band; the per-layer ceilings keep each
+ * layer's spread readable (solar-only runs dearer than the best mix).
+ */
 export const LAYER_DOMAIN: Record<LayerKey, readonly [number, number]> = {
-  best: [3, 8.5],
-  wind: [3, 10],
-  solar: [4.5, 11],
+  best: [2.5, 8.5],
+  wind: [2.5, 10],
+  solar: [2.5, 11],
 };
 
-/** Saturated green→red ramp, evenly spaced by position (0 = cheap, 1 = dear). */
+/**
+ * Benefit ramp, evenly spaced by position (0 = cheapest, 1 = dearest):
+ * green → blue → yellow → red. Blue is the "moderately cheap" band between
+ * best-green and mid-yellow.
+ */
 const RAMP: readonly (readonly [number, number, number])[] = [
-  [5, 110, 51], // #056e33 dark forest green
-  [47, 158, 79], // #2f9e4f clear green
-  [142, 203, 67], // #8ecb43 yellow-green
-  [245, 213, 37], // #f5d525 strong yellow
-  [245, 155, 45], // #f59b2d orange
-  [232, 84, 46], // #e8542e orange-red
-  [200, 31, 31], // #c81f1f red
+  [21, 163, 74], // #15a34a green — cheapest / best
+  [37, 99, 235], // #2563eb blue — moderately cheap
+  [245, 205, 30], // #f5cd1e yellow — mid
+  [220, 38, 38], // #dc2626 red — most expensive
 ];
 
 function rampAt(t: number): [number, number, number] {
