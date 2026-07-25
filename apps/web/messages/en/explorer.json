@@ -1,5 +1,6 @@
 {
   "explorer": {
+    "loading": "Loading map data…",
     "controls": {
       "title": "Layers",
       "collapse": "Collapse layer controls",

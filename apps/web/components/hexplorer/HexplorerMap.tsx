@@ -71,7 +71,7 @@ export default function HexplorerMap() {
   /** Last rendered frame, kept on screen while replacement cells load. */
   const lastDataRef = useRef<HexDatum[]>([]);
 
-  const { engine, version, bump } = useHexCells();
+  const { engine, version, bump, loading } = useHexCells();
 
   // Matches the basemap style choice made at init; strokes use the surface
   // tone so adjacent fills read as separated tiles.
@@ -362,6 +362,16 @@ export default function HexplorerMap() {
         />
         <SearchBox onNavigate={flyTo} />
       </div>
+
+      {loading && (
+        <div
+          role="status"
+          className="pointer-events-none absolute right-16 top-3 z-20"
+        >
+          <span className="sr-only">{t("loading")}</span>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600 dark:border-neutral-700 dark:border-t-blue-400" />
+        </div>
+      )}
 
       <Legend layerKey={layerKey} maxDetail={maxDetail} />
 

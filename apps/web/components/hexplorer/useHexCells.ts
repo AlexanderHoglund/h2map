@@ -31,12 +31,23 @@ export interface HexCellEngine {
  * lives in the LRU cache and `onChange` fires whenever it changes, so the
  * caller can bump a cheap version counter instead of re-rendering per cell.
  */
-export function createHexCellEngine(onChange: () => void): HexCellEngine {
+export function createHexCellEngine(
+  onChange: () => void,
+  onLoadingChange: (loading: boolean) => void,
+): HexCellEngine {
   const cache = new CellCache(CACHE_CAPACITY);
   const pending = new Set<string>();
   const pollAttempts = new Map<string, number>();
   const timers = new Set<number>();
   let alive = true;
+  // Count of in-flight fetch chunks; the spinner shows while this is > 0.
+  let inFlight = 0;
+  function setInFlight(delta: number): void {
+    const was = inFlight;
+    inFlight += delta;
+    if (was === 0 && inFlight > 0) onLoadingChange(true);
+    else if (was > 0 && inFlight === 0) onLoadingChange(false);
+  }
 
   function schedule(fn: () => void, ms: number): void {
     const id = window.setTimeout(() => {
@@ -47,6 +58,7 @@ export function createHexCellEngine(onChange: () => void): HexCellEngine {
   }
 
   async function fetchChunk(ids: string[], rateRetries: number): Promise<void> {
+    setInFlight(1);
     for (const id of ids) pending.add(id);
     let cells: CellData[] | null = null;
     let rateLimited = false;
@@ -70,6 +82,7 @@ export function createHexCellEngine(onChange: () => void): HexCellEngine {
       // Network error: leave ids unknown; the next viewport pass retries.
     } finally {
       for (const id of ids) pending.delete(id);
+      setInFlight(-1);
     }
 
     if (rateLimited) {
@@ -138,13 +151,14 @@ export function createHexCellEngine(onChange: () => void): HexCellEngine {
 /** One engine per mounted map + a version counter that tracks cache changes. */
 export function useHexCells() {
   const [version, setVersion] = useState(0);
+  const [loading, setLoading] = useState(false);
   const bump = useCallback(() => setVersion((v) => v + 1), []);
-  const [engine] = useState(() => createHexCellEngine(bump));
+  const [engine] = useState(() => createHexCellEngine(bump, setLoading));
 
   useEffect(() => {
     engine.activate(); // StrictMode re-mounts dispose then re-run this effect
     return () => engine.dispose();
   }, [engine]);
 
-  return { engine, version, bump };
+  return { engine, version, bump, loading };
 }
