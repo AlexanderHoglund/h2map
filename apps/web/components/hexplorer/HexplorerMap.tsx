@@ -366,10 +366,10 @@ export default function HexplorerMap() {
       {loading && (
         <div
           role="status"
-          className="pointer-events-none absolute right-16 top-3 z-20"
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
         >
           <span className="sr-only">{t("loading")}</span>
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600 dark:border-neutral-700 dark:border-t-blue-400" />
+          <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-neutral-400/40 border-t-blue-600 dark:border-neutral-500/40 dark:border-t-blue-400" />
         </div>
       )}
 
