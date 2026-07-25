@@ -8,7 +8,7 @@ name: hex-seed
 
 on:
   schedule:
-    - cron: "0 */4 * * *" # every 4 hours
+    - cron: "0 */3 * * *" # every 3 hours
   workflow_dispatch:
 
 concurrency:
@@ -18,7 +18,11 @@ concurrency:
 jobs:
   seed:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Shorter than the seed budget so the job always exits on its own; keeps
+    # each run brief to limit exposure to transient runner failures. A killed
+    # or failed run loses nothing — the seeder is idempotent and the next
+    # scheduled run resumes where it stopped.
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,4 +40,4 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          SEED_MINUTES: "50"
+          SEED_MINUTES: "32"

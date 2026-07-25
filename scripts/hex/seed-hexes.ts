@@ -291,6 +291,35 @@ async function seedPass(
   );
 }
 
+/** Ids to skip: already ready, or failed within the weekly retry window. */
+async function loadSkipSet(
+  db: ReturnType<typeof makeSupabase>,
+  cells: string[],
+): Promise<Set<string>> {
+  const skip = new Set<string>();
+  const cutoff = Date.now() - FAILED_RETRY_MS;
+  const CHUNK = 500;
+  for (let i = 0; i < cells.length; i += CHUNK) {
+    const chunk = cells.slice(i, i + CHUNK);
+    const { data, error } = await db
+      .from("hex_lcoh")
+      .select("h3, status, computed_at")
+      .in("h3", chunk);
+    if (error) throw new Error(error.message);
+    for (const r of data ?? []) {
+      if (r.status === "ready") skip.add(r.h3);
+      else if (
+        r.status === "failed" &&
+        r.computed_at &&
+        Date.parse(r.computed_at) > cutoff
+      ) {
+        skip.add(r.h3);
+      }
+    }
+  }
+  return skip;
+}
+
 /** Seed an explicit cell list; returns false when the deadline hit. */
 async function seedCells(
   db: ReturnType<typeof makeSupabase>,
@@ -299,23 +328,17 @@ async function seedCells(
   cells: string[],
   deadline: number,
 ): Promise<boolean> {
-  console.log(`\n=== ${label}: ${cells.length} cells ===`);
+  // One batched query for the whole region's done/recently-failed cells,
+  // instead of a SELECT per cell — keeps each auto run light as coverage
+  // grows (fewer round-trips = shorter, more resilient jobs).
+  const skip = await loadSkipSet(db, cells);
+  console.log(
+    `\n=== ${label}: ${cells.length} cells (${skip.size} already done) ===`,
+  );
 
   for (const h3 of cells) {
     if (Date.now() > deadline) return false;
-    const { data: existing } = await db
-      .from("hex_lcoh")
-      .select("status, computed_at")
-      .eq("h3", h3)
-      .maybeSingle();
-    if (existing?.status === "ready") continue;
-    if (
-      existing?.status === "failed" &&
-      existing.computed_at &&
-      Date.now() - Date.parse(existing.computed_at) < FAILED_RETRY_MS
-    ) {
-      continue; // recently failed (likely ocean) — weekly retry cadence
-    }
+    if (skip.has(h3)) continue;
 
     const [lat, lon] = cellToLatLng(h3);
     const latR = Number(lat.toFixed(4));
