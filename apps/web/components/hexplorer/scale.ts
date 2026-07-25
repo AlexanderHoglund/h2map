@@ -27,15 +27,17 @@ export const LAYER_DOMAIN: Record<LayerKey, readonly [number, number]> = {
 
 /**
  * Benefit ramp as positioned stops (0 = cheapest, 1 = dearest):
- * blue → green → yellow → red. Blue occupies only the bottom ~10 % so it
- * flags the exceptional cheapest cells (≈ ≤3 USD/kg — mostly the projected
- * later years); green → yellow → red is the normal body of the scale.
+ * blue → green → light-green → yellow → orange → red. Blue occupies only
+ * the bottom ~10 % so it flags the exceptional cheapest cells (≈ ≤3 USD/kg —
+ * mostly the projected later years); the rest is the normal green→red body.
  */
 const RAMP: readonly [number, readonly [number, number, number]][] = [
   [0.0, [37, 99, 235]], // #2563eb blue — exceptional (most extreme cheap)
-  [0.1, [21, 163, 74]], // #15a34a green — best / cheap
-  [0.5, [245, 205, 30]], // #f5cd1e yellow — mid
-  [1.0, [220, 38, 38]], // #dc2626 red — most expensive
+  [0.1, [26, 152, 80]], // #1a9850 green — best / cheap
+  [0.35, [166, 217, 106]], // #a6d96a light green
+  [0.58, [245, 205, 30]], // #f5cd1e yellow — mid
+  [0.8, [245, 155, 45]], // #f59b2d orange
+  [1.0, [215, 48, 39]], // #d73027 red — most expensive
 ];
 
 function rampAt(t: number): [number, number, number] {
