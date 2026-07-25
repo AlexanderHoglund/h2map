@@ -15,7 +15,11 @@
  *   different economics.
  */
 import { REFERENCE_DEFAULTS, simulateLCOH } from "@h2map/lcoh-engine";
-import type { LCOHInputs, PricingMode } from "@h2map/lcoh-engine";
+import type {
+  LCOHInputs,
+  PricingMode,
+  ReferenceFlags,
+} from "@h2map/lcoh-engine";
 
 export const PV_SHARES = [0, 0.25, 0.5, 0.75, 1];
 export const TOTAL_RENEWABLE_MW = 200;
@@ -69,6 +73,7 @@ function sweep(
   pvPricing: PricingMode,
   windPricing: PricingMode,
   electrolyzer: LCOHInputs["electrolyzer"],
+  flags: ReferenceFlags,
   label: string,
 ): SweepResult {
   const points: SweepPoint[] = [];
@@ -85,6 +90,7 @@ function sweep(
         ? { wind: { capacityMw: windMw, pricing: windPricing } }
         : {}),
       water: { ...REFERENCE_DEFAULTS.water },
+      referenceFlags: flags,
     };
     const results = simulateLCOH(inputs, {
       ...(pvMw > 0 ? { pv: profiles.pv } : {}),
@@ -104,7 +110,21 @@ function sweep(
   };
 }
 
-/** Flat-LCOE reference sweep — parity target; keep pricing fixed. */
+/** No reference-flag deviations — the reference/default model. */
+const REFERENCE_FLAGS: ReferenceFlags = {};
+
+/**
+ * The "improved mode" reference-flag set the rank-fidelity program builds up.
+ * Engine-only P0 items land here (all default-off in the engine, so reference
+ * mode and the Chilean parity run are unaffected):
+ *   P0 #3 — stack life on equivalent full-load hours + efficiency reset.
+ */
+export const IMPROVED_FLAGS: ReferenceFlags = {
+  stackLifeOnEquivalentFullLoadHours: true,
+  resetEfficiencyOnStackReplacement: true,
+};
+
+/** Flat-LCOE reference sweep — parity target; keep pricing + flags fixed. */
 export function referenceSweep(profiles: {
   pv?: readonly number[];
   wind?: readonly number[];
@@ -114,6 +134,7 @@ export function referenceSweep(profiles: {
     FLAT_LCOE,
     FLAT_LCOE,
     { ...REFERENCE_DEFAULTS.electrolyzer },
+    REFERENCE_FLAGS,
     "referenceSweep",
   );
 }
@@ -122,6 +143,7 @@ export function referenceSweep(profiles: {
 export function mapSweep(
   profiles: { pv?: readonly number[]; wind?: readonly number[] },
   pack: CostPack,
+  flags: ReferenceFlags = REFERENCE_FLAGS,
 ): SweepResult {
   return sweep(
     profiles,
@@ -132,6 +154,7 @@ export function mapSweep(
       capexUsdPerKw: pack.electrolyzerCapexUsdPerKw,
       efficiencyLhv: pack.efficiencyLhv,
     },
+    flags,
     "mapSweep",
   );
 }
@@ -146,13 +169,13 @@ export interface YearLcoh {
 }
 
 /** Run the map sweep for every cost year from one set of cached profiles. */
-export function mapSweepAllYears(profiles: {
-  pv?: readonly number[];
-  wind?: readonly number[];
-}): Record<CostYear, YearLcoh> {
+export function mapSweepAllYears(
+  profiles: { pv?: readonly number[]; wind?: readonly number[] },
+  flags: ReferenceFlags = REFERENCE_FLAGS,
+): Record<CostYear, YearLcoh> {
   const out = {} as Record<CostYear, YearLcoh>;
   for (const year of COST_YEARS) {
-    const s = mapSweep(profiles, COST_PACKS[year]);
+    const s = mapSweep(profiles, COST_PACKS[year], flags);
     out[year] = {
       best: s.best.lcoh,
       solar: s.solarOnly,

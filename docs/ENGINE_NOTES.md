@@ -37,6 +37,10 @@ This file logs every such decision.
    degradation clock the year after each replacement.
 4. **Stack-hours semantics** — the 40 000 h counter accumulates *calendar
    operating hours* (hours with load > 0), not full-load-equivalent hours.
+   Flag `stackLifeOnEquivalentFullLoadHours` (improved mode) switches to EFLH
+   = consumed energy ÷ rated power, which counts partial-load hours
+   proportionally; calendar hours over-consume stack life on peaky
+   (solar-heavy) profiles and bias against high-capacity-factor sites.
 5. **Final-year replacement skip** — a replacement whose crossing falls in
    the final operating year is skipped (no operator replaces a stack the year
    the plant retires). Multiple crossings within one year each charge a
@@ -63,6 +67,22 @@ This file logs every such decision.
   merely within tolerance.
 - Golden files compare at relative tolerance 1e-12; `.gitattributes` forces
   LF so golden bytes match between Windows and CI.
+
+## Improved mode (rank-fidelity program)
+
+Beyond reference mode, an **improved** flag set trades doc-literal fidelity for
+better screening rank-fidelity. All flags default off, so reference mode and
+the Chilean parity run are unaffected, and the reference golden set is
+untouched (an `improved-*` golden set is added beside it).
+
+- **P0 #3 — stack life on EFLH + efficiency reset**
+  (`stackLifeOnEquivalentFullLoadHours` + `resetEfficiencyOnStackReplacement`).
+  The calendar-hour counter over-charges stack replacements on peaky profiles,
+  and never resetting efficiency means the plant pays replacement CAPEX for no
+  performance gain. Both bias against high-CF sites. Measured effect on the
+  500-cell rank-diff benchmark (`scripts/rankdiff`): mean LCOH −0.44 to −0.53
+  USD/kg, Kendall τ_b 0.94–0.99, top-50 churn 4–6%, largest movement on
+  wind-heavy high-elevation cells (bucket mean −0.80 USD/kg).
 
 ## Deferred (v1.1+ `extensions`, not implemented)
 

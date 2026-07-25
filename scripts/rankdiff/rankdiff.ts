@@ -14,7 +14,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cellToLatLng } from "h3-js";
 import { getResourceProfile } from "@h2map/profile-service";
-import { mapSweepAllYears } from "../lib/lcohSweep";
+import { IMPROVED_FLAGS, mapSweepAllYears } from "../lib/lcohSweep";
 import {
   fetchJson,
   makeCache,
@@ -137,6 +137,9 @@ function loadBenchmark(): BenchCell[] {
 }
 
 async function compute(cells: BenchCell[]): Promise<Matrix> {
+  // RANKDIFF_MODE=improved runs the accumulated improved-mode flag set so a
+  // report quantifies its rank effect; default is the reference model.
+  const flags = process.env.RANKDIFF_MODE === "improved" ? IMPROVED_FLAGS : {};
   const db = makeSupabase();
   const deps = {
     fetchJson: delayless(),
@@ -155,7 +158,7 @@ async function compute(cells: BenchCell[]): Promise<Matrix> {
     try {
       const pv = await getResourceProfile({ lat, lon, kind: "pv_fixed" }, deps);
       const wind = await getResourceProfile({ lat, lon, kind: "wind_120" }, deps);
-      years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf });
+      years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf }, flags);
     } catch {
       years = null; // cache gap — record nulls, cell drops out of metrics
     }

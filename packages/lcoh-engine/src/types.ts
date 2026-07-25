@@ -50,6 +50,14 @@ export interface ReferenceFlags {
   resetEfficiencyOnStackReplacement?: boolean;
   /** Charge LCOE-priced renewables for generated (incl. curtailed) energy instead of consumed only. */
   lcoePaysForCurtailedEnergy?: boolean;
+  /**
+   * Accumulate stack life on equivalent full-load hours (Σ P_consumed/P_rated
+   * = consumed energy ÷ rated power) instead of calendar operating hours.
+   * Reference mode counts any hour with load > 0 as a full hour of stack
+   * life, which over-consumes life on peaky (solar-heavy) profiles and biases
+   * against high-capacity-factor sites; EFLH removes that bias.
+   */
+  stackLifeOnEquivalentFullLoadHours?: boolean;
 }
 
 export interface LCOHInputs {

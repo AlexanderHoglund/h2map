@@ -39,6 +39,7 @@ export function simulateLCOH(
   const nameplateFirstYear = flags.nameplateEfficiencyInFirstYear ?? false;
   const resetOnReplacement = flags.resetEfficiencyOnStackReplacement ?? false;
   const lcoePaysCurtailed = flags.lcoePaysForCurtailedEnergy ?? false;
+  const stackLifeOnEflh = flags.stackLifeOnEquivalentFullLoadHours ?? false;
 
   const years = finance.lifetimeYears;
   const electrolyzerKw = electrolyzer.capacityMw * 1000;
@@ -59,8 +60,14 @@ export function simulateLCOH(
   let annuity = 0;
   for (let t = 1; t <= years; t++) annuity += df[t]!;
 
+  // Reference: calendar operating hours (any hour with load > 0). Improved:
+  // equivalent full-load hours = consumed energy ÷ rated power, which counts
+  // partial-load hours proportionally.
+  const stackWearHoursPerYear = stackLifeOnEflh
+    ? dispatch.consumedKwh / electrolyzerKw
+    : dispatch.operatingHours;
   const replacementYears = stackReplacementYears(
-    dispatch.operatingHours,
+    stackWearHoursPerYear,
     electrolyzer.stackLifetimeHours,
     years,
   );
@@ -255,7 +262,10 @@ export function simulateLCOH(
   }
 
   const referenceMode =
-    !nameplateFirstYear && !resetOnReplacement && !lcoePaysCurtailed;
+    !nameplateFirstYear &&
+    !resetOnReplacement &&
+    !lcoePaysCurtailed &&
+    !stackLifeOnEflh;
 
   return {
     lcohUsdPerKg,
