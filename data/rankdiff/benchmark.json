@@ -1,0 +1,4505 @@
+{
+ "createdCount": 500,
+ "cells": [
+  {
+   "h3": "821f07fffffffff",
+   "lat": 54.4669,
+   "lon": 11.9745,
+   "elevationM": 0,
+   "solarCf": 0.1231,
+   "windCf": 0.6085,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "821e37fffffffff",
+   "lat": 49.4952,
+   "lon": 14.1023,
+   "elevationM": 437,
+   "solarCf": 0.1234,
+   "windCf": 0.2395,
+   "bucket": "other"
+  },
+  {
+   "h3": "829c77fffffffff",
+   "lat": -16.8163,
+   "lon": 140.3875,
+   "elevationM": 0,
+   "solarCf": 0.2288,
+   "windCf": 0.3373,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "821e27fffffffff",
+   "lat": 51.3767,
+   "lon": 17.4296,
+   "elevationM": 158,
+   "solarCf": 0.1192,
+   "windCf": 0.4335,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "820127fffffffff",
+   "lat": 70.6839,
+   "lon": 24.355,
+   "elevationM": 0,
+   "solarCf": 0.0847,
+   "windCf": 0.34,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "823d37fffffffff",
+   "lat": 33.0157,
+   "lon": 75.5131,
+   "elevationM": 2792,
+   "solarCf": 0.1765,
+   "windCf": 0.0068,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "821f0ffffffffff",
+   "lat": 53.8857,
+   "lon": 16.4908,
+   "elevationM": 161,
+   "solarCf": 0.1107,
+   "windCf": 0.5194,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "821f47fffffffff",
+   "lat": 54.7163,
+   "lon": 24.683,
+   "elevationM": 102,
+   "solarCf": 0.1106,
+   "windCf": 0.2481,
+   "bucket": "other"
+  },
+  {
+   "h3": "82ad9ffffffffff",
+   "lat": -23.5666,
+   "lon": 18.9849,
+   "elevationM": 1272,
+   "solarCf": 0.2218,
+   "windCf": 0.3543,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "821e2ffffffffff",
+   "lat": 50.5415,
+   "lon": 21.729,
+   "elevationM": 155,
+   "solarCf": 0.1218,
+   "windCf": 0.3919,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "820807fffffffff",
+   "lat": 64.7,
+   "lon": 10.5362,
+   "elevationM": 0,
+   "solarCf": 0.0914,
+   "windCf": 0.5608,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "82b2e7fffffffff",
+   "lat": -31.4463,
+   "lon": -70.1911,
+   "elevationM": 4067,
+   "solarCf": 0.2239,
+   "windCf": 0.3382,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "821f37fffffffff",
+   "lat": 54.8672,
+   "lon": 7.4663,
+   "elevationM": 0,
+   "solarCf": 0.1191,
+   "windCf": 0.6609,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "821f87fffffffff",
+   "lat": 47.9847,
+   "lon": 6.9179,
+   "elevationM": 1059,
+   "solarCf": 0.1242,
+   "windCf": 0.2544,
+   "bucket": "other"
+  },
+  {
+   "h3": "82b227fffffffff",
+   "lat": -24.1385,
+   "lon": -69.5815,
+   "elevationM": 1533,
+   "solarCf": 0.228,
+   "windCf": 0.0483,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "821f17fffffffff",
+   "lat": 52.5233,
+   "lon": 8.7162,
+   "elevationM": 37,
+   "solarCf": 0.1167,
+   "windCf": 0.3515,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "820817fffffffff",
+   "lat": 62.7689,
+   "lon": 11.9277,
+   "elevationM": 896,
+   "solarCf": 0.0958,
+   "windCf": 0.3232,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "82b30ffffffffff",
+   "lat": -21.4245,
+   "lon": -68.3663,
+   "elevationM": 3718,
+   "solarCf": 0.2518,
+   "windCf": 0.0826,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82949ffffffffff",
+   "lat": -20.4444,
+   "lon": 123.012,
+   "elevationM": 253,
+   "solarCf": 0.1988,
+   "windCf": 0.476,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "821f8ffffffffff",
+   "lat": 47.4945,
+   "lon": 10.9815,
+   "elevationM": 1566,
+   "solarCf": 0.1295,
+   "windCf": 0.0309,
+   "bucket": "other"
+  },
+  {
+   "h3": "83ac16fffffffff",
+   "lat": -23.9861,
+   "lon": 14.6432,
+   "elevationM": 177,
+   "solarCf": 0.2297,
+   "windCf": 0.2953,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "821f1ffffffffff",
+   "lat": 52.0375,
+   "lon": 13.0754,
+   "elevationM": 64,
+   "solarCf": 0.1213,
+   "windCf": 0.3344,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "82081ffffffffff",
+   "lat": 64.6353,
+   "lon": 15.2719,
+   "elevationM": 602,
+   "solarCf": 0.0894,
+   "windCf": 0.2563,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83b221fffffffff",
+   "lat": -24.6834,
+   "lon": -68.6043,
+   "elevationM": 4453,
+   "solarCf": 0.2512,
+   "windCf": 0.1537,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "8294cffffffffff",
+   "lat": -17.9048,
+   "lon": 132.4737,
+   "elevationM": 206,
+   "solarCf": 0.1949,
+   "windCf": 0.463,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "821faffffffffff",
+   "lat": 50.0643,
+   "lon": 9.8857,
+   "elevationM": 255,
+   "solarCf": 0.1199,
+   "windCf": 0.2214,
+   "bucket": "other"
+  },
+  {
+   "h3": "83aca1fffffffff",
+   "lat": -22.0723,
+   "lon": 14.8699,
+   "elevationM": 652,
+   "solarCf": 0.2203,
+   "windCf": 0.1485,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "821f57fffffffff",
+   "lat": 53.122,
+   "lon": 20.9598,
+   "elevationM": 137,
+   "solarCf": 0.1168,
+   "windCf": 0.446,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "82082ffffffffff",
+   "lat": 66.6234,
+   "lon": 12.0881,
+   "elevationM": 0,
+   "solarCf": 0.1057,
+   "windCf": 0.605,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83b2c1fffffffff",
+   "lat": -34.3923,
+   "lon": -70.4635,
+   "elevationM": 2774,
+   "solarCf": 0.1936,
+   "windCf": 0.0579,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "829c6ffffffffff",
+   "lat": -18.4179,
+   "lon": 135.4524,
+   "elevationM": 214,
+   "solarCf": 0.198,
+   "windCf": 0.4614,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8230c7fffffffff",
+   "lat": 35.2731,
+   "lon": 127.6806,
+   "elevationM": 649,
+   "solarCf": 0.155,
+   "windCf": 0.0887,
+   "bucket": "other"
+  },
+  {
+   "h3": "83aca5fffffffff",
+   "lat": -23.1146,
+   "lon": 15.352,
+   "elevationM": 764,
+   "solarCf": 0.2234,
+   "windCf": 0.1963,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "821fa7fffffffff",
+   "lat": 50.4683,
+   "lon": 5.6987,
+   "elevationM": 205,
+   "solarCf": 0.1123,
+   "windCf": 0.3928,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "820837fffffffff",
+   "lat": 63.4528,
+   "lon": 6.8803,
+   "elevationM": 0,
+   "solarCf": 0.0923,
+   "windCf": 0.5769,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83b2e0fffffffff",
+   "lat": -31.4463,
+   "lon": -70.1911,
+   "elevationM": 4067,
+   "solarCf": 0.2239,
+   "windCf": 0.3382,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "829d47fffffffff",
+   "lat": -22.1681,
+   "lon": 142.2228,
+   "elevationM": 236,
+   "solarCf": 0.1911,
+   "windCf": 0.4865,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8230e7fffffffff",
+   "lat": 37.2561,
+   "lon": 126.5355,
+   "elevationM": 0,
+   "solarCf": 0.1677,
+   "windCf": 0.2897,
+   "bucket": "other"
+  },
+  {
+   "h3": "83acacfffffffff",
+   "lat": -21.9068,
+   "lon": 13.6938,
+   "elevationM": 0,
+   "solarCf": 0.2258,
+   "windCf": 0.3721,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82a737fffffffff",
+   "lat": -30.6425,
+   "lon": 117.1432,
+   "elevationM": 398,
+   "solarCf": 0.1796,
+   "windCf": 0.4313,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "820887fffffffff",
+   "lat": 60.1912,
+   "lon": 18.2585,
+   "elevationM": 25,
+   "solarCf": 0.1072,
+   "windCf": 0.327,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83b305fffffffff",
+   "lat": -18.6265,
+   "lon": -69.1673,
+   "elevationM": 4195,
+   "solarCf": 0.2474,
+   "windCf": 0.1348,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "829d4ffffffffff",
+   "lat": -21.6397,
+   "lon": 139.1466,
+   "elevationM": 277,
+   "solarCf": 0.1942,
+   "windCf": 0.4527,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8230effffffffff",
+   "lat": 37.3823,
+   "lon": 129.2814,
+   "elevationM": 0,
+   "solarCf": 0.1714,
+   "windCf": 0.1968,
+   "bucket": "other"
+  },
+  {
+   "h3": "83ad8afffffffff",
+   "lat": -24.3118,
+   "lon": 17.0502,
+   "elevationM": 1297,
+   "solarCf": 0.2241,
+   "windCf": 0.2849,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82b82ffffffffff",
+   "lat": -31.9435,
+   "lon": 127.5169,
+   "elevationM": 16,
+   "solarCf": 0.1584,
+   "windCf": 0.4255,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "82088ffffffffff",
+   "lat": 61.9655,
+   "lon": 21.8201,
+   "elevationM": 66,
+   "solarCf": 0.1032,
+   "windCf": 0.3155,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83b308fffffffff",
+   "lat": -21.4245,
+   "lon": -68.3663,
+   "elevationM": 3718,
+   "solarCf": 0.2518,
+   "windCf": 0.0826,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "829d77fffffffff",
+   "lat": -22.6481,
+   "lon": 145.3898,
+   "elevationM": 285,
+   "solarCf": 0.1879,
+   "windCf": 0.4827,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823c17fffffffff",
+   "lat": 26.0551,
+   "lon": 84.2696,
+   "elevationM": 59,
+   "solarCf": 0.1748,
+   "windCf": 0.146,
+   "bucket": "other"
+  },
+  {
+   "h3": "83ad9dfffffffff",
+   "lat": -24.4619,
+   "lon": 18.2715,
+   "elevationM": 1203,
+   "solarCf": 0.2252,
+   "windCf": 0.3288,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82b847fffffffff",
+   "lat": -30.0096,
+   "lon": 121.9601,
+   "elevationM": 353,
+   "solarCf": 0.1782,
+   "windCf": 0.4051,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "820897fffffffff",
+   "lat": 57.9491,
+   "lon": 19.2322,
+   "elevationM": 2,
+   "solarCf": 0.1232,
+   "windCf": 0.5765,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2053ffffffff",
+   "lat": -26.5854,
+   "lon": -69.4821,
+   "elevationM": 3657,
+   "solarCf": 0.2433,
+   "windCf": 0.0593,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82a637fffffffff",
+   "lat": -24.599,
+   "lon": 114.8682,
+   "elevationM": 206,
+   "solarCf": 0.1936,
+   "windCf": 0.4944,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823c1ffffffffff",
+   "lat": 26.0738,
+   "lon": 87.5081,
+   "elevationM": 47,
+   "solarCf": 0.1603,
+   "windCf": 0.1515,
+   "bucket": "other"
+  },
+  {
+   "h3": "83b224fffffffff",
+   "lat": -23.0521,
+   "lon": -69.4973,
+   "elevationM": 1452,
+   "solarCf": 0.2294,
+   "windCf": 0.1623,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82b867fffffffff",
+   "lat": -32.7448,
+   "lon": 122.2239,
+   "elevationM": 331,
+   "solarCf": 0.1599,
+   "windCf": 0.3727,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "82089ffffffffff",
+   "lat": 59.457,
+   "lon": 23.2231,
+   "elevationM": 0,
+   "solarCf": 0.1126,
+   "windCf": 0.6039,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2085ffffffff",
+   "lat": -28.9704,
+   "lon": -69.381,
+   "elevationM": 3658,
+   "solarCf": 0.2314,
+   "windCf": 0.4255,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82a717fffffffff",
+   "lat": -28.0427,
+   "lon": 117.0715,
+   "elevationM": 477,
+   "solarCf": 0.1877,
+   "windCf": 0.5308,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823c87fffffffff",
+   "lat": 21.0386,
+   "lon": 84.0582,
+   "elevationM": 166,
+   "solarCf": 0.1657,
+   "windCf": 0.0813,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ac127ffffffff",
+   "lat": -22.5264,
+   "lon": 14.1305,
+   "elevationM": 0,
+   "solarCf": 0.2252,
+   "windCf": 0.3531,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82b9b7fffffffff",
+   "lat": -30.1124,
+   "lon": 142.0188,
+   "elevationM": 88,
+   "solarCf": 0.1811,
+   "windCf": 0.3659,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208a7fffffffff",
+   "lat": 60.7228,
+   "lon": 13.208,
+   "elevationM": 448,
+   "solarCf": 0.0972,
+   "windCf": 0.3054,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b20a7ffffffff",
+   "lat": -29.7841,
+   "lon": -70.1944,
+   "elevationM": 3879,
+   "solarCf": 0.2554,
+   "windCf": 0.0308,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82a71ffffffffff",
+   "lat": -27.0703,
+   "lon": 114.8614,
+   "elevationM": 222,
+   "solarCf": 0.1848,
+   "windCf": 0.5386,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823c8ffffffffff",
+   "lat": 21.0142,
+   "lon": 87.2368,
+   "elevationM": 0,
+   "solarCf": 0.1899,
+   "windCf": 0.3445,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ac16dffffffff",
+   "lat": -24.1826,
+   "lon": 15.0532,
+   "elevationM": 485,
+   "solarCf": 0.2273,
+   "windCf": 0.2196,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82be47fffffffff",
+   "lat": -35.9496,
+   "lon": 144.3111,
+   "elevationM": 81,
+   "solarCf": 0.1571,
+   "windCf": 0.3444,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208affffffffff",
+   "lat": 62.3185,
+   "lon": 17.1994,
+   "elevationM": 28,
+   "solarCf": 0.1032,
+   "windCf": 0.2815,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b20a9ffffffff",
+   "lat": -29.0481,
+   "lon": -69.8329,
+   "elevationM": 3879,
+   "solarCf": 0.237,
+   "windCf": 0.2184,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82a797fffffffff",
+   "lat": -22.1449,
+   "lon": 121.2734,
+   "elevationM": 365,
+   "solarCf": 0.2072,
+   "windCf": 0.4693,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823c97fffffffff",
+   "lat": 18.4674,
+   "lon": 82.4054,
+   "elevationM": 472,
+   "solarCf": 0.1599,
+   "windCf": 0.0564,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ac8d7ffffffff",
+   "lat": -18.3455,
+   "lon": 12.2866,
+   "elevationM": 496,
+   "solarCf": 0.2294,
+   "windCf": 0.3086,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82be57fffffffff",
+   "lat": -33.5828,
+   "lon": 146.7323,
+   "elevationM": 280,
+   "solarCf": 0.1637,
+   "windCf": 0.3482,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208b7fffffffff",
+   "lat": 58.5603,
+   "lon": 14.3886,
+   "elevationM": 151,
+   "solarCf": 0.1136,
+   "windCf": 0.3705,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b20abffffffff",
+   "lat": -29.3393,
+   "lon": -69.5601,
+   "elevationM": 3181,
+   "solarCf": 0.2489,
+   "windCf": 0.0435,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82a7a7fffffffff",
+   "lat": -26.4085,
+   "lon": 119.2845,
+   "elevationM": 560,
+   "solarCf": 0.1901,
+   "windCf": 0.5312,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823ca7fffffffff",
+   "lat": 23.5491,
+   "lon": 82.584,
+   "elevationM": 818,
+   "solarCf": 0.1716,
+   "windCf": 0.1352,
+   "bucket": "other"
+  },
+  {
+   "h3": "84aca11ffffffff",
+   "lat": -22.0723,
+   "lon": 14.8699,
+   "elevationM": 652,
+   "solarCf": 0.2203,
+   "windCf": 0.1485,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82be5ffffffffff",
+   "lat": -33.0236,
+   "lon": 143.122,
+   "elevationM": 64,
+   "solarCf": 0.1687,
+   "windCf": 0.3469,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208c7fffffffff",
+   "lat": 66.4697,
+   "lon": 23.7899,
+   "elevationM": 206,
+   "solarCf": 0.1,
+   "windCf": 0.2763,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b20adffffffff",
+   "lat": -29.1245,
+   "lon": -70.2866,
+   "elevationM": 3433,
+   "solarCf": 0.2587,
+   "windCf": 0.0173,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82a7affffffffff",
+   "lat": -25.4977,
+   "lon": 117.0045,
+   "elevationM": 464,
+   "solarCf": 0.1917,
+   "windCf": 0.4745,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823caffffffffff",
+   "lat": 23.5794,
+   "lon": 85.7594,
+   "elevationM": 355,
+   "solarCf": 0.1695,
+   "windCf": 0.0939,
+   "bucket": "other"
+  },
+  {
+   "h3": "84aca53ffffffff",
+   "lat": -22.9191,
+   "lon": 14.9428,
+   "elevationM": 315,
+   "solarCf": 0.2253,
+   "windCf": 0.1943,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82bee7fffffffff",
+   "lat": -31.157,
+   "lon": 149.0361,
+   "elevationM": 395,
+   "solarCf": 0.1667,
+   "windCf": 0.3065,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208cffffffffff",
+   "lat": 68.4789,
+   "lon": 28.1045,
+   "elevationM": 151,
+   "solarCf": 0.0838,
+   "windCf": 0.2917,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b20c5ffffffff",
+   "lat": -27.9341,
+   "lon": -69.2962,
+   "elevationM": 3470,
+   "solarCf": 0.2503,
+   "windCf": 0.0949,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82acaffffffffff",
+   "lat": -20.8628,
+   "lon": 13.2285,
+   "elevationM": 0,
+   "solarCf": 0.1805,
+   "windCf": 0.4849,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823cb7fffffffff",
+   "lat": 21.0053,
+   "lon": 80.9489,
+   "elevationM": 299,
+   "solarCf": 0.1687,
+   "windCf": 0.1352,
+   "bucket": "other"
+  },
+  {
+   "h3": "84acaa3ffffffff",
+   "lat": -19.784,
+   "lon": 13.5272,
+   "elevationM": 743,
+   "solarCf": 0.2236,
+   "windCf": 0.2262,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82beeffffffffff",
+   "lat": -30.6781,
+   "lon": 145.4829,
+   "elevationM": 144,
+   "solarCf": 0.1734,
+   "windCf": 0.4213,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208d7fffffffff",
+   "lat": 63.9879,
+   "lon": 25.2693,
+   "elevationM": 107,
+   "solarCf": 0.0989,
+   "windCf": 0.3092,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b20e1ffffffff",
+   "lat": -28.3835,
+   "lon": -69.9255,
+   "elevationM": 3096,
+   "solarCf": 0.2559,
+   "windCf": 0.1393,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b807fffffffff",
+   "lat": -30.0157,
+   "lon": 129.9585,
+   "elevationM": 154,
+   "solarCf": 0.1699,
+   "windCf": 0.4865,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823cc7fffffffff",
+   "lat": 23.4397,
+   "lon": 92.2738,
+   "elevationM": 278,
+   "solarCf": 0.1558,
+   "windCf": 0.0092,
+   "bucket": "other"
+  },
+  {
+   "h3": "84acaa9ffffffff",
+   "lat": -20.4056,
+   "lon": 13.9587,
+   "elevationM": 909,
+   "solarCf": 0.2214,
+   "windCf": 0.2441,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82bf4ffffffffff",
+   "lat": -41.7696,
+   "lon": 146.9855,
+   "elevationM": 175,
+   "solarCf": 0.1319,
+   "windCf": 0.3817,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208dffffffffff",
+   "lat": 65.9615,
+   "lon": 29.3469,
+   "elevationM": 288,
+   "solarCf": 0.0902,
+   "windCf": 0.3293,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b20e7ffffffff",
+   "lat": -28.7547,
+   "lon": -70.1057,
+   "elevationM": 3518,
+   "solarCf": 0.2292,
+   "windCf": 0.2184,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b81ffffffffff",
+   "lat": -27.2118,
+   "lon": 129.406,
+   "elevationM": 480,
+   "solarCf": 0.1805,
+   "windCf": 0.5111,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823ce7fffffffff",
+   "lat": 26.0188,
+   "lon": 90.7981,
+   "elevationM": 44,
+   "solarCf": 0.1486,
+   "windCf": 0.0628,
+   "bucket": "other"
+  },
+  {
+   "h3": "84acaabffffffff",
+   "lat": -20.2098,
+   "lon": 13.5602,
+   "elevationM": 517,
+   "solarCf": 0.2278,
+   "windCf": 0.2105,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82c997fffffffff",
+   "lat": -32.9873,
+   "lon": 116.9878,
+   "elevationM": 324,
+   "solarCf": 0.1671,
+   "windCf": 0.3987,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208e7fffffffff",
+   "lat": 66.7637,
+   "lon": 18.3268,
+   "elevationM": 435,
+   "solarCf": 0.102,
+   "windCf": 0.1848,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b20e9ffffffff",
+   "lat": -28.0111,
+   "lon": -69.746,
+   "elevationM": 3604,
+   "solarCf": 0.2364,
+   "windCf": 0.0207,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b837fffffffff",
+   "lat": -30.8563,
+   "lon": 133.0281,
+   "elevationM": 194,
+   "solarCf": 0.1723,
+   "windCf": 0.4966,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823ceffffffffff",
+   "lat": 25.8876,
+   "lon": 94.1188,
+   "elevationM": 883,
+   "solarCf": 0.1513,
+   "windCf": 0.0123,
+   "bucket": "other"
+  },
+  {
+   "h3": "84acab5ffffffff",
+   "lat": -19.5883,
+   "lon": 13.1317,
+   "elevationM": 506,
+   "solarCf": 0.2283,
+   "windCf": 0.3085,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82ce87fffffffff",
+   "lat": -40.8537,
+   "lon": -70.9033,
+   "elevationM": 1354,
+   "solarCf": 0.1587,
+   "windCf": 0.4307,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208effffffffff",
+   "lat": 68.7023,
+   "lon": 21.0026,
+   "elevationM": 790,
+   "solarCf": 0.0943,
+   "windCf": 0.4219,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b21dbffffffff",
+   "lat": -28.83,
+   "lon": -70.5599,
+   "elevationM": 2092,
+   "solarCf": 0.1999,
+   "windCf": 0.0133,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b84ffffffffff",
+   "lat": -29.0252,
+   "lon": 119.4351,
+   "elevationM": 402,
+   "solarCf": 0.1846,
+   "windCf": 0.5321,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823cf7fffffffff",
+   "lat": 23.5439,
+   "lon": 88.9958,
+   "elevationM": 14,
+   "solarCf": 0.1584,
+   "windCf": 0.126,
+   "bucket": "other"
+  },
+  {
+   "h3": "84acabdffffffff",
+   "lat": -20.0137,
+   "lon": 13.1638,
+   "elevationM": 153,
+   "solarCf": 0.2285,
+   "windCf": 0.2254,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82ce9ffffffffff",
+   "lat": -38.2442,
+   "lon": -70.4084,
+   "elevationM": 1421,
+   "solarCf": 0.179,
+   "windCf": 0.392,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8208f7fffffffff",
+   "lat": 64.4048,
+   "lon": 20.2043,
+   "elevationM": 293,
+   "solarCf": 0.0975,
+   "windCf": 0.3719,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2213ffffffff",
+   "lat": -24.9894,
+   "lon": -68.3373,
+   "elevationM": 4372,
+   "solarCf": 0.2499,
+   "windCf": 0.3023,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b857fffffffff",
+   "lat": -28.2381,
+   "lon": 124.3019,
+   "elevationM": 406,
+   "solarCf": 0.1817,
+   "windCf": 0.5276,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823d17fffffffff",
+   "lat": 30.6247,
+   "lon": 77.5197,
+   "elevationM": 1592,
+   "solarCf": 0.1541,
+   "windCf": 0.0169,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad817ffffffff",
+   "lat": -25.9541,
+   "lon": 18.023,
+   "elevationM": 942,
+   "solarCf": 0.2246,
+   "windCf": 0.284,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "82cea7fffffffff",
+   "lat": -43.5289,
+   "lon": -71.4535,
+   "elevationM": 524,
+   "solarCf": 0.1466,
+   "windCf": 0.3165,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "82095ffffffffff",
+   "lat": 68.629,
+   "lon": 14.0042,
+   "elevationM": 0,
+   "solarCf": 0.0788,
+   "windCf": 0.5505,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2217ffffffff",
+   "lat": -25.0658,
+   "lon": -68.7784,
+   "elevationM": 3956,
+   "solarCf": 0.2489,
+   "windCf": 0.1484,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b85ffffffffff",
+   "lat": -27.3247,
+   "lon": 121.715,
+   "elevationM": 568,
+   "solarCf": 0.1876,
+   "windCf": 0.4794,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823d87fffffffff",
+   "lat": 25.7618,
+   "lon": 77.8792,
+   "elevationM": 273,
+   "solarCf": 0.1811,
+   "windCf": 0.1252,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad81dffffffff",
+   "lat": -26.5608,
+   "lon": 18.4946,
+   "elevationM": 980,
+   "solarCf": 0.2241,
+   "windCf": 0.3149,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831969fffffffff",
+   "lat": 52.1348,
+   "lon": 5.3875,
+   "elevationM": 22,
+   "solarCf": 0.1167,
+   "windCf": 0.4174,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "820987fffffffff",
+   "lat": 59.6041,
+   "lon": 4.8369,
+   "elevationM": 0,
+   "solarCf": 0.1015,
+   "windCf": 0.5772,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b221bffffffff",
+   "lat": -24.607,
+   "lon": -68.1645,
+   "elevationM": 4111,
+   "solarCf": 0.2458,
+   "windCf": 0.1732,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b86ffffffffff",
+   "lat": -31.6949,
+   "lon": 119.597,
+   "elevationM": 365,
+   "solarCf": 0.1712,
+   "windCf": 0.5185,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823d8ffffffffff",
+   "lat": 25.9669,
+   "lon": 81.1016,
+   "elevationM": 104,
+   "solarCf": 0.1782,
+   "windCf": 0.1305,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad823ffffffff",
+   "lat": -25.4476,
+   "lon": 19.5975,
+   "elevationM": 1025,
+   "solarCf": 0.2209,
+   "windCf": 0.3356,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831e22fffffffff",
+   "lat": 50.4835,
+   "lon": 16.5904,
+   "elevationM": 304,
+   "solarCf": 0.1206,
+   "windCf": 0.3833,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "82098ffffffffff",
+   "lat": 61.053,
+   "lon": 8.1485,
+   "elevationM": 1372,
+   "solarCf": 0.0904,
+   "windCf": 0.2466,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2231ffffffff",
+   "lat": -25.2154,
+   "lon": -69.6665,
+   "elevationM": 2258,
+   "solarCf": 0.2341,
+   "windCf": 0.2997,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b877fffffffff",
+   "lat": -30.9862,
+   "lon": 124.6527,
+   "elevationM": 171,
+   "solarCf": 0.1714,
+   "windCf": 0.4983,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823d97fffffffff",
+   "lat": 23.3098,
+   "lon": 76.4819,
+   "elevationM": 472,
+   "solarCf": 0.1725,
+   "windCf": 0.1563,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad827ffffffff",
+   "lat": -25.2119,
+   "lon": 19.9801,
+   "elevationM": 1030,
+   "solarCf": 0.2228,
+   "windCf": 0.3348,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831e24fffffffff",
+   "lat": 52.207,
+   "lon": 16.5419,
+   "elevationM": 74,
+   "solarCf": 0.1249,
+   "windCf": 0.4355,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "820997fffffffff",
+   "lat": 57.0934,
+   "lon": 6.1287,
+   "elevationM": 0,
+   "solarCf": 0.112,
+   "windCf": 0.6968,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b223dffffffff",
+   "lat": -24.9062,
+   "lon": -69.9353,
+   "elevationM": 2174,
+   "solarCf": 0.2279,
+   "windCf": 0.3349,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b887fffffffff",
+   "lat": -23.1648,
+   "lon": 133.9741,
+   "elevationM": 786,
+   "solarCf": 0.1972,
+   "windCf": 0.5134,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823d9ffffffffff",
+   "lat": 23.4574,
+   "lon": 79.4867,
+   "elevationM": 429,
+   "solarCf": 0.1723,
+   "windCf": 0.1154,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad831ffffffff",
+   "lat": -25.4938,
+   "lon": 18.7866,
+   "elevationM": 1078,
+   "solarCf": 0.224,
+   "windCf": 0.3328,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831e29fffffffff",
+   "lat": 50.5105,
+   "lon": 23.447,
+   "elevationM": 293,
+   "solarCf": 0.1201,
+   "windCf": 0.4253,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "82099ffffffffff",
+   "lat": 58.9757,
+   "lon": 9.5197,
+   "elevationM": 165,
+   "solarCf": 0.1186,
+   "windCf": 0.313,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2257ffffffff",
+   "lat": -23.991,
+   "lon": -68.6975,
+   "elevationM": 3104,
+   "solarCf": 0.2333,
+   "windCf": 0.1128,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b88ffffffffff",
+   "lat": -22.4929,
+   "lon": 131.1279,
+   "elevationM": 598,
+   "solarCf": 0.2034,
+   "windCf": 0.4732,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823da7fffffffff",
+   "lat": 28.0276,
+   "lon": 76.033,
+   "elevationM": 327,
+   "solarCf": 0.1849,
+   "windCf": 0.1331,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad835ffffffff",
+   "lat": -25.2608,
+   "lon": 19.1685,
+   "elevationM": 1079,
+   "solarCf": 0.2211,
+   "windCf": 0.3799,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831e2bfffffffff",
+   "lat": 49.6488,
+   "lon": 22.5388,
+   "elevationM": 407,
+   "solarCf": 0.1193,
+   "windCf": 0.327,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "821127fffffffff",
+   "lat": 61.4327,
+   "lon": 26.5345,
+   "elevationM": 127,
+   "solarCf": 0.0981,
+   "windCf": 0.303,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b225dffffffff",
+   "lat": -23.2939,
+   "lon": -68.7903,
+   "elevationM": 2875,
+   "solarCf": 0.2328,
+   "windCf": 0.2575,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b897fffffffff",
+   "lat": -21.0713,
+   "lon": 136.1744,
+   "elevationM": 279,
+   "solarCf": 0.2028,
+   "windCf": 0.4782,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823daffffffffff",
+   "lat": 28.2703,
+   "lon": 79.3785,
+   "elevationM": 160,
+   "solarCf": 0.1825,
+   "windCf": 0.1519,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad85dffffffff",
+   "lat": -27.5789,
+   "lon": 19.0165,
+   "elevationM": 1188,
+   "solarCf": 0.2203,
+   "windCf": 0.3196,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831e36fffffffff",
+   "lat": 49.3924,
+   "lon": 12.4442,
+   "elevationM": 491,
+   "solarCf": 0.1226,
+   "windCf": 0.3323,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "82112ffffffffff",
+   "lat": 63.3671,
+   "lon": 30.3912,
+   "elevationM": 146,
+   "solarCf": 0.0971,
+   "windCf": 0.3022,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2285ffffffff",
+   "lat": -26.353,
+   "lon": -68.1487,
+   "elevationM": 4549,
+   "solarCf": 0.2463,
+   "windCf": 0.3347,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b89ffffffffff",
+   "lat": -20.4714,
+   "lon": 133.3161,
+   "elevationM": 360,
+   "solarCf": 0.2061,
+   "windCf": 0.4919,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "823db7fffffffff",
+   "lat": 25.4844,
+   "lon": 74.6532,
+   "elevationM": 450,
+   "solarCf": 0.1848,
+   "windCf": 0.1506,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad8a1ffffffff",
+   "lat": -24.3118,
+   "lon": 17.0502,
+   "elevationM": 1297,
+   "solarCf": 0.2241,
+   "windCf": 0.2849,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831f10fffffffff",
+   "lat": 52.5233,
+   "lon": 8.7162,
+   "elevationM": 37,
+   "solarCf": 0.1167,
+   "windCf": 0.3515,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "821137fffffffff",
+   "lat": 58.8153,
+   "lon": 27.6278,
+   "elevationM": 27,
+   "solarCf": 0.1084,
+   "windCf": 0.3165,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b22abffffffff",
+   "lat": -26.7304,
+   "lon": -68.3225,
+   "elevationM": 4830,
+   "solarCf": 0.2492,
+   "windCf": 0.1289,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b8affffffffff",
+   "lat": -25.2163,
+   "lon": 131.7163,
+   "elevationM": 488,
+   "solarCf": 0.2076,
+   "windCf": 0.4575,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82424ffffffffff",
+   "lat": 30.3342,
+   "lon": 74.049,
+   "elevationM": 179,
+   "solarCf": 0.1872,
+   "windCf": 0.0946,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad8a7ffffffff",
+   "lat": -23.8894,
+   "lon": 17.0088,
+   "elevationM": 1421,
+   "solarCf": 0.2217,
+   "windCf": 0.2935,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831f12fffffffff",
+   "lat": 51.6013,
+   "lon": 8.004,
+   "elevationM": 74,
+   "solarCf": 0.1196,
+   "windCf": 0.3309,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "821f27fffffffff",
+   "lat": 56.7802,
+   "lon": 10.792,
+   "elevationM": 0,
+   "solarCf": 0.117,
+   "windCf": 0.6119,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b22e1ffffffff",
+   "lat": -25.7513,
+   "lon": -68.685,
+   "elevationM": 4908,
+   "solarCf": 0.2524,
+   "windCf": 0.2113,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b8c7fffffffff",
+   "lat": -23.7025,
+   "lon": 126.2107,
+   "elevationM": 393,
+   "solarCf": 0.1883,
+   "windCf": 0.4792,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82425ffffffffff",
+   "lat": 27.7033,
+   "lon": 72.6962,
+   "elevationM": 241,
+   "solarCf": 0.1998,
+   "windCf": 0.2682,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad8c3ffffffff",
+   "lat": -26.0214,
+   "lon": 16.4157,
+   "elevationM": 1867,
+   "solarCf": 0.2224,
+   "windCf": 0.236,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831f16fffffffff",
+   "lat": 52.3401,
+   "lon": 7.0389,
+   "elevationM": 32,
+   "solarCf": 0.1142,
+   "windCf": 0.3821,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "821f2ffffffffff",
+   "lat": 56.281,
+   "lon": 15.4798,
+   "elevationM": 29,
+   "solarCf": 0.1236,
+   "windCf": 0.3676,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2c11ffffffff",
+   "lat": -34.3923,
+   "lon": -70.4635,
+   "elevationM": 2774,
+   "solarCf": 0.1936,
+   "windCf": 0.0579,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b8cffffffffff",
+   "lat": -22.9251,
+   "lon": 123.6717,
+   "elevationM": 348,
+   "solarCf": 0.1884,
+   "windCf": 0.4619,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8242c7fffffffff",
+   "lat": 22.6459,
+   "lon": 70.2824,
+   "elevationM": 7,
+   "solarCf": 0.1832,
+   "windCf": 0.4147,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad8c7ffffffff",
+   "lat": -25.7978,
+   "lon": 16.7954,
+   "elevationM": 1413,
+   "solarCf": 0.2274,
+   "windCf": 0.2457,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831f1afffffffff",
+   "lat": 51.128,
+   "lon": 12.2953,
+   "elevationM": 148,
+   "solarCf": 0.1222,
+   "windCf": 0.3049,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "821f67fffffffff",
+   "lat": 57.1427,
+   "lon": 23.9832,
+   "elevationM": 0,
+   "solarCf": 0.1138,
+   "windCf": 0.5176,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2c19ffffffff",
+   "lat": -34.0447,
+   "lon": -70.2783,
+   "elevationM": 2943,
+   "solarCf": 0.2274,
+   "windCf": 0.0294,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b8effffffffff",
+   "lat": -25.5477,
+   "lon": 123.9758,
+   "elevationM": 465,
+   "solarCf": 0.191,
+   "windCf": 0.5275,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8242cffffffffff",
+   "lat": 23.0076,
+   "lon": 73.3706,
+   "elevationM": 82,
+   "solarCf": 0.1783,
+   "windCf": 0.1811,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad8e1ffffffff",
+   "lat": -25.3448,
+   "lon": 17.5553,
+   "elevationM": 1066,
+   "solarCf": 0.2225,
+   "windCf": 0.2295,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831f51fffffffff",
+   "lat": 53.1035,
+   "lon": 22.7437,
+   "elevationM": 127,
+   "solarCf": 0.1226,
+   "windCf": 0.3977,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830120fffffffff",
+   "lat": 70.6839,
+   "lon": 24.355,
+   "elevationM": 0,
+   "solarCf": 0.0847,
+   "windCf": 0.34,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2c85ffffffff",
+   "lat": -35.8688,
+   "lon": -69.995,
+   "elevationM": 2166,
+   "solarCf": 0.1943,
+   "windCf": 0.3408,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b8f7fffffffff",
+   "lat": -24.4693,
+   "lon": 128.8923,
+   "elevationM": 474,
+   "solarCf": 0.1909,
+   "windCf": 0.5022,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8242dffffffffff",
+   "lat": 20.607,
+   "lon": 72.1765,
+   "elevationM": 0,
+   "solarCf": 0.2056,
+   "windCf": 0.4264,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad8e5ffffffff",
+   "lat": -25.1154,
+   "lon": 17.9355,
+   "elevationM": 1165,
+   "solarCf": 0.2258,
+   "windCf": 0.3435,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831f55fffffffff",
+   "lat": 53.9515,
+   "lon": 21.8947,
+   "elevationM": 146,
+   "solarCf": 0.1137,
+   "windCf": 0.448,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830124fffffffff",
+   "lat": 69.8077,
+   "lon": 23.9042,
+   "elevationM": 468,
+   "solarCf": 0.0848,
+   "windCf": 0.3863,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2cc5ffffffff",
+   "lat": -34.9238,
+   "lon": -69.905,
+   "elevationM": 2872,
+   "solarCf": 0.2018,
+   "windCf": 0.3354,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b917fffffffff",
+   "lat": -34.5633,
+   "lon": 137.133,
+   "elevationM": 0,
+   "solarCf": 0.1585,
+   "windCf": 0.5403,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8242effffffffff",
+   "lat": 25.1368,
+   "lon": 71.4439,
+   "elevationM": 52,
+   "solarCf": 0.1927,
+   "windCf": 0.3415,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad981ffffffff",
+   "lat": -23.5666,
+   "lon": 18.9849,
+   "elevationM": 1272,
+   "solarCf": 0.2218,
+   "windCf": 0.3543,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831f84fffffffff",
+   "lat": 48.7592,
+   "lon": 5.9957,
+   "elevationM": 248,
+   "solarCf": 0.1274,
+   "windCf": 0.3911,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830125fffffffff",
+   "lat": 70.4359,
+   "lon": 21.5864,
+   "elevationM": 0,
+   "solarCf": 0.0937,
+   "windCf": 0.4216,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2cebffffffff",
+   "lat": -35.2672,
+   "lon": -70.0898,
+   "elevationM": 3029,
+   "solarCf": 0.213,
+   "windCf": 0.3505,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b98ffffffffff",
+   "lat": -28.7653,
+   "lon": 135.4369,
+   "elevationM": 103,
+   "solarCf": 0.1844,
+   "windCf": 0.4578,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "826017fffffffff",
+   "lat": 13.3065,
+   "lon": 76.3482,
+   "elevationM": 869,
+   "solarCf": 0.1697,
+   "windCf": 0.1586,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad98dffffffff",
+   "lat": -23.754,
+   "lon": 19.41,
+   "elevationM": 1226,
+   "solarCf": 0.2239,
+   "windCf": 0.3441,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831fa2fffffffff",
+   "lat": 49.5144,
+   "lon": 5.0597,
+   "elevationM": 179,
+   "solarCf": 0.1251,
+   "windCf": 0.3427,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830126fffffffff",
+   "lat": 70.0162,
+   "lon": 26.6194,
+   "elevationM": 317,
+   "solarCf": 0.0867,
+   "windCf": 0.3726,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2e05ffffffff",
+   "lat": -31.5234,
+   "lon": -70.6503,
+   "elevationM": 3851,
+   "solarCf": 0.2193,
+   "windCf": 0.1166,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b997fffffffff",
+   "lat": -27.2341,
+   "lon": 140.9932,
+   "elevationM": 126,
+   "solarCf": 0.1863,
+   "windCf": 0.4717,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "826037fffffffff",
+   "lat": 10.7362,
+   "lon": 77.7414,
+   "elevationM": 255,
+   "solarCf": 0.1661,
+   "windCf": 0.2995,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad9c3ffffffff",
+   "lat": -24.4159,
+   "lon": 19.0763,
+   "elevationM": 1158,
+   "solarCf": 0.2227,
+   "windCf": 0.3429,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "831fa4fffffffff",
+   "lat": 51.1983,
+   "lon": 4.7385,
+   "elevationM": 35,
+   "solarCf": 0.1219,
+   "windCf": 0.3658,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830135fffffffff",
+   "lat": 70.1844,
+   "lon": 29.4178,
+   "elevationM": 298,
+   "solarCf": 0.0837,
+   "windCf": 0.3483,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2e37ffffffff",
+   "lat": -32.7967,
+   "lon": -70.4651,
+   "elevationM": 2554,
+   "solarCf": 0.1837,
+   "windCf": 0.0043,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b9a7fffffffff",
+   "lat": -32.3741,
+   "lon": 139.6222,
+   "elevationM": 383,
+   "solarCf": 0.1753,
+   "windCf": 0.4652,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "826087fffffffff",
+   "lat": 18.3663,
+   "lon": 76.4139,
+   "elevationM": 646,
+   "solarCf": 0.1679,
+   "windCf": 0.1985,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad9cbffffffff",
+   "lat": -24.839,
+   "lon": 19.1223,
+   "elevationM": 1108,
+   "solarCf": 0.2235,
+   "windCf": 0.3396,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "83ce83fffffffff",
+   "lat": -39.8298,
+   "lon": -71.1193,
+   "elevationM": 1126,
+   "solarCf": 0.164,
+   "windCf": 0.3303,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830800fffffffff",
+   "lat": 64.7,
+   "lon": 10.5362,
+   "elevationM": 0,
+   "solarCf": 0.0914,
+   "windCf": 0.5608,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2e39ffffffff",
+   "lat": -32.0853,
+   "lon": -70.0979,
+   "elevationM": 5600,
+   "solarCf": 0.2259,
+   "windCf": 0.0806,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82b9affffffffff",
+   "lat": -31.6471,
+   "lon": 136.2526,
+   "elevationM": 135,
+   "solarCf": 0.1734,
+   "windCf": 0.463,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82608ffffffffff",
+   "lat": 18.2523,
+   "lon": 73.5642,
+   "elevationM": 713,
+   "solarCf": 0.1651,
+   "windCf": 0.137,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad9d1ffffffff",
+   "lat": -24.4619,
+   "lon": 18.2715,
+   "elevationM": 1203,
+   "solarCf": 0.2252,
+   "windCf": 0.3288,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e04bffffffff",
+   "lat": 49.8936,
+   "lon": 17.9363,
+   "elevationM": 275,
+   "solarCf": 0.1234,
+   "windCf": 0.3524,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830802fffffffff",
+   "lat": 64.1169,
+   "lon": 11.7233,
+   "elevationM": 34,
+   "solarCf": 0.085,
+   "windCf": 0.2085,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2e41ffffffff",
+   "lat": -30.4379,
+   "lon": -70.1018,
+   "elevationM": 4273,
+   "solarCf": 0.2204,
+   "windCf": 0.1653,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82be4ffffffffff",
+   "lat": -35.3025,
+   "lon": 140.6554,
+   "elevationM": 112,
+   "solarCf": 0.1563,
+   "windCf": 0.4873,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "826097fffffffff",
+   "lat": 20.9187,
+   "lon": 77.9242,
+   "elevationM": 417,
+   "solarCf": 0.1722,
+   "windCf": 0.2518,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad9d3ffffffff",
+   "lat": -24.272,
+   "lon": 17.8487,
+   "elevationM": 1219,
+   "solarCf": 0.2238,
+   "windCf": 0.3533,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e05dffffffff",
+   "lat": 49.779,
+   "lon": 18.5419,
+   "elevationM": 305,
+   "solarCf": 0.1189,
+   "windCf": 0.3788,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830806fffffffff",
+   "lat": 64.0258,
+   "lon": 9.6462,
+   "elevationM": 0,
+   "solarCf": 0.0909,
+   "windCf": 0.5603,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2e45ffffffff",
+   "lat": -30.5146,
+   "lon": -70.5589,
+   "elevationM": 3538,
+   "solarCf": 0.2137,
+   "windCf": 0.0405,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82be6ffffffffff",
+   "lat": -38.2383,
+   "lon": 141.7727,
+   "elevationM": 7,
+   "solarCf": 0.1367,
+   "windCf": 0.5016,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82609ffffffffff",
+   "lat": 20.784,
+   "lon": 74.9967,
+   "elevationM": 298,
+   "solarCf": 0.1737,
+   "windCf": 0.1261,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ad9ddffffffff",
+   "lat": -24.6509,
+   "lon": 18.696,
+   "elevationM": 1150,
+   "solarCf": 0.2243,
+   "windCf": 0.3426,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e205ffffffff",
+   "lat": 51.1159,
+   "lon": 16.9417,
+   "elevationM": 117,
+   "solarCf": 0.121,
+   "windCf": 0.3039,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830810fffffffff",
+   "lat": 62.7689,
+   "lon": 11.9277,
+   "elevationM": 896,
+   "solarCf": 0.0958,
+   "windCf": 0.3232,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b3019ffffffff",
+   "lat": -19.3494,
+   "lon": -69.0765,
+   "elevationM": 4042,
+   "solarCf": 0.2507,
+   "windCf": 0.0837,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82c9b7fffffffff",
+   "lat": -34.4072,
+   "lon": 119.7712,
+   "elevationM": 0,
+   "solarCf": 0.1598,
+   "windCf": 0.6172,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8260a7fffffffff",
+   "lat": 15.868,
+   "lon": 77.8312,
+   "elevationM": 293,
+   "solarCf": 0.1681,
+   "windCf": 0.2051,
+   "bucket": "other"
+  },
+  {
+   "h3": "84ada8dffffffff",
+   "lat": -28.2784,
+   "lon": 17.0456,
+   "elevationM": 551,
+   "solarCf": 0.2225,
+   "windCf": 0.1892,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e217ffffffff",
+   "lat": 51.0399,
+   "lon": 19.2817,
+   "elevationM": 205,
+   "solarCf": 0.1228,
+   "windCf": 0.4271,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830811fffffffff",
+   "lat": 63.5134,
+   "lon": 12.8821,
+   "elevationM": 841,
+   "solarCf": 0.0899,
+   "windCf": 0.2702,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b3051ffffffff",
+   "lat": -18.6265,
+   "lon": -69.1673,
+   "elevationM": 4195,
+   "solarCf": 0.2474,
+   "windCf": 0.1348,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82cf17fffffffff",
+   "lat": -51.8369,
+   "lon": -73.5439,
+   "elevationM": 0,
+   "solarCf": 0.0811,
+   "windCf": 0.613,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8260affffffffff",
+   "lat": 15.8156,
+   "lon": 74.9553,
+   "elevationM": 666,
+   "solarCf": 0.1703,
+   "windCf": 0.2167,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b2209ffffffff",
+   "lat": -23.7532,
+   "lon": -69.4058,
+   "elevationM": 1768,
+   "solarCf": 0.2286,
+   "windCf": 0.0756,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e221ffffffff",
+   "lat": 50.4835,
+   "lon": 16.5904,
+   "elevationM": 304,
+   "solarCf": 0.1206,
+   "windCf": 0.3833,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830812fffffffff",
+   "lat": 62.1411,
+   "lon": 13.0499,
+   "elevationM": 857,
+   "solarCf": 0.0966,
+   "windCf": 0.33,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b3057ffffffff",
+   "lat": -19.0216,
+   "lon": -69.3394,
+   "elevationM": 3653,
+   "solarCf": 0.2405,
+   "windCf": 0.0445,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82cf87fffffffff",
+   "lat": -48.1041,
+   "lon": -69.146,
+   "elevationM": 553,
+   "solarCf": 0.1432,
+   "windCf": 0.746,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8260b7fffffffff",
+   "lat": 18.4396,
+   "lon": 79.3647,
+   "elevationM": 208,
+   "solarCf": 0.1686,
+   "windCf": 0.1492,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b2229ffffffff",
+   "lat": -24.2817,
+   "lon": -70.473,
+   "elevationM": 1066,
+   "solarCf": 0.233,
+   "windCf": 0.0136,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e22bffffffff",
+   "lat": 50.7477,
+   "lon": 17.0722,
+   "elevationM": 201,
+   "solarCf": 0.1229,
+   "windCf": 0.3176,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830813fffffffff",
+   "lat": 62.8895,
+   "lon": 14.0128,
+   "elevationM": 650,
+   "solarCf": 0.0977,
+   "windCf": 0.3341,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b305bffffffff",
+   "lat": -18.56,
+   "lon": -68.7341,
+   "elevationM": 3825,
+   "solarCf": 0.2443,
+   "windCf": 0.2317,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82cf8ffffffffff",
+   "lat": -46.2594,
+   "lon": -72.0684,
+   "elevationM": 536,
+   "solarCf": 0.1674,
+   "windCf": 0.5141,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82618ffffffffff",
+   "lat": 13.2998,
+   "lon": 79.2469,
+   "elevationM": 294,
+   "solarCf": 0.1659,
+   "windCf": 0.1265,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b2245ffffffff",
+   "lat": -23.1232,
+   "lon": -69.9401,
+   "elevationM": 1390,
+   "solarCf": 0.2225,
+   "windCf": 0.1077,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e245ffffffff",
+   "lat": 51.9456,
+   "lon": 16.0524,
+   "elevationM": 70,
+   "solarCf": 0.1237,
+   "windCf": 0.3356,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830814fffffffff",
+   "lat": 62.6183,
+   "lon": 9.8693,
+   "elevationM": 877,
+   "solarCf": 0.0888,
+   "windCf": 0.397,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b30a3ffffffff",
+   "lat": -22.2756,
+   "lon": -69.1483,
+   "elevationM": 2118,
+   "solarCf": 0.2312,
+   "windCf": 0.0772,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82cfa7fffffffff",
+   "lat": -50.8673,
+   "lon": -69.6665,
+   "elevationM": 216,
+   "solarCf": 0.1243,
+   "windCf": 0.6658,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82619ffffffffff",
+   "lat": 15.8822,
+   "lon": 80.8015,
+   "elevationM": 1,
+   "solarCf": 0.1689,
+   "windCf": 0.2113,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b224dffffffff",
+   "lat": -22.7353,
+   "lon": -69.764,
+   "elevationM": 1504,
+   "solarCf": 0.2247,
+   "windCf": 0.0998,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e255ffffffff",
+   "lat": 51.9993,
+   "lon": 17.7937,
+   "elevationM": 84,
+   "solarCf": 0.1245,
+   "windCf": 0.3779,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830815fffffffff",
+   "lat": 63.3762,
+   "lon": 10.7789,
+   "elevationM": 132,
+   "solarCf": 0.0866,
+   "windCf": 0.2324,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b30b7ffffffff",
+   "lat": -22.907,
+   "lon": -68.6173,
+   "elevationM": 2991,
+   "solarCf": 0.2316,
+   "windCf": 0.2565,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "82df6ffffffffff",
+   "lat": -53.6547,
+   "lon": -70.2586,
+   "elevationM": 0,
+   "solarCf": 0.0942,
+   "windCf": 0.6782,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82941ffffffffff",
+   "lat": -14.1636,
+   "lon": 125.554,
+   "elevationM": 0,
+   "solarCf": 0.1942,
+   "windCf": 0.3358,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b3007ffffffff",
+   "lat": -19.5479,
+   "lon": -70.3888,
+   "elevationM": 0,
+   "solarCf": 0.2222,
+   "windCf": 0.1032,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e259ffffffff",
+   "lat": 52.6152,
+   "lon": 18.1647,
+   "elevationM": 103,
+   "solarCf": 0.122,
+   "windCf": 0.3851,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830816fffffffff",
+   "lat": 62.0071,
+   "lon": 11.0074,
+   "elevationM": 957,
+   "solarCf": 0.1007,
+   "windCf": 0.1701,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b30bdffffffff",
+   "lat": -22.2037,
+   "lon": -68.7099,
+   "elevationM": 2726,
+   "solarCf": 0.2298,
+   "windCf": 0.1635,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "831f00fffffffff",
+   "lat": 54.4669,
+   "lon": 11.9745,
+   "elevationM": 0,
+   "solarCf": 0.1231,
+   "windCf": 0.6085,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829457fffffffff",
+   "lat": -12.6909,
+   "lon": 130.3439,
+   "elevationM": 0,
+   "solarCf": 0.1841,
+   "windCf": 0.1449,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b300bffffffff",
+   "lat": -19.0876,
+   "lon": -69.7756,
+   "elevationM": 1437,
+   "solarCf": 0.2279,
+   "windCf": 0.0114,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e25dffffffff",
+   "lat": 52.3615,
+   "lon": 17.6644,
+   "elevationM": 107,
+   "solarCf": 0.124,
+   "windCf": 0.3845,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830818fffffffff",
+   "lat": 64.6353,
+   "lon": 15.2719,
+   "elevationM": 602,
+   "solarCf": 0.0894,
+   "windCf": 0.2563,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b30c1ffffffff",
+   "lat": -20.3222,
+   "lon": -68.2882,
+   "elevationM": 3677,
+   "solarCf": 0.2493,
+   "windCf": 0.2178,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "831f0afffffffff",
+   "lat": 53.0184,
+   "lon": 15.6343,
+   "elevationM": 91,
+   "solarCf": 0.1158,
+   "windCf": 0.4525,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82945ffffffffff",
+   "lat": -13.2417,
+   "lon": 133.328,
+   "elevationM": 333,
+   "solarCf": 0.1885,
+   "windCf": 0.2639,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b3037ffffffff",
+   "lat": -20.6642,
+   "lon": -70.476,
+   "elevationM": 0,
+   "solarCf": 0.2292,
+   "windCf": 0.1366,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e267ffffffff",
+   "lat": 50.9534,
+   "lon": 15.8428,
+   "elevationM": 471,
+   "solarCf": 0.117,
+   "windCf": 0.302,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830819fffffffff",
+   "lat": 65.5699,
+   "lon": 15.7895,
+   "elevationM": 877,
+   "solarCf": 0.0942,
+   "windCf": 0.216,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b30c7ffffffff",
+   "lat": -20.7141,
+   "lon": -68.4588,
+   "elevationM": 4506,
+   "solarCf": 0.2419,
+   "windCf": 0.1927,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "831f13fffffffff",
+   "lat": 51.77,
+   "lon": 9.6738,
+   "elevationM": 218,
+   "solarCf": 0.1122,
+   "windCf": 0.4703,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82948ffffffffff",
+   "lat": -18.6467,
+   "lon": 124.7907,
+   "elevationM": 83,
+   "solarCf": 0.1963,
+   "windCf": 0.3461,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b303bffffffff",
+   "lat": -20.2044,
+   "lon": -69.8599,
+   "elevationM": 1094,
+   "solarCf": 0.2211,
+   "windCf": 0.0794,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e26bffffffff",
+   "lat": 51.5834,
+   "lon": 16.189,
+   "elevationM": 83,
+   "solarCf": 0.1186,
+   "windCf": 0.3498,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83081afffffffff",
+   "lat": 63.9543,
+   "lon": 16.5317,
+   "elevationM": 246,
+   "solarCf": 0.0945,
+   "windCf": 0.2838,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b30e3ffffffff",
+   "lat": -21.1759,
+   "lon": -69.0665,
+   "elevationM": 2359,
+   "solarCf": 0.2297,
+   "windCf": 0.0246,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "831f73fffffffff",
+   "lat": 54.7812,
+   "lon": 21.0236,
+   "elevationM": 8,
+   "solarCf": 0.1144,
+   "windCf": 0.5135,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829497fffffffff",
+   "lat": -19.7635,
+   "lon": 120.2591,
+   "elevationM": 0,
+   "solarCf": 0.2048,
+   "windCf": 0.4151,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b3043ffffffff",
+   "lat": -18.3611,
+   "lon": -69.8651,
+   "elevationM": 1399,
+   "solarCf": 0.2291,
+   "windCf": 0.0019,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e281ffffffff",
+   "lat": 50.5415,
+   "lon": 21.729,
+   "elevationM": 155,
+   "solarCf": 0.1218,
+   "windCf": 0.3919,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83081bfffffffff",
+   "lat": 64.89,
+   "lon": 17.0863,
+   "elevationM": 435,
+   "solarCf": 0.0907,
+   "windCf": 0.3348,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b32a9ffffffff",
+   "lat": -18.819,
+   "lon": -68.0418,
+   "elevationM": 3692,
+   "solarCf": 0.2336,
+   "windCf": 0.1194,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "831fa5fffffffff",
+   "lat": 51.4104,
+   "lon": 6.3582,
+   "elevationM": 30,
+   "solarCf": 0.1233,
+   "windCf": 0.4527,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8294affffffffff",
+   "lat": -16.1253,
+   "lon": 123.7487,
+   "elevationM": 51,
+   "solarCf": 0.1929,
+   "windCf": 0.2176,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b30a1ffffffff",
+   "lat": -21.957,
+   "lon": -69.4138,
+   "elevationM": 1114,
+   "solarCf": 0.223,
+   "windCf": 0.216,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e28dffffffff",
+   "lat": 50.6714,
+   "lon": 21.1199,
+   "elevationM": 248,
+   "solarCf": 0.1202,
+   "windCf": 0.3675,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83081cfffffffff",
+   "lat": 64.364,
+   "lon": 13.5246,
+   "elevationM": 622,
+   "solarCf": 0.0884,
+   "windCf": 0.3198,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b32e1ffffffff",
+   "lat": -18.0978,
+   "lon": -68.134,
+   "elevationM": 3975,
+   "solarCf": 0.235,
+   "windCf": 0.1396,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "8330d1fffffffff",
+   "lat": 33.5656,
+   "lon": 126.8662,
+   "elevationM": 0,
+   "solarCf": 0.153,
+   "windCf": 0.4521,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8294c7fffffffff",
+   "lat": -17.3481,
+   "lon": 129.5203,
+   "elevationM": 354,
+   "solarCf": 0.1987,
+   "windCf": 0.383,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b30edffffffff",
+   "lat": -20.53,
+   "lon": -69.5954,
+   "elevationM": 981,
+   "solarCf": 0.22,
+   "windCf": 0.0553,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e295ffffffff",
+   "lat": 50.2715,
+   "lon": 22.9408,
+   "elevationM": 225,
+   "solarCf": 0.1227,
+   "windCf": 0.3206,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83081dfffffffff",
+   "lat": 65.2953,
+   "lon": 13.9675,
+   "elevationM": 849,
+   "solarCf": 0.0968,
+   "windCf": 0.3636,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b32e5ffffffff",
+   "lat": -18.1647,
+   "lon": -68.564,
+   "elevationM": 4072,
+   "solarCf": 0.2409,
+   "windCf": 0.0825,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "83ac12fffffffff",
+   "lat": -22.9481,
+   "lon": 14.1653,
+   "elevationM": 0,
+   "solarCf": 0.2254,
+   "windCf": 0.4731,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8294d7fffffffff",
+   "lat": -19.2674,
+   "lon": 127.6602,
+   "elevationM": 331,
+   "solarCf": 0.1995,
+   "windCf": 0.4245,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b31dbffffffff",
+   "lat": -21.3143,
+   "lon": -69.9449,
+   "elevationM": 1021,
+   "solarCf": 0.2228,
+   "windCf": 0.0582,
+   "bucket": "strong_solar"
+  },
+  {
+   "h3": "841e29dffffffff",
+   "lat": 50.6493,
+   "lon": 22.8411,
+   "elevationM": 250,
+   "solarCf": 0.1212,
+   "windCf": 0.3321,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83081efffffffff",
+   "lat": 63.7024,
+   "lon": 14.7904,
+   "elevationM": 336,
+   "solarCf": 0.0944,
+   "windCf": 0.1527,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cfaddffffffff",
+   "lat": -49.9595,
+   "lon": -73.5244,
+   "elevationM": 2604,
+   "solarCf": 0.1194,
+   "windCf": 0.4379,
+   "bucket": "high_elevation"
+  },
+  {
+   "h3": "83ac14fffffffff",
+   "lat": -24.8446,
+   "lon": 13.9328,
+   "elevationM": 0,
+   "solarCf": 0.2305,
+   "windCf": 0.6833,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8294dffffffffff",
+   "lat": -19.8482,
+   "lon": 130.5787,
+   "elevationM": 324,
+   "solarCf": 0.2013,
+   "windCf": 0.3767,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2b1ffffffff",
+   "lat": 49.6488,
+   "lon": 22.5388,
+   "elevationM": 407,
+   "solarCf": 0.1193,
+   "windCf": 0.327,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830828fffffffff",
+   "lat": 66.6234,
+   "lon": 12.0881,
+   "elevationM": 0,
+   "solarCf": 0.1057,
+   "windCf": 0.605,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83ac32fffffffff",
+   "lat": -25.8731,
+   "lon": 14.4129,
+   "elevationM": 0,
+   "solarCf": 0.231,
+   "windCf": 0.7077,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8294e7fffffffff",
+   "lat": -14.766,
+   "lon": 128.4594,
+   "elevationM": 0,
+   "solarCf": 0.1955,
+   "windCf": 0.2642,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2b7ffffffff",
+   "lat": 49.2659,
+   "lon": 22.6386,
+   "elevationM": 581,
+   "solarCf": 0.1171,
+   "windCf": 0.327,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830829fffffffff",
+   "lat": 66.968,
+   "lon": 14.1242,
+   "elevationM": 226,
+   "solarCf": 0.0859,
+   "windCf": 0.2514,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83ac36fffffffff",
+   "lat": -26.896,
+   "lon": 14.8995,
+   "elevationM": 0,
+   "solarCf": 0.2304,
+   "windCf": 0.7342,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8294effffffffff",
+   "lat": -15.3375,
+   "lon": 131.4107,
+   "elevationM": 177,
+   "solarCf": 0.1912,
+   "windCf": 0.3844,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2bbffffffff",
+   "lat": 49.8916,
+   "lon": 23.0394,
+   "elevationM": 193,
+   "solarCf": 0.1254,
+   "windCf": 0.4214,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83082afffffffff",
+   "lat": 65.8256,
+   "lon": 12.2212,
+   "elevationM": 0,
+   "solarCf": 0.1031,
+   "windCf": 0.4875,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83b2c2fffffffff",
+   "lat": -34.4202,
+   "lon": -72.6183,
+   "elevationM": 0,
+   "solarCf": 0.2025,
+   "windCf": 0.5296,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "8294f7fffffffff",
+   "lat": -16.7529,
+   "lon": 126.6073,
+   "elevationM": 575,
+   "solarCf": 0.1954,
+   "windCf": 0.3886,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2c5ffffffff",
+   "lat": 51.1702,
+   "lon": 20.3958,
+   "elevationM": 258,
+   "solarCf": 0.1155,
+   "windCf": 0.3603,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83082bfffffffff",
+   "lat": 66.1601,
+   "lon": 14.1768,
+   "elevationM": 600,
+   "solarCf": 0.0882,
+   "windCf": 0.1966,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83ce8bfffffffff",
+   "lat": -37.8833,
+   "lon": -73.6017,
+   "elevationM": 0,
+   "solarCf": 0.1642,
+   "windCf": 0.5575,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82974ffffffffff",
+   "lat": -18.8185,
+   "lon": 21.2832,
+   "elevationM": 1043,
+   "solarCf": 0.1982,
+   "windCf": 0.1881,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2c7ffffffff",
+   "lat": 51.0452,
+   "lon": 21.0101,
+   "elevationM": 312,
+   "solarCf": 0.1204,
+   "windCf": 0.3584,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83082dfffffffff",
+   "lat": 67.4359,
+   "lon": 11.9434,
+   "elevationM": 0,
+   "solarCf": 0.1099,
+   "windCf": 0.5775,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83cf10fffffffff",
+   "lat": -51.8369,
+   "lon": -73.5439,
+   "elevationM": 0,
+   "solarCf": 0.0811,
+   "windCf": 0.613,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829c0ffffffffff",
+   "lat": -14.6768,
+   "lon": 142.3414,
+   "elevationM": 54,
+   "solarCf": 0.1817,
+   "windCf": 0.4271,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2c9ffffffff",
+   "lat": 51.7864,
+   "lon": 20.787,
+   "elevationM": 179,
+   "solarCf": 0.1248,
+   "windCf": 0.3196,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830830fffffffff",
+   "lat": 63.4528,
+   "lon": 6.8803,
+   "elevationM": 0,
+   "solarCf": 0.0923,
+   "windCf": 0.5769,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83cf16fffffffff",
+   "lat": -52.2333,
+   "lon": -72.0502,
+   "elevationM": 639,
+   "solarCf": 0.1019,
+   "windCf": 0.6703,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829c27fffffffff",
+   "lat": -17.6633,
+   "lon": 146.3505,
+   "elevationM": 0,
+   "solarCf": 0.1811,
+   "windCf": 0.2339,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2d1ffffffff",
+   "lat": 51.3985,
+   "lon": 22.6387,
+   "elevationM": 204,
+   "solarCf": 0.121,
+   "windCf": 0.4313,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830831fffffffff",
+   "lat": 64.1604,
+   "lon": 7.7242,
+   "elevationM": 0,
+   "solarCf": 0.0925,
+   "windCf": 0.572,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83cf84fffffffff",
+   "lat": -49.143,
+   "lon": -68.8534,
+   "elevationM": 173,
+   "solarCf": 0.1331,
+   "windCf": 0.5944,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829c2ffffffffff",
+   "lat": -17.2573,
+   "lon": 143.3307,
+   "elevationM": 180,
+   "solarCf": 0.1913,
+   "windCf": 0.2341,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2d3ffffffff",
+   "lat": 51.2622,
+   "lon": 23.2514,
+   "elevationM": 186,
+   "solarCf": 0.1207,
+   "windCf": 0.3578,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830832fffffffff",
+   "lat": 62.6234,
+   "lon": 7.9452,
+   "elevationM": 798,
+   "solarCf": 0.0899,
+   "windCf": 0.0935,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83cfa2fffffffff",
+   "lat": -50.1805,
+   "lon": -68.5485,
+   "elevationM": 137,
+   "solarCf": 0.1302,
+   "windCf": 0.6297,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829c47fffffffff",
+   "lat": -16.3669,
+   "lon": 137.3909,
+   "elevationM": 36,
+   "solarCf": 0.1884,
+   "windCf": 0.2305,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2d7ffffffff",
+   "lat": 51.025,
+   "lon": 22.7405,
+   "elevationM": 250,
+   "solarCf": 0.1223,
+   "windCf": 0.4273,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830833fffffffff",
+   "lat": 63.3335,
+   "lon": 8.7828,
+   "elevationM": 377,
+   "solarCf": 0.0833,
+   "windCf": 0.185,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83cfa5fffffffff",
+   "lat": -51.5521,
+   "lon": -70.833,
+   "elevationM": 226,
+   "solarCf": 0.1164,
+   "windCf": 0.6282,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829c4ffffffffff",
+   "lat": -15.8728,
+   "lon": 134.3932,
+   "elevationM": 236,
+   "solarCf": 0.1941,
+   "windCf": 0.2571,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2ebffffffff",
+   "lat": 50.7977,
+   "lon": 20.5089,
+   "elevationM": 252,
+   "solarCf": 0.1204,
+   "windCf": 0.342,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830836fffffffff",
+   "lat": 62.7272,
+   "lon": 6.0627,
+   "elevationM": 0,
+   "solarCf": 0.0872,
+   "windCf": 0.325,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "83df6afffffffff",
+   "lat": -53.8407,
+   "lon": -68.5283,
+   "elevationM": 76,
+   "solarCf": 0.1058,
+   "windCf": 0.6974,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829c5ffffffffff",
+   "lat": -13.759,
+   "lon": 136.3332,
+   "elevationM": 0,
+   "solarCf": 0.1943,
+   "windCf": 0.4364,
+   "bucket": "other"
+  },
+  {
+   "h3": "841e2edffffffff",
+   "lat": 50.6681,
+   "lon": 19.4004,
+   "elevationM": 378,
+   "solarCf": 0.12,
+   "windCf": 0.3894,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830880fffffffff",
+   "lat": 60.1912,
+   "lon": 18.2585,
+   "elevationM": 25,
+   "solarCf": 0.1072,
+   "windCf": 0.327,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "841e249ffffffff",
+   "lat": 52.5662,
+   "lon": 16.4058,
+   "elevationM": 92,
+   "solarCf": 0.1218,
+   "windCf": 0.4551,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829c67fffffffff",
+   "lat": -18.9502,
+   "lon": 138.3133,
+   "elevationM": 226,
+   "solarCf": 0.1981,
+   "windCf": 0.3496,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f083ffffffff",
+   "lat": 53.7877,
+   "lon": 17.1334,
+   "elevationM": 159,
+   "solarCf": 0.1122,
+   "windCf": 0.4044,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830881fffffffff",
+   "lat": 60.9371,
+   "lon": 19.2736,
+   "elevationM": 0,
+   "solarCf": 0.1124,
+   "windCf": 0.6087,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "841f0d1ffffffff",
+   "lat": 54.7361,
+   "lon": 17.3724,
+   "elevationM": 12,
+   "solarCf": 0.1194,
+   "windCf": 0.5285,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829ce7fffffffff",
+   "lat": -12.0423,
+   "lon": 141.305,
+   "elevationM": 0,
+   "solarCf": 0.2181,
+   "windCf": 0.3589,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f08bffffffff",
+   "lat": 54.1385,
+   "lon": 16.9972,
+   "elevationM": 106,
+   "solarCf": 0.1111,
+   "windCf": 0.438,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830882fffffffff",
+   "lat": 59.4667,
+   "lon": 19.2523,
+   "elevationM": 0,
+   "solarCf": 0.1244,
+   "windCf": 0.6176,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "841f0ebffffffff",
+   "lat": 54.0704,
+   "lon": 15.2029,
+   "elevationM": 2,
+   "solarCf": 0.1204,
+   "windCf": 0.453,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829d0ffffffffff",
+   "lat": -20.3339,
+   "lon": 147.4554,
+   "elevationM": 115,
+   "solarCf": 0.1801,
+   "windCf": 0.3229,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f08dffffffff",
+   "lat": 53.9799,
+   "lon": 15.8473,
+   "elevationM": 27,
+   "solarCf": 0.1141,
+   "windCf": 0.4047,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830883fffffffff",
+   "lat": 60.2167,
+   "lon": 20.2688,
+   "elevationM": 17,
+   "solarCf": 0.1205,
+   "windCf": 0.6088,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "841f541ffffffff",
+   "lat": 53.9565,
+   "lon": 20.0884,
+   "elevationM": 144,
+   "solarCf": 0.1159,
+   "windCf": 0.4723,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829d2ffffffffff",
+   "lat": -23.072,
+   "lon": 148.6318,
+   "elevationM": 171,
+   "solarCf": 0.1756,
+   "windCf": 0.3638,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f09bffffffff",
+   "lat": 54.18,
+   "lon": 18.8014,
+   "elevationM": 3,
+   "solarCf": 0.1211,
+   "windCf": 0.3963,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830884fffffffff",
+   "lat": 60.1355,
+   "lon": 16.2575,
+   "elevationM": 74,
+   "solarCf": 0.1067,
+   "windCf": 0.1407,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "841f721ffffffff",
+   "lat": 54.7723,
+   "lon": 19.1951,
+   "elevationM": 0,
+   "solarCf": 0.1233,
+   "windCf": 0.5918,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829d57fffffffff",
+   "lat": -19.9153,
+   "lon": 144.3273,
+   "elevationM": 920,
+   "solarCf": 0.1963,
+   "windCf": 0.3533,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f09dffffffff",
+   "lat": 54.0384,
+   "lon": 17.6422,
+   "elevationM": 146,
+   "solarCf": 0.1134,
+   "windCf": 0.4303,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830885fffffffff",
+   "lat": 60.8959,
+   "lon": 17.2381,
+   "elevationM": 0,
+   "solarCf": 0.1076,
+   "windCf": 0.3829,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "841f723ffffffff",
+   "lat": 54.6617,
+   "lon": 19.8452,
+   "elevationM": 0,
+   "solarCf": 0.1228,
+   "windCf": 0.4633,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829d5ffffffffff",
+   "lat": -19.4517,
+   "lon": 141.2753,
+   "elevationM": 71,
+   "solarCf": 0.1982,
+   "windCf": 0.415,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f0a7ffffffff",
+   "lat": 52.6631,
+   "lon": 15.7751,
+   "elevationM": 71,
+   "solarCf": 0.1137,
+   "windCf": 0.3403,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830886fffffffff",
+   "lat": 59.4266,
+   "lon": 17.2745,
+   "elevationM": 15,
+   "solarCf": 0.1088,
+   "windCf": 0.3642,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84ac129ffffffff",
+   "lat": -23.369,
+   "lon": 14.2002,
+   "elevationM": 0,
+   "solarCf": 0.2248,
+   "windCf": 0.5162,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829d67fffffffff",
+   "lat": -24.954,
+   "lon": 143.2356,
+   "elevationM": 176,
+   "solarCf": 0.185,
+   "windCf": 0.3747,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f0a9ffffffff",
+   "lat": 53.3714,
+   "lon": 15.492,
+   "elevationM": 126,
+   "solarCf": 0.113,
+   "windCf": 0.3935,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830888fffffffff",
+   "lat": 61.9655,
+   "lon": 21.8201,
+   "elevationM": 66,
+   "solarCf": 0.1032,
+   "windCf": 0.3155,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84ac145ffffffff",
+   "lat": -24.6258,
+   "lon": 14.3059,
+   "elevationM": 0,
+   "solarCf": 0.2035,
+   "windCf": 0.5256,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "829d6ffffffffff",
+   "lat": -24.4051,
+   "lon": 140.038,
+   "elevationM": 116,
+   "solarCf": 0.1907,
+   "windCf": 0.3883,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f0b5ffffffff",
+   "lat": 52.8241,
+   "lon": 16.9016,
+   "elevationM": 90,
+   "solarCf": 0.1195,
+   "windCf": 0.3629,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830889fffffffff",
+   "lat": 62.9011,
+   "lon": 22.5363,
+   "elevationM": 43,
+   "solarCf": 0.1001,
+   "windCf": 0.293,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84ada93ffffffff",
+   "lat": -27.7165,
+   "lon": 14.9741,
+   "elevationM": 0,
+   "solarCf": 0.2243,
+   "windCf": 0.6744,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82a617fffffffff",
+   "lat": -22.2569,
+   "lon": 114.3936,
+   "elevationM": 0,
+   "solarCf": 0.1983,
+   "windCf": 0.4372,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f0d7ffffffff",
+   "lat": 54.3884,
+   "lon": 17.508,
+   "elevationM": 130,
+   "solarCf": 0.112,
+   "windCf": 0.4343,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83088afffffffff",
+   "lat": 61.1859,
+   "lon": 22.8972,
+   "elevationM": 92,
+   "solarCf": 0.102,
+   "windCf": 0.3083,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2c21ffffffff",
+   "lat": -34.4202,
+   "lon": -72.6183,
+   "elevationM": 0,
+   "solarCf": 0.2025,
+   "windCf": 0.5296,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82a6a7fffffffff",
+   "lat": -20.7036,
+   "lon": 115.966,
+   "elevationM": 0,
+   "solarCf": 0.2096,
+   "windCf": 0.4289,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f0e3ffffffff",
+   "lat": 53.7221,
+   "lon": 15.3482,
+   "elevationM": 53,
+   "solarCf": 0.113,
+   "windCf": 0.4073,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83088bfffffffff",
+   "lat": 62.1201,
+   "lon": 23.6356,
+   "elevationM": 134,
+   "solarCf": 0.0984,
+   "windCf": 0.1719,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2c23ffffffff",
+   "lat": -34.6939,
+   "lon": -72.3373,
+   "elevationM": 0,
+   "solarCf": 0.2006,
+   "windCf": 0.4513,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82a787fffffffff",
+   "lat": -23.8538,
+   "lon": 119.1439,
+   "elevationM": 545,
+   "solarCf": 0.1917,
+   "windCf": 0.4152,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f1b3ffffffff",
+   "lat": 51.145,
+   "lon": 14.6103,
+   "elevationM": 250,
+   "solarCf": 0.1236,
+   "windCf": 0.4344,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83088efffffffff",
+   "lat": 61.0308,
+   "lon": 21.1497,
+   "elevationM": 0,
+   "solarCf": 0.1182,
+   "windCf": 0.4302,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2da1ffffffff",
+   "lat": -36.8595,
+   "lon": -73.764,
+   "elevationM": 0,
+   "solarCf": 0.194,
+   "windCf": 0.6291,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82a78ffffffffff",
+   "lat": -23.0154,
+   "lon": 116.9419,
+   "elevationM": 267,
+   "solarCf": 0.1994,
+   "windCf": 0.3823,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f40dffffffff",
+   "lat": 54.8526,
+   "lon": 24.0406,
+   "elevationM": 78,
+   "solarCf": 0.1094,
+   "windCf": 0.3477,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830890fffffffff",
+   "lat": 57.9491,
+   "lon": 19.2322,
+   "elevationM": 2,
+   "solarCf": 0.1232,
+   "windCf": 0.5765,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2da7ffffffff",
+   "lat": -37.2283,
+   "lon": -73.8554,
+   "elevationM": 0,
+   "solarCf": 0.1759,
+   "windCf": 0.6238,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82a79ffffffffff",
+   "lat": -21.4375,
+   "lon": 118.5783,
+   "elevationM": 181,
+   "solarCf": 0.2011,
+   "windCf": 0.3189,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f42dffffffff",
+   "lat": 54.0523,
+   "lon": 23.0647,
+   "elevationM": 137,
+   "solarCf": 0.113,
+   "windCf": 0.3638,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830891fffffffff",
+   "lat": 58.7226,
+   "lon": 20.2199,
+   "elevationM": 0,
+   "solarCf": 0.1175,
+   "windCf": 0.6301,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84b2dc7ffffffff",
+   "lat": -35.7196,
+   "lon": -72.9134,
+   "elevationM": 0,
+   "solarCf": 0.1975,
+   "windCf": 0.5717,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82a7b7fffffffff",
+   "lat": -24.7002,
+   "lon": 121.4867,
+   "elevationM": 515,
+   "solarCf": 0.1912,
+   "windCf": 0.432,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f467ffffffff",
+   "lat": 54.4086,
+   "lon": 22.96,
+   "elevationM": 237,
+   "solarCf": 0.1166,
+   "windCf": 0.4129,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830892fffffffff",
+   "lat": 57.181,
+   "lon": 20.1737,
+   "elevationM": 0,
+   "solarCf": 0.1203,
+   "windCf": 0.6284,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84ce889ffffffff",
+   "lat": -39.2898,
+   "lon": -73.5259,
+   "elevationM": 0,
+   "solarCf": 0.1756,
+   "windCf": 0.4866,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82ac87fffffffff",
+   "lat": -19.2331,
+   "lon": 15.7906,
+   "elevationM": 1136,
+   "solarCf": 0.2109,
+   "windCf": 0.3122,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f501ffffffff",
+   "lat": 53.122,
+   "lon": 20.9598,
+   "elevationM": 137,
+   "solarCf": 0.1168,
+   "windCf": 0.446,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830893fffffffff",
+   "lat": 57.959,
+   "lon": 21.1618,
+   "elevationM": 0,
+   "solarCf": 0.1177,
+   "windCf": 0.6272,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84ce8b9ffffffff",
+   "lat": -38.2558,
+   "lon": -73.6935,
+   "elevationM": 0,
+   "solarCf": 0.16,
+   "windCf": 0.5623,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82ac8ffffffffff",
+   "lat": -17.8817,
+   "lon": 13.0044,
+   "elevationM": 1211,
+   "solarCf": 0.2113,
+   "windCf": 0.1394,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f503ffffffff",
+   "lat": 52.9982,
+   "lon": 21.5913,
+   "elevationM": 105,
+   "solarCf": 0.1213,
+   "windCf": 0.3489,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830896fffffffff",
+   "lat": 57.157,
+   "lon": 18.273,
+   "elevationM": 12,
+   "solarCf": 0.1326,
+   "windCf": 0.5367,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cea81ffffffff",
+   "lat": -41.5747,
+   "lon": -74.1094,
+   "elevationM": 0,
+   "solarCf": 0.1544,
+   "windCf": 0.5234,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82ac97fffffffff",
+   "lat": -17.5256,
+   "lon": 18.3652,
+   "elevationM": 1140,
+   "solarCf": 0.1991,
+   "windCf": 0.2142,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f505ffffffff",
+   "lat": 52.8816,
+   "lon": 20.4434,
+   "elevationM": 121,
+   "solarCf": 0.1151,
+   "windCf": 0.3916,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830898fffffffff",
+   "lat": 59.457,
+   "lon": 23.2231,
+   "elevationM": 0,
+   "solarCf": 0.1126,
+   "windCf": 0.6039,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf125ffffffff",
+   "lat": -51.0326,
+   "lon": -71.7428,
+   "elevationM": 304,
+   "solarCf": 0.1204,
+   "windCf": 0.6901,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82aca7fffffffff",
+   "lat": -22.2307,
+   "lon": 16.0591,
+   "elevationM": 1172,
+   "solarCf": 0.2171,
+   "windCf": 0.2678,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f50bffffffff",
+   "lat": 53.3593,
+   "lon": 21.4802,
+   "elevationM": 113,
+   "solarCf": 0.1146,
+   "windCf": 0.3283,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "830899fffffffff",
+   "lat": 60.3881,
+   "lon": 23.9348,
+   "elevationM": 43,
+   "solarCf": 0.1067,
+   "windCf": 0.321,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf141ffffffff",
+   "lat": -52.9096,
+   "lon": -73.3204,
+   "elevationM": 301,
+   "solarCf": 0.0678,
+   "windCf": 0.5821,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82acb7fffffffff",
+   "lat": -20.5635,
+   "lon": 18.6707,
+   "elevationM": 1330,
+   "solarCf": 0.2077,
+   "windCf": 0.2141,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f515ffffffff",
+   "lat": 52.8707,
+   "lon": 22.2205,
+   "elevationM": 144,
+   "solarCf": 0.1223,
+   "windCf": 0.3638,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83089afffffffff",
+   "lat": 58.6833,
+   "lon": 24.1359,
+   "elevationM": 12,
+   "solarCf": 0.1102,
+   "windCf": 0.3848,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf143ffffffff",
+   "lat": -52.6414,
+   "lon": -73.7873,
+   "elevationM": 210,
+   "solarCf": 0.0754,
+   "windCf": 0.7115,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82ad87fffffffff",
+   "lat": -26.519,
+   "lon": 19.3082,
+   "elevationM": 965,
+   "solarCf": 0.1999,
+   "windCf": 0.3463,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f517ffffffff",
+   "lat": 52.7396,
+   "lon": 22.8474,
+   "elevationM": 125,
+   "solarCf": 0.1214,
+   "windCf": 0.3584,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83089bfffffffff",
+   "lat": 59.5726,
+   "lon": 24.9344,
+   "elevationM": 0,
+   "solarCf": 0.1094,
+   "windCf": 0.4796,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf161ffffffff",
+   "lat": -52.2333,
+   "lon": -72.0502,
+   "elevationM": 639,
+   "solarCf": 0.1019,
+   "windCf": 0.6703,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82ad8ffffffffff",
+   "lat": -25.1866,
+   "lon": 16.3353,
+   "elevationM": 1321,
+   "solarCf": 0.2058,
+   "windCf": 0.2866,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f519ffffffff",
+   "lat": 53.4651,
+   "lon": 22.6388,
+   "elevationM": 136,
+   "solarCf": 0.1146,
+   "windCf": 0.3337,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83089cfffffffff",
+   "lat": 59.4769,
+   "lon": 21.2368,
+   "elevationM": 0,
+   "solarCf": 0.1142,
+   "windCf": 0.6241,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf169ffffffff",
+   "lat": -52.6342,
+   "lon": -72.1566,
+   "elevationM": 0,
+   "solarCf": 0.101,
+   "windCf": 0.7062,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82adaffffffffff",
+   "lat": -28.0862,
+   "lon": 16.6197,
+   "elevationM": 468,
+   "solarCf": 0.2058,
+   "windCf": 0.2808,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f529ffffffff",
+   "lat": 52.6382,
+   "lon": 19.9309,
+   "elevationM": 157,
+   "solarCf": 0.1222,
+   "windCf": 0.3644,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "83089dfffffffff",
+   "lat": 60.2528,
+   "lon": 22.205,
+   "elevationM": 28,
+   "solarCf": 0.1155,
+   "windCf": 0.2069,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf321ffffffff",
+   "lat": -53.9787,
+   "lon": -73.0862,
+   "elevationM": 0,
+   "solarCf": 0.0834,
+   "windCf": 0.7986,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b2c7fffffffff",
+   "lat": -33.9271,
+   "lon": -71.4885,
+   "elevationM": 136,
+   "solarCf": 0.1781,
+   "windCf": 0.0736,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f53dffffffff",
+   "lat": 52.3958,
+   "lon": 21.1855,
+   "elevationM": 91,
+   "solarCf": 0.1181,
+   "windCf": 0.317,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308a0fffffffff",
+   "lat": 60.7228,
+   "lon": 13.208,
+   "elevationM": 448,
+   "solarCf": 0.0972,
+   "windCf": 0.3054,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf809ffffffff",
+   "lat": -48.4969,
+   "lon": -69.2165,
+   "elevationM": 523,
+   "solarCf": 0.1415,
+   "windCf": 0.7429,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b2dffffffffff",
+   "lat": -36.3243,
+   "lon": -72.8238,
+   "elevationM": 77,
+   "solarCf": 0.171,
+   "windCf": 0.2769,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f54bffffffff",
+   "lat": 54.1944,
+   "lon": 20.612,
+   "elevationM": 106,
+   "solarCf": 0.1164,
+   "windCf": 0.3825,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308a1fffffffff",
+   "lat": 61.4929,
+   "lon": 14.1454,
+   "elevationM": 616,
+   "solarCf": 0.0966,
+   "windCf": 0.3687,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf843ffffffff",
+   "lat": -48.8904,
+   "lon": -69.2882,
+   "elevationM": 284,
+   "solarCf": 0.1361,
+   "windCf": 0.6045,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b307fffffffff",
+   "lat": -19.1527,
+   "lon": -70.2135,
+   "elevationM": 576,
+   "solarCf": 0.2145,
+   "windCf": 0.0033,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f55dffffffff",
+   "lat": 54.0748,
+   "lon": 21.2544,
+   "elevationM": 125,
+   "solarCf": 0.1165,
+   "windCf": 0.3936,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308a2fffffffff",
+   "lat": 60.05,
+   "lon": 14.2705,
+   "elevationM": 223,
+   "solarCf": 0.1009,
+   "windCf": 0.2962,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf847ffffffff",
+   "lat": -48.7499,
+   "lon": -68.7853,
+   "elevationM": 228,
+   "solarCf": 0.1364,
+   "windCf": 0.7192,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b80ffffffffff",
+   "lat": -29.1388,
+   "lon": 127.0492,
+   "elevationM": 215,
+   "solarCf": 0.1748,
+   "windCf": 0.4047,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f563ffffffff",
+   "lat": 52.9996,
+   "lon": 19.8116,
+   "elevationM": 122,
+   "solarCf": 0.1178,
+   "windCf": 0.3824,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308a3fffffffff",
+   "lat": 60.8243,
+   "lon": 15.2146,
+   "elevationM": 357,
+   "solarCf": 0.0992,
+   "windCf": 0.2768,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf853ffffffff",
+   "lat": -48.5114,
+   "lon": -70.6604,
+   "elevationM": 493,
+   "solarCf": 0.1449,
+   "windCf": 0.4954,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b817fffffffff",
+   "lat": -28.0081,
+   "lon": 132.3481,
+   "elevationM": 328,
+   "solarCf": 0.1821,
+   "windCf": 0.3847,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f567ffffffff",
+   "lat": 52.7539,
+   "lon": 19.3009,
+   "elevationM": 123,
+   "solarCf": 0.1181,
+   "windCf": 0.3583,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308a4fffffffff",
+   "lat": 60.5921,
+   "lon": 11.2229,
+   "elevationM": 187,
+   "solarCf": 0.101,
+   "windCf": 0.1666,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cf85bffffffff",
+   "lat": -48.9071,
+   "lon": -70.7455,
+   "elevationM": 511,
+   "solarCf": 0.142,
+   "windCf": 0.6952,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b8a7fffffffff",
+   "lat": -25.9333,
+   "lon": 134.6793,
+   "elevationM": 222,
+   "solarCf": 0.1884,
+   "windCf": 0.436,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f5a5ffffffff",
+   "lat": 51.1224,
+   "lon": 23.8617,
+   "elevationM": 172,
+   "solarCf": 0.1208,
+   "windCf": 0.3461,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308a5fffffffff",
+   "lat": 61.3752,
+   "lon": 12.1203,
+   "elevationM": 787,
+   "solarCf": 0.0985,
+   "windCf": 0.1217,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cfa03ffffffff",
+   "lat": -50.6137,
+   "lon": -70.1172,
+   "elevationM": 347,
+   "solarCf": 0.1252,
+   "windCf": 0.6889,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b8b7fffffffff",
+   "lat": -23.8054,
+   "lon": 136.9469,
+   "elevationM": 184,
+   "solarCf": 0.1918,
+   "windCf": 0.4015,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f5e5ffffffff",
+   "lat": 52.0053,
+   "lon": 23.0516,
+   "elevationM": 150,
+   "solarCf": 0.1183,
+   "windCf": 0.3531,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308a6fffffffff",
+   "lat": 59.9353,
+   "lon": 12.302,
+   "elevationM": 198,
+   "solarCf": 0.1037,
+   "windCf": 0.2378,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cfa17ffffffff",
+   "lat": -50.098,
+   "lon": -71.0101,
+   "elevationM": 626,
+   "solarCf": 0.1328,
+   "windCf": 0.6765,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b8d7fffffffff",
+   "lat": -21.799,
+   "lon": 128.4135,
+   "elevationM": 348,
+   "solarCf": 0.19,
+   "windCf": 0.4387,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f5e9ffffffff",
+   "lat": 52.605,
+   "lon": 23.4719,
+   "elevationM": 176,
+   "solarCf": 0.1165,
+   "windCf": 0.363,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308a8fffffffff",
+   "lat": 62.3185,
+   "lon": 17.1994,
+   "elevationM": 28,
+   "solarCf": 0.1032,
+   "windCf": 0.2815,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cfa21ffffffff",
+   "lat": -50.1805,
+   "lon": -68.5485,
+   "elevationM": 137,
+   "solarCf": 0.1302,
+   "windCf": 0.6297,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b8dffffffffff",
+   "lat": -21.0916,
+   "lon": 125.8334,
+   "elevationM": 363,
+   "solarCf": 0.1925,
+   "windCf": 0.42,
+   "bucket": "other"
+  },
+  {
+   "h3": "841f733ffffffff",
+   "lat": 54.6607,
+   "lon": 21.6714,
+   "elevationM": 29,
+   "solarCf": 0.1167,
+   "windCf": 0.3367,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308a9fffffffff",
+   "lat": 63.2529,
+   "lon": 17.7483,
+   "elevationM": 323,
+   "solarCf": 0.1015,
+   "windCf": 0.2869,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cfa33ffffffff",
+   "lat": -49.5633,
+   "lon": -70.3946,
+   "elevationM": 133,
+   "solarCf": 0.1344,
+   "windCf": 0.6756,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b8e7fffffffff",
+   "lat": -26.3881,
+   "lon": 126.615,
+   "elevationM": 450,
+   "solarCf": 0.1826,
+   "windCf": 0.42,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b2c0dffffffff",
+   "lat": -33.6522,
+   "lon": -71.7681,
+   "elevationM": 0,
+   "solarCf": 0.1882,
+   "windCf": 0.3651,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308aafffffffff",
+   "lat": 61.6377,
+   "lon": 18.2507,
+   "elevationM": 0,
+   "solarCf": 0.1098,
+   "windCf": 0.598,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cfa3bffffffff",
+   "lat": -49.96,
+   "lon": -70.4791,
+   "elevationM": 565,
+   "solarCf": 0.1329,
+   "windCf": 0.6601,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b987fffffffff",
+   "lat": -29.4708,
+   "lon": 138.6645,
+   "elevationM": 88,
+   "solarCf": 0.184,
+   "windCf": 0.3714,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b2c47ffffffff",
+   "lat": -33.3015,
+   "lon": -71.5799,
+   "elevationM": 334,
+   "solarCf": 0.1876,
+   "windCf": 0.3651,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308abfffffffff",
+   "lat": 62.5314,
+   "lon": 18.9226,
+   "elevationM": 0,
+   "solarCf": 0.1078,
+   "windCf": 0.5873,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cfa41ffffffff",
+   "lat": -51.9117,
+   "lon": -69.3661,
+   "elevationM": 130,
+   "solarCf": 0.116,
+   "windCf": 0.6491,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82b99ffffffffff",
+   "lat": -26.6096,
+   "lon": 137.775,
+   "elevationM": 34,
+   "solarCf": 0.1905,
+   "windCf": 0.3642,
+   "bucket": "other"
+  },
+  {
+   "h3": "84b2c4dffffffff",
+   "lat": -32.6695,
+   "lon": -71.6708,
+   "elevationM": 0,
+   "solarCf": 0.1927,
+   "windCf": 0.3492,
+   "bucket": "mid_latitude_wind"
+  },
+  {
+   "h3": "8308acfffffffff",
+   "lat": 62.2452,
+   "lon": 15.1156,
+   "elevationM": 303,
+   "solarCf": 0.0984,
+   "windCf": 0.2628,
+   "bucket": "high_latitude"
+  },
+  {
+   "h3": "84cfa4dffffffff",
+   "lat": -52.1586,
+   "lon": -68.9015,
+   "elevationM": 73,
+   "solarCf": 0.118,
+   "windCf": 0.7039,
+   "bucket": "strong_wind"
+  },
+  {
+   "h3": "82be0ffffffffff",
+   "lat": -34.0406,
+   "lon": 150.4286,
+   "elevationM": 215,
+   "solarCf": 0.1577,
+   "windCf": 0.1305,
+   "bucket": "other"
+  }
+ ]
+}

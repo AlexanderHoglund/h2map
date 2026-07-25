@@ -28,3 +28,5 @@ next-env.d.ts
 hex-seed.log
 hex-seed-new.log
 hex-seed-deep.log
+data/rankdiff/report.md
+data/rankdiff/report.json
