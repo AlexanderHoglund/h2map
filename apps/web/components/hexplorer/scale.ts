@@ -32,10 +32,10 @@ export const LAYER_DOMAIN: Record<LayerKey, readonly [number, number]> = {
  * mostly the projected later years); the rest is the normal green→red body.
  */
 const RAMP: readonly [number, readonly [number, number, number]][] = [
-  [0.0, [37, 99, 235]], // #2563eb blue — exceptional (most extreme cheap)
+  [0.05, [37, 99, 235]], // #2563eb blue — exceptional (most extreme cheap)
   [0.1, [26, 152, 80]], // #1a9850 green — best / cheap
-  [0.35, [166, 217, 106]], // #a6d96a light green
-  [0.58, [245, 205, 30]], // #f5cd1e yellow — mid
+  [0.50, [166, 217, 106]], // #a6d96a light green
+  [0.65, [245, 205, 30]], // #f5cd1e yellow — mid
   [0.8, [245, 155, 45]], // #f59b2d orange
   [1.0, [215, 48, 39]], // #d73027 red — most expensive
 ];
