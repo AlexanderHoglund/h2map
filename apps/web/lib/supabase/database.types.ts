@@ -52,6 +52,7 @@ export type Database = {
           lcoh_best: number | null
           lcoh_solar: number | null
           lcoh_wind: number | null
+          lcoh_years: Json | null
           lon: number
           res: number
           solar_cf: number | null
@@ -68,6 +69,7 @@ export type Database = {
           lcoh_best?: number | null
           lcoh_solar?: number | null
           lcoh_wind?: number | null
+          lcoh_years?: Json | null
           lon: number
           res: number
           solar_cf?: number | null
@@ -84,6 +86,7 @@ export type Database = {
           lcoh_best?: number | null
           lcoh_solar?: number | null
           lcoh_wind?: number | null
+          lcoh_years?: Json | null
           lon?: number
           res?: number
           solar_cf?: number | null
@@ -208,6 +211,7 @@ export type Database = {
           lcoh_best: number | null
           lcoh_solar: number | null
           lcoh_wind: number | null
+          lcoh_years: Json | null
           lon: number
           res: number
           solar_cf: number | null

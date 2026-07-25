@@ -4,11 +4,20 @@ import { cellToLatLng } from "h3-js";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { LAYER_KEYS, type HexDatum } from "./types";
+import {
+  COST_YEARS,
+  LAYER_KEYS,
+  layerValue,
+  type CostYear,
+  type HexDatum,
+  type LayerKey,
+} from "./types";
 
 interface Props {
   /** Last selected cell; kept by the parent while the drawer slides out. */
   datum: HexDatum | null;
+  layerKey: LayerKey;
+  costYear: CostYear;
   open: boolean;
   onClose: () => void;
 }
@@ -22,7 +31,13 @@ function fmtPercent(value: number | null): string {
 }
 
 /** Right-hand cell detail drawer; slides in on selection, Escape closes. */
-export default function CellDrawer({ datum, open, onClose }: Props) {
+export default function CellDrawer({
+  datum,
+  layerKey,
+  costYear,
+  open,
+  onClose,
+}: Props) {
   const t = useTranslations("explorer");
   const router = useRouter();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -50,9 +65,9 @@ export default function CellDrawer({ datum, open, onClose }: Props) {
 
   const lcohByLayer = shown
     ? {
-        best: shown.data.lcohBest,
-        solar: shown.data.lcohSolar,
-        wind: shown.data.lcohWind,
+        best: layerValue(shown.data, "best", costYear),
+        solar: layerValue(shown.data, "solar", costYear),
+        wind: layerValue(shown.data, "wind", costYear),
       }
     : null;
 
@@ -93,7 +108,7 @@ export default function CellDrawer({ datum, open, onClose }: Props) {
           <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
             <section>
               <h3 className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                {t("drawer.lcohHeading")} · {t("drawer.unit")}
+                {t("drawer.lcohHeading")} · {costYear} · {t("drawer.unit")}
               </h3>
               <dl>
                 {LAYER_KEYS.map((key) => (
@@ -155,18 +170,34 @@ export default function CellDrawer({ datum, open, onClose }: Props) {
 
             <section>
               <h3 className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                {t("drawer.trendHeading")}
+                {t("drawer.trendHeading")} · {t(`drawer.layers.${layerKey}`)}
               </h3>
-              <div className="flex justify-between py-0.5">
-                <span className="text-neutral-600 dark:text-neutral-300">
-                  {t("drawer.trendCurrent")}
-                </span>
-                <span className="tabular-nums font-medium">
-                  {shown.value.toFixed(2)}
-                </span>
-              </div>
+              <dl>
+                {COST_YEARS.map((year) => {
+                  const v = layerValue(shown.data, layerKey, year);
+                  const active = year === costYear;
+                  return (
+                    <div
+                      key={year}
+                      className={`flex justify-between py-0.5 ${active ? "font-medium" : ""}`}
+                    >
+                      <dt
+                        className={
+                          active
+                            ? "text-blue-600 dark:text-blue-400"
+                            : "text-neutral-600 dark:text-neutral-300"
+                        }
+                      >
+                        {year}
+                        {year !== 2024 ? " *" : ""}
+                      </dt>
+                      <dd className="tabular-nums">{fmt(v, 2)}</dd>
+                    </div>
+                  );
+                })}
+              </dl>
               <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                {t("drawer.trendPending")}
+                {t("drawer.trendNote")}
               </p>
             </section>
 

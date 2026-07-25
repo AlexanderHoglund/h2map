@@ -13,7 +13,13 @@ import CellDrawer from "./CellDrawer";
 import LayerControls from "./LayerControls";
 import Legend from "./Legend";
 import SearchBox from "./SearchBox";
-import { isLayerKey, type HexDatum, type LayerKey } from "./types";
+import {
+  isCostYear,
+  isLayerKey,
+  type CostYear,
+  type HexDatum,
+  type LayerKey,
+} from "./types";
 import { useHexCells } from "./useHexCells";
 import { collectWithAncestors, enumerateViewport } from "./viewport";
 import { lcohColor } from "./scale";
@@ -81,6 +87,12 @@ export default function HexplorerMap() {
     return parsed && isLayerKey(parsed.layer) ? parsed.layer : "best";
   });
   const layerKeyRef = useRef(layerKey);
+  const [costYear, setCostYear] = useState<CostYear>(() => {
+    if (typeof window === "undefined") return 2024;
+    const parsed = parseCameraHash(window.location.hash);
+    return parsed && isCostYear(parsed.year) ? parsed.year : 2024;
+  });
+  const costYearRef = useRef(costYear);
   const [opacity, setOpacity] = useState(75);
   const [layerVisible, setLayerVisible] = useState(true);
   const [maxDetail, setMaxDetail] = useState(false);
@@ -101,15 +113,17 @@ export default function HexplorerMap() {
         lon: center.lng,
         zoom: map.getZoom(),
         layer: layerKeyRef.current,
+        year: costYearRef.current,
       }),
     );
   }, []);
 
-  // Layer choice is the hash's 4th component; keep the ref + hash in sync.
+  // Layer + cost year live in the hash; keep the refs + hash in sync.
   useEffect(() => {
     layerKeyRef.current = layerKey;
+    costYearRef.current = costYear;
     syncCameraHash();
-  }, [layerKey, syncCameraHash]);
+  }, [layerKey, costYear, syncCameraHash]);
 
   /**
    * Re-enumerate the viewport and render whatever is already cached. Runs
@@ -262,6 +276,7 @@ export default function HexplorerMap() {
       engine.cache,
       visibleIdsRef.current,
       layerKey,
+      costYear,
       displayedResRef.current,
     );
     if (data.length === 0) {
@@ -302,13 +317,13 @@ export default function HexplorerMap() {
             const [r, g, b] = lcohColor(d.value, layerKey);
             return [r, g, b, d.parentFill ? PARENT_FILL_ALPHA : 255];
           },
-          updateTriggers: { getFillColor: layerKey },
+          updateTriggers: { getFillColor: [layerKey, costYear] },
           onHover: onHexHover,
           onClick: onHexClick,
         }),
       ],
     });
-  }, [version, layerKey, opacity, layerVisible, engine, isDark, onHexHover, onHexClick]);
+  }, [version, layerKey, costYear, opacity, layerVisible, engine, isDark, onHexHover, onHexClick]);
 
   const flyTo = useCallback((lat: number, lon: number) => {
     const map = mapRef.current;
@@ -338,6 +353,8 @@ export default function HexplorerMap() {
         <LayerControls
           layerKey={layerKey}
           onLayerChange={setLayerKey}
+          costYear={costYear}
+          onCostYearChange={setCostYear}
           opacity={opacity}
           onOpacityChange={setOpacity}
           visible={layerVisible}
@@ -370,6 +387,8 @@ export default function HexplorerMap() {
 
       <CellDrawer
         datum={selected}
+        layerKey={layerKey}
+        costYear={costYear}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
       />

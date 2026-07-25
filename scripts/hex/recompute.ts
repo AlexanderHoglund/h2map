@@ -8,7 +8,7 @@
  */
 import { cellToLatLng } from "h3-js";
 import { getResourceProfile } from "@h2map/profile-service";
-import { mapSweep } from "../lib/lcohSweep";
+import { futureYearsJson, mapSweepAllYears } from "../lib/lcohSweep";
 import { makeCache, makeSupabase, makeTurbineLoader } from "../lib/serviceDeps";
 
 const PAGE = 1000;
@@ -50,15 +50,17 @@ async function main(): Promise<void> {
           { lat, lon, kind: "wind_120" },
           deps,
         );
-        const s = mapSweep({ pv: pv.cf, wind: wind.cf });
+        const years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf });
+        const y2024 = years[2024];
         const { error: upErr } = await db
           .from("hex_lcoh")
           .update({
-            lcoh_best: round3(s.best.lcoh),
-            lcoh_solar: s.solarOnly === null ? null : round3(s.solarOnly),
-            lcoh_wind: s.windOnly === null ? null : round3(s.windOnly),
-            best_pv_mw: s.best.pvMw,
-            best_wind_mw: s.best.windMw,
+            lcoh_best: round3(y2024.best),
+            lcoh_solar: y2024.solar === null ? null : round3(y2024.solar),
+            lcoh_wind: y2024.wind === null ? null : round3(y2024.wind),
+            best_pv_mw: y2024.bestPvMw,
+            best_wind_mw: y2024.bestWindMw,
+            lcoh_years: futureYearsJson(years),
           })
           .eq("h3", h3);
         if (upErr) throw new Error(upErr.message);

@@ -45,6 +45,8 @@ export async function POST(request: NextRequest): Promise<Response> {
         bestWindMw: row.best_wind_mw,
         solarCf: row.solar_cf,
         windCf: row.wind_cf,
+        // Future cost years {"2030":{best,solar,wind},...}; 2024 is above.
+        years: row.lcoh_years,
       })),
     });
   } catch (err) {

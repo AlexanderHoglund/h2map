@@ -3,6 +3,7 @@ import {
   layerValue,
   type CacheEntry,
   type CellData,
+  type CostYear,
   type HexDatum,
   type LayerKey,
 } from "./types";
@@ -46,9 +47,10 @@ export class CellCache {
 function readyValue(
   entry: CacheEntry | undefined,
   layer: LayerKey,
+  year: CostYear,
 ): { value: number; data: CellData } | null {
   if (!entry || entry === "missing" || entry.status !== "ready") return null;
-  const value = layerValue(entry, layer);
+  const value = layerValue(entry, layer, year);
   return value == null ? null : { value, data: entry };
 }
 
@@ -72,15 +74,16 @@ function resolve(
   cache: CellCache,
   id: string,
   layer: LayerKey,
+  year: CostYear,
 ): Resolved | null {
-  const own = readyValue(cache.get(id), layer);
+  const own = readyValue(cache.get(id), layer, year);
   if (own) return { ...own, own: true };
   let res = getResolution(id);
   let cur = id;
   while (res > MIN_RES) {
     cur = cellToParent(cur, res - 1);
     res -= 1;
-    const hit = readyValue(cache.get(cur), layer);
+    const hit = readyValue(cache.get(cur), layer, year);
     if (hit) return { ...hit, own: false };
   }
   return null;
@@ -105,6 +108,7 @@ export function buildRenderData(
   cache: CellCache,
   visibleIds: string[],
   layer: LayerKey,
+  year: CostYear,
   floorRes: number = MIN_RES,
 ): { data: HexDatum[]; res: number } {
   if (visibleIds.length === 0) return { data: [], res: MIN_RES };
@@ -119,7 +123,7 @@ export function buildRenderData(
       res === mappedRes
         ? visibleIds
         : [...new Set(visibleIds.map((id) => cellToParent(id, res)))];
-    const resolved = ids.map((id) => resolve(cache, id, layer));
+    const resolved = ids.map((id) => resolve(cache, id, layer, year));
     const renderable = resolved.filter((r) => r !== null);
     const ownCount = renderable.filter((r) => r!.own).length;
     chosenIds = ids;

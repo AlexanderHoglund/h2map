@@ -14,7 +14,7 @@
 import { cellToLatLng, getResolution, polygonToCells } from "h3-js";
 import { ENGINE_VERSION } from "@h2map/lcoh-engine";
 import { getResourceProfile } from "@h2map/profile-service";
-import { mapSweep } from "../lib/lcohSweep";
+import { futureYearsJson, mapSweepAllYears } from "../lib/lcohSweep";
 import {
   fetchJson,
   makeCache,
@@ -335,7 +335,8 @@ async function seedCells(
         { lat, lon, kind: "wind_120" },
         deps,
       );
-      const sweep = mapSweep({ pv: pv.cf, wind: wind.cf });
+      const years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf });
+      const y = years[2024];
       const meanCf = (cf: number[]) =>
         Number((cf.reduce((a, b) => a + b, 0) / cf.length).toFixed(4));
 
@@ -345,11 +346,12 @@ async function seedCells(
         lat: latR,
         lon: lonR,
         status: "ready",
-        lcoh_best: round3(sweep.best.lcoh),
-        lcoh_solar: sweep.solarOnly === null ? null : round3(sweep.solarOnly),
-        lcoh_wind: sweep.windOnly === null ? null : round3(sweep.windOnly),
-        best_pv_mw: sweep.best.pvMw,
-        best_wind_mw: sweep.best.windMw,
+        lcoh_best: round3(y.best),
+        lcoh_solar: y.solar === null ? null : round3(y.solar),
+        lcoh_wind: y.wind === null ? null : round3(y.wind),
+        best_pv_mw: y.bestPvMw,
+        best_wind_mw: y.bestWindMw,
+        lcoh_years: futureYearsJson(years),
         solar_cf: meanCf(pv.cf),
         wind_cf: meanCf(wind.cf),
         engine_version: ENGINE_VERSION,
@@ -357,7 +359,7 @@ async function seedCells(
       });
       if (error) throw new Error(error.message);
       console.log(
-        `    ready: best ${sweep.best.lcoh.toFixed(2)} (pv ${sweep.best.pvMw}/wind ${sweep.best.windMw}), solar ${sweep.solarOnly?.toFixed(2)}, wind ${sweep.windOnly?.toFixed(2)}`,
+        `    ready: best ${y.best.toFixed(2)} (pv ${y.bestPvMw}/wind ${y.bestWindMw}) → 2050 ${years[2050].best.toFixed(2)}`,
       );
     } catch (err) {
       console.error(`    FAILED: ${String(err)}`);

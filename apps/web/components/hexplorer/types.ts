@@ -8,6 +8,20 @@ export function isLayerKey(value: unknown): value is LayerKey {
   return value === "best" || value === "solar" || value === "wind";
 }
 
+/** Cost years the choropleth carries; 2024 is current, the rest projected. */
+export const COST_YEARS = [2024, 2030, 2040, 2050] as const;
+export type CostYear = (typeof COST_YEARS)[number];
+
+export function isCostYear(value: unknown): value is CostYear {
+  return COST_YEARS.includes(value as CostYear);
+}
+
+interface YearLcoh {
+  best: number | null;
+  solar: number | null;
+  wind: number | null;
+}
+
 export type CellStatus = "computing" | "ready" | "failed";
 
 /** One cell as returned by POST /api/v1/hex. */
@@ -21,6 +35,8 @@ export interface CellData {
   bestWindMw: number | null;
   solarCf: number | null;
   windCf: number | null;
+  /** Future cost years, e.g. {"2030":{best,solar,wind},...}; 2024 is above. */
+  years: Record<string, YearLcoh> | null;
 }
 
 /** Cache entry: server data, or "missing" (ocean / unseeded — do not re-request). */
@@ -37,14 +53,15 @@ export interface HexDatum {
   data: CellData;
 }
 
-/** Value of `cell` on the given layer; null means "treat as missing". */
-export function layerValue(cell: CellData, layer: LayerKey): number | null {
-  switch (layer) {
-    case "best":
-      return cell.lcohBest;
-    case "solar":
-      return cell.lcohSolar;
-    case "wind":
-      return cell.lcohWind;
-  }
+/** Value of `cell` on the given layer + cost year; null = "treat as missing". */
+export function layerValue(
+  cell: CellData,
+  layer: LayerKey,
+  year: CostYear,
+): number | null {
+  const trio: YearLcoh =
+    year === 2024
+      ? { best: cell.lcohBest, solar: cell.lcohSolar, wind: cell.lcohWind }
+      : (cell.years?.[String(year)] ?? { best: null, solar: null, wind: null });
+  return trio[layer];
 }

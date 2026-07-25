@@ -11,7 +11,7 @@
         "wind": "Wind only"
       },
       "costYear": "Cost year",
-      "costYearSoon": "Cost trajectories coming soon",
+      "costYearProjected": "Projected — IEA-anchored cost-down (2040/2050 extrapolated)",
       "opacity": "Hex opacity",
       "opacityValue": "{value}%",
       "visible": "Show layer"
@@ -53,8 +53,7 @@
       "windMw": "Wind",
       "unitMw": "MW",
       "trendHeading": "Cost trajectory",
-      "trendCurrent": "2024",
-      "trendPending": "2030/2040/2050 pending trajectory data",
+      "trendNote": "* projected (IEA-anchored; 2040/2050 extrapolated)",
       "cellId": "Cell {id}",
       "approximate": "Approximate — value inherited from parent cell",
       "evaluate": "Evaluate here"

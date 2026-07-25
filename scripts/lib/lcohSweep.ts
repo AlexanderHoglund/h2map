@@ -22,16 +22,32 @@ export const TOTAL_RENEWABLE_MW = 200;
 
 /** Flat reference electricity price (Chilean methodology default). */
 const FLAT_LCOE: PricingMode = { mode: "lcoe", usdPerMwh: 30 };
-/** Resource-derived electricity cost (IRENA 2023 global weighted averages). */
-const SOLAR_CAPEX: PricingMode = {
-  mode: "capex",
-  capexUsdPerKw: 800,
-  opexFractionPerYear: 0.015,
-};
-const WIND_CAPEX: PricingMode = {
-  mode: "capex",
-  capexUsdPerKw: 1200,
-  opexFractionPerYear: 0.025,
+
+/**
+ * Cost-year techno-economic packs. The 2024 base is IRENA-2023 CAPEX;
+ * 2030/2040/2050 apply the IEA-anchored cost-down (see docs/COST_YEARS.md):
+ * multipliers from the IEA Global Hydrogen Review 2025 Assumptions Annex
+ * (2024→2030) extrapolated to 2040/2050 along IEA's stated direction —
+ * electrolyser CAPEX ×0.70/0.58/0.50, solar ×0.69/0.62/0.57, wind
+ * ×0.92/0.88/0.85, efficiency 60→61→63→65 % LHV.
+ */
+export interface CostPack {
+  electrolyzerCapexUsdPerKw: number;
+  efficiencyLhv: number;
+  solarCapexUsdPerKw: number;
+  solarOpexFrac: number;
+  windCapexUsdPerKw: number;
+  windOpexFrac: number;
+}
+
+export const COST_YEARS = [2024, 2030, 2040, 2050] as const;
+export type CostYear = (typeof COST_YEARS)[number];
+
+export const COST_PACKS: Record<CostYear, CostPack> = {
+  2024: { electrolyzerCapexUsdPerKw: 1000, efficiencyLhv: 0.6, solarCapexUsdPerKw: 800, solarOpexFrac: 0.015, windCapexUsdPerKw: 1200, windOpexFrac: 0.025 },
+  2030: { electrolyzerCapexUsdPerKw: 700, efficiencyLhv: 0.61, solarCapexUsdPerKw: 552, solarOpexFrac: 0.015, windCapexUsdPerKw: 1104, windOpexFrac: 0.025 },
+  2040: { electrolyzerCapexUsdPerKw: 580, efficiencyLhv: 0.63, solarCapexUsdPerKw: 496, solarOpexFrac: 0.015, windCapexUsdPerKw: 1056, windOpexFrac: 0.025 },
+  2050: { electrolyzerCapexUsdPerKw: 500, efficiencyLhv: 0.65, solarCapexUsdPerKw: 456, solarOpexFrac: 0.015, windCapexUsdPerKw: 1020, windOpexFrac: 0.025 },
 };
 
 export interface SweepPoint {
@@ -52,6 +68,7 @@ function sweep(
   profiles: { pv?: readonly number[]; wind?: readonly number[] },
   pvPricing: PricingMode,
   windPricing: PricingMode,
+  electrolyzer: LCOHInputs["electrolyzer"],
   label: string,
 ): SweepResult {
   const points: SweepPoint[] = [];
@@ -62,7 +79,7 @@ function sweep(
     if (windMw > 0 && !profiles.wind) continue;
     const inputs: LCOHInputs = {
       finance: { ...REFERENCE_DEFAULTS.finance },
-      electrolyzer: { ...REFERENCE_DEFAULTS.electrolyzer },
+      electrolyzer,
       ...(pvMw > 0 ? { pv: { capacityMw: pvMw, pricing: pvPricing } } : {}),
       ...(windMw > 0
         ? { wind: { capacityMw: windMw, pricing: windPricing } }
@@ -92,13 +109,76 @@ export function referenceSweep(profiles: {
   pv?: readonly number[];
   wind?: readonly number[];
 }): SweepResult {
-  return sweep(profiles, FLAT_LCOE, FLAT_LCOE, "referenceSweep");
+  return sweep(
+    profiles,
+    FLAT_LCOE,
+    FLAT_LCOE,
+    { ...REFERENCE_DEFAULTS.electrolyzer },
+    "referenceSweep",
+  );
 }
 
-/** Location-specific CAPEX sweep — the choropleth's values. */
-export function mapSweep(profiles: {
+/** Location-specific CAPEX sweep for one cost-year pack — the choropleth's values. */
+export function mapSweep(
+  profiles: { pv?: readonly number[]; wind?: readonly number[] },
+  pack: CostPack,
+): SweepResult {
+  return sweep(
+    profiles,
+    { mode: "capex", capexUsdPerKw: pack.solarCapexUsdPerKw, opexFractionPerYear: pack.solarOpexFrac },
+    { mode: "capex", capexUsdPerKw: pack.windCapexUsdPerKw, opexFractionPerYear: pack.windOpexFrac },
+    {
+      ...REFERENCE_DEFAULTS.electrolyzer,
+      capexUsdPerKw: pack.electrolyzerCapexUsdPerKw,
+      efficiencyLhv: pack.efficiencyLhv,
+    },
+    "mapSweep",
+  );
+}
+
+/** One cost year's LCOH trio for a cell. */
+export interface YearLcoh {
+  best: number;
+  solar: number | null;
+  wind: number | null;
+  bestPvMw: number;
+  bestWindMw: number;
+}
+
+/** Run the map sweep for every cost year from one set of cached profiles. */
+export function mapSweepAllYears(profiles: {
   pv?: readonly number[];
   wind?: readonly number[];
-}): SweepResult {
-  return sweep(profiles, SOLAR_CAPEX, WIND_CAPEX, "mapSweep");
+}): Record<CostYear, YearLcoh> {
+  const out = {} as Record<CostYear, YearLcoh>;
+  for (const year of COST_YEARS) {
+    const s = mapSweep(profiles, COST_PACKS[year]);
+    out[year] = {
+      best: s.best.lcoh,
+      solar: s.solarOnly,
+      wind: s.windOnly,
+      bestPvMw: s.best.pvMw,
+      bestWindMw: s.best.windMw,
+    };
+  }
+  return out;
+}
+
+const round3 = (x: number): number => Math.round(x * 1000) / 1000;
+
+/** The `lcoh_years` jsonb payload (future years only; 2024 lives in columns). */
+export function futureYearsJson(
+  years: Record<CostYear, YearLcoh>,
+): Record<string, { best: number; solar: number | null; wind: number | null }> {
+  const out: Record<string, { best: number; solar: number | null; wind: number | null }> = {};
+  for (const year of COST_YEARS) {
+    if (year === 2024) continue;
+    const y = years[year];
+    out[String(year)] = {
+      best: round3(y.best),
+      solar: y.solar === null ? null : round3(y.solar),
+      wind: y.wind === null ? null : round3(y.wind),
+    };
+  }
+  return out;
 }

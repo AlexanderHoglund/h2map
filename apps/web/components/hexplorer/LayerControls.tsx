@@ -2,14 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
-import { LAYER_KEYS, type LayerKey } from "./types";
-
-const COST_YEARS = ["2024", "2030", "2040", "2050"] as const;
-const ACTIVE_COST_YEAR = "2024";
+import { COST_YEARS, LAYER_KEYS, type CostYear, type LayerKey } from "./types";
 
 interface Props {
   layerKey: LayerKey;
   onLayerChange: (layer: LayerKey) => void;
+  costYear: CostYear;
+  onCostYearChange: (year: CostYear) => void;
   opacity: number;
   onOpacityChange: (value: number) => void;
   visible: boolean;
@@ -20,6 +19,8 @@ interface Props {
 export default function LayerControls({
   layerKey,
   onLayerChange,
+  costYear,
+  onCostYearChange,
   opacity,
   onOpacityChange,
   visible,
@@ -86,18 +87,17 @@ export default function LayerControls({
             </p>
             <div className="inline-flex overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
               {COST_YEARS.map((year) => {
-                const active = year === ACTIVE_COST_YEAR;
+                const active = year === costYear;
                 return (
                   <button
                     key={year}
                     type="button"
-                    disabled={!active}
                     aria-pressed={active}
-                    title={active ? undefined : t("controls.costYearSoon")}
-                    className={`px-2.5 py-1.5 text-xs tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 ${
+                    onClick={() => onCostYearChange(year)}
+                    className={`px-2.5 py-1.5 text-xs tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 ${
                       active
                         ? "bg-blue-600 text-white"
-                        : "cursor-not-allowed text-neutral-400 dark:text-neutral-500"
+                        : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
                     }`}
                   >
                     {year}
@@ -105,6 +105,11 @@ export default function LayerControls({
                 );
               })}
             </div>
+            {costYear !== 2024 && (
+              <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                {t("controls.costYearProjected")}
+              </p>
+            )}
           </div>
 
           <div>
