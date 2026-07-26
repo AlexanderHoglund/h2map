@@ -202,6 +202,46 @@ describe("getResourceProfile", () => {
     expect(result.cf.every((v) => v === 0.45)).toBe(true);
   });
 
+  it("unified-ERA5 mode pins PVGIS to ERA5 and never uses the crude proxy", async () => {
+    const urls: string[] = [];
+    const result = await getResourceProfile(
+      { lat: 68.5, lon: 27.0, kind: "pv_fixed" },
+      {
+        pvUnifiedEra5: true,
+        fetchJson: (url) => {
+          urls.push(url);
+          if (!url.includes("re.jrc.ec.europa.eu")) {
+            throw new Error("crude fallback must not exist in unified-ERA5 mode");
+          }
+          return Promise.resolve({
+            inputs: { meteo_data: { radiation_db: "PVGIS-ERA5" } },
+            outputs: (pvgisResponse() as { outputs: unknown }).outputs,
+          });
+        },
+      },
+    );
+    expect(result.provider).toBe("pvgis-seriescalc");
+    expect(urls.every((u) => u.includes("raddatabase=PVGIS-ERA5"))).toBe(true);
+    expect(result.datasetVersion).toContain("pvgis-era5");
+  });
+
+  it("unified-ERA5 mode masks as no-data when PVGIS fails (no crude fallback)", async () => {
+    await expect(
+      getResourceProfile(
+        { lat: 78.0, lon: 15.0, kind: "pv_fixed" },
+        {
+          pvUnifiedEra5: true,
+          fetchJson: (url) => {
+            if (url.includes("archive-api.open-meteo.com")) {
+              throw new Error("crude fallback must not be reached");
+            }
+            return Promise.reject(new Error("HTTP 400 out of coverage"));
+          },
+        },
+      ),
+    ).rejects.toThrow(ProfileServiceError);
+  });
+
   it("throws ProfileServiceError with per-provider causes when everything fails", async () => {
     await expect(
       getResourceProfile(

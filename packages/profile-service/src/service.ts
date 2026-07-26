@@ -184,6 +184,18 @@ async function providerChain(
       },
     ];
   }
+  // Unified-radiation mode: one global PVGIS pathway (ERA5 reanalysis) and no
+  // crude fallback — where PVGIS can't serve, the chain exhausts and the cell
+  // is masked as no-data rather than filled with a categorically different
+  // model. Removes both the coverage-edge seam and the crude-proxy seam.
+  if (deps.pvUnifiedEra5) {
+    return [
+      {
+        name: "pvgis-seriescalc",
+        run: () => fetchPvgisPv(deps.fetchJson, lat, lon, kind, "PVGIS-ERA5"),
+      },
+    ];
+  }
   return [
     {
       name: "pvgis-seriescalc",

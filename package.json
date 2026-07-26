@@ -19,7 +19,8 @@
     "defaults:ingest": "tsx scripts/defaults/ingest-defaults.ts",
     "rankdiff": "tsx scripts/rankdiff/rankdiff.ts",
     "rankdiff:airdensity": "tsx scripts/rankdiff/measure-airdensity.ts",
-    "rankdiff:turbineclass": "tsx scripts/rankdiff/measure-turbineclass.ts"
+    "rankdiff:turbineclass": "tsx scripts/rankdiff/measure-turbineclass.ts",
+    "rankdiff:pvseam": "tsx scripts/rankdiff/measure-pvseam.ts"
   },
   "devDependencies": {
     "@types/node": "^24",

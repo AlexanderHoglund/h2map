@@ -117,6 +117,28 @@ untouched (an `improved-*` golden set is added beside it).
   Kendall τ_b 0.986 (selection mostly rescales within wind regime). Re-fetch-
   bound, like #1.
 
+- **P0 #4 — unified PV pathway / seam removal** (profile layer;
+  `ProfileServiceDeps.pvUnifiedEra5`). PVGIS auto-resolves a regional satellite
+  radiation DB (SARAH/NSRDB); where that coverage ends the map fell back to a
+  categorically different crude GHI proxy, so adjacent hexes stopped being
+  comparable and a seam appeared. Unified mode pins `raddatabase=PVGIS-ERA5`
+  (global reanalysis) for every PV cell and drops the crude fallback — any cell
+  PVGIS can't serve is masked as no-data instead of filled with a different
+  model. Off by default → reference chain (auto-resolve + crude fallback) and
+  the golden set are unchanged; ERA5 profiles carry a `pvgis-...-era5-` dataset
+  tag. Measured effect (`npm run rankdiff:pvseam`, 20-cell latitude-spread
+  sample): the interior satellite→ERA5 shift is small and rank-preserving
+  (best-layer +0.015 USD/kg mean, PV-layer +0.025; Spearman ρ 0.994 / Kendall
+  τ_b 0.974) — the point is to erase a discontinuity, not reorder. Notably PVGIS
+  auto-resolve already reaches ERA5 at ≥70° latitude (those cells are byte-for-
+  byte identical pinned vs auto), so the crude fallback rarely fires in current
+  data; its removal is mainly a consistency/robustness guarantee. (Two sample
+  cells were masked on transient PVGIS timeouts, so the crude→ERA5 heal
+  magnitude wasn't isolated.) Re-fetch-bound like #1/#2. **Follow-up (no rank
+  effect):** the spec's per-cell provenance in the map inspector (provider,
+  radiation DB, turbine class, fallback used) needs the hex schema + seeding +
+  frontend; the data is already encoded in each profile's `datasetVersion`.
+
 - **P0 #3 — stack life on EFLH + efficiency reset**
   (`stackLifeOnEquivalentFullLoadHours` + `resetEfficiencyOnStackReplacement`).
   The calendar-hour counter over-charges stack replacements on peaky profiles,

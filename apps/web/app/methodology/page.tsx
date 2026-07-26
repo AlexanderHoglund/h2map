@@ -129,6 +129,18 @@ export default function MethodologyPage() {
             low-fidelity fallback is used (GHI/1000 × 0.9).
           </li>
           <li>
+            <strong>Unified PV pathway (improved mode).</strong> PVGIS
+            auto-resolves a regional satellite radiation database (SARAH/NSRDB),
+            whose coverage ends near ±65° latitude — beyond which the crude GHI
+            proxy above is a categorically different model, so adjacent hexes
+            stop being comparable and a seam appears in the surface. The improved
+            path pins <code>raddatabase=PVGIS-ERA5</code> (global reanalysis) for
+            every cell and drops the crude fallback: one consistent PV model
+            everywhere, and any cell PVGIS still can&rsquo;t serve is masked as
+            no-data rather than filled with a different model. For a screening
+            map, internal consistency beats per-cell accuracy.
+          </li>
+          <li>
             <strong>Wind — Open-Meteo (ERA5, primary):</strong> hourly wind
             speed at 10 m and 100 m is extrapolated to hub height (120 or 160 m)
             with a per-hour power-law shear exponent, then converted through a

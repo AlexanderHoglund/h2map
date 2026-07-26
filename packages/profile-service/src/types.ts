@@ -113,6 +113,13 @@ export interface ProfileServiceDeps {
    * turbineClasses). Off by default; produces a distinct dataset version.
    */
   windTurbineClassSelection?: boolean;
+  /**
+   * PV: pin PVGIS to the global ERA5 radiation DB and drop the crude proxy
+   * fallback (mask-as-no-data instead). One consistent PV model everywhere,
+   * removing the coverage-edge seam. Off by default → PVGIS auto-resolves the
+   * regional DB with the Open-Meteo crude proxy as fallback (reference behavior).
+   */
+  pvUnifiedEra5?: boolean;
 }
 
 /** Thrown when every provider in the fallback chain failed. */

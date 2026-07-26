@@ -25,12 +25,20 @@ const TRACKING_PARAM: Record<string, string> = {
  * P is in W, so CF = P/1000. Fetches the full available multi-year range in
  * one request (no startyear/endyear — coverage varies by radiation DB), keeps
  * the trailing complete years.
+ *
+ * `radDb` pins the radiation database (e.g. `PVGIS-ERA5`). Left undefined,
+ * PVGIS auto-resolves to the best regional satellite DB (SARAH/NSRDB/…), whose
+ * coverage ends at ~±65° latitude and specific longitude bands — beyond which
+ * the map used a categorically different crude proxy, leaving a visible seam.
+ * Pinning ERA5 (global reanalysis) gives one consistent PV model everywhere and
+ * removes the seam; internal consistency beats per-cell accuracy for screening.
  */
 export async function fetchPvgisPv(
   fetchJson: FetchJson,
   lat: number,
   lon: number,
   kind: ProfileKind,
+  radDb?: string,
 ): Promise<ProviderResult> {
   const tracking = TRACKING_PARAM[kind];
   if (tracking === undefined) {
@@ -39,7 +47,9 @@ export async function fetchPvgisPv(
   const url =
     `https://re.jrc.ec.europa.eu/api/v5_3/seriescalc` +
     `?lat=${lat}&lon=${lon}` +
-    `&pvcalculation=1&peakpower=1&loss=14${tracking}&outputformat=json`;
+    `&pvcalculation=1&peakpower=1&loss=14${tracking}` +
+    (radDb ? `&raddatabase=${radDb}` : "") +
+    `&outputformat=json`;
   const data = (await fetchJson(url)) as PvgisSeriesResponse;
 
   const rows = data.outputs?.hourly;
@@ -80,16 +90,19 @@ export async function fetchPvgisPv(
     cf: trimFeb29(arr),
   }));
 
-  const radDb = data.inputs?.meteo_data?.radiation_db ?? "unknown";
+  const radDbParam = radDb;
+  const resolvedRadDb = data.inputs?.meteo_data?.radiation_db ?? radDbParam ?? "unknown";
   const firstYear = series[0]!.year;
   const lastYear = series[series.length - 1]!.year;
   return {
     provider: "pvgis-seriescalc",
-    datasetTag: `pvgis-5.3-${radDb.toLowerCase()}-${kind}-${firstYear}-${lastYear}`,
+    datasetTag: `pvgis-5.3-${resolvedRadDb.toLowerCase()}-${kind}-${firstYear}-${lastYear}`,
     attribution: ATTRIBUTION,
     series,
     notes: [
-      `radiation database auto-resolved to: ${radDb}`,
+      radDbParam
+        ? `radiation database pinned to: ${resolvedRadDb}`
+        : `radiation database auto-resolved to: ${resolvedRadDb}`,
       "PVGIS PV model incl. mounting/tracking geometry and temperature losses; 14 % system loss, 1 kWp",
     ],
   };
