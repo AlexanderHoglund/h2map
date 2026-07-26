@@ -2,16 +2,22 @@
 
 import { useTranslations } from "next-intl";
 import { domainLabels, lcohGradientCss } from "./scale";
-import type { LayerKey } from "./types";
+import type { LayerBasis, LayerKey } from "./types";
 
 interface Props {
   layerKey: LayerKey;
+  basis: LayerBasis;
   maxDetail: boolean;
 }
 
 /** Always-visible legend (bottom-left): benefit ramp over the layer's domain. */
-export default function Legend({ layerKey, maxDetail }: Props) {
+export default function Legend({ layerKey, basis, maxDetail }: Props) {
   const t = useTranslations("explorer");
+  // The basis (WACC / best-achievable) only re-expresses the "best" layer.
+  const financing =
+    layerKey === "best" && basis !== "default"
+      ? t(`controls.bases.${basis}`)
+      : t("legend.financing");
   const [lo, mid, hi] = domainLabels(layerKey);
   return (
     <div className="pointer-events-none absolute bottom-8 left-4 z-10 w-52 rounded-lg border border-neutral-200 bg-white/95 px-3 py-2 text-xs backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
@@ -33,7 +39,7 @@ export default function Legend({ layerKey, maxDetail }: Props) {
         </span>
       </p>
       <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">
-        {t("legend.financing")}
+        {financing}
       </p>
       {maxDetail && (
         <p className="mt-1 text-neutral-500 dark:text-neutral-400">

@@ -8,7 +8,15 @@
  */
 import { cellToLatLng } from "h3-js";
 import { getResourceProfile } from "@h2map/profile-service";
-import { futureYearsJson, MAP_FLAGS, mapSweepAllYears } from "../lib/lcohSweep";
+import {
+  allYearsBestJson,
+  futureYearsJson,
+  MAP_FLAGS,
+  mapSweepAllYears,
+  mapSweepOptimalAllYears,
+  optimalYearsJson,
+} from "../lib/lcohSweep";
+import { makeWaccResolver } from "../lib/countryWacc";
 import { makeCache, makeSupabase, makeTurbineLoader } from "../lib/serviceDeps";
 
 const PAGE = 1000;
@@ -19,6 +27,8 @@ function round3(x: number): number {
 
 async function main(): Promise<void> {
   const db = makeSupabase();
+  const wacc = await makeWaccResolver(db);
+  console.log(`WACC resolver: ${wacc.countryCount} countries`);
   const deps = {
     // Guarantee no network: a cache miss on a ready cell is a data anomaly we
     // skip rather than silently refetch (which would hit rate limits).
@@ -50,8 +60,14 @@ async function main(): Promise<void> {
           { lat, lon, kind: "wind_120" },
           deps,
         );
-        const years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf }, MAP_FLAGS);
+        const profiles = { pv: pv.cf, wind: wind.cf };
+        const years = mapSweepAllYears(profiles, MAP_FLAGS);
         const y2024 = years[2024];
+        // Optional toggle layers (P1 #5 risk-adjusted WACC, P1 #6 best-achievable
+        // sizing). Uniform/fixed defaults live in the base columns above.
+        const cellWacc = wacc.resolve(lat, lon).wacc;
+        const waccYears = mapSweepAllYears(profiles, MAP_FLAGS, cellWacc);
+        const optimalYears = mapSweepOptimalAllYears(profiles, MAP_FLAGS);
         const { error: upErr } = await db
           .from("hex_lcoh")
           .update({
@@ -61,6 +77,8 @@ async function main(): Promise<void> {
             best_pv_mw: y2024.bestPvMw,
             best_wind_mw: y2024.bestWindMw,
             lcoh_years: futureYearsJson(years),
+            lcoh_wacc: allYearsBestJson(waccYears),
+            lcoh_optimal: optimalYearsJson(optimalYears),
           })
           .eq("h3", h3);
         if (upErr) throw new Error(upErr.message);

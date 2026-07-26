@@ -18,6 +18,7 @@ import {
   isLayerKey,
   type CostYear,
   type HexDatum,
+  type LayerBasis,
   type LayerKey,
 } from "./types";
 import { useHexCells } from "./useHexCells";
@@ -93,6 +94,9 @@ export default function HexplorerMap() {
     return parsed && isCostYear(parsed.year) ? parsed.year : 2024;
   });
   const costYearRef = useRef(costYear);
+  // Best-combination basis (P1 #5 WACC / #6 sizing). Ephemeral — not persisted
+  // in the hash; the default resource-driven view is the shareable one.
+  const [basis, setBasis] = useState<LayerBasis>("default");
   const [opacity, setOpacity] = useState(75);
   const [layerVisible, setLayerVisible] = useState(true);
   const [maxDetail, setMaxDetail] = useState(false);
@@ -277,6 +281,7 @@ export default function HexplorerMap() {
       visibleIdsRef.current,
       layerKey,
       costYear,
+      basis,
       displayedResRef.current,
     );
     if (data.length === 0) {
@@ -317,13 +322,13 @@ export default function HexplorerMap() {
             const [r, g, b] = lcohColor(d.value, layerKey);
             return [r, g, b, d.parentFill ? PARENT_FILL_ALPHA : 255];
           },
-          updateTriggers: { getFillColor: [layerKey, costYear] },
+          updateTriggers: { getFillColor: [layerKey, costYear, basis] },
           onHover: onHexHover,
           onClick: onHexClick,
         }),
       ],
     });
-  }, [version, layerKey, costYear, opacity, layerVisible, engine, isDark, onHexHover, onHexClick]);
+  }, [version, layerKey, costYear, basis, opacity, layerVisible, engine, isDark, onHexHover, onHexClick]);
 
   const flyTo = useCallback((lat: number, lon: number) => {
     const map = mapRef.current;
@@ -353,6 +358,8 @@ export default function HexplorerMap() {
         <LayerControls
           layerKey={layerKey}
           onLayerChange={setLayerKey}
+          basis={basis}
+          onBasisChange={setBasis}
           costYear={costYear}
           onCostYearChange={setCostYear}
           opacity={opacity}
@@ -373,7 +380,7 @@ export default function HexplorerMap() {
         </div>
       )}
 
-      <Legend layerKey={layerKey} maxDetail={maxDetail} />
+      <Legend layerKey={layerKey} basis={basis} maxDetail={maxDetail} />
 
       {hover && (
         <div
@@ -398,6 +405,7 @@ export default function HexplorerMap() {
       <CellDrawer
         datum={selected}
         layerKey={layerKey}
+        basis={basis}
         costYear={costYear}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}

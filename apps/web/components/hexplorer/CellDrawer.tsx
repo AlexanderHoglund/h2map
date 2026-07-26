@@ -10,6 +10,7 @@ import {
   layerValue,
   type CostYear,
   type HexDatum,
+  type LayerBasis,
   type LayerKey,
 } from "./types";
 
@@ -17,6 +18,7 @@ interface Props {
   /** Last selected cell; kept by the parent while the drawer slides out. */
   datum: HexDatum | null;
   layerKey: LayerKey;
+  basis: LayerBasis;
   costYear: CostYear;
   open: boolean;
   onClose: () => void;
@@ -34,6 +36,7 @@ function fmtPercent(value: number | null): string {
 export default function CellDrawer({
   datum,
   layerKey,
+  basis,
   costYear,
   open,
   onClose,
@@ -65,7 +68,7 @@ export default function CellDrawer({
 
   const lcohByLayer = shown
     ? {
-        best: layerValue(shown.data, "best", costYear),
+        best: layerValue(shown.data, "best", costYear, basis),
         solar: layerValue(shown.data, "solar", costYear),
         wind: layerValue(shown.data, "wind", costYear),
       }
@@ -174,7 +177,7 @@ export default function CellDrawer({
               </h3>
               <dl>
                 {COST_YEARS.map((year) => {
-                  const v = layerValue(shown.data, layerKey, year);
+                  const v = layerValue(shown.data, layerKey, year, basis);
                   const active = year === costYear;
                   return (
                     <div

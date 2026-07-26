@@ -2,11 +2,20 @@
 
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
-import { COST_YEARS, LAYER_KEYS, type CostYear, type LayerKey } from "./types";
+import {
+  COST_YEARS,
+  LAYER_BASES,
+  LAYER_KEYS,
+  type CostYear,
+  type LayerBasis,
+  type LayerKey,
+} from "./types";
 
 interface Props {
   layerKey: LayerKey;
   onLayerChange: (layer: LayerKey) => void;
+  basis: LayerBasis;
+  onBasisChange: (basis: LayerBasis) => void;
   costYear: CostYear;
   onCostYearChange: (year: CostYear) => void;
   opacity: number;
@@ -19,6 +28,8 @@ interface Props {
 export default function LayerControls({
   layerKey,
   onLayerChange,
+  basis,
+  onBasisChange,
   costYear,
   onCostYearChange,
   opacity,
@@ -80,6 +91,29 @@ export default function LayerControls({
               ))}
             </div>
           </fieldset>
+
+          {layerKey === "best" && (
+            <fieldset>
+              <legend className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                {t("controls.basisGroup")}
+              </legend>
+              <div className="space-y-1">
+                {LAYER_BASES.map((b) => (
+                  <label key={b} className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="explorer-basis"
+                      value={b}
+                      checked={basis === b}
+                      onChange={() => onBasisChange(b)}
+                      className="accent-blue-600"
+                    />
+                    <span>{t(`controls.bases.${b}`)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
 
           <div>
             <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">

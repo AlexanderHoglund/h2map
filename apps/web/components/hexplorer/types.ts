@@ -16,6 +16,17 @@ export function isCostYear(value: unknown): value is CostYear {
   return COST_YEARS.includes(value as CostYear);
 }
 
+/**
+ * Basis for the "best combination" layer (P1 #5 / #6). `default` is the
+ * resource-driven map (uniform 8% financing, fixed 2:1 sizing); the others are
+ * optional analytical views. Only affects the `best` layer.
+ */
+export type LayerBasis = "default" | "wacc" | "optimal";
+export const LAYER_BASES: readonly LayerBasis[] = ["default", "wacc", "optimal"];
+export function isLayerBasis(value: unknown): value is LayerBasis {
+  return value === "default" || value === "wacc" || value === "optimal";
+}
+
 interface YearLcoh {
   best: number | null;
   solar: number | null;
@@ -37,6 +48,10 @@ export interface CellData {
   windCf: number | null;
   /** Future cost years, e.g. {"2030":{best,solar,wind},...}; 2024 is above. */
   years: Record<string, YearLcoh> | null;
+  /** P1 #5 risk-adjusted best per year {"2024":n,...}; null until recomputed. */
+  wacc: Record<string, number> | null;
+  /** P1 #6 best-achievable per year {"2024":{best,ratio,pvShare},...}; null until recomputed. */
+  optimal: Record<string, { best: number; ratio: number; pvShare: number }> | null;
 }
 
 /** Cache entry: server data, or "missing" (ocean / unseeded — do not re-request). */
@@ -58,7 +73,13 @@ export function layerValue(
   cell: CellData,
   layer: LayerKey,
   year: CostYear,
+  basis: LayerBasis = "default",
 ): number | null {
+  // The WACC / best-achievable bases only re-express the "best" layer; solar
+  // and wind are single-source and always use the default columns.
+  if (layer === "best" && basis === "wacc") return cell.wacc?.[String(year)] ?? null;
+  if (layer === "best" && basis === "optimal")
+    return cell.optimal?.[String(year)]?.best ?? null;
   const trio: YearLcoh =
     year === 2024
       ? { best: cell.lcohBest, solar: cell.lcohSolar, wind: cell.lcohWind }

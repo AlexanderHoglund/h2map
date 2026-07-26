@@ -5,6 +5,7 @@ import {
   type CellData,
   type CostYear,
   type HexDatum,
+  type LayerBasis,
   type LayerKey,
 } from "./types";
 import { MIN_RES } from "./viewport";
@@ -48,9 +49,10 @@ function readyValue(
   entry: CacheEntry | undefined,
   layer: LayerKey,
   year: CostYear,
+  basis: LayerBasis,
 ): { value: number; data: CellData } | null {
   if (!entry || entry === "missing" || entry.status !== "ready") return null;
-  const value = layerValue(entry, layer, year);
+  const value = layerValue(entry, layer, year, basis);
   return value == null ? null : { value, data: entry };
 }
 
@@ -75,15 +77,16 @@ function resolve(
   id: string,
   layer: LayerKey,
   year: CostYear,
+  basis: LayerBasis,
 ): Resolved | null {
-  const own = readyValue(cache.get(id), layer, year);
+  const own = readyValue(cache.get(id), layer, year, basis);
   if (own) return { ...own, own: true };
   let res = getResolution(id);
   let cur = id;
   while (res > MIN_RES) {
     cur = cellToParent(cur, res - 1);
     res -= 1;
-    const hit = readyValue(cache.get(cur), layer, year);
+    const hit = readyValue(cache.get(cur), layer, year, basis);
     if (hit) return { ...hit, own: false };
   }
   return null;
@@ -109,6 +112,7 @@ export function buildRenderData(
   visibleIds: string[],
   layer: LayerKey,
   year: CostYear,
+  basis: LayerBasis,
   floorRes: number = MIN_RES,
 ): { data: HexDatum[]; res: number } {
   if (visibleIds.length === 0) return { data: [], res: MIN_RES };
@@ -123,7 +127,7 @@ export function buildRenderData(
       res === mappedRes
         ? visibleIds
         : [...new Set(visibleIds.map((id) => cellToParent(id, res)))];
-    const resolved = ids.map((id) => resolve(cache, id, layer, year));
+    const resolved = ids.map((id) => resolve(cache, id, layer, year, basis));
     const renderable = resolved.filter((r) => r !== null);
     const ownCount = renderable.filter((r) => r!.own).length;
     chosenIds = ids;

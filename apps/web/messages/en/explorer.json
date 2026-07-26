@@ -11,6 +11,12 @@
         "solar": "Solar only",
         "wind": "Wind only"
       },
+      "basisGroup": "Best-combination basis",
+      "bases": {
+        "default": "Uniform financing · fixed 2:1",
+        "wacc": "Risk-adjusted WACC",
+        "optimal": "Best-achievable sizing"
+      },
       "costYear": "Cost year",
       "costYearProjected": "Projected — IEA-anchored cost-down (2040/2050 extrapolated)",
       "opacity": "Hex opacity",

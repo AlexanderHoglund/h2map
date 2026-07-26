@@ -50,7 +50,9 @@ export type Database = {
           h3: string
           lat: number
           lcoh_best: number | null
+          lcoh_optimal: Json | null
           lcoh_solar: number | null
+          lcoh_wacc: Json | null
           lcoh_wind: number | null
           lcoh_years: Json | null
           lon: number
@@ -67,7 +69,9 @@ export type Database = {
           h3: string
           lat: number
           lcoh_best?: number | null
+          lcoh_optimal?: Json | null
           lcoh_solar?: number | null
+          lcoh_wacc?: Json | null
           lcoh_wind?: number | null
           lcoh_years?: Json | null
           lon: number
@@ -84,7 +88,9 @@ export type Database = {
           h3?: string
           lat?: number
           lcoh_best?: number | null
+          lcoh_optimal?: Json | null
           lcoh_solar?: number | null
+          lcoh_wacc?: Json | null
           lcoh_wind?: number | null
           lcoh_years?: Json | null
           lon?: number
@@ -209,7 +215,9 @@ export type Database = {
           h3: string
           lat: number
           lcoh_best: number | null
+          lcoh_optimal: Json | null
           lcoh_solar: number | null
+          lcoh_wacc: Json | null
           lcoh_wind: number | null
           lcoh_years: Json | null
           lon: number

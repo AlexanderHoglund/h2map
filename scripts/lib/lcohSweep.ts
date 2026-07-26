@@ -329,6 +329,27 @@ export function mapSweepOptimalAllYears(
 
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
 
+/** `lcoh_wacc` jsonb (P1 #5): best LCOH under a per-cell WACC, all cost years. */
+export function allYearsBestJson(
+  years: Record<CostYear, YearLcoh>,
+): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const year of COST_YEARS) out[String(year)] = round3(years[year].best);
+  return out;
+}
+
+/** `lcoh_optimal` jsonb (P1 #6): best-achievable LCOH + winning ratio/mix per year. */
+export function optimalYearsJson(
+  years: Record<CostYear, OptimalPoint | null>,
+): Record<string, { best: number; ratio: number; pvShare: number }> {
+  const out: Record<string, { best: number; ratio: number; pvShare: number }> = {};
+  for (const year of COST_YEARS) {
+    const o = years[year];
+    if (o) out[String(year)] = { best: round3(o.lcoh), ratio: o.ratio, pvShare: o.pvShare };
+  }
+  return out;
+}
+
 /** The `lcoh_years` jsonb payload (future years only; 2024 lives in columns). */
 export function futureYearsJson(
   years: Record<CostYear, YearLcoh>,
