@@ -200,6 +200,110 @@ export function mapSweepAllYears(
   return out;
 }
 
+/**
+ * P1 #6 — oversizing + mix grid. The fixed-2:1 sweep above reports LCOH at one
+ * arbitrary design point; best-achievable LCOH needs the renewable:electrolyser
+ * ratio swept too, because the optimum is strongly profile-dependent (flat wind
+ * wants a lower ratio than peaky solar), so cells can invert. Electrolyser is
+ * held at 100 MW; renewable total = ratio × 100 MW.
+ */
+export const OVERSIZE_RATIOS = [1.25, 1.5, 2.0, 2.5, 3.0] as const;
+export const MIX_SHARES = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1] as const;
+
+export interface OptimalPoint {
+  lcoh: number;
+  ratio: number;
+  pvShare: number;
+  pvMw: number;
+  windMw: number;
+}
+
+/** One config's LCOH from the cached profiles, or null when infeasible. */
+function evalConfig(
+  profiles: { pv?: readonly number[]; wind?: readonly number[] },
+  pvMw: number,
+  windMw: number,
+  pvPricing: PricingMode,
+  windPricing: PricingMode,
+  electrolyzer: LCOHInputs["electrolyzer"],
+  flags: ReferenceFlags,
+  wacc: number | undefined,
+): number | null {
+  if (pvMw > 0 && !profiles.pv) return null;
+  if (windMw > 0 && !profiles.wind) return null;
+  const finance: LCOHInputs["finance"] =
+    wacc === undefined
+      ? { ...REFERENCE_DEFAULTS.finance }
+      : { ...REFERENCE_DEFAULTS.finance, discountRate: wacc };
+  const inputs: LCOHInputs = {
+    finance,
+    electrolyzer,
+    ...(pvMw > 0 ? { pv: { capacityMw: pvMw, pricing: pvPricing } } : {}),
+    ...(windMw > 0 ? { wind: { capacityMw: windMw, pricing: windPricing } } : {}),
+    water: { ...REFERENCE_DEFAULTS.water },
+    referenceFlags: flags,
+  };
+  return simulateLCOH(inputs, {
+    ...(pvMw > 0 ? { pv: profiles.pv } : {}),
+    ...(windMw > 0 ? { wind: profiles.wind } : {}),
+  }).lcohUsdPerKg;
+}
+
+/**
+ * Best-achievable LCOH over the ratio × mix grid for one cost-year pack.
+ * Returns the winning point (LCOH + ratio + PV share) as a diagnostic, or null
+ * if no configuration is feasible (no profiles).
+ */
+export function mapSweepOptimal(
+  profiles: { pv?: readonly number[]; wind?: readonly number[] },
+  pack: CostPack,
+  flags: ReferenceFlags = REFERENCE_FLAGS,
+  wacc?: number,
+): OptimalPoint | null {
+  const pvPricing: PricingMode = {
+    mode: "capex",
+    capexUsdPerKw: pack.solarCapexUsdPerKw,
+    opexFractionPerYear: pack.solarOpexFrac,
+  };
+  const windPricing: PricingMode = {
+    mode: "capex",
+    capexUsdPerKw: pack.windCapexUsdPerKw,
+    opexFractionPerYear: pack.windOpexFrac,
+  };
+  const electrolyzer = {
+    ...REFERENCE_DEFAULTS.electrolyzer,
+    capexUsdPerKw: pack.electrolyzerCapexUsdPerKw,
+    efficiencyLhv: pack.efficiencyLhv,
+  };
+  const electrolyzerMw = REFERENCE_DEFAULTS.electrolyzer.capacityMw;
+
+  let best: OptimalPoint | null = null;
+  for (const ratio of OVERSIZE_RATIOS) {
+    const totalMw = ratio * electrolyzerMw;
+    for (const pvShare of MIX_SHARES) {
+      const pvMw = totalMw * pvShare;
+      const windMw = totalMw - pvMw;
+      const lcoh = evalConfig(profiles, pvMw, windMw, pvPricing, windPricing, electrolyzer, flags, wacc);
+      if (lcoh === null) continue;
+      if (!best || lcoh < best.lcoh) best = { lcoh, ratio, pvShare, pvMw, windMw };
+    }
+  }
+  return best;
+}
+
+/** Best-achievable LCOH per cost year (P1 #6 diagnostic layer). */
+export function mapSweepOptimalAllYears(
+  profiles: { pv?: readonly number[]; wind?: readonly number[] },
+  flags: ReferenceFlags = REFERENCE_FLAGS,
+  wacc?: number,
+): Record<CostYear, OptimalPoint | null> {
+  const out = {} as Record<CostYear, OptimalPoint | null>;
+  for (const year of COST_YEARS) {
+    out[year] = mapSweepOptimal(profiles, COST_PACKS[year], flags, wacc);
+  }
+  return out;
+}
+
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
 
 /** The `lcoh_years` jsonb payload (future years only; 2024 lives in columns). */

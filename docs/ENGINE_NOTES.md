@@ -171,6 +171,29 @@ untouched (an `improved-*` golden set is added beside it).
   deploy** as a live layer needs a stored second value set (jsonb) + a frontend
   toggle, like the cost-year layers.
 
+- **P1 #6 — oversizing + mix sweep** (map layer; `mapSweepOptimal` in
+  `scripts/lib/lcohSweep.ts`). The map reports LCOH at one arbitrary design
+  point (fixed 200 MW renewables on 100 MW electrolyser = 2:1), not
+  best-achievable. The optimal renewable:electrolyser ratio is strongly
+  profile-dependent — flat wind wants a lower ratio than peaky solar — so cells
+  invert under a different ratio. `mapSweepOptimal` sweeps ratio ∈ {1.25, 1.5,
+  2.0, 2.5, 3.0} × PV share ∈ {0, 12.5 … 100 %} (45 configs), returns the min
+  LCOH plus the winning ratio+mix as diagnostics; the fixed-2:1 `mapSweep` is
+  untouched (parity/goldens hold). Engine-recomputable, no re-fetch. Measured
+  (`npm run rankdiff:oversize`, full 500-cell benchmark, best·2024): the fixed
+  2:1 is optimal for only **86/499 cells (17 %)** — 324 prefer a *lower* ratio
+  (1.25×/1.5×), so the current map systematically over-sizes. Best-achievable is
+  **−0.21 USD/kg mean, up to −0.86**, concentrated on flat-wind cells
+  (strong_wind −0.33, high_latitude −0.30 by bucket; strong_solar only −0.13).
+  Rank change Kendall τ_b 0.940 / Spearman ρ 0.994 / top-50 churn 12 %; largest
+  movers are Scandinavian flat-wind cells. **Compute budget for a full rebuild:**
+  ~69 ms/cell for the 45-config sweep at one cost year → ~0.28 s/cell across the
+  4 cost-year packs, i.e. ~3.8 h / 50k cells single-threaded (mitigated by the
+  parallel seeder; the per-hour dispatch is closed-form in the two cached CF
+  profiles, so a vectorised grid evaluation would cut this sharply — not yet
+  done). **To deploy** as a live layer needs the stored best/ratio/mix per cell
+  + a frontend toggle, like the cost-year layers.
+
 ## Deferred (v1.1+ `extensions`, not implemented)
 
 Part-load efficiency curve, minimum-load cutoff, oversizing optimizer,

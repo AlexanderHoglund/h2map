@@ -422,6 +422,16 @@ export default function MethodologyPage() {
           the <em>Solar only</em> and <em>Wind only</em> layers.
         </p>
         <p className="mt-2">
+          <strong>Best-achievable layer (oversizing sweep).</strong> The fixed
+          2:1 point is one arbitrary design; the true optimum also depends on the
+          renewable-to-electrolyser <em>ratio</em>, which is strongly
+          profile-dependent — flat wind wants a lower ratio than peaky solar — so
+          cells can invert. An optional layer sweeps ratio ∈ {"{1.25, 1.5, 2.0, 2.5, 3.0}"} ×
+          PV share ∈ {"{0, 12.5, …, 100}"}% (45 configurations) and reports the
+          minimum LCOH plus the winning ratio and mix as per-cell diagnostics.
+          The fixed-2:1 layer is kept for continuity.
+        </p>
+        <p className="mt-2">
           Unlike the flat-30 reference, the map prices electricity in{" "}
           <strong>CAPEX mode</strong> so each cell&apos;s cost reflects its own
           capacity factor (IRENA 2023 global averages: solar 800 USD/kWp + 1.5%
