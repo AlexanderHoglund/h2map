@@ -284,6 +284,16 @@ export default function MethodologyPage() {
           The interactive Calculator lets you choose either mode. The world map
           uses CAPEX mode so that resource quality drives the map (§10).
         </p>
+        <p className="mt-2">
+          In CAPEX mode the electricity component charges the full plant CAPEX
+          regardless of curtailment, but <code>LCOE_mix</code> is per MWh{" "}
+          <em>generated</em> — so multiplying it by consumed energy under-counts
+          by the utilization ratio. The engine therefore also reports an{" "}
+          <strong>effective cost per consumed MWh</strong> (discounted
+          electricity cost ÷ discounted consumed MWh), which reconciles to the
+          electricity components exactly, and per-source utilization
+          (E_consumed / E_generated).
+        </p>
 
         {/* 8 */}
         <H id="emissions">8. Emissions ledger</H>

@@ -127,8 +127,16 @@ export interface LCOHResults {
     /** USD/MWh; user-supplied in LCOE mode, computed from CAPEX/OPEX otherwise. Null when the source is absent. */
     pv: number | null;
     wind: number | null;
-    /** Consumed-energy-weighted mix (source doc equation), USD/MWh. */
+    /** Consumed-energy-weighted mix over GENERATED energy (source doc equation), USD/MWh. */
     mix: number;
+    /**
+     * Effective electricity cost per CONSUMED MWh: discounted electricity cost
+     * (all sources) ÷ discounted consumed MWh. In CAPEX mode plant CAPEX is
+     * charged regardless of curtailment, so `mix` (per generated MWh) times
+     * consumed energy under-recovers by the utilization ratio; this is the
+     * figure that reconciles to the electricity cost components exactly.
+     */
+    effectivePerConsumedMwh: number;
   };
   annual: AnnualRow[];
   totals: {
@@ -149,6 +157,8 @@ export interface LCOHResults {
     fullLoadHoursPerYear: number;
     /** 12×24 month-by-hour average-day electrolyzer load, MW. */
     averageDayProfileMw: number[][];
+    /** Per-source utilization E_consumed/E_generated (null when source absent). */
+    utilization: { pv: number | null; wind: number | null };
   };
   meta: {
     engineVersion: string;

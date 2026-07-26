@@ -12,7 +12,8 @@
  "lcoe": {
   "pv": 30,
   "wind": 30,
-  "mix": 30
+  "mix": 30,
+  "effectivePerConsumedMwh": 30.000000000000004
  },
  "annual": [
   {
@@ -624,7 +625,11 @@
     100,
     100
    ]
-  ]
+  ],
+  "utilization": {
+   "pv": 0.944790453629098,
+   "wind": 0.9362055660055789
+  }
  },
  "meta": {
   "engineVersion": "0.1.0",

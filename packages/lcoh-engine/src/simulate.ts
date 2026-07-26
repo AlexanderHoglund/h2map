@@ -206,6 +206,25 @@ export function simulateLCOH(
     dispatch.consumedKwh,
   );
 
+  // Effective electricity cost per CONSUMED MWh: total discounted electricity
+  // cost ÷ discounted consumed MWh. Reconciles to the electricity components
+  // exactly (unlike `mix`, which is per generated MWh — see reconciliation
+  // test). Consumed energy is identical every year, so its PV is E×annuity.
+  const electricityCostPv = pvCostPv + windCostPv + gridCostPv;
+  const consumedMwhPv = (dispatch.consumedKwh / 1000) * annuity;
+  const effectivePerConsumedMwh =
+    consumedMwhPv > 0 ? electricityCostPv / consumedMwhPv : 0;
+  const utilization = {
+    pv:
+      pv && dispatch.pvGeneratedKwh > 0
+        ? dispatch.pvConsumedKwh / dispatch.pvGeneratedKwh
+        : null,
+    wind:
+      wind && dispatch.windGeneratedKwh > 0
+        ? dispatch.windConsumedKwh / dispatch.windGeneratedKwh
+        : null,
+  };
+
   // --- Emissions ledger (never part of cost) ---
 
   const gridEf = grid?.emissionFactorTco2PerMwh ?? 0;
@@ -270,7 +289,7 @@ export function simulateLCOH(
   return {
     lcohUsdPerKg,
     decomposition,
-    lcoe: { pv: pvLcoe, wind: windLcoe, mix },
+    lcoe: { pv: pvLcoe, wind: windLcoe, mix, effectivePerConsumedMwh },
     annual,
     totals: {
       h2Kg: totalH2Kg,
@@ -290,6 +309,7 @@ export function simulateLCOH(
         dispatch.consumedKwh / (electrolyzerKw * HOURS_PER_YEAR),
       fullLoadHoursPerYear: dispatch.consumedKwh / electrolyzerKw,
       averageDayProfileMw,
+      utilization,
     },
     meta: { engineVersion: ENGINE_VERSION, referenceMode },
   };
