@@ -101,6 +101,12 @@ export interface ProfileServiceDeps {
   /** Required for wind kinds; unused for PV. */
   getTurbineCurve?: () => Promise<TurbineCurve>;
   log?: (message: string) => void;
+  /**
+   * Normalise wind to the turbine curve's reference air density (IEC
+   * 61400-12). Off by default; produces a distinct dataset version so
+   * corrected profiles never collide with reference ones in the cache.
+   */
+  windAirDensityCorrection?: boolean;
 }
 
 /** Thrown when every provider in the fallback chain failed. */

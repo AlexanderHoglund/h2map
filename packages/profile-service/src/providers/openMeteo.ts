@@ -1,3 +1,4 @@
+import { airDensity, equivalentWindSpeed } from "../airDensity";
 import { windCf } from "../powerCurve";
 import { crudePvCf } from "../pvCrude";
 import { shearExponent, toHubHeight } from "../shear";
@@ -42,16 +43,22 @@ async function fetchArchiveYear(
   lon: number,
   year: number,
   variables: string[],
-): Promise<ArchiveHourly> {
+): Promise<{ hourly: ArchiveHourly; elevationM: number | null }> {
   const url =
     `https://archive-api.open-meteo.com/v1/archive` +
     `?latitude=${lat}&longitude=${lon}` +
     `&start_date=${year}-01-01&end_date=${year}-12-31` +
     `&hourly=${variables.join(",")}` +
     `&wind_speed_unit=ms&timezone=UTC`;
-  const data = (await fetchJson(url)) as { hourly?: ArchiveHourly };
+  const data = (await fetchJson(url)) as {
+    hourly?: ArchiveHourly;
+    elevation?: number;
+  };
   if (!data.hourly) throw new Error(`open-meteo ${year}: response has no hourly block`);
-  return data.hourly;
+  return {
+    hourly: data.hourly,
+    elevationM: typeof data.elevation === "number" ? data.elevation : null,
+  };
 }
 
 /**
@@ -59,6 +66,13 @@ async function fetchArchiveYear(
  * shear from the 10 m/100 m pair to hub height, then the turbine curve.
  * Primary wind source — the spike showed NASA's fixed-α extrapolation runs
  * hot by up to 0.14 CF (see data/spike/comparison.json).
+ *
+ * With `correctAirDensity`, the hub-height speed is normalised to the turbine
+ * curve's reference density (IEC 61400-12): the response `elevation` and
+ * hourly `temperature_2m` give per-hour air density, and the power-curve
+ * lookup uses the density-equivalent speed. This removes the ~22–33 % wind
+ * overstatement at high-elevation sites. Default off → reference profiles are
+ * unchanged (no temperature fetched, no correction).
  */
 export async function fetchOpenMeteoWind(
   fetchJson: FetchJson,
@@ -66,35 +80,64 @@ export async function fetchOpenMeteoWind(
   lon: number,
   hubHeightM: number,
   curve: TurbineCurve,
+  correctAirDensity = false,
 ): Promise<ProviderResult> {
+  const variables = correctAirDensity
+    ? ["wind_speed_10m", "wind_speed_100m", "temperature_2m"]
+    : ["wind_speed_10m", "wind_speed_100m"];
+
   const series: YearSeries[] = [];
+  let elevationM: number | null = null;
+  let rhoSum = 0;
+  let rhoCount = 0;
+  let clampedHours = 0;
   for (
     let year = OPEN_METEO_TMY_YEARS.start;
     year <= OPEN_METEO_TMY_YEARS.end;
     year++
   ) {
-    const hourly = await fetchArchiveYear(fetchJson, lat, lon, year, [
-      "wind_speed_10m",
-      "wind_speed_100m",
-    ]);
+    const { hourly, elevationM: elev } = await fetchArchiveYear(
+      fetchJson,
+      lat,
+      lon,
+      year,
+      variables,
+    );
+    if (elev != null) elevationM = elev;
     const v10 = trimFeb29(hourlyVariable(hourly, "wind_speed_10m", year));
     const v100 = trimFeb29(hourlyVariable(hourly, "wind_speed_100m", year));
+    const temp = correctAirDensity
+      ? trimFeb29(hourlyVariable(hourly, "temperature_2m", year))
+      : null;
+    const z = elevationM ?? 0;
     const cf = v100.map((v, h) => {
       const lo = v10[h];
       if (v === null || lo === null || lo === undefined) return null;
       const alpha = shearExponent(lo, 10, v, 100);
-      return windCf(curve, toHubHeight(v, 100, hubHeightM, alpha));
+      const vHub = toHubHeight(v, 100, hubHeightM, alpha);
+      if (!correctAirDensity) return windCf(curve, vHub);
+      const { rho, clamped } = airDensity(z, temp?.[h] ?? null);
+      rhoSum += rho;
+      rhoCount++;
+      if (clamped) clampedHours++;
+      return windCf(curve, equivalentWindSpeed(vHub, rho));
     });
     series.push({ year, cf });
   }
+
+  const meanRho = rhoCount > 0 ? rhoSum / rhoCount : null;
   return {
     provider: "open-meteo",
-    datasetTag: `om-era5-${OPEN_METEO_TMY_YEARS.start}-${OPEN_METEO_TMY_YEARS.end}-hub${hubHeightM}-${curve.id}`,
+    datasetTag:
+      `om-era5-${OPEN_METEO_TMY_YEARS.start}-${OPEN_METEO_TMY_YEARS.end}-hub${hubHeightM}-${curve.id}` +
+      (correctAirDensity ? "-airdensity" : ""),
     attribution: ATTRIBUTION,
     series,
     notes: [
       `power-law shear from 10 m/100 m, clamped alpha [0.05, 0.40], to ${hubHeightM} m hub`,
-      `turbine curve ${curve.id}; no air-density correction`,
+      correctAirDensity
+        ? `air-density corrected (IEC 61400-12) at elevation ${elevationM ?? "?"} m; mean rho ${meanRho?.toFixed(3) ?? "?"} kg/m3; ${clampedHours} clamped hours`
+        : `turbine curve ${curve.id}; no air-density correction`,
     ],
   };
 }
@@ -114,7 +157,7 @@ export async function fetchOpenMeteoPvCrude(
     year <= OPEN_METEO_TMY_YEARS.end;
     year++
   ) {
-    const hourly = await fetchArchiveYear(fetchJson, lat, lon, year, [
+    const { hourly } = await fetchArchiveYear(fetchJson, lat, lon, year, [
       "shortwave_radiation",
     ]);
     const ghi = trimFeb29(hourlyVariable(hourly, "shortwave_radiation", year));

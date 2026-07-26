@@ -147,7 +147,24 @@ export default function MethodologyPage() {
           <sub>rated</sub>, where P<sub>turbine</sub> is linear interpolation on
           the reference 5.6 MW power curve (cut-in 3 m/s, rated ≈ 12 m/s,
           cut-out 25 m/s). The turbine sets the profile <em>shape</em> only;
-          installed capacity scales linearly. No air-density correction.
+          installed capacity scales linearly.
+        </p>
+        <p className="mt-2">
+          <strong>Air-density correction (improved mode).</strong> A power curve
+          is defined at sea-level density ρ₀ = 1.225 kg/m³; thinner air at
+          elevation produces less power at a given speed. The lookup can be
+          normalised (IEC 61400-12) using the site elevation and hourly air
+          temperature:
+        </p>
+        <F>
+          ρ = p(z) / (287.05 · T_hour) , p(z) = 101325·(1 − 0.0065·z/288.15)^5.25588
+          <br />
+          v_eq = v_hub · (ρ / 1.225)^(1/3) ; CF = P_turbine(v_eq) / P_rated
+        </F>
+        <p className="mt-2">
+          Without it, wind is overstated ~22–33% at 2500–4000 m — biasing
+          against exactly the high-elevation high-resource sites the map exists
+          to surface. Reference profiles apply no correction.
         </p>
         <p className="mt-3 font-medium">Typical Meteorological Year</p>
         <p className="mt-2">

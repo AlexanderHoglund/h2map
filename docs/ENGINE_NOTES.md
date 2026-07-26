@@ -78,6 +78,26 @@ better screening rank-fidelity. All flags default off, so reference mode and
 the Chilean parity run are unaffected, and the reference golden set is
 untouched (an `improved-*` golden set is added beside it).
 
+- **P0 #1 — air-density correction for wind** (profile layer;
+  `ProfileServiceDeps.windAirDensityCorrection`). A turbine power curve is
+  defined at sea-level density ρ₀ = 1.225 kg/m³; the reference profiles ignore
+  that thinner air at elevation produces less power at a given wind speed, so
+  wind is overstated at exactly the elevated high-resource sites the map exists
+  to surface. With the flag, Open-Meteo wind fetches also pull `temperature_2m`
+  and the response elevation, compute per-hour ISA air density, and look the
+  power curve up at the IEC 61400-12 density-equivalent speed
+  v_eq = v_hub·(ρ/1.225)^(1/3) (density clamped to [0.6, 1.4]). Off by default →
+  reference wind profiles and the Chilean parity run are unchanged; corrected
+  profiles carry an `-airdensity` dataset tag. Measured effect
+  (`npm run rankdiff:airdensity`, 22-cell elevation-stratified sample): wind-only
+  LCOH +8.3 USD/kg mean at ≥2000 m (thin-air sites correctly penalised) and
+  −0.02 at the coast; the map's best-layer moves +0.07 USD/kg mean at elevation
+  (individual wind-favoured altitude cells up to +0.74, some flipping off wind)
+  and ~0 at sea level. Spearman ρ 0.98 / Kendall τ_b 0.94 on that
+  elevation-heavy sample. The correction can only be realised by re-fetching
+  wind (the CF cache stores no raw speed), so it lands as a re-seeding step, not
+  a recompute.
+
 - **P0 #3 — stack life on EFLH + efficiency reset**
   (`stackLifeOnEquivalentFullLoadHours` + `resetEfficiencyOnStackReplacement`).
   The calendar-hour counter over-charges stack replacements on peaky profiles,

@@ -12,6 +12,14 @@ export { turbinePowerKw, windCf } from "./powerCurve";
 export { shearExponent, toHubHeight, DEFAULT_ALPHA } from "./shear";
 export { crudePvCf } from "./pvCrude";
 export {
+  airDensity,
+  equivalentWindSpeed,
+  isaPressurePa,
+  isaTempK,
+  DENSITY_CLAMP,
+  ISA,
+} from "./airDensity";
+export {
   fetchOpenMeteoPvCrude,
   fetchOpenMeteoWind,
   OPEN_METEO_TMY_YEARS,
