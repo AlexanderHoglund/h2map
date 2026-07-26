@@ -48,7 +48,10 @@ This file logs every such decision.
 6. **Water-electricity emission factor** — water-related electricity is
    emitted at the grid emission factor when a grid source is configured, and
    at 0 when the plant is renewables-only (the water supply is assumed to
-   draw from the same clean supply).
+   draw from the same clean supply). The ledger is **operational only**
+   (annual-average grid factor); it is not an RFNBO/RED II assessment.
+   `performance.renewableMatchedFraction` reports the hourly-matched share of
+   consumption served by own renewables (P0 #9).
 7. **"Average hourly profile" output** — implemented as a 12×24 month-by-hour
    average-day electrolyzer load matrix (matches the Chilean tool's
    month-wise "perfil horario" display).

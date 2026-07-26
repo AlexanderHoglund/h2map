@@ -159,6 +159,15 @@ export interface LCOHResults {
     averageDayProfileMw: number[][];
     /** Per-source utilization E_consumed/E_generated (null when source absent). */
     utilization: { pv: number | null; wind: number | null };
+    /**
+     * Fraction of electrolyzer consumption served hour-by-hour by the
+     * project's OWN renewables (= 1 − grid share). Because dispatch is hourly
+     * and renewables are consumed first, this is a genuine hourly-matched
+     * figure. It is an operational indicator, NOT an RFNBO/RED II assessment
+     * (which additionally requires additionality and geographic/temporal
+     * correlation against defined comparators).
+     */
+    renewableMatchedFraction: number;
   };
   meta: {
     engineVersion: string;

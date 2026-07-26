@@ -629,7 +629,8 @@
   "utilization": {
    "pv": null,
    "wind": 0.7297664458440816
-  }
+  },
+  "renewableMatchedFraction": 1
  },
  "meta": {
   "engineVersion": "0.1.0",

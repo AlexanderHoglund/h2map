@@ -174,7 +174,9 @@
         "intensity": "Intensity",
         "annual": "Annual emissions",
         "gridShare": "Grid share of consumption",
-        "fullyRenewable": "0 kgCO₂e/kg H₂ — fully renewable"
+        "fullyRenewable": "0 kgCO₂e/kg H₂ — fully renewable (operational)",
+        "matched": "Hourly renewable-matched",
+        "scopeNote": "Operational estimate against the annual-average grid factor — not an RFNBO / RED II compliance figure, which also requires additionality and geographic/temporal matching."
       },
       "actions": {
         "copyLink": "Copy share link",

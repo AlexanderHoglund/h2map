@@ -224,6 +224,11 @@ export function simulateLCOH(
         ? dispatch.windConsumedKwh / dispatch.windGeneratedKwh
         : null,
   };
+  const renewableMatchedFraction =
+    dispatch.consumedKwh > 0
+      ? (dispatch.pvConsumedKwh + dispatch.windConsumedKwh) /
+        dispatch.consumedKwh
+      : 0;
 
   // --- Emissions ledger (never part of cost) ---
 
@@ -310,6 +315,7 @@ export function simulateLCOH(
       fullLoadHoursPerYear: dispatch.consumedKwh / electrolyzerKw,
       averageDayProfileMw,
       utilization,
+      renewableMatchedFraction,
     },
     meta: { engineVersion: ENGINE_VERSION, referenceMode },
   };

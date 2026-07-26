@@ -56,6 +56,8 @@ export interface LCOHResults {
     fullLoadHoursPerYear: number;
     /** 12×24 month-by-hour average-day electrolyzer load, MW. */
     averageDayProfileMw: number[][];
+    /** Fraction of consumption served hour-by-hour by own renewables. */
+    renewableMatchedFraction: number;
   };
   meta: { engineVersion: string; referenceMode: boolean };
 }

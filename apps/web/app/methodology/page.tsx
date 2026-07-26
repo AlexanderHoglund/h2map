@@ -313,6 +313,18 @@ export default function MethodologyPage() {
           factor is 0 kgCO₂e/kg. Water and desalination electricity never enter
           the cost side — this invariant is enforced by a dedicated test.
         </p>
+        <p className="mt-2">
+          This ledger is <strong>operational only</strong>, measured against the
+          annual-average grid emission factor. It is <strong>not an RFNBO /
+          RED II compliance assessment</strong> — that additionally requires
+          additionality and geographic (same bidding zone) and temporal
+          (monthly, then hourly) correlation against defined comparators, with a
+          3.38 kgCO₂e/kg threshold. Because dispatch is hourly, the engine does
+          report the <strong>hourly renewable-matched fraction</strong> (share
+          of consumption served hour-by-hour by the project&apos;s own
+          renewables), which is the figure a compliance-minded reader wants — but
+          a 0 here means operationally clean, not RFNBO-compliant.
+        </p>
 
         {/* 9 */}
         <H id="constants">9. Constants &amp; reference defaults</H>
