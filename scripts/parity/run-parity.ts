@@ -17,6 +17,11 @@ import {
 } from "@h2map/profile-service";
 import { PV_SHARES, referenceSweep, TOTAL_RENEWABLE_MW } from "../lib/lcohSweep";
 import {
+  kendallTauBWithCI,
+  precisionAtK,
+  topDecileRetention,
+} from "../lib/screeningMetrics";
+import {
   fetchJson,
   makeCache,
   makeSupabase,
@@ -111,10 +116,19 @@ async function main(): Promise<void> {
   );
   const meanPublished = mean(computable.map((p) => p.published_2022));
   const meanComputed = mean(computable.map((p) => p.computed_2022));
-  const spearman = spearmanRho(
-    computable.map((p) => p.published_2022),
-    computable.map((p) => p.computed_2022),
-  );
+  const pub = computable.map((p) => p.published_2022);
+  const comp = computable.map((p) => p.computed_2022);
+  const spearman = spearmanRho(pub, comp);
+  // Screening metrics: how well the model preserves the shortlist a user acts
+  // on (cheapest-k sites), not just the global correlation.
+  const tau = kendallTauBWithCI(pub, comp);
+  const screening = {
+    kendallTauB: round3(tau.tau),
+    kendallTauB_ci95: tau.ci95.map(round3) as [number, number],
+    precisionAt5: round3(precisionAtK(pub, comp, 5)),
+    precisionAt10: round3(precisionAtK(pub, comp, 10)),
+    topDecileRetention: round3(topDecileRetention(pub, comp)),
+  };
 
   const output = {
     generatedAt: new Date().toISOString(),
@@ -132,6 +146,7 @@ async function main(): Promise<void> {
       meanComputed2022: round3(meanComputed),
       meanDelta: round3(meanComputed - meanPublished),
       spearmanRho: round3(spearman),
+      ...screening,
       publishedColumnMean2022AllProjects: dataset.meta.published_column_means["2022"],
     },
     sites: Object.fromEntries(
@@ -149,6 +164,9 @@ async function main(): Promise<void> {
   writeFileSync(RESULTS_PATH, JSON.stringify(output, null, 1) + "\n", "utf8");
   console.log(
     `\nWrote ${RESULTS_PATH}\ncomputed ${computable.length}/${projects.length} projects | mean published ${meanPublished.toFixed(2)} vs computed ${meanComputed.toFixed(2)} | Spearman rho ${spearman.toFixed(3)}`,
+  );
+  console.log(
+    `screening: Kendall tau_b ${screening.kendallTauB} [${screening.kendallTauB_ci95[0]}, ${screening.kendallTauB_ci95[1]}] | P@5 ${screening.precisionAt5} | P@10 ${screening.precisionAt10} | top-decile ${screening.topDecileRetention}`,
   );
 }
 

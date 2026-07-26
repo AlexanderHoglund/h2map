@@ -39,9 +39,10 @@ const TOC: [string, string][] = [
   ["map", "10. The map's configuration"],
   ["costyears", "11. Cost-year projections"],
   ["defaults", "12. Country defaults"],
-  ["validation", "13. Validation"],
-  ["limitations", "14. Limitations"],
-  ["sources", "15. Sources"],
+  ["verification", "13. Verification"],
+  ["validation", "14. Validation"],
+  ["limitations", "15. Limitations"],
+  ["sources", "16. Sources"],
 ];
 
 export default function MethodologyPage() {
@@ -517,26 +518,59 @@ export default function MethodologyPage() {
         </p>
 
         {/* 13 */}
-        <H id="validation">13. Validation</H>
+        <H id="verification">13. Verification</H>
+        <p className="mt-2">
+          Verification shows the code computes what the method specifies — it is
+          not empirical grounding. Analytical cases reproduce hand-derived LCOH
+          to ≤ 1e-6 (e.g. PV at CF ≡ 1, LCOE 30 USD/MWh, no degradation → 2.507
+          USD/kg via the standard annuity); property tests assert monotonicity,
+          energy closure, and mass balance; golden files pin full runs to 1e-12.
+          These say nothing about whether the assumptions match reality — that is
+          validation, below.
+        </p>
+
+        {/* 14 */}
+        <H id="validation">14. Validation</H>
+        <p className="mt-2">
+          <strong>Chilean 47-project parity</strong> (Tabla 3-1, Motor de Cálculo
+          LCOH, April 2024) is the one empirical comparison, and n = 32 with
+          inferred coordinates is thin — the tool&apos;s job is screening, so the
+          metrics that matter are shortlist fidelity, not a single global
+          correlation:
+        </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>Analytical cases:</strong> closed-form scenarios reproduce
-            hand-derived LCOH to ≤ 1e-6 (e.g. PV at CF ≡ 1, LCOE 30 USD/MWh, no
-            degradation → 2.507 USD/kg via the standard annuity), plus property
-            tests (monotonicity, energy closure, mass balance) and golden files
-            at 1e-12.
+            Mean 4.30 vs 4.51 USD/kg (−0.21, −4.7%); Spearman ρ = 0.85; Kendall
+            τ_b = 0.66 with a bootstrap 95% CI of roughly [0.53, 0.78].
           </li>
           <li>
-            <strong>Chilean 47-project parity:</strong> against the published
-            Tabla 3-1 results, the engine reproduces the 2022 column with a mean
-            of 4.30 vs 4.51 USD/kg and Spearman rank correlation ρ = 0.85 (site
-            coordinates are inferred from region names, which explains the
-            residual).
+            <strong>Precision@5 = @10 = 1.0</strong> and top-decile retention
+            1.0: the model identifies the cheapest sites — what a user actually
+            shortlists — exactly. The discordance sits among the middle of the
+            distribution, not the top.
+          </li>
+          <li>
+            <strong>The −0.21 bias is structural, not geolocation.</strong>{" "}
+            Coordinate inference is symmetric noise (a sensitivity run perturbing
+            inferred coordinates ±0.2° moves a site&apos;s LCOH in either
+            direction, so it can&apos;t produce a one-directional offset); the
+            consistent gap traces to a baseline assumption differing from the
+            study (efficiency, electrolyser CAPEX, discount rate, or oversizing
+            ratio — see <code>npm run parity:sensitivity</code>). A baseline
+            cause may not be uniform across geographies.
+          </li>
+          <li>
+            <strong>One benchmark is thin for a global tool.</strong> A second
+            published dataset with fully disclosed assumptions and coordinates
+            (e.g. an IEA/IRENA or national green-hydrogen cost study) is the
+            outstanding validation work; the parity harness is dataset-agnostic
+            so one can be wired in when a comparably-specified source is
+            obtained.
           </li>
         </ul>
 
-        {/* 14 */}
-        <H id="limitations">14. Limitations</H>
+        {/* 15 */}
+        <H id="limitations">15. Limitations</H>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             No compression, storage, transport, or downstream conversion — the
@@ -561,8 +595,8 @@ export default function MethodologyPage() {
           </li>
         </ul>
 
-        {/* 15 */}
-        <H id="sources">15. Sources</H>
+        {/* 16 */}
+        <H id="sources">16. Sources</H>
         <ul className="mt-2 space-y-2">
           <li>
             <strong>Methodology:</strong> «Motor de Cálculo LCOH — Principales

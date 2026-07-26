@@ -212,6 +212,34 @@ untouched (an `improved-*` golden set is added beside it).
   the next seed; the flip layer needs the per-year winning mix stored + a
   frontend diff view.
 
+- **P2 #8 — validation rebuild** (reporting; `scripts/lib/screeningMetrics.ts`,
+  `scripts/parity/sensitivity.ts`). No model change — it corrects how the
+  Chilean parity is presented and what it reports.
+  - *Split verification from validation.* Methodology §13 (Verification:
+    analytical 1e-6, property tests, golden 1e-12 — the code computes the spec)
+    is now separate from §14 (Validation: the Chilean empirical comparison), so
+    the test suite no longer lends false empirical weight; the /parity page
+    states the same distinction.
+  - *Screening metrics.* `run-parity` now also reports precision@5, precision@10,
+    top-decile retention, and Kendall τ_b with a bootstrap 95 % CI. Result:
+    **precision@5 = @10 = top-decile = 1.0** (the model nails the cheapest sites
+    — the actual screening use), while τ_b = 0.66 [0.53, 0.78] shows the
+    discordance sits in the middle of the distribution, not the shortlist. The
+    global ρ = 0.85 alone understated shortlist fidelity.
+  - *Bias decomposition* (`npm run parity:sensitivity`). The −0.207 USD/kg mean
+    gap is **structural, not geolocation**: each baseline moves it by a plausible
+    step (efficiency 0.57 → +0.226 closes it; electrolyser CAPEX ±10 % → ∓0.25;
+    discount 0.06/0.10 → −0.17/+0.19; oversizing 1.5:1 → +0.365), while ±0.2°
+    coordinate jitter is symmetric noise (~0.40 USD/kg per-site spread in either
+    direction, up to ~1.0 at biobío/loslagos) that cannot create a one-directional
+    offset. So the bias is a baseline difference and likely non-uniform across
+    geographies — relevant to every map cell.
+  - *Second benchmark* — **outstanding.** One country, n = 32, is thin; the
+    harness is dataset-agnostic so a second published study with disclosed
+    assumptions and coordinates can be wired into the same metrics. No suitable
+    second dataset is committed yet — documented as the open validation gap
+    rather than filled with an unspecified source.
+
 ## Deferred (v1.1+ `extensions`, not implemented)
 
 Part-load efficiency curve, minimum-load cutoff, oversizing optimizer,

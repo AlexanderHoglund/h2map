@@ -1,0 +1,61 @@
+{
+ "generatedAt": "2026-07-26T10:59:30.132Z",
+ "computableProjects": 32,
+ "baseMeanBias": -0.207,
+ "note": "mean bias = computed − published 2022 (USD/kg). deltaVsBase shows how each perturbation moves it.",
+ "perturbations": [
+  {
+   "driver": "efficiency (LHV)",
+   "setting": "0.57 (−5%)",
+   "meanBias": 0.019,
+   "deltaVsBase": 0.226
+  },
+  {
+   "driver": "efficiency (LHV)",
+   "setting": "0.63 (+5%)",
+   "meanBias": -0.412,
+   "deltaVsBase": -0.205
+  },
+  {
+   "driver": "electrolyser CAPEX",
+   "setting": "900 (−10%)",
+   "meanBias": -0.456,
+   "deltaVsBase": -0.249
+  },
+  {
+   "driver": "electrolyser CAPEX",
+   "setting": "1100 (+10%)",
+   "meanBias": 0.043,
+   "deltaVsBase": 0.249
+  },
+  {
+   "driver": "discount rate",
+   "setting": "0.06",
+   "meanBias": -0.38,
+   "deltaVsBase": -0.173
+  },
+  {
+   "driver": "discount rate",
+   "setting": "0.10",
+   "meanBias": -0.019,
+   "deltaVsBase": 0.188
+  },
+  {
+   "driver": "oversizing ratio",
+   "setting": "1.5:1 (150 MW)",
+   "meanBias": 0.158,
+   "deltaVsBase": 0.365
+  },
+  {
+   "driver": "oversizing ratio",
+   "setting": "3.0:1 (300 MW)",
+   "meanBias": -0.53,
+   "deltaVsBase": -0.323
+  }
+ ],
+ "coordinateJitter": {
+  "degrees": 0.2,
+  "meanPerSiteLcohSpread": 0.403,
+  "interpretation": "coordinate error moves a site's LCOH by roughly this spread in EITHER direction — noise, not a one-directional offset, so it cannot explain a consistent mean bias."
+ }
+}

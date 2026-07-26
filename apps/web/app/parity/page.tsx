@@ -27,6 +27,11 @@ interface Results {
     meanComputed2022: number;
     meanDelta: number;
     spearmanRho: number;
+    kendallTauB?: number;
+    kendallTauB_ci95?: [number, number];
+    precisionAt5?: number;
+    precisionAt10?: number;
+    topDecileRetention?: number;
   };
   sites: Record<
     string,
@@ -88,6 +93,13 @@ export default function ParityPage() {
         publishes none — so this is a methodology parity check, not a
         site-exact reproduction.
       </p>
+      <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+        This is <strong>validation</strong> (do the assumptions match reality?),
+        distinct from <strong>verification</strong> (does the code compute the
+        method? — analytical cases at 1e-6, golden files at 1e-12, in the test
+        suite). For a screening tool, shortlist fidelity matters more than a
+        single global correlation.
+      </p>
 
       {results ? (
         <>
@@ -109,6 +121,30 @@ export default function ParityPage() {
               value={results.summary.spearmanRho.toFixed(3)}
             />
           </div>
+          {results.summary.precisionAt5 != null && (
+            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <Stat
+                label="Precision@5 (cheapest sites)"
+                value={results.summary.precisionAt5.toFixed(2)}
+              />
+              <Stat
+                label="Precision@10"
+                value={results.summary.precisionAt10!.toFixed(2)}
+              />
+              <Stat
+                label="Top-decile retention"
+                value={results.summary.topDecileRetention!.toFixed(2)}
+              />
+              <Stat
+                label="Kendall τ_b (95% CI)"
+                value={
+                  results.summary.kendallTauB_ci95
+                    ? `${results.summary.kendallTauB!.toFixed(2)} [${results.summary.kendallTauB_ci95[0].toFixed(2)}, ${results.summary.kendallTauB_ci95[1].toFixed(2)}]`
+                    : results.summary.kendallTauB!.toFixed(2)
+                }
+              />
+            </div>
+          )}
           <p className="mt-2 text-xs text-neutral-500">
             {results.method.scenario} · {results.method.sweep} · generated{" "}
             {results.generatedAt}

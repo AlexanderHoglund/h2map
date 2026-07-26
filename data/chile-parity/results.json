@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-07-22T20:26:58.942Z",
+ "generatedAt": "2026-07-26T10:17:30.113Z",
  "method": {
   "scenario": "2022 (doc-literal REFERENCE_DEFAULTS: 100 MW electrolyzer, LCOE-priced renewables 30 USD/MWh, no grid)",
   "sweep": "pv share of 200 MW total in [0, 0.25, 0.5, 0.75, 1], best combination kept",
@@ -12,6 +12,14 @@
   "meanComputed2022": 4.303,
   "meanDelta": -0.207,
   "spearmanRho": 0.85,
+  "kendallTauB": 0.663,
+  "kendallTauB_ci95": [
+   0.525,
+   0.781
+  ],
+  "precisionAt5": 1,
+  "precisionAt10": 1,
+  "topDecileRetention": 1,
   "publishedColumnMean2022AllProjects": 4.62
  },
  "sites": {
@@ -50,13 +58,13 @@
     "pv_fixed": {
      "provider": "pvgis-seriescalc",
      "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.1031
     },
     "wind_120": {
      "provider": "open-meteo",
      "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.7493
     }
    }
@@ -102,7 +110,7 @@
     "wind_120": {
      "provider": "open-meteo",
      "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.1288
     }
    }
@@ -142,13 +150,13 @@
     "pv_fixed": {
      "provider": "pvgis-seriescalc",
      "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.2304
     },
     "wind_120": {
      "provider": "open-meteo",
      "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.3235
     }
    }
@@ -188,13 +196,13 @@
     "pv_fixed": {
      "provider": "pvgis-seriescalc",
      "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.1805
     },
     "wind_120": {
      "provider": "open-meteo",
      "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.0175
     }
    }
@@ -234,13 +242,13 @@
     "pv_fixed": {
      "provider": "pvgis-seriescalc",
      "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.1868
     },
     "wind_120": {
      "provider": "open-meteo",
      "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.0526
     }
    }
@@ -280,13 +288,13 @@
     "pv_fixed": {
      "provider": "pvgis-seriescalc",
      "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.1652
     },
     "wind_120": {
      "provider": "open-meteo",
      "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.2034
     }
    }
@@ -326,13 +334,13 @@
     "pv_fixed": {
      "provider": "pvgis-seriescalc",
      "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.1296
     },
     "wind_120": {
      "provider": "open-meteo",
      "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.3512
     }
    }
@@ -372,13 +380,13 @@
     "pv_fixed": {
      "provider": "pvgis-seriescalc",
      "datasetVersion": "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.1434
     },
     "wind_120": {
      "provider": "open-meteo",
      "datasetVersion": "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
-     "cacheHit": false,
+     "cacheHit": true,
      "meanCf": 0.2198
     }
    }
