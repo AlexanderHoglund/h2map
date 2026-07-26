@@ -75,7 +75,12 @@ function sweep(
   electrolyzer: LCOHInputs["electrolyzer"],
   flags: ReferenceFlags,
   label: string,
+  wacc?: number,
 ): SweepResult {
+  const finance: LCOHInputs["finance"] =
+    wacc === undefined
+      ? { ...REFERENCE_DEFAULTS.finance }
+      : { ...REFERENCE_DEFAULTS.finance, discountRate: wacc };
   const points: SweepPoint[] = [];
   for (const share of PV_SHARES) {
     const pvMw = TOTAL_RENEWABLE_MW * share;
@@ -83,7 +88,7 @@ function sweep(
     if (pvMw > 0 && !profiles.pv) continue;
     if (windMw > 0 && !profiles.wind) continue;
     const inputs: LCOHInputs = {
-      finance: { ...REFERENCE_DEFAULTS.finance },
+      finance,
       electrolyzer,
       ...(pvMw > 0 ? { pv: { capacityMw: pvMw, pricing: pvPricing } } : {}),
       ...(windMw > 0
@@ -139,11 +144,17 @@ export function referenceSweep(profiles: {
   );
 }
 
-/** Location-specific CAPEX sweep for one cost-year pack — the choropleth's values. */
+/**
+ * Location-specific CAPEX sweep for one cost-year pack — the choropleth's
+ * values. `wacc` overrides the uniform reference discount rate (0.08) with a
+ * per-cell cost of capital for the risk-adjusted financing layer (P1 #5);
+ * left undefined the map ranks resource under uniform financing.
+ */
 export function mapSweep(
   profiles: { pv?: readonly number[]; wind?: readonly number[] },
   pack: CostPack,
   flags: ReferenceFlags = REFERENCE_FLAGS,
+  wacc?: number,
 ): SweepResult {
   return sweep(
     profiles,
@@ -156,6 +167,7 @@ export function mapSweep(
     },
     flags,
     "mapSweep",
+    wacc,
   );
 }
 
@@ -172,10 +184,11 @@ export interface YearLcoh {
 export function mapSweepAllYears(
   profiles: { pv?: readonly number[]; wind?: readonly number[] },
   flags: ReferenceFlags = REFERENCE_FLAGS,
+  wacc?: number,
 ): Record<CostYear, YearLcoh> {
   const out = {} as Record<CostYear, YearLcoh>;
   for (const year of COST_YEARS) {
-    const s = mapSweep(profiles, COST_PACKS[year], flags);
+    const s = mapSweep(profiles, COST_PACKS[year], flags, wacc);
     out[year] = {
       best: s.best.lcoh,
       solar: s.solarOnly,

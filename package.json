@@ -20,7 +20,8 @@
     "rankdiff": "tsx scripts/rankdiff/rankdiff.ts",
     "rankdiff:airdensity": "tsx scripts/rankdiff/measure-airdensity.ts",
     "rankdiff:turbineclass": "tsx scripts/rankdiff/measure-turbineclass.ts",
-    "rankdiff:pvseam": "tsx scripts/rankdiff/measure-pvseam.ts"
+    "rankdiff:pvseam": "tsx scripts/rankdiff/measure-pvseam.ts",
+    "rankdiff:wacc": "tsx scripts/rankdiff/measure-wacc.ts"
   },
   "devDependencies": {
     "@types/node": "^24",

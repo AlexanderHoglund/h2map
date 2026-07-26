@@ -148,6 +148,29 @@ untouched (an `improved-*` golden set is added beside it).
   USD/kg, Kendall τ_b 0.94–0.99, top-50 churn 4–6%, largest movement on
   wind-heavy high-elevation cells (bucket mean −0.80 USD/kg).
 
+**P1 — map/financing layers (not engine `referenceFlags`):**
+
+- **P1 #5 — risk-adjusted WACC layer** (map layer; `mapSweep(..., wacc)` +
+  `scripts/lib/countryWacc.ts`). Capital recovery over 20 yr swings 0.087→0.134
+  as WACC goes 6→12 % — larger than the resource gap between good sites — so
+  under a uniform 8 % the map ranks *resource*, not *project cost*. The default
+  surface keeps uniform financing (now labelled "resource-driven, uniform
+  financing" on the map, not just in the doc); an optional layer applies each
+  cell's country cost of capital, matched by point-in-polygon against the
+  Natural Earth boundaries to `country_defaults.wacc_suggestion` — a World Bank
+  income-group *heuristic* (0.06 OECD-high → 0.12 low-income), labelled as such
+  and isolated so a measured source can replace it. Engine-recomputable, no
+  re-fetch. Reference invariant: `mapSweep` without a `wacc` arg is unchanged
+  (default 0.08), so parity/goldens hold. Measured effect (`npm run
+  rankdiff:wacc`, full 500-cell benchmark, best·2024): 419/499 cells matched a
+  country (WACC 0.06–0.12); **Kendall τ_b 0.834, Spearman ρ 0.955, top-50 churn
+  30 %, top-decile retention 70 %** — the largest, deliberate reorder in the
+  program. By bucket: strong-solar developing cells dearer (+0.29 USD/kg mean,
+  WACC up to 0.12), OECD high-latitude/mid-wind cheaper (−0.37 to −0.46, WACC
+  0.06); a high-resource Indian cell +1.8, Norwegian cells −1.0…−1.6. **To
+  deploy** as a live layer needs a stored second value set (jsonb) + a frontend
+  toggle, like the cost-year layers.
+
 ## Deferred (v1.1+ `extensions`, not implemented)
 
 Part-load efficiency curve, minimum-load cutoff, oversizing optimizer,

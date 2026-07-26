@@ -32,6 +32,9 @@ export default function Legend({ layerKey, maxDetail }: Props) {
           {t(`controls.layers.${layerKey}`)}
         </span>
       </p>
+      <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">
+        {t("legend.financing")}
+      </p>
       {maxDetail && (
         <p className="mt-1 text-neutral-500 dark:text-neutral-400">
           {t("legend.maxDetail")}

@@ -249,6 +249,21 @@ export default function MethodologyPage() {
           (default 8%). Investment occurs at year 0 (undiscounted); production
           and operating costs occur in years 1 … N:
         </p>
+        <p className="mt-2">
+          <strong>Financing layers.</strong> The map&rsquo;s default surface
+          applies a single uniform r = 8% everywhere, so it ranks{" "}
+          <em>resource</em>, not project cost — it is labelled{" "}
+          &ldquo;resource-driven, uniform financing&rdquo; on the map itself.
+          The capital-recovery factor over 20 yr swings from 0.087 at 6% to
+          0.134 at 12% — a larger spread than the resource gap between two good
+          sites — so an optional <em>risk-adjusted</em> layer instead applies
+          each cell&rsquo;s country cost of capital
+          (<code>country_defaults.wacc_suggestion</code>, matched by
+          point-in-polygon against the Natural Earth boundaries). That WACC is a
+          transparent World Bank income-group <em>heuristic</em> (0.06 OECD-high
+          → 0.12 low-income), labelled as such wherever it appears and isolated
+          in code so a measured cost-of-capital source can replace it.
+        </p>
         <F>df₀ = 1 ; df_t = df_(t−1) / (1 + r) ; annuity A = Σ_(t=1..N) df_t</F>
         <p className="mt-2">
           LCOH is defined as the <strong>sum of per-component quotients</strong>
