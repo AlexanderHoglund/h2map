@@ -42,16 +42,27 @@ export interface CostPack {
   solarOpexFrac: number;
   windCapexUsdPerKw: number;
   windOpexFrac: number;
+  /**
+   * P1 #10 durability trajectory. The original packs cut CAPEX and lifted
+   * efficiency but held stack life at 40 000 h and degradation at 1 %/yr —
+   * incoherent, since durability is a primary learning-curve target, and it
+   * made the CAPEX-only cost-down conservative. These improve alongside CAPEX;
+   * 2024 keeps the reference values so the current map is unchanged. The
+   * trajectory is a documented EXTRAPOLATION along the IEA/DOE direction, not
+   * an IEA-published figure (2040/2050 doubly so).
+   */
+  stackLifetimeHours: number;
+  degradationPerYear: number;
 }
 
 export const COST_YEARS = [2024, 2030, 2040, 2050] as const;
 export type CostYear = (typeof COST_YEARS)[number];
 
 export const COST_PACKS: Record<CostYear, CostPack> = {
-  2024: { electrolyzerCapexUsdPerKw: 1000, efficiencyLhv: 0.6, solarCapexUsdPerKw: 800, solarOpexFrac: 0.015, windCapexUsdPerKw: 1200, windOpexFrac: 0.025 },
-  2030: { electrolyzerCapexUsdPerKw: 700, efficiencyLhv: 0.61, solarCapexUsdPerKw: 552, solarOpexFrac: 0.015, windCapexUsdPerKw: 1104, windOpexFrac: 0.025 },
-  2040: { electrolyzerCapexUsdPerKw: 580, efficiencyLhv: 0.63, solarCapexUsdPerKw: 496, solarOpexFrac: 0.015, windCapexUsdPerKw: 1056, windOpexFrac: 0.025 },
-  2050: { electrolyzerCapexUsdPerKw: 500, efficiencyLhv: 0.65, solarCapexUsdPerKw: 456, solarOpexFrac: 0.015, windCapexUsdPerKw: 1020, windOpexFrac: 0.025 },
+  2024: { electrolyzerCapexUsdPerKw: 1000, efficiencyLhv: 0.6, solarCapexUsdPerKw: 800, solarOpexFrac: 0.015, windCapexUsdPerKw: 1200, windOpexFrac: 0.025, stackLifetimeHours: 40_000, degradationPerYear: 0.01 },
+  2030: { electrolyzerCapexUsdPerKw: 700, efficiencyLhv: 0.61, solarCapexUsdPerKw: 552, solarOpexFrac: 0.015, windCapexUsdPerKw: 1104, windOpexFrac: 0.025, stackLifetimeHours: 60_000, degradationPerYear: 0.008 },
+  2040: { electrolyzerCapexUsdPerKw: 580, efficiencyLhv: 0.63, solarCapexUsdPerKw: 496, solarOpexFrac: 0.015, windCapexUsdPerKw: 1056, windOpexFrac: 0.025, stackLifetimeHours: 80_000, degradationPerYear: 0.006 },
+  2050: { electrolyzerCapexUsdPerKw: 500, efficiencyLhv: 0.65, solarCapexUsdPerKw: 456, solarOpexFrac: 0.015, windCapexUsdPerKw: 1020, windOpexFrac: 0.025, stackLifetimeHours: 100_000, degradationPerYear: 0.005 },
 };
 
 export interface SweepPoint {
@@ -164,6 +175,8 @@ export function mapSweep(
       ...REFERENCE_DEFAULTS.electrolyzer,
       capexUsdPerKw: pack.electrolyzerCapexUsdPerKw,
       efficiencyLhv: pack.efficiencyLhv,
+      stackLifetimeHours: pack.stackLifetimeHours,
+      degradationPerYear: pack.degradationPerYear,
     },
     flags,
     "mapSweep",
@@ -274,6 +287,8 @@ export function mapSweepOptimal(
     ...REFERENCE_DEFAULTS.electrolyzer,
     capexUsdPerKw: pack.electrolyzerCapexUsdPerKw,
     efficiencyLhv: pack.efficiencyLhv,
+    stackLifetimeHours: pack.stackLifetimeHours,
+    degradationPerYear: pack.degradationPerYear,
   };
   const electrolyzerMw = REFERENCE_DEFAULTS.electrolyzer.capacityMw;
 

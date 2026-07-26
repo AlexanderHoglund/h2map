@@ -194,6 +194,24 @@ untouched (an `improved-*` golden set is added beside it).
   done). **To deploy** as a live layer needs the stored best/ratio/mix per cell
   + a frontend toggle, like the cost-year layers.
 
+- **P2 #10 — cost-year coherence** (map layer; `COST_PACKS` durability fields in
+  `scripts/lib/lcohSweep.ts`). The future packs cut CAPEX and lifted efficiency
+  but held stack life at 40 000 h and degradation at 1 %/yr — incoherent, since
+  durability is a primary learning-curve target, and it made the cost-down
+  conservative. `CostPack` gains `stackLifetimeHours` + `degradationPerYear`
+  trajectories (2024 = reference 40 000 h / 1 %; 2030/2040/2050 = 60/80/100 k h
+  and 0.8/0.6/0.5 %), documented as an IEA/DOE-direction *extrapolation*, not an
+  IEA figure. 2024 keeps the reference values so the current map is bit-identical
+  (parity/goldens hold). Measured (`npm run rankdiff:costyear`, full 500-cell
+  benchmark): 2024 shift exactly 0 (invariant); future-year LCOH −0.25 (2030) →
+  −0.34 (2050) USD/kg mean — the size of the prior conservatism. Because solar
+  CAPEX falls faster than wind, the best PV/wind mix shifts toward solar
+  (mean +0.19 share 2024→2050, 305/499 cells) and **55 cells (11 %) flip
+  dominant source wind→solar, 0 the other way** — the data behind an explicit
+  flip diff layer. **To deploy:** the trajectory just re-prices future years on
+  the next seed; the flip layer needs the per-year winning mix stored + a
+  frontend diff view.
+
 ## Deferred (v1.1+ `extensions`, not implemented)
 
 Part-load efficiency curve, minimum-load cutoff, oversizing optimizer,

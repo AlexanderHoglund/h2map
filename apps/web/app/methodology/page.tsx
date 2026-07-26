@@ -465,6 +465,8 @@ export default function MethodologyPage() {
                 ["Solar PV CAPEX", "1.00", "0.69", "0.62", "0.57"],
                 ["Wind CAPEX", "1.00", "0.92", "0.88", "0.85"],
                 ["Efficiency (LHV)", "60%", "61%", "63%", "65%"],
+                ["Stack life (h)", "40k", "60k", "80k", "100k"],
+                ["Degradation (%/yr)", "1.0", "0.8", "0.6", "0.5"],
               ].map((r) => (
                 <tr
                   key={r[0]}
@@ -488,6 +490,17 @@ export default function MethodologyPage() {
           are extrapolated</strong> along IEA&apos;s stated direction and are
           labeled &quot;projected&quot; throughout the UI. Scenario: IEA
           Announced Pledges (APS); cost-down applied globally.
+        </p>
+        <p className="mt-2">
+          <strong>Durability trajectory.</strong> Earlier packs cut CAPEX but
+          held stack life at 40 000 h and degradation at 1%/yr — incoherent,
+          since durability is a primary learning-curve target, and it made the
+          cost-down conservative. Stack life and degradation now improve
+          alongside CAPEX (2024 unchanged). These durability figures are a{" "}
+          <em>documented extrapolation</em> along the IEA/DOE direction, not
+          IEA-published values. Because solar CAPEX falls faster than wind, the
+          cheapest PV/wind mix <strong>flips</strong> in some cells between cost
+          years — shifting toward solar by 2050.
         </p>
 
         {/* 12 */}
