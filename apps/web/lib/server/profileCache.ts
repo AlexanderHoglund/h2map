@@ -3,6 +3,7 @@ import type {
   CachedProfile,
   ProfileCache,
   ProfileKind,
+  ProfileMode,
 } from "@h2map/profile-service";
 import type { ServerSupabase } from "./supabase";
 
@@ -20,13 +21,16 @@ export class SupabaseProfileCache implements ProfileCache {
     latR: number,
     lonR: number,
     kind: ProfileKind,
+    mode?: ProfileMode,
   ): Promise<CachedProfile | null> {
-    const { data, error } = await this.db
+    let query = this.db
       .from("resource_profiles")
       .select("lat_r, lon_r, kind, provider, dataset_version, cf")
       .eq("lat_r", latR)
       .eq("lon_r", lonR)
-      .eq("kind", kind)
+      .eq("kind", kind);
+    if (mode) query = query.eq("mode", mode);
+    const { data, error } = await query
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -48,6 +52,7 @@ export class SupabaseProfileCache implements ProfileCache {
         lat_r: profile.latR,
         lon_r: profile.lonR,
         kind: profile.kind,
+        mode: profile.mode,
         provider: profile.provider,
         dataset_version: profile.datasetVersion,
         years: `[${profile.yearsUsed[0]},${profile.yearsUsed[1]}]`,

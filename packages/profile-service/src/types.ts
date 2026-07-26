@@ -23,6 +23,14 @@ export const PROFILE_KINDS: readonly ProfileKind[] = [
   "wind_160",
 ];
 
+/**
+ * Which flag-set a profile was built under. `reference` = doc-literal (the
+ * parity baseline); `improved` = the P0 #1/#2/#4 corrected profiles the live
+ * map serves. Both coexist per coordinate in the cache; the mode is derived
+ * from the request's improved flags and used to fetch the matching row.
+ */
+export type ProfileMode = "reference" | "improved";
+
 /** Digitized turbine power curve (matches the `turbine_curves` table shape). */
 export interface TurbineCurve {
   id: string;
@@ -52,6 +60,7 @@ export interface BuiltProfile {
   latR: number;
   lonR: number;
   kind: ProfileKind;
+  mode: ProfileMode;
   provider: string;
   /** `${datasetTag}/tmy-v1` — also the cache key component. */
   datasetVersion: string;
@@ -79,15 +88,18 @@ export interface CachedProfile {
 }
 
 /**
- * Cache port. `get` returns the newest profile for the coordinate/kind (any
- * dataset version); `put` persists a freshly built profile. Both are allowed
- * to fail soft — the service treats the cache as best-effort.
+ * Cache port. `get` returns the newest profile for the coordinate/kind in the
+ * requested `mode` (reference vs improved coexist per coordinate); omit `mode`
+ * for the legacy newest-of-any-version behavior. `put` persists a freshly
+ * built profile. Both are allowed to fail soft — the service treats the cache
+ * as best-effort.
  */
 export interface ProfileCache {
   get(
     latR: number,
     lonR: number,
     kind: ProfileKind,
+    mode?: ProfileMode,
   ): Promise<CachedProfile | null>;
   put(profile: BuiltProfile): Promise<void>;
 }

@@ -12,6 +12,7 @@ import type {
   CachedProfile,
   ProfileCache,
   ProfileKind,
+  ProfileMode,
   TurbineCurve,
 } from "@h2map/profile-service";
 
@@ -97,13 +98,15 @@ export async function fetchJson(url: string, attempts = 4): Promise<unknown> {
 
 export function makeCache(db: SupabaseClient): ProfileCache {
   return {
-    async get(latR: number, lonR: number, kind: ProfileKind) {
-      const { data, error } = await db
+    async get(latR: number, lonR: number, kind: ProfileKind, mode?: ProfileMode) {
+      let q = db
         .from("resource_profiles")
         .select("lat_r, lon_r, kind, provider, dataset_version, cf")
         .eq("lat_r", latR)
         .eq("lon_r", lonR)
-        .eq("kind", kind)
+        .eq("kind", kind);
+      if (mode) q = q.eq("mode", mode);
+      const { data, error } = await q
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -124,6 +127,7 @@ export function makeCache(db: SupabaseClient): ProfileCache {
           lat_r: profile.latR,
           lon_r: profile.lonR,
           kind: profile.kind,
+          mode: profile.mode,
           provider: profile.provider,
           dataset_version: profile.datasetVersion,
           years: `[${profile.yearsUsed[0]},${profile.yearsUsed[1]}]`,

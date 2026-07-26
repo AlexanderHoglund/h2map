@@ -39,6 +39,7 @@ export type {
   FetchJson,
   ProfileCache,
   ProfileKind,
+  ProfileMode,
   ProfileServiceDeps,
   ProviderResult,
   TurbineCurve,

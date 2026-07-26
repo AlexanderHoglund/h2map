@@ -10,6 +10,7 @@ import type {
   CachedProfile,
   ProfileCache,
   ProfileKind,
+  ProfileMode,
   TurbineCurve,
 } from "../src/types";
 import { ProfileServiceError } from "../src/types";
@@ -60,9 +61,16 @@ class MemoryCache implements ProfileCache {
   rows: BuiltProfile[] = [];
   preloaded: CachedProfile | null = null;
   getCalls = 0;
+  getModes: (ProfileMode | undefined)[] = [];
 
-  get(): Promise<CachedProfile | null> {
+  get(
+    _latR: number,
+    _lonR: number,
+    _kind: ProfileKind,
+    mode?: ProfileMode,
+  ): Promise<CachedProfile | null> {
     this.getCalls++;
+    this.getModes.push(mode);
     return Promise.resolve(this.preloaded);
   }
 
@@ -223,6 +231,52 @@ describe("getResourceProfile", () => {
     expect(result.provider).toBe("pvgis-seriescalc");
     expect(urls.every((u) => u.includes("raddatabase=PVGIS-ERA5"))).toBe(true);
     expect(result.datasetVersion).toContain("pvgis-era5");
+  });
+
+  it("tags profiles reference vs improved so both coexist per coordinate", async () => {
+    const cache = new MemoryCache();
+    const pvgisWith = (radDb: string) => ({
+      inputs: { meteo_data: { radiation_db: radDb } },
+      outputs: (pvgisResponse() as { outputs: unknown }).outputs,
+    });
+    // Reference PV (no improved flags): auto-resolved DB, mode reference.
+    await getResourceProfile(
+      { lat: -24.2, lon: -69.1, kind: "pv_fixed" },
+      { cache, fetchJson: () => Promise.resolve(pvgisWith("PVGIS-SARAH3")) },
+    );
+    // Improved PV (pvUnifiedEra5): pinned ERA5, mode improved.
+    await getResourceProfile(
+      { lat: -24.2, lon: -69.1, kind: "pv_fixed" },
+      {
+        cache,
+        pvUnifiedEra5: true,
+        fetchJson: () => Promise.resolve(pvgisWith("PVGIS-ERA5")),
+      },
+    );
+    expect(cache.getModes).toEqual(["reference", "improved"]);
+    expect(cache.rows.map((r) => r.mode)).toEqual(["reference", "improved"]);
+    // Distinct dataset versions → both rows survive in a real (unique-keyed) cache.
+    expect(new Set(cache.rows.map((r) => r.datasetVersion)).size).toBe(2);
+  });
+
+  it("wind improved flags don't mislabel a PV request's mode", async () => {
+    const cache = new MemoryCache();
+    // A PV request with only WIND improved flags set is still reference PV.
+    await getResourceProfile(
+      { lat: -24.2, lon: -69.1, kind: "pv_fixed" },
+      {
+        cache,
+        windAirDensityCorrection: true,
+        windTurbineClassSelection: true,
+        fetchJson: () =>
+          Promise.resolve({
+            inputs: { meteo_data: { radiation_db: "PVGIS-SARAH3" } },
+            outputs: (pvgisResponse() as { outputs: unknown }).outputs,
+          }),
+      },
+    );
+    expect(cache.getModes).toEqual(["reference"]);
+    expect(cache.rows[0]!.mode).toBe("reference");
   });
 
   it("unified-ERA5 mode masks as no-data when PVGIS fails (no crude fallback)", async () => {

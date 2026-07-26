@@ -35,9 +35,21 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      # Improved-profile re-seed of existing cells (P0 #1/#2/#4 activation).
+      # Time-boxed and resumable; fetches improved profiles (mode='improved')
+      # and recomputes each cell. A one-time transition — once every ready cell
+      # is re-seeded these passes are all cache hits and cost nothing. Runs
+      # first so the activation makes steady progress; new-cell seeding gets the
+      # remaining budget.
+      - name: Improved-profile re-seed (time-boxed)
+        run: npm run hex:reseed-improved
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SEED_MINUTES: "22"
       - name: Run seeding ladder (time-boxed)
         run: npm run hex:seed -- --auto
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          SEED_MINUTES: "32"
+          SEED_MINUTES: "10"

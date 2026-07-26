@@ -209,6 +209,11 @@ interface Deps {
   cache: ReturnType<typeof makeCache>;
   getTurbineCurve: ReturnType<typeof makeTurbineLoader>;
   log: (m: string) => void;
+  // The live map is improved mode, so new cells are seeded with the improved
+  // profile flags (mode='improved'); parity/calculator stay reference.
+  windAirDensityCorrection: boolean;
+  windTurbineClassSelection: boolean;
+  pvUnifiedEra5: boolean;
 }
 
 async function main(): Promise<void> {
@@ -220,6 +225,9 @@ async function main(): Promise<void> {
     cache: makeCache(db),
     getTurbineCurve: makeTurbineLoader(db),
     log: (m: string) => console.log(`    ${m}`),
+    windAirDensityCorrection: true,
+    windTurbineClassSelection: true,
+    pvUnifiedEra5: true,
   };
 
   if (regionArg === "--auto") {

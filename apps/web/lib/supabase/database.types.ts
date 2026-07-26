@@ -110,6 +110,7 @@ export type Database = {
           kind: string
           lat_r: number
           lon_r: number
+          mode: string
           provider: string
           years: unknown
         }
@@ -121,6 +122,7 @@ export type Database = {
           kind: string
           lat_r: number
           lon_r: number
+          mode?: string
           provider: string
           years?: unknown
         }
@@ -132,6 +134,7 @@ export type Database = {
           kind?: string
           lat_r?: number
           lon_r?: number
+          mode?: string
           provider?: string
           years?: unknown
         }

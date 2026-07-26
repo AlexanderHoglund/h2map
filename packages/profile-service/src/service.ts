@@ -9,10 +9,25 @@ import { fillGaps, HOURS_PER_YEAR } from "./time";
 import type {
   BuiltProfile,
   ProfileKind,
+  ProfileMode,
   ProfileServiceDeps,
   ProviderResult,
 } from "./types";
 import { ProfileServiceError } from "./types";
+
+/**
+ * Which cache mode a request resolves to. A profile is `improved` only when an
+ * improved flag that actually affects THIS kind is set (wind: air-density /
+ * turbine class; PV: unified ERA5), so a wind-only or PV-only improved request
+ * doesn't mislabel the other kind. Default off → `reference`, so parity and the
+ * calculator (which set no improved flags) always read the reference profiles.
+ */
+function profileMode(kind: ProfileKind, deps: ProfileServiceDeps): ProfileMode {
+  const improved = kind.startsWith("wind")
+    ? Boolean(deps.windAirDensityCorrection || deps.windTurbineClassSelection)
+    : Boolean(deps.pvUnifiedEra5);
+  return improved ? "improved" : "reference";
+}
 
 /**
  * Coordinate quantization step in degrees (~11 km N–S). Coarser than the
@@ -78,10 +93,11 @@ export async function getResourceProfile(
   const latR = quantizeCoord(request.lat);
   const lonR = quantizeCoord(request.lon);
   const { kind } = request;
+  const mode = profileMode(kind, deps);
 
   if (deps.cache) {
     try {
-      const cached = await deps.cache.get(latR, lonR, kind);
+      const cached = await deps.cache.get(latR, lonR, kind, mode);
       if (cached && cached.cf.length === HOURS_PER_YEAR) {
         return {
           latR,
@@ -112,7 +128,7 @@ export async function getResourceProfile(
       continue;
     }
 
-    const profile = buildProfileFromProvider(raw, latR, lonR, kind, log);
+    const profile = buildProfileFromProvider(raw, latR, lonR, kind, mode, log);
     if (!profile) {
       failures.push({
         provider: name,
@@ -213,6 +229,7 @@ function buildProfileFromProvider(
   latR: number,
   lonR: number,
   kind: ProfileKind,
+  mode: ProfileMode,
   log: (message: string) => void,
 ): BuiltProfile | null {
   const kept: { year: number; cf: number[] }[] = [];
@@ -236,6 +253,7 @@ function buildProfileFromProvider(
     latR,
     lonR,
     kind,
+    mode,
     provider: raw.provider,
     datasetVersion: `${raw.datasetTag}/tmy-v1`,
     yearsUsed: [kept[0]!.year, kept[kept.length - 1]!.year],
