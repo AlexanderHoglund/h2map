@@ -173,14 +173,10 @@ async function providerChain(
       {
         name: "open-meteo",
         run: () =>
-          fetchOpenMeteoWind(
-            deps.fetchJson,
-            lat,
-            lon,
-            hub,
-            curve,
-            deps.windAirDensityCorrection ?? false,
-          ),
+          fetchOpenMeteoWind(deps.fetchJson, lat, lon, hub, curve, {
+            correctAirDensity: deps.windAirDensityCorrection ?? false,
+            selectClass: deps.windTurbineClassSelection ?? false,
+          }),
       },
       {
         name: "nasa-power",

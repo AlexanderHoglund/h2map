@@ -98,6 +98,25 @@ untouched (an `improved-*` golden set is added beside it).
   wind (the CF cache stores no raw speed), so it lands as a re-seeding step, not
   a recompute.
 
+- **P0 #2 — turbine-class selection** (profile layer;
+  `ProfileServiceDeps.windTurbineClassSelection`). One mid-market machine applied
+  everywhere penalises low-wind sites, where a developer deploys a lower IEC
+  wind class — same generator, larger rotor, lower *specific power* — that
+  reaches rated power at a lower speed and yields far more energy in light
+  winds. `turbineClasses.ts` derives three curves (Class I rated ≈12.5 m/s, II
+  ≈11.5, III ≈10.5) from the digitised generic curve by repositioning its rated
+  speed, and selects on the *uncorrected* annual-mean hub-height speed
+  (≥9.5 → I, 7.5–9.5 → II, &lt;7.5 → III; IEC classes are defined on wind speed).
+  Off by default → reference wind profiles and the golden set are bit-identical;
+  selected profiles carry a `iec-class-*` dataset tag and expose the class as a
+  per-cell diagnostic. Measured effect (`npm run rankdiff:turbineclass`, 24-cell
+  wind-spectrum sample): low/mid-wind (Class III) best-layer −0.22 USD/kg mean,
+  up to −0.88 where wind competes with PV (cells flip toward wind); strongest-
+  wind (Class I) +0.05 USD/kg — the small robust-turbine penalty a windy site
+  really incurs. Best-layer −0.14 USD/kg over the sample; Spearman ρ 0.998 /
+  Kendall τ_b 0.986 (selection mostly rescales within wind regime). Re-fetch-
+  bound, like #1.
+
 - **P0 #3 — stack life on EFLH + efficiency reset**
   (`stackLifeOnEquivalentFullLoadHours` + `resetEfficiencyOnStackReplacement`).
   The calendar-hour counter over-charges stack replacements on peaky profiles,

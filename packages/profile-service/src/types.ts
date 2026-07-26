@@ -107,6 +107,12 @@ export interface ProfileServiceDeps {
    * corrected profiles never collide with reference ones in the cache.
    */
   windAirDensityCorrection?: boolean;
+  /**
+   * Select the IEC wind class from the site's mean hub-height speed and use
+   * that class's curve instead of the single reference curve (see
+   * turbineClasses). Off by default; produces a distinct dataset version.
+   */
+  windTurbineClassSelection?: boolean;
 }
 
 /** Thrown when every provider in the fallback chain failed. */

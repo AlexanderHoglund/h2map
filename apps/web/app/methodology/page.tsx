@@ -166,6 +166,21 @@ export default function MethodologyPage() {
           against exactly the high-elevation high-resource sites the map exists
           to surface. Reference profiles apply no correction.
         </p>
+        <p className="mt-2">
+          <strong>Turbine-class selection (improved mode).</strong> One
+          mid-market machine applied everywhere penalises low-wind sites, where
+          a developer would deploy a lower IEC wind class — same generator,
+          larger rotor, so a lower <em>specific power</em> (rated kW per m² of
+          swept area) that reaches rated power at a lower wind speed and yields
+          far more energy in light winds. The improved path selects the class
+          from the site&rsquo;s annual-mean hub-height speed (IEC classes are
+          defined on wind speed, so the <em>uncorrected</em> mean is used):
+          ≥9.5 m/s → Class I (rated ≈12.5 m/s), 7.5–9.5 → Class II (≈11.5),
+          &lt;7.5 → Class III (≈10.5, largest rotor). The three curves are
+          repositioned from the digitised generic curve; the selected class is
+          exposed as a per-cell diagnostic. Reference mode keeps the single
+          generic curve.
+        </p>
         <p className="mt-3 font-medium">Typical Meteorological Year</p>
         <p className="mt-2">
           For each calendar month, the source year whose daily-mean

@@ -24,6 +24,12 @@ export {
   fetchOpenMeteoWind,
   OPEN_METEO_TMY_YEARS,
 } from "./providers/openMeteo";
+export type { WindOptions } from "./providers/openMeteo";
+export {
+  selectTurbineClass,
+  TURBINE_CLASS_CURVES,
+} from "./turbineClasses";
+export type { IecClass } from "./turbineClasses";
 export { fetchPvgisPv } from "./providers/pvgis";
 export { fetchNasaPowerWind, NASA_TMY_YEARS } from "./providers/nasaPower";
 export { PROFILE_KINDS, ProfileServiceError } from "./types";

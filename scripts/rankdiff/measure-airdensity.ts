@@ -80,8 +80,10 @@ async function main(): Promise<void> {
     const [lat, lon] = cellToLatLng(cell.h3);
     try {
       const pv = await getResourceProfile({ lat, lon, kind: "pv_fixed" }, pvDeps);
-      const refRaw = await fetchOpenMeteoWind(fetchJson, lat, lon, 120, curve, false);
-      const candRaw = await fetchOpenMeteoWind(fetchJson, lat, lon, 120, curve, true);
+      const refRaw = await fetchOpenMeteoWind(fetchJson, lat, lon, 120, curve, {});
+      const candRaw = await fetchOpenMeteoWind(fetchJson, lat, lon, 120, curve, {
+        correctAirDensity: true,
+      });
       const refWindCf = tmyCf(refRaw.series);
       const candWindCf = tmyCf(candRaw.series);
       const ref = mapSweepAllYears({ pv: pv.cf, wind: refWindCf })[2024];
