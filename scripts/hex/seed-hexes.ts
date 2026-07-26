@@ -14,7 +14,7 @@
 import { cellToLatLng, getResolution, polygonToCells } from "h3-js";
 import { ENGINE_VERSION } from "@h2map/lcoh-engine";
 import { getResourceProfile } from "@h2map/profile-service";
-import { futureYearsJson, mapSweepAllYears } from "../lib/lcohSweep";
+import { futureYearsJson, MAP_FLAGS, mapSweepAllYears } from "../lib/lcohSweep";
 import {
   fetchJson,
   makeCache,
@@ -358,7 +358,7 @@ async function seedCells(
         { lat, lon, kind: "wind_120" },
         deps,
       );
-      const years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf });
+      const years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf }, MAP_FLAGS);
       const y = years[2024];
       const meanCf = (cf: number[]) =>
         Number((cf.reduce((a, b) => a + b, 0) / cf.length).toFixed(4));

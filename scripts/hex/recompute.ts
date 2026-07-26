@@ -8,7 +8,7 @@
  */
 import { cellToLatLng } from "h3-js";
 import { getResourceProfile } from "@h2map/profile-service";
-import { futureYearsJson, mapSweepAllYears } from "../lib/lcohSweep";
+import { futureYearsJson, MAP_FLAGS, mapSweepAllYears } from "../lib/lcohSweep";
 import { makeCache, makeSupabase, makeTurbineLoader } from "../lib/serviceDeps";
 
 const PAGE = 1000;
@@ -50,7 +50,7 @@ async function main(): Promise<void> {
           { lat, lon, kind: "wind_120" },
           deps,
         );
-        const years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf });
+        const years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf }, MAP_FLAGS);
         const y2024 = years[2024];
         const { error: upErr } = await db
           .from("hex_lcoh")

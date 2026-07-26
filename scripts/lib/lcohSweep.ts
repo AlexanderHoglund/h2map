@@ -140,6 +140,14 @@ export const IMPROVED_FLAGS: ReferenceFlags = {
   resetEfficiencyOnStackReplacement: true,
 };
 
+/**
+ * The engine-flag set the LIVE MAP is computed with. The map is a screening
+ * tool, so it runs improved mode (parity stays reference via `referenceSweep`,
+ * which is unaffected). Both the seeder and the recompute use this, so new and
+ * existing cells stay consistent; flip to `REFERENCE_FLAGS` to revert the map.
+ */
+export const MAP_FLAGS: ReferenceFlags = IMPROVED_FLAGS;
+
 /** Flat-LCOE reference sweep — parity target; keep pricing + flags fixed. */
 export function referenceSweep(profiles: {
   pv?: readonly number[];
