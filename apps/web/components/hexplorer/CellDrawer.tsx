@@ -22,6 +22,11 @@ interface Props {
   costYear: CostYear;
   open: boolean;
   onClose: () => void;
+  /**
+   * Open the split evaluate panel for this cell (Explorer workspace). When
+   * absent, "Evaluate here" falls back to navigating to /calculator.
+   */
+  onEvaluate?: (lat: number, lon: number) => void;
 }
 
 function fmt(value: number | null, digits: number): string {
@@ -40,6 +45,7 @@ export default function CellDrawer({
   costYear,
   open,
   onClose,
+  onEvaluate,
 }: Props) {
   const t = useTranslations("explorer");
   const router = useRouter();
@@ -63,7 +69,12 @@ export default function CellDrawer({
   const evaluateHere = () => {
     if (!shown) return;
     const [lat, lon] = cellToLatLng(shown.h3);
-    router.push(`/calculator?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`);
+    if (onEvaluate) {
+      onEvaluate(lat, lon);
+      onClose(); // retract the quick popup as the split panel opens
+    } else {
+      router.push(`/calculator?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`);
+    }
   };
 
   const lcohByLayer = shown

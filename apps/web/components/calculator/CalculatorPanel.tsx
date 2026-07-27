@@ -37,10 +37,29 @@ const ResultsSection = dynamic(() => import("./results/ResultsSection"), {
 export interface CalculatorPanelProps {
   /** Fully-formed initial form values; the host resolves ?c= / ?lat&lon / defaults. */
   initialValues: CalculatorValues;
+  /**
+   * Embedded (in the Explorer split panel): single-column, no MiniMap, scrolls
+   * internally, does not write ?c= to the URL, and shows a close button +
+   * "open in full calculator" link. Default false = the standalone route.
+   */
+  embedded?: boolean;
+  /** Route host only: debounced ?c= history.replaceState so state is shareable. */
+  syncUrl?: boolean;
+  /** Embedded only: coords of the currently-evaluated cell; changes push into the form. */
+  coords?: { lat: number; lon: number } | null;
+  /** Embedded only: collapse the panel. */
+  onClose?: () => void;
 }
 
-export default function CalculatorPanel({ initialValues }: CalculatorPanelProps) {
+export default function CalculatorPanel({
+  initialValues,
+  embedded = false,
+  syncUrl = false,
+  coords = null,
+  onClose,
+}: CalculatorPanelProps) {
   const t = useTranslations("calculator");
+  const tExplorer = useTranslations("explorer");
   const { countries, failed: countriesFailed } = useCountryDefaults();
   const { state: sim, run, reset: resetSim } = useSimulation();
 
@@ -77,6 +96,8 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
           }
         }
         // Debounced history.replaceState so any state is shareable via ?c=.
+        // Embedded (syncUrl=false) never writes — the map owns the URL.
+        if (!syncUrl) return;
         if (urlTimer.current) clearTimeout(urlTimer.current);
         urlTimer.current = setTimeout(() => {
           const encoded = encodeConfigParam(getValues());
@@ -88,7 +109,28 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
       unsubscribe();
       if (urlTimer.current) clearTimeout(urlTimer.current);
     };
-  }, [form, getValues, setValue]);
+  }, [form, getValues, setValue, syncUrl]);
+
+  // ---- Embedded: new-cell coords push into the form (preserving other edits) --
+  const [stale, setStale] = useState(false);
+  const coordsRef = useRef<string>("");
+  useEffect(() => {
+    if (!embedded || !coords) return;
+    const key = `${coords.lat},${coords.lon}`;
+    if (key === coordsRef.current) return;
+    coordsRef.current = key;
+    setValue("location.lat", Number(coords.lat.toFixed(6)), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setValue("location.lon", Number(coords.lon.toFixed(6)), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    // Nudge to recalculate if a prior run is on screen (never auto-run — the
+    // profile fetch is slow).
+    if (sim.phase === "done" || sim.phase === "error") setStale(true);
+  }, [coords, embedded, setValue, sim.phase]);
 
   // ---- Country defaults ---------------------------------------------------
   const lastApplied = useRef<{ discountPct: number; ef: number } | null>(null);
@@ -136,6 +178,7 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
 
   const onCalculate = handleSubmit((valid) => {
     if (!anySourceEnabled(valid)) return;
+    setStale(false);
     void run(valid);
   });
 
@@ -150,15 +193,20 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
     reset(structuredClone(CALCULATOR_DEFAULTS));
     resetSim();
     lastApplied.current = null;
-    window.history.replaceState(null, "", window.location.pathname);
+    // Embedded: leave the explorer URL alone (the map owns it).
+    if (syncUrl) window.history.replaceState(null, "", window.location.pathname);
   };
 
   const copyLink = useCallback(() => {
     const encoded = encodeConfigParam(getValues());
-    const rel = `${window.location.pathname}?c=${encoded}`;
-    window.history.replaceState(null, "", rel);
+    // Embedded: share a standalone /calculator link and don't touch the
+    // explorer URL. Route: keep the current path and update it in place.
+    const rel = embedded
+      ? `/calculator?c=${encoded}`
+      : `${window.location.pathname}?c=${encoded}`;
+    if (!embedded) window.history.replaceState(null, "", rel);
     void navigator.clipboard.writeText(`${window.location.origin}${rel}`);
-  }, [getValues]);
+  }, [getValues, embedded]);
 
   const [copied, setCopied] = useState(false);
   const copyLinkWithFlash = () => {
@@ -167,13 +215,20 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
     setTimeout(() => setCopied(false), 1500);
   };
 
-  // Auto-scroll to results on success.
+  // Auto-scroll to results on success. Embedded scrolls its own panel; the
+  // route scrolls the viewport.
   const resultsRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (sim.phase === "done") {
+    if (sim.phase !== "done") return;
+    if (embedded) {
+      const c = scrollRef.current;
+      const r = resultsRef.current;
+      if (c && r) c.scrollTo({ top: r.offsetTop - c.offsetTop, behavior: "smooth" });
+    } else {
       resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [sim.phase]);
+  }, [sim.phase, embedded]);
 
   // Indicative production helper (t H₂/yr at full load).
   const cap = values.electrolyzer.capacityMw;
@@ -208,14 +263,59 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
 
   return (
     <FormProvider {...form}>
-      <main className="mx-auto max-w-6xl px-4 py-6">
-        <h1 className="text-lg font-semibold">{t("title")}</h1>
-        <p className="mb-5 text-sm text-neutral-500 dark:text-neutral-400">
-          {t("subtitle")}
-        </p>
+      <div
+        ref={embedded ? scrollRef : undefined}
+        className={
+          embedded
+            ? "flex h-full flex-col overflow-y-auto px-4 py-4"
+            : "mx-auto max-w-6xl px-4 py-6"
+        }
+      >
+        {embedded ? (
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h1 className="text-base font-semibold">{tExplorer("panel.title")}</h1>
+            <div className="flex items-center gap-3">
+              <a
+                href={`/calculator?c=${encodeConfigParam(getValues())}`}
+                target="_blank"
+                rel="noopener"
+                className="text-xs text-blue-600 hover:underline dark:text-blue-400"
+              >
+                {tExplorer("panel.openFull")}
+              </a>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label={tExplorer("panel.close")}
+                className="rounded-md p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+              >
+                <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                  <path d="M4 4l8 8M12 4l-8 8" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h1 className="text-lg font-semibold">{t("title")}</h1>
+            <p className="mb-5 text-sm text-neutral-500 dark:text-neutral-400">
+              {t("subtitle")}
+            </p>
+          </>
+        )}
 
-        <div className="md:grid md:grid-cols-[minmax(0,1fr)_280px] md:items-start md:gap-8">
-          <form onSubmit={onCalculate} noValidate className="max-w-2xl space-y-3">
+        <div
+          className={
+            embedded
+              ? ""
+              : "md:grid md:grid-cols-[minmax(0,1fr)_280px] md:items-start md:gap-8"
+          }
+        >
+          <form
+            onSubmit={onCalculate}
+            noValidate
+            className={embedded ? "space-y-3" : "max-w-2xl space-y-3"}
+          >
             {/* 1 — Location */}
             <Section
               title={t("sections.location")}
@@ -224,23 +324,27 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
               resetLabel={t("reset")}
               onReset={() => resetSection("location")}
             >
-              <MiniMap
-                lat={values.location.lat}
-                lon={values.location.lon}
-                onChange={(lat, lon) => {
-                  setValue("location.lat", Number(lat.toFixed(6)), {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  });
-                  setValue("location.lon", Number(lon.toFixed(6)), {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  });
-                }}
-              />
-              <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">
-                {t("location.mapHint")}
-              </p>
+              {!embedded && (
+                <>
+                  <MiniMap
+                    lat={values.location.lat}
+                    lon={values.location.lon}
+                    onChange={(lat, lon) => {
+                      setValue("location.lat", Number(lat.toFixed(6)), {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                      setValue("location.lon", Number(lon.toFixed(6)), {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }}
+                  />
+                  <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">
+                    {t("location.mapHint")}
+                  </p>
+                </>
+              )}
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <NumberField
                   name="location.lat"
@@ -473,6 +577,11 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
               {disabledReason && !running ? (
                 <p className="text-xs text-red-600 dark:text-red-400">{disabledReason}</p>
               ) : null}
+              {stale && !running && !disabledReason ? (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  {tExplorer("panel.coordsChanged")}
+                </p>
+              ) : null}
 
               {sim.profileStatuses.length > 0 && sim.phase !== "idle" ? (
                 <ul className="space-y-1 rounded-md border border-neutral-200 px-3 py-2 text-xs dark:border-neutral-800">
@@ -538,8 +647,8 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
             </div>
           </form>
 
-          {/* Sticky summary rail (tablet and up) */}
-          <aside className="hidden md:block">
+          {/* Sticky summary rail (tablet and up; not in the embedded panel) */}
+          <aside className={embedded ? "hidden" : "hidden md:block"}>
             <div className="sticky top-16 space-y-3 rounded-lg border border-neutral-200 bg-white p-4 text-sm dark:border-neutral-800 dark:bg-neutral-950">
               <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 {t("rail.title")}
@@ -606,7 +715,7 @@ export default function CalculatorPanel({ initialValues }: CalculatorPanelProps)
             />
           ) : null}
         </div>
-      </main>
+      </div>
     </FormProvider>
   );
 }

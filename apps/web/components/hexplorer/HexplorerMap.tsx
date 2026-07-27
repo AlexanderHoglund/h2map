@@ -56,8 +56,13 @@ interface HoverState {
   datum: HexDatum;
 }
 
+interface HexplorerMapProps {
+  /** Open the split evaluate panel for a cell (from the drawer's "Evaluate here"). */
+  onEvaluate?: (lat: number, lon: number) => void;
+}
+
 /** The Explorer map: maplibre basemap + deck.gl H3 hexagon choropleth. */
-export default function HexplorerMap() {
+export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
   const t = useTranslations("explorer");
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -233,6 +238,19 @@ export default function HexplorerMap() {
     overlayRef.current = overlay;
     mapRef.current = map;
 
+    // Keep the GL canvas sized to its container. maplibre only measures at init
+    // and on window resize, so when the container box changes (the evaluate
+    // split panel opening/closing beside it) the map must be told to resize;
+    // the interleaved deck.gl overlay shares the viewport and follows. rAF
+    // coalesces the burst of events during the panel transition. resize() does
+    // not move the camera, so it never rewrites the camera hash.
+    let resizeRaf = 0;
+    const resizeObserver = new ResizeObserver(() => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => mapRef.current?.resize());
+    });
+    resizeObserver.observe(container);
+
     const onMoveEnd = () => {
       syncCameraHash();
       window.clearTimeout(debounceRef.current);
@@ -266,6 +284,8 @@ export default function HexplorerMap() {
 
     return () => {
       window.clearTimeout(debounceRef.current);
+      cancelAnimationFrame(resizeRaf);
+      resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
       overlayRef.current = null;
@@ -409,6 +429,7 @@ export default function HexplorerMap() {
         costYear={costYear}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        onEvaluate={onEvaluate}
       />
     </div>
   );

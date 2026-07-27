@@ -23,6 +23,13 @@
       "opacityValue": "{value}%",
       "visible": "Show layer"
     },
+    "panel": {
+      "title": "Evaluate location",
+      "close": "Close calculator",
+      "openFull": "Open in full calculator ↗",
+      "coordsChanged": "Location changed since last run — recalculate",
+      "loading": "Loading calculator…"
+    },
     "legend": {
       "min": "≤2.5",
       "mid": "5.3",
