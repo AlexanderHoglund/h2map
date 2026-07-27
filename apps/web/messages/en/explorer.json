@@ -12,6 +12,7 @@
         "wind": "Wind only"
       },
       "basisGroup": "Best-combination basis",
+      "basisHelp": "How the cheapest option is defined. Default: uniform 8% financing and a fixed 2:1 renewables-to-electrolyser ratio. Risk-adjusted WACC: applies each country's cost of capital instead of a flat 8%. Best-achievable sizing: the lowest cost found by sweeping oversizing ratios and PV/wind mixes.",
       "bases": {
         "default": "Uniform financing · fixed 2:1",
         "wacc": "Risk-adjusted WACC",

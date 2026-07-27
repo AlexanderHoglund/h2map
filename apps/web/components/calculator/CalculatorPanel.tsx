@@ -167,6 +167,62 @@ export default function CalculatorPanel({
     };
   };
 
+  // Auto-apply a country's defaults silently — no confirm, and skip any field
+  // the user has manually edited. Used when a cell is evaluated on the map.
+  const autoApplyCountry = useCallback(
+    (iso2: string) => {
+      const row = countries.find((r) => r.iso2 === iso2);
+      if (!row) return;
+      setValue("location.country", iso2, { shouldValidate: true });
+      const discountPct =
+        row.wacc_suggestion !== null
+          ? Number((row.wacc_suggestion * 100).toFixed(2))
+          : null;
+      const ef = row.grid_ef_tco2_mwh;
+      const curDiscount = getValues("general.discountRatePct");
+      const curEf = getValues("grid.emissionFactorTco2PerMwh");
+      const discountEdited =
+        curDiscount !== CALCULATOR_DEFAULTS.general.discountRatePct &&
+        curDiscount !== lastApplied.current?.discountPct;
+      const efEdited =
+        curEf !== CALCULATOR_DEFAULTS.grid.emissionFactorTco2PerMwh &&
+        curEf !== lastApplied.current?.ef;
+      if (discountPct !== null && !discountEdited) {
+        setValue("general.discountRatePct", discountPct, { shouldValidate: true });
+      }
+      if (ef !== null && !efEdited) {
+        setValue("grid.emissionFactorTco2PerMwh", ef, { shouldValidate: true });
+      }
+      lastApplied.current = { discountPct: discountPct ?? curDiscount, ef: ef ?? curEf };
+    },
+    [countries, setValue, getValues],
+  );
+
+  // Resolve the evaluated cell's country (embedded) and apply its defaults if
+  // it is one of the countries we have defaults for. Two effects so the apply
+  // still fires if the defaults list finishes loading after the lookup.
+  const [resolvedIso2, setResolvedIso2] = useState<string | null>(null);
+  useEffect(() => {
+    if (!embedded || !coords) return;
+    let cancelled = false;
+    fetch(`/api/v1/country?lat=${coords.lat}&lon=${coords.lon}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { iso2?: string | null } | null) => {
+        if (!cancelled) setResolvedIso2(d?.iso2 ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setResolvedIso2(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [embedded, coords]);
+  useEffect(() => {
+    if (!embedded || !resolvedIso2) return;
+    if (!countries.some((r) => r.iso2 === resolvedIso2)) return;
+    autoApplyCountry(resolvedIso2);
+  }, [embedded, resolvedIso2, countries, autoApplyCountry]);
+
   // ---- Run ----------------------------------------------------------------
   const running = sim.phase === "profiles" || sim.phase === "simulating";
   const anySource = anySourceEnabled(values);

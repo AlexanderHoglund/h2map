@@ -94,8 +94,23 @@ export default function LayerControls({
 
           {layerKey === "best" && (
             <fieldset>
-              <legend className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              <legend className="mb-1 flex items-center gap-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
                 {t("controls.basisGroup")}
+                <span className="group relative inline-flex">
+                  <button
+                    type="button"
+                    aria-label={t("controls.basisHelp")}
+                    className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300 text-[10px] leading-none text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                  >
+                    i
+                  </button>
+                  <span
+                    role="tooltip"
+                    className="pointer-events-none absolute left-0 top-full z-20 mt-1 w-60 rounded-md border border-neutral-200 bg-white p-2 text-[11px] font-normal leading-snug text-neutral-600 opacity-0 shadow-lg transition-opacity duration-100 group-hover:opacity-100 group-focus-within:opacity-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+                  >
+                    {t("controls.basisHelp")}
+                  </span>
+                </span>
               </legend>
               <div className="space-y-1">
                 {LAYER_BASES.map((b) => (
@@ -163,7 +178,7 @@ export default function LayerControls({
               max={100}
               value={opacity}
               onChange={(e) => onOpacityChange(Number(e.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:bg-neutral-700 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-blue-600"
+              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:bg-neutral-700 [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-blue-600"
             />
           </div>
 
