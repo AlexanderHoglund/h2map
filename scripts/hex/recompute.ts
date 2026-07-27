@@ -37,6 +37,15 @@ async function main(): Promise<void> {
     },
     cache: makeCache(db),
     getTurbineCurve: makeTurbineLoader(db),
+    // The live map is improved mode, so recompute reads the IMPROVED profiles
+    // (mode='improved'). Cells not yet re-seeded have no improved profile →
+    // cache miss → skipped (no network), leaving their current values intact
+    // rather than regressing them to reference. Once the re-seed reaches a
+    // cell, recompute maintains it (and fills the #5/#6 layers for freshly
+    // seeded cells).
+    windAirDensityCorrection: true,
+    windTurbineClassSelection: true,
+    pvUnifiedEra5: true,
   };
 
   let from = 0;
