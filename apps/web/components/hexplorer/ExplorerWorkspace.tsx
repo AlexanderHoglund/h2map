@@ -43,12 +43,18 @@ export default function ExplorerWorkspace() {
   );
 
   return (
-    <div className="relative flex h-full w-full">
-      <div className="relative min-w-0 flex-1">
+    <div className="relative flex h-full w-full overflow-hidden">
+      {/* Map — flexes to the space left of the panel; overflow-hidden clips the
+          GL canvas to its (shrunk) box so it never bleeds over the panel. */}
+      <div className="relative h-full min-w-0 flex-1 overflow-hidden">
         <HexplorerMap onEvaluate={handleEvaluate} />
       </div>
+      {/* Panel — full-screen overlay below md; a positioned split column on md+
+          (md:relative + z so it paints above the map, never under it). */}
       {open && seed && (
-        <aside className="absolute inset-0 z-30 bg-white md:static md:z-auto md:w-[460px] md:shrink-0 md:border-l md:border-neutral-200 dark:bg-neutral-950 md:dark:border-neutral-800">
+        <aside
+          className="absolute inset-0 z-30 flex flex-col bg-white dark:bg-neutral-950 md:relative md:inset-auto md:z-10 md:h-full md:w-[min(46vw,600px)] md:min-w-105 md:shrink-0 md:border-l md:border-neutral-200 md:dark:border-neutral-800"
+        >
           <CalculatorPanel
             embedded
             initialValues={seed}

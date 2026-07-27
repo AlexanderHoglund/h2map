@@ -272,14 +272,16 @@ export default function CalculatorPanel({
         }
       >
         {embedded ? (
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h1 className="text-base font-semibold">{tExplorer("panel.title")}</h1>
-            <div className="flex items-center gap-3">
+          <div className="mb-3 flex items-center justify-between gap-2 border-b border-neutral-200 pb-2 dark:border-neutral-800">
+            <h1 className="min-w-0 truncate text-base font-semibold">
+              {tExplorer("panel.title")}
+            </h1>
+            <div className="flex shrink-0 items-center gap-3">
               <a
                 href={`/calculator?c=${encodeConfigParam(getValues())}`}
                 target="_blank"
                 rel="noopener"
-                className="text-xs text-blue-600 hover:underline dark:text-blue-400"
+                className="hidden text-xs text-blue-600 hover:underline sm:inline dark:text-blue-400"
               >
                 {tExplorer("panel.openFull")}
               </a>
