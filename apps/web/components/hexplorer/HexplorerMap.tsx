@@ -52,23 +52,23 @@ const SATELLITE_STYLE: maplibregl.StyleSpecification = {
   layers: [{ id: "esri-imagery", type: "raster", source: "esri-imagery" }],
 };
 
+// Muted grayscale relief (Esri World Hillshade): shows topography via shading
+// with almost no colour, so the coloured hexes stay legible on top — unlike the
+// vivid OpenTopoMap.
 const TOPO_STYLE: maplibregl.StyleSpecification = {
   version: 8,
   sources: {
-    opentopomap: {
+    "esri-hillshade": {
       type: "raster",
       tiles: [
-        "https://a.tile.opentopomap.org/{z}/{x}/{y}.png",
-        "https://b.tile.opentopomap.org/{z}/{x}/{y}.png",
-        "https://c.tile.opentopomap.org/{z}/{x}/{y}.png",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
       ],
       tileSize: 256,
-      maxzoom: 17,
-      attribution:
-        "© OpenStreetMap contributors, SRTM · © OpenTopoMap (CC-BY-SA)",
+      maxzoom: 16,
+      attribution: "Hillshade © Esri, USGS, NASA",
     },
   },
-  layers: [{ id: "opentopomap", type: "raster", source: "opentopomap" }],
+  layers: [{ id: "esri-hillshade", type: "raster", source: "esri-hillshade" }],
 };
 
 function basemapStyle(
