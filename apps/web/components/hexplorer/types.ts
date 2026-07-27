@@ -27,6 +27,10 @@ export function isLayerBasis(value: unknown): value is LayerBasis {
   return value === "default" || value === "wacc" || value === "optimal";
 }
 
+/** Basemap choices for the map surface (default vector, satellite, topographic). */
+export type Basemap = "default" | "satellite" | "topographic";
+export const BASEMAPS: readonly Basemap[] = ["default", "satellite", "topographic"];
+
 interface YearLcoh {
   best: number | null;
   solar: number | null;

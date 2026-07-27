@@ -3,9 +3,11 @@
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import {
+  BASEMAPS,
   COST_YEARS,
   LAYER_BASES,
   LAYER_KEYS,
+  type Basemap,
   type CostYear,
   type LayerBasis,
   type LayerKey,
@@ -16,6 +18,8 @@ interface Props {
   onLayerChange: (layer: LayerKey) => void;
   basis: LayerBasis;
   onBasisChange: (basis: LayerBasis) => void;
+  basemap: Basemap;
+  onBasemapChange: (basemap: Basemap) => void;
   costYear: CostYear;
   onCostYearChange: (year: CostYear) => void;
   opacity: number;
@@ -30,6 +34,8 @@ export default function LayerControls({
   onLayerChange,
   basis,
   onBasisChange,
+  basemap,
+  onBasemapChange,
   costYear,
   onCostYearChange,
   opacity,
@@ -41,6 +47,7 @@ export default function LayerControls({
   const [open, setOpen] = useState(true);
   const opacityId = useId();
   const visibleId = useId();
+  const basemapId = useId();
   const bodyId = useId();
 
   return (
@@ -159,6 +166,27 @@ export default function LayerControls({
                 {t("controls.costYearProjected")}
               </p>
             )}
+          </div>
+
+          <div>
+            <label
+              htmlFor={basemapId}
+              className="mb-1 block text-xs font-medium text-neutral-500 dark:text-neutral-400"
+            >
+              {t("controls.basemap")}
+            </label>
+            <select
+              id={basemapId}
+              value={basemap}
+              onChange={(e) => onBasemapChange(e.target.value as Basemap)}
+              className="w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-800 dark:bg-neutral-900"
+            >
+              {BASEMAPS.map((b) => (
+                <option key={b} value={b}>
+                  {t(`controls.basemaps.${b}`)}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

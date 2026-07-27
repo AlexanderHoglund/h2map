@@ -16,6 +16,7 @@ import SearchBox from "./SearchBox";
 import {
   isCostYear,
   isLayerKey,
+  type Basemap,
   type CostYear,
   type HexDatum,
   type LayerBasis,
@@ -29,6 +30,55 @@ const LIGHT_STYLE =
   "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 const DARK_STYLE =
   "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+
+/**
+ * Raster basemaps (no API key). Esri World Imagery for satellite and
+ * OpenTopoMap for topography. Both are free but carry fair-use tile policies —
+ * fine for this tool; swap in a keyed provider (e.g. MapTiler) if usage grows.
+ */
+const SATELLITE_STYLE: maplibregl.StyleSpecification = {
+  version: 8,
+  sources: {
+    "esri-imagery": {
+      type: "raster",
+      tiles: [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      ],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: "Imagery © Esri, Maxar, Earthstar Geographics",
+    },
+  },
+  layers: [{ id: "esri-imagery", type: "raster", source: "esri-imagery" }],
+};
+
+const TOPO_STYLE: maplibregl.StyleSpecification = {
+  version: 8,
+  sources: {
+    opentopomap: {
+      type: "raster",
+      tiles: [
+        "https://a.tile.opentopomap.org/{z}/{x}/{y}.png",
+        "https://b.tile.opentopomap.org/{z}/{x}/{y}.png",
+        "https://c.tile.opentopomap.org/{z}/{x}/{y}.png",
+      ],
+      tileSize: 256,
+      maxzoom: 17,
+      attribution:
+        "© OpenStreetMap contributors, SRTM · © OpenTopoMap (CC-BY-SA)",
+    },
+  },
+  layers: [{ id: "opentopomap", type: "raster", source: "opentopomap" }],
+};
+
+function basemapStyle(
+  basemap: Basemap,
+  dark: boolean,
+): string | maplibregl.StyleSpecification {
+  if (basemap === "satellite") return SATELLITE_STYLE;
+  if (basemap === "topographic") return TOPO_STYLE;
+  return dark ? DARK_STYLE : LIGHT_STYLE;
+}
 
 const DEFAULT_CAMERA = { lat: 10, lon: -20, zoom: 1.6 };
 const VIEWPORT_DEBOUNCE_MS = 250;
@@ -102,6 +152,11 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
   // Best-combination basis (P1 #5 WACC / #6 sizing). Ephemeral — not persisted
   // in the hash; the default resource-driven view is the shareable one.
   const [basis, setBasis] = useState<LayerBasis>("default");
+  // Basemap choice. Changing it recreates the map with the new style; the
+  // camera is preserved via the location hash. styleEpoch bumps on each style
+  // load so the deck.gl hex layer re-applies with the correct beforeId.
+  const [basemap, setBasemap] = useState<Basemap>("default");
+  const [styleEpoch, setStyleEpoch] = useState(0);
   const [opacity, setOpacity] = useState(75);
   const [layerVisible, setLayerVisible] = useState(true);
   const [maxDetail, setMaxDetail] = useState(false);
@@ -224,7 +279,7 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
     const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const map = new maplibregl.Map({
       container,
-      style: dark ? DARK_STYLE : LIGHT_STYLE,
+      style: basemapStyle(basemap, dark),
       center: [
         parsed?.lon ?? DEFAULT_CAMERA.lon,
         parsed?.lat ?? DEFAULT_CAMERA.lat,
@@ -280,6 +335,9 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
       )?.id;
       syncCameraHash();
       loadViewport();
+      // Re-apply the hex layer now the style (and its beforeId) is known —
+      // covers first load and every basemap switch.
+      setStyleEpoch((e) => e + 1);
     });
 
     return () => {
@@ -290,7 +348,7 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
       mapRef.current = null;
       overlayRef.current = null;
     };
-  }, [syncCameraHash, loadViewport, renderViewport]);
+  }, [syncCameraHash, loadViewport, renderViewport, basemap]);
 
   // Rebuild the deck.gl layer whenever data or display settings change.
   useEffect(() => {
@@ -318,13 +376,21 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
     }
     lastDataRef.current = data;
     displayedResRef.current = res;
+    // Only pass beforeId if that layer actually exists in the current style —
+    // otherwise deck throws ("Cannot add layer before non-existing layer").
+    // Raster basemaps (satellite / topographic) have no such layer, so the
+    // hexes render on top; the vector style slots them beneath its labels.
+    const beforeId =
+      beforeIdRef.current && mapRef.current?.getLayer(beforeIdRef.current)
+        ? beforeIdRef.current
+        : undefined;
     overlay.setProps({
       layers: [
         new H3HexagonLayer<HexDatum>({
           id: "lcoh-hex",
           // beforeId is a MapboxOverlay extension prop (absent from the
           // layer's own prop types): slot the hexes beneath basemap labels.
-          ...({ beforeId: beforeIdRef.current } as unknown as Record<string, never>),
+          ...({ beforeId } as unknown as Record<string, never>),
           data,
           visible: layerVisible,
           opacity: opacity / 100,
@@ -348,7 +414,7 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
         }),
       ],
     });
-  }, [version, layerKey, costYear, basis, opacity, layerVisible, engine, isDark, onHexHover, onHexClick]);
+  }, [version, layerKey, costYear, basis, opacity, layerVisible, engine, isDark, onHexHover, onHexClick, styleEpoch]);
 
   const flyTo = useCallback((lat: number, lon: number) => {
     const map = mapRef.current;
@@ -380,6 +446,8 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
           onLayerChange={setLayerKey}
           basis={basis}
           onBasisChange={setBasis}
+          basemap={basemap}
+          onBasemapChange={setBasemap}
           costYear={costYear}
           onCostYearChange={setCostYear}
           opacity={opacity}

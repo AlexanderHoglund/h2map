@@ -20,6 +20,12 @@
       },
       "costYear": "Cost year",
       "costYearProjected": "Projected — IEA-anchored cost-down (2040/2050 extrapolated)",
+      "basemap": "Basemap",
+      "basemaps": {
+        "default": "Default (streets)",
+        "satellite": "Satellite",
+        "topographic": "Topographic"
+      },
       "opacity": "Hex opacity",
       "opacityValue": "{value}%",
       "visible": "Show layer"
