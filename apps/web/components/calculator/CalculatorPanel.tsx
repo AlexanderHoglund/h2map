@@ -333,14 +333,6 @@ export default function CalculatorPanel({
               {tExplorer("panel.title")}
             </h1>
             <div className="flex shrink-0 items-center gap-3">
-              <a
-                href={`/calculator?c=${encodeConfigParam(getValues())}`}
-                target="_blank"
-                rel="noopener"
-                className="hidden text-xs text-blue-600 hover:underline sm:inline dark:text-blue-400"
-              >
-                {tExplorer("panel.openFull")}
-              </a>
               <button
                 type="button"
                 onClick={onClose}
@@ -769,7 +761,6 @@ export default function CalculatorPanel({
             <ResultsSection
               response={sim.response}
               lifetimeYears={values.general.lifetimeYears}
-              onCopyLink={copyLink}
             />
           ) : null}
         </div>

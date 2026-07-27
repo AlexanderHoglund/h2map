@@ -24,6 +24,7 @@
       "opacityValue": "{value}%",
       "visible": "Show layer"
     },
+    "evaluateHint": "Click an area, then “Evaluate here”, to calculate its cost",
     "panel": {
       "title": "Evaluate location",
       "close": "Close calculator",

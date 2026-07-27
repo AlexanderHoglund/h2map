@@ -21,6 +21,7 @@ const CalculatorPanel = dynamic(
  * reflows the GL canvas); below md it's a full-bleed overlay.
  */
 export default function ExplorerWorkspace() {
+  const t = useTranslations("explorer");
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   // Built once, on the first evaluate, so the form mounts at the right location
@@ -48,6 +49,13 @@ export default function ExplorerWorkspace() {
           GL canvas to its (shrunk) box so it never bleeds over the panel. */}
       <div className="relative h-full min-w-0 flex-1 overflow-hidden">
         <HexplorerMap onEvaluate={handleEvaluate} />
+        {!open && (
+          <div className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
+            <span className="rounded-full border border-neutral-200 bg-white/95 px-3 py-1.5 text-xs font-medium text-neutral-600 shadow-sm backdrop-blur dark:border-neutral-700 dark:bg-neutral-900/95 dark:text-neutral-300">
+              {t("evaluateHint")}
+            </span>
+          </div>
+        )}
       </div>
       {/* Panel — full-screen overlay below md; a positioned split column on md+
           (md:relative + z so it paints above the map, never under it). */}

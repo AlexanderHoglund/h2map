@@ -2,7 +2,6 @@
 
 import { cellToLatLng } from "h3-js";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import {
   COST_YEARS,
@@ -22,10 +21,7 @@ interface Props {
   costYear: CostYear;
   open: boolean;
   onClose: () => void;
-  /**
-   * Open the split evaluate panel for this cell (Explorer workspace). When
-   * absent, "Evaluate here" falls back to navigating to /calculator.
-   */
+  /** Open the split evaluate panel for this cell (Explorer workspace). */
   onEvaluate?: (lat: number, lon: number) => void;
 }
 
@@ -48,7 +44,6 @@ export default function CellDrawer({
   onEvaluate,
 }: Props) {
   const t = useTranslations("explorer");
-  const router = useRouter();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const shown = datum;
 
@@ -67,14 +62,10 @@ export default function CellDrawer({
   }, [open]);
 
   const evaluateHere = () => {
-    if (!shown) return;
+    if (!shown || !onEvaluate) return;
     const [lat, lon] = cellToLatLng(shown.h3);
-    if (onEvaluate) {
-      onEvaluate(lat, lon);
-      onClose(); // retract the quick popup as the split panel opens
-    } else {
-      router.push(`/calculator?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`);
-    }
+    onEvaluate(lat, lon);
+    onClose(); // retract the quick popup as the split panel opens
   };
 
   const lcohByLayer = shown

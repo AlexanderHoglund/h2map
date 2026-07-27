@@ -35,13 +35,14 @@ export default function ActionRow({
   onCopyLink,
 }: {
   response: SimulateResponse;
-  onCopyLink: () => void;
+  /** Optional — when absent, no share destination, so the copy button is hidden. */
+  onCopyLink?: () => void;
 }) {
   const t = useTranslations("calculator");
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
-    onCopyLink();
+    onCopyLink?.();
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -70,9 +71,11 @@ export default function ActionRow({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <button type="button" onClick={copy} className={secondary}>
-        {copied ? t("run.copied") : t("results.actions.copyLink")}
-      </button>
+      {onCopyLink && (
+        <button type="button" onClick={copy} className={secondary}>
+          {copied ? t("run.copied") : t("results.actions.copyLink")}
+        </button>
+      )}
       <button type="button" onClick={exportCsv} className={secondary}>
         {t("results.actions.exportCsv")}
       </button>

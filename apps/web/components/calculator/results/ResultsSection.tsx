@@ -19,7 +19,7 @@ export default function ResultsSection({
 }: {
   response: SimulateResponse;
   lifetimeYears: number;
-  onCopyLink: () => void;
+  onCopyLink?: () => void;
 }) {
   const t = useTranslations("calculator.results");
   const { results } = response;
