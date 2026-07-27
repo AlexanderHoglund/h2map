@@ -112,7 +112,6 @@ export default function CalculatorPanel({
   }, [form, getValues, setValue, syncUrl]);
 
   // ---- Embedded: new-cell coords push into the form (preserving other edits) --
-  const [stale, setStale] = useState(false);
   const coordsRef = useRef<string>("");
   useEffect(() => {
     if (!embedded || !coords) return;
@@ -127,10 +126,15 @@ export default function CalculatorPanel({
       shouldValidate: true,
       shouldDirty: true,
     });
-    // Nudge to recalculate if a prior run is on screen (never auto-run — the
-    // profile fetch is slow).
-    if (sim.phase === "done" || sim.phase === "error") setStale(true);
-  }, [coords, embedded, setValue, sim.phase]);
+  }, [coords, embedded, setValue]);
+  // "Recalculate" nudge — derived (not stored, so no setState in an effect):
+  // true when the location differs from what the last finished run used. The
+  // profile fetch is slow, so we never auto-run; the user re-presses Calculate.
+  const [lastRunKey, setLastRunKey] = useState<string | null>(null);
+  const stale =
+    sim.phase === "done" &&
+    lastRunKey !== null &&
+    lastRunKey !== `${values.location.lat},${values.location.lon}`;
 
   // ---- Country defaults ---------------------------------------------------
   const lastApplied = useRef<{ discountPct: number; ef: number } | null>(null);
@@ -234,7 +238,7 @@ export default function CalculatorPanel({
 
   const onCalculate = handleSubmit((valid) => {
     if (!anySourceEnabled(valid)) return;
-    setStale(false);
+    setLastRunKey(`${valid.location.lat},${valid.location.lon}`);
     void run(valid);
   });
 
