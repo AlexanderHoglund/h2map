@@ -365,8 +365,12 @@ async function seedCells(
 ): Promise<boolean> {
   // One batched query for the whole region's done/recently-failed cells,
   // instead of a SELECT per cell — keeps each auto run light as coverage
-  // grows (fewer round-trips = shorter, more resilient jobs).
-  const skip = await loadSkipSet(db, cells);
+  // grows (fewer round-trips = shorter, more resilient jobs). SEED_FORCE=1
+  // ignores the skip set to reprocess ready cells (e.g. after purging stale
+  // profiles for a corrected re-seed).
+  const skip = process.env.SEED_FORCE
+    ? new Set<string>()
+    : await loadSkipSet(db, cells);
   console.log(
     `\n=== ${label}: ${cells.length} cells (${skip.size} already done) ===`,
   );
