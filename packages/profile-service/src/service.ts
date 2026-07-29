@@ -6,6 +6,7 @@ import {
 import { fetchPvgisPv } from "./providers/pvgis";
 import { buildTmy } from "./tmy";
 import { fillGaps, HOURS_PER_YEAR } from "./time";
+import { validateProfile, type ProfileValidation } from "./validate";
 import type {
   BuiltProfile,
   ProfileKind,
@@ -65,6 +66,11 @@ export interface ResourceProfileResult {
   /** Exactly 8760 values in [0, 1]. */
   cf: number[];
   cacheHit: boolean;
+  /**
+   * T1.1 physical-plausibility verdict for the returned profile. Always
+   * computed; only ENFORCED (→ masked cell) when deps.validateProfiles is set.
+   */
+  validation: ProfileValidation;
   /** Present only on freshly built (non-cached) profiles. */
   build?: {
     yearsUsed: [number, number];
@@ -99,16 +105,26 @@ export async function getResourceProfile(
     try {
       const cached = await deps.cache.get(latR, lonR, kind, mode);
       if (cached && cached.cf.length === HOURS_PER_YEAR) {
-        return {
-          latR,
-          lonR,
-          kind,
-          provider: cached.provider,
-          datasetVersion: cached.datasetVersion,
-          attribution: attributionFor(cached.provider),
-          cf: cached.cf,
-          cacheHit: true,
-        };
+        const validation = validateProfile(cached.cf, kind, latR);
+        // A pre-gate bad row could still be cached; when enforcing, skip it and
+        // fall through to a fresh fetch (which re-validates and may mask).
+        if (deps.validateProfiles && !validation.ok) {
+          log(
+            `cached profile failed validation for (${latR}, ${lonR}, ${kind}); refetching: ${validation.reasons.join("; ")}`,
+          );
+        } else {
+          return {
+            latR,
+            lonR,
+            kind,
+            provider: cached.provider,
+            datasetVersion: cached.datasetVersion,
+            attribution: attributionFor(cached.provider),
+            cf: cached.cf,
+            cacheHit: true,
+            validation,
+          };
+        }
       }
     } catch (err) {
       log(`profile cache read failed (continuing to providers): ${String(err)}`);
@@ -137,6 +153,21 @@ export async function getResourceProfile(
       continue;
     }
 
+    const validation = validateProfile(profile.cf, kind, latR);
+    if (deps.validateProfiles && !validation.ok) {
+      // Non-physical profile: don't cache it, and treat it as a provider
+      // failure so the chain moves on (and the cell masks if nothing valid
+      // remains) rather than colouring the map with an artifact.
+      log(
+        `provider ${name} failed validation for (${latR}, ${lonR}, ${kind}): ${validation.reasons.join("; ")}`,
+      );
+      failures.push({
+        provider: name,
+        error: `validation: ${validation.reasons.join("; ")}`,
+      });
+      continue;
+    }
+
     if (deps.cache) {
       try {
         await deps.cache.put(profile);
@@ -153,6 +184,7 @@ export async function getResourceProfile(
       attribution: profile.meta.attribution,
       cf: profile.cf,
       cacheHit: false,
+      validation,
       build: {
         yearsUsed: profile.yearsUsed,
         selectedYearByMonth: profile.meta.selectedYearByMonth,

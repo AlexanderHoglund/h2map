@@ -297,6 +297,37 @@ describe("getResourceProfile", () => {
     expect(cache.rows[0]!.mode).toBe("reference");
   });
 
+  it("attaches a validation verdict but does not enforce it by default", async () => {
+    // pvgisResponse is a flat 0.25 profile — non-physical (peak 0.25 < floor).
+    const result = await getResourceProfile(
+      { lat: -24.2, lon: -69.1, kind: "pv_fixed" },
+      { fetchJson: () => Promise.resolve(pvgisResponse()) },
+    );
+    expect(result.provider).toBe("pvgis-seriescalc");
+    expect(result.validation.ok).toBe(false);
+    expect(result.validation.reasons.some((r) => r.includes("peak CF"))).toBe(true);
+  });
+
+  it("masks a non-physical profile when validateProfiles is enforced", async () => {
+    // Mask mode + enforcement: the only provider yields a non-physical profile,
+    // so the request throws → the caller renders no-data instead of a colour.
+    await expect(
+      getResourceProfile(
+        { lat: 0.5, lon: 37.3, kind: "pv_fixed" },
+        {
+          pvMaskUnservable: true,
+          validateProfiles: true,
+          fetchJson: (url) => {
+            if (url.includes("re.jrc.ec.europa.eu")) {
+              return Promise.resolve(pvgisResponse());
+            }
+            throw new Error("no crude fallback in mask mode");
+          },
+        },
+      ),
+    ).rejects.toThrowError(ProfileServiceError);
+  });
+
   it("throws ProfileServiceError with per-provider causes when everything fails", async () => {
     await expect(
       getResourceProfile(

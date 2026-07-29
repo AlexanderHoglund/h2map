@@ -51,6 +51,7 @@ async function main(): Promise<void> {
     windAirDensityCorrection: true,
     windTurbineClassSelection: true,
     pvMaskUnservable: true,
+    validateProfiles: true,
     log: () => {},
   };
 
@@ -84,16 +85,34 @@ async function main(): Promise<void> {
       }
       processed++;
       const [lat, lon] = cellToLatLng(h3);
+      // Per-source masking (T1.1): a non-physical / unservable layer is dropped
+      // to no-data while the other survives, rather than skipping the whole cell.
+      const fetchOrMask = async (
+        kind: "pv_fixed" | "wind_120",
+      ): Promise<number[] | null> => {
+        try {
+          return (await getResourceProfile({ lat, lon, kind }, deps)).cf;
+        } catch (err) {
+          console.warn(`  ${h3} ${kind} masked: ${String(err)}`);
+          return null;
+        }
+      };
       try {
         // Cache hit if already re-seeded (no fetch); otherwise fetches improved.
-        const pv = await getResourceProfile({ lat, lon, kind: "pv_fixed" }, deps);
-        const wind = await getResourceProfile({ lat, lon, kind: "wind_120" }, deps);
-        const profiles = { pv: pv.cf, wind: wind.cf };
+        const pvCf = await fetchOrMask("pv_fixed");
+        const windCf = await fetchOrMask("wind_120");
+        if (!pvCf && !windCf) throw new Error("both PV and wind unavailable (masked)");
+        const profiles = {
+          ...(pvCf ? { pv: pvCf } : {}),
+          ...(windCf ? { wind: windCf } : {}),
+        };
         const years = mapSweepAllYears(profiles, MAP_FLAGS);
         const y = years[2024];
         const cellWacc = wacc.resolve(lat, lon).wacc;
         const waccYears = mapSweepAllYears(profiles, MAP_FLAGS, cellWacc);
         const optimalYears = mapSweepOptimalAllYears(profiles, MAP_FLAGS);
+        const meanCf = (cf: number[]) =>
+          Number((cf.reduce((a, b) => a + b, 0) / cf.length).toFixed(4));
         const { error: upErr } = await db
           .from("hex_lcoh")
           .update({
@@ -105,6 +124,8 @@ async function main(): Promise<void> {
             lcoh_years: futureYearsJson(years),
             lcoh_wacc: allYearsBestJson(waccYears),
             lcoh_optimal: optimalYearsJson(optimalYears),
+            solar_cf: pvCf ? meanCf(pvCf) : null,
+            wind_cf: windCf ? meanCf(windCf) : null,
           })
           .eq("h3", h3);
         if (upErr) throw new Error(upErr.message);

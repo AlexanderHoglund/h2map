@@ -46,6 +46,10 @@ async function main(): Promise<void> {
     windAirDensityCorrection: true,
     windTurbineClassSelection: true,
     pvMaskUnservable: true,
+    // Defense: if a non-physical profile ever slipped into the cache, the gate
+    // re-validates on read → treated as unavailable (no network here) → that
+    // layer masks rather than recomputing an artifact onto the map.
+    validateProfiles: true,
   };
 
   let from = 0;
@@ -63,13 +67,27 @@ async function main(): Promise<void> {
 
     for (const { h3 } of data) {
       const [lat, lon] = cellToLatLng(h3);
+      // Per-source: a cell with only one cached improved layer (the other masked
+      // by T1.1, or not yet re-seeded) is recomputed from what it has. A cell
+      // with NEITHER cached (never re-seeded) drops to the catch → skipped, so
+      // its current values stay intact rather than regressing to reference.
+      const cachedOrNull = async (
+        kind: "pv_fixed" | "wind_120",
+      ): Promise<number[] | null> => {
+        try {
+          return (await getResourceProfile({ lat, lon, kind }, deps)).cf;
+        } catch {
+          return null;
+        }
+      };
       try {
-        const pv = await getResourceProfile({ lat, lon, kind: "pv_fixed" }, deps);
-        const wind = await getResourceProfile(
-          { lat, lon, kind: "wind_120" },
-          deps,
-        );
-        const profiles = { pv: pv.cf, wind: wind.cf };
+        const pvCf = await cachedOrNull("pv_fixed");
+        const windCf = await cachedOrNull("wind_120");
+        if (!pvCf && !windCf) throw new Error("no cached improved profile");
+        const profiles = {
+          ...(pvCf ? { pv: pvCf } : {}),
+          ...(windCf ? { wind: windCf } : {}),
+        };
         const years = mapSweepAllYears(profiles, MAP_FLAGS);
         const y2024 = years[2024];
         // Optional toggle layers (P1 #5 risk-adjusted WACC, P1 #6 best-achievable
@@ -88,6 +106,12 @@ async function main(): Promise<void> {
             lcoh_years: futureYearsJson(years),
             lcoh_wacc: allYearsBestJson(waccYears),
             lcoh_optimal: optimalYearsJson(optimalYears),
+            solar_cf: pvCf
+              ? Number((pvCf.reduce((a, b) => a + b, 0) / pvCf.length).toFixed(4))
+              : null,
+            wind_cf: windCf
+              ? Number((windCf.reduce((a, b) => a + b, 0) / windCf.length).toFixed(4))
+              : null,
           })
           .eq("h3", h3);
         if (upErr) throw new Error(upErr.message);

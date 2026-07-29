@@ -13,7 +13,7 @@
  */
 import { cellToLatLng, getResolution, polygonToCells } from "h3-js";
 import { ENGINE_VERSION } from "@h2map/lcoh-engine";
-import { getResourceProfile } from "@h2map/profile-service";
+import { getResourceProfile, type ProfileKind } from "@h2map/profile-service";
 import { futureYearsJson, MAP_FLAGS, mapSweepAllYears } from "../lib/lcohSweep";
 import {
   fetchJson,
@@ -214,6 +214,7 @@ interface Deps {
   windAirDensityCorrection: boolean;
   windTurbineClassSelection: boolean;
   pvMaskUnservable: boolean;
+  validateProfiles: boolean;
 }
 
 async function main(): Promise<void> {
@@ -228,6 +229,7 @@ async function main(): Promise<void> {
     windAirDensityCorrection: true,
     windTurbineClassSelection: true,
     pvMaskUnservable: true,
+    validateProfiles: true,
   };
 
   if (regionArg === "--auto") {
@@ -384,14 +386,30 @@ async function seedCells(
       status: "computing",
     });
 
+    // Resolve each source independently so the T1.1 gate (or a provider outage)
+    // masks only the affected layer: a cell whose solar profile is non-physical
+    // still keeps its valid wind value instead of becoming a full no-data hole.
+    const fetchOrMask = async (kind: ProfileKind): Promise<number[] | null> => {
+      try {
+        return (await getResourceProfile({ lat, lon, kind }, deps)).cf;
+      } catch (err) {
+        console.log(`    ${kind} masked: ${String(err)}`);
+        return null;
+      }
+    };
+
     try {
       console.log(`  ${h3} (${latR}, ${lonR}):`);
-      const pv = await getResourceProfile({ lat, lon, kind: "pv_fixed" }, deps);
-      const wind = await getResourceProfile(
-        { lat, lon, kind: "wind_120" },
-        deps,
-      );
-      const years = mapSweepAllYears({ pv: pv.cf, wind: wind.cf }, MAP_FLAGS);
+      const pvCf = await fetchOrMask("pv_fixed");
+      const windCf = await fetchOrMask("wind_120");
+      if (!pvCf && !windCf) {
+        throw new Error("both PV and wind unavailable (masked)");
+      }
+      const profiles = {
+        ...(pvCf ? { pv: pvCf } : {}),
+        ...(windCf ? { wind: windCf } : {}),
+      };
+      const years = mapSweepAllYears(profiles, MAP_FLAGS);
       const y = years[2024];
       const meanCf = (cf: number[]) =>
         Number((cf.reduce((a, b) => a + b, 0) / cf.length).toFixed(4));
@@ -408,8 +426,8 @@ async function seedCells(
         best_pv_mw: y.bestPvMw,
         best_wind_mw: y.bestWindMw,
         lcoh_years: futureYearsJson(years),
-        solar_cf: meanCf(pv.cf),
-        wind_cf: meanCf(wind.cf),
+        solar_cf: pvCf ? meanCf(pvCf) : null,
+        wind_cf: windCf ? meanCf(windCf) : null,
         engine_version: ENGINE_VERSION,
         computed_at: new Date().toISOString(),
       });

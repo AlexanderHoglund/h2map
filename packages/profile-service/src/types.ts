@@ -134,6 +134,16 @@ export interface ProfileServiceDeps {
    * proxy as fallback (reference / calculator behavior).
    */
   pvMaskUnservable?: boolean;
+  /**
+   * Enforce the T1.1 profile-validation gate: a built (or cached) profile that
+   * fails physical-plausibility bounds (see validate.ts) is treated as a
+   * provider failure — the chain moves on, and if nothing valid remains the
+   * request throws so the caller MASKS the cell (no-data) rather than rendering
+   * a non-physical value. Off by default → validation is still computed and
+   * attached to the result for provenance, but never enforced, so parity and
+   * the calculator stay bit-comparable. The map/seed path turns this on.
+   */
+  validateProfiles?: boolean;
 }
 
 /** Thrown when every provider in the fallback chain failed. */

@@ -140,10 +140,29 @@ untouched (an `improved-*` golden set is added beside it).
   (migration `20260729000001_resource_profiles_mode_unique`). The flag was
   renamed `pvUnifiedEra5` → `pvMaskUnservable` to match. Re-fetch-bound like
   #1/#2; broken ERA5 profiles must be purged and re-seeded (Kenya done first).
-  **Follow-up (T1.1, pending):** a profile-validation gate so a CF-0.037 profile
-  can never render as a colour again, and per-cell provenance (provider,
-  radiation DB, turbine class) in the map inspector — the data is already encoded
-  in `datasetVersion`.
+  **Follow-up (T1.1, done):** see the profile-validation gate below.
+
+- **T1.1 — profile-validation gate** (profile layer; `validate.ts`,
+  `ProfileServiceDeps.validateProfiles`). Auto-resolve fixed the ERA5 breakage,
+  but a live probe showed PVGIS-SARAH3 *itself* returns non-physical cells in
+  Kenya — e.g. (0.5, 37.3) peaks at CF 0.39 (mean 0.059) every year where ~0.19
+  is real — cleanly bimodal against the good cells (peak ~0.82). A structurally
+  valid 8760-hour profile can still be physically impossible, and it renders as
+  a colour that breaks comparability with its true neighbours. `validateProfile`
+  screens each built (and cached-on-read) profile against loose one-sided
+  physical bounds — for PV the decisive one is a **peak-CF floor** (0.55: real
+  PV always has near-clear-sky hours, so a lower annual peak is the fingerprint
+  of a scaling/artifact fault), plus mean-CF range, daylight-hour band and a
+  monthly-share cap; for wind a mean-CF range, peak floor and a non-degeneracy
+  (distinct-values) check. Bounds are chosen to pass every real site and reject
+  only the non-physical. **Additive & map-only:** enforcement is gated behind
+  `validateProfiles` (the seed/recompute path), so a failing profile is treated
+  as a provider failure → the layer MASKS (no-data) instead of colouring. With
+  the flag off (parity, calculator) the verdict is computed and attached to the
+  result for provenance but never enforced, so reference stays bit-comparable.
+  Masking is **per-source**: a cell whose solar profile fails keeps its valid
+  wind value (separate `lcoh_solar` / `lcoh_wind` layers) rather than becoming a
+  full hole. Golden set and parity unchanged.
 
 - **P0 #3 — stack life on EFLH + efficiency reset**
   (`stackLifeOnEquivalentFullLoadHours` + `resetEfficiencyOnStackReplacement`).

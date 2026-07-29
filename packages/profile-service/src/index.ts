@@ -12,6 +12,20 @@ export { turbinePowerKw, windCf } from "./powerCurve";
 export { shearExponent, toHubHeight, DEFAULT_ALPHA } from "./shear";
 export { crudePvCf } from "./pvCrude";
 export {
+  validateProfile,
+  PV_PEAK_CF_MIN,
+  PV_MEAN_CF_MIN,
+  PV_MEAN_CF_MAX,
+  PV_NONZERO_HOURS_MIN,
+  PV_NONZERO_HOURS_MAX,
+  PV_MONTHLY_SHARE_MAX,
+  WIND_MEAN_CF_MIN,
+  WIND_MEAN_CF_MAX,
+  WIND_PEAK_CF_MIN,
+  MIN_DISTINCT_VALUES,
+} from "./validate";
+export type { ProfileValidation } from "./validate";
+export {
   airDensity,
   equivalentWindSpeed,
   isaPressurePa,
