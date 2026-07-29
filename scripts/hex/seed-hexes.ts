@@ -272,18 +272,19 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Seed a single world-program country by name (exact Natural Earth boundary),
-  // e.g. `hex:seed -- --country Kenya`. Res 2–3 makes it appear on the map at
-  // normal zooms; the cron fills finer detail later. Uses improved-mode
-  // profiles like the rest of the map.
+  // Seed a single world-program country by name (exact Natural Earth boundary).
+  // `hex:seed -- --country Kenya` seeds res 2–3; an optional third arg picks a
+  // single resolution, e.g. `hex:seed -- --country Kenya 4` for finer detail.
+  // Uses improved-mode profiles like the rest of the map.
   if (regionArg === "--country") {
     const target = (resArg ?? "").toLowerCase();
+    const resList = process.argv[4] ? [Number(process.argv[4])] : [2, 3];
     const { loadWorldProgram } = await import("./worldProgram");
     const country = loadWorldProgram().find(
       (c) => c.name.toLowerCase() === target,
     );
     if (!country) throw new Error(`country not in world program: ${resArg}`);
-    for (const res of [2, 3]) {
+    for (const res of resList) {
       await seedCells(
         db,
         deps,
@@ -292,7 +293,7 @@ async function main(): Promise<void> {
         Number.POSITIVE_INFINITY,
       );
     }
-    console.log(`\nseeded ${country.name} at res 2–3`);
+    console.log(`\nseeded ${country.name} at res ${resList.join(", ")}`);
     return;
   }
 
