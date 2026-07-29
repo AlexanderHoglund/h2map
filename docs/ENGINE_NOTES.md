@@ -117,32 +117,33 @@ untouched (an `improved-*` golden set is added beside it).
   Kendall τ_b 0.986 (selection mostly rescales within wind regime). Re-fetch-
   bound, like #1.
 
-- **P0 #4 — unified PV pathway / seam removal** (profile layer;
-  `ProfileServiceDeps.pvUnifiedEra5`). PVGIS auto-resolves a regional satellite
-  radiation DB (SARAH/NSRDB); where that coverage ends the map fell back to a
-  categorically different crude GHI proxy, so adjacent hexes stopped being
-  comparable and a seam appeared. Unified mode pins `raddatabase=PVGIS-ERA5`
-  (global reanalysis) for every PV cell to erase the coverage-edge seam. Off by
-  default → reference chain (auto-resolve + crude fallback) and
-  the golden set are unchanged; ERA5 profiles carry a `pvgis-...-era5-` dataset
-  tag. Measured effect (`npm run rankdiff:pvseam`, 20-cell latitude-spread
-  sample): the interior satellite→ERA5 shift is small and rank-preserving
-  (best-layer +0.015 USD/kg mean, PV-layer +0.025; Spearman ρ 0.994 / Kendall
-  τ_b 0.974) — the point is to erase a discontinuity, not reorder. Notably PVGIS
-  auto-resolve already reaches ERA5 at ≥70° latitude (those cells are byte-for-
-  byte identical pinned vs auto), so the crude fallback rarely fires in current
-  data; its removal is mainly a consistency/robustness guarantee. Re-fetch-bound
-  like #1/#2.
-  **Revision (2026-07-29):** the original design masked as no-data where
-  ERA5 fails, but ERA5 has real coverage gaps — parts of Kenya (arid NE/E, coast)
-  return HTTP 500 persistently — so "ERA5-only" left permanent holes. The unified
-  chain now falls back gracefully: PVGIS-ERA5 → PVGIS auto-resolve (SARAH/NSRDB,
-  still the full PVGIS PV model) → crude Open-Meteo GHI proxy, last resort. A
-  small model seam at gap cells beats a hole; the succeeding provider is recorded
-  per cell (`provider` / `dataset_version`), so provenance stays honest.
-  **Follow-up (no rank effect):** the spec's per-cell provenance in the map
-  inspector (provider, radiation DB, turbine class, fallback used) needs the hex
-  schema + seeding + frontend; the data is already encoded in `datasetVersion`.
+- **P0 #4 — PV pathway / seam removal** (profile layer;
+  `ProfileServiceDeps.pvMaskUnservable`). PVGIS auto-resolves a per-cell
+  radiation DB (SARAH3/NSRDB satellite, its own tilt-aware PV model); where that
+  coverage ends the map fell back to a categorically different crude GHI proxy,
+  so adjacent hexes stopped being comparable and a seam appeared. Map/mask mode
+  removes the crude fallback: a cell PVGIS can't serve renders **no-data** rather
+  than a non-comparable value. Off by default → reference chain (auto-resolve +
+  crude fallback) that parity and the calculator use is unchanged.
+  **Correction (2026-07-29) — this reverses the original ERA5 pin.** The first
+  version of #4 pinned `raddatabase=PVGIS-ERA5` for one "consistent global"
+  model. That was wrong: the PVGIS-ERA5 endpoint is **broken** — it returns HTTP
+  500 for many cells and, where it does respond, ~3× too-low capacity factors
+  (Turkana-region cells came back at CF 0.037 vs a true ~0.20). It was the root
+  cause of Kenya's solar-layer speckle (adjacent hexes 6 vs 25 USD/kg). The
+  authoritative pathway is PVGIS **auto-resolve** (SARAH3/NSRDB), which returns
+  correct, tilt-aware profiles; auto-resolve still reaches ERA5 internally only
+  at high latitude where it is genuinely the best DB. So mask mode is now just
+  `[pvgis-auto] → mask`. Because improved-mode PV now auto-resolves to the same
+  DB as reference-mode PV, both build the same `dataset_version`; they coexist in
+  the cache only because `mode` is now part of the resource-profile unique key
+  (migration `20260729000001_resource_profiles_mode_unique`). The flag was
+  renamed `pvUnifiedEra5` → `pvMaskUnservable` to match. Re-fetch-bound like
+  #1/#2; broken ERA5 profiles must be purged and re-seeded (Kenya done first).
+  **Follow-up (T1.1, pending):** a profile-validation gate so a CF-0.037 profile
+  can never render as a colour again, and per-cell provenance (provider,
+  radiation DB, turbine class) in the map inspector — the data is already encoded
+  in `datasetVersion`.
 
 - **P0 #3 — stack life on EFLH + efficiency reset**
   (`stackLifeOnEquivalentFullLoadHours` + `resetEfficiencyOnStackReplacement`).

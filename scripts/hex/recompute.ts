@@ -45,7 +45,7 @@ async function main(): Promise<void> {
     // seeded cells).
     windAirDensityCorrection: true,
     windTurbineClassSelection: true,
-    pvUnifiedEra5: true,
+    pvMaskUnservable: true,
   };
 
   let from = 0;

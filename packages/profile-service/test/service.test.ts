@@ -210,27 +210,42 @@ describe("getResourceProfile", () => {
     expect(result.cf.every((v) => v === 0.45)).toBe(true);
   });
 
-  it("unified-ERA5 mode pins PVGIS to ERA5 and never uses the crude proxy", async () => {
+  it("mask mode serves auto-resolved PVGIS and never pins ERA5 or uses the crude proxy", async () => {
     const urls: string[] = [];
     const result = await getResourceProfile(
       { lat: 68.5, lon: 27.0, kind: "pv_fixed" },
       {
-        pvUnifiedEra5: true,
+        pvMaskUnservable: true,
         fetchJson: (url) => {
           urls.push(url);
           if (!url.includes("re.jrc.ec.europa.eu")) {
-            throw new Error("crude fallback must not exist in unified-ERA5 mode");
+            throw new Error("crude fallback must not exist in mask mode");
           }
-          return Promise.resolve({
-            inputs: { meteo_data: { radiation_db: "PVGIS-ERA5" } },
-            outputs: (pvgisResponse() as { outputs: unknown }).outputs,
-          });
+          return Promise.resolve(pvgisResponse());
         },
       },
     );
     expect(result.provider).toBe("pvgis-seriescalc");
-    expect(urls.every((u) => u.includes("raddatabase=PVGIS-ERA5"))).toBe(true);
-    expect(result.datasetVersion).toContain("pvgis-era5");
+    // Auto-resolve: PVGIS picks the DB, so we never send raddatabase=PVGIS-ERA5.
+    expect(urls.every((u) => !u.includes("raddatabase="))).toBe(true);
+    expect(result.datasetVersion).toContain("pvgis-sarah3");
+  });
+
+  it("mask mode holes out (no crude fallback) when PVGIS is down", async () => {
+    await expect(
+      getResourceProfile(
+        { lat: 0.26, lon: 39.93, kind: "pv_fixed" },
+        {
+          pvMaskUnservable: true,
+          fetchJson: (url) => {
+            if (url.includes("re.jrc.ec.europa.eu")) {
+              return Promise.reject(new Error("HTTP 500"));
+            }
+            throw new Error("crude fallback must not be reached in mask mode");
+          },
+        },
+      ),
+    ).rejects.toThrowError(ProfileServiceError);
   });
 
   it("tags profiles reference vs improved so both coexist per coordinate", async () => {
@@ -244,19 +259,22 @@ describe("getResourceProfile", () => {
       { lat: -24.2, lon: -69.1, kind: "pv_fixed" },
       { cache, fetchJson: () => Promise.resolve(pvgisWith("PVGIS-SARAH3")) },
     );
-    // Improved PV (pvUnifiedEra5): pinned ERA5, mode improved.
+    // Improved/mask PV (pvMaskUnservable): also auto-resolves — SAME DB and thus
+    // SAME dataset_version — but tagged mode improved.
     await getResourceProfile(
       { lat: -24.2, lon: -69.1, kind: "pv_fixed" },
       {
         cache,
-        pvUnifiedEra5: true,
-        fetchJson: () => Promise.resolve(pvgisWith("PVGIS-ERA5")),
+        pvMaskUnservable: true,
+        fetchJson: () => Promise.resolve(pvgisWith("PVGIS-SARAH3")),
       },
     );
     expect(cache.getModes).toEqual(["reference", "improved"]);
     expect(cache.rows.map((r) => r.mode)).toEqual(["reference", "improved"]);
-    // Distinct dataset versions → both rows survive in a real (unique-keyed) cache.
-    expect(new Set(cache.rows.map((r) => r.datasetVersion)).size).toBe(2);
+    // Same dataset_version now (both auto-resolve): the rows coexist only because
+    // `mode` is part of the cache unique key (migration
+    // 20260729000001_resource_profiles_mode_unique).
+    expect(new Set(cache.rows.map((r) => r.datasetVersion)).size).toBe(1);
   });
 
   it("wind improved flags don't mislabel a PV request's mode", async () => {
@@ -277,26 +295,6 @@ describe("getResourceProfile", () => {
     );
     expect(cache.getModes).toEqual(["reference"]);
     expect(cache.rows[0]!.mode).toBe("reference");
-  });
-
-  it("unified-ERA5 mode falls back through PVGIS auto-resolve then the crude proxy", async () => {
-    // ERA5 has real coverage gaps (some cells 500). PVGIS is down entirely here,
-    // so the chain should reach the Open-Meteo crude proxy rather than hole out.
-    const result = await getResourceProfile(
-      { lat: 0.26, lon: 39.93, kind: "pv_fixed" },
-      {
-        pvUnifiedEra5: true,
-        fetchJson: (url) => {
-          if (url.includes("re.jrc.ec.europa.eu")) {
-            return Promise.reject(new Error("HTTP 500"));
-          }
-          return Promise.resolve(openMeteoResponse(url));
-        },
-      },
-    );
-    expect(result.provider).toBe("open-meteo-crude");
-    // Still tagged improved so it lands on the improved map, not the reference one.
-    expect(result.datasetVersion).toContain("om-era5-ghi");
   });
 
   it("throws ProfileServiceError with per-provider causes when everything fails", async () => {

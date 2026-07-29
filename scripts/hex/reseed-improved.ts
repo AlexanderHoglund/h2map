@@ -2,7 +2,8 @@
  * Improved-profile re-seed — activation of P0 #1/#2/#4 on the live map.
  *
  * For each ready hex cell, fetch the IMPROVED resource profiles (air-density
- * corrected wind, IEC turbine-class selection, unified PVGIS-ERA5). They cache
+ * corrected wind, IEC turbine-class selection, auto-resolved PVGIS PV masked on
+ * failure — no crude fallback). They cache
  * under mode='improved' (see the profile MODE column), so they coexist with the
  * reference profiles the Chilean parity run validates against. Then recompute
  * the cell's map values — base + WACC (#5) + best-achievable (#6) — from the
@@ -45,10 +46,11 @@ async function main(): Promise<void> {
     cache: makeCache(db),
     getTurbineCurve: makeTurbineLoader(db),
     // The improved profile flags — these route reads/writes to mode='improved'
-    // and fetch density-corrected wind + IEC class curve + PVGIS-ERA5 PV.
+    // and fetch density-corrected wind + IEC class curve + auto-resolved PVGIS
+    // PV (masked, no crude fallback).
     windAirDensityCorrection: true,
     windTurbineClassSelection: true,
-    pvUnifiedEra5: true,
+    pvMaskUnservable: true,
     log: () => {},
   };
 

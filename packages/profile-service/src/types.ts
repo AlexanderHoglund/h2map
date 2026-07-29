@@ -126,12 +126,14 @@ export interface ProfileServiceDeps {
    */
   windTurbineClassSelection?: boolean;
   /**
-   * PV: pin PVGIS to the global ERA5 radiation DB and drop the crude proxy
-   * fallback (mask-as-no-data instead). One consistent PV model everywhere,
-   * removing the coverage-edge seam. Off by default → PVGIS auto-resolves the
-   * regional DB with the Open-Meteo crude proxy as fallback (reference behavior).
+   * PV: serve exclusively from auto-resolved PVGIS (SARAH3 / NSRDB / ERA5 as
+   * PVGIS itself chooses per cell) and drop the crude Open-Meteo GHI proxy — a
+   * cell PVGIS can't serve renders no-data instead of a differently-modelled,
+   * non-comparable value. One consistent, tilt-aware PV model everywhere with no
+   * coverage-edge seam. Off by default → PVGIS auto-resolves with the crude
+   * proxy as fallback (reference / calculator behavior).
    */
-  pvUnifiedEra5?: boolean;
+  pvMaskUnservable?: boolean;
 }
 
 /** Thrown when every provider in the fallback chain failed. */

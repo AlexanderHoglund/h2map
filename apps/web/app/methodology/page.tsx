@@ -130,17 +130,18 @@ export default function MethodologyPage() {
             low-fidelity fallback is used (GHI/1000 × 0.9).
           </li>
           <li>
-            <strong>Unified PV pathway (improved mode).</strong> PVGIS
-            auto-resolves a regional satellite radiation database (SARAH/NSRDB),
-            whose coverage ends near ±65° latitude — beyond which the crude GHI
-            proxy above is a categorically different model, so adjacent hexes
-            stop being comparable and a seam appears in the surface. The improved
-            path prefers <code>raddatabase=PVGIS-ERA5</code> (global reanalysis)
-            for one consistent model. ERA5 has real coverage gaps, though (some
-            cells error out), so it falls back gracefully — auto-resolved PVGIS
-            (SARAH/NSRDB satellite, still the full PVGIS PV model), then the crude
-            GHI proxy only as a last resort — rather than leaving a hole. A small
-            model seam at gap cells beats missing data; the provider used is
+            <strong>PV pathway on the map.</strong> PVGIS auto-resolves a
+            per-cell radiation database (SARAH3/NSRDB satellite, its own
+            tilt-aware PV model). Where that coverage ends, the crude GHI proxy
+            above is a categorically different model, so adjacent hexes stop being
+            comparable and a seam appears in the surface. On the map we therefore
+            drop the crude fallback for PV: a cell PVGIS cannot serve renders as
+            no-data rather than a non-comparable value. (An earlier version pinned{" "}
+            <code>raddatabase=PVGIS-ERA5</code> for a "consistent global" model,
+            but that endpoint is unreliable — frequent errors and materially
+            too-low capacity factors — so the map uses PVGIS auto-resolve, which
+            still reaches ERA5 internally only at high latitude where it is the
+            best available database.) The provider and radiation database used are
             recorded per cell.
           </li>
           <li>

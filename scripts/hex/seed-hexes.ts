@@ -213,7 +213,7 @@ interface Deps {
   // profile flags (mode='improved'); parity/calculator stay reference.
   windAirDensityCorrection: boolean;
   windTurbineClassSelection: boolean;
-  pvUnifiedEra5: boolean;
+  pvMaskUnservable: boolean;
 }
 
 async function main(): Promise<void> {
@@ -227,7 +227,7 @@ async function main(): Promise<void> {
     log: (m: string) => console.log(`    ${m}`),
     windAirDensityCorrection: true,
     windTurbineClassSelection: true,
-    pvUnifiedEra5: true,
+    pvMaskUnservable: true,
   };
 
   if (regionArg === "--auto") {

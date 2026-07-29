@@ -18,14 +18,14 @@ import { ProfileServiceError } from "./types";
 /**
  * Which cache mode a request resolves to. A profile is `improved` only when an
  * improved flag that actually affects THIS kind is set (wind: air-density /
- * turbine class; PV: unified ERA5), so a wind-only or PV-only improved request
+ * turbine class; PV: mask-unservable), so a wind-only or PV-only improved request
  * doesn't mislabel the other kind. Default off → `reference`, so parity and the
  * calculator (which set no improved flags) always read the reference profiles.
  */
 function profileMode(kind: ProfileKind, deps: ProfileServiceDeps): ProfileMode {
   const improved = kind.startsWith("wind")
     ? Boolean(deps.windAirDensityCorrection || deps.windTurbineClassSelection)
-    : Boolean(deps.pvUnifiedEra5);
+    : Boolean(deps.pvMaskUnservable);
   return improved ? "improved" : "reference";
 }
 
@@ -200,25 +200,19 @@ async function providerChain(
       },
     ];
   }
-  // Unified-radiation mode: prefer PVGIS-ERA5 (one global reanalysis DB) for a
-  // consistent model, but ERA5 has real coverage gaps (some cells 500), so fall
-  // back gracefully — auto-resolved PVGIS (SARAH/NSRDB satellite, still the full
-  // PVGIS PV model) fills those, then the crude Open-Meteo GHI proxy as a last
-  // resort. A small model seam at gap cells beats a permanent no-data hole; the
-  // succeeding provider is recorded per cell (provider / dataset_version).
-  if (deps.pvUnifiedEra5) {
+  // Map/mask mode: PV is served ONLY by auto-resolved PVGIS (its own choice of
+  // SARAH3 / NSRDB / ERA5 satellite DB per cell — one consistent, tilt-aware PV
+  // model everywhere). No crude Open-Meteo GHI fallback: a cell PVGIS can't
+  // serve renders no-data rather than a differently-modelled value that would
+  // sit as a non-comparable seam next to its neighbours. (Earlier this pinned
+  // raddatabase=PVGIS-ERA5, but that endpoint is broken — HTTP 500s and ~3×
+  // too-low capacity factors — and was the root cause of Kenya's speckle. The
+  // auto-resolve path reaches ERA5 only where it is genuinely the best DB.)
+  if (deps.pvMaskUnservable) {
     return [
-      {
-        name: "pvgis-era5",
-        run: () => fetchPvgisPv(deps.fetchJson, lat, lon, kind, "PVGIS-ERA5"),
-      },
       {
         name: "pvgis-auto",
         run: () => fetchPvgisPv(deps.fetchJson, lat, lon, kind),
-      },
-      {
-        name: "open-meteo-crude",
-        run: () => fetchOpenMeteoPvCrude(deps.fetchJson, lat, lon),
       },
     ];
   }

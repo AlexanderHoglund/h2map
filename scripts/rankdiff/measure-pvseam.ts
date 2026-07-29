@@ -1,13 +1,15 @@
 /**
- * P0 #4 rank measurement — the PVGIS/crude seam. Today PV is served by PVGIS's
- * auto-resolved regional satellite DB (SARAH/NSRDB), and where that coverage
- * ends the map falls back to a categorically different crude GHI proxy, leaving
- * a visible discontinuity. Unified mode pins PVGIS-ERA5 (global reanalysis)
- * everywhere and drops the crude fallback. This measures the change per cell:
- * for a latitude-spread sample it builds the current-pathway PV (auto PVGIS,
- * or crude where PVGIS fails) and the unified ERA5 PV directly, holds wind from
- * cache, and diffs LCOH — quantifying both the crude-seam heal (large, at the
- * coverage edge) and the satellite→reanalysis shift (small, smooth, interior).
+ * P0 #4 rank measurement — the PVGIS/crude seam. The reference pathway serves PV
+ * from PVGIS's auto-resolved DB (SARAH3/NSRDB) and, where PVGIS won't serve,
+ * falls back to a categorically different crude GHI proxy — a visible
+ * discontinuity. The map pathway drops that crude fallback and masks unservable
+ * cells as no-data instead (an earlier revision of #4 pinned PVGIS-ERA5, but
+ * that endpoint is broken; auto-resolve is authoritative). This measures the
+ * change per cell: for a latitude-spread sample it builds the reference PV (auto
+ * PVGIS, or crude where PVGIS fails) and the map PV (auto PVGIS, else masked),
+ * holds wind from cache, and diffs LCOH — quantifying the crude-seam removal
+ * (cells that lose their crude value to no-data) while auto-resolve cells are
+ * byte-identical (zero shift).
  *
  *   npm run rankdiff:pvseam
  */
@@ -95,10 +97,12 @@ async function main(): Promise<void> {
         refSrc = "crude";
       }
 
-      // Unified pathway: PVGIS-ERA5 everywhere; failure ⇒ masked no-data.
+      // Map pathway: auto-resolve only; failure ⇒ masked no-data (no crude).
+      // Auto-resolve cells are identical to the reference auto-resolve above, so
+      // their diff is zero by construction; only crude cells change (→ masked).
       let candPvCf: number[] | null;
       try {
-        candPvCf = tmyCf(await fetchPvgisPv(fetchJson, lat, lon, "pv_fixed", "PVGIS-ERA5"));
+        candPvCf = tmyCf(await fetchPvgisPv(fetchJson, lat, lon, "pv_fixed"));
       } catch {
         candPvCf = null;
         masked++;
@@ -131,12 +135,12 @@ async function main(): Promise<void> {
   const dPv = (r: (typeof paired)[number]) => (r.candPv as number) - (r.refPv as number);
 
   console.log("\n=== P0 #4 PVGIS/crude-seam rank measurement ===");
-  console.log(`sample: ${rows.length} cells · ${crude.length} were crude, ${pvgis.length} PVGIS-auto, ${masked} masked by ERA5`);
+  console.log(`sample: ${rows.length} cells · ${crude.length} were crude, ${pvgis.length} PVGIS-auto, ${masked} masked (no crude)`);
   console.log(
-    `crude-seam heal (best):  ${mean(crude, dBest)} USD/kg  (pv ${mean(crude, dPv)})  — categorical model swap`,
+    `crude-seam removal (best):  ${mean(crude, dBest)} USD/kg  (pv ${mean(crude, dPv)})  — crude value dropped to no-data`,
   );
   console.log(
-    `PVGIS satellite→ERA5 (best):  ${mean(pvgis, dBest)} USD/kg  (pv ${mean(pvgis, dPv)})  — smooth shift`,
+    `PVGIS auto-resolve (best):  ${mean(pvgis, dBest)} USD/kg  (pv ${mean(pvgis, dPv)})  — unchanged (same DB), expect ~0`,
   );
   const rb = paired.map((r) => r.refBest);
   const cb = paired.map((r) => r.candBest as number);

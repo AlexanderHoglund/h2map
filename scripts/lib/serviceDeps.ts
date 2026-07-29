@@ -133,7 +133,7 @@ export function makeCache(db: SupabaseClient): ProfileCache {
           years: `[${profile.yearsUsed[0]},${profile.yearsUsed[1]}]`,
           cf: profile.cf,
         },
-        { onConflict: "lat_r,lon_r,kind,dataset_version" },
+        { onConflict: "lat_r,lon_r,kind,mode,dataset_version" },
       );
       if (error) throw new Error(error.message);
     },
