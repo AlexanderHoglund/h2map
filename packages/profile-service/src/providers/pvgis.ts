@@ -26,12 +26,12 @@ const TRACKING_PARAM: Record<string, string> = {
  * one request (no startyear/endyear — coverage varies by radiation DB), keeps
  * the trailing complete years.
  *
- * `radDb` pins the radiation database (e.g. `PVGIS-ERA5`). Left undefined,
- * PVGIS auto-resolves to the best regional satellite DB (SARAH/NSRDB/…), whose
- * coverage ends at ~±65° latitude and specific longitude bands — beyond which
- * the map used a categorically different crude proxy, leaving a visible seam.
- * Pinning ERA5 (global reanalysis) gives one consistent PV model everywhere and
- * removes the seam; internal consistency beats per-cell accuracy for screening.
+ * `radDb` pins the radiation database. Leave it undefined: PVGIS auto-resolves
+ * to the best DB per cell (SARAH3/NSRDB satellite, reaching ERA5 only where it
+ * is genuinely best, e.g. high latitude) — this is the authoritative pathway.
+ * Do NOT pin `PVGIS-ERA5`: that endpoint is broken (HTTP 500s and ~3× too-low
+ * capacity factors) and was the root cause of the Kenya solar speckle. The
+ * parameter is retained only for diagnostics/comparison.
  */
 export async function fetchPvgisPv(
   fetchJson: FetchJson,
