@@ -137,7 +137,8 @@ export default function MethodologyPage() {
             comparable and a seam appears in the surface. On the map we therefore
             drop the crude fallback for PV: a cell PVGIS cannot serve renders as
             no-data rather than a non-comparable value. (An earlier version pinned{" "}
-            <code>raddatabase=PVGIS-ERA5</code> for a "consistent global" model,
+            <code>raddatabase=PVGIS-ERA5</code> for a &ldquo;consistent
+            global&rdquo; model,
             but that endpoint is unreliable — frequent errors and materially
             too-low capacity factors — so the map uses PVGIS auto-resolve, which
             still reaches ERA5 internally only at high latitude where it is the
