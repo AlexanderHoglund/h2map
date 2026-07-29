@@ -279,21 +279,24 @@ describe("getResourceProfile", () => {
     expect(cache.rows[0]!.mode).toBe("reference");
   });
 
-  it("unified-ERA5 mode masks as no-data when PVGIS fails (no crude fallback)", async () => {
-    await expect(
-      getResourceProfile(
-        { lat: 78.0, lon: 15.0, kind: "pv_fixed" },
-        {
-          pvUnifiedEra5: true,
-          fetchJson: (url) => {
-            if (url.includes("archive-api.open-meteo.com")) {
-              throw new Error("crude fallback must not be reached");
-            }
-            return Promise.reject(new Error("HTTP 400 out of coverage"));
-          },
+  it("unified-ERA5 mode falls back through PVGIS auto-resolve then the crude proxy", async () => {
+    // ERA5 has real coverage gaps (some cells 500). PVGIS is down entirely here,
+    // so the chain should reach the Open-Meteo crude proxy rather than hole out.
+    const result = await getResourceProfile(
+      { lat: 0.26, lon: 39.93, kind: "pv_fixed" },
+      {
+        pvUnifiedEra5: true,
+        fetchJson: (url) => {
+          if (url.includes("re.jrc.ec.europa.eu")) {
+            return Promise.reject(new Error("HTTP 500"));
+          }
+          return Promise.resolve(openMeteoResponse(url));
         },
-      ),
-    ).rejects.toThrow(ProfileServiceError);
+      },
+    );
+    expect(result.provider).toBe("open-meteo-crude");
+    // Still tagged improved so it lands on the improved map, not the reference one.
+    expect(result.datasetVersion).toContain("om-era5-ghi");
   });
 
   it("throws ProfileServiceError with per-provider causes when everything fails", async () => {

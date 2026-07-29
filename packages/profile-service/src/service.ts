@@ -200,15 +200,25 @@ async function providerChain(
       },
     ];
   }
-  // Unified-radiation mode: one global PVGIS pathway (ERA5 reanalysis) and no
-  // crude fallback — where PVGIS can't serve, the chain exhausts and the cell
-  // is masked as no-data rather than filled with a categorically different
-  // model. Removes both the coverage-edge seam and the crude-proxy seam.
+  // Unified-radiation mode: prefer PVGIS-ERA5 (one global reanalysis DB) for a
+  // consistent model, but ERA5 has real coverage gaps (some cells 500), so fall
+  // back gracefully — auto-resolved PVGIS (SARAH/NSRDB satellite, still the full
+  // PVGIS PV model) fills those, then the crude Open-Meteo GHI proxy as a last
+  // resort. A small model seam at gap cells beats a permanent no-data hole; the
+  // succeeding provider is recorded per cell (provider / dataset_version).
   if (deps.pvUnifiedEra5) {
     return [
       {
-        name: "pvgis-seriescalc",
+        name: "pvgis-era5",
         run: () => fetchPvgisPv(deps.fetchJson, lat, lon, kind, "PVGIS-ERA5"),
+      },
+      {
+        name: "pvgis-auto",
+        run: () => fetchPvgisPv(deps.fetchJson, lat, lon, kind),
+      },
+      {
+        name: "open-meteo-crude",
+        run: () => fetchOpenMeteoPvCrude(deps.fetchJson, lat, lon),
       },
     ];
   }
