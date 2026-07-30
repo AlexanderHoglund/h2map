@@ -47,3 +47,8 @@ export { parseRefBundle, refBundleSchema } from "./ref/bundle";
 export type { RefBundle, RefCountry, RefFuel, RefVesselType } from "./ref/bundle";
 export { getCountry, getFuel, getVesselType } from "./ref/accessors";
 export { resolveScenario, toSideInputs } from "./resolve";
+export {
+  getSynthesisBenchmark,
+  SYNTHESIS_BENCHMARKS,
+} from "./ref/synthesis";
+export type { SynthesisBenchmark, SynthesisConfig } from "./ref/synthesis";

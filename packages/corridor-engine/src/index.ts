@@ -30,6 +30,14 @@ export { etsCostUsdM } from "./regulation/ets";
 export { fuelEuCostUsdM } from "./regulation/fuelEu";
 export { ira45zCreditUsdM } from "./regulation/ira45z";
 export { selfDesignedCostUsdM } from "./regulation/selfDesigned";
+export { capitalRecoveryFactor, synthesize } from "./synthesis";
+export type { SynthesisBreakdown, SynthesisResult } from "./synthesis";
+export {
+  deliveredUsdPerTonne,
+  greatCircleKm,
+  logisticsUsdPerTonne,
+} from "./logistics";
+export type { LatLon, LogisticsConfig } from "./logistics";
 
 export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
   const ctx: EvalContext = {
