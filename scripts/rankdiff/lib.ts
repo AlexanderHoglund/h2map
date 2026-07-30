@@ -7,8 +7,6 @@
  * cells, per layer and per cost year.
  */
 
-import type { LCOHDecomposition } from "@h2map/lcoh-engine";
-
 export type Layer = "best" | "solar" | "wind";
 export const LAYERS: readonly Layer[] = ["best", "solar", "wind"];
 export const COST_YEARS = [2024, 2030, 2040, 2050] as const;
@@ -139,12 +137,6 @@ export interface LayerYearDiff {
   topDecileRetention: number;
   meanShift: number;
   meanShiftByBucket: Record<string, number>;
-  /**
-   * Task 0d — mean per-component delta (USD/kg) across the kept cells. A total
-   * that barely moves can hide components that moved and cancelled; this is
-   * the field that catches it.
-   */
-  meanComponentShift?: Record<string, number>;
   largestMovers: {
     h3: string;
     lat: number;
@@ -154,20 +146,8 @@ export interface LayerYearDiff {
     baseline: number;
     candidate: number;
     delta: number;
-    /** Task 0d — per-component delta for this mover (all components). */
-    componentDeltas?: Record<string, number>;
   }[];
 }
-
-const COMPONENT_KEYS = [
-  "electricityPv",
-  "electricityWind",
-  "electricityGrid",
-  "electrolyzerCapex",
-  "stackReplacements",
-  "electrolyzerOpex",
-  "water",
-] as const satisfies readonly (keyof LCOHDecomposition)[];
 
 export function diffLayerYear(
   cells: BenchCell[],
@@ -175,8 +155,6 @@ export function diffLayerYear(
   candidate: number[],
   layer: Layer,
   year: number,
-  baselineComponents?: (LCOHDecomposition | null)[],
-  candidateComponents?: (LCOHDecomposition | null)[],
 ): LayerYearDiff {
   const n = baseline.length;
   const k50 = Math.min(50, n);
@@ -201,31 +179,6 @@ export function diffLayerYear(
     meanShiftByBucket[b] = round(mean(xs), 4);
   }
 
-  // Task 0d — component deltas where BOTH sides carry a decomposition.
-  const componentDelta = (i: number): Record<string, number> | undefined => {
-    const b = baselineComponents?.[i];
-    const c = candidateComponents?.[i];
-    if (!b || !c) return undefined;
-    const out: Record<string, number> = {};
-    for (const k of COMPONENT_KEYS) out[k] = round(c[k] - b[k], 4);
-    return out;
-  };
-  let meanComponentShift: Record<string, number> | undefined;
-  if (baselineComponents && candidateComponents) {
-    const sums: Record<string, number> = {};
-    let m = 0;
-    for (let i = 0; i < n; i++) {
-      const d = componentDelta(i);
-      if (!d) continue;
-      m++;
-      for (const k of COMPONENT_KEYS) sums[k] = (sums[k] ?? 0) + d[k]!;
-    }
-    if (m > 0) {
-      meanComponentShift = {};
-      for (const k of COMPONENT_KEYS) meanComponentShift[k] = round((sums[k] ?? 0) / m, 4);
-    }
-  }
-
   const movers = deltas
     .map((delta, i) => ({ i, delta }))
     .sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta))
@@ -239,7 +192,6 @@ export function diffLayerYear(
       baseline: round(baseline[i]!, 3),
       candidate: round(candidate[i]!, 3),
       delta: round(delta, 3),
-      ...(componentDelta(i) ? { componentDeltas: componentDelta(i) } : {}),
     }));
 
   return {
@@ -252,23 +204,8 @@ export function diffLayerYear(
     topDecileRetention: round(retained / kDecile, 4),
     meanShift: round(mean(deltas), 4),
     meanShiftByBucket,
-    ...(meanComponentShift ? { meanComponentShift } : {}),
     largestMovers: movers,
   };
-}
-
-/** The top-`k` components of a mover's delta by |Δ|, formatted for report.md. */
-export function topComponents(
-  componentDeltas: Record<string, number> | undefined,
-  k = 2,
-): string {
-  if (!componentDeltas) return "";
-  const top = Object.entries(componentDeltas)
-    .filter(([, v]) => v !== 0)
-    .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
-    .slice(0, k)
-    .map(([key, v]) => `${key} ${v >= 0 ? "+" : ""}${v}`);
-  return top.length ? `  [${top.join(", ")}]` : "";
 }
 
 export function round(x: number, digits: number): number {

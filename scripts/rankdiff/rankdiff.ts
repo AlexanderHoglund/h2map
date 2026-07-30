@@ -2,26 +2,17 @@
  * Rank-diff harness (spec Task 0) — the instrument that makes every model
  * change measurable on rank fidelity before it is merged.
  *
- *   npm run rankdiff -- benchmark          # select + persist ~500 stratified cells
- *   npm run rankdiff -- snapshot           # baseline LCOH + rank per layer/year
- *   npm run rankdiff -- rebaseline [tag]   # archive current baseline, take fresh
- *   npm run rankdiff -- report [baseline]  # diff current model vs baseline
+ *   npm run rankdiff -- benchmark   # select + persist ~500 stratified cells
+ *   npm run rankdiff -- snapshot    # baseline LCOH + rank per layer/year
+ *   npm run rankdiff -- report      # diff current model vs baseline
  *
  * All computation runs from CACHED resource profiles (no provider calls), so
  * a report reflects only the model/config change under test. When a P0/P1
  * change lands behind its flag, run `report` with that flag on (via the
  * change's own env/config) to see its effect on the benchmark.
- *
- * Baselines are per mode: RANKDIFF_MODE=improved (the live map's flag set)
- * reads/writes `baseline-improved.json`; the default reference model uses
- * `baseline.json`. `snapshot` refuses to overwrite an existing baseline —
- * an intentional friction, because silently replacing the yardstick is how
- * the pre-Tier-1 contaminated baseline went unnoticed; use `rebaseline`,
- * which archives the old file first (never deletes).
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cellToLatLng } from "h3-js";
-import type { LCOHDecomposition } from "@h2map/lcoh-engine";
 import { getResourceProfile } from "@h2map/profile-service";
 import { IMPROVED_FLAGS, mapSweepAllYears } from "../lib/lcohSweep";
 import {
@@ -37,47 +28,24 @@ import {
   diffLayerYear,
   LAYERS,
   round,
-  topComponents,
   type BenchCell,
   type Layer,
 } from "./lib";
 
 const DIR = `${ROOT}data/rankdiff`;
 const BENCH = `${DIR}/benchmark.json`;
+const BASELINE = `${DIR}/baseline.json`;
 const TARGET = 500;
 const PER_BUCKET_CAP = 110; // keep any one geography from dominating
-
-/** Snapshot schema. v2 (Task 0d) added the per-component matrix. */
-const SCHEMA_VERSION = 2;
-
-type RankdiffMode = "reference" | "improved";
-
-function currentMode(): RankdiffMode {
-  return process.env.RANKDIFF_MODE === "improved" ? "improved" : "reference";
-}
-
-/** Baselines are mode-keyed so reference and improved never overwrite each other. */
-function baselinePath(mode: RankdiffMode): string {
-  return mode === "improved" ? `${DIR}/baseline-improved.json` : `${DIR}/baseline.json`;
-}
 
 type Vec = (number | null)[]; // per benchmark cell
 /** matrix[layer][year] = value per cell */
 type Matrix = Record<Layer, Record<number, Vec>>;
-type CompVec = (LCOHDecomposition | null)[];
-/** components[layer][year] = decomposition per cell (parallel to matrix). */
-type CompMatrix = Record<Layer, Record<number, CompVec>>;
 
 interface Snapshot {
-  schemaVersion?: number;
   computedAt: string;
-  /** Which flag set built this snapshot (see RANKDIFF_MODE). */
-  mode?: RankdiffMode;
-  /** Human label for why this baseline was taken (e.g. "post-tier1"). */
-  tag?: string;
   order: string[]; // h3 in benchmark order
   matrix: Matrix;
-  components?: CompMatrix;
 }
 
 function delayless() {
@@ -168,27 +136,7 @@ function loadBenchmark(): BenchCell[] {
   return (JSON.parse(readFileSync(BENCH, "utf8")) as { cells: BenchCell[] }).cells;
 }
 
-function emptyMatrix<T>(): Record<Layer, Record<number, (T | null)[]>> {
-  return {
-    best: Object.fromEntries(COST_YEARS.map((y) => [y, []])) as Record<number, (T | null)[]>,
-    solar: Object.fromEntries(COST_YEARS.map((y) => [y, []])) as Record<number, (T | null)[]>,
-    wind: Object.fromEntries(COST_YEARS.map((y) => [y, []])) as Record<number, (T | null)[]>,
-  };
-}
-
-/** Self-check: the plumbed decomposition must sum back to the total. */
-function assertComponentsSum(lcoh: number, comp: LCOHDecomposition, where: string): void {
-  const sum = Object.values(comp).reduce((a, b) => a + b, 0);
-  if (Math.abs(sum - lcoh) > 1e-9) {
-    throw new Error(
-      `component sum ${sum} != lcoh ${lcoh} at ${where} — harness plumbing bug`,
-    );
-  }
-}
-
-async function compute(
-  cells: BenchCell[],
-): Promise<{ matrix: Matrix; components: CompMatrix }> {
+async function compute(cells: BenchCell[]): Promise<Matrix> {
   // RANKDIFF_MODE=improved runs the accumulated improved-mode flag set so a
   // report quantifies its rank effect; default is the reference model.
   const flags = process.env.RANKDIFF_MODE === "improved" ? IMPROVED_FLAGS : {};
@@ -198,8 +146,11 @@ async function compute(
     cache: makeCache(db),
     getTurbineCurve: makeTurbineLoader(db),
   };
-  const matrix = emptyMatrix<number>() as Matrix;
-  const components = emptyMatrix<LCOHDecomposition>() as CompMatrix;
+  const matrix: Matrix = {
+    best: Object.fromEntries(COST_YEARS.map((y) => [y, [] as Vec])) as Record<number, Vec>,
+    solar: Object.fromEntries(COST_YEARS.map((y) => [y, [] as Vec])) as Record<number, Vec>,
+    wind: Object.fromEntries(COST_YEARS.map((y) => [y, [] as Vec])) as Record<number, Vec>,
+  };
   let done = 0;
   for (const cell of cells) {
     const [lat, lon] = cellToLatLng(cell.h3);
@@ -216,99 +167,38 @@ async function compute(
       matrix.best[y]!.push(t ? t.best : null);
       matrix.solar[y]!.push(t ? t.solar : null);
       matrix.wind[y]!.push(t ? t.wind : null);
-      const comp = t?.components;
-      if (comp) {
-        assertComponentsSum(t.best, comp.best, `${cell.h3} best ${y}`);
-        if (t.solar !== null && comp.solar) assertComponentsSum(t.solar, comp.solar, `${cell.h3} solar ${y}`);
-        if (t.wind !== null && comp.wind) assertComponentsSum(t.wind, comp.wind, `${cell.h3} wind ${y}`);
-      }
-      components.best[y]!.push(comp?.best ?? null);
-      components.solar[y]!.push(comp?.solar ?? null);
-      components.wind[y]!.push(comp?.wind ?? null);
     }
     if (++done % 100 === 0) process.stdout.write(`  computed ${done}/${cells.length}\r`);
   }
   console.log("");
-  return { matrix, components };
-}
-
-async function takeBaseline(tag?: string): Promise<void> {
-  const mode = currentMode();
-  const cells = loadBenchmark();
-  const { matrix, components } = await compute(cells);
-  const snap: Snapshot = {
-    schemaVersion: SCHEMA_VERSION,
-    computedAt: new Date().toISOString(),
-    mode,
-    ...(tag ? { tag } : {}),
-    order: cells.map((c) => c.h3),
-    matrix,
-    components,
-  };
-  writeFileSync(baselinePath(mode), JSON.stringify(snap) + "\n");
-  console.log(
-    `${mode} baseline written for ${cells.length} cells (schema v${SCHEMA_VERSION}${tag ? `, tag ${tag}` : ""})`,
-  );
+  return matrix;
 }
 
 async function snapshot(): Promise<void> {
-  const mode = currentMode();
-  if (existsSync(baselinePath(mode))) {
-    throw new Error(
-      `a ${mode} baseline already exists — replacing the yardstick must be deliberate; use: npm run rankdiff -- rebaseline [tag]`,
-    );
-  }
-  await takeBaseline();
-}
-
-/** Archive the current mode's baseline (never delete), then take a fresh one. */
-async function rebaseline(tag?: string): Promise<void> {
-  const mode = currentMode();
-  const path = baselinePath(mode);
-  if (existsSync(path)) {
-    const old = JSON.parse(readFileSync(path, "utf8")) as Snapshot;
-    const stamp = (old.computedAt ?? "unknown").slice(0, 10);
-    const archive = `${DIR}/baseline-${mode}-${stamp}${old.tag ? `-${old.tag}` : ""}-retired.json`;
-    writeFileSync(archive, JSON.stringify(old) + "\n");
-    console.log(`archived old ${mode} baseline → ${archive}`);
-  }
-  await takeBaseline(tag);
-}
-
-async function report(baselineFile?: string): Promise<void> {
-  const mode = currentMode();
   const cells = loadBenchmark();
-  const path = baselineFile ?? baselinePath(mode);
-  if (!existsSync(path)) {
-    throw new Error(`no ${mode} baseline at ${path} — run: npm run rankdiff -- snapshot`);
-  }
-  const base = JSON.parse(readFileSync(path, "utf8")) as Snapshot;
-  if ((base.schemaVersion ?? 1) < SCHEMA_VERSION) {
-    throw new Error(
-      `baseline is schema v${base.schemaVersion ?? 1} (pre-component capture) — retire it: npm run rankdiff -- rebaseline`,
-    );
-  }
-  if (base.mode && base.mode !== mode) {
-    console.warn(
-      `WARNING: baseline was built in ${base.mode} mode but this report runs ${mode} — deltas will mix model differences with mode differences`,
-    );
-  }
+  const matrix = await compute(cells);
+  const snap: Snapshot = {
+    computedAt: new Date().toISOString(),
+    order: cells.map((c) => c.h3),
+    matrix,
+  };
+  writeFileSync(BASELINE, JSON.stringify(snap) + "\n");
+  console.log(`baseline written for ${cells.length} cells`);
+}
+
+async function report(): Promise<void> {
+  const cells = loadBenchmark();
+  if (!existsSync(BASELINE)) throw new Error(`no baseline — run: npm run rankdiff -- snapshot`);
+  const base = JSON.parse(readFileSync(BASELINE, "utf8")) as Snapshot;
   const cand = await compute(cells);
 
-  const lines: string[] = [
-    "# Rank-diff report",
-    "",
-    `Benchmark: ${cells.length} cells · mode ${mode} · baseline ${base.computedAt}${base.tag ? ` (${base.tag})` : ""}`,
-    "",
-  ];
+  const lines: string[] = ["# Rank-diff report", "", `Benchmark: ${cells.length} cells · baseline ${base.computedAt}`, ""];
   const json: Record<string, unknown>[] = [];
 
   for (const layer of LAYERS) {
     for (const y of COST_YEARS) {
       const b = base.matrix[layer][y]!;
-      const c = cand.matrix[layer][y]!;
-      const bComp = base.components?.[layer][y];
-      const cComp = cand.components[layer][y]!;
+      const c = cand[layer][y]!;
       // keep cells where both are finite
       const keep: number[] = [];
       for (let i = 0; i < cells.length; i++) {
@@ -318,15 +208,7 @@ async function report(baselineFile?: string): Promise<void> {
       const subCells = keep.map((i) => cells[i]!);
       const bl = keep.map((i) => b[i] as number);
       const cl = keep.map((i) => c[i] as number);
-      const d = diffLayerYear(
-        subCells,
-        bl,
-        cl,
-        layer,
-        y,
-        bComp ? keep.map((i) => bComp[i] ?? null) : undefined,
-        keep.map((i) => cComp[i] ?? null),
-      );
+      const d = diffLayerYear(subCells, bl, cl, layer, y);
       json.push(d as unknown as Record<string, unknown>);
       lines.push(
         `## ${layer} · ${y}  (n=${d.n})`,
@@ -335,20 +217,10 @@ async function report(baselineFile?: string): Promise<void> {
         `- top-50 churn ${(d.top50Churn * 100).toFixed(1)}% · top-decile retention ${(d.topDecileRetention * 100).toFixed(1)}%`,
         `- mean shift ${d.meanShift} USD/kg · by bucket ${JSON.stringify(d.meanShiftByBucket)}`,
       );
-      if (d.meanComponentShift) {
-        const nonZero = Object.entries(d.meanComponentShift).filter(([, v]) => v !== 0);
-        if (nonZero.length > 0) {
-          lines.push(
-            `- mean component shift: ${nonZero.map(([k, v]) => `${k} ${v >= 0 ? "+" : ""}${v}`).join(" · ")}`,
-          );
-        }
-      }
       if (Math.abs(d.top50Churn) > 0 || Math.abs(d.meanShift) > 1e-9) {
         lines.push("- largest movers:");
         for (const m of d.largestMovers.slice(0, 8)) {
-          lines.push(
-            `    ${m.h3} (${m.lat}, ${m.lon}) ${m.elevationM}m ${m.bucket}: ${m.baseline} → ${m.candidate} (${m.delta >= 0 ? "+" : ""}${m.delta})${topComponents(m.componentDeltas)}`,
-          );
+          lines.push(`    ${m.h3} (${m.lat}, ${m.lon}) ${m.elevationM}m ${m.bucket}: ${m.baseline} → ${m.candidate} (${m.delta >= 0 ? "+" : ""}${m.delta})`);
         }
       }
       lines.push("");
@@ -371,10 +243,9 @@ async function main(): Promise<void> {
   const cmd = process.argv[2];
   if (cmd === "benchmark") await buildBenchmark();
   else if (cmd === "snapshot") await snapshot();
-  else if (cmd === "rebaseline") await rebaseline(process.argv[3]);
-  else if (cmd === "report") await report(process.argv[3]);
+  else if (cmd === "report") await report();
   else {
-    console.error("usage: npm run rankdiff -- <benchmark|snapshot|rebaseline [tag]|report [baselineFile]>");
+    console.error("usage: npm run rankdiff -- <benchmark|snapshot|report>");
     process.exitCode = 1;
   }
 }

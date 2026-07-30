@@ -78,33 +78,6 @@ better screening rank-fidelity. All flags default off, so reference mode and
 the Chilean parity run are unaffected, and the reference golden set is
 untouched (an `improved-*` golden set is added beside it).
 
-**Task 0 — rank-diff harness** (`scripts/rankdiff`, `npm run rankdiff --
-benchmark|snapshot|report`): 500 stratified benchmark cells (6 geography
-buckets, elevation-tagged, persisted) diffed per layer × cost-year with
-Kendall τ_b / Spearman ρ / top-50 churn / top-decile retention / 20 largest
-movers / bucket mean shifts. **Snapshot schema v2** additionally captures the
-engine's per-component LCOH decomposition (electricity PV/wind/grid,
-electrolyzer CAPEX, stack replacements, OPEX, water — sums exactly to LCOH,
-self-checked at 1e-9) plus full-load hours per layer, and reports **mean
-component shift** and per-mover component deltas. Rationale: a Kenya run once
-agreed with the Müller benchmark on *total* LCOH while three components were
-individually wrong and nearly cancelled (cheap wind −0.94, inflated stack
-+0.52, low FLH +0.30) — total-only reporting would have passed it. `report`
-refuses a v1 (component-less) baseline.
-Baselines are **mode-keyed** (`baseline.json` reference / `baseline-improved.json`
-improved, auto-selected via `RANKDIFF_MODE`) and replaced only through
-`rebaseline [tag]`, which archives the old file first — `snapshot` refuses to
-overwrite. The original 2026-07-25 baseline was **retired 2026-07-30**
-(archived as `baseline-reference-2026-07-25-retired.json`): it predated Tier 1
-(no validation gate, broken PVGIS-ERA5 PV in cache, pre-Kenya-reseed) and so
-contained non-physical capacity factors. Both current baselines are tagged
-`post-tier1`; the identity report after re-baselining (τ_b = 1, all deltas 0)
-is the self-consistency proof.
-CI: `.github/workflows/rankdiff.yml` runs the report weekly (+ on demand with a
-mode input) and uploads `report.{md,json}` as an artifact / step summary — the
-weekly run doubles as cache-drift detection (τ_b < 1 with no model change means
-the cron re-seeds moved cached profiles under the committed baseline).
-
 - **P0 #1 — air-density correction for wind** (profile layer;
   `ProfileServiceDeps.windAirDensityCorrection`). A turbine power curve is
   defined at sea-level density ρ₀ = 1.225 kg/m³; the reference profiles ignore
