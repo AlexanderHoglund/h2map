@@ -22,3 +22,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run test
+      # The corridor golden gate (build-plan Phase 0). Redundant with the
+      # workspace test fan-out above, but a named step so an Excel-reproduction
+      # failure is visible as its own line, per the plan's `test:golden` gate.
+      - run: npm run test:golden

@@ -11,6 +11,7 @@
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p scripts/tsconfig.json",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
+    "test:golden": "npm run test:golden -w @h2map/corridor-engine",
     "spike:fetch": "tsx scripts/providers/fetch-all.ts",
     "spike:compare": "tsx scripts/providers/compare.ts",
     "parity:run": "tsx scripts/parity/run-parity.ts",
