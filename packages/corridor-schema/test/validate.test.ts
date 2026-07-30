@@ -1,0 +1,44 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import { parseRefBundle } from "../src/ref/bundle";
+import { parseScenarioInput } from "../src/validate";
+
+const load = (rel: string): unknown =>
+  JSON.parse(readFileSync(new URL(rel, import.meta.url), "utf8"));
+
+describe("scenarioInputSchema", () => {
+  it("accepts the golden fixture input", () => {
+    const parsed = parseScenarioInput(
+      load("../../../fixtures/golden/corridor/excel-baseline.input.json"),
+    );
+    expect(parsed.cargo.horizonYears).toBe(20);
+    expect(parsed.green.sourcing).toBe("construct");
+  });
+
+  it("rejects horizon beyond the workbook's 40-year max", () => {
+    const bad = load(
+      "../../../fixtures/golden/corridor/excel-baseline.input.json",
+    ) as { cargo: { horizonYears: number } };
+    bad.cargo.horizonYears = 41;
+    expect(() => parseScenarioInput(bad)).toThrowError();
+  });
+
+  it("rejects an unknown sourcing mode", () => {
+    const bad = load(
+      "../../../fixtures/golden/corridor/excel-baseline.input.json",
+    ) as { green: { sourcing: string } };
+    bad.green.sourcing = "lease";
+    expect(() => parseScenarioInput(bad)).toThrowError();
+  });
+});
+
+describe("refBundleSchema", () => {
+  it("accepts the committed bundle", () => {
+    const bundle = parseRefBundle(load("../../../data/corridor-ref/2026-07-30-excel-v1.json"));
+    expect(bundle.vesselTypes).toHaveLength(6);
+    expect(bundle.fuels).toHaveLength(6);
+    expect(bundle.countries).toHaveLength(7);
+    expect(bundle.countries.every((c) => c.verified === false)).toBe(true);
+    expect(bundle.schedules.fuelEuTargets.at(-1)).toEqual({ fromCalendarYear: 2050, value: 0.8 });
+  });
+});
