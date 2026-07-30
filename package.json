@@ -18,6 +18,7 @@
     "hex:seed": "tsx scripts/hex/seed-hexes.ts",
     "hex:recompute": "tsx scripts/hex/recompute.ts",
     "hex:reseed-improved": "tsx scripts/hex/reseed-improved.ts",
+    "hex:recover-solar": "tsx scripts/hex/recover-solar.ts",
     "defaults:ingest": "tsx scripts/defaults/ingest-defaults.ts",
     "rankdiff": "tsx scripts/rankdiff/rankdiff.ts",
     "rankdiff:airdensity": "tsx scripts/rankdiff/measure-airdensity.ts",

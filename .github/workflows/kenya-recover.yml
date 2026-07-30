@@ -2,14 +2,15 @@ name: kenya-recover
 
 # Temporary recovery workflow (remove once Kenya is fully re-seeded).
 #
-# The Kenya PV data-fault fix (auto-resolve + T1.1 gate) landed during a
-# persistent PVGIS regional 500 outage, so a batch of Kenya cells are masked
-# (wind-only) or failed pending real SARAH3 data. This workflow watches for
-# PVGIS to recover and then does a clean forced re-seed of Kenya at res 2/3/4.
-# SEED_FORCE reprocesses ready cells; cells whose PV is already cached are cache
-# hits (no PVGIS call), so once recovered this converges to near-no-op.
+# The Kenya PV data-fault fix (auto-resolve + T1.1 gate) landed during an
+# intermittent PVGIS regional 500 outage, so a batch of Kenya cells lack solar
+# (masked wind-only, or failed) pending real SARAH3 data. This workflow watches
+# for PVGIS to be broadly up, then runs a TARGETED recovery that only reprocesses
+# cells lacking solar — so it can only upgrade them, never degrade a cell that
+# already has good solar (which a blunt SEED_FORCE re-seed does when PVGIS is
+# flaky). Converges to no-op once every servable cell has solar.
 #
-# Gated on a canary health probe so it never hammers PVGIS while it is down.
+# Gated on a 6/8-canary health probe so it never grinds while PVGIS is down.
 
 on:
   schedule:
@@ -34,24 +35,9 @@ jobs:
       - name: Probe PVGIS health
         id: health
         run: npx tsx scripts/hex/pvgis-health.ts
-      - name: Re-seed Kenya res 2 (only when PVGIS is healthy)
+      - name: Recover Kenya solar (targeted — only cells lacking solar)
         if: steps.health.outputs.healthy == 'true'
-        run: npm run hex:seed -- --country Kenya 2
+        run: npm run hex:recover-solar
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          SEED_FORCE: "1"
-      - name: Re-seed Kenya res 3
-        if: steps.health.outputs.healthy == 'true'
-        run: npm run hex:seed -- --country Kenya 3
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          SEED_FORCE: "1"
-      - name: Re-seed Kenya res 4
-        if: steps.health.outputs.healthy == 'true'
-        run: npm run hex:seed -- --country Kenya 4
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          SEED_FORCE: "1"
