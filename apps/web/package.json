@@ -14,6 +14,8 @@
     "@deck.gl/geo-layers": "^9.3.7",
     "@deck.gl/layers": "^9.3.7",
     "@deck.gl/mapbox": "^9.3.7",
+    "@h2map/corridor-engine": "*",
+    "@h2map/corridor-schema": "*",
     "@h2map/lcoh-engine": "*",
     "@h2map/profile-service": "*",
     "@hookform/resolvers": "^5.4.0",

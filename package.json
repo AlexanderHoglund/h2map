@@ -12,6 +12,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:golden": "npm run test:golden -w @h2map/corridor-engine",
+    "corridor:smoke": "tsx scripts/corridor/smoke-phase2.ts",
     "spike:fetch": "tsx scripts/providers/fetch-all.ts",
     "spike:compare": "tsx scripts/providers/compare.ts",
     "parity:run": "tsx scripts/parity/run-parity.ts",

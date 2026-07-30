@@ -101,6 +101,200 @@ export type Database = {
         }
         Relationships: []
       }
+      ref_bundles: {
+        Row: {
+          bundle_id: string
+          created_at: string
+          schema_version: number
+          source: Json
+        }
+        Insert: {
+          bundle_id: string
+          created_at?: string
+          schema_version: number
+          source: Json
+        }
+        Update: {
+          bundle_id?: string
+          created_at?: string
+          schema_version?: number
+          source?: Json
+        }
+        Relationships: []
+      }
+      ref_countries: {
+        Row: {
+          bundle_id: string
+          id: string
+          label: string
+          source_note: string
+          verified: boolean
+          wacc: number
+        }
+        Insert: {
+          bundle_id: string
+          id: string
+          label: string
+          source_note: string
+          verified: boolean
+          wacc: number
+        }
+        Update: {
+          bundle_id?: string
+          id?: string
+          label?: string
+          source_note?: string
+          verified?: boolean
+          wacc?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ref_countries_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "ref_bundles"
+            referencedColumns: ["bundle_id"]
+          },
+        ]
+      }
+      ref_fuels: {
+        Row: {
+          barge_capex_usd_m: number
+          barge_opex_usd_m_per_year: number
+          bundle_id: string
+          combustion_ef_tco2_per_tonne: number
+          id: string
+          label: string
+          lhv_mj_per_tonne: number
+          port_storage_capex_usd_m: number
+          port_storage_opex_usd_m_per_year: number
+          price_usd_per_tonne: number
+          prod_capex_usd_m: number
+          prod_opex_usd_m_per_year: number
+          source_note: string
+          verified: boolean
+          vessel_capex_premium: number
+          wtw_gco2_per_mj: number
+        }
+        Insert: {
+          barge_capex_usd_m: number
+          barge_opex_usd_m_per_year: number
+          bundle_id: string
+          combustion_ef_tco2_per_tonne: number
+          id: string
+          label: string
+          lhv_mj_per_tonne: number
+          port_storage_capex_usd_m: number
+          port_storage_opex_usd_m_per_year: number
+          price_usd_per_tonne: number
+          prod_capex_usd_m: number
+          prod_opex_usd_m_per_year: number
+          source_note: string
+          verified: boolean
+          vessel_capex_premium: number
+          wtw_gco2_per_mj: number
+        }
+        Update: {
+          barge_capex_usd_m?: number
+          barge_opex_usd_m_per_year?: number
+          bundle_id?: string
+          combustion_ef_tco2_per_tonne?: number
+          id?: string
+          label?: string
+          lhv_mj_per_tonne?: number
+          port_storage_capex_usd_m?: number
+          port_storage_opex_usd_m_per_year?: number
+          price_usd_per_tonne?: number
+          prod_capex_usd_m?: number
+          prod_opex_usd_m_per_year?: number
+          source_note?: string
+          verified?: boolean
+          vessel_capex_premium?: number
+          wtw_gco2_per_mj?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ref_fuels_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "ref_bundles"
+            referencedColumns: ["bundle_id"]
+          },
+        ]
+      }
+      ref_regulation_schedules: {
+        Row: {
+          bundle_id: string
+          from_calendar_year: number
+          schedule_id: string
+          value: number
+        }
+        Insert: {
+          bundle_id: string
+          from_calendar_year: number
+          schedule_id: string
+          value: number
+        }
+        Update: {
+          bundle_id?: string
+          from_calendar_year?: number
+          schedule_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ref_regulation_schedules_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "ref_bundles"
+            referencedColumns: ["bundle_id"]
+          },
+        ]
+      }
+      ref_vessel_types: {
+        Row: {
+          bundle_id: string
+          capex_usd_m: number
+          fuel_tonnes_per_year: number
+          gj_per_nm: number
+          id: string
+          label: string
+          opex_usd_m_per_year: number
+          source_note: string
+          verified: boolean
+        }
+        Insert: {
+          bundle_id: string
+          capex_usd_m: number
+          fuel_tonnes_per_year: number
+          gj_per_nm: number
+          id: string
+          label: string
+          opex_usd_m_per_year: number
+          source_note: string
+          verified: boolean
+        }
+        Update: {
+          bundle_id?: string
+          capex_usd_m?: number
+          fuel_tonnes_per_year?: number
+          gj_per_nm?: number
+          id?: string
+          label?: string
+          opex_usd_m_per_year?: number
+          source_note?: string
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ref_vessel_types_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "ref_bundles"
+            referencedColumns: ["bundle_id"]
+          },
+        ]
+      }
       resource_profiles: {
         Row: {
           cf: number[]
@@ -143,34 +337,46 @@ export type Database = {
       scenarios: {
         Row: {
           created_at: string
+          engine_version: string | null
           id: string
           inputs: Json
+          kind: string
           name: string
           owner: string | null
           profile_hashes: Json | null
+          ref_bundle_version: string | null
           results: Json | null
+          schema_version: number | null
           share_token: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          engine_version?: string | null
           id?: string
           inputs: Json
+          kind?: string
           name: string
           owner?: string | null
           profile_hashes?: Json | null
+          ref_bundle_version?: string | null
           results?: Json | null
+          schema_version?: number | null
           share_token?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          engine_version?: string | null
           id?: string
           inputs?: Json
+          kind?: string
           name?: string
           owner?: string | null
           profile_hashes?: Json | null
+          ref_bundle_version?: string | null
           results?: Json | null
+          schema_version?: number | null
           share_token?: string | null
           updated_at?: string
         }
@@ -240,12 +446,16 @@ export type Database = {
         Args: { p_token: string }
         Returns: {
           created_at: string
+          engine_version: string | null
           id: string
           inputs: Json
+          kind: string
           name: string
           owner: string | null
           profile_hashes: Json | null
+          ref_bundle_version: string | null
           results: Json | null
+          schema_version: number | null
           share_token: string | null
           updated_at: string
         }[]

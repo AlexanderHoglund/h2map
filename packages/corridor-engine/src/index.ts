@@ -16,6 +16,12 @@ import { toSideInputs } from "@h2map/corridor-schema";
 import { buildTimeline } from "./timeline";
 import { evaluateSide } from "./side";
 
+/**
+ * Version pinned into saved scenarios (scenarios.engine_version). Bump on any
+ * behavior change so stored results can be flagged for recompute.
+ */
+export const CORRIDOR_ENGINE_VERSION = "0.1.0";
+
 export { evaluateSide } from "./side";
 export { buildTimeline } from "./timeline";
 export { discountFactor, inflationFactor } from "./rates";
