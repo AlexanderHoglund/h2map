@@ -13,8 +13,8 @@
  */
 import { cellToLatLng, getResolution, polygonToCells } from "h3-js";
 import { ENGINE_VERSION } from "@h2map/lcoh-engine";
-import { getResourceProfile, type ProfileKind } from "@h2map/profile-service";
 import { futureYearsJson, MAP_FLAGS, mapSweepAllYears } from "../lib/lcohSweep";
+import { fetchCfOrMask } from "../lib/fetchProfile";
 import {
   fetchJson,
   makeCache,
@@ -201,8 +201,12 @@ const LADDER: [region: string, res: number][] = [
   ["australia", 2], ["australia", 3],
 ];
 
-/** Failed cells (mostly transient rate limits) are retried after this long. */
-const FAILED_RETRY_MS = 7 * 24 * 3600 * 1000;
+/**
+ * Failed cells (mostly transient rate limits / provider 500s) are retried after
+ * this long. Kept short so a transient provider outage — e.g. PVGIS 500ing a
+ * whole region — heals within a day of cron runs rather than lingering a week.
+ */
+const FAILED_RETRY_MS = 24 * 3600 * 1000;
 
 interface Deps {
   fetchJson: typeof fetchJson;
@@ -390,22 +394,16 @@ async function seedCells(
       status: "computing",
     });
 
-    // Resolve each source independently so the T1.1 gate (or a provider outage)
-    // masks only the affected layer: a cell whose solar profile is non-physical
-    // still keeps its valid wind value instead of becoming a full no-data hole.
-    const fetchOrMask = async (kind: ProfileKind): Promise<number[] | null> => {
-      try {
-        return (await getResourceProfile({ lat, lon, kind }, deps)).cf;
-      } catch (err) {
-        console.log(`    ${kind} masked: ${String(err)}`);
-        return null;
-      }
-    };
+    // Resolve each source independently so a genuine non-physical layer (T1.1)
+    // masks alone while the other survives; a transient provider outage (500)
+    // instead throws → the cell is marked 'failed' and retried later, not frozen
+    // as a permanent single-source cell (see fetchCfOrMask).
+    const log = (m: string) => console.log(`    ${m}`);
 
     try {
       console.log(`  ${h3} (${latR}, ${lonR}):`);
-      const pvCf = await fetchOrMask("pv_fixed");
-      const windCf = await fetchOrMask("wind_120");
+      const pvCf = await fetchCfOrMask(deps, lat, lon, "pv_fixed", log);
+      const windCf = await fetchCfOrMask(deps, lat, lon, "wind_120", log);
       if (!pvCf && !windCf) {
         throw new Error("both PV and wind unavailable (masked)");
       }

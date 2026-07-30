@@ -18,7 +18,6 @@
  *   npm run hex:reseed-improved
  */
 import { cellToLatLng } from "h3-js";
-import { getResourceProfile } from "@h2map/profile-service";
 import {
   allYearsBestJson,
   futureYearsJson,
@@ -27,6 +26,7 @@ import {
   mapSweepOptimalAllYears,
   optimalYearsJson,
 } from "../lib/lcohSweep";
+import { fetchCfOrMask } from "../lib/fetchProfile";
 import { makeWaccResolver } from "../lib/countryWacc";
 import {
   fetchJson,
@@ -85,22 +85,14 @@ async function main(): Promise<void> {
       }
       processed++;
       const [lat, lon] = cellToLatLng(h3);
-      // Per-source masking (T1.1): a non-physical / unservable layer is dropped
-      // to no-data while the other survives, rather than skipping the whole cell.
-      const fetchOrMask = async (
-        kind: "pv_fixed" | "wind_120",
-      ): Promise<number[] | null> => {
-        try {
-          return (await getResourceProfile({ lat, lon, kind }, deps)).cf;
-        } catch (err) {
-          console.warn(`  ${h3} ${kind} masked: ${String(err)}`);
-          return null;
-        }
-      };
       try {
+        // Per-source masking (T1.1): a non-physical layer is dropped to no-data
+        // while the other survives; a transient provider failure throws → the
+        // cell is skipped (prior values kept), not silently single-sourced.
         // Cache hit if already re-seeded (no fetch); otherwise fetches improved.
-        const pvCf = await fetchOrMask("pv_fixed");
-        const windCf = await fetchOrMask("wind_120");
+        const log = (m: string) => console.warn(`  ${h3} ${m}`);
+        const pvCf = await fetchCfOrMask(deps, lat, lon, "pv_fixed", log);
+        const windCf = await fetchCfOrMask(deps, lat, lon, "wind_120", log);
         if (!pvCf && !windCf) throw new Error("both PV and wind unavailable (masked)");
         const profiles = {
           ...(pvCf ? { pv: pvCf } : {}),

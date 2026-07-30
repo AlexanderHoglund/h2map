@@ -7,7 +7,6 @@
  * Usage: npm run hex:recompute
  */
 import { cellToLatLng } from "h3-js";
-import { getResourceProfile } from "@h2map/profile-service";
 import {
   allYearsBestJson,
   futureYearsJson,
@@ -16,6 +15,7 @@ import {
   mapSweepOptimalAllYears,
   optimalYearsJson,
 } from "../lib/lcohSweep";
+import { fetchCfOrMask } from "../lib/fetchProfile";
 import { makeWaccResolver } from "../lib/countryWacc";
 import { makeCache, makeSupabase, makeTurbineLoader } from "../lib/serviceDeps";
 
@@ -67,22 +67,14 @@ async function main(): Promise<void> {
 
     for (const { h3 } of data) {
       const [lat, lon] = cellToLatLng(h3);
-      // Per-source: a cell with only one cached improved layer (the other masked
-      // by T1.1, or not yet re-seeded) is recomputed from what it has. A cell
-      // with NEITHER cached (never re-seeded) drops to the catch → skipped, so
-      // its current values stay intact rather than regressing to reference.
-      const cachedOrNull = async (
-        kind: "pv_fixed" | "wind_120",
-      ): Promise<number[] | null> => {
-        try {
-          return (await getResourceProfile({ lat, lon, kind }, deps)).cf;
-        } catch {
-          return null;
-        }
-      };
+      // Per-source: a validated cached layer whose sibling is non-physical
+      // (T1.1) still recomputes from what it has. A cache miss (never re-seeded)
+      // is a provider failure → fetchCfOrMask rethrows → the whole cell drops to
+      // the catch → skipped, so its current values stay intact rather than
+      // regressing to reference.
       try {
-        const pvCf = await cachedOrNull("pv_fixed");
-        const windCf = await cachedOrNull("wind_120");
+        const pvCf = await fetchCfOrMask(deps, lat, lon, "pv_fixed");
+        const windCf = await fetchCfOrMask(deps, lat, lon, "wind_120");
         if (!pvCf && !windCf) throw new Error("no cached improved profile");
         const profiles = {
           ...(pvCf ? { pv: pvCf } : {}),
