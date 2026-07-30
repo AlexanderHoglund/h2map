@@ -13,14 +13,23 @@ import { appendFileSync } from "node:fs";
 import { fetchPvgisPv } from "@h2map/profile-service";
 import { fetchJson } from "../lib/serviceDeps";
 
-// Canaries: Kenya coordinates that returned valid PV (peak ~0.82) when PVGIS
-// was healthy. If PVGIS serves these, the region is up.
+// Canaries spread across Kenya's extent. PVGIS's outage is intermittent — it
+// 500s ~80% of cells while still serving a lucky few — so a couple of canaries
+// passing does NOT mean it can serve a full re-seed. Probe a broad spread and
+// require a clear majority, so the recovery workflow only fires when PVGIS is
+// genuinely up region-wide (not grinding through 500s). Whether the DATA is
+// physical is irrelevant here — we only check that PVGIS RESPONDS (HTTP 200).
 const CANARIES: [number, number][] = [
-  [2.7, 37.7],
-  [3.2382, 37.1949],
-  [4.1966, 36.6584],
+  [3.3, 35.5], // NW
+  [2.7, 37.7], // N-central
+  [3.9, 41.1], // NE
+  [0.5, 37.3], // central (Laikipia)
+  [-1.3, 36.8], // Nairobi
+  [-4.0, 39.6], // coast (Mombasa)
+  [1.4, 39.0], // E (Wajir)
+  [0.3, 34.8], // W (Kisumu)
 ];
-const MIN_OK = 2; // healthy if at least this many canaries succeed
+const MIN_OK = 6; // healthy only if ≥6/8 respond — broad regional availability
 
 async function main(): Promise<void> {
   let ok = 0;
