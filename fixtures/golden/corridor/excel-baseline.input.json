@@ -1,0 +1,76 @@
+{
+ "schemaVersion": 1,
+ "refBundleId": "2026-07-30-excel-v1",
+ "cargo": {
+  "countryId": "denmark",
+  "routeType": "point-to-point",
+  "oneWayDistanceNm": 500,
+  "startYear": 2027,
+  "horizonYears": 20,
+  "unitsPerYear": 22167,
+  "inflation": 0.02,
+  "vessels": 1,
+  "roundtripsPerYear": 12,
+  "waccOverride": null
+ },
+ "vessel": {
+  "typeId": "tanker-35k",
+  "consumptionMode": "distance",
+  "green": { "capexUsdM": null, "opexUsdMPerYear": null },
+  "fossil": { "capexUsdM": null, "opexUsdMPerYear": null }
+ },
+ "green": {
+  "fuelId": "e-ammonia",
+  "sourcing": "construct",
+  "overrides": {
+   "priceUsdPerTonne": null,
+   "combustionEfTco2PerTonne": null,
+   "lhvMjPerTonne": null,
+   "wtwGco2PerMj": null,
+   "fuelTonnesPerVesselYear": null,
+   "prodCapexUsdM": null,
+   "prodOpexUsdMPerYear": null,
+   "portStorageCapexUsdM": null,
+   "portStorageOpexUsdMPerYear": null,
+   "bargeCapexUsdM": null,
+   "bargeOpexUsdMPerYear": null
+  }
+ },
+ "fossil": {
+  "fuelId": "lsfo",
+  "sourcing": "purchase",
+  "overrides": {
+   "priceUsdPerTonne": null,
+   "combustionEfTco2PerTonne": null,
+   "lhvMjPerTonne": null,
+   "wtwGco2PerMj": null,
+   "fuelTonnesPerVesselYear": null,
+   "prodCapexUsdM": null,
+   "prodOpexUsdMPerYear": null,
+   "portStorageCapexUsdM": null,
+   "portStorageOpexUsdMPerYear": null,
+   "bargeCapexUsdM": null,
+   "bargeOpexUsdMPerYear": null
+  }
+ },
+ "regulation": {
+  "eurUsd": 1.08,
+  "ets": { "enabled": true, "euaEurPerTonne": 80, "scope": 1 },
+  "fuelEu": {
+   "enabled": true,
+   "penaltyEurPerTonne": 2400,
+   "vlsfoMjPerTonne": 41000,
+   "baselineGco2PerMj": 91.16,
+   "scope": 1
+  },
+  "ira45z": { "enabled": false, "usProduced": false, "rateUsdPerGallon": 1 },
+  "selfDesigned": {
+   "enabled": false,
+   "co2PriceUsdPerTonne": 0,
+   "supportUsdPerKg": 0,
+   "capexSupport": 0,
+   "opexSupport": 0,
+   "otherUsdM": 0
+  }
+ }
+}

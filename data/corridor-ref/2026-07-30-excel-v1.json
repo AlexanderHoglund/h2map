@@ -1,0 +1,64 @@
+{
+ "bundleId": "2026-07-30-excel-v1",
+ "schemaVersion": 1,
+ "source": {
+  "workbook": "Green_Corridor_Model_Simplified_30_07.xlsx",
+  "sha256": "d3b219379402e211249ac336d98461fca98eb9c742dfde9498f03c045da38fbd",
+  "transcribedAt": "2026-07-30",
+  "note": "Verbatim transcription of the workbook's Data_tables tab plus the regulatory schedules and defaults embedded in its Regulation tab and Calculation formulas. Reference data is immutable: any change is a NEW bundle id, never an edit."
+ },
+ "vesselTypes": [
+  { "id": "tanker-35k", "label": "Tanker (35k dwt)", "capexUsdM": 20, "opexUsdMPerYear": 1.2, "fuelTonnesPerYear": 2400, "gjPerNm": 4, "verified": true, "sourceNote": "Data_tables!B6" },
+  { "id": "tanker-80k", "label": "Tanker (80k dwt)", "capexUsdM": 35, "opexUsdMPerYear": 2, "fuelTonnesPerYear": 5200, "gjPerNm": 7, "verified": true, "sourceNote": "Data_tables!B7" },
+  { "id": "bulk-60k", "label": "Bulk carrier (60k dwt)", "capexUsdM": 25, "opexUsdMPerYear": 1.5, "fuelTonnesPerYear": 3000, "gjPerNm": 5, "verified": true, "sourceNote": "Data_tables!B8" },
+  { "id": "container-5k", "label": "Container (5k TEU)", "capexUsdM": 45, "opexUsdMPerYear": 2.8, "fuelTonnesPerYear": 6500, "gjPerNm": 6, "verified": true, "sourceNote": "Data_tables!B9" },
+  { "id": "container-15k", "label": "Container (15k TEU)", "capexUsdM": 90, "opexUsdMPerYear": 5, "fuelTonnesPerYear": 14000, "gjPerNm": 10, "verified": true, "sourceNote": "Data_tables!B10" },
+  { "id": "roro-ferry", "label": "Ro-Ro / Ferry", "capexUsdM": 30, "opexUsdMPerYear": 2, "fuelTonnesPerYear": 3500, "gjPerNm": 4.5, "verified": true, "sourceNote": "Data_tables!B11" }
+ ],
+ "fuels": [
+  { "id": "lsfo", "label": "LSFO (conventional)", "priceUsdPerTonne": 594, "combustionEfTco2PerTonne": 3.3, "prodCapexUsdM": 0, "prodOpexUsdMPerYear": 0, "portStorageCapexUsdM": 0, "portStorageOpexUsdMPerYear": 0, "bargeCapexUsdM": 0, "bargeOpexUsdMPerYear": 0, "vesselCapexPremium": 0, "lhvMjPerTonne": 40200, "wtwGco2PerMj": 92.4, "verified": true, "sourceNote": "Data_tables!B15" },
+  { "id": "lng", "label": "LNG", "priceUsdPerTonne": 550, "combustionEfTco2PerTonne": 2.75, "prodCapexUsdM": 15, "prodOpexUsdMPerYear": 1, "portStorageCapexUsdM": 8, "portStorageOpexUsdMPerYear": 0.3, "bargeCapexUsdM": 3, "bargeOpexUsdMPerYear": 0.1, "vesselCapexPremium": 0.1, "lhvMjPerTonne": 48000, "wtwGco2PerMj": 84, "verified": true, "sourceNote": "Data_tables!B16" },
+  { "id": "e-ammonia", "label": "e-Ammonia", "priceUsdPerTonne": 900, "combustionEfTco2PerTonne": 0.1, "prodCapexUsdM": 55, "prodOpexUsdMPerYear": 3, "portStorageCapexUsdM": 12, "portStorageOpexUsdMPerYear": 0.5, "bargeCapexUsdM": 5, "bargeOpexUsdMPerYear": 0.3, "vesselCapexPremium": 0.25, "lhvMjPerTonne": 18600, "wtwGco2PerMj": 15, "verified": true, "sourceNote": "Data_tables!B17" },
+  { "id": "e-methanol", "label": "e-Methanol", "priceUsdPerTonne": 850, "combustionEfTco2PerTonne": 0.2, "prodCapexUsdM": 45, "prodOpexUsdMPerYear": 2.5, "portStorageCapexUsdM": 8, "portStorageOpexUsdMPerYear": 0.4, "bargeCapexUsdM": 4, "bargeOpexUsdMPerYear": 0.2, "vesselCapexPremium": 0.15, "lhvMjPerTonne": 19900, "wtwGco2PerMj": 15, "verified": true, "sourceNote": "Data_tables!B18" },
+  { "id": "biodiesel-hvo", "label": "Biodiesel / HVO", "priceUsdPerTonne": 1100, "combustionEfTco2PerTonne": 0.3, "prodCapexUsdM": 5, "prodOpexUsdMPerYear": 0.5, "portStorageCapexUsdM": 1, "portStorageOpexUsdMPerYear": 0.1, "bargeCapexUsdM": 0.5, "bargeOpexUsdMPerYear": 0.05, "vesselCapexPremium": 0.05, "lhvMjPerTonne": 44000, "wtwGco2PerMj": 25, "verified": true, "sourceNote": "Data_tables!B19" },
+  { "id": "lh2", "label": "Hydrogen (liquid)", "priceUsdPerTonne": 1200, "combustionEfTco2PerTonne": 0, "prodCapexUsdM": 80, "prodOpexUsdMPerYear": 4, "portStorageCapexUsdM": 20, "portStorageOpexUsdMPerYear": 0.8, "bargeCapexUsdM": 8, "bargeOpexUsdMPerYear": 0.4, "vesselCapexPremium": 0.3, "lhvMjPerTonne": 120000, "wtwGco2PerMj": 10, "verified": true, "sourceNote": "Data_tables!B20" }
+ ],
+ "countries": [
+  { "id": "denmark", "label": "Denmark", "wacc": 0.055, "verified": false, "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)" },
+  { "id": "netherlands", "label": "Netherlands", "wacc": 0.055, "verified": false, "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)" },
+  { "id": "india", "label": "India", "wacc": 0.095, "verified": false, "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)" },
+  { "id": "brazil", "label": "Brazil", "wacc": 0.115, "verified": false, "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)" },
+  { "id": "singapore", "label": "Singapore", "wacc": 0.06, "verified": false, "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)" },
+  { "id": "united-states", "label": "United States", "wacc": 0.07, "verified": false, "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)" },
+  { "id": "other", "label": "Other (edit manually)", "wacc": 0.08, "verified": false, "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)" }
+ ],
+ "benchmarkRules": {
+  "fossilPortLogisticsOpexFactor": 0.3,
+  "fossilVesselCapexUsdM": 0,
+  "fossilPortCapexUsdM": 0
+ },
+ "constants": {
+  "ira45zMjPerGallon": 122.5
+ },
+ "schedules": {
+  "etsPhaseIn": [
+   { "fromCalendarYear": 2024, "value": 0.4 },
+   { "fromCalendarYear": 2025, "value": 0.7 },
+   { "fromCalendarYear": 2026, "value": 1.0 }
+  ],
+  "fuelEuTargets": [
+   { "fromCalendarYear": 2025, "value": 0.02 },
+   { "fromCalendarYear": 2030, "value": 0.06 },
+   { "fromCalendarYear": 2035, "value": 0.145 },
+   { "fromCalendarYear": 2040, "value": 0.31 },
+   { "fromCalendarYear": 2045, "value": 0.62 },
+   { "fromCalendarYear": 2050, "value": 0.8 }
+  ]
+ },
+ "regulationDefaults": {
+  "eurUsd": 1.08,
+  "ets": { "euaEurPerTonne": 80, "scope": 1 },
+  "fuelEu": { "penaltyEurPerTonne": 2400, "vlsfoMjPerTonne": 41000, "baselineGco2PerMj": 91.16, "scope": 1 },
+  "ira45z": { "rateUsdPerGallon": 1 }
+ }
+}
