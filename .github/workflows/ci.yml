@@ -26,3 +26,7 @@ jobs:
       # workspace test fan-out above, but a named step so an Excel-reproduction
       # failure is visible as its own line, per the plan's `test:golden` gate.
       - run: npm run test:golden
+      # Sensitivity drift gate (build-plan 1.7): fails when the model's
+      # top-level input set (≥5% headline movement) no longer matches the
+      # committed ui-manifest — the interface must track the model.
+      - run: npx tsx scripts/corridor/sensitivity.ts --check

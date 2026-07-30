@@ -1,0 +1,320 @@
+{
+ "baseline": "excel-baseline",
+ "refBundleId": "2026-07-30-excel-v1",
+ "baseGapPvUsdM": 166.95059118904504,
+ "topLevelThreshold": 0.05,
+ "ranked": [
+  {
+   "id": "cargo.oneWayDistanceNm",
+   "label": "Corridor length (nm)",
+   "step": 1,
+   "range": [
+    100,
+    5000
+   ],
+   "gapAtLow": 155.95715052957402,
+   "gapAtHigh": 290.62679860809453,
+   "maxAbsDeltaUsdM": 123.67620741904949,
+   "relHeadlineMovement": 0.7407952648637574
+  },
+  {
+   "id": "vessel.green.capexUsdM",
+   "label": "Green vessel CAPEX ($m)",
+   "step": 2,
+   "range": [
+    15,
+    120
+   ],
+   "gapAtLow": 156.95059118904504,
+   "gapAtHigh": 261.9505911890449,
+   "maxAbsDeltaUsdM": 94.99999999999989,
+   "relHeadlineMovement": 0.5690306295017995
+  },
+  {
+   "id": "vessel.green.opexUsdMPerYear",
+   "label": "Green vessel OPEX ($m/yr)",
+   "step": 2,
+   "range": [
+    0.8,
+    6
+   ],
+   "gapAtLow": 161.03387641381283,
+   "gapAtHigh": 237.95116849183182,
+   "maxAbsDeltaUsdM": 71.00057730278678,
+   "relHeadlineMovement": 0.4252789810273262
+  },
+  {
+   "id": "green.prodCapexUsdM",
+   "label": "Fuel production CAPEX ($m)",
+   "step": 3,
+   "range": [
+    0,
+    110
+   ],
+   "gapAtLow": 111.95059118904506,
+   "gapAtHigh": 221.95059118904504,
+   "maxAbsDeltaUsdM": 55,
+   "relHeadlineMovement": 0.3294387855010422
+  },
+  {
+   "id": "cargo.vessels",
+   "label": "Number of vessels",
+   "step": 2,
+   "range": [
+    1,
+    5
+   ],
+   "gapAtLow": 166.95059118904504,
+   "gapAtHigh": 221.91779448640034,
+   "maxAbsDeltaUsdM": 54.9672032973553,
+   "relHeadlineMovement": 0.3292423399394475
+  },
+  {
+   "id": "green.prodOpexUsdMPerYear",
+   "label": "Fuel production O&M ($m/yr)",
+   "step": 3,
+   "range": [
+    0,
+    6
+   ],
+   "gapAtLow": 122.57523037480335,
+   "gapAtHigh": 211.32595200328683,
+   "maxAbsDeltaUsdM": 44.37536081424179,
+   "relHeadlineMovement": 0.2657993631420792
+  },
+  {
+   "id": "green.fuelTonnesPerVesselYear",
+   "label": "Green fuel consumption (t/vessel/yr)",
+   "step": 3,
+   "range": [
+    1300,
+    5200
+   ],
+   "gapAtLow": 149.7623630175368,
+   "gapAtHigh": 202.10636266326344,
+   "maxAbsDeltaUsdM": 35.1557714742184,
+   "relHeadlineMovement": 0.2105759028694308
+  },
+  {
+   "id": "cargo.horizonYears",
+   "label": "Years modelled",
+   "step": 1,
+   "range": [
+    10,
+    40
+   ],
+   "gapAtLow": 139.46244822893956,
+   "gapAtHigh": 196.3558190234651,
+   "maxAbsDeltaUsdM": 29.40522783442006,
+   "relHeadlineMovement": 0.17613131900277793
+  },
+  {
+   "id": "cargo.wacc",
+   "label": "Discount rate (WACC)",
+   "step": 1,
+   "range": [
+    0.03,
+    0.12
+   ],
+   "gapAtLow": 182.64368348494742,
+   "gapAtHigh": 142.58678639709353,
+   "maxAbsDeltaUsdM": 24.36380479195151,
+   "relHeadlineMovement": 0.14593422292445415
+  },
+  {
+   "id": "cargo.inflation",
+   "label": "Inflation",
+   "step": 1,
+   "range": [
+    0,
+    0.05
+   ],
+   "gapAtLow": 155.127162982238,
+   "gapAtHigh": 190.40565430032336,
+   "maxAbsDeltaUsdM": 23.45506311127832,
+   "relHeadlineMovement": 0.1404910455496332
+  },
+  {
+   "id": "green.priceUsdPerTonne",
+   "label": "Green fuel price ($/t)",
+   "step": 3,
+   "range": [
+    500,
+    1500
+   ],
+   "gapAtLow": 151.68164983360708,
+   "gapAtHigh": 189.85400322220215,
+   "maxAbsDeltaUsdM": 22.90341203315711,
+   "relHeadlineMovement": 0.13718676807333155
+  },
+  {
+   "id": "port.storageCapexUsdM",
+   "label": "Green port storage CAPEX ($m)",
+   "step": 4,
+   "range": [
+    0,
+    30
+   ],
+   "gapAtLow": 154.95059118904504,
+   "gapAtHigh": 184.9505911890451,
+   "maxAbsDeltaUsdM": 18.000000000000057,
+   "relHeadlineMovement": 0.10781632980034143
+  },
+  {
+   "id": "port.storageOpexUsdMPerYear",
+   "label": "Green port storage OPEX ($m/yr)",
+   "step": 4,
+   "range": [
+    0,
+    1.5
+   ],
+   "gapAtLow": 159.5546977200048,
+   "gapAtHigh": 181.74237812712562,
+   "maxAbsDeltaUsdM": 14.791786938080577,
+   "relHeadlineMovement": 0.08859978771402628
+  },
+  {
+   "id": "cargo.roundtripsPerYear",
+   "label": "Roundtrips per year",
+   "step": 2,
+   "range": [
+    6,
+    24
+   ],
+   "gapAtLow": 160.07969077687568,
+   "gapAtHigh": 180.69239201338394,
+   "maxAbsDeltaUsdM": 13.741800824338895,
+   "relHeadlineMovement": 0.08231058498486231
+  },
+  {
+   "id": "port.bargeCapexUsdM",
+   "label": "Green port barge CAPEX ($m)",
+   "step": 4,
+   "range": [
+    0,
+    12
+   ],
+   "gapAtLow": 161.95059118904504,
+   "gapAtHigh": 173.95059118904504,
+   "maxAbsDeltaUsdM": 7,
+   "relHeadlineMovement": 0.04192857270013265
+  },
+  {
+   "id": "regulation.fuelEuScope",
+   "label": "FuelEU scope (%)",
+   "step": 5,
+   "range": [
+    0,
+    1
+   ],
+   "gapAtLow": 173.0617161932896,
+   "gapAtHigh": 166.95059118904504,
+   "maxAbsDeltaUsdM": 6.11112500424457,
+   "relHeadlineMovement": 0.03660439271715241
+  },
+  {
+   "id": "regulation.fuelEuPenalty",
+   "label": "FuelEU penalty (€/t VLSFO-eq)",
+   "step": 5,
+   "range": [
+    1200,
+    4800
+   ],
+   "gapAtLow": 170.00615369116733,
+   "gapAtHigh": 160.83946618480053,
+   "maxAbsDeltaUsdM": 6.1111250042445135,
+   "relHeadlineMovement": 0.03660439271715207
+  },
+  {
+   "id": "regulation.euaEurPerTonne",
+   "label": "EUA price (€/tCO2)",
+   "step": 5,
+   "range": [
+    40,
+    200
+   ],
+   "gapAtLow": 168.95612226008683,
+   "gapAtHigh": 160.93399797591957,
+   "maxAbsDeltaUsdM": 6.016593213125475,
+   "relHeadlineMovement": 0.03603816656337945
+  },
+  {
+   "id": "fossil.priceUsdPerTonne",
+   "label": "Fossil fuel price ($/t)",
+   "step": 3,
+   "range": [
+    300,
+    900
+   ],
+   "gapAtLow": 172.14317072312946,
+   "gapAtHigh": 161.5460696331613,
+   "maxAbsDeltaUsdM": 5.404521555883747,
+   "relHeadlineMovement": 0.032371982137900816
+  },
+  {
+   "id": "regulation.etsScope",
+   "label": "ETS scope (%)",
+   "step": 5,
+   "range": [
+    0,
+    1
+   ],
+   "gapAtLow": 170.96165333112876,
+   "gapAtHigh": 166.95059118904504,
+   "maxAbsDeltaUsdM": 4.011062142083716,
+   "relHeadlineMovement": 0.024025444375586697
+  },
+  {
+   "id": "fossil.wtwGco2PerMj",
+   "label": "Fossil fuel WTW intensity (gCO2e/MJ)",
+   "step": 3,
+   "range": [
+    80,
+    100
+   ],
+   "gapAtLow": 170.09723460700093,
+   "gapAtHigh": 164.50739936348248,
+   "maxAbsDeltaUsdM": 3.146643417955886,
+   "relHeadlineMovement": 0.018847752473022464
+  },
+  {
+   "id": "regulation.eurUsd",
+   "label": "EUR/USD",
+   "step": 5,
+   "range": [
+    0.9,
+    1.3
+   ],
+   "gapAtLow": 168.63762238009974,
+   "gapAtHigh": 164.88866417775594,
+   "maxAbsDeltaUsdM": 2.0619270112891,
+   "relHeadlineMovement": 0.01235052237074318
+  },
+  {
+   "id": "green.wtwGco2PerMj",
+   "label": "Green fuel WTW intensity (gCO2e/MJ)",
+   "step": 3,
+   "range": [
+    1,
+    40
+   ],
+   "gapAtLow": 166.95059118904504,
+   "gapAtHigh": 167.25268890689864,
+   "maxAbsDeltaUsdM": 0.3020977178535986,
+   "relHeadlineMovement": 0.00180950373222411
+  },
+  {
+   "id": "cargo.unitsPerYear",
+   "label": "Cargo throughput (units/yr)",
+   "step": 1,
+   "range": [
+    11083,
+    33250
+   ],
+   "gapAtLow": 166.95059118904504,
+   "gapAtHigh": 166.95059118904504,
+   "maxAbsDeltaUsdM": 0,
+   "relHeadlineMovement": 0
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "generatedFrom": "sensitivity.json",
+ "note": "Field prominence for the corridor UI: topLevel ≥5% headline movement, rest advanced. CI (--check) fails when this drifts from the model.",
+ "topLevel": [
+  "cargo.oneWayDistanceNm",
+  "vessel.green.capexUsdM",
+  "vessel.green.opexUsdMPerYear",
+  "green.prodCapexUsdM",
+  "cargo.vessels",
+  "green.prodOpexUsdMPerYear",
+  "green.fuelTonnesPerVesselYear",
+  "cargo.horizonYears",
+  "cargo.wacc",
+  "cargo.inflation",
+  "green.priceUsdPerTonne",
+  "port.storageCapexUsdM",
+  "port.storageOpexUsdMPerYear",
+  "cargo.roundtripsPerYear"
+ ],
+ "advanced": [
+  "port.bargeCapexUsdM",
+  "regulation.fuelEuScope",
+  "regulation.fuelEuPenalty",
+  "regulation.euaEurPerTonne",
+  "fossil.priceUsdPerTonne",
+  "regulation.etsScope",
+  "fossil.wtwGco2PerMj",
+  "regulation.eurUsd",
+  "green.wtwGco2PerMj",
+  "cargo.unitsPerYear"
+ ]
+}
