@@ -2,14 +2,22 @@
  * Rank-diff harness (spec Task 0) — the instrument that makes every model
  * change measurable on rank fidelity before it is merged.
  *
- *   npm run rankdiff -- benchmark   # select + persist ~500 stratified cells
- *   npm run rankdiff -- snapshot    # baseline LCOH + rank per layer/year
- *   npm run rankdiff -- report      # diff current model vs baseline
+ *   npm run rankdiff -- benchmark          # select + persist ~500 stratified cells
+ *   npm run rankdiff -- snapshot           # baseline LCOH + rank per layer/year
+ *   npm run rankdiff -- rebaseline [tag]   # archive current baseline, take fresh
+ *   npm run rankdiff -- report [baseline]  # diff current model vs baseline
  *
  * All computation runs from CACHED resource profiles (no provider calls), so
  * a report reflects only the model/config change under test. When a P0/P1
  * change lands behind its flag, run `report` with that flag on (via the
  * change's own env/config) to see its effect on the benchmark.
+ *
+ * Baselines are per mode: RANKDIFF_MODE=improved (the live map's flag set)
+ * reads/writes `baseline-improved.json`; the default reference model uses
+ * `baseline.json`. `snapshot` refuses to overwrite an existing baseline —
+ * an intentional friction, because silently replacing the yardstick is how
+ * the pre-Tier-1 contaminated baseline went unnoticed; use `rebaseline`,
+ * which archives the old file first (never deletes).
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cellToLatLng } from "h3-js";
@@ -36,12 +44,22 @@ import {
 
 const DIR = `${ROOT}data/rankdiff`;
 const BENCH = `${DIR}/benchmark.json`;
-const BASELINE = `${DIR}/baseline.json`;
 const TARGET = 500;
 const PER_BUCKET_CAP = 110; // keep any one geography from dominating
 
 /** Snapshot schema. v2 (Task 0d) added the per-component matrix. */
 const SCHEMA_VERSION = 2;
+
+type RankdiffMode = "reference" | "improved";
+
+function currentMode(): RankdiffMode {
+  return process.env.RANKDIFF_MODE === "improved" ? "improved" : "reference";
+}
+
+/** Baselines are mode-keyed so reference and improved never overwrite each other. */
+function baselinePath(mode: RankdiffMode): string {
+  return mode === "improved" ? `${DIR}/baseline-improved.json` : `${DIR}/baseline.json`;
+}
 
 type Vec = (number | null)[]; // per benchmark cell
 /** matrix[layer][year] = value per cell */
@@ -53,6 +71,10 @@ type CompMatrix = Record<Layer, Record<number, CompVec>>;
 interface Snapshot {
   schemaVersion?: number;
   computedAt: string;
+  /** Which flag set built this snapshot (see RANKDIFF_MODE). */
+  mode?: RankdiffMode;
+  /** Human label for why this baseline was taken (e.g. "post-tier1"). */
+  tag?: string;
   order: string[]; // h3 in benchmark order
   matrix: Matrix;
   components?: CompMatrix;
@@ -210,32 +232,75 @@ async function compute(
   return { matrix, components };
 }
 
-async function snapshot(): Promise<void> {
+async function takeBaseline(tag?: string): Promise<void> {
+  const mode = currentMode();
   const cells = loadBenchmark();
   const { matrix, components } = await compute(cells);
   const snap: Snapshot = {
     schemaVersion: SCHEMA_VERSION,
     computedAt: new Date().toISOString(),
+    mode,
+    ...(tag ? { tag } : {}),
     order: cells.map((c) => c.h3),
     matrix,
     components,
   };
-  writeFileSync(BASELINE, JSON.stringify(snap) + "\n");
-  console.log(`baseline written for ${cells.length} cells (schema v${SCHEMA_VERSION})`);
+  writeFileSync(baselinePath(mode), JSON.stringify(snap) + "\n");
+  console.log(
+    `${mode} baseline written for ${cells.length} cells (schema v${SCHEMA_VERSION}${tag ? `, tag ${tag}` : ""})`,
+  );
 }
 
-async function report(): Promise<void> {
+async function snapshot(): Promise<void> {
+  const mode = currentMode();
+  if (existsSync(baselinePath(mode))) {
+    throw new Error(
+      `a ${mode} baseline already exists — replacing the yardstick must be deliberate; use: npm run rankdiff -- rebaseline [tag]`,
+    );
+  }
+  await takeBaseline();
+}
+
+/** Archive the current mode's baseline (never delete), then take a fresh one. */
+async function rebaseline(tag?: string): Promise<void> {
+  const mode = currentMode();
+  const path = baselinePath(mode);
+  if (existsSync(path)) {
+    const old = JSON.parse(readFileSync(path, "utf8")) as Snapshot;
+    const stamp = (old.computedAt ?? "unknown").slice(0, 10);
+    const archive = `${DIR}/baseline-${mode}-${stamp}${old.tag ? `-${old.tag}` : ""}-retired.json`;
+    writeFileSync(archive, JSON.stringify(old) + "\n");
+    console.log(`archived old ${mode} baseline → ${archive}`);
+  }
+  await takeBaseline(tag);
+}
+
+async function report(baselineFile?: string): Promise<void> {
+  const mode = currentMode();
   const cells = loadBenchmark();
-  if (!existsSync(BASELINE)) throw new Error(`no baseline — run: npm run rankdiff -- snapshot`);
-  const base = JSON.parse(readFileSync(BASELINE, "utf8")) as Snapshot;
+  const path = baselineFile ?? baselinePath(mode);
+  if (!existsSync(path)) {
+    throw new Error(`no ${mode} baseline at ${path} — run: npm run rankdiff -- snapshot`);
+  }
+  const base = JSON.parse(readFileSync(path, "utf8")) as Snapshot;
   if ((base.schemaVersion ?? 1) < SCHEMA_VERSION) {
     throw new Error(
-      `baseline is schema v${base.schemaVersion ?? 1} (pre-component capture) — re-take it: npm run rankdiff -- snapshot (after removing the stale baseline)`,
+      `baseline is schema v${base.schemaVersion ?? 1} (pre-component capture) — retire it: npm run rankdiff -- rebaseline`,
+    );
+  }
+  if (base.mode && base.mode !== mode) {
+    console.warn(
+      `WARNING: baseline was built in ${base.mode} mode but this report runs ${mode} — deltas will mix model differences with mode differences`,
     );
   }
   const cand = await compute(cells);
 
-  const lines: string[] = ["# Rank-diff report", "", `Benchmark: ${cells.length} cells · baseline ${base.computedAt}`, ""];
+  const lines: string[] = [
+    "# Rank-diff report",
+    "",
+    `Benchmark: ${cells.length} cells · mode ${mode} · baseline ${base.computedAt}${base.tag ? ` (${base.tag})` : ""}`,
+    "",
+  ];
   const json: Record<string, unknown>[] = [];
 
   for (const layer of LAYERS) {
@@ -306,9 +371,10 @@ async function main(): Promise<void> {
   const cmd = process.argv[2];
   if (cmd === "benchmark") await buildBenchmark();
   else if (cmd === "snapshot") await snapshot();
-  else if (cmd === "report") await report();
+  else if (cmd === "rebaseline") await rebaseline(process.argv[3]);
+  else if (cmd === "report") await report(process.argv[3]);
   else {
-    console.error("usage: npm run rankdiff -- <benchmark|snapshot|report>");
+    console.error("usage: npm run rankdiff -- <benchmark|snapshot|rebaseline [tag]|report [baselineFile]>");
     process.exitCode = 1;
   }
 }

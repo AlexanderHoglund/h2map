@@ -91,6 +91,15 @@ agreed with the Müller benchmark on *total* LCOH while three components were
 individually wrong and nearly cancelled (cheap wind −0.94, inflated stack
 +0.52, low FLH +0.30) — total-only reporting would have passed it. `report`
 refuses a v1 (component-less) baseline.
+Baselines are **mode-keyed** (`baseline.json` reference / `baseline-improved.json`
+improved, auto-selected via `RANKDIFF_MODE`) and replaced only through
+`rebaseline [tag]`, which archives the old file first — `snapshot` refuses to
+overwrite. The original 2026-07-25 baseline was **retired 2026-07-30**
+(archived as `baseline-reference-2026-07-25-retired.json`): it predated Tier 1
+(no validation gate, broken PVGIS-ERA5 PV in cache, pre-Kenya-reseed) and so
+contained non-physical capacity factors. Both current baselines are tagged
+`post-tier1`; the identity report after re-baselining (τ_b = 1, all deltas 0)
+is the self-consistency proof.
 
 - **P0 #1 — air-density correction for wind** (profile layer;
   `ProfileServiceDeps.windAirDensityCorrection`). A turbine power curve is
