@@ -105,9 +105,23 @@ describe("ira45zCreditUsdM (r30)", () => {
       { rateUsdPerGallon: usdPerGallon(1), mjPerGallon: 122.5 },
       fuel({ lhv: 18600 }),
       count(1),
+      calendarYear(2030),
     );
     expect(credit).toBeCloseTo(-(1000 * (18600 / 122.5)) / 1e6, 12);
     expect(credit).toBeLessThan(0);
+  });
+
+  it("D5: sunsets after effectiveUntil when set; perpetual when absent", () => {
+    const params = {
+      rateUsdPerGallon: usdPerGallon(1),
+      mjPerGallon: 122.5,
+      effectiveUntil: calendarYear(2027),
+    };
+    expect(ira45zCreditUsdM(params, fuel(), count(1), calendarYear(2027))).toBeLessThan(0);
+    expect(ira45zCreditUsdM(params, fuel(), count(1), calendarYear(2028))).toBe(0);
+    // Workbook behaviour: no sunset field → credit runs forever.
+    const noSunset = { rateUsdPerGallon: usdPerGallon(1), mjPerGallon: 122.5 };
+    expect(ira45zCreditUsdM(noSunset, fuel(), count(1), calendarYear(2060))).toBeLessThan(0);
   });
 });
 

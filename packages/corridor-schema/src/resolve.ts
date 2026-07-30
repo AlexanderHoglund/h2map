@@ -36,6 +36,7 @@ import {
   type Fraction,
   type MjPerTonne,
   type UsdM,
+  type UsdPerTonne,
 } from "@h2map/units";
 import type {
   FuelSideInput,
@@ -76,6 +77,11 @@ function derived<T>(value: T): Resolved<T> {
   return { value, source: "derived" };
 }
 
+/** Sourcing modes whose production capex/O&M are zeroed (all but legacy construct). */
+function purchase_or_delivered(sourcing: FuelSideInput["sourcing"]): boolean {
+  return sourcing === "purchase" || sourcing === "named-plant" || sourcing === "build-here";
+}
+
 // ---------------------------------------------------------------------------
 // Per-side resolution
 // ---------------------------------------------------------------------------
@@ -96,9 +102,25 @@ function resolveFuelSide(
   const { input, vesselOverrides, fuel, vesselType, isFossil } = ctx;
   const o = input.overrides;
 
-  const price = resolve(o.priceUsdPerTonne, usdPerTonne, () =>
-    benchmark(usdPerTonne(fuel.priceUsdPerTonne)),
-  );
+  // D4 — delivered-price sourcing modes: named-plant (contract) and
+  // build-here (LCOH+synthesis+logistics-derived) price at the delivered
+  // price; the engine must not know which mode ran. `construct`/`purchase`
+  // keep the market-price row (construct's production double-count is the
+  // LEGACY Excel behaviour, preserved for the golden fixture).
+  const delivered = input.sourcing === "named-plant" || input.sourcing === "build-here";
+  if (delivered && input.deliveredPriceUsdPerTonne == null) {
+    throw new Error(
+      `${input.sourcing} sourcing requires deliveredPriceUsdPerTonne`,
+    );
+  }
+  const price: Resolved<UsdPerTonne> = delivered
+    ? {
+        value: usdPerTonne(input.deliveredPriceUsdPerTonne!),
+        source: input.sourcing === "build-here" ? "derived" : "override",
+      }
+    : resolve(o.priceUsdPerTonne, usdPerTonne, () =>
+        benchmark(usdPerTonne(fuel.priceUsdPerTonne)),
+      );
   const combustionEf = resolve(o.combustionEfTco2PerTonne, tCo2PerTonne, () =>
     benchmark(tCo2PerTonne(fuel.combustionEfTco2PerTonne)),
   );
@@ -125,11 +147,14 @@ function resolveFuelSide(
   );
 
   // Purchase zeroes production cost BEFORE the override check (Fuel!E16/E17).
-  const purchase = input.sourcing === "purchase";
-  const prodCapex: Resolved<UsdM> = purchase
+  // D4: delivered-price modes also zero them — production cost lives inside
+  // the delivered price. Only legacy `construct` charges the production lines
+  // (on top of the merchant price — the documented Excel double-count).
+  const noProductionLines = purchase_or_delivered(input.sourcing);
+  const prodCapex: Resolved<UsdM> = noProductionLines
     ? derived(usdM(0))
     : resolve(o.prodCapexUsdM, usdM, () => benchmark(usdM(fuel.prodCapexUsdM)));
-  const prodOpex: Resolved<UsdM> = purchase
+  const prodOpex: Resolved<UsdM> = noProductionLines
     ? derived(usdM(0))
     : resolve(o.prodOpexUsdMPerYear, usdM, () =>
         benchmark(usdM(fuel.prodOpexUsdMPerYear)),
@@ -202,17 +227,34 @@ function resolveRegulations(
   reg: RegulationInput,
   bundle: RefBundle,
 ): { green: SideRegulations; fossil: SideRegulations } {
-  const shared = {
-    ...(reg.ets.enabled
+  // D3 — ETS gas coverage: shared GWPs/start year, per-side factors.
+  const gasesFor = (side: "green" | "fossil") =>
+    reg.ets.gasCoverage?.enabled
+      ? {
+          gases: {
+            fromCalendarYear: calendarYear(reg.ets.gasCoverage.fromCalendarYear),
+            ch4TPerTonne: reg.ets.gasCoverage[side].ch4TPerTonne,
+            n2oTPerTonne: reg.ets.gasCoverage[side].n2oTPerTonne,
+            gwpCh4: reg.ets.gasCoverage.gwpCh4,
+            gwpN2o: reg.ets.gasCoverage.gwpN2o,
+          },
+        }
+      : {};
+
+  const etsFor = (side: "green" | "fossil") =>
+    reg.ets.enabled
       ? {
           ets: {
             euaEurPerTonne: eurPerTonne(reg.ets.euaEurPerTonne),
             eurUsd: eurUsd(reg.eurUsd),
             scope: fraction(reg.ets.scope),
             phaseIn: toSchedule(bundle.schedules.etsPhaseIn),
+            ...gasesFor(side),
           },
         }
-      : {}),
+      : {};
+
+  const shared = {
     ...(reg.fuelEu.enabled
       ? {
           fuelEu: {
@@ -222,19 +264,38 @@ function resolveRegulations(
             baselineGco2PerMj: gCo2ePerMj(reg.fuelEu.baselineGco2PerMj),
             vlsfoMjPerTonne: mjPerTonne(reg.fuelEu.vlsfoMjPerTonne),
             targets: toSchedule(bundle.schedules.fuelEuTargets),
+            // D2 — over-compliance credit (Excel floors at 0 when absent).
+            ...(reg.fuelEu.credit?.enabled
+              ? {
+                  credit: {
+                    surplusValueEurPerTonne: eurPerTonne(
+                      reg.fuelEu.credit.surplusValueEurPerTonneVlsfoEq,
+                    ),
+                    multiplier: reg.fuelEu.credit.rfnbo
+                      ? reg.fuelEu.credit.rfnboMultiplier
+                      : 1,
+                    multiplierUntil: calendarYear(reg.fuelEu.credit.rfnboUntil),
+                  },
+                }
+              : {}),
           },
         }
       : {}),
   };
 
   const green: SideRegulations = {
+    ...etsFor("green"),
     ...shared,
     // 45Z: green only, iff enabled AND US-produced (Regulation!D24 ∧ D25).
+    // D5 — optional sunset (the workbook has none).
     ...(reg.ira45z.enabled && reg.ira45z.usProduced
       ? {
           ira45z: {
             rateUsdPerGallon: usdPerGallon(reg.ira45z.rateUsdPerGallon),
             mjPerGallon: bundle.constants.ira45zMjPerGallon,
+            ...(reg.ira45z.effectiveUntil != null
+              ? { effectiveUntil: calendarYear(reg.ira45z.effectiveUntil) }
+              : {}),
           },
         }
       : {}),
@@ -253,6 +314,7 @@ function resolveRegulations(
   };
 
   const fossil: SideRegulations = {
+    ...etsFor("fossil"),
     ...shared,
     // Self-designed fossil: the CO2-price term ONLY (Calculation r56).
     ...(reg.selfDesigned.enabled
@@ -321,6 +383,10 @@ export function resolveScenario(
     green,
     fossil,
     regulations: resolveRegulations(input.regulation, bundle),
+    flags: {
+      emissionsBasis: input.flags?.emissionsBasis ?? "combustion",
+      rateBasis: input.flags?.rateBasis ?? "nominal",
+    },
   };
 }
 

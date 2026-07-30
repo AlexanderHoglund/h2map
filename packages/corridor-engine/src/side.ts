@@ -32,7 +32,8 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
     for (const c of components) totalCapex += idx === 1 ? c.capexUsdM : 0;
 
     // Row 14 (fuel purchase + production O&M) + rows 17/20/23 → row 26.
-    const infl = inflationFactor(ctx.inflation, idx);
+    // D6 — real basis deflates the inflation growth (nominal = Excel).
+    const infl = ctx.rateBasis === "real" ? 1 : inflationFactor(ctx.inflation, idx);
     const fuelCost = ((vessels * fuel.tonnesPerVesselYear * fuel.priceUsdPerTonne) / 1e6) * infl;
     let totalOpex = fuelCost;
     for (const c of components) totalOpex += c.opexUsdMPerYear * infl;
@@ -44,7 +45,7 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
       ? fuelEuCostUsdM(regulations.fuelEu, fuel, vessels, calendarYear)
       : 0;
     const ira45z = regulations.ira45z
-      ? ira45zCreditUsdM(regulations.ira45z, fuel, vessels)
+      ? ira45zCreditUsdM(regulations.ira45z, fuel, vessels, calendarYear)
       : 0;
     const selfDesigned = regulations.selfDesigned
       ? selfDesignedCostUsdM(regulations.selfDesigned, fuel, vessels, totalCapex, totalOpex)

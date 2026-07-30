@@ -15,10 +15,18 @@ export function etsCostUsdM(
   vessels: number,
   cal: CalendarYear,
 ): number {
+  // D3 — maritime ETS covers CH4 + N2O (as CO2e via GWP100) from 2026 when
+  // gas coverage is enabled; the workbook counts CO2 only (gases absent).
+  const gases = params.gases;
+  const co2ePerTonneFuel =
+    fuel.combustionEf +
+    (gases && cal >= gases.fromCalendarYear
+      ? gases.ch4TPerTonne * gases.gwpCh4 + gases.n2oTPerTonne * gases.gwpN2o
+      : 0);
   return (
     (vessels *
       fuel.tonnesPerVesselYear *
-      fuel.combustionEf *
+      co2ePerTonneFuel *
       stepValue(params.phaseIn, cal) *
       params.scope *
       params.euaEurPerTonne *

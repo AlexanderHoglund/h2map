@@ -10,7 +10,28 @@ export const SCHEMA_VERSION = 1;
 
 export type RouteType = "point-to-point" | "single-point";
 export type ConsumptionMode = "distance" | "vessel-benchmark";
-export type FuelSourcing = "construct" | "purchase";
+
+/**
+ * Fuel sourcing (divergence D4). `construct` is the LEGACY Excel mode — it
+ * charges full merchant fuel price AND production capex AND O&M (production
+ * cost twice); kept verbatim for the golden fixture. `purchase` buys at
+ * market/contract price. `named-plant` and `build-here` price at a DELIVERED
+ * price (contract, or LCOH+synthesis+logistics-derived) with production
+ * capex/opex forced to zero — they live inside the delivered price.
+ */
+export type FuelSourcing = "construct" | "purchase" | "named-plant" | "build-here";
+
+/**
+ * Divergences from the Excel (build-plan 1.4). Every field optional; the
+ * default is ALWAYS the Excel behaviour, so the golden fixture passes with
+ * `flags` absent.
+ */
+export interface DivergenceFlags {
+  /** D1 — basis for CO2-abated (and $/tCO2). Excel: combustion (TTW). */
+  emissionsBasis?: "combustion" | "wellToWake";
+  /** D6 — real deflates the OPEX inflation growth. Excel: nominal. */
+  rateBasis?: "nominal" | "real";
+}
 
 export interface CargoInput {
   countryId: string;
@@ -57,13 +78,37 @@ export interface FuelSideOverrides {
 export interface FuelSideInput {
   fuelId: string;
   sourcing: FuelSourcing;
+  /**
+   * D4 — required for `named-plant`/`build-here`: the delivered price at the
+   * bunker port ($/t). For build-here it is derived server-side from
+   * LCOH + synthesis + logistics; the corridor engine must not know which.
+   */
+  deliveredPriceUsdPerTonne?: number | null;
   overrides: FuelSideOverrides;
+}
+
+/** D3 — per-side non-CO2 combustion factors (tonnes of gas per tonne fuel). */
+export interface EtsGasFactors {
+  ch4TPerTonne: number;
+  n2oTPerTonne: number;
 }
 
 export interface EtsInput {
   enabled: boolean;
   euaEurPerTonne: number;
   scope: number;
+  /**
+   * D3 — maritime ETS covers CH4 + N2O from 2026 (material for LNG slip and
+   * ammonia N2O). Off (absent) = Excel behaviour (CO2 only).
+   */
+  gasCoverage?: {
+    enabled: boolean;
+    fromCalendarYear: number;
+    gwpCh4: number;
+    gwpN2o: number;
+    green: EtsGasFactors;
+    fossil: EtsGasFactors;
+  };
 }
 
 export interface FuelEuInput {
@@ -72,12 +117,30 @@ export interface FuelEuInput {
   vlsfoMjPerTonne: number;
   baselineGco2PerMj: number;
   scope: number;
+  /**
+   * D2 — over-compliance value. Excel floors at MAX(0, ·): a surplus is worth
+   * nothing. Enabled: a negative deficit earns `surplusValueEurPerTonneVlsfoEq`
+   * per notional tonne, with the RFNBO ×multiplier until `rfnboUntil`.
+   */
+  credit?: {
+    enabled: boolean;
+    surplusValueEurPerTonneVlsfoEq: number;
+    rfnbo: boolean;
+    rfnboMultiplier: number;
+    rfnboUntil: number;
+  };
 }
 
 export interface Ira45zInput {
   enabled: boolean;
   usProduced: boolean;
   rateUsdPerGallon: number;
+  /**
+   * D5 — the credit as legislated runs to end-2027; the workbook has no
+   * sunset. Absent/null = no sunset (Excel behaviour); parameterized rather
+   * than hardcoded either way.
+   */
+  effectiveUntil?: number | null;
 }
 
 export interface SelfDesignedInput {
@@ -105,4 +168,6 @@ export interface ScenarioInput {
   green: FuelSideInput;
   fossil: FuelSideInput;
   regulation: RegulationInput;
+  /** Divergence flags (D1/D6). Absent = pure Excel behaviour. */
+  flags?: DivergenceFlags;
 }

@@ -9,13 +9,17 @@
  * `effectiveUntil` parameterization is Phase-1 divergence D5.
  */
 
+import type { CalendarYear } from "@h2map/units";
 import type { FuelParams, Ira45zParams } from "@h2map/corridor-schema";
 
 export function ira45zCreditUsdM(
   params: Ira45zParams,
   fuel: FuelParams,
   vessels: number,
+  cal: CalendarYear,
 ): number {
+  // D5 — optional legislated sunset; absent = the workbook's perpetual credit.
+  if (params.effectiveUntil !== undefined && cal > params.effectiveUntil) return 0;
   return (
     (-vessels *
       fuel.tonnesPerVesselYear *

@@ -28,11 +28,19 @@ const fuelSideOverridesSchema = z.object({
   bargeOpexUsdMPerYear: nullableNumber,
 });
 
-const fuelSideSchema = z.object({
-  fuelId: z.string().min(1),
-  sourcing: z.enum(["construct", "purchase"]),
-  overrides: fuelSideOverridesSchema,
-});
+const fuelSideSchema = z
+  .object({
+    fuelId: z.string().min(1),
+    sourcing: z.enum(["construct", "purchase", "named-plant", "build-here"]),
+    deliveredPriceUsdPerTonne: z.number().finite().nullable().optional(),
+    overrides: fuelSideOverridesSchema,
+  })
+  .refine(
+    (s) =>
+      !(s.sourcing === "named-plant" || s.sourcing === "build-here") ||
+      s.deliveredPriceUsdPerTonne != null,
+    { message: "delivered-price sourcing requires deliveredPriceUsdPerTonne" },
+  );
 
 export const scenarioInputSchema = z.object({
   schemaVersion: z.literal(SCHEMA_VERSION),
@@ -63,6 +71,22 @@ export const scenarioInputSchema = z.object({
       enabled: z.boolean(),
       euaEurPerTonne: z.number().nonnegative(),
       scope: z.number().min(0).max(1),
+      gasCoverage: z
+        .object({
+          enabled: z.boolean(),
+          fromCalendarYear: z.number().int(),
+          gwpCh4: z.number().positive(),
+          gwpN2o: z.number().positive(),
+          green: z.object({
+            ch4TPerTonne: z.number().nonnegative(),
+            n2oTPerTonne: z.number().nonnegative(),
+          }),
+          fossil: z.object({
+            ch4TPerTonne: z.number().nonnegative(),
+            n2oTPerTonne: z.number().nonnegative(),
+          }),
+        })
+        .optional(),
     }),
     fuelEu: z.object({
       enabled: z.boolean(),
@@ -70,11 +94,21 @@ export const scenarioInputSchema = z.object({
       vlsfoMjPerTonne: z.number().positive(),
       baselineGco2PerMj: z.number().positive(),
       scope: z.number().min(0).max(1),
+      credit: z
+        .object({
+          enabled: z.boolean(),
+          surplusValueEurPerTonneVlsfoEq: z.number().nonnegative(),
+          rfnbo: z.boolean(),
+          rfnboMultiplier: z.number().min(1),
+          rfnboUntil: z.number().int(),
+        })
+        .optional(),
     }),
     ira45z: z.object({
       enabled: z.boolean(),
       usProduced: z.boolean(),
       rateUsdPerGallon: z.number().nonnegative(),
+      effectiveUntil: z.number().int().nullable().optional(),
     }),
     selfDesigned: z.object({
       enabled: z.boolean(),
@@ -85,6 +119,12 @@ export const scenarioInputSchema = z.object({
       otherUsdM: z.number().finite(),
     }),
   }),
+  flags: z
+    .object({
+      emissionsBasis: z.enum(["combustion", "wellToWake"]).optional(),
+      rateBasis: z.enum(["nominal", "real"]).optional(),
+    })
+    .optional(),
 });
 
 export function parseScenarioInput(data: unknown): ScenarioInput {

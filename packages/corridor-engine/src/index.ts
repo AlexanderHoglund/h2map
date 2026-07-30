@@ -36,6 +36,7 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
     timeline: buildTimeline(resolved.startYear, resolved.horizonYears),
     discounting: { wacc: resolved.wacc.value },
     inflation: resolved.inflation,
+    rateBasis: resolved.flags.rateBasis, // D6
   };
 
   const greenInputs = toSideInputs(resolved, "green");
@@ -43,18 +44,30 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
   const green = evaluateSide(greenInputs, ctx);
   const fossil = evaluateSide(fossilInputs, ctx);
 
-  // Row 65: CO2 abated (combustion/TTW basis, per-side tonnages) — fossil
-  // tonnes × fossil EF minus green tonnes × green EF, per modeled year.
-  // WTW basis is Phase-1 divergence D1.
-  const co2PerYear = ctx.timeline.years.map(
-    () =>
-      resolved.vessels *
-        fossilInputs.fuel.tonnesPerVesselYear *
-        fossilInputs.fuel.combustionEf -
+  // Row 65: CO2 abated on combustion (TTW) factors — fossil tonnes × fossil
+  // EF minus green tonnes × green EF, per modeled year (the Excel basis).
+  const combustionPerYearT =
+    resolved.vessels *
+      fossilInputs.fuel.tonnesPerVesselYear *
+      fossilInputs.fuel.combustionEf -
+    resolved.vessels *
+      greenInputs.fuel.tonnesPerVesselYear *
+      greenInputs.fuel.combustionEf;
+  // D1 — well-to-wake basis: tonnes × LHV [MJ/t] × WTW [gCO2e/MJ] / 1e6 → t.
+  const wtwPerYearT =
+    (resolved.vessels *
+      fossilInputs.fuel.tonnesPerVesselYear *
+      fossilInputs.fuel.lhv *
+      fossilInputs.fuel.wtw -
       resolved.vessels *
         greenInputs.fuel.tonnesPerVesselYear *
-        greenInputs.fuel.combustionEf,
-  );
+        greenInputs.fuel.lhv *
+        greenInputs.fuel.wtw) /
+    1e6;
+
+  const wellToWake = resolved.flags.emissionsBasis === "wellToWake";
+  const basisPerYearT = wellToWake ? wtwPerYearT : combustionPerYearT;
+  const co2PerYear = ctx.timeline.years.map(() => basisPerYearT);
   const co2AbatedTonnes = co2PerYear.reduce((a, b) => a + b, 0); // row 81
 
   // Row 80: lifetime cargo = Σ annual throughput — cargo only, no fuel linkage.
@@ -94,5 +107,19 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
       fossil: fossil.perYear,
       co2AbatedTonnes: co2PerYear,
     },
+    // D1 — surface BOTH bases when the non-default one is active (the two
+    // differ materially: WTW includes upstream emissions). Absent under Excel
+    // defaults so the frozen golden shape is untouched.
+    ...(wellToWake
+      ? {
+          divergences: {
+            emissionsBasis: {
+              basis: "wellToWake" as const,
+              co2AbatedTonnesCombustion: combustionPerYearT * resolved.horizonYears,
+              co2AbatedTonnesWellToWake: wtwPerYearT * resolved.horizonYears,
+            },
+          },
+        }
+      : {}),
   };
 }

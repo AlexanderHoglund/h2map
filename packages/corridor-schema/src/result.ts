@@ -63,4 +63,17 @@ export interface ScenarioResult {
     readonly fossil: SidePerYear;
     readonly co2AbatedTonnes: readonly number[];
   };
+  /**
+   * Divergence surfacing (D1): present ONLY when a non-default flag produced
+   * information the Excel-shaped sections cannot carry — e.g. both emissions
+   * bases when they differ. Absent under pure Excel behaviour, so the frozen
+   * golden fixture's shape is untouched.
+   */
+  readonly divergences?: {
+    readonly emissionsBasis?: {
+      readonly basis: "wellToWake";
+      readonly co2AbatedTonnesCombustion: number;
+      readonly co2AbatedTonnesWellToWake: number;
+    };
+  };
 }

@@ -59,6 +59,8 @@ export interface EvalContext {
   readonly timeline: Timeline;
   readonly discounting: Discounting;
   readonly inflation: Fraction;
+  /** D6 — "real" deflates the OPEX inflation growth. Default nominal (Excel). */
+  readonly rateBasis?: "nominal" | "real";
 }
 
 // ---------------------------------------------------------------------------
@@ -96,6 +98,14 @@ export interface EtsParams {
   readonly eurUsd: EurUsd;
   readonly scope: Fraction;
   readonly phaseIn: readonly ScheduleStep[];
+  /** D3 — this SIDE's non-CO2 gases (already side-specific after resolution). */
+  readonly gases?: {
+    readonly fromCalendarYear: CalendarYear;
+    readonly ch4TPerTonne: number;
+    readonly n2oTPerTonne: number;
+    readonly gwpCh4: number;
+    readonly gwpN2o: number;
+  };
 }
 
 export interface FuelEuParams {
@@ -105,12 +115,23 @@ export interface FuelEuParams {
   readonly baselineGco2PerMj: GCo2ePerMj;
   readonly vlsfoMjPerTonne: MjPerTonne;
   readonly targets: readonly ScheduleStep[];
+  /**
+   * D2 — over-compliance credit. `multiplier` is the RFNBO factor applied to
+   * the surplus while cal ≤ multiplierUntil (1 for non-RFNBO fuels).
+   */
+  readonly credit?: {
+    readonly surplusValueEurPerTonne: EurPerTonne;
+    readonly multiplier: number;
+    readonly multiplierUntil: CalendarYear;
+  };
 }
 
 export interface Ira45zParams {
   readonly rateUsdPerGallon: UsdPerGallon;
   /** Gasoline-gallon-equivalent energy content (122.5 MJ/gal, bundle constant). */
   readonly mjPerGallon: number;
+  /** D5 — credit is zero after this calendar year. Absent = no sunset (Excel). */
+  readonly effectiveUntil?: CalendarYear;
 }
 
 /**
@@ -177,5 +198,10 @@ export interface ResolvedScenario {
   readonly regulations: {
     readonly green: SideRegulations;
     readonly fossil: SideRegulations;
+  };
+  /** Divergence flags with defaults applied (absent input → Excel behaviour). */
+  readonly flags: {
+    readonly emissionsBasis: "combustion" | "wellToWake";
+    readonly rateBasis: "nominal" | "real";
   };
 }

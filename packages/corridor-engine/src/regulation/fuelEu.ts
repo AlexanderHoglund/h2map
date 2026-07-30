@@ -24,12 +24,32 @@ export function fuelEuCostUsdM(
   cal: CalendarYear,
 ): number {
   const target = stepValue(params.targets, cal);
-  const deficit = Math.max(0, fuel.wtw - params.baselineGco2PerMj * (1 - target));
+  const rawDeficit = fuel.wtw - params.baselineGco2PerMj * (1 - target);
+
+  // Notional VLSFO-equivalent tonnes per unit intensity (the ÷WTW ÷41000
+  // energy→mass conversion, preserved verbatim).
+  const massPerIntensity =
+    (vessels * fuel.tonnesPerVesselYear * fuel.lhv) /
+    fuel.wtw /
+    params.vlsfoMjPerTonne;
+
+  if (rawDeficit > 0 || !params.credit) {
+    // Deficit (or Excel behaviour): MAX(0, ·) penalty — the workbook's clamp.
+    const deficit = Math.max(0, rawDeficit);
+    return (
+      ((deficit * massPerIntensity * params.penaltyEurPerTonne) *
+        params.scope *
+        params.eurUsd) /
+      1e6
+    );
+  }
+
+  // D2 — over-compliance credit: the surplus (|rawDeficit|) is poolable and
+  // priced at the surplus value, with the RFNBO ×multiplier until its cutoff.
+  // Negative return = revenue reducing the side's cost.
+  const multiplier = cal <= params.credit.multiplierUntil ? params.credit.multiplier : 1;
   return (
-    (((deficit * (vessels * fuel.tonnesPerVesselYear * fuel.lhv)) /
-      fuel.wtw /
-      params.vlsfoMjPerTonne) *
-      params.penaltyEurPerTonne *
+    ((rawDeficit * multiplier * massPerIntensity * params.credit.surplusValueEurPerTonne) *
       params.scope *
       params.eurUsd) /
     1e6
