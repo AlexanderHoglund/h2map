@@ -16,6 +16,7 @@
  */
 import { REFERENCE_DEFAULTS, simulateLCOH } from "@h2map/lcoh-engine";
 import type {
+  LCOHDecomposition,
   LCOHInputs,
   PricingMode,
   ReferenceFlags,
@@ -69,6 +70,15 @@ export interface SweepPoint {
   pvMw: number;
   windMw: number;
   lcoh: number;
+  /**
+   * Task 0d — per-component LCOH decomposition (sums exactly to `lcoh`) and
+   * full-load hours, captured for the rank-diff harness so model changes report
+   * WHICH component moved, not just the total (a Kenya run once agreed on total
+   * while three components were individually wrong and nearly cancelled).
+   * Optional so existing consumers (seeder/recompute payloads) are unaffected.
+   */
+  components?: LCOHDecomposition;
+  flh?: number;
 }
 
 export interface SweepResult {
@@ -112,7 +122,13 @@ function sweep(
       ...(pvMw > 0 ? { pv: profiles.pv } : {}),
       ...(windMw > 0 ? { wind: profiles.wind } : {}),
     });
-    points.push({ pvMw, windMw, lcoh: results.lcohUsdPerKg });
+    points.push({
+      pvMw,
+      windMw,
+      lcoh: results.lcohUsdPerKg,
+      components: results.decomposition,
+      flh: results.performance.fullLoadHoursPerYear,
+    });
   }
   if (points.length === 0) {
     throw new Error(`${label}: no feasible configuration (no profiles)`);
@@ -199,6 +215,14 @@ export interface YearLcoh {
   wind: number | null;
   bestPvMw: number;
   bestWindMw: number;
+  /** Task 0d — per-layer component decomposition (see SweepPoint.components). */
+  components?: {
+    best: LCOHDecomposition;
+    solar: LCOHDecomposition | null;
+    wind: LCOHDecomposition | null;
+  };
+  /** Task 0d — per-layer full-load hours per year. */
+  flh?: { best: number; solar: number | null; wind: number | null };
 }
 
 /** Run the map sweep for every cost year from one set of cached profiles. */
@@ -210,12 +234,28 @@ export function mapSweepAllYears(
   const out = {} as Record<CostYear, YearLcoh>;
   for (const year of COST_YEARS) {
     const s = mapSweep(profiles, COST_PACKS[year], flags, wacc);
+    const solarPoint = s.sweep.find((p) => p.windMw === 0) ?? null;
+    const windPoint = s.sweep.find((p) => p.pvMw === 0) ?? null;
     out[year] = {
       best: s.best.lcoh,
       solar: s.solarOnly,
       wind: s.windOnly,
       bestPvMw: s.best.pvMw,
       bestWindMw: s.best.windMw,
+      ...(s.best.components
+        ? {
+            components: {
+              best: s.best.components,
+              solar: solarPoint?.components ?? null,
+              wind: windPoint?.components ?? null,
+            },
+            flh: {
+              best: s.best.flh ?? 0,
+              solar: solarPoint?.flh ?? null,
+              wind: windPoint?.flh ?? null,
+            },
+          }
+        : {}),
     };
   }
   return out;

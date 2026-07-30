@@ -13,6 +13,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cellToLatLng } from "h3-js";
+import type { LCOHDecomposition } from "@h2map/lcoh-engine";
 import { getResourceProfile } from "@h2map/profile-service";
 import { IMPROVED_FLAGS, mapSweepAllYears } from "../lib/lcohSweep";
 import {
@@ -28,6 +29,7 @@ import {
   diffLayerYear,
   LAYERS,
   round,
+  topComponents,
   type BenchCell,
   type Layer,
 } from "./lib";
@@ -38,14 +40,22 @@ const BASELINE = `${DIR}/baseline.json`;
 const TARGET = 500;
 const PER_BUCKET_CAP = 110; // keep any one geography from dominating
 
+/** Snapshot schema. v2 (Task 0d) added the per-component matrix. */
+const SCHEMA_VERSION = 2;
+
 type Vec = (number | null)[]; // per benchmark cell
 /** matrix[layer][year] = value per cell */
 type Matrix = Record<Layer, Record<number, Vec>>;
+type CompVec = (LCOHDecomposition | null)[];
+/** components[layer][year] = decomposition per cell (parallel to matrix). */
+type CompMatrix = Record<Layer, Record<number, CompVec>>;
 
 interface Snapshot {
+  schemaVersion?: number;
   computedAt: string;
   order: string[]; // h3 in benchmark order
   matrix: Matrix;
+  components?: CompMatrix;
 }
 
 function delayless() {
@@ -136,7 +146,27 @@ function loadBenchmark(): BenchCell[] {
   return (JSON.parse(readFileSync(BENCH, "utf8")) as { cells: BenchCell[] }).cells;
 }
 
-async function compute(cells: BenchCell[]): Promise<Matrix> {
+function emptyMatrix<T>(): Record<Layer, Record<number, (T | null)[]>> {
+  return {
+    best: Object.fromEntries(COST_YEARS.map((y) => [y, []])) as Record<number, (T | null)[]>,
+    solar: Object.fromEntries(COST_YEARS.map((y) => [y, []])) as Record<number, (T | null)[]>,
+    wind: Object.fromEntries(COST_YEARS.map((y) => [y, []])) as Record<number, (T | null)[]>,
+  };
+}
+
+/** Self-check: the plumbed decomposition must sum back to the total. */
+function assertComponentsSum(lcoh: number, comp: LCOHDecomposition, where: string): void {
+  const sum = Object.values(comp).reduce((a, b) => a + b, 0);
+  if (Math.abs(sum - lcoh) > 1e-9) {
+    throw new Error(
+      `component sum ${sum} != lcoh ${lcoh} at ${where} — harness plumbing bug`,
+    );
+  }
+}
+
+async function compute(
+  cells: BenchCell[],
+): Promise<{ matrix: Matrix; components: CompMatrix }> {
   // RANKDIFF_MODE=improved runs the accumulated improved-mode flag set so a
   // report quantifies its rank effect; default is the reference model.
   const flags = process.env.RANKDIFF_MODE === "improved" ? IMPROVED_FLAGS : {};
@@ -146,11 +176,8 @@ async function compute(cells: BenchCell[]): Promise<Matrix> {
     cache: makeCache(db),
     getTurbineCurve: makeTurbineLoader(db),
   };
-  const matrix: Matrix = {
-    best: Object.fromEntries(COST_YEARS.map((y) => [y, [] as Vec])) as Record<number, Vec>,
-    solar: Object.fromEntries(COST_YEARS.map((y) => [y, [] as Vec])) as Record<number, Vec>,
-    wind: Object.fromEntries(COST_YEARS.map((y) => [y, [] as Vec])) as Record<number, Vec>,
-  };
+  const matrix = emptyMatrix<number>() as Matrix;
+  const components = emptyMatrix<LCOHDecomposition>() as CompMatrix;
   let done = 0;
   for (const cell of cells) {
     const [lat, lon] = cellToLatLng(cell.h3);
@@ -167,29 +194,45 @@ async function compute(cells: BenchCell[]): Promise<Matrix> {
       matrix.best[y]!.push(t ? t.best : null);
       matrix.solar[y]!.push(t ? t.solar : null);
       matrix.wind[y]!.push(t ? t.wind : null);
+      const comp = t?.components;
+      if (comp) {
+        assertComponentsSum(t.best, comp.best, `${cell.h3} best ${y}`);
+        if (t.solar !== null && comp.solar) assertComponentsSum(t.solar, comp.solar, `${cell.h3} solar ${y}`);
+        if (t.wind !== null && comp.wind) assertComponentsSum(t.wind, comp.wind, `${cell.h3} wind ${y}`);
+      }
+      components.best[y]!.push(comp?.best ?? null);
+      components.solar[y]!.push(comp?.solar ?? null);
+      components.wind[y]!.push(comp?.wind ?? null);
     }
     if (++done % 100 === 0) process.stdout.write(`  computed ${done}/${cells.length}\r`);
   }
   console.log("");
-  return matrix;
+  return { matrix, components };
 }
 
 async function snapshot(): Promise<void> {
   const cells = loadBenchmark();
-  const matrix = await compute(cells);
+  const { matrix, components } = await compute(cells);
   const snap: Snapshot = {
+    schemaVersion: SCHEMA_VERSION,
     computedAt: new Date().toISOString(),
     order: cells.map((c) => c.h3),
     matrix,
+    components,
   };
   writeFileSync(BASELINE, JSON.stringify(snap) + "\n");
-  console.log(`baseline written for ${cells.length} cells`);
+  console.log(`baseline written for ${cells.length} cells (schema v${SCHEMA_VERSION})`);
 }
 
 async function report(): Promise<void> {
   const cells = loadBenchmark();
   if (!existsSync(BASELINE)) throw new Error(`no baseline — run: npm run rankdiff -- snapshot`);
   const base = JSON.parse(readFileSync(BASELINE, "utf8")) as Snapshot;
+  if ((base.schemaVersion ?? 1) < SCHEMA_VERSION) {
+    throw new Error(
+      `baseline is schema v${base.schemaVersion ?? 1} (pre-component capture) — re-take it: npm run rankdiff -- snapshot (after removing the stale baseline)`,
+    );
+  }
   const cand = await compute(cells);
 
   const lines: string[] = ["# Rank-diff report", "", `Benchmark: ${cells.length} cells · baseline ${base.computedAt}`, ""];
@@ -198,7 +241,9 @@ async function report(): Promise<void> {
   for (const layer of LAYERS) {
     for (const y of COST_YEARS) {
       const b = base.matrix[layer][y]!;
-      const c = cand[layer][y]!;
+      const c = cand.matrix[layer][y]!;
+      const bComp = base.components?.[layer][y];
+      const cComp = cand.components[layer][y]!;
       // keep cells where both are finite
       const keep: number[] = [];
       for (let i = 0; i < cells.length; i++) {
@@ -208,7 +253,15 @@ async function report(): Promise<void> {
       const subCells = keep.map((i) => cells[i]!);
       const bl = keep.map((i) => b[i] as number);
       const cl = keep.map((i) => c[i] as number);
-      const d = diffLayerYear(subCells, bl, cl, layer, y);
+      const d = diffLayerYear(
+        subCells,
+        bl,
+        cl,
+        layer,
+        y,
+        bComp ? keep.map((i) => bComp[i] ?? null) : undefined,
+        keep.map((i) => cComp[i] ?? null),
+      );
       json.push(d as unknown as Record<string, unknown>);
       lines.push(
         `## ${layer} · ${y}  (n=${d.n})`,
@@ -217,10 +270,20 @@ async function report(): Promise<void> {
         `- top-50 churn ${(d.top50Churn * 100).toFixed(1)}% · top-decile retention ${(d.topDecileRetention * 100).toFixed(1)}%`,
         `- mean shift ${d.meanShift} USD/kg · by bucket ${JSON.stringify(d.meanShiftByBucket)}`,
       );
+      if (d.meanComponentShift) {
+        const nonZero = Object.entries(d.meanComponentShift).filter(([, v]) => v !== 0);
+        if (nonZero.length > 0) {
+          lines.push(
+            `- mean component shift: ${nonZero.map(([k, v]) => `${k} ${v >= 0 ? "+" : ""}${v}`).join(" · ")}`,
+          );
+        }
+      }
       if (Math.abs(d.top50Churn) > 0 || Math.abs(d.meanShift) > 1e-9) {
         lines.push("- largest movers:");
         for (const m of d.largestMovers.slice(0, 8)) {
-          lines.push(`    ${m.h3} (${m.lat}, ${m.lon}) ${m.elevationM}m ${m.bucket}: ${m.baseline} → ${m.candidate} (${m.delta >= 0 ? "+" : ""}${m.delta})`);
+          lines.push(
+            `    ${m.h3} (${m.lat}, ${m.lon}) ${m.elevationM}m ${m.bucket}: ${m.baseline} → ${m.candidate} (${m.delta >= 0 ? "+" : ""}${m.delta})${topComponents(m.componentDeltas)}`,
+          );
         }
       }
       lines.push("");

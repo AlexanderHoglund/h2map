@@ -78,6 +78,20 @@ better screening rank-fidelity. All flags default off, so reference mode and
 the Chilean parity run are unaffected, and the reference golden set is
 untouched (an `improved-*` golden set is added beside it).
 
+**Task 0 — rank-diff harness** (`scripts/rankdiff`, `npm run rankdiff --
+benchmark|snapshot|report`): 500 stratified benchmark cells (6 geography
+buckets, elevation-tagged, persisted) diffed per layer × cost-year with
+Kendall τ_b / Spearman ρ / top-50 churn / top-decile retention / 20 largest
+movers / bucket mean shifts. **Snapshot schema v2** additionally captures the
+engine's per-component LCOH decomposition (electricity PV/wind/grid,
+electrolyzer CAPEX, stack replacements, OPEX, water — sums exactly to LCOH,
+self-checked at 1e-9) plus full-load hours per layer, and reports **mean
+component shift** and per-mover component deltas. Rationale: a Kenya run once
+agreed with the Müller benchmark on *total* LCOH while three components were
+individually wrong and nearly cancelled (cheap wind −0.94, inflated stack
++0.52, low FLH +0.30) — total-only reporting would have passed it. `report`
+refuses a v1 (component-less) baseline.
+
 - **P0 #1 — air-density correction for wind** (profile layer;
   `ProfileServiceDeps.windAirDensityCorrection`). A turbine power curve is
   defined at sea-level density ρ₀ = 1.225 kg/m³; the reference profiles ignore
