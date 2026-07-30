@@ -100,6 +100,10 @@ overwrite. The original 2026-07-25 baseline was **retired 2026-07-30**
 contained non-physical capacity factors. Both current baselines are tagged
 `post-tier1`; the identity report after re-baselining (τ_b = 1, all deltas 0)
 is the self-consistency proof.
+CI: `.github/workflows/rankdiff.yml` runs the report weekly (+ on demand with a
+mode input) and uploads `report.{md,json}` as an artifact / step summary — the
+weekly run doubles as cache-drift detection (τ_b < 1 with no model change means
+the cron re-seeds moved cached profiles under the committed baseline).
 
 - **P0 #1 — air-density correction for wind** (profile layer;
   `ProfileServiceDeps.windAirDensityCorrection`). A turbine power curve is

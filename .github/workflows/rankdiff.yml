@@ -1,0 +1,57 @@
+name: rankdiff
+
+# Task 0e — the rank-diff report as a CI artifact.
+#
+# Not per-PR: the report computes from the live Supabase profile cache (repo
+# secrets, which fork PRs don't get) and is non-hermetic (cron re-seeds mutate
+# cached profiles over time). Instead it runs weekly + on demand:
+#   - weekly: doubles as data-drift detection — a report against the committed
+#     baseline surfaces silent cache drift (τ_b < 1 with no model change).
+#   - workflow_dispatch: run it manually for a model change under test, with
+#     the mode of your choice.
+# The report lands as an artifact and in the job's step summary.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Model mode to diff (matches the baseline of the same mode)"
+        type: choice
+        options: [improved, reference]
+        default: improved
+
+concurrency:
+  group: rankdiff
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Rank-diff report vs committed baseline
+        run: npm run rankdiff -- report
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          # Scheduled runs default to improved (the live map's mode).
+          RANKDIFF_MODE: ${{ inputs.mode || 'improved' }}
+      - name: Publish report to step summary
+        if: always()
+        run: cat data/rankdiff/report.md >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rankdiff-report
+          path: |
+            data/rankdiff/report.md
+            data/rankdiff/report.json
+          if-no-files-found: warn
