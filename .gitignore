@@ -30,3 +30,7 @@ hex-seed-new.log
 hex-seed-deep.log
 data/rankdiff/report.md
 data/rankdiff/report.json
+
+# Playwright
+test-results/
+playwright-report/
