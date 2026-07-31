@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -48,45 +48,24 @@ export default function BuildHerePanel({
     co2UsdPerTonne: 30,
     distanceKm: s.buildHere?.distanceKm ?? 300,
   });
+  // The site's LCOH: seeded by the map pick (the cell's best-2024 value) and
+  // freely adjustable afterwards — every knob recomputes the delivered price
+  // live; no re-pick needed.
+  const [siteLcoh, setSiteLcoh] = useState<number | null>(
+    s.buildHere?.lcohUsdPerKg ?? null,
+  );
   const [pickError, setPickError] = useState<string | null>(null);
   const [mapControls, setMapControls] = useState(false);
 
-  let benchmark: ReturnType<typeof getSynthesisBenchmark> | null = null;
+  let carrier: ReturnType<typeof getSynthesisBenchmark> | null = null;
   try {
-    benchmark = getSynthesisBenchmark(s.fuelId);
+    carrier = getSynthesisBenchmark(s.fuelId);
   } catch {
-    benchmark = null;
+    carrier = null;
   }
-
-  if (!benchmark) {
-    return (
-      <p className="sm:col-span-2 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-700 dark:text-amber-500">
-        {t("unsupportedCarrier", { fuel: s.fuelId })}
-      </p>
-    );
-  }
-  const carrier = benchmark;
-
-  const applySite = (pick: { h3: string; lat: number; lon: number; lcoh: number }) => {
-    const synth = synthesize(pick.lcoh, carrier, config);
-    const logistics = config.distanceKm * ROUTE_FACTOR * carrier.shippingUsdPerTonneKm;
-    const delivered = Math.round((synth.gateUsdPerTonne + logistics) * 100) / 100;
-    update((d) => {
-      d[side].deliveredPriceUsdPerTonne = delivered;
-      d[side].buildHere = {
-        h3: pick.h3,
-        lat: pick.lat,
-        lon: pick.lon,
-        lcohUsdPerKg: pick.lcoh,
-        carrierId: carrier.carrierId,
-        synthesisGateUsdPerTonne: Math.round(synth.gateUsdPerTonne * 100) / 100,
-        distanceKm: config.distanceKm,
-        logisticsUsdPerTonne: Math.round(logistics * 100) / 100,
-      };
-    });
-  };
 
   const onSitePicked = (pick: SitePick) => {
+    if (!carrier) return;
     // Masked / failed-gate cells carry no best value — not selectable (3.3).
     const lcoh = layerValue(pick.datum.data, "best", 2024);
     if (lcoh === null) {
@@ -94,11 +73,69 @@ export default function BuildHerePanel({
       return;
     }
     setPickError(null);
-    applySite({ h3: pick.h3, lat: pick.lat, lon: pick.lon, lcoh });
+    setSiteLcoh(lcoh);
+    update((d) => {
+      // Delivered price + lineage are completed reactively below.
+      d[side].buildHere = {
+        h3: pick.h3,
+        lat: pick.lat,
+        lon: pick.lon,
+        lcohUsdPerKg: lcoh,
+        carrierId: carrier.carrierId,
+        synthesisGateUsdPerTonne: 0,
+        distanceKm: config.distanceKm,
+        logisticsUsdPerTonne: 0,
+      };
+      d[side].deliveredPriceUsdPerTonne ??= 0;
+    });
     setPickerOpen(false);
   };
 
   const lineage = s.buildHere;
+
+  // Reactive delivered price: once a site exists, ANY knob (site LCOH,
+  // production WACC, electricity, CO2, distance, carrier) recomputes the
+  // delivered price + lineage. Writes only when the numbers actually change,
+  // so the update cannot loop.
+  const siteKey = lineage ? `${lineage.h3}` : null;
+  useEffect(() => {
+    // Hooks run unconditionally; the guards do the branching.
+    if (!carrier || !siteKey || siteLcoh === null) return;
+    const synth = synthesize(siteLcoh, carrier, config);
+    const logistics = config.distanceKm * ROUTE_FACTOR * carrier.shippingUsdPerTonneKm;
+    const delivered = Math.round((synth.gateUsdPerTonne + logistics) * 100) / 100;
+    const gate = Math.round(synth.gateUsdPerTonne * 100) / 100;
+    const logisticsR = Math.round(logistics * 100) / 100;
+    const timer = setTimeout(() => update((d) => {
+      const b = d[side].buildHere;
+      if (!b) return;
+      if (
+        d[side].deliveredPriceUsdPerTonne === delivered &&
+        b.lcohUsdPerKg === siteLcoh &&
+        b.synthesisGateUsdPerTonne === gate &&
+        b.distanceKm === config.distanceKm
+      ) {
+        return; // nothing changed — no state churn
+      }
+      d[side].deliveredPriceUsdPerTonne = delivered;
+      b.lcohUsdPerKg = siteLcoh;
+      b.carrierId = carrier.carrierId;
+      b.synthesisGateUsdPerTonne = gate;
+      b.distanceKm = config.distanceKm;
+      b.logisticsUsdPerTonne = logisticsR;
+    }), 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [siteKey, siteLcoh, config, carrier?.carrierId]);
+
+  // Unsupported carriers (no synthesis pathway) — after all hooks.
+  if (!carrier) {
+    return (
+      <p className="sm:col-span-2 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-700 dark:text-amber-500">
+        {t("unsupportedCarrier", { fuel: s.fuelId })}
+      </p>
+    );
+  }
 
   return (
     <div className="sm:col-span-2 space-y-2">
@@ -134,7 +171,25 @@ export default function BuildHerePanel({
       )}
 
       {/* Synthesis config (D7: production-side WACC, separate from corridor WACC) */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        {siteKey && siteLcoh !== null && (
+          <label className="block text-[11px] text-neutral-600 dark:text-neutral-400">
+            {t("siteLcoh")}
+            <span className="mt-0.5 flex items-center gap-1 rounded-md border border-emerald-400 bg-white px-2 py-1 dark:border-emerald-700 dark:bg-neutral-900">
+              <input
+                type="number"
+                step={0.05}
+                value={siteLcoh}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  if (Number.isFinite(n) && n > 0) setSiteLcoh(n);
+                }}
+                className="min-w-0 flex-1 bg-transparent text-xs tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="shrink-0 text-[10px] text-neutral-500">$/kg</span>
+            </span>
+          </label>
+        )}
         {(
           [
             ["productionWacc", t("productionWacc"), 0.005, "fraction"],

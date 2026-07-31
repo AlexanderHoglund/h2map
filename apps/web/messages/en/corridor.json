@@ -155,9 +155,10 @@
       "electricity": "Electricity",
       "co2Price": "CO2 feedstock",
       "distance": "Distance to port",
-      "configNote": "Production-side financing (deliberately separate from the corridor discount rate), synthesis electricity, CO2 feedstock (e-methanol), and plant→bunker-port distance. Delivered price = map-cell LCOH → carrier synthesis → logistics; re-pick the site after changing these.",
+      "configNote": "Every knob recomputes the delivered price live: site LCOH (seeded by the picked cell, adjustable), production-side financing (deliberately separate from the corridor discount rate), synthesis electricity, CO2 feedstock (e-methanol), and plant→bunker-port distance.",
       "advancedMap": "Advanced map options",
-      "advancedMapNote": "The full Explorer controls are now shown on the map: data layer (best / solar / wind), cost year, best-combination basis, basemap, opacity and search — the same variables as the Explorer. Note: the delivered price always derives from the cell's best-combination 2024 value."
+      "advancedMapNote": "The full Explorer controls are now shown on the map: data layer (best / solar / wind), cost year, best-combination basis, basemap, opacity and search — the same variables as the Explorer. Note: the delivered price always derives from the cell's best-combination 2024 value.",
+      "siteLcoh": "LCOH at site"
     },
     "scenarioBar": {
       "name": "Scenario name",
