@@ -65,6 +65,9 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await expect(full.getByText(GAP, { exact: true })).toBeVisible();
   await expect(full.getByText("24,750,000")).toBeVisible();
   await expect(full.getByText("1,450,095 t").first()).toBeVisible();
+  // Fix #4: ETS is disabled here — the carbon-price reference must come
+  // from the ACTIVE scheme (self-designed $280), labelled as such.
+  await expect(full.getByText("your carbon price $280")).toBeVisible();
   await expectNoSeriousViolations(page, "results tab");
 
   // Walk all five steps; the compact summary stays docked; axe on each.

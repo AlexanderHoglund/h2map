@@ -184,14 +184,19 @@
       "unitTPerVesselYr": "t/vessel/yr",
       "wfGap": "Green premium",
       "abatementChart": "Abatement cost vs carbon price",
-      "abatementChartNote": "The premium per tonne of CO2 avoided, next to the EU ETS allowance price you entered — the market's going rate for a tonne.",
-      "euaPrice": "EUA price",
       "perTonneCargo": "per tonne of cargo",
       "snapUnit": "Cargo unit",
       "perUnitTonne": "per tonne of cargo",
       "perUnitTeu": "per TEU",
       "preRegLabel": "before regulatory instruments",
-      "subtotalPreReg": "Subtotal before regulation"
+      "subtotalPreReg": "Subtotal before regulation",
+      "refEts": "EU ETS allowance",
+      "refSelf": "your carbon price",
+      "refImo": "IMO remedial price",
+      "abatementNoteEts": "The premium per tonne of CO2 avoided, next to the EU ETS allowance price you entered — the market’s going rate for a tonne.",
+      "abatementNoteSelf": "The premium per tonne of CO2 avoided, next to your self-designed scheme’s carbon price — the rate this scenario actually charges.",
+      "abatementNoteImo": "The premium per tonne of CO2 avoided, next to the IMO Net-Zero remedial price that applies in this scenario.",
+      "abatementNoteNone": "No carbon price is active in this scenario — enable EU ETS, the self-designed scheme or the IMO framework to compare against one."
     },
     "buildHere": {
       "openMap": "Pick a site on the map",

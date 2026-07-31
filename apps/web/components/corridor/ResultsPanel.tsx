@@ -192,10 +192,23 @@ export default function ResultsPanel({
     : [{ key: basis, tonnes: s.co2AbatedTonnes, active: true }];
 
   // Abatement-cost diagram: the premium per tonne of CO2 avoided on each
-  // basis, next to the EU ETS allowance price (the market rate for a tonne).
-  const euaUsd = scenario.regulation.ets.enabled
-    ? scenario.regulation.ets.euaEurPerTonne * scenario.regulation.eurUsd
-    : null;
+  // basis, next to a carbon-price reference drawn from ACTIVE schemes only
+  // (fix #4): ETS → self-designed → (IMO, when present) → none.
+  const reg = scenario.regulation;
+  const refPrice: { usdPerTonne: number; label: string; note: string } | null =
+    reg.ets.enabled
+      ? {
+          usdPerTonne: reg.ets.euaEurPerTonne * reg.eurUsd,
+          label: t("refEts"),
+          note: t("abatementNoteEts"),
+        }
+      : reg.selfDesigned.enabled
+        ? {
+            usdPerTonne: reg.selfDesigned.co2PriceUsdPerTonne,
+            label: t("refSelf"),
+            note: t("abatementNoteSelf"),
+          }
+        : null;
   const abatementChart = abatement.map((row) => ({
     name: t(`basisLabel.${row.key}`),
     cost: Math.round(((s.gapPvUsdM * 1e6) / row.tonnes) * 100) / 100,
@@ -518,13 +531,13 @@ export default function ResultsPanel({
                 <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
                 <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} />
-                {euaUsd !== null && (
+                {refPrice !== null && (
                   <ReferenceLine
-                    y={euaUsd}
+                    y={refPrice.usdPerTonne}
                     stroke="var(--viz-delta-up)"
                     strokeDasharray="4 3"
                     label={{
-                      value: `${t("euaPrice")} $${Math.round(euaUsd)}`,
+                      value: `${refPrice.label} $${Math.round(refPrice.usdPerTonne)}`,
                       position: "insideTopRight",
                       fontSize: 10,
                       fill: "var(--viz-delta-up)",
@@ -548,7 +561,7 @@ export default function ResultsPanel({
             </ResponsiveContainer>
           </div>
           <p className="mt-1 text-[11px] leading-snug text-neutral-500">
-            {t("abatementChartNote")}
+            {refPrice ? refPrice.note : t("abatementNoteNone")}
           </p>
         </div>
       </section>
