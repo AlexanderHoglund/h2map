@@ -5,9 +5,10 @@
  * axe-core pass (serious/critical) over the entry screen and all tabs.
  *
  * The DEFAULT scenario is the MMMCZCS Chilean copper-concentrate corridor
- * (Mejillones → Japan): gap $1,799.81m, green total $2,850.66m (study:
- * $2,850m), fossil total incl. the IMO-NZF proxy $1,050.85m, $73/t cargo,
- * $1,241/tCO2 (WTW), CO2 abated 1,450,095 t (study: 1.45 Mt exact),
+ * (Mejillones → Japan): gap $1,762.21m, green total $2,850.66m (study:
+ * $2,850m), fossil total incl. the IMO-NZF proxy $1,088.45m ($280/tCO2
+ * priced on the WTW basis the model reports, fix #2), $71/t cargo,
+ * $1,215/tCO2 (WTW), CO2 abated 1,450,095 t (study: 1.45 Mt exact),
  * lifetime cargo 24,750,000 t. The WORKBOOK golden ($166.95m…) still pins
  * the engine via the frozen fixture in the package tests.
  */
@@ -16,7 +17,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 const STEPS = ["Cargo & Corridor", "Vessel", "Fuel", "Port", "Regulation"];
-const GAP = "$1,799.81m";
+const GAP = "$1,762.21m";
 
 async function expectNoSeriousViolations(page: Page, context: string) {
   const results = await new AxeBuilder({ page }).analyze();
@@ -47,12 +48,12 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   // assertions to the docked COMPACT summary.
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
-  await expect(results.getByText("$73", { exact: true })).toBeVisible();
-  await expect(results.getByText("$1,241", { exact: true })).toBeVisible();
+  await expect(results.getByText("$71", { exact: true })).toBeVisible();
+  await expect(results.getByText("$1,215", { exact: true })).toBeVisible();
   await expect(results.getByText("well-to-wake basis")).toBeVisible();
   // Side totals: green ≈ the study's $2,850m; fossil incl. the NZF proxy.
   await expect(results.getByText("$2,850.66m")).toBeVisible();
-  await expect(results.getByText("$1,050.85m")).toBeVisible();
+  await expect(results.getByText("$1,088.45m")).toBeVisible();
   // Fix #1: the PRE-regulation gap (the study's $2,000m quantity) is shown
   // as a secondary line under the headline.
   await expect(results.getByText(/\$2,012\.44m/)).toBeVisible();

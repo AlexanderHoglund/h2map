@@ -678,9 +678,13 @@ export default function DocsPage() {
         </F>
         <p className="mt-2">
           A sandbox for policy design: a carbon price hits both sides in
-          proportion to combustion emissions; the four support terms subsidize
-          only the green side. Use it to find the CO2 price or subsidy that
-          closes the gap.
+          proportion to their emissions <strong>on the model&apos;s emissions
+          basis</strong>{" "}(EF(basis): combustion → the combustion factor;
+          well-to-wake → LHV × WTW intensity). The model reports abatement and
+          prices carbon on the SAME series — under WTW the Chilean
+          default&apos;s $280/t charge reproduces the study&apos;s ≈$250m
+          regulatory benefit. The four support terms subsidize only the green
+          side. Use it to find the CO2 price or subsidy that closes the gap.
         </p>
 
         <H3>Model options</H3>
@@ -1041,7 +1045,7 @@ export default function DocsPage() {
                   ["Gap NPV (pre-regulation)", "$2,000m", "$2,012.44m", "+0.6%"],
                   ["Incremental cost per cargo tonne (pre-reg.)", "$80/t", "$81.31/t", "+1.6%"],
                   ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "1,450,095 t", "exact"],
-                  ["Regulatory benefit (IMO NZF proxy)", "≈$250m", "$212.63m", "−15%"],
+                  ["Regulatory benefit (IMO NZF proxy)", "≈$250m", "$250.23m", "≈exact"],
                 ] as const
               ).map(([metric, study, model, delta]) => (
                 <tr key={metric} className="border-b border-neutral-200 last:border-0">
@@ -1055,16 +1059,16 @@ export default function DocsPage() {
           </table>
         </div>
         <p className="mt-2">
-          The displayed headline (gap $1,799.81m, $73/t, $1,241/tCO2) is the
-          post-regulation figure — the study&apos;s $80/t is its
-          pre-regulation gap. The −15% on the regulatory line is structural,
-          not a typo: the study&apos;s IMO NZF benefit prices{" "}
-          <em>well-to-wake</em>{" "}tonnes while the model&apos;s self-designed
-          proxy prices <em>combustion</em>{" "}tonnes — the documented reason
-          an IMO Net-Zero Framework module is the top regulatory gap. Known
-          missing concepts the study quantifies that the model cannot yet
-          hold: differentiated green financing (dual WACC, ≈$250m here) and a
-          scenario-level synergy adjustment (≈$250m).
+          The displayed headline (gap $1,762.21m, $71/t, $1,215/tCO2) is the
+          post-regulation figure; the pre-regulation gap ($2,012.44m — the
+          study&apos;s $2,000m quantity) shows directly beneath it and in the
+          decomposition&apos;s &ldquo;Subtotal before regulation&rdquo; row.
+          The regulatory line matches because the self-designed CO2 price now
+          follows the model&apos;s emissions basis (well-to-wake here) — it
+          prices the same series it reports. Known missing concepts the study
+          quantifies that the model cannot yet hold: differentiated green
+          financing (dual WACC, ≈$250m here) and a scenario-level synergy
+          adjustment (≈$250m).
         </p>
 
         {/* 13 --------------------------------------------------------- */}

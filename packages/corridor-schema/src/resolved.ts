@@ -61,6 +61,12 @@ export interface EvalContext {
   readonly inflation: Fraction;
   /** D6 — "real" deflates the OPEX inflation growth. Default nominal (Excel). */
   readonly rateBasis?: "nominal" | "real";
+  /**
+   * D1 basis, also consumed by regulation modules that price emissions
+   * (fix #2: the self-designed CO2 price follows the model basis).
+   * Default combustion (Excel).
+   */
+  readonly emissionsBasis?: "combustion" | "wellToWake";
 }
 
 // ---------------------------------------------------------------------------

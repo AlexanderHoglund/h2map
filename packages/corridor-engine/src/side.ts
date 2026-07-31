@@ -48,7 +48,14 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
       ? ira45zCreditUsdM(regulations.ira45z, fuel, vessels, calendarYear)
       : 0;
     const selfDesigned = regulations.selfDesigned
-      ? selfDesignedCostUsdM(regulations.selfDesigned, fuel, vessels, totalCapex, totalOpex)
+      ? selfDesignedCostUsdM(
+          regulations.selfDesigned,
+          fuel,
+          vessels,
+          totalCapex,
+          totalOpex,
+          ctx.emissionsBasis ?? "combustion",
+        )
       : 0;
 
     // Row 33 — the exhaustive-decomposition identity (property-tested).

@@ -47,6 +47,7 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
     discounting: { wacc: resolved.wacc.value },
     inflation: resolved.inflation,
     rateBasis: resolved.flags.rateBasis, // D6
+    emissionsBasis: resolved.flags.emissionsBasis, // D1 (fix #2: reg modules too)
   };
 
   const greenInputs = toSideInputs(resolved, "green");
