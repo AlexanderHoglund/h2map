@@ -1,0 +1,232 @@
+/**
+ * Generated corridor docs (build-plan 4.3) — "docs generated, not written":
+ *
+ *   docs/corridor/field-reference.md  — every scenario field from the zod
+ *     schema (path, type, required), joined with its sensitivity rank and
+ *     ui-manifest placement (top-level vs advanced) and wizard step.
+ *   docs/corridor/modules.md — one section per engine/schema module with the
+ *     same headings (purpose, boundary, exports, assumptions), extracted from
+ *     the source (header docblock + import list + export signatures).
+ *   Worked examples = fixtures/golden/corridor (pointer section).
+ *
+ *   npx tsx scripts/corridor/gen-docs.ts          # regenerate
+ * CI regenerates and fails on diff — the docs must track the code.
+ */
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { z } from "zod";
+import { scenarioInputSchema } from "@h2map/corridor-schema";
+
+const ROOT = new URL("../../", import.meta.url);
+const OUT = new URL("docs/corridor/", ROOT);
+
+// ---------------------------------------------------------------------------
+// Field reference
+// ---------------------------------------------------------------------------
+
+interface FieldRow {
+  path: string;
+  type: string;
+  required: boolean;
+}
+
+function walkJsonSchema(
+  node: Record<string, unknown>,
+  path: string,
+  requiredHere: boolean,
+  out: FieldRow[],
+): void {
+  const type = node.type as string | undefined;
+  if (type === "object" && node.properties) {
+    const required = new Set((node.required as string[] | undefined) ?? []);
+    for (const [key, child] of Object.entries(node.properties as Record<string, unknown>)) {
+      walkJsonSchema(
+        child as Record<string, unknown>,
+        path ? `${path}.${key}` : key,
+        required.has(key),
+        out,
+      );
+    }
+    return;
+  }
+  if (Array.isArray(node.anyOf)) {
+    const parts = (node.anyOf as Record<string, unknown>[]).map(
+      (p) => (p.type as string) ?? (p.const !== undefined ? JSON.stringify(p.const) : "…"),
+    );
+    // ", " not " | " — pipes break the markdown table.
+    out.push({ path, type: parts.join(", "), required: requiredHere });
+    return;
+  }
+  let label = type ?? "unknown";
+  if (node.enum) label = (node.enum as unknown[]).map((v) => JSON.stringify(v)).join(", ");
+  if (node.const !== undefined) label = `= ${JSON.stringify(node.const)}`;
+  out.push({ path, type: label, required: requiredHere });
+}
+
+function fieldReference(): string {
+  const jsonSchema = z.toJSONSchema(scenarioInputSchema, {
+    unrepresentable: "any",
+    io: "input",
+  }) as Record<string, unknown>;
+  const rows: FieldRow[] = [];
+  walkJsonSchema(jsonSchema, "", true, rows);
+
+  const sensitivity = JSON.parse(
+    readFileSync(new URL("data/corridor-sensitivity/sensitivity.json", ROOT), "utf8"),
+  ) as { ranked: { id: string; label: string; relHeadlineMovement: number }[] };
+  const manifest = JSON.parse(
+    readFileSync(new URL("data/corridor-sensitivity/ui-manifest.json", ROOT), "utf8"),
+  ) as { topLevel: string[]; advanced: string[] };
+  const rank = new Map(sensitivity.ranked.map((r, i) => [r.id, { i: i + 1, r }]));
+  const placement = (id: string): string =>
+    manifest.topLevel.includes(id) ? "top-level" : manifest.advanced.includes(id) ? "advanced" : "—";
+
+  // Sensitivity ids don't share every path spelling with the schema; map the
+  // known aliases (see scripts/corridor/sensitivity.ts PARAMS).
+  const ALIAS: Record<string, string> = {
+    "cargo.waccOverride": "cargo.wacc",
+    "green.overrides.priceUsdPerTonne": "green.priceUsdPerTonne",
+    "green.overrides.fuelTonnesPerVesselYear": "green.fuelTonnesPerVesselYear",
+    "green.overrides.prodCapexUsdM": "green.prodCapexUsdM",
+    "green.overrides.prodOpexUsdMPerYear": "green.prodOpexUsdMPerYear",
+    "green.overrides.wtwGco2PerMj": "green.wtwGco2PerMj",
+    "fossil.overrides.priceUsdPerTonne": "fossil.priceUsdPerTonne",
+    "fossil.overrides.wtwGco2PerMj": "fossil.wtwGco2PerMj",
+    "green.overrides.portStorageCapexUsdM": "port.storageCapexUsdM",
+    "green.overrides.portStorageOpexUsdMPerYear": "port.storageOpexUsdMPerYear",
+    "green.overrides.bargeCapexUsdM": "port.bargeCapexUsdM",
+    "regulation.ets.euaEurPerTonne": "regulation.euaEurPerTonne",
+    "regulation.eurUsd": "regulation.eurUsd",
+    "regulation.fuelEu.penaltyEurPerTonne": "regulation.fuelEuPenalty",
+    "regulation.ets.scope": "regulation.etsScope",
+    "regulation.fuelEu.scope": "regulation.fuelEuScope",
+    "cargo.oneWayDistanceNm": "cargo.oneWayDistanceNm",
+    "cargo.horizonYears": "cargo.horizonYears",
+    "cargo.unitsPerYear": "cargo.unitsPerYear",
+    "cargo.inflation": "cargo.inflation",
+    "cargo.vessels": "cargo.vessels",
+    "cargo.roundtripsPerYear": "cargo.roundtripsPerYear",
+    "vessel.green.capexUsdM": "vessel.green.capexUsdM",
+    "vessel.green.opexUsdMPerYear": "vessel.green.opexUsdMPerYear",
+  };
+
+  const lines = [
+    "# Corridor scenario — field reference",
+    "",
+    "GENERATED by `scripts/corridor/gen-docs.ts` from the zod schema",
+    "(`@h2map/corridor-schema`) joined with the sensitivity artifact and the",
+    "ui-manifest. Do not edit by hand — CI fails on drift.",
+    "",
+    "| Field | Type | Required | Sensitivity rank | Headline movement | UI placement |",
+    "|---|---|---|---|---|---|",
+  ];
+  for (const row of rows) {
+    const sensId = ALIAS[row.path];
+    const hit = sensId ? rank.get(sensId) : undefined;
+    lines.push(
+      `| \`${row.path}\` | ${row.type} | ${row.required ? "yes" : "no"} | ${
+        hit ? `#${hit.i}` : "—"
+      } | ${hit ? `${(hit.r.relHeadlineMovement * 100).toFixed(1)}%` : "—"} | ${
+        sensId ? placement(sensId) : "—"
+      } |`,
+    );
+  }
+  lines.push(
+    "",
+    "Sensitivity = max headline-gap movement across the input's plausible range",
+    "(one-at-a-time sweep from the Excel-default baseline; see",
+    "`data/corridor-sensitivity/sensitivity.json`). Placement `top-level` means",
+    "the field moved the headline ≥5% and renders prominently in the wizard.",
+    "",
+  );
+  return lines.join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// Module pages
+// ---------------------------------------------------------------------------
+
+function headerDocblock(src: string): string {
+  const m = /^(?:"use client";\s*)?\/\*\*([\s\S]*?)\*\//.exec(src.trimStart());
+  if (!m) return "_(no header docblock)_";
+  return m[1]!
+    .split("\n")
+    .map((l) => l.replace(/^\s*\*? ?/, ""))
+    .join("\n")
+    .trim();
+}
+
+function moduleSection(pkg: string, dir: string, file: string): string {
+  const src = readFileSync(join(dir, file), "utf8");
+  const imports = [...src.matchAll(/^import .*?from "(.+?)";/gm)].map((m) => m[1]!);
+  const exports = [
+    ...src.matchAll(/^export (?:async )?(?:function|const|interface|type|class) ([A-Za-z0-9_]+)/gm),
+  ].map((m) => m[1]!);
+  const doc = headerDocblock(src);
+  const assumptions =
+    doc
+      .split("\n")
+      .filter((l) => /assum|benchmark|planning-level|verbatim|divergence|D[1-7]\b/i.test(l))
+      .slice(0, 6)
+      .join("\n") || "Documented inline (see source).";
+  return [
+    `### \`${pkg}/${file}\``,
+    "",
+    "**Purpose**",
+    "",
+    doc.split("\n\n")[0] ?? doc,
+    "",
+    `**Boundary (imports)**: ${imports.length ? imports.map((i) => `\`${i}\``).join(", ") : "none — leaf module"}`,
+    "",
+    `**Exports (inputs/outputs)**: ${exports.length ? exports.map((e) => `\`${e}\``).join(", ") : "—"}`,
+    "",
+    "**Assumptions**",
+    "",
+    assumptions,
+    "",
+  ].join("\n");
+}
+
+function modulesDoc(): string {
+  const sections: string[] = [
+    "# Corridor engine — module pages",
+    "",
+    "GENERATED by `scripts/corridor/gen-docs.ts` from the dependency graph and",
+    "each module's header docblock. Do not edit by hand — CI fails on drift.",
+    "",
+    "Dependency rule (lint-enforced): `units → corridor-schema → corridor-engine`;",
+    "the engine imports nothing else and performs no I/O.",
+    "",
+    "## Worked examples",
+    "",
+    "`fixtures/golden/corridor/` doubles as the worked-example set: the input is",
+    "the workbook's default scenario, the expected file is the workbook's own",
+    "cached values (20 years × both sides), and the engine must reproduce them",
+    "at 1e-9 (`npm run test:golden`).",
+    "",
+    "## Modules",
+    "",
+  ];
+  for (const [pkg, rel] of [
+    ["@h2map/corridor-engine", "packages/corridor-engine/src"],
+    ["@h2map/corridor-schema", "packages/corridor-schema/src"],
+  ] as const) {
+    const dir = new URL(`${rel}/`, ROOT).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+    const files = readdirSync(dir, { recursive: true }) as string[];
+    for (const f of files.filter((f) => f.endsWith(".ts")).sort()) {
+      sections.push(moduleSection(pkg, dir, f));
+    }
+  }
+  return sections.join("\n");
+}
+
+// ---------------------------------------------------------------------------
+
+function main(): void {
+  mkdirSync(OUT, { recursive: true });
+  writeFileSync(new URL("field-reference.md", OUT), fieldReference());
+  writeFileSync(new URL("modules.md", OUT), modulesDoc());
+  console.log("wrote docs/corridor/{field-reference,modules}.md");
+}
+
+main();

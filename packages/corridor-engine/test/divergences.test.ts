@@ -19,8 +19,8 @@ import {
   usdPerTonne,
 } from "@h2map/units";
 import {
+  migrateScenarioInput,
   parseRefBundle,
-  parseScenarioInput,
   resolveScenario,
   type FuelParams,
   type ScenarioInput,
@@ -38,14 +38,14 @@ const bundle = parseRefBundle(
   ),
 );
 const baseInput = (): ScenarioInput =>
-  parseScenarioInput(
+  migrateScenarioInput(
     JSON.parse(
       readFileSync(
         new URL("../../../fixtures/golden/corridor/excel-baseline.input.json", import.meta.url),
         "utf8",
       ),
     ),
-  );
+  ).input;
 
 const fuel = (over: Partial<Record<keyof FuelParams, number>> = {}): FuelParams => ({
   priceUsdPerTonne: usdPerTonne(over.priceUsdPerTonne ?? 900),
@@ -186,7 +186,7 @@ describe("D4 — sourcing modes", () => {
   it("delivered modes require the delivered price", () => {
     const input = baseInput();
     input.green.sourcing = "named-plant";
-    expect(() => parseScenarioInput(JSON.parse(JSON.stringify(input)))).toThrowError();
+    expect(() => migrateScenarioInput(JSON.parse(JSON.stringify(input)))).toThrowError();
   });
 
   it("legacy construct keeps the Excel double-count (fixture behaviour)", () => {

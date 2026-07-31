@@ -20,8 +20,8 @@
  */
 import { readFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
 import {
+  migrateScenarioInput,
   parseRefBundle,
-  parseScenarioInput,
   resolveScenario,
   type ScenarioInput,
 } from "@h2map/corridor-schema";
@@ -81,7 +81,8 @@ const PARAMS: Param[] = [
 ];
 
 function gapFor(mutate?: (s: ScenarioInput) => void): number {
-  const input = parseScenarioInput(JSON.parse(JSON.stringify(baseRaw)));
+  // The fixture is frozen at v1 — the migration registry brings it to current.
+  const input = migrateScenarioInput(JSON.parse(JSON.stringify(baseRaw))).input;
   mutate?.(input);
   return evaluateScenario(resolveScenario(input, bundle)).summary.gapPvUsdM;
 }

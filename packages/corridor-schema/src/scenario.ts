@@ -6,7 +6,12 @@
  * them into branded `Resolved<T>` values against a reference bundle.
  */
 
-export const SCHEMA_VERSION = 1;
+/**
+ * Current scenario schema version. v2 renamed
+ * `regulation.ira45z.rateUsdPerGallon` → `creditUsdPerGallon` — a deliberate
+ * rename proving the migration machinery (build-plan 4.1); see migrate.ts.
+ */
+export const SCHEMA_VERSION = 2;
 
 export type RouteType = "point-to-point" | "single-point";
 export type ConsumptionMode = "distance" | "vessel-benchmark";
@@ -149,7 +154,8 @@ export interface FuelEuInput {
 export interface Ira45zInput {
   enabled: boolean;
   usProduced: boolean;
-  rateUsdPerGallon: number;
+  /** Credit rate, $/gallon-equivalent (v1 name: rateUsdPerGallon). */
+  creditUsdPerGallon: number;
   /**
    * D5 — the credit as legislated runs to end-2027; the workbook has no
    * sunset. Absent/null = no sunset (Excel behaviour); parameterized rather

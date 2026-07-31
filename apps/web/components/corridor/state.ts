@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  migrateScenarioInput,
   parseRefBundle,
-  parseScenarioInput,
   resolveScenario,
   type RefBundle,
   type ResolvedScenario,
@@ -33,7 +33,8 @@ export function isAdvanced(paramId: string): boolean {
 }
 
 export function defaultScenario(): ScenarioInput {
-  return parseScenarioInput(JSON.parse(JSON.stringify(fixtureDefaults)));
+  // The fixture is frozen at v1; the migration registry brings it to current.
+  return migrateScenarioInput(JSON.parse(JSON.stringify(fixtureDefaults))).input;
 }
 
 /** Null every override so the resolution yields pure benchmark values. */
@@ -76,7 +77,7 @@ export function useCorridorModel(): CorridorModel {
   const [init] = useState<{ scenario: ScenarioInput; hadDraft: boolean }>(() => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
-      if (raw) return { scenario: parseScenarioInput(JSON.parse(raw)), hadDraft: true };
+      if (raw) return { scenario: migrateScenarioInput(JSON.parse(raw)).input, hadDraft: true };
     } catch {
       localStorage.removeItem(DRAFT_KEY);
     }
@@ -111,7 +112,7 @@ export function useCorridorModel(): CorridorModel {
 
   /** Replace the whole draft (loading a saved/shared scenario). Validates. */
   const load = useCallback((payload: unknown) => {
-    setScenario(parseScenarioInput(payload));
+    setScenario(migrateScenarioInput(payload).input);
   }, []);
 
   const evaluated = useMemo(() => {

@@ -120,7 +120,7 @@ export const scenarioInputSchema = z.object({
     ira45z: z.object({
       enabled: z.boolean(),
       usProduced: z.boolean(),
-      rateUsdPerGallon: z.number().nonnegative(),
+      creditUsdPerGallon: z.number().nonnegative(),
       effectiveUntil: z.number().int().nullable().optional(),
     }),
     selfDesigned: z.object({

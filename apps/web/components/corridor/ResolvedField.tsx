@@ -56,13 +56,16 @@ export default function ResolvedField({
   const overridden = override !== null;
 
   const badgeStyles: Record<Source, string> = {
-    override: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
-    derived: "bg-purple-500/15 text-purple-600 dark:text-purple-400",
-    benchmark: "bg-neutral-500/15 text-neutral-500 dark:text-neutral-400",
+    override: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
+    derived: "bg-purple-500/15 text-purple-700 dark:text-purple-300",
+    benchmark: "bg-neutral-500/15 text-neutral-600 dark:text-neutral-300",
   };
 
+  // Disabled state: grey the input SURFACE, never opacity-dim the whole block
+  // — dimmed labels/notes fail WCAG contrast (axe), and the note must stay
+  // readable ("forced to 0 under this sourcing" is information, not chrome).
   return (
-    <div className={disabled ? "opacity-60" : ""}>
+    <div>
       <div className="flex items-center justify-between gap-2">
         <label
           htmlFor={id}
@@ -78,7 +81,11 @@ export default function ResolvedField({
         </span>
       </div>
       <div
-        className={`mt-1 flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1.5 transition-colors focus-within:ring-2 dark:bg-neutral-900 ${
+        className={`mt-1 flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 transition-colors focus-within:ring-2 ${
+          disabled
+            ? "bg-neutral-100 dark:bg-neutral-800"
+            : "bg-white dark:bg-neutral-900"
+        } ${
           overridden
             ? "border-blue-400 focus-within:ring-blue-500/40 dark:border-blue-600"
             : "border-neutral-300 focus-within:border-blue-600 focus-within:ring-blue-500/40 dark:border-neutral-700"
@@ -107,7 +114,7 @@ export default function ResolvedField({
           }`}
         />
         {unit ? (
-          <span className="shrink-0 text-xs text-neutral-500">{unit}</span>
+          <span className="shrink-0 text-xs text-neutral-600 dark:text-neutral-400">{unit}</span>
         ) : null}
       </div>
       <div className="mt-0.5 flex min-h-4 items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-500">
@@ -132,7 +139,7 @@ export default function ResolvedField({
           </>
         ) : null}
         {unverified ? (
-          <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-500">
+          <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-400/20 dark:text-amber-300">
             {t("unverified")}
           </span>
         ) : null}

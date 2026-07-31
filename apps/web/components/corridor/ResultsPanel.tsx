@@ -117,7 +117,7 @@ export default function ResultsPanel({
             <p className="tabular-nums font-medium">{fmtUsd(s.costPerTonneCo2Usd)}</p>
             <p className="text-neutral-500">
               {t("perTonne")}
-              <span className="ml-1 rounded bg-neutral-500/10 px-1 py-px text-[10px]">
+              <span className="ml-1 rounded bg-neutral-500/10 px-1 py-px text-[10px] text-neutral-700 dark:text-neutral-200">
                 {t(`basisLabel.${basis}`)}
               </span>
             </p>
@@ -199,7 +199,7 @@ export default function ResultsPanel({
               <td className="pt-1.5 font-medium">{t("netReg")}</td>
               <td
                 colSpan={2}
-                className={`pt-1.5 text-right font-medium ${netReg < 0 ? "text-emerald-600 dark:text-emerald-500" : ""}`}
+                className={`pt-1.5 text-right font-medium ${netReg < 0 ? "text-emerald-700 dark:text-emerald-400" : ""}`}
               >
                 {fmtUsdM(netReg)}
               </td>

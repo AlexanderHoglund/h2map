@@ -701,8 +701,8 @@ export function RegulationStep({ model }: StepProps) {
               label={t("rate")}
               unit="$/gal-eq"
               step={0.05}
-              value={reg.ira45z.rateUsdPerGallon}
-              onChange={(v) => update((d) => void (d.regulation.ira45z.rateUsdPerGallon = v))}
+              value={reg.ira45z.creditUsdPerGallon}
+              onChange={(v) => update((d) => void (d.regulation.ira45z.creditUsdPerGallon = v))}
             />
           </>
         )}

@@ -4,11 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Session } from "@supabase/supabase-js";
 import {
+  migrateScenarioInput,
   resolveScenario,
-  parseScenarioInput,
   type ScenarioInput,
 } from "@h2map/corridor-schema";
-import { evaluateScenario } from "@h2map/corridor-engine";
+import { CORRIDOR_ENGINE_VERSION, evaluateScenario } from "@h2map/corridor-engine";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { DEFAULT_BUNDLE, type CorridorModel } from "./state";
 
@@ -121,12 +121,27 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
     try {
       const res = await authedFetch(`/api/v1/corridor/scenarios/${id}`);
       if (!res.ok) throw new Error(String(res.status));
-      const row = (await res.json()) as { id: string; name: string; inputs: unknown };
-      model.load(row.inputs);
+      const row = (await res.json()) as {
+        id: string;
+        name: string;
+        inputs: unknown;
+        engine_version: string | null;
+        schema_version: number | null;
+      };
+      const migrated = migrateScenarioInput(row.inputs);
+      model.load(migrated.input);
       setCurrentId(row.id);
       setName(row.name);
       window.history.replaceState(null, "", `/corridor?s=${row.id}`);
-      flash(t("loaded"));
+      // 4.2 disclosure: the corridor tool always evaluates live, so loading
+      // under a newer engine/schema is announced, never silent.
+      if (migrated.migratedFrom !== null) {
+        flash(t("loadedMigrated", { from: migrated.migratedFrom }));
+      } else if (row.engine_version && row.engine_version !== CORRIDOR_ENGINE_VERSION) {
+        flash(t("loadedNewerEngine", { saved: row.engine_version }));
+      } else {
+        flash(t("loaded"));
+      }
     } catch {
       flash(t("loadFailed"));
     } finally {
@@ -177,7 +192,7 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
     const res = await authedFetch(`/api/v1/corridor/scenarios/${id}`);
     if (!res.ok) return;
     const row = (await res.json()) as { inputs: unknown };
-    const other = parseScenarioInput(row.inputs);
+    const other = migrateScenarioInput(row.inputs).input;
     const rows: { path: string; a: string; b: string }[] = [];
     walkDiff(model.scenario, other, "", rows);
     setDiffRows(rows);

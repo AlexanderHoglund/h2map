@@ -28,16 +28,20 @@
     "rankdiff:pvseam": "tsx scripts/rankdiff/measure-pvseam.ts",
     "rankdiff:wacc": "tsx scripts/rankdiff/measure-wacc.ts",
     "rankdiff:oversize": "tsx scripts/rankdiff/measure-oversize.ts",
-    "rankdiff:costyear": "tsx scripts/rankdiff/measure-costyear.ts"
+    "rankdiff:costyear": "tsx scripts/rankdiff/measure-costyear.ts",
+    "e2e": "playwright test",
+    "corridor:docs": "tsx scripts/corridor/gen-docs.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^24",
     "eslint": "^9",
-    "typescript-eslint": "^8",
     "fast-check": "^4.1.1",
     "supabase": "^2.30.4",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
+    "typescript-eslint": "^8",
     "vitest": "^3.2.4"
   }
 }

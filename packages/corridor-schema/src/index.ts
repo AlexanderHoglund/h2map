@@ -43,6 +43,8 @@ export type {
   SideResult,
 } from "./result";
 export { parseScenarioInput, scenarioInputSchema } from "./validate";
+export { migrateScenarioInput } from "./migrate";
+export type { MigratedScenario } from "./migrate";
 export { parseRefBundle, refBundleSchema } from "./ref/bundle";
 export type { RefBundle, RefCountry, RefFuel, RefVesselType } from "./ref/bundle";
 export { getCountry, getFuel, getVesselType } from "./ref/accessors";

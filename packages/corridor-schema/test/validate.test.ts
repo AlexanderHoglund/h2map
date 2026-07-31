@@ -1,16 +1,16 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { parseRefBundle } from "../src/ref/bundle";
-import { parseScenarioInput } from "../src/validate";
+import { migrateScenarioInput } from "../src/migrate";
 
 const load = (rel: string): unknown =>
   JSON.parse(readFileSync(new URL(rel, import.meta.url), "utf8"));
 
 describe("scenarioInputSchema", () => {
   it("accepts the golden fixture input", () => {
-    const parsed = parseScenarioInput(
+    const parsed = migrateScenarioInput(
       load("../../../fixtures/golden/corridor/excel-baseline.input.json"),
-    );
+    ).input;
     expect(parsed.cargo.horizonYears).toBe(20);
     expect(parsed.green.sourcing).toBe("construct");
   });
@@ -20,7 +20,7 @@ describe("scenarioInputSchema", () => {
       "../../../fixtures/golden/corridor/excel-baseline.input.json",
     ) as { cargo: { horizonYears: number } };
     bad.cargo.horizonYears = 41;
-    expect(() => parseScenarioInput(bad)).toThrowError();
+    expect(() => migrateScenarioInput(bad)).toThrowError();
   });
 
   it("rejects an unknown sourcing mode", () => {
@@ -28,7 +28,7 @@ describe("scenarioInputSchema", () => {
       "../../../fixtures/golden/corridor/excel-baseline.input.json",
     ) as { green: { sourcing: string } };
     bad.green.sourcing = "lease";
-    expect(() => parseScenarioInput(bad)).toThrowError();
+    expect(() => migrateScenarioInput(bad)).toThrowError();
   });
 });
 

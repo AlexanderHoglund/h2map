@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { parseRefBundle } from "../src/ref/bundle";
-import { parseScenarioInput } from "../src/validate";
+import { migrateScenarioInput } from "../src/migrate";
 import { resolveScenario, toSideInputs } from "../src/resolve";
 import type { ScenarioInput } from "../src/scenario";
 
@@ -15,7 +15,9 @@ const bundle = parseRefBundle(
 );
 
 function fixtureInput(): ScenarioInput {
-  return parseScenarioInput(
+  // The frozen fixture stays at its original schemaVersion; the migration
+  // registry (4.1) brings it to current — old scenarios must always load.
+  return migrateScenarioInput(
     JSON.parse(
       readFileSync(
         new URL(
@@ -25,7 +27,7 @@ function fixtureInput(): ScenarioInput {
         "utf8",
       ),
     ),
-  );
+  ).input;
 }
 
 describe("resolveScenario — fixture defaults (all overrides null)", () => {
@@ -91,7 +93,7 @@ describe("resolveScenario — precedence", () => {
 
   it("45Z requires enabled AND US-produced", () => {
     const input = fixtureInput();
-    input.regulation.ira45z = { enabled: true, usProduced: false, rateUsdPerGallon: 1 };
+    input.regulation.ira45z = { enabled: true, usProduced: false, creditUsdPerGallon: 1 };
     expect(resolveScenario(input, bundle).regulations.green.ira45z).toBeUndefined();
     input.regulation.ira45z.usProduced = true;
     const r = resolveScenario(input, bundle);

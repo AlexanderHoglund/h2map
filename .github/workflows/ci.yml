@@ -30,3 +30,32 @@ jobs:
       # top-level input set (≥5% headline movement) no longer matches the
       # committed ui-manifest — the interface must track the model.
       - run: npx tsx scripts/corridor/sensitivity.ts --check
+      # Generated docs must track the code (build-plan 4.3).
+      - run: npx tsx scripts/corridor/gen-docs.ts && git diff --exit-code docs/corridor
+
+  # Full-app golden (build-plan 4.4): Playwright drives the default corridor
+  # scenario through the real UI and asserts the workbook's headline numbers,
+  # with an axe-core serious/critical pass on every step. The corridor golden
+  # path is fully client-side, so dummy Supabase env suffices.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-anon-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build -w web
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results/
+          if-no-files-found: ignore

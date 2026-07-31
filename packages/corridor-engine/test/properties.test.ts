@@ -25,8 +25,8 @@ import {
 } from "@h2map/units";
 import type { EvalContext, SideInputs } from "@h2map/corridor-schema";
 import {
+  migrateScenarioInput,
   parseRefBundle,
-  parseScenarioInput,
   resolveScenario,
   type ScenarioInput,
 } from "@h2map/corridor-schema";
@@ -200,9 +200,9 @@ describe("evaluateScenario — gap identity over randomized overrides", () => {
           horizon: fc.integer({ min: 1, max: 40 }),
         }),
         ({ price, wacc, horizon }) => {
-          const input = parseScenarioInput(
+          const input = migrateScenarioInput(
             JSON.parse(JSON.stringify(baseInput)),
-          ) as ScenarioInput;
+          ).input as ScenarioInput;
           input.green.overrides.priceUsdPerTonne = price;
           input.cargo.waccOverride = wacc;
           input.cargo.horizonYears = horizon;

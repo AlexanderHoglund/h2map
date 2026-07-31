@@ -181,13 +181,19 @@
       "diffNone": "No differing fields.",
       "diffField": "Field",
       "diffCurrent": "Current",
-      "diffOther": "Other"
+      "diffOther": "Other",
+      "loadedMigrated": "Loaded (payload migrated from schema v{from} and re-evaluated with the current engine)",
+      "loadedNewerEngine": "Loaded — saved with engine {saved}; results shown are re-evaluated with the current engine"
     },
     "shared": {
       "notFound": "No shared scenario for this link (it may have been revoked).",
       "meta": "engine {engine} · reference bundle {bundle} · read-only",
       "openAsDraft": "Open as draft",
-      "noResults": "no stored results"
+      "noResults": "no stored results",
+      "staleBanner": "Saved with engine {engine} / bundle {bundle}; current is {currentEngine} / {currentBundle}. Newer model available — recompute?",
+      "stalePreview": "Gap (PV): stored ${stored}m → current ${current}m (Δ ${delta}m)",
+      "recompute": "Recompute with current model",
+      "recomputedNote": "Showing results recomputed with the current engine — the stored version is unchanged."
     }
   }
 }

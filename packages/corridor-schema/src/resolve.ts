@@ -291,7 +291,7 @@ function resolveRegulations(
     ...(reg.ira45z.enabled && reg.ira45z.usProduced
       ? {
           ira45z: {
-            rateUsdPerGallon: usdPerGallon(reg.ira45z.rateUsdPerGallon),
+            rateUsdPerGallon: usdPerGallon(reg.ira45z.creditUsdPerGallon),
             mjPerGallon: bundle.constants.ira45zMjPerGallon,
             ...(reg.ira45z.effectiveUntil != null
               ? { effectiveUntil: calendarYear(reg.ira45z.effectiveUntil) }

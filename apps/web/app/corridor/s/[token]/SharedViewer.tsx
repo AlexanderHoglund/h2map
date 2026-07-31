@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { parseScenarioInput, type ScenarioInput } from "@h2map/corridor-schema";
+import {
+  migrateScenarioInput,
+  resolveScenario,
+  type ScenarioInput,
+  type ScenarioResult,
+} from "@h2map/corridor-schema";
+import { CORRIDOR_ENGINE_VERSION, evaluateScenario } from "@h2map/corridor-engine";
+import { DEFAULT_BUNDLE } from "@/components/corridor/state";
 
 /**
  * Read-only shared-scenario view (build-plan 2.2/3.5): the link carries only
@@ -27,6 +34,7 @@ interface SharedBody {
 export default function SharedViewer({ token }: { token: string }) {
   const t = useTranslations("corridor.shared");
   const router = useRouter();
+  const [recomputed, setRecomputed] = useState<ScenarioResult | null>(null);
   const [state, setState] = useState<
     | { phase: "loading" }
     | { phase: "error" }
@@ -40,7 +48,7 @@ export default function SharedViewer({ token }: { token: string }) {
         const res = await fetch(`/api/v1/corridor/s/${token}`);
         if (!res.ok) throw new Error(String(res.status));
         const body = (await res.json()) as SharedBody;
-        const scenario = parseScenarioInput(body.payload);
+        const scenario = migrateScenarioInput(body.payload).input;
         if (alive) setState({ phase: "ready", body, scenario });
       } catch {
         if (alive) setState({ phase: "error" });
@@ -63,6 +71,23 @@ export default function SharedViewer({ token }: { token: string }) {
   }
 
   const { body, scenario } = state;
+  // 4.2 — version pinning surfaced: a scenario saved under an older engine or
+  // reference bundle shows an explicit recompute affordance WITH a preview of
+  // what would change; the stored view is never silently replaced.
+  const stale =
+    (body.engineVersion !== null && body.engineVersion !== CORRIDOR_ENGINE_VERSION) ||
+    (body.refBundleVersion !== null && body.refBundleVersion !== DEFAULT_BUNDLE.bundleId);
+  let previewGap: { stored: number; current: number } | null = null;
+  if (stale && !recomputed) {
+    try {
+      const storedGap = (body.results as ScenarioResult | null)?.summary.gapPvUsdM;
+      const currentGap = evaluateScenario(resolveScenario(scenario, DEFAULT_BUNDLE)).summary
+        .gapPvUsdM;
+      if (typeof storedGap === "number") previewGap = { stored: storedGap, current: currentGap };
+    } catch {
+      previewGap = null;
+    }
+  }
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -86,12 +111,49 @@ export default function SharedViewer({ token }: { token: string }) {
           {t("openAsDraft")}
         </button>
       </div>
-      {/* Stored results are shown as saved; the engine can re-derive them from
-          the payload at any time (server recomputes on save). */}
+      {stale && !recomputed && (
+        <div className="mb-3 rounded-lg border border-amber-300 bg-amber-500/10 p-3 text-xs leading-snug text-amber-800 dark:border-amber-700 dark:text-amber-400">
+          <p>
+            {t("staleBanner", {
+              engine: body.engineVersion ?? "?",
+              bundle: body.refBundleVersion ?? "?",
+              currentEngine: CORRIDOR_ENGINE_VERSION,
+              currentBundle: DEFAULT_BUNDLE.bundleId,
+            })}
+          </p>
+          {previewGap && (
+            <p className="mt-1 tabular-nums">
+              {t("stalePreview", {
+                stored: previewGap.stored.toFixed(2),
+                current: previewGap.current.toFixed(2),
+                delta: (previewGap.current - previewGap.stored).toFixed(2),
+              })}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                setRecomputed(evaluateScenario(resolveScenario(scenario, DEFAULT_BUNDLE)));
+              } catch {
+                /* payload cannot evaluate under current data — keep stored view */
+              }
+            }}
+            className="mt-2 rounded-md border border-amber-400 px-2.5 py-1 font-medium hover:bg-amber-500/20 dark:border-amber-700"
+          >
+            {t("recompute")}
+          </button>
+        </div>
+      )}
+      {recomputed && (
+        <p className="mb-2 text-[11px] text-neutral-500">{t("recomputedNote")}</p>
+      )}
+      {/* Stored results are shown as saved unless the user opts into a
+          recompute; never a silent swap. */}
       <ResultsPanel
-        result={body.results as never}
+        result={(recomputed ?? body.results) as never}
         scenario={scenario}
-        error={body.results ? null : t("noResults")}
+        error={(recomputed ?? body.results) ? null : t("noResults")}
       />
     </main>
   );

@@ -6,8 +6,8 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  migrateScenarioInput,
   parseRefBundle,
-  parseScenarioInput,
   resolveScenario,
 } from "@h2map/corridor-schema";
 import { evaluateScenario } from "../../src/index";
@@ -21,7 +21,8 @@ interface ExpectedFile {
 }
 
 describe("golden: excel-baseline", () => {
-  const input = parseScenarioInput(loadFixtureJson("excel-baseline.input.json"));
+  // The frozen v1 fixture loads through the migration registry (4.1).
+  const input = migrateScenarioInput(loadFixtureJson("excel-baseline.input.json")).input;
   const bundle = parseRefBundle(loadRefBundleJson(input.refBundleId));
   const expected = loadFixtureJson("excel-baseline.expected.json") as ExpectedFile;
 

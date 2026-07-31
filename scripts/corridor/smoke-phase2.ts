@@ -16,6 +16,7 @@
  */
 import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
+import { migrateScenarioInput } from "@h2map/corridor-schema";
 
 const BASE = process.argv[2] ?? "http://localhost:3000";
 const ROOT = new URL("../../", import.meta.url);
@@ -76,9 +77,13 @@ async function main(): Promise<void> {
   const userA = await mkUser(`corridor-smoke-a-${suffix}@example.com`);
   const userB = await mkUser(`corridor-smoke-b-${suffix}@example.com`);
 
-  const payload = JSON.parse(
-    readFileSync(new URL("fixtures/golden/corridor/excel-baseline.input.json", ROOT), "utf8"),
-  ) as Record<string, unknown>;
+  // The frozen fixture is v1; the API stores current-schema payloads only,
+  // so clients migrate before writing (4.1).
+  const payload = migrateScenarioInput(
+    JSON.parse(
+      readFileSync(new URL("fixtures/golden/corridor/excel-baseline.input.json", ROOT), "utf8"),
+    ),
+  ).input as unknown as Record<string, unknown>;
 
   const api = (path: string, init: RequestInit = {}, jwt?: string) =>
     fetch(`${BASE}${path}`, {
