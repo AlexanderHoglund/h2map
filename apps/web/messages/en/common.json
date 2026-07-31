@@ -10,7 +10,8 @@
     "scenarios": "Scenarios",
     "language": "EN",
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "corridor": "Corridor"
   },
   "footer": {
     "methodology": "Methodology: Motor de Cálculo LCOH — Ministerio de Energía de Chile, 2024",
