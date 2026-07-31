@@ -32,8 +32,17 @@ export { etsCostUsdM } from "./regulation/ets";
 export { fuelEuCostUsdM } from "./regulation/fuelEu";
 export { ira45zCreditUsdM } from "./regulation/ira45z";
 export { selfDesignedCostUsdM } from "./regulation/selfDesigned";
-export { capitalRecoveryFactor, synthesize } from "./synthesis";
-export type { SynthesisBreakdown, SynthesisResult } from "./synthesis";
+export {
+  capitalRecoveryFactor,
+  synthesisScaleFactor,
+  synthesize,
+  synthesizePlant,
+} from "./synthesis";
+export type {
+  SynthesisBreakdown,
+  SynthesisPlantResult,
+  SynthesisResult,
+} from "./synthesis";
 export {
   deliveredUsdPerTonne,
   greatCircleKm,

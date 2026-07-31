@@ -29,8 +29,17 @@ export interface SynthesisBenchmark {
   co2TPerTonne: number;
   /** Synthesis/ASU/liquefaction electricity, MWh per tonne of carrier. */
   electricityMwhPerTonne: number;
-  /** Plant CAPEX per tonne-per-annum of capacity (USD/tpa). */
+  /**
+   * Plant CAPEX per tonne-per-annum of capacity (USD/tpa) AT the reference
+   * scale below. Corridor plants are small/dedicated/FOAK — apply the
+   * six-tenths correction via `synthesizePlant`; a 60 kt/yr plant against a
+   * 500 kt reference carries ~2.34× the specific capital.
+   */
   plantCapexUsdPerTpa: number;
+  /** Scale at which plantCapexUsdPerTpa holds (world-scale merchant plant). */
+  referenceScaleTonnesPerYear: number;
+  /** Capacity exponent for the specific-capital scale curve (six-tenths rule). */
+  scaleExponent: number;
   /** Fixed O&M as a fraction of CAPEX per year. */
   plantOpexFracPerYear: number;
   plantLifeYears: number;
@@ -41,7 +50,8 @@ export interface SynthesisBenchmark {
 }
 
 const NOTE =
-  "Planning-level benchmark (unverified) — see ref/synthesis.ts header; replace via SynthesisConfig or a future reference bundle.";
+  "Planning-level benchmark (unverified). Scale reference 500 kt/yr, exponent 0.6 (six-tenths rule; applies to SYNTHESIS PLANT CAPITAL only - electrolysers/renewables are ~linear in capacity and already carried by the LCOH engine). Planning-level, unverified."
+  + "  — see ref/synthesis.ts header; replace via SynthesisConfig or a future reference bundle.";
 
 export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
   {
@@ -50,6 +60,8 @@ export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
     co2TPerTonne: 0,
     electricityMwhPerTonne: 0.35, // ASU + synthesis loop
     plantCapexUsdPerTpa: 1200,
+    referenceScaleTonnesPerYear: 500_000,
+    scaleExponent: 0.6,
     plantOpexFracPerYear: 0.03,
     plantLifeYears: 25,
     shippingUsdPerTonneKm: 0.012,
@@ -62,6 +74,8 @@ export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
     co2TPerTonne: 1.374,
     electricityMwhPerTonne: 0.5,
     plantCapexUsdPerTpa: 1000,
+    referenceScaleTonnesPerYear: 500_000,
+    scaleExponent: 0.6,
     plantOpexFracPerYear: 0.03,
     plantLifeYears: 25,
     shippingUsdPerTonneKm: 0.01,
@@ -74,6 +88,8 @@ export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
     co2TPerTonne: 0,
     electricityMwhPerTonne: 8.0, // liquefaction ~8 kWh/kg (6–10 band midpoint)
     plantCapexUsdPerTpa: 900, // liquefier
+    referenceScaleTonnesPerYear: 500_000,
+    scaleExponent: 0.6,
     plantOpexFracPerYear: 0.04,
     plantLifeYears: 25,
     shippingUsdPerTonneKm: 0.05,
@@ -99,4 +115,15 @@ export interface SynthesisConfig {
   electricityUsdPerMwh: number;
   /** CO2 feedstock price (point-source ≈ 30–60, DAC ≈ 200+). MeOH only. */
   co2UsdPerTonne: number;
+}
+
+/** Plant-level config for `synthesizePlant` (corridor build-here spec §3). */
+export interface SynthesisPlantConfig extends SynthesisConfig {
+  /** The plant's nameplate capacity, tonnes of carrier per year. */
+  nameplateTonnesPerYear: number;
+  /**
+   * First-of-a-kind multiplier on synthesis plant capital. Default 1.0 —
+   * inert unless set; carries provenance in the scenario when used.
+   */
+  foakMultiplier?: number;
 }

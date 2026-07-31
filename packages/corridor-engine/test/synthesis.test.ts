@@ -11,7 +11,9 @@ import {
   deliveredUsdPerTonne,
   greatCircleKm,
   logisticsUsdPerTonne,
+  synthesisScaleFactor,
   synthesize,
+  synthesizePlant,
 } from "../src/index";
 
 const config = {
@@ -93,5 +95,54 @@ describe("logistics", () => {
   it("zero distance costs nothing", () => {
     const p = { lat: 10, lon: 10 };
     expect(logisticsUsdPerTonne(p, p, { usdPerTonneKm: 0.05 })).toBe(0);
+  });
+});
+
+describe("synthesizePlant — scale sensitivity (spec §3)", () => {
+  const nh3 = getSynthesisBenchmark("e-ammonia");
+  const config = {
+    productionWacc: 0.08,
+    electricityUsdPerMwh: 60,
+    co2UsdPerTonne: 30,
+    nameplateTonnesPerYear: 60_000,
+  };
+
+  it("scale factor at 60 kt vs the 500 kt reference is 2.34 ± 0.01", () => {
+    expect(synthesisScaleFactor(nh3, 60_000)).toBeCloseTo(2.34, 2);
+  });
+
+  it("at the reference scale with foak 1 the correction is inert (factor 1)", () => {
+    expect(synthesisScaleFactor(nh3, nh3.referenceScaleTonnesPerYear)).toBeCloseTo(1, 12);
+    const atRef = synthesizePlant(nh3, {
+      ...config,
+      nameplateTonnesPerYear: nh3.referenceScaleTonnesPerYear,
+    });
+    expect(atRef.capitalUsd).toBeCloseTo(
+      nh3.plantCapexUsdPerTpa * nh3.referenceScaleTonnesPerYear,
+      6,
+    );
+  });
+
+  it("foak multiplies capital only; breakdown sums to operating", () => {
+    const base = synthesizePlant(nh3, config);
+    const foak = synthesizePlant(nh3, { ...config, foakMultiplier: 1.3 });
+    expect(foak.capitalUsd / base.capitalUsd).toBeCloseTo(1.3, 12);
+    // electricity/CO2 operating parts are scale-factor-independent:
+    expect(foak.breakdown.electricityUsdPerYear).toBe(base.breakdown.electricityUsdPerYear);
+    expect(base.annualOperatingUsd).toBeCloseTo(
+      base.breakdown.fixedOmUsdPerYear +
+        base.breakdown.electricityUsdPerYear +
+        base.breakdown.co2FeedstockUsdPerYear,
+      9,
+    );
+  });
+
+  it("perTonne is the CRF display figure over nameplate", () => {
+    const r = synthesizePlant(nh3, config);
+    const crf = capitalRecoveryFactor(0.08, nh3.plantLifeYears);
+    expect(r.perTonne).toBeCloseTo(
+      (r.capitalUsd * crf + r.annualOperatingUsd) / 60_000,
+      9,
+    );
   });
 });

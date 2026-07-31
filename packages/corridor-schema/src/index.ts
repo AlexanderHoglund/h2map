@@ -56,4 +56,8 @@ export {
   getSynthesisBenchmark,
   SYNTHESIS_BENCHMARKS,
 } from "./ref/synthesis";
-export type { SynthesisBenchmark, SynthesisConfig } from "./ref/synthesis";
+export type {
+  SynthesisBenchmark,
+  SynthesisConfig,
+  SynthesisPlantConfig,
+} from "./ref/synthesis";
