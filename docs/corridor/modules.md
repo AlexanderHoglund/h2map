@@ -96,6 +96,23 @@ FuelEU Maritime cost, $m (Calculation r29/r55, transcription §7):
 
 credit trading is Phase-1 divergence D2). The division by the fuel's own
 
+### `@h2map/corridor-engine/regulation\imoNetZero.ts`
+
+**Purpose**
+
+IMO Net-Zero Framework (fix #6) — draft MEPC 83 structure, parameterised
+entirely from the reference bundle (no thresholds, prices or trajectory
+values hardcoded here; provisional pending adoption, see the bundle's
+sourceNote).
+
+**Boundary (imports)**: `@h2map/units`, `@h2map/corridor-schema`, `../schedule`
+
+**Exports (inputs/outputs)**: `ImoNetZeroYear`, `imoNetZeroYear`
+
+**Assumptions**
+
+Documented inline (see source).
+
 ### `@h2map/corridor-engine/regulation\ira45z.ts`
 
 **Purpose**
@@ -170,7 +187,7 @@ not survive as two code paths. Everything that differs between the sides
 arrives as data on `SideInputs`; this function never branches on
 `side.label`.
 
-**Boundary (imports)**: `@h2map/corridor-schema`, `./rates`, `./regulation/ets`, `./regulation/fuelEu`, `./regulation/ira45z`, `./regulation/selfDesigned`
+**Boundary (imports)**: `@h2map/corridor-schema`, `./rates`, `./regulation/ets`, `./regulation/fuelEu`, `./regulation/ira45z`, `./regulation/selfDesigned`, `./regulation/imoNetZero`
 
 **Exports (inputs/outputs)**: `evaluateSide`
 
@@ -318,7 +335,7 @@ Resolved value types and the fully-resolved inputs the engine consumes.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `Source`, `Resolved`, `TimelineYear`, `Timeline`, `Discounting`, `EvalContext`, `ComponentId`, `CostComponent`, `FuelParams`, `ScheduleStep`, `EtsParams`, `FuelEuParams`, `Ira45zParams`, `SelfDesignedParams`, `SideRegulations`, `SideInputs`, `ResolvedFuelSide`, `ResolvedScenario`
+**Exports (inputs/outputs)**: `Source`, `Resolved`, `TimelineYear`, `Timeline`, `Discounting`, `EvalContext`, `ComponentId`, `CostComponent`, `FuelParams`, `ScheduleStep`, `EtsParams`, `FuelEuParams`, `Ira45zParams`, `SelfDesignedParams`, `ImoNetZeroParams`, `SideRegulations`, `SideInputs`, `ResolvedFuelSide`, `ResolvedScenario`
 
 **Assumptions**
 
@@ -337,7 +354,7 @@ with no adaptation layer.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SidePerYear`, `SideResult`, `ScenarioSummary`, `ScenarioReporting`, `ScenarioIntermediates`, `ScenarioResult`
+**Exports (inputs/outputs)**: `SidePerYear`, `SideResult`, `SideImoNetZero`, `ScenarioSummary`, `ScenarioReporting`, `ScenarioIntermediates`, `ScenarioResult`
 
 **Assumptions**
 
@@ -355,7 +372,7 @@ them into branded `Resolved<T>` values against a reference bundle.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `RouteType`, `ConsumptionMode`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `RegulationInput`, `ScenarioInput`
+**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `RouteType`, `ConsumptionMode`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `RegulationInput`, `ScenarioInput`
 
 **Assumptions**
 

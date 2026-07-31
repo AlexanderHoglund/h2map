@@ -7,6 +7,11 @@
 
 export interface SidePerYear {
   readonly totalCapexUsdM: readonly number[];
+  /**
+   * Fix #6 — present ONLY when the IMO Net-Zero module is active on the
+   * side, so the frozen golden per-year key set is untouched.
+   */
+  readonly imoNetZeroUsdM?: readonly number[];
   readonly totalOpexUsdM: readonly number[];
   readonly etsUsdM: readonly number[];
   readonly fuelEuUsdM: readonly number[];
@@ -26,6 +31,18 @@ export interface SideResult {
   readonly fuelEuPvUsdM: number;
   readonly ira45zPvUsdM: number;
   readonly selfDesignedPvUsdM: number;
+  /** Fix #6 — present only when the IMO module is active on the side. */
+  readonly imoNetZero?: SideImoNetZero;
+}
+
+/** IMO Net-Zero per-side aggregates (all discounted where $-valued). */
+export interface SideImoNetZero {
+  readonly pvUsdM: number;
+  readonly tier1PvUsdM: number;
+  readonly tier2PvUsdM: number;
+  readonly rewardPvUsdM: number;
+  /** Reward-eligible surplus balance over the horizon, tCO2e (undiscounted). */
+  readonly surplusTonnesCo2e: number;
 }
 
 export interface ScenarioSummary {
@@ -68,6 +85,18 @@ export interface ScenarioReporting {
   readonly costPerUnitPostRegulationUsd: number;
   readonly costPerTonneCo2PreRegulationUsd: number;
   readonly costPerTonneCo2PostRegulationUsd: number;
+  /**
+   * Fix #6 — IMO Net-Zero reporting: per-side tier breakdown + surplus, or
+   * `notParameterised` when the scenario enables the module but the pinned
+   * bundle lacks its reference rows. Absent when the module is off.
+   */
+  readonly imoNetZero?:
+    | { readonly notParameterised: true }
+    | {
+        readonly notParameterised?: false;
+        readonly green: SideImoNetZero;
+        readonly fossil: SideImoNetZero;
+      };
 }
 
 export interface ScenarioIntermediates {

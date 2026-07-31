@@ -654,6 +654,73 @@ export function RegulationStep({ model }: StepProps) {
         )}
       </Section>
 
+      <Section title={t("imo")}>
+        <div className="sm:col-span-2">
+          <SwitchRow
+            label={t("include")}
+            checked={reg.imoNetZero?.enabled ?? false}
+            onChange={(v) =>
+              update(
+                (d) =>
+                  void (d.regulation.imoNetZero = {
+                    enabled: v,
+                    scope: d.regulation.imoNetZero?.scope ?? 1,
+                    ...(d.regulation.imoNetZero?.rewardUsdPerTonneCo2e !== undefined
+                      ? { rewardUsdPerTonneCo2e: d.regulation.imoNetZero.rewardUsdPerTonneCo2e }
+                      : {}),
+                  }),
+              )
+            }
+          />
+        </div>
+        {reg.imoNetZero?.enabled && (
+          <>
+            <NumberInput
+              label={t("imoScope")}
+              unit="0–1"
+              step={0.05}
+              value={reg.imoNetZero.scope}
+              onChange={(v) =>
+                update((d) => void (d.regulation.imoNetZero!.scope = Math.min(1, Math.max(0, v))))
+              }
+            />
+            <div />
+            <p className="sm:col-span-2 text-[11px] leading-snug text-neutral-500">
+              {t("imoNote")}
+            </p>
+            <div className="sm:col-span-2">
+              <AdvancedFold>
+                <NumberInput
+                  label={t("imoReward")}
+                  unit="$/tCO2e"
+                  step={5}
+                  help={t("imoRewardHelp")}
+                  value={reg.imoNetZero.rewardUsdPerTonneCo2e ?? 0}
+                  onChange={(v) =>
+                    update(
+                      (d) =>
+                        void (d.regulation.imoNetZero!.rewardUsdPerTonneCo2e = v || undefined),
+                    )
+                  }
+                />
+                <NumberInput
+                  label={t("escalation")}
+                  unit="fraction/yr"
+                  step={0.005}
+                  help={t("escalationHelp")}
+                  value={reg.imoNetZero.priceEscalation ?? 0}
+                  onChange={(v) =>
+                    update(
+                      (d) => void (d.regulation.imoNetZero!.priceEscalation = v || undefined),
+                    )
+                  }
+                />
+              </AdvancedFold>
+            </div>
+          </>
+        )}
+      </Section>
+
       <Section title={t("selfDesigned")}>
         <div className="sm:col-span-2">
           <SwitchRow

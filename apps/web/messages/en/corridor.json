@@ -124,7 +124,13 @@
       "rateNominal": "Nominal (workbook)",
       "rateReal": "Real (deflate inflation growth)",
       "escalation": "Annual price escalation",
-      "escalationHelp": "0 = flat nominal price — at 2% inflation that is a falling real price. Set equal to inflation to hold the real carbon price constant; the IMO framework’s remedial prices escalate by construction."
+      "escalationHelp": "0 = flat nominal price — at 2% inflation that is a falling real price. Set equal to inflation to hold the real carbon price constant; the IMO framework’s remedial prices escalate by construction.",
+      "imo": "IMO Net-Zero Framework",
+      "imoScope": "Scope",
+      "imoReward": "ZNZ reward rate",
+      "imoRewardHelp": "The reward for zero/near-zero fuel surplus below the direct-compliance target. Genuinely undetermined at source — default 0; the surplus balance is reported in tonnes regardless.",
+      "imoNote": "Draft MEPC 83 structure (approved Apr 2025; adoption targeted MEPC 85, Oct 2026 — provisional): attained WTW fuel intensity vs two reduction ladders against the 93.3 gCO2eq/MJ 2008 reference; deficits priced $100/t (tier 1, direct→base band) and $380/t (tier 2, beyond base). Ladders agreed 2028–2035 and held flat beyond; tier prices established 2028–2030.",
+      "imoNotParam": "Not parameterised: the pinned reference bundle has no IMO Net-Zero rows — the module reports nothing rather than silently computing zero."
     },
     "results": {
       "heading": "Results",
@@ -196,7 +202,10 @@
       "abatementNoteEts": "The premium per tonne of CO2 avoided, next to the EU ETS allowance price you entered — the market’s going rate for a tonne.",
       "abatementNoteSelf": "The premium per tonne of CO2 avoided, next to your self-designed scheme’s carbon price — the rate this scenario actually charges.",
       "abatementNoteImo": "The premium per tonne of CO2 avoided, next to the IMO Net-Zero remedial price that applies in this scenario.",
-      "abatementNoteNone": "No carbon price is active in this scenario — enable EU ETS, the self-designed scheme or the IMO framework to compare against one."
+      "abatementNoteNone": "No carbon price is active in this scenario — enable EU ETS, the self-designed scheme or the IMO framework to compare against one.",
+      "regImo": "IMO Net-Zero",
+      "imoSurplus": "ZNZ surplus balance (green)",
+      "imoNotParam": "IMO Net-Zero: not parameterised in the pinned reference bundle."
     },
     "buildHere": {
       "openMap": "Pick a site on the map",

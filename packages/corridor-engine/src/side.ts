@@ -21,6 +21,7 @@ import { etsCostUsdM } from "./regulation/ets";
 import { fuelEuCostUsdM } from "./regulation/fuelEu";
 import { ira45zCreditUsdM } from "./regulation/ira45z";
 import { selfDesignedCostUsdM } from "./regulation/selfDesigned";
+import { imoNetZeroYear } from "./regulation/imoNetZero";
 
 export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
   const { fuel, regulations, vessels, components } = side;
@@ -59,13 +60,36 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
         )
       : 0;
 
+    // Fix #6 — the IMO Net-Zero module: a SEVENTH cost term, present only
+    // when the module is active (the golden scenario never enables it).
+    const imo = regulations.imoNetZero
+      ? imoNetZeroYear(regulations.imoNetZero, fuel, vessels, calendarYear, idx)
+      : null;
+
     // Row 33 — the exhaustive-decomposition identity (property-tested).
-    const total = totalCapex + totalOpex + ets + fuelEu + ira45z + selfDesigned;
+    const total =
+      totalCapex + totalOpex + ets + fuelEu + ira45z + selfDesigned + (imo?.costUsdM ?? 0);
     const df = discountFactor(wacc, idx);
-    return { totalCapex, totalOpex, ets, fuelEu, ira45z, selfDesigned, total, df, pv: total * df };
+    return {
+      totalCapex,
+      totalOpex,
+      ets,
+      fuelEu,
+      ira45z,
+      selfDesigned,
+      imo,
+      total,
+      df,
+      pv: total * df,
+    };
   });
 
   const perYear: SidePerYear = {
+    // Fix #6 — emitted only when the module is active: the frozen golden
+    // per-year key set must not change.
+    ...(regulations.imoNetZero
+      ? { imoNetZeroUsdM: rows.map((r) => r.imo?.costUsdM ?? 0) }
+      : {}),
     totalCapexUsdM: rows.map((r) => r.totalCapex),
     totalOpexUsdM: rows.map((r) => r.totalOpex),
     etsUsdM: rows.map((r) => r.ets),
@@ -90,5 +114,19 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
     fuelEuPvUsdM: sumProduct(rows.map((r) => r.fuelEu)),
     ira45zPvUsdM: sumProduct(rows.map((r) => r.ira45z)),
     selfDesignedPvUsdM: sumProduct(rows.map((r) => r.selfDesigned)),
+    ...(regulations.imoNetZero
+      ? {
+          imoNetZero: {
+            pvUsdM: sumProduct(rows.map((r) => r.imo?.costUsdM ?? 0)),
+            tier1PvUsdM: sumProduct(rows.map((r) => r.imo?.tier1UsdM ?? 0)),
+            tier2PvUsdM: sumProduct(rows.map((r) => r.imo?.tier2UsdM ?? 0)),
+            rewardPvUsdM: sumProduct(rows.map((r) => r.imo?.rewardUsdM ?? 0)),
+            surplusTonnesCo2e: rows.reduce(
+              (acc, r) => acc + (r.imo?.surplusTonnesCo2e ?? 0),
+              0,
+            ),
+          },
+        }
+      : {}),
   };
 }

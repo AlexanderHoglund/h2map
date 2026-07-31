@@ -16,6 +16,7 @@ import {
   YAxis,
 } from "recharts";
 import type { ScenarioInput, ScenarioResult } from "@h2map/corridor-schema";
+import { DEFAULT_BUNDLE } from "./state";
 
 /**
  * The full results report (its own tab): a technical spec-sheet reading of
@@ -108,12 +109,7 @@ export default function ResultsPanel({
   const s = result.summary;
   const basis = scenario.flags?.emissionsBasis ?? "combustion";
   const div = result.divergences?.emissionsBasis;
-  const netReg =
-    s.etsGreenPvUsdM +
-    s.fuelEuGreenPvUsdM +
-    s.ira45zGreenPvUsdM +
-    s.selfDesignedGreenPvUsdM -
-    (s.etsFossilPvUsdM + s.fuelEuFossilPvUsdM + s.selfDesignedFossilPvUsdM);
+  const netReg = result.reporting.netRegulatoryEffectUsdM;
 
   // Viz tokens (globals.css): CVD-safe blue-red diverging pair for the deltas,
   // neutral anchored totals (baseline + x-label are the secondary encoding).
@@ -131,6 +127,14 @@ export default function ResultsPanel({
   const unitWeight = scenario.cargo.unitWeightTonnes ?? (cargoUnit === "teu" ? 14 : 1);
 
   const rep = result.reporting;
+  const imo =
+    rep.imoNetZero && !rep.imoNetZero.notParameterised
+      ? (rep.imoNetZero as { green: NonNullable<unknown>; fossil: NonNullable<unknown> } & {
+          green: { pvUsdM: number; surplusTonnesCo2e: number };
+          fossil: { pvUsdM: number; surplusTonnesCo2e: number };
+        })
+      : null;
+  const imoNotParam = rep.imoNetZero?.notParameterised === true;
   const kpis: {
     label: React.ReactNode;
     value: string;
@@ -182,6 +186,9 @@ export default function ResultsPanel({
     { label: t("regFuelEu"), green: s.fuelEuGreenPvUsdM, fossil: s.fuelEuFossilPvUsdM },
     { label: t("regIra"), green: s.ira45zGreenPvUsdM, fossil: null },
     { label: t("regSelf"), green: s.selfDesignedGreenPvUsdM, fossil: s.selfDesignedFossilPvUsdM },
+    ...(imo
+      ? [{ label: t("regImo"), green: imo.green.pvUsdM, fossil: imo.fossil.pvUsdM }]
+      : []),
   ];
 
   const abatement: { key: string; tonnes: number; active: boolean }[] = div
@@ -208,7 +215,14 @@ export default function ResultsPanel({
             label: t("refSelf"),
             note: t("abatementNoteSelf"),
           }
-        : null;
+        : reg.imoNetZero?.enabled &&
+            DEFAULT_BUNDLE.regulationDefaults.imoNetZero
+          ? {
+              usdPerTonne: DEFAULT_BUNDLE.regulationDefaults.imoNetZero.tier1UsdPerTonneCo2e,
+              label: t("refImo"),
+              note: t("abatementNoteImo"),
+            }
+          : null;
   const abatementChart = abatement.map((row) => ({
     name: t(`basisLabel.${row.key}`),
     cost: Math.round(((s.gapPvUsdM * 1e6) / row.tonnes) * 100) / 100,
@@ -460,6 +474,9 @@ export default function ResultsPanel({
                 [t("regFuelEu"), s.fuelEuGreenPvUsdM, s.fuelEuFossilPvUsdM],
                 [t("regIra"), s.ira45zGreenPvUsdM, null],
                 [t("regSelf"), s.selfDesignedGreenPvUsdM, s.selfDesignedFossilPvUsdM],
+                ...(imo
+                  ? ([[t("regImo"), imo.green.pvUsdM, imo.fossil.pvUsdM]] as const)
+                  : []),
               ] as const
             ).map(([label, g, f]) => (
               <tr key={label} className="border-b border-neutral-100 last:border-0">
@@ -480,6 +497,19 @@ export default function ResultsPanel({
             </tr>
           </tfoot>
         </table>
+        {imo && imo.green.surplusTonnesCo2e > 0 && (
+          <p className="mt-2 text-[11px] leading-snug text-neutral-500">
+            {t("imoSurplus")}:{" "}
+            <span className="tabular-nums font-medium text-neutral-700">
+              {fmtInt(imo.green.surplusTonnesCo2e)} tCO2e
+            </span>
+          </p>
+        )}
+        {imoNotParam && (
+          <p className="mt-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
+            {t("imoNotParam")}
+          </p>
+        )}
       </section>
 
       {/* ===== Emissions & abatement, both bases ===== */}

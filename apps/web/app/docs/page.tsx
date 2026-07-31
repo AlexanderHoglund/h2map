@@ -175,6 +175,10 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["regulation.selfDesigned.capexSupport", "number 0–1", "yes", "—", "—", "—"],
   ["regulation.selfDesigned.opexSupport", "number 0–1", "yes", "—", "—", "—"],
   ["regulation.selfDesigned.otherUsdM", "number", "yes", "—", "—", "—"],
+  ["regulation.imoNetZero.enabled", "boolean", "no", "—", "—", "—"],
+  ["regulation.imoNetZero.scope", "number 0–1", "no", "—", "—", "—"],
+  ["regulation.imoNetZero.rewardUsdPerTonneCo2e", "number", "no", "—", "—", "advanced"],
+  ["regulation.imoNetZero.priceEscalation", "number", "no", "—", "—", "advanced"],
   ['flags.emissionsBasis', '"combustion" | "wellToWake"', "no", "—", "—", "—"],
   ['flags.rateBasis', '"nominal" | "real"', "no", "—", "—", "—"],
 ];
@@ -693,6 +697,32 @@ export default function DocsPage() {
           side. Use it to find the CO2 price or subsidy that closes the gap.
         </p>
 
+        <H3>IMO Net-Zero Framework (provisional)</H3>
+        <F>
+          attained GFI = the side&apos;s WTW intensity [gCO2eq/MJ]
+          <br />
+          base / direct target<sub>t</sub> = 93.3 × (1 − ladder(cal))
+          <br />
+          cost<sub>t</sub> = (tier1 tCO2e × $100 + tier2 tCO2e × $380) ×
+          scope / 10⁶
+        </F>
+        <p className="mt-2">
+          The scheme that applies to most non-EU corridors — including the
+          Chilean default, where the other three are inert. Structure from
+          the draft MEPC 83 text (approved April 2025; adoption targeted
+          MEPC 85, October 2026 — every parameter row in the reference
+          bundle is cited and marked provisional): two reduction ladders vs
+          the 93.3 gCO2eq/MJ 2008 reference (base 4%→30%, direct 17%→43%
+          over 2028–2035, held flat beyond until MEPC sets 2036+), tier-1
+          $100/tCO2e on the direct→base band, tier-2 $380/tCO2e beyond the
+          base target (prices established 2028–2030). Surplus below the
+          direct target accrues a <em>ZNZ reward balance</em>{" "}reported in
+          tonnes — the reward rate is genuinely undetermined and defaults to
+          0. If a pinned bundle lacks the IMO rows the module reports{" "}
+          <em>not parameterised</em>{" "}instead of computing zero. Off by
+          default everywhere.
+        </p>
+
         <H3>Model options</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
@@ -1075,6 +1105,20 @@ export default function DocsPage() {
           quantifies that the model cannot yet hold: differentiated green
           financing (dual WACC, ≈$250m here) and a scenario-level synergy
           adjustment (≈$250m).
+        </p>
+        <p className="mt-2">
+          <strong>Finding — the $280/t proxy vs the structured IMO
+          module:</strong>{" "}replacing the calibrated self-designed proxy
+          with the actual draft-MEPC-83 structure yields a net regulatory
+          effect of only ≈$86m (vs the proxy&apos;s $250m): LSFO at 91.16
+          gCO2eq/MJ sits <em>below</em>{" "}the base-target ladder until
+          ≈2032, so most of its deficit is priced in the tier-1 $100 band,
+          not at a flat $280 on every tonne. Not tuned away — either the
+          study&apos;s $250m anticipates post-2030 price escalation /
+          stricter parameters, or the flat-price proxy overstates the draft
+          framework&apos;s near-term charge. The green side&apos;s
+          reward-eligible surplus (≈0.9 MtCO2e over the horizon) is the
+          upside the study flags, reported unpriced.
         </p>
 
         {/* 13 --------------------------------------------------------- */}

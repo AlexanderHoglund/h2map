@@ -72,6 +72,11 @@ export const refBundleSchema = z.object({
   schedules: z.object({
     etsPhaseIn: z.array(scheduleStepSchema).nonempty(),
     fuelEuTargets: z.array(scheduleStepSchema).nonempty(),
+    // IMO Net-Zero Framework GFI reduction ladders vs the 2008 reference
+    // (draft MEPC 83, provisional pending adoption). Optional: an older
+    // bundle without them makes the IMO module report "not parameterised".
+    imoBaseTargets: z.array(scheduleStepSchema).nonempty().optional(),
+    imoDirectTargets: z.array(scheduleStepSchema).nonempty().optional(),
   }),
   regulationDefaults: z.object({
     eurUsd: z.number(),
@@ -83,6 +88,17 @@ export const refBundleSchema = z.object({
       scope: z.number(),
     }),
     ira45z: z.object({ rateUsdPerGallon: z.number() }),
+    // IMO NZF pricing/reference parameters (provisional, per sourceNote).
+    // The ZNZ reward rate is deliberately ABSENT — undetermined at source.
+    imoNetZero: z
+      .object({
+        effectiveFromCalendarYear: z.number().int(),
+        referenceIntensityGco2PerMj: z.number().positive(),
+        tier1UsdPerTonneCo2e: z.number().nonnegative(),
+        tier2UsdPerTonneCo2e: z.number().nonnegative(),
+        sourceNote: z.string(),
+      })
+      .optional(),
   }),
 });
 

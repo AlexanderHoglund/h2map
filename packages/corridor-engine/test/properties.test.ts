@@ -61,6 +61,7 @@ const arbSide: fc.Arbitrary<SideInputs> = fc
     capexes: fc.array(money, { minLength: 4, maxLength: 4 }),
     opexes: fc.array(money, { minLength: 4, maxLength: 4 }),
     withEts: fc.boolean(),
+    withImo: fc.boolean(),
     withFuelEu: fc.boolean(),
     with45z: fc.boolean(),
     withSelf: fc.boolean(),
@@ -123,6 +124,26 @@ const arbSide: fc.Arbitrary<SideInputs> = fc
             },
           }
         : {}),
+      ...(r.withImo
+        ? {
+            imoNetZero: {
+              effectiveFromCalendarYear: calendarYear(2028),
+              referenceIntensityGco2PerMj: gCo2ePerMj(93.3),
+              baseTargets: [
+                { fromCalendarYear: calendarYear(2028), value: fraction(0.04) },
+                { fromCalendarYear: calendarYear(2035), value: fraction(0.3) },
+              ],
+              directTargets: [
+                { fromCalendarYear: calendarYear(2028), value: fraction(0.17) },
+                { fromCalendarYear: calendarYear(2035), value: fraction(0.43) },
+              ],
+              tier1UsdPerTonneCo2e: usdPerTonne(100),
+              tier2UsdPerTonneCo2e: usdPerTonne(380),
+              scope: fraction(1),
+              rewardUsdPerTonneCo2e: usdPerTonne(0),
+            },
+          }
+        : {}),
     },
   }));
 
@@ -138,7 +159,8 @@ describe("evaluateSide — exhaustive decomposition", () => {
         for (let i = 0; i < ctx.timeline.horizonYears; i++) {
           const sum =
             p.totalCapexUsdM[i]! + p.totalOpexUsdM[i]! + p.etsUsdM[i]! +
-            p.fuelEuUsdM[i]! + p.ira45zUsdM[i]! + p.selfDesignedUsdM[i]!;
+            p.fuelEuUsdM[i]! + p.ira45zUsdM[i]! + p.selfDesignedUsdM[i]! +
+            (p.imoNetZeroUsdM?.[i] ?? 0);
           if (!relClose(p.totalUsdM[i]!, sum)) return false;
           if (!relClose(p.pvUsdM[i]!, p.totalUsdM[i]! * p.discountFactor[i]!)) return false;
         }
@@ -153,7 +175,7 @@ describe("evaluateSide — exhaustive decomposition", () => {
         const r = evaluateSide(side, ctx);
         const partsPv =
           r.capexPvUsdM + r.opexPvUsdM + r.etsPvUsdM + r.fuelEuPvUsdM +
-          r.ira45zPvUsdM + r.selfDesignedPvUsdM;
+          r.ira45zPvUsdM + r.selfDesignedPvUsdM + (r.imoNetZero?.pvUsdM ?? 0);
         return relClose(r.totalPvUsdM, partsPv, 1e-9);
       }),
     );
@@ -167,6 +189,7 @@ describe("evaluateSide — exhaustive decomposition", () => {
         if (!side.regulations.ets && r.perYear.etsUsdM.some((v) => v !== 0)) return false;
         if (!side.regulations.fuelEu && r.perYear.fuelEuUsdM.some((v) => v !== 0)) return false;
         if (!side.regulations.ira45z && r.perYear.ira45zUsdM.some((v) => v !== 0)) return false;
+        if (!side.regulations.imoNetZero && r.perYear.imoNetZeroUsdM !== undefined) return false;
         if (r.perYear.ira45zUsdM.some((v) => v > 0)) return false;
         if (r.perYear.fuelEuUsdM.some((v) => v < 0)) return false;
         return true;

@@ -34,3 +34,14 @@ Rules (build-plan cross-cutting rule 4):
   pins the workbook's combustion-basis numbers exactly: the engine's
   flag-absent behaviour remains pure Excel, and TTW stays selectable in the
   UI's Model options.
+
+## 2026-08-01 — IMO Net-Zero reference rows added to the bundle (additive)
+
+`data/corridor-ref/2026-07-30-excel-v1.json` gained OPTIONAL rows for the
+IMO Net-Zero Framework (schedules.imoBaseTargets / imoDirectTargets +
+regulationDefaults.imoNetZero) — draft MEPC 83 values, PROVISIONAL pending
+adoption (targeted MEPC 85, Oct 2026), sourceNote on the row. This is a
+documented exception to the new-bundle-id rule: the addition is purely
+additive (every pre-existing row byte-identical), the golden scenario never
+enables the module, and the frozen expected file is untouched. A bundle
+whose EXISTING rows change still requires a new bundle id.

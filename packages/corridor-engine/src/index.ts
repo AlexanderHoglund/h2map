@@ -111,7 +111,16 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
     // Fix #1: pre/post-regulation split. Lives OUTSIDE `summary` — the
     // golden compares summary/intermediates/perYear section-wise, so this
     // block leaves the frozen fixture untouched.
-    reporting: buildReporting(green, fossil, cargoUnitsLifetime, co2AbatedTonnes),
+    reporting: {
+      ...buildReporting(green, fossil, cargoUnitsLifetime, co2AbatedTonnes),
+      // Fix #6 — IMO Net-Zero reporting: tier breakdown + surplus per side,
+      // or the explicit not-parameterised marker (never a silent zero).
+      ...(resolved.imoNotParameterised
+        ? { imoNetZero: { notParameterised: true as const } }
+        : green.imoNetZero && fossil.imoNetZero
+          ? { imoNetZero: { green: green.imoNetZero, fossil: fossil.imoNetZero } }
+          : {}),
+    },
     intermediates: {
       greenFuelTonnesPerVesselYear: resolved.green.tonnesPerVesselYear.value,
       fossilFuelTonnesPerVesselYear: resolved.fossil.tonnesPerVesselYear.value,

@@ -286,8 +286,45 @@ function resolveRegulations(
       : {}),
   };
 
+  // Fix #6 — IMO Net-Zero: identical params both sides (the attained GFI
+  // differs via each side's fuel). Only shaped when the bundle carries the
+  // reference rows; the caller surfaces "not parameterised" otherwise.
+  const imo = reg.imoNetZero;
+  const imoRows = bundle.schedules.imoBaseTargets &&
+    bundle.schedules.imoDirectTargets &&
+    bundle.regulationDefaults.imoNetZero
+    ? {
+        base: bundle.schedules.imoBaseTargets,
+        direct: bundle.schedules.imoDirectTargets,
+        defaults: bundle.regulationDefaults.imoNetZero,
+      }
+    : null;
+  const imoFor = () =>
+    imo?.enabled && imoRows
+      ? {
+          imoNetZero: {
+            effectiveFromCalendarYear: calendarYear(
+              imoRows.defaults.effectiveFromCalendarYear,
+            ),
+            referenceIntensityGco2PerMj: gCo2ePerMj(
+              imoRows.defaults.referenceIntensityGco2PerMj,
+            ),
+            baseTargets: toSchedule(imoRows.base),
+            directTargets: toSchedule(imoRows.direct),
+            tier1UsdPerTonneCo2e: usdPerTonne(imoRows.defaults.tier1UsdPerTonneCo2e),
+            tier2UsdPerTonneCo2e: usdPerTonne(imoRows.defaults.tier2UsdPerTonneCo2e),
+            scope: fraction(imo.scope),
+            rewardUsdPerTonneCo2e: usdPerTonne(imo.rewardUsdPerTonneCo2e ?? 0),
+            ...(imo.priceEscalation !== undefined
+              ? { priceEscalation: fraction(imo.priceEscalation) }
+              : {}),
+          },
+        }
+      : {};
+
   const green: SideRegulations = {
     ...etsFor("green"),
+    ...imoFor(),
     ...shared,
     // 45Z: green only, iff enabled AND US-produced (Regulation!D24 ∧ D25).
     // D5 — optional sunset (the workbook has none).
@@ -321,6 +358,7 @@ function resolveRegulations(
 
   const fossil: SideRegulations = {
     ...etsFor("fossil"),
+    ...imoFor(),
     ...shared,
     // Self-designed fossil: the CO2-price term ONLY (Calculation r56).
     ...(reg.selfDesigned.enabled
@@ -392,6 +430,14 @@ export function resolveScenario(
     green,
     fossil,
     regulations: resolveRegulations(input.regulation, bundle),
+    ...(input.regulation.imoNetZero?.enabled &&
+    !(
+      bundle.schedules.imoBaseTargets &&
+      bundle.schedules.imoDirectTargets &&
+      bundle.regulationDefaults.imoNetZero
+    )
+      ? { imoNotParameterised: true as const }
+      : {}),
     flags: {
       emissionsBasis: input.flags?.emissionsBasis ?? "combustion",
       rateBasis: input.flags?.rateBasis ?? "nominal",

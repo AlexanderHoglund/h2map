@@ -199,12 +199,31 @@ export interface SelfDesignedInput {
   otherUsdM: number;
 }
 
+/**
+ * Fix #6 — IMO Net-Zero Framework (draft MEPC 83; provisional pending
+ * adoption). Trajectories, reference intensity and tier prices come from
+ * the reference bundle — never hardcoded here. The ZNZ reward rate is
+ * undetermined at source: the optional parameter defaults to zero, and the
+ * surplus balance is reported in tonnes regardless.
+ */
+export interface ImoNetZeroInput {
+  enabled: boolean;
+  /** Fraction of voyages/fuel in scope (consistent with the other modules). */
+  scope: number;
+  /** ZNZ reward, $/tCO2e of surplus below the direct target. Default 0. */
+  rewardUsdPerTonneCo2e?: number;
+  /** Fix #3-style escalation on both tier prices (post-2030 prices unset). */
+  priceEscalation?: number;
+}
+
 export interface RegulationInput {
   eurUsd: number;
   ets: EtsInput;
   fuelEu: FuelEuInput;
   ira45z: Ira45zInput;
   selfDesigned: SelfDesignedInput;
+  /** Absent = module off (legacy scenarios). */
+  imoNetZero?: ImoNetZeroInput;
 }
 
 export interface ScenarioInput {

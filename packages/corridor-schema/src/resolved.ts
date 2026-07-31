@@ -157,12 +157,32 @@ export interface SelfDesignedParams {
   readonly otherUsdM?: UsdM;
 }
 
+/**
+ * Fix #6 — IMO Net-Zero params, fully shaped from the reference bundle at
+ * resolve time. Reduction ladders are fractions vs the reference intensity;
+ * tier prices $/tCO2e; scope mirrors the other modules.
+ */
+export interface ImoNetZeroParams {
+  readonly effectiveFromCalendarYear: CalendarYear;
+  readonly referenceIntensityGco2PerMj: GCo2ePerMj;
+  readonly baseTargets: readonly ScheduleStep[];
+  readonly directTargets: readonly ScheduleStep[];
+  readonly tier1UsdPerTonneCo2e: UsdPerTonne;
+  readonly tier2UsdPerTonneCo2e: UsdPerTonne;
+  readonly scope: Fraction;
+  /** ZNZ reward rate; 0 = unpriced (the balance is still reported). */
+  readonly rewardUsdPerTonneCo2e: UsdPerTonne;
+  readonly priceEscalation?: Fraction;
+}
+
 export interface SideRegulations {
   readonly ets?: EtsParams;
   readonly fuelEu?: FuelEuParams;
   /** Present only on the green side, and only when enabled AND US-produced. */
   readonly ira45z?: Ira45zParams;
   readonly selfDesigned?: SelfDesignedParams;
+  /** Fix #6 — present when enabled AND the bundle carries the IMO rows. */
+  readonly imoNetZero?: ImoNetZeroParams;
 }
 
 export interface SideInputs {
@@ -209,6 +229,12 @@ export interface ResolvedScenario {
     readonly green: SideRegulations;
     readonly fossil: SideRegulations;
   };
+  /**
+   * Fix #6 — set when the scenario ENABLES the IMO module but the pinned
+   * bundle lacks its reference rows: the module must report "not
+   * parameterised" rather than silently computing zero.
+   */
+  readonly imoNotParameterised?: true;
   /** Divergence flags with defaults applied (absent input → Excel behaviour). */
   readonly flags: {
     readonly emissionsBasis: "combustion" | "wellToWake";

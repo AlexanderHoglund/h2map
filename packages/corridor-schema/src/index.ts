@@ -30,6 +30,7 @@ export type {
   ScheduleStep,
   SelfDesignedParams,
   SideInputs,
+  ImoNetZeroParams,
   SideRegulations,
   Source,
   Timeline,
@@ -38,6 +39,7 @@ export type {
 export type {
   ScenarioIntermediates,
   ScenarioReporting,
+  SideImoNetZero,
   ScenarioResult,
   ScenarioSummary,
   SidePerYear,

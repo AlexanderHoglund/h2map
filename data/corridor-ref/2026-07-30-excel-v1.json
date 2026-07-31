@@ -282,6 +282,74 @@
     "fromCalendarYear": 2050,
     "value": 0.8
    }
+  ],
+  "imoBaseTargets": [
+   {
+    "fromCalendarYear": 2028,
+    "value": 0.04
+   },
+   {
+    "fromCalendarYear": 2029,
+    "value": 0.06
+   },
+   {
+    "fromCalendarYear": 2030,
+    "value": 0.08
+   },
+   {
+    "fromCalendarYear": 2031,
+    "value": 0.124
+   },
+   {
+    "fromCalendarYear": 2032,
+    "value": 0.168
+   },
+   {
+    "fromCalendarYear": 2033,
+    "value": 0.212
+   },
+   {
+    "fromCalendarYear": 2034,
+    "value": 0.256
+   },
+   {
+    "fromCalendarYear": 2035,
+    "value": 0.3
+   }
+  ],
+  "imoDirectTargets": [
+   {
+    "fromCalendarYear": 2028,
+    "value": 0.17
+   },
+   {
+    "fromCalendarYear": 2029,
+    "value": 0.19
+   },
+   {
+    "fromCalendarYear": 2030,
+    "value": 0.21
+   },
+   {
+    "fromCalendarYear": 2031,
+    "value": 0.254
+   },
+   {
+    "fromCalendarYear": 2032,
+    "value": 0.298
+   },
+   {
+    "fromCalendarYear": 2033,
+    "value": 0.342
+   },
+   {
+    "fromCalendarYear": 2034,
+    "value": 0.386
+   },
+   {
+    "fromCalendarYear": 2035,
+    "value": 0.43
+   }
   ]
  },
  "regulationDefaults": {
@@ -298,6 +366,13 @@
   },
   "ira45z": {
    "rateUsdPerGallon": 1
+  },
+  "imoNetZero": {
+   "effectiveFromCalendarYear": 2028,
+   "referenceIntensityGco2PerMj": 93.3,
+   "tier1UsdPerTonneCo2e": 100,
+   "tier2UsdPerTonneCo2e": 380,
+   "sourceNote": "IMO Net-Zero Framework, draft MEPC 83 text (approved Apr 2025; adoption targeted MEPC 85, Oct 2026 — PROVISIONAL pending adoption). Reference 93.3 gCO2eq/MJ (2008, WTW). Target ladders agreed 2028-2035 ONLY (base 2040 = 65%, 2036-39 to be set by 2032) - the step function holds the last agreed value flat beyond 2035, a documented approximation. Tier prices $100/$380 per tCO2eq are established for 2028-2030 only and held flat thereafter (provisional). The ZNZ reward rate is genuinely undetermined: no default row - the module reports the surplus balance in tonnes and prices it only via the scenario's optional reward parameter."
   }
  }
 }
