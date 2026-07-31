@@ -9,8 +9,11 @@ export default function Footer() {
         <span>{t("methodology")}</span>
         <span>
           {t("dataProviders")} ·{" "}
-          <Link href="/about/data" className="underline hover:text-neutral-700">
-            {t("aboutData")}
+          <Link
+            href="/about/data"
+            className="underline underline-offset-2 hover:text-brand"
+          >
+            {t("aboutData")} →
           </Link>
         </span>
       </div>

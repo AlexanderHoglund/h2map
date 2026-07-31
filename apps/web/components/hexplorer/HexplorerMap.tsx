@@ -503,7 +503,7 @@ export default function HexplorerMap({
 
       {hover && (
         <div
-          className="pointer-events-none absolute z-30 rounded-lg border border-neutral-200 bg-white/95 px-2 py-1 text-xs backdrop-blur"
+          className="pointer-events-none absolute z-30 rounded-lg border border-neutral-200 bg-white/95 px-2 py-1 text-xs shadow-md backdrop-blur"
           style={{
             left:
               hover.x + (hover.flipX ? -TOOLTIP_CURSOR_GAP : TOOLTIP_CURSOR_GAP),

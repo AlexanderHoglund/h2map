@@ -51,7 +51,7 @@ export default function LayerControls({
   const bodyId = useId();
 
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white/95 text-sm backdrop-blur">
+    <section className="rounded-lg border border-neutral-200 bg-white/95 text-sm shadow-md backdrop-blur">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}

@@ -101,7 +101,7 @@ export default function CellDrawer({
       aria-label={t("drawer.title")}
       aria-hidden={!open}
       inert={!open}
-      className={`absolute inset-y-0 right-0 z-20 flex w-[360px] max-w-[85vw] flex-col border-l border-neutral-200 bg-white text-sm transition-transform duration-200 ease-out ${
+      className={`absolute inset-y-0 right-0 z-20 flex w-[360px] max-w-[85vw] flex-col border-l border-neutral-200 bg-white text-sm shadow-xl transition-transform duration-200 ease-out ${
         open ? "translate-x-0" : "translate-x-full"
       }`}
     >

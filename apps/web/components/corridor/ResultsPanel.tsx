@@ -107,11 +107,11 @@ export default function ResultsPanel({
   return (
     <div className="space-y-4">
       {/* Headline */}
-      <div className="rounded-lg border border-neutral-200 p-3">
+      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
         <p className="text-xs text-neutral-500" title={t("gapHelp")}>
           {t("gap")}
         </p>
-        <p className="mt-0.5 text-2xl font-semibold tabular-nums">
+        <p className="mt-0.5 text-3xl font-semibold tracking-tight tabular-nums text-brand-deep">
           {fmtUsdM(s.gapPvUsdM)}
         </p>
         <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
@@ -150,7 +150,7 @@ export default function ResultsPanel({
       </div>
 
       {/* Waterfall */}
-      <div className="rounded-lg border border-neutral-200 p-3">
+      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
         <p className="mb-2 text-xs font-medium text-neutral-600">
           {t("waterfall")}
         </p>
@@ -179,7 +179,7 @@ export default function ResultsPanel({
       </div>
 
       {/* Regulatory table */}
-      <div className="rounded-lg border border-neutral-200 p-3">
+      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
         <p className="mb-2 text-xs font-medium text-neutral-600">
           {t("regTable")}
         </p>
@@ -215,7 +215,7 @@ export default function ResultsPanel({
       </div>
 
       {/* Year-by-year */}
-      <div className="rounded-lg border border-neutral-200 p-3">
+      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
         <div className="mb-2 flex items-center justify-between gap-2">
           <p className="text-xs font-medium text-neutral-600">{t("perYear")}</p>
           {/* Legend — color must never be the only series identifier */}
@@ -258,11 +258,11 @@ export default function ResultsPanel({
 
       {/* Footers */}
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-lg border border-neutral-200 p-2.5">
+        <div className="rounded-lg border border-neutral-200 bg-white p-2.5 shadow-sm">
           <p className="tabular-nums font-medium">{fmtInt(s.co2AbatedTonnes)} t</p>
           <p className="text-neutral-500">{t("co2")}</p>
         </div>
-        <div className="rounded-lg border border-neutral-200 p-2.5">
+        <div className="rounded-lg border border-neutral-200 bg-white p-2.5 shadow-sm">
           <p className="tabular-nums font-medium">{fmtInt(s.cargoUnitsLifetime)}</p>
           <p className="text-neutral-500">{t("cargo")}</p>
         </div>
