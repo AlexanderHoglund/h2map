@@ -81,7 +81,7 @@ export default function ResultsPanel({
 
   if (error || !result) {
     return (
-      <div className="rounded-lg border border-amber-300 bg-amber-500/10 p-3 text-xs leading-snug text-amber-700 dark:border-amber-700 dark:text-amber-500">
+      <div className="rounded-lg border border-amber-300 bg-amber-500/10 p-3 text-xs leading-snug text-amber-800">
         {t("invalid", { message: error ?? "…" })}
       </div>
     );
@@ -101,7 +101,7 @@ export default function ResultsPanel({
   return (
     <div className="space-y-4">
       {/* Headline */}
-      <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
+      <div className="rounded-lg border border-neutral-200 p-3">
         <p className="text-xs text-neutral-500" title={t("gapHelp")}>
           {t("gap")}
         </p>
@@ -117,13 +117,13 @@ export default function ResultsPanel({
             <p className="tabular-nums font-medium">{fmtUsd(s.costPerTonneCo2Usd)}</p>
             <p className="text-neutral-500">
               {t("perTonne")}
-              <span className="ml-1 rounded bg-neutral-500/10 px-1 py-px text-[10px] text-neutral-700 dark:text-neutral-200">
+              <span className="ml-1 rounded bg-neutral-500/10 px-1 py-px text-[10px] text-neutral-700">
                 {t(`basisLabel.${basis}`)}
               </span>
             </p>
           </div>
         </div>
-        <div className="mt-2 grid grid-cols-2 gap-2 border-t border-neutral-200 pt-2 text-xs dark:border-neutral-800">
+        <div className="mt-2 grid grid-cols-2 gap-2 border-t border-neutral-200 pt-2 text-xs">
           <div>
             <p className="tabular-nums">{fmtUsdM(s.greenTotalPvUsdM)}</p>
             <p className="text-neutral-500">{t("green")}</p>
@@ -144,8 +144,8 @@ export default function ResultsPanel({
       </div>
 
       {/* Waterfall */}
-      <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
-        <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+      <div className="rounded-lg border border-neutral-200 p-3">
+        <p className="mb-2 text-xs font-medium text-neutral-600">
           {t("waterfall")}
         </p>
         <div className="h-44">
@@ -173,8 +173,8 @@ export default function ResultsPanel({
       </div>
 
       {/* Regulatory table */}
-      <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
-        <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+      <div className="rounded-lg border border-neutral-200 p-3">
+        <p className="mb-2 text-xs font-medium text-neutral-600">
           {t("regTable")}
         </p>
         <table className="w-full text-xs tabular-nums">
@@ -187,8 +187,8 @@ export default function ResultsPanel({
                 [t("regSelf"), s.selfDesignedGreenPvUsdM, s.selfDesignedFossilPvUsdM],
               ] as const
             ).map(([label, g, f]) => (
-              <tr key={label} className="border-b border-neutral-100 last:border-0 dark:border-neutral-800/60">
-                <td className="py-1 text-neutral-600 dark:text-neutral-400">{label}</td>
+              <tr key={label} className="border-b border-neutral-100 last:border-0">
+                <td className="py-1 text-neutral-600">{label}</td>
                 <td className="py-1 text-right">{fmtUsdM(g)}</td>
                 <td className="py-1 text-right text-neutral-500">
                   {f === null ? "—" : fmtUsdM(f)}
@@ -199,7 +199,7 @@ export default function ResultsPanel({
               <td className="pt-1.5 font-medium">{t("netReg")}</td>
               <td
                 colSpan={2}
-                className={`pt-1.5 text-right font-medium ${netReg < 0 ? "text-emerald-700 dark:text-emerald-400" : ""}`}
+                className={`pt-1.5 text-right font-medium ${netReg < 0 ? "text-emerald-700" : ""}`}
               >
                 {fmtUsdM(netReg)}
               </td>
@@ -209,8 +209,8 @@ export default function ResultsPanel({
       </div>
 
       {/* Year-by-year */}
-      <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
-        <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+      <div className="rounded-lg border border-neutral-200 p-3">
+        <p className="mb-2 text-xs font-medium text-neutral-600">
           {t("perYear")}
         </p>
         <div className="h-40">
@@ -233,11 +233,11 @@ export default function ResultsPanel({
 
       {/* Footers */}
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-lg border border-neutral-200 p-2.5 dark:border-neutral-800">
+        <div className="rounded-lg border border-neutral-200 p-2.5">
           <p className="tabular-nums font-medium">{fmtInt(s.co2AbatedTonnes)} t</p>
           <p className="text-neutral-500">{t("co2")}</p>
         </div>
-        <div className="rounded-lg border border-neutral-200 p-2.5 dark:border-neutral-800">
+        <div className="rounded-lg border border-neutral-200 p-2.5">
           <p className="tabular-nums font-medium">{fmtInt(s.cargoUnitsLifetime)}</p>
           <p className="text-neutral-500">{t("cargo")}</p>
         </div>

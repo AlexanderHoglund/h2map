@@ -30,7 +30,7 @@ export default function CorridorClient() {
       <main className="flex h-[calc(100dvh-3rem)] items-center justify-center px-4">
         <div className="max-w-2xl">
         <h1 className="text-2xl font-semibold">{t("intro.heading")}</h1>
-        <p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <p className="mt-3 text-sm leading-relaxed text-neutral-600">
           {t("intro.body")}
         </p>
         <button
@@ -75,8 +75,8 @@ export default function CorridorClient() {
                   active
                     ? "bg-blue-600 text-white"
                     : visited
-                      ? "bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
-                      : "text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      ? "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                      : "text-neutral-500 hover:bg-neutral-100"
                 }`}
               >
                 {i + 1} · {t(`steps.${key}`)}
@@ -93,7 +93,7 @@ export default function CorridorClient() {
             type="button"
             disabled={stepIndex === 0}
             onClick={() => setStep(STEPS[stepIndex - 1] ?? step)}
-            className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-neutral-700"
+            className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40"
           >
             {t("nav.back")}
           </button>

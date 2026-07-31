@@ -53,12 +53,12 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
   };
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-neutral-800">
+    <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-xs">
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}
         aria-label={t("name")}
-        className="w-40 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-900"
+        className="w-40 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs"
       />
       <Btn onClick={exportJson}>{t("export")}</Btn>
       <Btn onClick={importJson}>{t("import")}</Btn>
@@ -73,8 +73,8 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
         {t("reset")}
       </Btn>
       <span className="flex-1" />
-      {notice && <span className="text-emerald-600 dark:text-emerald-500">{notice}</span>}
-      <span className="text-neutral-500 dark:text-neutral-400">{t("draftNote")}</span>
+      {notice && <span className="text-emerald-600">{notice}</span>}
+      <span className="text-neutral-500">{t("draftNote")}</span>
     </div>
   );
 }
@@ -93,7 +93,7 @@ function Btn({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="rounded-md border border-neutral-300 px-2.5 py-1 text-xs font-medium hover:bg-neutral-100 disabled:opacity-40 dark:border-neutral-700 dark:hover:bg-neutral-800"
+      className="rounded-md border border-neutral-300 px-2.5 py-1 text-xs font-medium hover:bg-neutral-100 disabled:opacity-40"
     >
       {children}
     </button>

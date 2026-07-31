@@ -15,7 +15,7 @@ export default function TopBar() {
   const pathname = usePathname();
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-4 border-b border-neutral-200 bg-white/95 px-4 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95">
+    <header className="fixed inset-x-0 top-0 z-40 flex h-12 items-center gap-4 border-b border-neutral-200 bg-white/95 px-4 backdrop-blur">
       <Link href="/explorer" className="flex items-baseline gap-2">
         <span className="text-sm font-semibold tracking-tight">
           {t("app.name")}
@@ -34,8 +34,8 @@ export default function TopBar() {
               aria-current={active ? "page" : undefined}
               className={`rounded px-2.5 py-1 text-sm transition-colors ${
                 active
-                  ? "bg-neutral-100 font-medium text-neutral-900 dark:bg-neutral-800 dark:text-neutral-50"
-                  : "text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
+                  ? "bg-neutral-100 font-medium text-neutral-900"
+                  : "text-neutral-500 hover:text-neutral-900"
               }`}
             >
               {t(`nav.${l.key}`)}

@@ -56,9 +56,9 @@ export default function ResolvedField({
   const overridden = override !== null;
 
   const badgeStyles: Record<Source, string> = {
-    override: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
-    derived: "bg-purple-500/15 text-purple-700 dark:text-purple-300",
-    benchmark: "bg-neutral-500/15 text-neutral-600 dark:text-neutral-300",
+    override: "bg-blue-500/15 text-blue-700",
+    derived: "bg-purple-500/15 text-purple-700",
+    benchmark: "bg-neutral-500/15 text-neutral-600",
   };
 
   // Disabled state: grey the input SURFACE, never opacity-dim the whole block
@@ -69,7 +69,7 @@ export default function ResolvedField({
       <div className="flex items-center justify-between gap-2">
         <label
           htmlFor={id}
-          className="flex items-center gap-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400"
+          className="flex items-center gap-1.5 text-xs font-medium text-neutral-600"
         >
           {label}
           {help ? <Help text={help} /> : null}
@@ -83,12 +83,12 @@ export default function ResolvedField({
       <div
         className={`mt-1 flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 transition-colors focus-within:ring-2 ${
           disabled
-            ? "bg-neutral-100 dark:bg-neutral-800"
-            : "bg-white dark:bg-neutral-900"
+            ? "bg-neutral-100"
+            : "bg-white"
         } ${
           overridden
-            ? "border-blue-400 focus-within:ring-blue-500/40 dark:border-blue-600"
-            : "border-neutral-300 focus-within:border-blue-600 focus-within:ring-blue-500/40 dark:border-neutral-700"
+            ? "border-blue-400 focus-within:ring-blue-500/40"
+            : "border-neutral-300 focus-within:border-blue-600 focus-within:ring-blue-500/40"
         }`}
       >
         <input
@@ -110,14 +110,14 @@ export default function ResolvedField({
           }}
           onBlur={() => setDraft(null)}
           className={`min-w-0 flex-1 bg-transparent text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
-            overridden ? "font-medium text-blue-700 dark:text-blue-400" : ""
+            overridden ? "font-medium text-blue-700" : ""
           }`}
         />
         {unit ? (
-          <span className="shrink-0 text-xs text-neutral-600 dark:text-neutral-400">{unit}</span>
+          <span className="shrink-0 text-xs text-neutral-600">{unit}</span>
         ) : null}
       </div>
-      <div className="mt-0.5 flex min-h-4 items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-500">
+      <div className="mt-0.5 flex min-h-4 items-center gap-2 text-[11px] text-neutral-500">
         {disabled && disabledNote ? (
           <span>{disabledNote}</span>
         ) : overridden ? (
@@ -132,14 +132,14 @@ export default function ResolvedField({
                 setDraft(null);
                 onChange(null);
               }}
-              className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+              className="font-medium text-blue-600 hover:underline"
             >
               {t("restore")}
             </button>
           </>
         ) : null}
         {unverified ? (
-          <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-400/20 dark:text-amber-300">
+          <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
             {t("unverified")}
           </span>
         ) : null}
@@ -153,11 +153,11 @@ function Help({ text }: { text: string }) {
     <span className="group relative inline-flex">
       <span
         aria-label={text}
-        className="flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-neutral-200 text-[9px] font-semibold text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
+        className="flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-neutral-200 text-[9px] font-semibold text-neutral-600"
       >
         ?
       </span>
-      <span className="pointer-events-none absolute left-0 top-5 z-20 hidden w-64 rounded-md border border-neutral-200 bg-white p-2 text-[11px] font-normal leading-snug text-neutral-700 shadow-lg group-hover:block dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
+      <span className="pointer-events-none absolute left-0 top-5 z-20 hidden w-64 rounded-md border border-neutral-200 bg-white p-2 text-[11px] font-normal leading-snug text-neutral-700 shadow-lg group-hover:block">
         {text}
       </span>
     </span>

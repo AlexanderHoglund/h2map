@@ -30,7 +30,7 @@ export function Section({
   const panelId = useId();
 
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
+    <section className="rounded-lg border border-neutral-200 bg-white">
       <div className="flex items-center gap-2 px-4 py-3">
         <h2 className="contents">
           <button
@@ -73,7 +73,7 @@ export function Section({
           id={panelId}
           role="region"
           aria-labelledby={headerId}
-          className="border-t border-neutral-100 px-4 py-4 dark:border-neutral-800/60"
+          className="border-t border-neutral-100 px-4 py-4"
         >
           {children}
         </div>

@@ -42,12 +42,12 @@ function PlainNumber({
     <div>
       <label
         htmlFor={id}
-        className="flex items-center gap-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400"
+        className="flex items-center gap-1.5 text-xs font-medium text-neutral-600"
         title={help}
       >
         {label}
       </label>
-      <div className="mt-1 flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/40 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="mt-1 flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/40">
         <input
           id={id}
           type="number"
@@ -82,7 +82,7 @@ function Select({
     <div>
       <label
         htmlFor={id}
-        className="text-xs font-medium text-neutral-600 dark:text-neutral-400"
+        className="text-xs font-medium text-neutral-600"
       >
         {label}
       </label>
@@ -90,7 +90,7 @@ function Select({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/40 dark:border-neutral-700 dark:bg-neutral-900"
+        className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/40"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -120,7 +120,7 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-          checked ? "bg-blue-600" : "bg-neutral-300 dark:bg-neutral-700"
+          checked ? "bg-blue-600" : "bg-neutral-300"
         }`}
       >
         <span
@@ -135,7 +135,7 @@ function Toggle({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
+    <section className="rounded-lg border border-neutral-200 p-3">
       <h3 className="mb-3 text-sm font-semibold">{title}</h3>
       <div className="grid gap-3 sm:grid-cols-2">{children}</div>
     </section>
@@ -145,7 +145,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Advanced({ children }: { children: React.ReactNode }) {
   const t = useTranslations("corridor.field");
   return (
-    <details className="rounded-lg border border-dashed border-neutral-300 p-3 dark:border-neutral-700">
+    <details className="rounded-lg border border-dashed border-neutral-300 p-3">
       <summary className="cursor-pointer select-none text-xs font-medium uppercase tracking-wide text-neutral-500">
         {t("advanced")}
       </summary>
@@ -506,7 +506,7 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
         }
       />
       {s.sourcing === "construct" && (
-        <p className="sm:col-span-2 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-700 dark:text-amber-500">
+        <p className="sm:col-span-2 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
           {t("constructNote")}
         </p>
       )}

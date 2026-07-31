@@ -23,7 +23,7 @@ export default function EmissionsPanel({
     <div>
       <h3 className="mb-2 text-sm font-semibold">{t("title")}</h3>
       {zero ? (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm font-medium text-emerald-700">
           {t("fullyRenewable")}
         </div>
       ) : (
@@ -41,15 +41,15 @@ export default function EmissionsPanel({
           <Tile label={t("gridShare")} value={gridShare.toFixed(1)} unit="%" />
         </div>
       )}
-      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 text-xs text-neutral-500 dark:text-neutral-400">
+      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 text-xs text-neutral-500">
         <span>
           {t("matched")}:{" "}
-          <span className="tabular-nums font-medium text-neutral-700 dark:text-neutral-300">
+          <span className="tabular-nums font-medium text-neutral-700">
             {matched.toFixed(1)}%
           </span>
         </span>
       </div>
-      <p className="mt-1 text-[11px] leading-4 text-neutral-500 dark:text-neutral-400">
+      <p className="mt-1 text-[11px] leading-4 text-neutral-500">
         {t("scopeNote")}
       </p>
     </div>
@@ -58,11 +58,11 @@ export default function EmissionsPanel({
 
 function Tile({ label, value, unit }: { label: string; value: string; unit: string }) {
   return (
-    <div className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
-      <div className="text-xs text-neutral-500 dark:text-neutral-400">{label}</div>
+    <div className="rounded-md border border-neutral-200 px-3 py-2">
+      <div className="text-xs text-neutral-500">{label}</div>
       <div className="mt-0.5 tabular-nums">
         <span className="text-lg font-semibold">{value}</span>{" "}
-        <span className="text-xs text-neutral-400 dark:text-neutral-500">{unit}</span>
+        <span className="text-xs text-neutral-400">{unit}</span>
       </div>
     </div>
   );

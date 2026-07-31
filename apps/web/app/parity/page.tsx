@@ -86,14 +86,14 @@ export default function ParityPage() {
   return (
     <main className="mx-auto max-w-6xl p-8">
       <h1 className="text-2xl font-semibold">Chilean 47-project parity</h1>
-      <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+      <p className="mt-2 max-w-3xl text-sm text-neutral-600">
         Published LCOH (Tabla 3-1, Motor de Cálculo LCOH, April 2024) vs. this
         engine with doc-literal 2022 defaults and TMY profiles from the H2MAP
         profile service. Coordinates are inferred from region hints — the PDF
         publishes none — so this is a methodology parity check, not a
         site-exact reproduction.
       </p>
-      <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+      <p className="mt-2 max-w-3xl text-sm text-neutral-600">
         This is <strong>validation</strong> (do the assumptions match reality?),
         distinct from <strong>verification</strong> (does the code compute the
         method? — analytical cases at 1e-6, golden files at 1e-12, in the test
@@ -160,7 +160,7 @@ export default function ParityPage() {
       <div className="mt-8 overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-neutral-300 text-left dark:border-neutral-700">
+            <tr className="border-b border-neutral-300 text-left">
               <th className="py-2 pr-3">Project</th>
               <th className="py-2 pr-3">Region hint</th>
               <th className="py-2 pr-3">Site</th>
@@ -178,7 +178,7 @@ export default function ParityPage() {
               return (
                 <tr
                   key={p.project_name}
-                  className="border-b border-neutral-100 dark:border-neutral-800"
+                  className="border-b border-neutral-100"
                 >
                   <td className="py-1.5 pr-3">{p.project_name}</td>
                   <td className="py-1.5 pr-3 text-neutral-500">
@@ -221,7 +221,7 @@ export default function ParityPage() {
           <h2 className="text-lg font-medium">Sites (best mix, 200 MW total)</h2>
           <table className="mt-3 w-full max-w-2xl border-collapse text-sm">
             <thead>
-              <tr className="border-b border-neutral-300 text-left dark:border-neutral-700">
+              <tr className="border-b border-neutral-300 text-left">
                 <th className="py-2 pr-3">Site</th>
                 <th className="py-2 pr-3 text-right">PV MW</th>
                 <th className="py-2 pr-3 text-right">Wind MW</th>
@@ -232,7 +232,7 @@ export default function ParityPage() {
               {Object.entries(computedBySite).map(([key, s]) => (
                 <tr
                   key={key}
-                  className="border-b border-neutral-100 dark:border-neutral-800"
+                  className="border-b border-neutral-100"
                 >
                   <td className="py-1.5 pr-3">
                     {dataset.sites[key]?.name ?? key}
@@ -263,7 +263,7 @@ export default function ParityPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+    <div className="rounded-lg border border-neutral-200 p-4">
       <div className="text-xs text-neutral-500">{label}</div>
       <div className="mt-1 text-xl font-semibold tabular-nums">{value}</div>
     </div>

@@ -5,7 +5,6 @@ import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const LIGHT_STYLE = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
-const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
 interface Props {
   lat: number;
@@ -31,10 +30,9 @@ export default function MiniMap({ lat, lon, onChange }: Props) {
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
-    const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: dark ? DARK_STYLE : LIGHT_STYLE,
+      style: LIGHT_STYLE,
       center: [lon, lat],
       zoom: 3.5,
       attributionControl: { compact: true },
@@ -82,7 +80,7 @@ export default function MiniMap({ lat, lon, onChange }: Props) {
   }, [lat, lon]);
 
   return (
-    <div className="relative h-60 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-800">
+    <div className="relative h-60 overflow-hidden rounded-md border border-neutral-200">
       <div ref={containerRef} className="h-full w-full" />
     </div>
   );

@@ -94,8 +94,8 @@ export default function SupplySection() {
       <div
         className={`flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-xs ${
           none
-            ? "border-red-300 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
-            : "border-neutral-200 bg-neutral-50 text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300"
+            ? "border-red-300 bg-red-50 text-red-700"
+            : "border-neutral-200 bg-neutral-50 text-neutral-600"
         }`}
       >
         {none ? (
@@ -138,7 +138,7 @@ export default function SupplySection() {
 
 function MixChip({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2 py-0.5 tabular-nums dark:border-neutral-700 dark:bg-neutral-800">
+    <span className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2 py-0.5 tabular-nums">
       {icon}
       {text}
     </span>
@@ -162,8 +162,8 @@ function SourceCard({
     <div
       className={`rounded-lg border transition-colors duration-150 ease-out ${
         enabled
-          ? "border-blue-600/50 bg-blue-50/40 dark:border-blue-500/40 dark:bg-blue-950/20"
-          : "border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950"
+          ? "border-blue-600/50 bg-blue-50/40"
+          : "border-neutral-200 bg-white"
       }`}
     >
       <div className="flex items-center justify-between px-3 py-2.5">
@@ -174,7 +174,7 @@ function SourceCard({
         <Switch checked={enabled} onChange={onToggle} label={title} />
       </div>
       {enabled ? (
-        <div className="border-t border-neutral-100 px-3 py-3 dark:border-neutral-800/60">
+        <div className="border-t border-neutral-100 px-3 py-3">
           {children}
         </div>
       ) : null}
@@ -292,14 +292,14 @@ function CoupledCapacityField({
             className={`shrink-0 rounded p-0.5 transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${
               coupled
                 ? "text-blue-600"
-                : "text-neutral-300 hover:text-neutral-500 dark:text-neutral-600 dark:hover:text-neutral-400"
+                : "text-neutral-300 hover:text-neutral-500"
             }`}
           >
             <LinkIcon />
           </button>
         }
       />
-      <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">
+      <p className="mt-1 text-[11px] text-neutral-400">
         {coupled ? t("supply.coupledHint") : t("supply.uncoupledHint")}
       </p>
     </div>

@@ -46,7 +46,7 @@ export function NumberField({
       <div className="flex items-center justify-between gap-2">
         <label
           htmlFor={inputId}
-          className="flex items-center gap-1 text-xs font-medium text-neutral-600 dark:text-neutral-400"
+          className="flex items-center gap-1 text-xs font-medium text-neutral-600"
         >
           {label}
           {help ? <Help text={help} /> : null}
@@ -54,12 +54,12 @@ export function NumberField({
         {labelAction}
       </div>
       <div
-        className={`mt-1 flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1.5 transition-colors duration-150 ease-out focus-within:ring-2 dark:bg-neutral-900 ${
+        className={`mt-1 flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1.5 transition-colors duration-150 ease-out focus-within:ring-2 ${
           disabled ? "opacity-50" : ""
         } ${
           error
-            ? "border-red-500 focus-within:ring-red-500/30 dark:border-red-500"
-            : "border-neutral-300 focus-within:border-blue-600 focus-within:ring-blue-500/50 dark:border-neutral-700"
+            ? "border-red-500 focus-within:ring-red-500/30"
+            : "border-neutral-300 focus-within:border-blue-600 focus-within:ring-blue-500/50"
         }`}
       >
         <input
@@ -76,13 +76,13 @@ export function NumberField({
           className="min-w-0 flex-1 bg-transparent text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
         {unit ? (
-          <span className="shrink-0 text-xs text-neutral-500 dark:text-neutral-500">
+          <span className="shrink-0 text-xs text-neutral-500">
             {unit}
           </span>
         ) : null}
       </div>
       {error?.message ? (
-        <p id={errorId} className="mt-1 text-xs text-red-600 dark:text-red-400">
+        <p id={errorId} className="mt-1 text-xs text-red-600">
           {error.message}
         </p>
       ) : null}
@@ -109,7 +109,7 @@ export function SelectField({
     <div className={className}>
       <label
         htmlFor={id}
-        className="flex items-center gap-1 text-xs font-medium text-neutral-600 dark:text-neutral-400"
+        className="flex items-center gap-1 text-xs font-medium text-neutral-600"
       >
         {label}
         {help ? <Help text={help} /> : null}
@@ -117,7 +117,7 @@ export function SelectField({
       <select
         id={id}
         {...register(name)}
-        className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-neutral-700 dark:bg-neutral-900"
+        className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
       >
         {options.map(([value, text]) => (
           <option key={value} value={value}>
@@ -176,7 +176,7 @@ export function Help({ text }: { text: string }) {
         onKeyDown={(e) => {
           if (e.key === "Escape") setOpen(false);
         }}
-        className="inline-flex h-4 w-4 cursor-help select-none items-center justify-center rounded-full border border-neutral-300 text-[10px] leading-none text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-600 dark:text-neutral-500"
+        className="inline-flex h-4 w-4 cursor-help select-none items-center justify-center rounded-full border border-neutral-300 text-[10px] leading-none text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
       >
         ?
       </button>
@@ -184,7 +184,7 @@ export function Help({ text }: { text: string }) {
         <div
           id={tooltipId}
           role="tooltip"
-          className="absolute left-0 top-full z-20 mt-1.5 w-56 rounded-md border border-neutral-200 bg-white/95 px-2.5 py-1.5 text-xs font-normal normal-case text-neutral-600 backdrop-blur dark:border-neutral-700 dark:bg-neutral-900/95 dark:text-neutral-300"
+          className="absolute left-0 top-full z-20 mt-1.5 w-56 rounded-md border border-neutral-200 bg-white/95 px-2.5 py-1.5 text-xs font-normal normal-case text-neutral-600 backdrop-blur"
         >
           {text}
         </div>
@@ -211,7 +211,7 @@ export function Switch({
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${
-        checked ? "bg-blue-600" : "bg-neutral-300 dark:bg-neutral-600"
+        checked ? "bg-blue-600" : "bg-neutral-300"
       }`}
     >
       <span
