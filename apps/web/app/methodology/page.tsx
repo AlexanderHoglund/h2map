@@ -1,4 +1,5 @@
 import Footer from "@/components/shell/Footer";
+import TopBar from "@/components/shell/TopBar";
 
 export const metadata = {
   title: "Methodology — Thaduberg",
@@ -9,7 +10,7 @@ export const metadata = {
 /** Block formula: monospace, scrolls horizontally on small screens. */
 function F({ children }: { children: React.ReactNode }) {
   return (
-    <div className="my-3 overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 font-mono text-[13px] leading-relaxed">
+    <div className="my-3 overflow-x-auto rounded-md border border-neutral-300 bg-neutral-50 px-4 py-3 font-mono text-[13px] leading-relaxed">
       {children}
     </div>
   );
@@ -19,7 +20,7 @@ function H({ id, children }: { id: string; children: React.ReactNode }) {
   return (
     <h2
       id={id}
-      className="mt-10 scroll-mt-16 border-b border-neutral-200 pb-1 text-lg font-semibold"
+      className="mt-10 scroll-mt-16 border-b border-neutral-300 pb-1 text-lg font-semibold"
     >
       {children}
     </h2>
@@ -48,6 +49,7 @@ const TOC: [string, string][] = [
 export default function MethodologyPage() {
   return (
     <>
+      <TopBar />
       <main className="mx-auto max-w-3xl px-4 py-10 text-sm leading-6 text-neutral-800">
         <h1 className="text-2xl font-semibold text-neutral-900">
           Methodology
@@ -61,7 +63,7 @@ export default function MethodologyPage() {
           below.
         </p>
 
-        <nav className="mt-6 rounded-lg border border-neutral-200 p-4">
+        <nav className="mt-6 rounded-lg border border-neutral-300 p-4">
           <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
             Contents
           </p>

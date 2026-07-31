@@ -115,7 +115,7 @@ function CurtailmentTile({
   const generationKwh = consumedKwh + curtailedKwh;
   const pct = generationKwh > 0 ? (curtailedKwh / generationKwh) * 100 : 0;
   return (
-    <div className="rounded-md border border-neutral-200 px-3 py-2 text-xs">
+    <div className="rounded-md border border-neutral-300 px-3 py-2 text-xs">
       <div className="text-neutral-500">{label}</div>
       <div className="mt-0.5 font-medium tabular-nums">
         {t("curtailmentValue", {

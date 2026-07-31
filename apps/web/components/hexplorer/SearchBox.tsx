@@ -138,14 +138,14 @@ export default function SearchBox({ onNavigate }: Props) {
         aria-controls={listboxId}
         aria-autocomplete="list"
         aria-activedescendant={expanded ? optionId(activeIndex) : undefined}
-        className="w-full rounded-lg border border-neutral-200 bg-white/95 px-3 py-2 text-sm shadow-md backdrop-blur placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand/40"
+        className="w-full rounded-lg border border-neutral-300 bg-white/95 px-3 py-2 text-sm shadow-md backdrop-blur placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand/40"
       />
       {expanded && (
         <ul
           role="listbox"
           id={listboxId}
           aria-label={t("search.label")}
-          className="absolute top-full z-20 mt-1 w-full overflow-hidden rounded-lg border border-neutral-200 bg-white/95 text-sm shadow-md backdrop-blur"
+          className="absolute top-full z-20 mt-1 w-full overflow-hidden rounded-lg border border-neutral-300 bg-white/95 text-sm shadow-md backdrop-blur"
         >
           {results.map((result, index) => (
             <li

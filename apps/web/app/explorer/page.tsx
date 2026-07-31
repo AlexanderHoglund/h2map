@@ -1,14 +1,10 @@
-import Hexplorer from "@/components/hexplorer/Hexplorer";
+import { redirect } from "next/navigation";
 
 /**
- * Explorer: hexagon-choropleth world map of levelized hydrogen cost.
- * The page sits under the fixed 48px top bar (root layout pads with pt-12),
- * so the map container fills the remaining viewport height.
+ * The Explorer is no longer a separate surface — its full functionality
+ * (map, layers, cell drawer, evaluate split) lives inside the integrated
+ * corridor workspace. Old links land there.
  */
 export default function ExplorerPage() {
-  return (
-    <div className="relative h-[calc(100dvh-3rem)] w-full overflow-hidden">
-      <Hexplorer />
-    </div>
-  );
+  redirect("/corridor");
 }

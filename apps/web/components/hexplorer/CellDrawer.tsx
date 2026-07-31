@@ -24,6 +24,12 @@ interface Props {
   onClose: () => void;
   /** Open the split evaluate panel for this cell (Explorer workspace). */
   onEvaluate?: (lat: number, lon: number) => void;
+  /**
+   * Integrated corridor: hand the cell over as the green production site
+   * directly (no navigation). When absent, "use for corridor" falls back to
+   * the localStorage hand-off + /corridor navigation.
+   */
+  onUseSite?: (pick: { h3: string; lat: number; lon: number; lcoh: number }) => void;
 }
 
 function fmt(value: number | null, digits: number): string {
@@ -43,6 +49,7 @@ export default function CellDrawer({
   open,
   onClose,
   onEvaluate,
+  onUseSite,
 }: Props) {
   const t = useTranslations("explorer");
   const router = useRouter();
@@ -80,6 +87,12 @@ export default function CellDrawer({
     const lcoh = layerValue(shown.data, "best", 2024);
     if (lcoh === null) return;
     const [lat, lon] = cellToLatLng(shown.h3);
+    if (onUseSite) {
+      // Integrated workspace: apply in place and retract the drawer.
+      onUseSite({ h3: shown.h3, lat, lon, lcoh });
+      onClose();
+      return;
+    }
     localStorage.setItem(
       "corridor-site-pick",
       JSON.stringify({ h3: shown.h3, lat, lon, lcoh }),
@@ -101,20 +114,20 @@ export default function CellDrawer({
       aria-label={t("drawer.title")}
       aria-hidden={!open}
       inert={!open}
-      className={`absolute inset-y-0 right-0 z-20 flex w-[360px] max-w-[85vw] flex-col border-l border-neutral-200 bg-white text-sm shadow-xl transition-transform duration-200 ease-out ${
+      className={`absolute inset-y-0 right-0 z-20 flex w-[360px] max-w-[85vw] flex-col border-l border-neutral-300 bg-white text-sm shadow-xl transition-transform duration-200 ease-out ${
         open ? "translate-x-0" : "translate-x-full"
       }`}
     >
       {shown && lcohByLayer && (
         <>
-          <header className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
+          <header className="flex items-center justify-between border-b border-neutral-300 px-4 py-3">
             <h2 className="font-medium">{t("drawer.title")}</h2>
             <button
               ref={closeButtonRef}
               type="button"
               onClick={onClose}
               aria-label={t("drawer.close")}
-              className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+              className="p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
             >
               <svg
                 aria-hidden="true"
@@ -226,7 +239,7 @@ export default function CellDrawer({
             </section>
 
             <div className="space-y-0.5">
-              <p className="font-mono text-xs text-neutral-400">
+              <p className="font-mono text-xs text-neutral-500">
                 {t("drawer.cellId", { id: shown.data.h3 })}
               </p>
               {shown.parentFill && (
@@ -237,7 +250,7 @@ export default function CellDrawer({
             </div>
           </div>
 
-          <footer className="space-y-2 border-t border-neutral-200 px-4 py-3">
+          <footer className="space-y-2 border-t border-neutral-300 px-4 py-3">
             <button
               type="button"
               onClick={evaluateHere}

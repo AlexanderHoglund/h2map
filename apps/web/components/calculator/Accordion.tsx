@@ -30,7 +30,7 @@ export function Section({
   const panelId = useId();
 
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white">
+    <section className="rounded-lg border border-neutral-300 bg-white">
       <div className="flex items-center gap-2 px-4 py-3">
         <h2 className="contents">
           <button

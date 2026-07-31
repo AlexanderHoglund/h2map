@@ -20,7 +20,12 @@ const CalculatorPanel = dynamic(
  * is a fixed-width column that the map flexes around (the map's ResizeObserver
  * reflows the GL canvas); below md it's a full-bleed overlay.
  */
-export default function ExplorerWorkspace() {
+export default function ExplorerWorkspace({
+  onUseSite,
+}: {
+  /** Integrated corridor: cell drawer's "use as corridor fuel site" → here. */
+  onUseSite?: (pick: { h3: string; lat: number; lon: number; lcoh: number }) => void;
+} = {}) {
   const t = useTranslations("explorer");
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
@@ -48,10 +53,11 @@ export default function ExplorerWorkspace() {
       {/* Map — flexes to the space left of the panel; overflow-hidden clips the
           GL canvas to its (shrunk) box so it never bleeds over the panel. */}
       <div className="relative h-full min-w-0 flex-1 overflow-hidden">
-        <HexplorerMap onEvaluate={handleEvaluate} />
+        <HexplorerMap onEvaluate={handleEvaluate} onUseSite={onUseSite} />
+        {/* Bottom-right so it never collides with the legend (bottom-left) */}
         {!open && (
-          <div className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
-            <span className="rounded-full border border-neutral-200 bg-white/95 px-3 py-1.5 text-xs font-medium text-neutral-600 shadow-sm backdrop-blur">
+          <div className="pointer-events-none absolute bottom-8 right-4 z-10">
+            <span className="border border-neutral-300 bg-white/95 px-3 py-1.5 text-xs font-medium text-neutral-600 backdrop-blur">
               {t("evaluateHint")}
             </span>
           </div>
@@ -61,7 +67,7 @@ export default function ExplorerWorkspace() {
           (md:relative + z so it paints above the map, never under it). */}
       {open && seed && (
         <aside
-          className="absolute inset-0 z-30 flex flex-col bg-white md:relative md:inset-auto md:z-10 md:h-full md:w-[min(46vw,600px)] md:min-w-105 md:shrink-0 md:border-l md:border-neutral-200 md:"
+          className="absolute inset-0 z-30 flex flex-col bg-white md:relative md:inset-auto md:z-10 md:h-full md:w-[min(46vw,600px)] md:min-w-105 md:shrink-0 md:border-l md:border-neutral-300"
         >
           <CalculatorPanel
             embedded

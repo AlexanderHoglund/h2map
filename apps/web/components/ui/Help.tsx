@@ -32,7 +32,7 @@ export function Help({ text }: { text: string }) {
         <div
           id={tooltipId}
           role="tooltip"
-          className="absolute left-0 top-full z-20 mt-1.5 w-56 rounded-md border border-neutral-200 bg-white/95 px-2.5 py-1.5 text-xs font-normal normal-case text-neutral-600 shadow-md backdrop-blur"
+          className="absolute left-0 top-full z-20 mt-1.5 w-56 rounded-md border border-neutral-300 bg-white/95 px-2.5 py-1.5 text-xs font-normal normal-case text-neutral-600 shadow-md backdrop-blur"
         >
           {text}
         </div>

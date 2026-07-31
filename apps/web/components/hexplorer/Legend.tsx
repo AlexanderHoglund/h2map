@@ -20,7 +20,7 @@ export default function Legend({ layerKey, basis, maxDetail }: Props) {
       : t("legend.financing");
   const [lo, mid, hi] = domainLabels(layerKey);
   return (
-    <div className="pointer-events-none absolute bottom-8 left-4 z-10 w-52 rounded-lg border border-neutral-200 bg-white/95 px-3 py-2 text-xs shadow-md backdrop-blur">
+    <div className="pointer-events-none absolute bottom-8 left-4 z-10 w-52 rounded-lg border border-neutral-300 bg-white/95 px-3 py-2 text-xs shadow-md backdrop-blur">
       <div
         className="h-2.5 w-full rounded-sm"
         style={{ background: lcohGradientCss() }}
@@ -38,7 +38,7 @@ export default function Legend({ layerKey, basis, maxDetail }: Props) {
           {t(`controls.layers.${layerKey}`)}
         </span>
       </p>
-      <p className="mt-1 text-[11px] text-neutral-400">
+      <p className="mt-1 text-[11px] text-neutral-500">
         {financing}
       </p>
       {maxDetail && (

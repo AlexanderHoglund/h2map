@@ -41,28 +41,31 @@ test("default scenario reproduces the workbook's golden numbers", async ({ page 
   // $/tCO2 uses the app's WELL-TO-WAKE default (D1): 74,304 t abated →
   // 2246.86 → "$2,247" (the workbook's TTW basis shows "$2,267" and stays
   // selectable in Model options — the engine golden pins it exactly).
-  await expect(page.getByText("$166.95m")).toBeVisible();
-  await expect(page.getByText("$377", { exact: true })).toBeVisible();
-  await expect(page.getByText("$2,247", { exact: true })).toBeVisible();
-  await expect(page.getByText("well-to-wake basis")).toBeVisible();
+  // The gap shows twice by design (top-bar chip + results headline) —
+  // scope the golden assertions to the results pane.
+  const results = page.getByRole("complementary");
+  await expect(results.getByText("$166.95m")).toBeVisible();
+  await expect(results.getByText("$377", { exact: true })).toBeVisible();
+  await expect(results.getByText("$2,247", { exact: true })).toBeVisible();
+  await expect(results.getByText("well-to-wake basis")).toBeVisible();
   // Side totals (Output rows 8–9).
-  await expect(page.getByText("$205.60m")).toBeVisible();
-  await expect(page.getByText("$38.64m")).toBeVisible();
+  await expect(results.getByText("$205.60m")).toBeVisible();
+  await expect(results.getByText("$38.64m")).toBeVisible();
   // Lifetime cargo (row 80).
-  await expect(page.getByText("443,340")).toBeVisible();
+  await expect(results.getByText("443,340")).toBeVisible();
 
   // Walk all five steps; results stay docked; axe on each.
   for (const [i, label] of STEPS.entries()) {
-    await page.getByRole("button", { name: `${i + 1} · ${label}` }).click();
-    await expect(page.getByText("$166.95m")).toBeVisible();
+    await page.getByRole("button", { name: `0${i + 1} ${label}` }).click();
+    await expect(results.getByText("$166.95m")).toBeVisible();
     await expectNoSeriousViolations(page, `step ${label}`);
   }
 
   // A live-model probe: overriding the green fuel price moves the gap.
-  await page.getByRole("button", { name: "3 · Fuel" }).click();
+  await page.getByRole("button", { name: "03 Fuel" }).click();
   const price = page.getByLabel("Fuel price").first();
   await price.fill("1200");
   await expect(page.getByText("$166.95m")).toHaveCount(0);
   await price.fill(""); // restore benchmark
-  await expect(page.getByText("$166.95m")).toBeVisible();
+  await expect(results.getByText("$166.95m")).toBeVisible();
 });

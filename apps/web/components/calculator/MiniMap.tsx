@@ -80,7 +80,7 @@ export default function MiniMap({ lat, lon, onChange }: Props) {
   }, [lat, lon]);
 
   return (
-    <div className="relative h-60 overflow-hidden rounded-md border border-neutral-200">
+    <div className="relative h-60 overflow-hidden rounded-md border border-neutral-300">
       <div ref={containerRef} className="h-full w-full" />
     </div>
   );

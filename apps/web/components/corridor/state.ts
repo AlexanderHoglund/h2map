@@ -64,12 +64,54 @@ function clearOverrides(s: ScenarioInput): ScenarioInput {
 const DRAFT_KEY = "corridor-draft-v1";
 const SITE_PICK_KEY = "corridor-site-pick";
 
+/** A production-site pick coming from the map. */
+export interface SitePickPayload {
+  h3: string;
+  lat: number;
+  lon: number;
+  lcoh: number;
+}
+
 /**
- * Consume a site handed over from the Explorer ("use as corridor fuel site"):
- * switch the green side to build-here with a delivered price derived from the
- * cell's LCOH via carrier synthesis + default logistics. One-shot — the key
- * is cleared; the user refines config in the Fuel step's build-here panel.
+ * Apply a map site pick: switch the green side to build-here with a delivered
+ * price derived from the cell's LCOH via carrier synthesis + default
+ * logistics. The user refines config in the Fuel step's build-here panel.
  */
+function applyPickToScenario(
+  scenario: ScenarioInput,
+  pick: SitePickPayload,
+): ScenarioInput {
+  if (typeof pick.lcoh !== "number" || !pick.h3) return scenario;
+  const next = JSON.parse(JSON.stringify(scenario)) as ScenarioInput;
+  // Ensure a synthesizable carrier (fall back to the workbook's e-ammonia).
+  let carrier;
+  try {
+    carrier = getSynthesisBenchmark(next.green.fuelId);
+  } catch {
+    next.green.fuelId = "e-ammonia";
+    carrier = getSynthesisBenchmark("e-ammonia");
+  }
+  const config = { productionWacc: 0.08, electricityUsdPerMwh: 60, co2UsdPerTonne: 30 };
+  const distanceKm = 300;
+  const synth = synthesize(pick.lcoh, carrier, config);
+  const logistics = distanceKm * 1.3 * carrier.shippingUsdPerTonneKm;
+  next.green.sourcing = "build-here";
+  next.green.deliveredPriceUsdPerTonne =
+    Math.round((synth.gateUsdPerTonne + logistics) * 100) / 100;
+  next.green.buildHere = {
+    h3: pick.h3,
+    lat: pick.lat,
+    lon: pick.lon,
+    lcohUsdPerKg: pick.lcoh,
+    carrierId: carrier.carrierId,
+    synthesisGateUsdPerTonne: Math.round(synth.gateUsdPerTonne * 100) / 100,
+    distanceKm,
+    logisticsUsdPerTonne: Math.round(logistics * 100) / 100,
+  };
+  return next;
+}
+
+/** Consume a legacy localStorage hand-off (pre-integration deep link). */
 function applySitePick(scenario: ScenarioInput): ScenarioInput {
   let raw: string | null = null;
   try {
@@ -80,35 +122,7 @@ function applySitePick(scenario: ScenarioInput): ScenarioInput {
   if (!raw) return scenario;
   localStorage.removeItem(SITE_PICK_KEY);
   try {
-    const pick = JSON.parse(raw) as { h3: string; lat: number; lon: number; lcoh: number };
-    if (typeof pick.lcoh !== "number" || !pick.h3) return scenario;
-    const next = JSON.parse(JSON.stringify(scenario)) as ScenarioInput;
-    // Ensure a synthesizable carrier (fall back to the workbook's e-ammonia).
-    let carrier;
-    try {
-      carrier = getSynthesisBenchmark(next.green.fuelId);
-    } catch {
-      next.green.fuelId = "e-ammonia";
-      carrier = getSynthesisBenchmark("e-ammonia");
-    }
-    const config = { productionWacc: 0.08, electricityUsdPerMwh: 60, co2UsdPerTonne: 30 };
-    const distanceKm = 300;
-    const synth = synthesize(pick.lcoh, carrier, config);
-    const logistics = distanceKm * 1.3 * carrier.shippingUsdPerTonneKm;
-    next.green.sourcing = "build-here";
-    next.green.deliveredPriceUsdPerTonne =
-      Math.round((synth.gateUsdPerTonne + logistics) * 100) / 100;
-    next.green.buildHere = {
-      h3: pick.h3,
-      lat: pick.lat,
-      lon: pick.lon,
-      lcohUsdPerKg: pick.lcoh,
-      carrierId: carrier.carrierId,
-      synthesisGateUsdPerTonne: Math.round(synth.gateUsdPerTonne * 100) / 100,
-      distanceKm,
-      logisticsUsdPerTonne: Math.round(logistics * 100) / 100,
-    };
-    return next;
+    return applyPickToScenario(scenario, JSON.parse(raw) as SitePickPayload);
   } catch {
     return scenario;
   }
@@ -122,6 +136,8 @@ export interface CorridorModel {
   reset: () => void;
   /** Replace the whole draft (loading a saved/shared scenario). */
   load: (payload: unknown) => void;
+  /** Use a map cell as the green production site (build-here). */
+  pickSite: (pick: SitePickPayload) => void;
   resolved: ResolvedScenario | null;
   /** Benchmark-only resolution (all overrides null) for "benchmark: X — restore". */
   benchmarks: ResolvedScenario | null;
@@ -179,6 +195,10 @@ export function useCorridorModel(): CorridorModel {
     setScenario(migrateScenarioInput(payload).input);
   }, []);
 
+  const pickSite = useCallback((pick: SitePickPayload) => {
+    setScenario((prev) => applyPickToScenario(prev, pick));
+  }, []);
+
   const evaluated = useMemo(() => {
     try {
       const resolved = resolveScenario(scenario, DEFAULT_BUNDLE);
@@ -200,6 +220,7 @@ export function useCorridorModel(): CorridorModel {
     update,
     reset,
     load,
+    pickSite,
     ...evaluated,
     hadDraft: init.hadDraft,
   };

@@ -28,10 +28,13 @@ export default function ResultsPanel({
   result,
   scenario,
   error,
+  wide,
 }: {
   result: ScenarioResult | null;
   scenario: ScenarioInput;
   error: string | null;
+  /** Full-width mode (map closed): cards flow into two columns. */
+  wide?: boolean;
 }) {
   const t = useTranslations("corridor.results");
 
@@ -105,9 +108,9 @@ export default function ResultsPanel({
   };
 
   return (
-    <div className="space-y-4">
+    <div className={wide ? "grid items-start gap-4 min-[1500px]:grid-cols-2" : "space-y-4"}>
       {/* Headline */}
-      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
+      <div className="rounded-lg border border-neutral-300 bg-white p-3">
         <p className="text-xs text-neutral-500" title={t("gapHelp")}>
           {t("gap")}
         </p>
@@ -123,13 +126,13 @@ export default function ResultsPanel({
             <p className="tabular-nums font-medium">{fmtUsd(s.costPerTonneCo2Usd)}</p>
             <p className="text-neutral-500">
               {t("perTonne")}
-              <span className="ml-1 rounded bg-neutral-500/10 px-1 py-px text-[10px] text-neutral-700">
+              <span className="ml-1 bg-neutral-500/10 px-1 py-px text-[10px] text-neutral-700">
                 {t(`basisLabel.${basis}`)}
               </span>
             </p>
           </div>
         </div>
-        <div className="mt-2 grid grid-cols-2 gap-2 border-t border-neutral-200 pt-2 text-xs">
+        <div className="mt-2 grid grid-cols-2 gap-2 border-t border-neutral-300 pt-2 text-xs">
           <div>
             <p className="tabular-nums">{fmtUsdM(s.greenTotalPvUsdM)}</p>
             <p className="text-neutral-500">{t("green")}</p>
@@ -150,11 +153,11 @@ export default function ResultsPanel({
       </div>
 
       {/* Waterfall */}
-      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
+      <div className="rounded-lg border border-neutral-300 bg-white p-3">
         <p className="mb-2 text-xs font-medium text-neutral-600">
           {t("waterfall")}
         </p>
-        <div className="h-44">
+        <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={waterfall} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
@@ -179,7 +182,7 @@ export default function ResultsPanel({
       </div>
 
       {/* Regulatory table */}
-      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
+      <div className="rounded-lg border border-neutral-300 bg-white p-3">
         <p className="mb-2 text-xs font-medium text-neutral-600">
           {t("regTable")}
         </p>
@@ -215,7 +218,7 @@ export default function ResultsPanel({
       </div>
 
       {/* Year-by-year */}
-      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
+      <div className="rounded-lg border border-neutral-300 bg-white p-3">
         <div className="mb-2 flex items-center justify-between gap-2">
           <p className="text-xs font-medium text-neutral-600">{t("perYear")}</p>
           {/* Legend — color must never be the only series identifier */}
@@ -238,7 +241,7 @@ export default function ResultsPanel({
             </span>
           </div>
         </div>
-        <div className="h-40">
+        <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={perYear} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
@@ -258,11 +261,11 @@ export default function ResultsPanel({
 
       {/* Footers */}
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-lg border border-neutral-200 bg-white p-2.5 shadow-sm">
+        <div className="rounded-lg border border-neutral-300 bg-white p-2.5">
           <p className="tabular-nums font-medium">{fmtInt(s.co2AbatedTonnes)} t</p>
           <p className="text-neutral-500">{t("co2")}</p>
         </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-2.5 shadow-sm">
+        <div className="rounded-lg border border-neutral-300 bg-white p-2.5">
           <p className="tabular-nums font-medium">{fmtInt(s.cargoUnitsLifetime)}</p>
           <p className="text-neutral-500">{t("cargo")}</p>
         </div>

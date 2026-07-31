@@ -1,34 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getSynthesisBenchmark } from "@h2map/corridor-schema";
 import { synthesize } from "@h2map/corridor-engine";
-import { formatCameraHash } from "@/lib/url-state";
-import { layerValue } from "@/components/hexplorer/types";
-import type { SitePick } from "@/components/hexplorer/HexplorerMap";
-import { Button } from "@/components/ui/Button";
 import type { CorridorModel } from "./state";
 
 /**
- * "Build here" (build-plan 3.3): the Thaduberg map — the SAME component the
- * Explorer uses, embedded with a narrowed job — picks the cell where the
- * hydrogen gets made. The cell's LCOH is the map's own seeded value (same
- * engine, same T1.1 gates, same provenance the Explorer shows; masked cells
- * carry no value and cannot be picked). Delivered price = LCOH → carrier
- * synthesis (plant annuitized at the PRODUCTION-side WACC, divergence D7) →
- * logistics to the bunker port. The lineage chip deep-links back to the
- * Explorer at the picked cell.
+ * "Build here" (build-plan 3.3), integrated-workspace edition: the site is
+ * picked on THE map — the always-present center canvas (cell drawer → "use as
+ * corridor fuel site" → model.pickSite). This panel holds the synthesis
+ * config: delivered price = site LCOH → carrier synthesis (plant annuitized
+ * at the PRODUCTION-side WACC, divergence D7) → logistics to the bunker
+ * port. Every knob recomputes the delivered price live.
  */
-
-const HexplorerMap = dynamic(() => import("@/components/hexplorer/HexplorerMap"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-full items-center justify-center text-xs text-neutral-500">…</div>
-  ),
-});
 
 const ROUTE_FACTOR = 1.3;
 
@@ -42,7 +27,6 @@ export default function BuildHerePanel({
   const t = useTranslations("corridor.buildHere");
   const { scenario, update } = model;
   const s = scenario[side];
-  const [pickerOpen, setPickerOpen] = useState(!s.buildHere);
   const [config, setConfig] = useState({
     productionWacc: 0.08,
     electricityUsdPerMwh: 60,
@@ -55,8 +39,6 @@ export default function BuildHerePanel({
   const [siteLcoh, setSiteLcoh] = useState<number | null>(
     s.buildHere?.lcohUsdPerKg ?? null,
   );
-  const [pickError, setPickError] = useState<string | null>(null);
-  const [mapControls, setMapControls] = useState(false);
 
   let carrier: ReturnType<typeof getSynthesisBenchmark> | null = null;
   try {
@@ -65,40 +47,23 @@ export default function BuildHerePanel({
     carrier = null;
   }
 
-  const onSitePicked = (pick: SitePick) => {
-    if (!carrier) return;
-    // Masked / failed-gate cells carry no best value — not selectable (3.3).
-    const lcoh = layerValue(pick.datum.data, "best", 2024);
-    if (lcoh === null) {
-      setPickError(t("maskedCell"));
-      return;
-    }
-    setPickError(null);
-    setSiteLcoh(lcoh);
-    update((d) => {
-      // Delivered price + lineage are completed reactively below.
-      d[side].buildHere = {
-        h3: pick.h3,
-        lat: pick.lat,
-        lon: pick.lon,
-        lcohUsdPerKg: lcoh,
-        carrierId: carrier.carrierId,
-        synthesisGateUsdPerTonne: 0,
-        distanceKm: config.distanceKm,
-        logisticsUsdPerTonne: 0,
-      };
-      d[side].deliveredPriceUsdPerTonne ??= 0;
-    });
-    setPickerOpen(false);
-  };
-
   const lineage = s.buildHere;
+  const siteKey = lineage ? `${lineage.h3}` : null;
+
+  // A NEW pick from the map (different cell) re-seeds the local knobs.
+  const lastH3 = useRef<string | null>(siteKey);
+  useEffect(() => {
+    if (siteKey && siteKey !== lastH3.current && lineage) {
+      lastH3.current = siteKey;
+      setSiteLcoh(lineage.lcohUsdPerKg);
+      setConfig((c) => ({ ...c, distanceKm: lineage.distanceKm }));
+    }
+  }, [siteKey, lineage]);
 
   // Reactive delivered price: once a site exists, ANY knob (site LCOH,
   // production WACC, electricity, CO2, distance, carrier) recomputes the
   // delivered price + lineage. Writes only when the numbers actually change,
   // so the update cannot loop.
-  const siteKey = lineage ? `${lineage.h3}` : null;
   useEffect(() => {
     // Hooks run unconditionally; the guards do the branching.
     if (!carrier || !siteKey || siteLcoh === null) return;
@@ -132,7 +97,7 @@ export default function BuildHerePanel({
   // Unsupported carriers (no synthesis pathway) — after all hooks.
   if (!carrier) {
     return (
-      <p className="sm:col-span-2 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
+      <p className="sm:col-span-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
         {t("unsupportedCarrier", { fuel: s.fuelId })}
       </p>
     );
@@ -140,9 +105,16 @@ export default function BuildHerePanel({
 
   return (
     <div className="sm:col-span-2 space-y-2">
+      {/* No site yet: the map is right there — point at it */}
+      {!lineage && (
+        <p className="border border-dashed border-brand/50 bg-brand-tint px-2.5 py-2 text-[11px] leading-snug text-brand-deep">
+          {t("pickOnMap")}
+        </p>
+      )}
+
       {/* Lineage chip */}
       {lineage && s.deliveredPriceUsdPerTonne != null && (
-        <div className="flex flex-wrap items-center gap-2 rounded-md border border-emerald-300 bg-emerald-500/10 px-2.5 py-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 border border-emerald-300 bg-emerald-500/10 px-2.5 py-2 text-xs">
           <span className="font-semibold tabular-nums">
             ${s.deliveredPriceUsdPerTonne.toLocaleString("en-US")}/t
           </span>
@@ -154,20 +126,7 @@ export default function BuildHerePanel({
               km: Math.round(lineage.distanceKm),
             })}
           </span>
-          <Link
-            href={`/explorer${formatCameraHash({ lat: lineage.lat, lon: lineage.lon, zoom: 6.5, layer: "best", year: 2024 })}`}
-            className="font-medium text-brand hover:underline"
-            target="_blank"
-          >
-            {t("viewInExplorer")}
-          </Link>
-          <button
-            type="button"
-            onClick={() => setPickerOpen((v) => !v)}
-            className="font-medium text-brand hover:underline"
-          >
-            {pickerOpen ? t("hideMap") : t("repick")}
-          </button>
+          <span className="text-[11px] text-neutral-600">{t("repickNote")}</span>
         </div>
       )}
 
@@ -176,7 +135,7 @@ export default function BuildHerePanel({
         {siteKey && siteLcoh !== null && (
           <label className="block text-[11px] text-neutral-600">
             {t("siteLcoh")}
-            <span className="mt-0.5 flex items-center gap-1 rounded-md border border-emerald-400 bg-white px-2 py-1">
+            <span className="mt-0.5 flex items-center gap-1 border border-emerald-400 bg-white px-2 py-1">
               <input
                 type="number"
                 step={0.05}
@@ -187,7 +146,7 @@ export default function BuildHerePanel({
                 }}
                 className="min-w-0 flex-1 bg-transparent text-xs tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="shrink-0 text-[10px] text-neutral-500">$/kg</span>
+              <span className="shrink-0 text-[10px] text-neutral-600">$/kg</span>
             </span>
           </label>
         )}
@@ -203,7 +162,7 @@ export default function BuildHerePanel({
         ).map(([key, label, step, unit]) => (
           <label key={key} className="block text-[11px] text-neutral-600">
             {label}
-            <span className="mt-0.5 flex items-center gap-1 rounded-md border border-neutral-300 bg-white px-2 py-1">
+            <span className="mt-0.5 flex items-center gap-1 border border-neutral-300 bg-white px-2 py-1">
               <input
                 type="number"
                 step={step}
@@ -216,49 +175,12 @@ export default function BuildHerePanel({
                 }}
                 className="min-w-0 flex-1 bg-transparent text-xs tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="shrink-0 text-[10px] text-neutral-500">{unit}</span>
+              <span className="shrink-0 text-[10px] text-neutral-600">{unit}</span>
             </span>
           </label>
         ))}
       </div>
       <p className="text-[10px] leading-snug text-neutral-500">{t("configNote")}</p>
-
-      {pickError && (
-        <p className="rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-800">
-          {pickError}
-        </p>
-      )}
-
-      {/* The embedded map — same component as the Explorer, narrowed job */}
-      {pickerOpen && (
-        <>
-          <div
-            className={`relative overflow-hidden rounded-lg border border-neutral-200 ${
-              mapControls ? "h-[28rem]" : "h-72"
-            }`}
-          >
-            <HexplorerMap embedded onSitePicked={onSitePicked} showControls={mapControls} />
-          </div>
-          {/* Advanced: the full Explorer control stack (layer / cost year /
-              basis / basemap / opacity + search + legend) on the embed. */}
-          <details
-            onToggle={(e) => setMapControls((e.target as HTMLDetailsElement).open)}
-            className="rounded-md border border-dashed border-neutral-300 px-2.5 py-1.5"
-          >
-            <summary className="cursor-pointer select-none text-[11px] font-medium uppercase tracking-wide text-neutral-500">
-              {t("advancedMap")}
-            </summary>
-            <p className="mt-1 text-[11px] leading-snug text-neutral-500">
-              {t("advancedMapNote")}
-            </p>
-          </details>
-        </>
-      )}
-      {!pickerOpen && !lineage && (
-        <Button onClick={() => setPickerOpen(true)} className="px-3 py-1.5">
-          {t("openMap")}
-        </Button>
-      )}
     </div>
   );
 }

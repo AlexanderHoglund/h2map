@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import TopBar from "@/components/shell/TopBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,9 +32,10 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* The corridor workspace owns its own top bar (the only nav);
+            content pages render the slim shell TopBar themselves. */}
         <NextIntlClientProvider messages={messages}>
-          <TopBar />
-          <div className="flex-1 pt-12">{children}</div>
+          <div className="flex-1">{children}</div>
         </NextIntlClientProvider>
       </body>
     </html>

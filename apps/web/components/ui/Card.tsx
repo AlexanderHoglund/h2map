@@ -2,7 +2,7 @@
 
 /**
  * Surface primitives. The elevation story: white cards with hairline borders
- * and shadow-sm sit on the off-white page — nothing else floats.
+ * and sit on the off-white page — nothing else floats.
  */
 
 /** Plain white card. */
@@ -15,7 +15,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-lg border border-neutral-200 bg-white p-3 shadow-sm ${className}`}
+      className={`rounded-lg border border-neutral-300 bg-white p-3 ${className}`}
     >
       {children}
     </div>
@@ -31,7 +31,7 @@ export function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
+    <section className="rounded-lg border border-neutral-300 bg-white p-3">
       <h3 className="mb-3 text-sm font-semibold">{title}</h3>
       <div className="grid gap-3 sm:grid-cols-2">{children}</div>
     </section>

@@ -95,7 +95,7 @@ export default function SupplySection() {
         className={`flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-xs ${
           none
             ? "border-red-300 bg-red-50 text-red-700"
-            : "border-neutral-200 bg-neutral-50 text-neutral-600"
+            : "border-neutral-300 bg-neutral-50 text-neutral-600"
         }`}
       >
         {none ? (
@@ -138,7 +138,7 @@ export default function SupplySection() {
 
 function MixChip({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2 py-0.5 tabular-nums">
+    <span className="inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-2 py-0.5 tabular-nums">
       {icon}
       {text}
     </span>
@@ -163,7 +163,7 @@ function SourceCard({
       className={`rounded-lg border transition-colors duration-150 ease-out ${
         enabled
           ? "border-brand/50 bg-brand-tint/60"
-          : "border-neutral-200 bg-white"
+          : "border-neutral-300 bg-white"
       }`}
     >
       <div className="flex items-center justify-between px-3 py-2.5">
@@ -289,7 +289,7 @@ function CoupledCapacityField({
             title={coupled ? t("supply.coupledOn") : t("supply.coupledOff")}
             aria-label={coupled ? t("supply.coupledOn") : t("supply.coupledOff")}
             aria-pressed={coupled}
-            className={`shrink-0 rounded p-0.5 transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
+            className={`shrink-0 p-0.5 transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
               coupled
                 ? "text-brand"
                 : "text-neutral-300 hover:text-neutral-500"

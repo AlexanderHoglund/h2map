@@ -1,10 +1,12 @@
 import Footer from "@/components/shell/Footer";
+import TopBar from "@/components/shell/TopBar";
 
 export const metadata = { title: "About the data — Thaduberg" };
 
 export default function AboutDataPage() {
   return (
     <>
+      <TopBar />
       <main className="mx-auto max-w-3xl px-4 py-10 text-sm leading-6">
         <h1 className="text-2xl font-semibold tracking-tight">About the data</h1>
 

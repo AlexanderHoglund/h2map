@@ -332,7 +332,7 @@ export default function CalculatorPanel({
         }
       >
         {embedded ? (
-          <div className="mb-3 flex items-center justify-between gap-2 border-b border-neutral-200 pb-2">
+          <div className="mb-3 flex items-center justify-between gap-2 border-b border-neutral-300 pb-2">
             <h1 className="min-w-0 truncate text-base font-semibold">
               {tExplorer("panel.title")}
             </h1>
@@ -638,7 +638,7 @@ export default function CalculatorPanel({
               ) : null}
 
               {sim.profileStatuses.length > 0 && sim.phase !== "idle" ? (
-                <ul className="space-y-1 rounded-md border border-neutral-200 px-3 py-2 text-xs">
+                <ul className="space-y-1 rounded-md border border-neutral-300 px-3 py-2 text-xs">
                   {sim.profileStatuses.map((s) => (
                     <li key={s.slot} className="flex flex-wrap items-center gap-2">
                       {s.state === "building" ? (
@@ -703,7 +703,7 @@ export default function CalculatorPanel({
 
           {/* Sticky summary rail (tablet and up; not in the embedded panel) */}
           <aside className={embedded ? "hidden" : "hidden md:block"}>
-            <div className="sticky top-16 space-y-3 rounded-lg border border-neutral-200 bg-white p-4 text-sm">
+            <div className="sticky top-16 space-y-3 rounded-lg border border-neutral-300 bg-white p-4 text-sm">
               <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 {t("rail.title")}
               </h2>

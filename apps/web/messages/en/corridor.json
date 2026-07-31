@@ -141,7 +141,8 @@
       "co2": "CO2 abated over lifetime",
       "cargo": "Cargo units over lifetime",
       "invalid": "The scenario is incomplete: {message}",
-      "bothBases": "CO2 abated — combustion: {ttw} t · well-to-wake: {wtw} t"
+      "bothBases": "CO2 abated — combustion: {ttw} t · well-to-wake: {wtw} t",
+      "gapShort": "Gap (PV)"
     },
     "buildHere": {
       "openMap": "Pick a site on the map",
@@ -158,7 +159,9 @@
       "configNote": "Every knob recomputes the delivered price live: site LCOH (seeded by the picked cell, adjustable), production-side financing (deliberately separate from the corridor discount rate), synthesis electricity, CO2 feedstock (e-methanol), and plant→bunker-port distance.",
       "advancedMap": "Advanced map options",
       "advancedMapNote": "The full Explorer controls are now shown on the map: data layer (best / solar / wind), cost year, best-combination basis, basemap, opacity and search — the same variables as the Explorer. Note: the delivered price always derives from the cell's best-combination 2024 value.",
-      "siteLcoh": "LCOH at site"
+      "siteLcoh": "LCOH at site",
+      "pickOnMap": "No production site yet — click a coloured hex on the map, open the cell, and choose “Use as corridor fuel site”.",
+      "repickNote": "Pick any other hex on the map to move the site."
     },
     "scenarioBar": {
       "name": "Scenario name",

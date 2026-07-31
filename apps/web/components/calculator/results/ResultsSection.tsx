@@ -27,7 +27,7 @@ export default function ResultsSection({
     lifetimeYears > 0 ? results.totals.h2Kg / lifetimeYears / 1000 : 0;
 
   const card =
-    "rounded-lg border border-neutral-200 bg-white p-4";
+    "rounded-lg border border-neutral-300 bg-white p-4";
 
   return (
     <div className="space-y-4">

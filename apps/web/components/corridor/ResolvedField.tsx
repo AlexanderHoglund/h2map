@@ -76,7 +76,7 @@ export default function ResolvedField({
           {help ? <Help text={help} /> : null}
         </label>
         <span
-          className={`rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${badgeStyles[source]}`}
+          className={`px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${badgeStyles[source]}`}
         >
           {t(source)}
         </span>
@@ -140,7 +140,7 @@ export default function ResolvedField({
           </>
         ) : null}
         {unverified ? (
-          <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
+          <span className="bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
             {t("unverified")}
           </span>
         ) : null}

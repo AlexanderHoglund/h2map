@@ -31,6 +31,23 @@
   --color-success: #15803d;
   --color-warning: #b45309;
   --color-danger: #dc2626;
+
+  /* Straight lines, square boxes (matta.ai reference): the whole radius
+     scale is zeroed so every rounded-* utility renders square. rounded-full
+     is not on this scale — switch knobs, dots and spinners stay circular. */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+}
+
+/* Technical "+" grid backdrop (the reference's drafting-paper texture). */
+.bg-plus-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 10v8M10 14h8' stroke='%23dbdad2' stroke-width='1'/%3E%3C/svg%3E");
 }
 
 :root {

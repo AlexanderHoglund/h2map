@@ -123,6 +123,11 @@ interface HexplorerMapProps {
   embedded?: boolean;
   onSitePicked?: (site: SitePick) => void;
   /**
+   * Integrated corridor: the cell drawer's "use as corridor fuel site" hands
+   * the pick to this callback in place instead of navigating.
+   */
+  onUseSite?: (pick: { h3: string; lat: number; lon: number; lcoh: number }) => void;
+  /**
    * Embedded only: show the full Explorer control stack (layer / cost year /
    * basis / basemap / opacity + search + legend). Hidden by default so the
    * small embed stays uncluttered; the corridor's build-here panel exposes it
@@ -136,6 +141,7 @@ export default function HexplorerMap({
   onEvaluate,
   embedded,
   onSitePicked,
+  onUseSite,
   showControls,
 }: HexplorerMapProps = {}) {
   const controlsVisible = embedded ? showControls === true : true;
@@ -503,7 +509,7 @@ export default function HexplorerMap({
 
       {hover && (
         <div
-          className="pointer-events-none absolute z-30 rounded-lg border border-neutral-200 bg-white/95 px-2 py-1 text-xs shadow-md backdrop-blur"
+          className="pointer-events-none absolute z-30 rounded-lg border border-neutral-300 bg-white/95 px-2 py-1 text-xs shadow-md backdrop-blur"
           style={{
             left:
               hover.x + (hover.flipX ? -TOOLTIP_CURSOR_GAP : TOOLTIP_CURSOR_GAP),
@@ -530,6 +536,7 @@ export default function HexplorerMap({
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           onEvaluate={onEvaluate}
+          onUseSite={onUseSite}
         />
       )}
     </div>

@@ -51,7 +51,7 @@ export default function LayerControls({
   const bodyId = useId();
 
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white/95 text-sm shadow-md backdrop-blur">
+    <section className="rounded-lg border border-neutral-300 bg-white/95 text-sm shadow-md backdrop-blur">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -76,7 +76,7 @@ export default function LayerControls({
       {open && (
         <div
           id={bodyId}
-          className="space-y-3 border-t border-neutral-200 px-3 py-3"
+          className="space-y-3 border-t border-neutral-300 px-3 py-3"
         >
           <fieldset>
             <legend className="mb-1 text-xs font-medium text-neutral-500">
@@ -113,7 +113,7 @@ export default function LayerControls({
                   </button>
                   <span
                     role="tooltip"
-                    className="pointer-events-none absolute left-0 top-full z-20 mt-1 w-60 rounded-md border border-neutral-200 bg-white p-2 text-[11px] font-normal leading-snug text-neutral-600 opacity-0 shadow-lg transition-opacity duration-100 group-hover:opacity-100 group-focus-within:opacity-100"
+                    className="pointer-events-none absolute left-0 top-full z-20 mt-1 w-60 rounded-md border border-neutral-300 bg-white p-2 text-[11px] font-normal leading-snug text-neutral-600 opacity-0 shadow-lg transition-opacity duration-100 group-hover:opacity-100 group-focus-within:opacity-100"
                   >
                     {t("controls.basisHelp")}
                   </span>
@@ -141,7 +141,7 @@ export default function LayerControls({
             <p className="mb-1 text-xs font-medium text-neutral-500">
               {t("controls.costYear")}
             </p>
-            <div className="inline-flex overflow-hidden rounded-lg border border-neutral-200">
+            <div className="inline-flex overflow-hidden rounded-lg border border-neutral-300">
               {COST_YEARS.map((year) => {
                 const active = year === costYear;
                 return (
@@ -179,7 +179,7 @@ export default function LayerControls({
               id={basemapId}
               value={basemap}
               onChange={(e) => onBasemapChange(e.target.value as Basemap)}
-              className="w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+              className="w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
             >
               {BASEMAPS.map((b) => (
                 <option key={b} value={b}>

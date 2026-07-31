@@ -17,7 +17,7 @@ export function Badge({
   }[tone];
   return (
     <span
-      className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${toneCls} ${className}`}
+      className={`px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${toneCls} ${className}`}
     >
       {children}
     </span>

@@ -54,7 +54,7 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
   };
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs shadow-sm">
+    <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs">
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}

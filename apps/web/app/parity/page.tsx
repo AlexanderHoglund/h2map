@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import TopBar from "@/components/shell/TopBar";
 import path from "node:path";
 
 export const dynamic = "force-dynamic";
@@ -69,12 +70,15 @@ export default function ParityPage() {
 
   if (!dataset) {
     return (
+      <>
+      <TopBar />
       <main className="mx-auto max-w-4xl p-8">
         <h1 className="text-2xl font-semibold">Chilean 47-project parity</h1>
         <p className="mt-4 text-red-600">
           data/chile-parity/chile-47-projects-lcoh.json is missing.
         </p>
       </main>
+      </>
     );
   }
 
@@ -84,6 +88,8 @@ export default function ParityPage() {
   );
 
   return (
+    <>
+    <TopBar />
     <main className="mx-auto max-w-6xl p-8">
       <h1 className="text-2xl font-semibold">Chilean 47-project parity</h1>
       <p className="mt-2 max-w-3xl text-sm text-neutral-600">
@@ -151,7 +157,7 @@ export default function ParityPage() {
           </p>
         </>
       ) : (
-        <p className="mt-6 rounded border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <p className="mt-6 border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           No computed results yet — run <code>npm run parity:run</code> at the
           repo root, then reload.
         </p>
@@ -258,12 +264,13 @@ export default function ParityPage() {
         {dataset.meta.published_column_means["2022"]?.toFixed(2)} USD/kg.
       </p>
     </main>
+    </>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 p-4">
+    <div className="rounded-lg border border-neutral-300 p-4">
       <div className="text-xs text-neutral-500">{label}</div>
       <div className="mt-1 text-xl font-semibold tabular-nums">{value}</div>
     </div>
