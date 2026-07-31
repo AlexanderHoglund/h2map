@@ -27,3 +27,10 @@ Rules (build-plan cross-cutting rule 4):
 - `excel-baseline` (2026-07-30): initial transcription of the workbook's
   default scenario (Denmark, 500 nm, 2027 +20y, Tanker 35k, e-ammonia
   Construct vs LSFO Purchase, ETS + FuelEU on).
+
+- App default divergence (2026-07-31): the corridor UI creates new scenarios
+  with `flags.emissionsBasis = "wellToWake"` (D1) — CO2 abated and $/tCO2
+  count the full fuel chain by default. The FIXTURE is unchanged and still
+  pins the workbook's combustion-basis numbers exactly: the engine's
+  flag-absent behaviour remains pure Excel, and TTW stays selectable in the
+  UI's Model options.

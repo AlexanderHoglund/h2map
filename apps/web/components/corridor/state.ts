@@ -35,7 +35,16 @@ export function isAdvanced(paramId: string): boolean {
 
 export function defaultScenario(): ScenarioInput {
   // The fixture is frozen at v1; the migration registry brings it to current.
-  return migrateScenarioInput(JSON.parse(JSON.stringify(fixtureDefaults))).input;
+  const input = migrateScenarioInput(JSON.parse(JSON.stringify(fixtureDefaults))).input;
+  // APP DEFAULT (deliberately supersedes the workbook): CO2 abated and
+  // $/tCO2 use the WELL-TO-WAKE basis — a decarbonization tool should count
+  // the full fuel chain, not only stack emissions (divergence D1). Set
+  // EXPLICITLY on new scenarios so saved payloads keep their meaning; the
+  // engine's flag-absent default stays combustion (= Excel), which is what
+  // keeps the frozen golden fixture exact. TTW remains selectable in the
+  // Regulation step's Model options for workbook comparison.
+  input.flags = { emissionsBasis: "wellToWake", ...(input.flags ?? {}) };
+  return input;
 }
 
 /** Null every override so the resolution yields pure benchmark values. */

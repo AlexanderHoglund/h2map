@@ -37,11 +37,14 @@ test("default scenario reproduces the workbook's golden numbers", async ({ page 
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
 
   // Headline golden numbers, straight from the untouched default form:
-  // gap PV 166.95059118904504 → "$166.95m"; 376.57…/unit → "$377";
-  // 2266.97…/tCO2 → "$2,267".
+  // gap PV 166.95059118904504 → "$166.95m"; 376.57…/unit → "$377".
+  // $/tCO2 uses the app's WELL-TO-WAKE default (D1): 74,304 t abated →
+  // 2246.86 → "$2,247" (the workbook's TTW basis shows "$2,267" and stays
+  // selectable in Model options — the engine golden pins it exactly).
   await expect(page.getByText("$166.95m")).toBeVisible();
   await expect(page.getByText("$377", { exact: true })).toBeVisible();
-  await expect(page.getByText("$2,267", { exact: true })).toBeVisible();
+  await expect(page.getByText("$2,247", { exact: true })).toBeVisible();
+  await expect(page.getByText("well-to-wake basis")).toBeVisible();
   // Side totals (Output rows 8–9).
   await expect(page.getByText("$205.60m")).toBeVisible();
   await expect(page.getByText("$38.64m")).toBeVisible();
