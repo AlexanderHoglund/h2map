@@ -58,10 +58,10 @@
       "roundtrips": "Roundtrips per year (per vessel)",
       "green": "Green vessel",
       "fossil": "Fossil vessel",
-      "capex": "CAPEX (year 1)",
-      "capexGreenHelp": "Benchmark = vessel type × (1 + green-fuel readiness premium).",
-      "capexFossilHelp": "Benchmark 0 — existing baseline vessel; override if comparing a new build.",
-      "opex": "OPEX"
+      "capex": "Fleet CAPEX (year 1)",
+      "capexGreenHelp": "Whole-fleet figure — the vessel count multiplies fuel and regulation only, never this cell. Benchmark = vessel type × (1 + green-fuel readiness premium), single hull.",
+      "capexFossilHelp": "Whole-fleet figure. Benchmark 0 — existing baseline fleet; override when the comparison builds new fossil tonnage too.",
+      "opex": "Fleet OPEX"
     },
     "fuel": {
       "green": "Green fuel",

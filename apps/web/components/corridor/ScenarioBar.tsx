@@ -16,7 +16,7 @@ import type { CorridorModel } from "./state";
  */
 export default function ScenarioBar({ model }: { model: CorridorModel }) {
   const t = useTranslations("corridor.scenarioBar");
-  const [name, setName] = useState("My corridor");
+  const [name, setName] = useState("Mejillones–Japan copper corridor");
   const [notice, setNotice] = useState<string | null>(null);
 
   const flash = (msg: string) => {
@@ -67,7 +67,7 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
         onClick={() => {
           if (!window.confirm(t("resetConfirm"))) return;
           model.reset();
-          setName("My corridor");
+          setName("Mejillones–Japan copper corridor");
           flash(t("resetDone"));
         }}
       >

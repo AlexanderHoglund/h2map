@@ -35,7 +35,7 @@ describe("scenarioInputSchema", () => {
 describe("refBundleSchema", () => {
   it("accepts the committed bundle", () => {
     const bundle = parseRefBundle(load("../../../data/corridor-ref/2026-07-30-excel-v1.json"));
-    expect(bundle.vesselTypes).toHaveLength(6);
+    expect(bundle.vesselTypes).toHaveLength(7);
     expect(bundle.fuels).toHaveLength(6);
     expect(bundle.countries).toHaveLength(7);
     expect(bundle.countries.every((c) => c.verified === false)).toBe(true);

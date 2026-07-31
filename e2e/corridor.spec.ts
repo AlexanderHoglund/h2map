@@ -1,16 +1,22 @@
 /**
- * Full-app golden (build-plan 4.4): drive the default corridor scenario
- * through the real UI and assert the workbook's headline numbers — the same
- * values the engine golden fixture pins at 1e-9, now proven end-to-end
- * through form → client-side engine → results panel. Plus an axe-core pass
- * (serious/critical) over the entry screen and all five steps (3.x
- * acceptance).
+ * Full-app golden (build-plan 4.4, updated for the Chilean default): drive
+ * the default corridor scenario through the real UI and assert its headline
+ * numbers end-to-end (form → client-side engine → results panel), plus an
+ * axe-core pass (serious/critical) over the entry screen and all tabs.
+ *
+ * The DEFAULT scenario is the MMMCZCS Chilean copper-concentrate corridor
+ * (Mejillones → Japan): gap $1,799.81m, green total $2,850.66m (study:
+ * $2,850m), fossil total incl. the IMO-NZF proxy $1,050.85m, $73/t cargo,
+ * $1,241/tCO2 (WTW), CO2 abated 1,450,095 t (study: 1.45 Mt exact),
+ * lifetime cargo 24,750,000 t. The WORKBOOK golden ($166.95m…) still pins
+ * the engine via the frozen fixture in the package tests.
  */
 
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 const STEPS = ["Cargo & Corridor", "Vessel", "Fuel", "Port", "Regulation"];
+const GAP = "$1,799.81m";
 
 async function expectNoSeriousViolations(page: Page, context: string) {
   const results = await new AxeBuilder({ page }).analyze();
@@ -23,7 +29,7 @@ async function expectNoSeriousViolations(page: Page, context: string) {
   ).toEqual([]);
 }
 
-test("default scenario reproduces the workbook's golden numbers", async ({ page }) => {
+test("default scenario reproduces the Chilean corridor numbers", async ({ page }) => {
   await page.goto("/corridor");
   // Freeze CSS transitions/animations so axe never samples a mid-transition
   // color (the stepper's 150ms background fade reads as low contrast).
@@ -36,42 +42,40 @@ test("default scenario reproduces the workbook's golden numbers", async ({ page 
   await expectNoSeriousViolations(page, "entry screen");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
 
-  // Headline golden numbers, straight from the untouched default form:
-  // gap PV 166.95059118904504 → "$166.95m"; 376.57…/unit → "$377".
-  // $/tCO2 uses the app's WELL-TO-WAKE default (D1): 74,304 t abated →
-  // 2246.86 → "$2,247" (the workbook's TTW basis shows "$2,267" and stays
-  // selectable in Model options — the engine golden pins it exactly).
-  // The gap shows twice by design (top-bar chip + summary headline) —
-  // scope the golden assertions to the docked COMPACT summary.
+  // Headline numbers, straight from the untouched default form. The gap
+  // shows twice by design (top-bar chip + summary headline) — scope the
+  // assertions to the docked COMPACT summary.
   const results = page.getByRole("complementary");
-  await expect(results.getByText("$166.95m")).toBeVisible();
-  await expect(results.getByText("$377", { exact: true })).toBeVisible();
-  await expect(results.getByText("$2,247", { exact: true })).toBeVisible();
+  await expect(results.getByText(GAP)).toBeVisible();
+  await expect(results.getByText("$73", { exact: true })).toBeVisible();
+  await expect(results.getByText("$1,241", { exact: true })).toBeVisible();
   await expect(results.getByText("well-to-wake basis")).toBeVisible();
-  // Side totals (Output rows 8–9).
-  await expect(results.getByText("$205.60m")).toBeVisible();
-  await expect(results.getByText("$38.64m")).toBeVisible();
+  // Side totals: green ≈ the study's $2,850m; fossil incl. the NZF proxy.
+  await expect(results.getByText("$2,850.66m")).toBeVisible();
+  await expect(results.getByText("$1,050.85m")).toBeVisible();
 
-  // The FULL panel lives in its own Results tab (06): lifetime cargo
-  // (row 80) renders only there, with the waterfall + per-year chart.
+  // The FULL panel lives in its own Results tab (06): lifetime cargo and
+  // the study-exact CO2 abatement render there.
   await page.getByRole("button", { name: "06 Results" }).click();
   const full = page.getByRole("main");
-  await expect(full.getByText("$166.95m", { exact: true })).toBeVisible();
-  await expect(full.getByText("443,340")).toBeVisible();
+  await expect(full.getByText(GAP, { exact: true })).toBeVisible();
+  await expect(full.getByText("24,750,000")).toBeVisible();
+  await expect(full.getByText("1,450,095 t").first()).toBeVisible();
   await expectNoSeriousViolations(page, "results tab");
 
-  // Walk all five steps; results stay docked; axe on each.
+  // Walk all five steps; the compact summary stays docked; axe on each.
   for (const [i, label] of STEPS.entries()) {
     await page.getByRole("button", { name: `0${i + 1} ${label}` }).click();
-    await expect(results.getByText("$166.95m")).toBeVisible();
+    await expect(results.getByText(GAP)).toBeVisible();
     await expectNoSeriousViolations(page, `step ${label}`);
   }
 
-  // A live-model probe: overriding the green fuel price moves the gap.
+  // A live-model probe: the green fuel price is overridden to 0 (plant cost
+  // sits in CAPEX/OPEX). Pricing it moves the gap; restoring 0 restores it.
   await page.getByRole("button", { name: "03 Fuel" }).click();
   const price = page.getByLabel("Fuel price").first();
   await price.fill("1200");
-  await expect(page.getByText("$166.95m")).toHaveCount(0);
-  await price.fill(""); // restore benchmark
-  await expect(results.getByText("$166.95m")).toBeVisible();
+  await expect(page.getByText(GAP)).toHaveCount(0);
+  await price.fill("0");
+  await expect(results.getByText(GAP)).toBeVisible();
 });

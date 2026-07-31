@@ -191,10 +191,14 @@ export default function DocsPage() {
           corridor as the <strong>net-present-value cost gap</strong>{" "}between
           running the corridor on a green fuel versus a fossil fuel, with EU
           ETS, FuelEU Maritime, IRA&nbsp;45Z and self-designed regulation
-          layered on top. It is a faithful re-implementation of the{" "}
-          <em> Green Corridor Model Simplified</em>{" "}workbook — the untouched
-          default scenario reproduces the workbook&apos;s numbers to
-          10&nbsp;significant digits.
+          layered on top. The engine is a faithful re-implementation of the{" "}
+          <em>Green Corridor Model Simplified</em>{" "}workbook, pinned to its
+          numbers at 10 significant digits by a frozen test fixture. The
+          app&apos;s DEFAULT scenario is a real published case: the{" "}
+          <strong>Chilean copper-concentrate green corridor</strong>{" "}
+          (MMMCZCS, Sep 2025 — Sumitomo, Interacid, NYK, Codelco, MMMCZCS):
+          Mejillones → Japan, 25 Mt of concentrate over 15 years on ten
+          ammonia dual-fuel Handymax bulkers (§12).
         </p>
 
         <nav className="mt-6 border border-neutral-300 bg-white p-4">
@@ -314,13 +318,13 @@ export default function DocsPage() {
             [
               "Port A / Port B",
               "text",
-              "empty",
+              "Mejillones / Japan (Asia)",
               "Named berths for the corridor. Shown in the results snapshot; free text.",
             ],
             [
               "Country (port A)",
               "—",
-              "Denmark",
+              "Chile (default)",
               "THE anchor input: selects the financing (WACC) benchmark. Denmark, Netherlands, India, Brazil, Singapore and the United States carry workbook benchmarks (5.5–11.5%); any other country uses the generic 8% benchmark. All are flagged unverified.",
             ],
             [
@@ -344,31 +348,31 @@ export default function DocsPage() {
             [
               "Corridor length, one-way",
               "nm",
-              "500",
+              "9,500 (default)",
               "One-way distance. Drives distance-mode fuel consumption (×2 per roundtrip). The single most sensitive input in the model (§11).",
             ],
             [
               "Model start year",
               "year",
-              "2027",
+              "2030 (default)",
               "Calendar year of year 1. Matters for the regulation schedules: the ETS phase-in and the FuelEU target ladder are calendar-anchored (§7).",
             ],
             [
               "Years modelled",
               "yr",
-              "20 (max 40)",
+              "15 (default; max 40)",
               "The horizon. Costs and cargo beyond it are not counted.",
             ],
             [
               "Annual cargo throughput",
               "units/yr",
-              "22,167",
+              "1,650,000 (default)",
               "Only feeds the per-unit figures and lifetime cargo — it is NOT linked to fuel burn or vessel counts (the workbook keeps them independent; so does the model). Advanced fold.",
             ],
             [
               "Discount rate (WACC)",
               "fraction",
-              "country benchmark (DK 0.055)",
+              "0.08 (study override; else country benchmark)",
               "Discounts every year's cost to present value on both sides. Override for a project-specific rate. Unverified benchmark.",
             ],
             [
@@ -383,34 +387,37 @@ export default function DocsPage() {
         {/* 4 ---------------------------------------------------------- */}
         <H id="tab-vessel">4. Tab 02 — Vessel</H>
         <p className="mt-2">
-          The ships that serve the corridor. One vessel type is shared by both
-          sides; the green side buys new tonnage while the fossil side sails
-          the existing baseline fleet.
+          The ships that serve the corridor. One vessel type is shared by
+          both sides. <strong>The CAPEX/OPEX cells are FLEET totals</strong>{" "}
+          — the vessel count multiplies fuel burn and regulation only, never
+          these cells (the workbook&apos;s semantics; the field labels say
+          &ldquo;Fleet&rdquo;). The default scenario costs both fleets as
+          newbuilds: green 10 × $44m = $440m, fossil 10 × $35m = $350m.
         </p>
         <Fields
           rows={[
             [
               "Vessel type",
               "—",
-              "Tanker 35k dwt",
+              "Handymax bulk (58k dwt), default",
               "Sets the benchmark CAPEX/OPEX, the benchmark annual fuel burn, and the energy-per-mile figure used by distance-mode consumption. Six types from tanker to 15k-TEU container ship (§10).",
             ],
             [
               "Consumption basis",
               "—",
-              "Distance-based",
+              "vessel benchmark (default)",
               "Distance: fuel burn is derived from corridor length × roundtrips × the vessel's GJ/nm, divided by each fuel's energy density. Vessel benchmark: use the type's flat tonnes-per-year figure instead.",
             ],
             [
               "Number of vessels",
               "ships",
-              "1",
-              "Multiplies fuel burn, vessel costs and every regulation term.",
+              "10 (default)",
+              "Multiplies fuel burn and every regulation term — NOT the fleet CAPEX/OPEX cells.",
             ],
             [
               "Roundtrips per year",
               "1/yr",
-              "12",
+              "3 (default)",
               "Multiplies distance-mode fuel burn.",
             ],
             [
@@ -428,8 +435,8 @@ export default function DocsPage() {
             [
               "Fossil vessel CAPEX",
               "$m",
-              "0",
-              "The workbook's 'existing baseline vessel' rule — the fossil fleet is already on the water, so its benchmark CAPEX is zero. Override if your baseline includes new tonnage.",
+              "benchmark 0 · default 350",
+              "The workbook's benchmark encodes 'existing baseline fleet' (zero). The Chilean default OVERRIDES it: the study costs a fossil newbuild fleet too.",
             ],
             [
               "Fossil vessel OPEX",
@@ -529,7 +536,7 @@ export default function DocsPage() {
             [
               "Fuel consumption",
               "t/vessel/yr",
-              "derived (distance mode)",
+              "default: 5,700 green / 2,638 fossil (study)",
               "Distance mode: 2 × distance × roundtrips × GJ/nm × 1000 / LHV. Defaults: green 2,580.6 t, fossil 1,194.0 t — the green side needs ~2.2× the mass because ammonia carries less energy per tonne.",
             ],
             [
@@ -609,7 +616,12 @@ export default function DocsPage() {
           Four schemes, each with its own toggle. All monetary terms use the
           EUR/USD rate (default 1.08) where the scheme is euro-denominated,
           and all are calendar-anchored — moving the start year moves the
-          corridor through the schedules.
+          corridor through the schedules. <strong>In the Chilean default all
+          three named schemes are OFF</strong> (a Chile → Japan corridor
+          touches no EEA port; production is Chilean, so 45Z cannot apply) —
+          the self-designed scheme is ON at $280/tCO2 as a proxy for the IMO
+          Net-Zero Framework, the one scheme that would actually apply (a
+          first-class IMO NZF module is the known regulatory gap).
         </p>
 
         <H3>EU ETS (maritime)</H3>
@@ -995,6 +1007,65 @@ export default function DocsPage() {
             against primary sources before committing capital.
           </li>
         </ul>
+
+        <H3>The default scenario: Chilean copper-concentrate corridor</H3>
+        <p className="mt-2">
+          The app opens on a real published case:{" "}
+          <em>Chilean Green Corridors — Copper Concentrate Export</em>{" "}
+          (MMMCZCS, 11 September 2025; consortium Sumitomo, Interacid, NYK,
+          Codelco, MMMCZCS). Mejillones → Japan/South Korea, 25 Mt of copper
+          concentrate over 15 years, ten ammonia dual-fuel Handymax bulkers,
+          60 kt/yr of green ammonia produced in the Atacama from 2030. Every
+          default value is provenance-tagged in the scenario source: stated
+          in the study [S], derived from stated values [D], fitted to
+          reconcile the study&apos;s published totals [F], or assumption [A].
+          The fitted CAPEX/OPEX blocks reconcile to the published totals but
+          are not sourced line-by-line. How the model reproduces the study
+          with these inputs:
+        </p>
+        <div className="my-3 overflow-x-auto">
+          <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
+            <thead>
+              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 font-medium">Metric</th>
+                <th className="px-3 py-2 text-right font-medium">Study</th>
+                <th className="px-3 py-2 text-right font-medium">Model</th>
+                <th className="px-3 py-2 text-right font-medium">Δ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(
+                [
+                  ["Green corridor NPV", "$2,850m", "$2,850.66m", "+0.02%"],
+                  ["Fossil corridor NPV (ex-regulation)", "$850m", "$838.22m", "−1.4%"],
+                  ["Gap NPV (pre-regulation)", "$2,000m", "$2,012.44m", "+0.6%"],
+                  ["Incremental cost per cargo tonne (pre-reg.)", "$80/t", "$81.31/t", "+1.6%"],
+                  ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "1,450,095 t", "exact"],
+                  ["Regulatory benefit (IMO NZF proxy)", "≈$250m", "$212.63m", "−15%"],
+                ] as const
+              ).map(([metric, study, model, delta]) => (
+                <tr key={metric} className="border-b border-neutral-200 last:border-0">
+                  <td className="px-3 py-1.5">{metric}</td>
+                  <td className="px-3 py-1.5 text-right">{study}</td>
+                  <td className="px-3 py-1.5 text-right">{model}</td>
+                  <td className="px-3 py-1.5 text-right">{delta}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2">
+          The displayed headline (gap $1,799.81m, $73/t, $1,241/tCO2) is the
+          post-regulation figure — the study&apos;s $80/t is its
+          pre-regulation gap. The −15% on the regulatory line is structural,
+          not a typo: the study&apos;s IMO NZF benefit prices{" "}
+          <em>well-to-wake</em>{" "}tonnes while the model&apos;s self-designed
+          proxy prices <em>combustion</em>{" "}tonnes — the documented reason
+          an IMO Net-Zero Framework module is the top regulatory gap. Known
+          missing concepts the study quantifies that the model cannot yet
+          hold: differentiated green financing (dual WACC, ≈$250m here) and a
+          scenario-level synergy adjustment (≈$250m).
+        </p>
 
         {/* 13 --------------------------------------------------------- */}
         <H id="inputs">13. Complete input inventory</H>
