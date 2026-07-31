@@ -1,49 +1,61 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/*
+ * Light-only design tokens (matta.ai-inspired: simple minimal boxes on a
+ * bright surface, technical-modern voice). Brand colors are drawn from the
+ * Thaduberg stripes gradient; contrast on white: brand 5.1:1 (AA text +
+ * white-on-brand buttons), brand-deep 12.7:1, deep-on-tint ≈ 11:1.
+ */
+@theme {
+  /* Surfaces: warm off-white page; pure-white cards/inputs on top. */
+  --color-page: #f9f9f7;
+  --color-surface: #ffffff;
+  --color-sunken: #f4f4f2; /* disabled inputs, wells */
+
+  /* Brand (Thaduberg blues) */
+  --color-brand: #2171b5;
+  --color-brand-strong: #1b5e97; /* hover */
+  --color-brand-deep: #08306b; /* active nav text, key emphasis */
+  --color-brand-tint: #eaf1f8; /* selected wash — pair with brand-deep text */
+
+  /* Muted text must stay AA on the off-white page, not just on white:
+     stock neutral-500 (#737373) is 4.49:1 on --color-page. Darken one step. */
+  --color-neutral-500: #6d6d6d; /* 4.9:1 on page, 5.2:1 on white */
+
+  /* Semantic text colors (all ≥ 4.5:1 on white) */
+  --color-success: #15803d;
+  --color-warning: #b45309;
+  --color-danger: #dc2626;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Data-viz tokens (reference palette; light + dark are separately selected steps). */
 :root {
-  --viz-surface: #fcfcfb;
+  /* Light-only app: keep native form controls, scrollbars and <select>
+     popups light even when the OS prefers dark. */
+  color-scheme: light;
+
+  /* Data-viz tokens (light-only; charts render inside white cards).
+     The waterfall delta pair is a CVD-safe blue↔red diverging pair. */
+  --viz-surface: #ffffff;
   --viz-ink: #0b0b0b;
   --viz-ink-secondary: #52514e;
   --viz-ink-muted: #898781;
   --viz-grid: #e1e0d9;
   --viz-baseline: #c3c2b7;
-  --viz-series-1: #2a78d6;
+  --viz-series-1: #2171b5; /* snapped to brand */
+  --viz-series-green: #008300; /* the "green fuel" series (domain identity) */
+  --viz-delta-up: #d03b3b; /* waterfall cost increase */
+  --viz-delta-down: #2171b5; /* waterfall savings */
+  --viz-total: #52514e; /* waterfall anchored totals (neutral) */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --viz-surface: #1a1a19;
-    --viz-ink: #ffffff;
-    --viz-ink-secondary: #c3c2b7;
-    --viz-ink-muted: #898781;
-    --viz-grid: #2c2c2a;
-    --viz-baseline: #383835;
-    --viz-series-1: #3987e5;
-  }
+body {
+  background: var(--color-page);
+  color: #171717;
+  /* Geist actually applies now (an old web-safe override defeated next/font). */
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
