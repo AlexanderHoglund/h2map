@@ -45,9 +45,40 @@
   --radius-4xl: 0px;
 }
 
-/* Technical "+" grid backdrop (the reference's drafting-paper texture). */
+/* Technical "+" grid backdrop, emphasis cut (the entry panel's texture —
+   stronger than the app-wide body wash). */
 .bg-plus-grid {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 10v8M10 14h8' stroke='%23dbdad2' stroke-width='1'/%3E%3C/svg%3E");
+}
+
+/* Entry-panel shipping chart: marching route dashes + ships sailing along
+   their offset-path. Frozen under prefers-reduced-motion. */
+@keyframes route-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+@keyframes ship-sail {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+.route-line {
+  stroke-dasharray: 7 5;
+  animation: route-flow 1.6s linear infinite;
+}
+.ship {
+  offset-rotate: auto;
+  animation: ship-sail 36s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-line,
+  .ship {
+    animation: none;
+  }
 }
 
 :root {
@@ -71,7 +102,10 @@
 }
 
 body {
-  background: var(--color-page);
+  /* The technical "+" grid runs across the WHOLE app (a fainter cut of the
+     entry panel's texture); white cards sit on top of it. */
+  background-color: var(--color-page);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 10v8M10 14h8' stroke='%23e9e8e1' stroke-width='1'/%3E%3C/svg%3E");
   color: #171717;
   /* Geist actually applies now (an old web-safe override defeated next/font). */
   font-family: var(--font-sans), system-ui, sans-serif;

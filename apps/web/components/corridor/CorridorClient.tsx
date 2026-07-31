@@ -10,6 +10,7 @@ import { CargoStep, FuelStep, PortStep, RegulationStep, VesselStep } from "./ste
 import ResultsPanel from "./ResultsPanel";
 import ResultsSummary from "./ResultsSummary";
 import ScenarioBar from "./ScenarioBar";
+import ShippingCanvas from "./ShippingCanvas";
 
 /**
  * The integrated workspace: ONE model, one screen. The top bar is the only
@@ -143,29 +144,42 @@ export default function CorridorClient() {
         </div>
       </header>
 
-      {/* ===== Entry screen (Cover tab) ===== */}
+      {/* ===== Entry screen: split hero — copy left, shipping chart right ===== */}
       {!entered ? (
-        <main className="bg-plus-grid flex flex-1 items-center justify-center overflow-y-auto px-4">
-          <div className="max-w-2xl border border-neutral-300 bg-white p-8">
-            {/* The full Thaduberg lockup gets its landing moment here. */}
-            {/* eslint-disable-next-line @next/next/no-img-element -- static brand SVG */}
-            <img
-              src="/thaduberg-final-stripes-black-text.svg"
-              alt="Thaduberg"
-              className="mb-6 h-24 w-auto"
-            />
-            <h1 className="text-2xl font-semibold tracking-tight">{t("intro.heading")}</h1>
-            <p className="mt-3 text-sm leading-relaxed text-neutral-600">
-              {t("intro.body")}
-            </p>
-            <Button variant="primary" size="md" className="mt-6" onClick={() => setEntered(true)}>
-              {model.hadDraft ? t("intro.resume") : t("intro.start")}
-            </Button>
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
+          {/* Left: plain column, headline-led (the technical texture stays
+              on the chart panel) */}
+          <div className="flex flex-1 items-center bg-page px-8 py-12 lg:px-14">
+            <div className="max-w-xl">
+              {/* eslint-disable-next-line @next/next/no-img-element -- static brand SVG */}
+              <img
+                src="/thaduberg-final-stripes-black-text.svg"
+                alt="Thaduberg"
+                className="mb-10 h-14 w-auto"
+              />
+              <h1 className="text-4xl font-semibold leading-[1.05] tracking-tight lg:text-5xl">
+                {t("intro.heading")}
+              </h1>
+              <p className="mt-6 text-base leading-relaxed text-neutral-600">
+                {t("intro.body")}
+              </p>
+              <button
+                type="button"
+                onClick={() => setEntered(true)}
+                className="mt-8 inline-flex items-center gap-2 bg-brand-tint px-5 py-2.5 text-sm font-medium text-brand-deep transition-colors hover:bg-brand hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+              >
+                {model.hadDraft ? t("intro.resume") : t("intro.start")} →
+              </button>
+            </div>
+          </div>
+          {/* Right: the drafting-grid panel with the 2D shipping chart */}
+          <div className="bg-plus-grid relative hidden overflow-hidden border-l border-neutral-300 lg:block lg:w-[55%]">
+            <ShippingCanvas />
           </div>
         </main>
       ) : view === "results" ? (
         /* ===== Results tab: the full panel, full width ===== */
-        <main className="min-h-0 flex-1 overflow-y-auto bg-page p-4">
+        <main className="min-h-0 flex-1 overflow-y-auto p-4">
           <div className="mx-auto max-w-375">
             <h2 className="mb-3 text-sm font-semibold">{t("results.heading")}</h2>
             <ResultsPanel
@@ -182,7 +196,7 @@ export default function CorridorClient() {
               open it keeps a comfortable fixed width (the map flexes), and
               with it closed it takes the room next to the summary */}
           <div
-            className={`min-w-0 border-neutral-300 bg-page p-3 lg:overflow-y-auto lg:border-r ${
+            className={`min-w-0 border-neutral-300 p-3 lg:overflow-y-auto lg:border-r ${
               mapOpen ? "shrink-0 lg:w-130 xl:w-150" : "lg:flex-1"
             }`}
           >
@@ -224,7 +238,7 @@ export default function CorridorClient() {
               Hidden while the map is open (the top-bar gap chip stays live)
               so form + map are never squeezed three ways. */}
           {!mapOpen && (
-            <aside className="w-full shrink-0 overflow-y-auto border-neutral-300 bg-page p-3 lg:w-72 lg:border-l xl:w-80">
+            <aside className="w-full shrink-0 overflow-y-auto border-neutral-300 p-3 lg:w-72 lg:border-l xl:w-80">
               <h2 className="mb-2 text-sm font-semibold">{t("results.heading")}</h2>
               <ResultsSummary
                 result={model.result}
