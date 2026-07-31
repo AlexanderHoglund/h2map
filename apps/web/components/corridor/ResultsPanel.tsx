@@ -96,7 +96,13 @@ export default function ResultsPanel({
     s.selfDesignedGreenPvUsdM -
     (s.etsFossilPvUsdM + s.fuelEuFossilPvUsdM + s.selfDesignedFossilPvUsdM);
 
-  const COLORS = { total: "#525252", up: "#dc2626", down: "#16a34a" };
+  // Viz tokens (globals.css): CVD-safe blue-red diverging pair for the deltas,
+  // neutral anchored totals (baseline + x-label are the secondary encoding).
+  const COLORS = {
+    total: "var(--viz-total)",
+    up: "var(--viz-delta-up)",
+    down: "var(--viz-delta-down)",
+  };
 
   return (
     <div className="space-y-4">
@@ -151,9 +157,9 @@ export default function ResultsPanel({
         <div className="h-44">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={waterfall} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.25} vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={0} />
-              <YAxis tick={{ fontSize: 10 }} width={44} unit="" />
+              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
+              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} unit="" />
               <Tooltip
                 formatter={(v, name) =>
                   name === "span" && typeof v === "number" ? [fmtUsdM(v), ""] : null
@@ -210,22 +216,41 @@ export default function ResultsPanel({
 
       {/* Year-by-year */}
       <div className="rounded-lg border border-neutral-200 p-3">
-        <p className="mb-2 text-xs font-medium text-neutral-600">
-          {t("perYear")}
-        </p>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <p className="text-xs font-medium text-neutral-600">{t("perYear")}</p>
+          {/* Legend — color must never be the only series identifier */}
+          <div className="flex items-center gap-3 text-[11px] text-neutral-600">
+            <span className="flex items-center gap-1">
+              <span
+                aria-hidden
+                className="h-0.5 w-4 rounded-full"
+                style={{ background: "var(--viz-series-green)" }}
+              />
+              {t("green")}
+            </span>
+            <span className="flex items-center gap-1">
+              <span
+                aria-hidden
+                className="h-0.5 w-4 rounded-full"
+                style={{ background: "var(--viz-ink-muted)" }}
+              />
+              {t("fossil")}
+            </span>
+          </div>
+        </div>
         <div className="h-40">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={perYear} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.25} vertical={false} />
-              <XAxis dataKey="year" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} width={44} />
+              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" />
+              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} />
               <Tooltip
                 formatter={(v) => (typeof v === "number" ? fmtUsdM(v) : String(v))}
                 labelStyle={{ fontSize: 11 }}
                 contentStyle={{ fontSize: 11 }}
               />
-              <Line type="monotone" dataKey="green" stroke="#16a34a" dot={false} strokeWidth={2} isAnimationActive={false} />
-              <Line type="monotone" dataKey="fossil" stroke="#737373" dot={false} strokeWidth={2} isAnimationActive={false} />
+              <Line type="monotone" dataKey="green" stroke="var(--viz-series-green)" dot={false} strokeWidth={2} isAnimationActive={false} />
+              <Line type="monotone" dataKey="fossil" stroke="var(--viz-ink-muted)" dot={false} strokeWidth={2} isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
