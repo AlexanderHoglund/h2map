@@ -172,6 +172,62 @@ describe("engine properties", () => {
     );
   });
 
+  it("cost structure: capital + operating parts reconcile to LCOH in BOTH electricity pricing modes", () => {
+    // Corridor spec §2: Σ capital-tagged + Σ operating-tagged == total LCOH.
+    // Run once in LCOE mode (hybrid) and once in CAPEX mode.
+    const flat = new Array(24).fill(0.5);
+    for (const capexMode of [false, true]) {
+      const inputs = hybridInputs();
+      if (capexMode) {
+        inputs.pv = {
+          capacityMw: 100,
+          pricing: { mode: "capex", capexUsdPerKw: 800, opexFractionPerYear: 0.015 },
+        };
+        inputs.wind = {
+          capacityMw: 100,
+          pricing: { mode: "capex", capexUsdPerKw: 1200, opexFractionPerYear: 0.025 },
+        };
+      }
+      const r = simulateLCOH(inputs, {
+        pv: tiledProfile(flat),
+        wind: tiledProfile(flat),
+      });
+      const cs = r.costStructure;
+      // Per-component: capital + operatingPv equals the decomposition share.
+      let totalPv = 0;
+      let h2PvKg = 0;
+      // Recover PV(H2) from any nonzero component: share = pv / h2PvKg.
+      // electrolyzerCapex is always > 0.
+      h2PvKg = cs.components.electrolyzerCapex.capitalUsd / r.decomposition.electrolyzerCapex;
+      for (const key of Object.keys(cs.components) as (keyof typeof cs.components)[]) {
+        const c = cs.components[key];
+        const sharePv = c.capitalUsd + c.operatingPvUsd;
+        expect(sharePv / h2PvKg).toBeCloseTo(r.decomposition[key], 10);
+        totalPv += sharePv;
+        // Nature tags are honest: capital-only entries carry no operating, etc.
+        if (c.costNature === "capital") expect(c.operatingPvUsd).toBe(0);
+        if (c.costNature === "operating") expect(c.capitalUsd).toBe(0);
+      }
+      // The reconciliation: totals match the levelized figure exactly.
+      expect(cs.capitalUsd + cs.operatingPvUsd).toBeCloseTo(totalPv, 6);
+      expect(totalPv / h2PvKg).toBeCloseTo(r.lcohUsdPerKg, 10);
+      // CAPEX mode: renewables are the mixed entries with a genuine capital part.
+      if (capexMode) {
+        expect(cs.components.electricityPv.costNature).toBe("mixed");
+        expect(cs.components.electricityPv.capitalUsd).toBeGreaterThan(0);
+        expect(cs.components.electricityPv.operatingUsdPerYear).toBeGreaterThan(0);
+      } else {
+        expect(cs.components.electricityWind.costNature).toBe("operating");
+        expect(cs.components.electricityWind.capitalUsd).toBe(0);
+      }
+      // Year-1 exports are populated and positive.
+      expect(cs.annualH2Kg).toBeGreaterThan(0);
+      expect(cs.annualOperatingUsd).toBeGreaterThan(0);
+      expect(cs.plantLifeYears).toBe(inputs.finance.lifetimeYears);
+      expect(cs.discountRate).toBe(inputs.finance.discountRate);
+    }
+  });
+
   it("without a grid source there is no grid energy and no emissions", () => {
     fc.assert(
       fc.property(producingDayShape, (day) => {

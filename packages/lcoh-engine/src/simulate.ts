@@ -115,33 +115,49 @@ export function simulateLCOH(
   let stackPv = 0;
   for (const t of replacementYears) stackPv += stackReplacementUsd * df[t]!;
 
-  function renewablePv(
+  // Split kept explicit for the cost-structure block (corridor spec §2):
+  // CAPEX mode has a genuine capital part; LCOE mode is purchased energy —
+  // fully operating. `totalPv` uses the exact same expressions as before.
+  interface RenewableCost {
+    totalPv: number;
+    capitalUsd: number;
+    operatingUsdPerYear: number;
+  }
+  const NO_COST: RenewableCost = { totalPv: 0, capitalUsd: 0, operatingUsdPerYear: 0 };
+
+  function renewableCost(
     source: NonNullable<LCOHInputs["pv"]>,
     capacityKw: number,
     consumedKwh: number,
     generatedKwh: number,
-  ): number {
+  ): RenewableCost {
     if (source.pricing.mode === "lcoe") {
       const chargedKwh = lcoePaysCurtailed ? generatedKwh : consumedKwh;
       const perYearUsd = (chargedKwh / 1000) * source.pricing.usdPerMwh;
-      return perYearUsd * annuity;
+      return { totalPv: perYearUsd * annuity, capitalUsd: 0, operatingUsdPerYear: perYearUsd };
     }
     const capexUsd = source.pricing.capexUsdPerKw * capacityKw;
     const opexPerYearUsd = source.pricing.opexFractionPerYear * capexUsd;
-    return capexUsd + opexPerYearUsd * annuity;
+    return {
+      totalPv: capexUsd + opexPerYearUsd * annuity,
+      capitalUsd: capexUsd,
+      operatingUsdPerYear: opexPerYearUsd,
+    };
   }
 
-  const pvCostPv = pv
-    ? renewablePv(pv, pvKw, dispatch.pvConsumedKwh, dispatch.pvGeneratedKwh)
-    : 0;
-  const windCostPv = wind
-    ? renewablePv(
+  const pvCost = pv
+    ? renewableCost(pv, pvKw, dispatch.pvConsumedKwh, dispatch.pvGeneratedKwh)
+    : NO_COST;
+  const windCost = wind
+    ? renewableCost(
         wind,
         windKw,
         dispatch.windConsumedKwh,
         dispatch.windGeneratedKwh,
       )
-    : 0;
+    : NO_COST;
+  const pvCostPv = pvCost.totalPv;
+  const windCostPv = windCost.totalPv;
   const gridCostPv = grid
     ? (dispatch.gridKwh / 1000) * grid.priceUsdPerMwh * annuity
     : 0;
@@ -291,9 +307,85 @@ export function simulateLCOH(
     !lcoePaysCurtailed &&
     !stackLifeOnEflh;
 
+  // --- Cost structure (corridor spec §2): capital vs operating, additive ---
+  // Every entry's capital + operatingPv equals its decomposition share × PV(H2)
+  // by construction (same terms, no new arithmetic). Year-1 figures are the
+  // flat-annual export; water/H2 vary with degradation (documented).
+  const gridPerYearUsd = grid ? (dispatch.gridKwh / 1000) * grid.priceUsdPerMwh : 0;
+  const waterYear1Usd = waterM3[1]! * waterUnitCostUsdPerM3;
+  const renewableNature = (
+    source: LCOHInputs["pv"] | LCOHInputs["wind"],
+  ): "mixed" | "operating" =>
+    source && source.pricing.mode === "capex" ? "mixed" : "operating";
+  const costComponents = {
+    electricityPv: {
+      costNature: renewableNature(pv),
+      capitalUsd: pvCost.capitalUsd,
+      operatingPvUsd: pvCost.totalPv - pvCost.capitalUsd,
+      operatingUsdPerYear: pvCost.operatingUsdPerYear,
+    },
+    electricityWind: {
+      costNature: renewableNature(wind),
+      capitalUsd: windCost.capitalUsd,
+      operatingPvUsd: windCost.totalPv - windCost.capitalUsd,
+      operatingUsdPerYear: windCost.operatingUsdPerYear,
+    },
+    electricityGrid: {
+      costNature: "operating" as const,
+      capitalUsd: 0,
+      operatingPvUsd: gridCostPv,
+      operatingUsdPerYear: gridPerYearUsd,
+    },
+    electrolyzerCapex: {
+      costNature: "capital" as const,
+      capitalUsd: electrolyzerCapexUsd,
+      operatingPvUsd: 0,
+      operatingUsdPerYear: 0,
+    },
+    stackReplacements: {
+      costNature: "capital" as const,
+      capitalUsd: stackPv,
+      operatingPvUsd: 0,
+      operatingUsdPerYear: 0,
+    },
+    electrolyzerOpex: {
+      costNature: "operating" as const,
+      capitalUsd: 0,
+      operatingPvUsd: electrolyzerOpexPerYearUsd * annuity,
+      operatingUsdPerYear: electrolyzerOpexPerYearUsd,
+    },
+    water: {
+      costNature: "operating" as const,
+      capitalUsd: 0,
+      operatingPvUsd: waterCostPv,
+      operatingUsdPerYear: waterYear1Usd,
+    },
+  };
+  const costStructure = {
+    capitalUsd:
+      pvCost.capitalUsd + windCost.capitalUsd + electrolyzerCapexUsd + stackPv,
+    operatingPvUsd:
+      (pvCost.totalPv - pvCost.capitalUsd) +
+      (windCost.totalPv - windCost.capitalUsd) +
+      gridCostPv +
+      electrolyzerOpexPerYearUsd * annuity +
+      waterCostPv,
+    annualOperatingUsd:
+      pvCost.operatingUsdPerYear +
+      windCost.operatingUsdPerYear +
+      gridPerYearUsd +
+      electrolyzerOpexPerYearUsd +
+      waterYear1Usd,
+    annualH2Kg: h2Kg[1]!,
+    plantLifeYears: years,
+    discountRate: finance.discountRate,
+    components: costComponents,
+  };
+
   return {
     lcohUsdPerKg,
     decomposition,
+    costStructure,
     lcoe: { pv: pvLcoe, wind: windLcoe, mix, effectivePerConsumedMwh },
     annual,
     totals: {

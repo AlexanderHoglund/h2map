@@ -34,9 +34,27 @@ export interface AnnualRow {
   stackReplacement: boolean;
 }
 
+export interface CostStructureComponent {
+  costNature: "capital" | "operating" | "mixed";
+  capitalUsd: number;
+  operatingPvUsd: number;
+  operatingUsdPerYear: number;
+}
+
+export interface CostStructure {
+  capitalUsd: number;
+  operatingPvUsd: number;
+  annualOperatingUsd: number;
+  annualH2Kg: number;
+  plantLifeYears: number;
+  discountRate: number;
+  components: Record<keyof LCOHDecomposition, CostStructureComponent>;
+}
+
 export interface LCOHResults {
   lcohUsdPerKg: number;
   decomposition: LCOHDecomposition;
+  costStructure: CostStructure;
   lcoe: { pv: number | null; wind: number | null; mix: number };
   annual: AnnualRow[];
   totals: {

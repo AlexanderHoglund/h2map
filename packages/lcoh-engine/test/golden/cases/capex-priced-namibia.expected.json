@@ -9,6 +9,58 @@
   "electrolyzerOpex": 0.36663291198752396,
   "water": 0.010962000000000001
  },
+ "costStructure": {
+  "capitalUsd": 305481239.08964145,
+  "operatingPvUsd": 42208643.25713012,
+  "annualOperatingUsd": 4795748.198530613,
+  "annualH2Kg": 8734555.603960397,
+  "plantLifeYears": 20,
+  "discountRate": 0.095,
+  "components": {
+   "electricityPv": {
+    "costNature": "mixed",
+    "capitalUsd": 102000000,
+    "operatingPvUsd": 8988629.759178996,
+    "operatingUsdPerYear": 1020000
+   },
+   "electricityWind": {
+    "costNature": "mixed",
+    "capitalUsd": 68000000,
+    "operatingPvUsd": 5992419.839452669,
+    "operatingUsdPerYear": 680000
+   },
+   "electricityGrid": {
+    "costNature": "operating",
+    "capitalUsd": 0,
+    "operatingPvUsd": 0,
+    "operatingUsdPerYear": 0
+   },
+   "electrolyzerCapex": {
+    "costNature": "capital",
+    "capitalUsd": 100000000,
+    "operatingPvUsd": 0,
+    "operatingUsdPerYear": 0
+   },
+   "stackReplacements": {
+    "costNature": "capital",
+    "capitalUsd": 35481239.08964142,
+    "operatingPvUsd": 0,
+    "operatingUsdPerYear": 0
+   },
+   "electrolyzerOpex": {
+    "costNature": "operating",
+    "capitalUsd": 0,
+    "operatingPvUsd": 26437146.35052647,
+    "operatingUsdPerYear": 3000000
+   },
+   "water": {
+    "costNature": "operating",
+    "capitalUsd": 0,
+    "operatingPvUsd": 790447.3079719937,
+    "operatingUsdPerYear": 95748.19853061387
+   }
+  }
+ },
  "lcoe": {
   "pv": 52.16834155734745,
   "wind": 26.57924935458894,

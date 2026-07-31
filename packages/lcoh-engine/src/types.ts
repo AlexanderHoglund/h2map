@@ -103,6 +103,44 @@ export interface LCOHDecomposition {
   water: number;
 }
 
+/**
+ * Cost-structure block (corridor build-here spec §2): the SAME costs the
+ * levelized decomposition carries, re-expressed as capital vs operating so a
+ * downstream model (the green-corridor engine) can discount them on its own
+ * timeline at its own rate. Purely additive — no levelized figure changes.
+ */
+export type CostNature = "capital" | "operating" | "mixed";
+
+export interface CostStructureComponent {
+  costNature: CostNature;
+  /** Present value of the capital part (year-0 capex; stack events discounted). */
+  capitalUsd: number;
+  /** Present value of the operating part. capital + operating = the component's PV share. */
+  operatingPvUsd: number;
+  /** Operating cost per year at the reference year (year 1 — see degradation note). */
+  operatingUsdPerYear: number;
+}
+
+export interface CostStructure {
+  /** Σ component capital PVs: year-0 capex (electrolyzer + CAPEX-mode renewables) + discounted stack events. */
+  capitalUsd: number;
+  /** Σ component operating PVs. capitalUsd + operatingPvUsd = lcoh × PV(H2) exactly. */
+  operatingPvUsd: number;
+  /**
+   * Operating cost per year at YEAR 1. Under degradation, water (and H2)
+   * decline with output in later years — a consumer charging this flat
+   * accepts that documented approximation; the PV fields are exact.
+   */
+  annualOperatingUsd: number;
+  /** H2 output in YEAR 1, kg (declines with degradation in later years). */
+  annualH2Kg: number;
+  plantLifeYears: number;
+  /** The rate used INSIDE this LCOH run (finance.discountRate). */
+  discountRate: number;
+  /** Per-decomposition-component split; keys mirror LCOHDecomposition. */
+  components: Record<keyof LCOHDecomposition, CostStructureComponent>;
+}
+
 export interface AnnualRow {
   /** Operating year, 1-based. */
   year: number;
@@ -123,6 +161,7 @@ export interface AnnualRow {
 export interface LCOHResults {
   lcohUsdPerKg: number;
   decomposition: LCOHDecomposition;
+  costStructure: CostStructure;
   lcoe: {
     /** USD/MWh; user-supplied in LCOE mode, computed from CAPEX/OPEX otherwise. Null when the source is absent. */
     pv: number | null;
