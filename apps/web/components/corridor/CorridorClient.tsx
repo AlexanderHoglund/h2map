@@ -52,13 +52,11 @@ export default function CorridorClient() {
 
   const gap = model.result?.summary.gapPvUsdM;
 
-  // The map belongs to the fuel decision: shown only while the green fuel is
-  // constructed ("construct") or sited on the map ("build-here"). Picking a
-  // cell on it converts construct → build-here with the cell as the site.
+  // The map opens only when it is actually needed: the fuel step with the
+  // green fuel sited on the map ("build-here"). Plain construct/purchase/
+  // named-plant are number entry — no map.
   const mapOpen =
-    view === "fuel" &&
-    (model.scenario.green.sourcing === "construct" ||
-      model.scenario.green.sourcing === "build-here");
+    view === "fuel" && model.scenario.green.sourcing === "build-here";
 
   const stepBody: Record<StepKey, React.ReactNode> = {
     cargo: <CargoStep model={model} />,

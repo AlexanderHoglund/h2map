@@ -131,7 +131,7 @@ export default function BuildHerePanel({
       )}
 
       {/* Synthesis config (D7: production-side WACC, separate from corridor WACC) */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {siteKey && siteLcoh !== null && (
           <label className="block text-[11px] text-neutral-600">
             {t("siteLcoh")}
