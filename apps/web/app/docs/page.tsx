@@ -78,6 +78,103 @@ const TOC: [string, string][] = [
   ["reference-data", "10. Reference data"],
   ["sensitivity", "11. What moves the result"],
   ["provenance", "12. Provenance, versions & limits"],
+  ["inputs", "13. Complete input inventory"],
+];
+
+/**
+ * Every scenario input, verbatim from the generated schema reference
+ * (docs/corridor/field-reference.md — zod schema joined with the
+ * sensitivity artifact; CI fails on drift). Columns: path, type,
+ * required, sensitivity rank, max headline movement, UI placement.
+ */
+const ALL_INPUTS: [string, string, string, string, string, string][] = [
+  ["schemaVersion", "= 2", "yes", "—", "—", "—"],
+  ["refBundleId", "string", "yes", "—", "—", "—"],
+  ["cargo.countryId", "string", "yes", "—", "—", "—"],
+  ["cargo.routeType", '"point-to-point" | "single-point"', "yes", "—", "—", "—"],
+  ["cargo.oneWayDistanceNm", "number", "yes", "#1", "74.1%", "top-level"],
+  ["cargo.startYear", "integer", "yes", "—", "—", "—"],
+  ["cargo.horizonYears", "integer", "yes", "#8", "17.6%", "top-level"],
+  ["cargo.unitsPerYear", "number", "yes", "#24", "0.0%", "advanced"],
+  ["cargo.inflation", "number", "yes", "#10", "14.0%", "top-level"],
+  ["cargo.vessels", "integer", "yes", "#5", "32.9%", "top-level"],
+  ["cargo.roundtripsPerYear", "number", "yes", "#14", "8.2%", "top-level"],
+  ["cargo.waccOverride", "number | null", "yes", "#9", "14.6%", "top-level"],
+  ["cargo.unit", '"tonne" | "teu"', "no", "—", "—", "—"],
+  ["cargo.unitWeightTonnes", "number", "no", "—", "—", "—"],
+  ["cargo.portAName", "string", "no", "—", "—", "—"],
+  ["cargo.portBName", "string", "no", "—", "—", "—"],
+  ["cargo.countryBId", "string", "no", "—", "—", "—"],
+  ["vessel.typeId", "string", "yes", "—", "—", "—"],
+  ["vessel.consumptionMode", '"distance" | "vessel-benchmark"', "yes", "—", "—", "—"],
+  ["vessel.green.capexUsdM", "number | null", "yes", "#2", "56.9%", "top-level"],
+  ["vessel.green.opexUsdMPerYear", "number | null", "yes", "#3", "42.5%", "top-level"],
+  ["vessel.fossil.capexUsdM", "number | null", "yes", "—", "—", "—"],
+  ["vessel.fossil.opexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
+  ["green.fuelId", "string", "yes", "—", "—", "—"],
+  ["green.sourcing", '"construct" | "purchase" | "named-plant" | "build-here"', "yes", "—", "—", "—"],
+  ["green.deliveredPriceUsdPerTonne", "number | null", "no", "—", "—", "—"],
+  ["green.buildHere", "object | null", "no", "—", "—", "—"],
+  ["green.overrides.priceUsdPerTonne", "number | null", "yes", "#11", "13.7%", "top-level"],
+  ["green.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
+  ["green.overrides.lhvMjPerTonne", "number | null", "yes", "—", "—", "—"],
+  ["green.overrides.wtwGco2PerMj", "number | null", "yes", "#23", "0.2%", "advanced"],
+  ["green.overrides.fuelTonnesPerVesselYear", "number | null", "yes", "#7", "21.1%", "top-level"],
+  ["green.overrides.prodCapexUsdM", "number | null", "yes", "#4", "32.9%", "top-level"],
+  ["green.overrides.prodOpexUsdMPerYear", "number | null", "yes", "#6", "26.6%", "top-level"],
+  ["green.overrides.portStorageCapexUsdM", "number | null", "yes", "#12", "10.8%", "top-level"],
+  ["green.overrides.portStorageOpexUsdMPerYear", "number | null", "yes", "#13", "8.9%", "top-level"],
+  ["green.overrides.bargeCapexUsdM", "number | null", "yes", "#15", "4.2%", "advanced"],
+  ["green.overrides.bargeOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
+  ["fossil.fuelId", "string", "yes", "—", "—", "—"],
+  ["fossil.sourcing", '"construct" | "purchase" | "named-plant" | "build-here"', "yes", "—", "—", "—"],
+  ["fossil.deliveredPriceUsdPerTonne", "number | null", "no", "—", "—", "—"],
+  ["fossil.buildHere", "object | null", "no", "—", "—", "—"],
+  ["fossil.overrides.priceUsdPerTonne", "number | null", "yes", "#19", "3.2%", "advanced"],
+  ["fossil.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
+  ["fossil.overrides.lhvMjPerTonne", "number | null", "yes", "—", "—", "—"],
+  ["fossil.overrides.wtwGco2PerMj", "number | null", "yes", "#21", "1.9%", "advanced"],
+  ["fossil.overrides.fuelTonnesPerVesselYear", "number | null", "yes", "—", "—", "—"],
+  ["fossil.overrides.prodCapexUsdM", "number | null", "yes", "—", "—", "—"],
+  ["fossil.overrides.prodOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
+  ["fossil.overrides.portStorageCapexUsdM", "number | null", "yes", "—", "—", "—"],
+  ["fossil.overrides.portStorageOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
+  ["fossil.overrides.bargeCapexUsdM", "number | null", "yes", "—", "—", "—"],
+  ["fossil.overrides.bargeOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
+  ["regulation.eurUsd", "number", "yes", "#22", "1.2%", "advanced"],
+  ["regulation.ets.enabled", "boolean", "yes", "—", "—", "—"],
+  ["regulation.ets.euaEurPerTonne", "number", "yes", "#18", "3.6%", "advanced"],
+  ["regulation.ets.scope", "number 0–1", "yes", "#20", "2.4%", "advanced"],
+  ["regulation.ets.gasCoverage.enabled", "boolean", "yes", "—", "—", "—"],
+  ["regulation.ets.gasCoverage.fromCalendarYear", "integer", "yes", "—", "—", "—"],
+  ["regulation.ets.gasCoverage.gwpCh4", "number", "yes", "—", "—", "—"],
+  ["regulation.ets.gasCoverage.gwpN2o", "number", "yes", "—", "—", "—"],
+  ["regulation.ets.gasCoverage.green.ch4TPerTonne", "number", "yes", "—", "—", "—"],
+  ["regulation.ets.gasCoverage.green.n2oTPerTonne", "number", "yes", "—", "—", "—"],
+  ["regulation.ets.gasCoverage.fossil.ch4TPerTonne", "number", "yes", "—", "—", "—"],
+  ["regulation.ets.gasCoverage.fossil.n2oTPerTonne", "number", "yes", "—", "—", "—"],
+  ["regulation.fuelEu.enabled", "boolean", "yes", "—", "—", "—"],
+  ["regulation.fuelEu.penaltyEurPerTonne", "number", "yes", "#17", "3.7%", "advanced"],
+  ["regulation.fuelEu.vlsfoMjPerTonne", "number", "yes", "—", "—", "—"],
+  ["regulation.fuelEu.baselineGco2PerMj", "number", "yes", "—", "—", "—"],
+  ["regulation.fuelEu.scope", "number 0–1", "yes", "#16", "3.7%", "advanced"],
+  ["regulation.fuelEu.credit.enabled", "boolean", "yes", "—", "—", "—"],
+  ["regulation.fuelEu.credit.surplusValueEurPerTonneVlsfoEq", "number", "yes", "—", "—", "—"],
+  ["regulation.fuelEu.credit.rfnbo", "boolean", "yes", "—", "—", "—"],
+  ["regulation.fuelEu.credit.rfnboMultiplier", "number", "yes", "—", "—", "—"],
+  ["regulation.fuelEu.credit.rfnboUntil", "integer", "yes", "—", "—", "—"],
+  ["regulation.ira45z.enabled", "boolean", "yes", "—", "—", "—"],
+  ["regulation.ira45z.usProduced", "boolean", "yes", "—", "—", "—"],
+  ["regulation.ira45z.creditUsdPerGallon", "number", "yes", "—", "—", "—"],
+  ["regulation.ira45z.effectiveUntil", "integer | null", "no", "—", "—", "—"],
+  ["regulation.selfDesigned.enabled", "boolean", "yes", "—", "—", "—"],
+  ["regulation.selfDesigned.co2PriceUsdPerTonne", "number", "yes", "—", "—", "—"],
+  ["regulation.selfDesigned.supportUsdPerKg", "number", "yes", "—", "—", "—"],
+  ["regulation.selfDesigned.capexSupport", "number 0–1", "yes", "—", "—", "—"],
+  ["regulation.selfDesigned.opexSupport", "number 0–1", "yes", "—", "—", "—"],
+  ["regulation.selfDesigned.otherUsdM", "number", "yes", "—", "—", "—"],
+  ['flags.emissionsBasis', '"combustion" | "wellToWake"', "no", "—", "—", "—"],
+  ['flags.rateBasis', '"nominal" | "real"', "no", "—", "—", "—"],
 ];
 
 export default function DocsPage() {
@@ -898,6 +995,58 @@ export default function DocsPage() {
             against primary sources before committing capital.
           </li>
         </ul>
+
+        {/* 13 --------------------------------------------------------- */}
+        <H id="inputs">13. Complete input inventory</H>
+        <p className="mt-2">
+          Every field a scenario carries — the machine-complete list,
+          generated from the validation schema and joined with the
+          sensitivity sweep (§11). <em>Required&nbsp;=&nbsp;no</em>{" "}
+          marks optional additions that older scenarios may omit;{" "}
+          <em>nullable</em>{" "}
+          override fields use <code>null</code>{" "}
+          to mean &ldquo;use the benchmark&rdquo;. Placement{" "}
+          <em>top-level</em>{" "}
+          = the field moved the headline gap ≥5% and renders prominently;{" "}
+          <em>advanced</em>{" "}
+          = it lives in the tab&apos;s Advanced fold; &ldquo;—&rdquo; = not
+          swept (selectors, toggles, descriptive fields) or rendered by its
+          own dedicated control.
+        </p>
+        <div className="my-3 overflow-x-auto">
+          <table className="w-full border border-neutral-300 text-xs">
+            <thead>
+              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 font-medium">Field</th>
+                <th className="px-3 py-2 font-medium">Type</th>
+                <th className="px-3 py-2 font-medium">Req.</th>
+                <th className="px-3 py-2 font-medium">Rank</th>
+                <th className="px-3 py-2 text-right font-medium">Max gap movement</th>
+                <th className="px-3 py-2 font-medium">Placement</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ALL_INPUTS.map(([field, type, req, rank, move, place]) => (
+                <tr key={field} className="border-b border-neutral-200 last:border-0">
+                  <td className="whitespace-nowrap px-3 py-1.5 font-mono">{field}</td>
+                  <td className="px-3 py-1.5 font-mono text-neutral-600">{type}</td>
+                  <td className="px-3 py-1.5">{req}</td>
+                  <td className="whitespace-nowrap px-3 py-1.5 tabular-nums">{rank}</td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">{move}</td>
+                  <td className="px-3 py-1.5">{place}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-neutral-600">
+          The <code>green.buildHere</code> / <code>fossil.buildHere</code>{" "}
+          object stores the map-pick lineage: cell id, coordinates, site LCOH,
+          carrier, synthesis gate price, distance to port and logistics cost.
+          The canonical, always-current version of this table is generated
+          into <code>docs/corridor/field-reference.md</code>{" "}
+          in the repository — CI fails if it drifts from the schema.
+        </p>
       </main>
       <Footer />
     </>
