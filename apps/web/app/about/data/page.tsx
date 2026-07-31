@@ -1,6 +1,6 @@
 import Footer from "@/components/shell/Footer";
 
-export const metadata = { title: "About the data — H2MAP" };
+export const metadata = { title: "About the data — Thaduberg" };
 
 export default function AboutDataPage() {
   return (
@@ -10,7 +10,7 @@ export default function AboutDataPage() {
 
         <h2 className="mt-8 text-lg font-medium">Methodology</h2>
         <p className="mt-2">
-          H2MAP re-implements the published Chilean LCOH methodology — «Motor
+          Thaduberg re-implements the published Chilean LCOH methodology — «Motor
           de Cálculo LCOH: Principales características», Ministerio de Energía
           de Chile / Centro de Energía FCFM U. de Chile / USACH / PUC, April
           2024 — as an open, global calculation engine. With all reference

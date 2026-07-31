@@ -29,14 +29,21 @@ export default function CorridorClient() {
     return (
       <main className="flex h-[calc(100dvh-3rem)] items-center justify-center px-4">
         <div className="max-w-2xl">
-        <h1 className="text-2xl font-semibold">{t("intro.heading")}</h1>
+        {/* The full Thaduberg lockup gets its landing moment here. */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- static brand SVG */}
+        <img
+          src="/thaduberg-final-stripes-black-text.svg"
+          alt="Thaduberg"
+          className="mb-6 h-24 w-auto"
+        />
+        <h1 className="text-2xl font-semibold tracking-tight">{t("intro.heading")}</h1>
         <p className="mt-3 text-sm leading-relaxed text-neutral-600">
           {t("intro.body")}
         </p>
         <button
           type="button"
           onClick={() => setEntered(true)}
-          className="mt-6 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+          className="mt-6 rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-strong"
         >
           {model.hadDraft ? t("intro.resume") : t("intro.start")}
         </button>

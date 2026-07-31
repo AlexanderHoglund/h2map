@@ -88,7 +88,7 @@ export default function ParityPage() {
       <h1 className="text-2xl font-semibold">Chilean 47-project parity</h1>
       <p className="mt-2 max-w-3xl text-sm text-neutral-600">
         Published LCOH (Tabla 3-1, Motor de Cálculo LCOH, April 2024) vs. this
-        engine with doc-literal 2022 defaults and TMY profiles from the H2MAP
+        engine with doc-literal 2022 defaults and TMY profiles from the Thaduberg
         profile service. Coordinates are inferred from region hints — the PDF
         publishes none — so this is a methodology parity check, not a
         site-exact reproduction.
@@ -113,7 +113,7 @@ export default function ParityPage() {
               value={results.summary.meanPublished2022.toFixed(2)}
             />
             <Stat
-              label="Mean 2022 (H2MAP)"
+              label="Mean 2022 (Thaduberg)"
               value={results.summary.meanComputed2022.toFixed(2)}
             />
             <Stat
@@ -165,7 +165,7 @@ export default function ParityPage() {
               <th className="py-2 pr-3">Region hint</th>
               <th className="py-2 pr-3">Site</th>
               <th className="py-2 pr-3 text-right">Published 2022</th>
-              <th className="py-2 pr-3 text-right">H2MAP 2022</th>
+              <th className="py-2 pr-3 text-right">Thaduberg 2022</th>
               <th className="py-2 pr-3 text-right">Δ</th>
               <th className="py-2 pr-3 text-right">2030</th>
               <th className="py-2 pr-3 text-right">2040</th>

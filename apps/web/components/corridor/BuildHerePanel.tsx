@@ -12,7 +12,7 @@ import type { SitePick } from "@/components/hexplorer/HexplorerMap";
 import type { CorridorModel } from "./state";
 
 /**
- * "Build here" (build-plan 3.3): the H2MAP map — the SAME component the
+ * "Build here" (build-plan 3.3): the Thaduberg map — the SAME component the
  * Explorer uses, embedded with a narrowed job — picks the cell where the
  * hydrogen gets made. The cell's LCOH is the map's own seeded value (same
  * engine, same T1.1 gates, same provenance the Explorer shows; masked cells

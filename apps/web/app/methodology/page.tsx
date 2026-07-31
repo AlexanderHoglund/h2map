@@ -1,9 +1,9 @@
 import Footer from "@/components/shell/Footer";
 
 export const metadata = {
-  title: "Methodology — H2MAP",
+  title: "Methodology — Thaduberg",
   description:
-    "Full method behind the H2MAP LCOH estimates: formulas, assumptions, and sources.",
+    "Full method behind the Thaduberg LCOH estimates: formulas, assumptions, and sources.",
 };
 
 /** Block formula: monospace, scrolls horizontally on small screens. */
@@ -53,7 +53,7 @@ export default function MethodologyPage() {
           Methodology
         </h1>
         <p className="mt-2 text-neutral-600">
-          How H2MAP estimates the levelized cost of hydrogen (LCOH) — the full
+          How Thaduberg estimates the levelized cost of hydrogen (LCOH) — the full
           method, every formula, and the data sources behind it. The
           calculation engine re-implements the published Chilean methodology
           «Motor de Cálculo LCOH» (Ministerio de Energía de Chile, April 2024);
