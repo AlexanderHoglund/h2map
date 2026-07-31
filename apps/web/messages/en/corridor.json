@@ -156,6 +156,38 @@
       "co2Price": "CO2 feedstock",
       "distance": "Distance to port",
       "configNote": "Production-side financing (deliberately separate from the corridor discount rate), synthesis electricity, CO2 feedstock (e-methanol), and plant→bunker-port distance. Delivered price = map-cell LCOH → carrier synthesis → logistics; re-pick the site after changing these."
+    },
+    "scenarioBar": {
+      "name": "Scenario name",
+      "save": "Save",
+      "duplicate": "Duplicate",
+      "share": "Share",
+      "export": "Export JSON",
+      "open": "Open…",
+      "diff": "Diff…",
+      "signIn": "Sign in",
+      "signUp": "Sign up",
+      "signOut": "Sign out",
+      "close": "Close",
+      "checkEmail": "Check your email to confirm the account, then sign in.",
+      "saved": "Saved",
+      "saveFailed": "Save failed",
+      "loaded": "Loaded",
+      "loadFailed": "Could not load the scenario",
+      "saveFirst": "Save the scenario first",
+      "shareCopied": "Share link copied to clipboard",
+      "diffTitle": "Scenario diff",
+      "diffGap": "Gap (PV): current ${a}m vs other ${b}m — Δ ${delta}m",
+      "diffNone": "No differing fields.",
+      "diffField": "Field",
+      "diffCurrent": "Current",
+      "diffOther": "Other"
+    },
+    "shared": {
+      "notFound": "No shared scenario for this link (it may have been revoked).",
+      "meta": "engine {engine} · reference bundle {bundle} · read-only",
+      "openAsDraft": "Open as draft",
+      "noResults": "no stored results"
     }
   }
 }

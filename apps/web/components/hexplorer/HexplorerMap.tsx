@@ -201,7 +201,7 @@ export default function HexplorerMap({
         year: costYearRef.current,
       }),
     );
-  }, []);
+  }, [embedded]);
 
   // Layer + cost year live in the hash; keep the refs + hash in sync.
   useEffect(() => {

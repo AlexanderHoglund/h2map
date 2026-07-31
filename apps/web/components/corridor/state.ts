@@ -58,6 +58,8 @@ export interface CorridorModel {
   /** Mutate a deep clone; the model re-evaluates synchronously. */
   update: (mutate: (draft: ScenarioInput) => void) => void;
   reset: () => void;
+  /** Replace the whole draft (loading a saved/shared scenario). */
+  load: (payload: unknown) => void;
   resolved: ResolvedScenario | null;
   /** Benchmark-only resolution (all overrides null) for "benchmark: X — restore". */
   benchmarks: ResolvedScenario | null;
@@ -107,6 +109,11 @@ export function useCorridorModel(): CorridorModel {
     setScenario(defaultScenario());
   }, []);
 
+  /** Replace the whole draft (loading a saved/shared scenario). Validates. */
+  const load = useCallback((payload: unknown) => {
+    setScenario(parseScenarioInput(payload));
+  }, []);
+
   const evaluated = useMemo(() => {
     try {
       const resolved = resolveScenario(scenario, DEFAULT_BUNDLE);
@@ -127,6 +134,7 @@ export function useCorridorModel(): CorridorModel {
     scenario,
     update,
     reset,
+    load,
     ...evaluated,
     hadDraft: init.hadDraft,
   };

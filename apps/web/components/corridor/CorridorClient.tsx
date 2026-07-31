@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCorridorModel } from "./state";
 import { CargoStep, FuelStep, PortStep, RegulationStep, VesselStep } from "./steps";
 import ResultsPanel from "./ResultsPanel";
+import ScenarioBar from "./ScenarioBar";
 
 /**
  * Corridor shell (build-plan 3.1): five steps mirroring the workbook's input
@@ -54,6 +55,7 @@ export default function CorridorClient() {
     <main className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 lg:flex-row">
       {/* Form column */}
       <div className="min-w-0 flex-1">
+        <ScenarioBar model={model} />
         {/* Stepper */}
         <nav aria-label={t("title")} className="mb-4 flex flex-wrap gap-1">
           {STEPS.map((key, i) => {
