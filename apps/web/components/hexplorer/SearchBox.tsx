@@ -138,7 +138,7 @@ export default function SearchBox({ onNavigate }: Props) {
         aria-controls={listboxId}
         aria-autocomplete="list"
         aria-activedescendant={expanded ? optionId(activeIndex) : undefined}
-        className="w-full rounded-lg border border-neutral-200 bg-white/95 px-3 py-2 text-sm backdrop-blur placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+        className="w-full rounded-lg border border-neutral-200 bg-white/95 px-3 py-2 text-sm backdrop-blur placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand/40"
       />
       {expanded && (
         <ul
@@ -160,7 +160,7 @@ export default function SearchBox({ onNavigate }: Props) {
                 onMouseDown={(e) => e.preventDefault()}
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => pick(result)}
-                className={`w-full truncate px-3 py-2 text-left focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 ${
+                className={`w-full truncate px-3 py-2 text-left focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40 ${
                   index === activeIndex
                     ? "bg-neutral-100"
                     : ""

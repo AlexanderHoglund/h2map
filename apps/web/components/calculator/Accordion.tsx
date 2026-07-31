@@ -39,7 +39,7 @@ export function Section({
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls={panelId}
-            className="flex flex-1 items-center gap-2 rounded-sm text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+            className="flex flex-1 items-center gap-2 rounded-sm text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
           >
             <svg
               viewBox="0 0 16 16"
@@ -53,7 +53,7 @@ export function Section({
               <span
                 title={dirtyLabel}
                 aria-label={dirtyLabel}
-                className="h-1.5 w-1.5 rounded-full bg-blue-600"
+                className="h-1.5 w-1.5 rounded-full bg-brand"
               />
             ) : null}
           </button>
@@ -62,7 +62,7 @@ export function Section({
           <button
             type="button"
             onClick={onReset}
-            className="rounded-sm text-xs text-neutral-500 underline underline-offset-2 transition-colors duration-150 ease-out hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+            className="rounded-sm text-xs text-neutral-500 underline underline-offset-2 transition-colors duration-150 ease-out hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
           >
             {resetLabel}
           </button>

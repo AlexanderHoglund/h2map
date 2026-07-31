@@ -114,7 +114,7 @@ export default function CellDrawer({
               type="button"
               onClick={onClose}
               aria-label={t("drawer.close")}
-              className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+              className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
             >
               <svg
                 aria-hidden="true"
@@ -208,7 +208,7 @@ export default function CellDrawer({
                       <dt
                         className={
                           active
-                            ? "text-blue-600"
+                            ? "text-brand"
                             : "text-neutral-600"
                         }
                       >
@@ -241,7 +241,7 @@ export default function CellDrawer({
             <button
               type="button"
               onClick={evaluateHere}
-              className="w-full rounded-lg bg-blue-600 px-3 py-2 font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full rounded-lg bg-brand px-3 py-2 font-medium text-white hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand/40"
             >
               {t("drawer.evaluate")}
             </button>

@@ -9,6 +9,7 @@ import { synthesize } from "@h2map/corridor-engine";
 import { formatCameraHash } from "@/lib/url-state";
 import { layerValue } from "@/components/hexplorer/types";
 import type { SitePick } from "@/components/hexplorer/HexplorerMap";
+import { Button } from "@/components/ui/Button";
 import type { CorridorModel } from "./state";
 
 /**
@@ -155,7 +156,7 @@ export default function BuildHerePanel({
           </span>
           <Link
             href={`/explorer${formatCameraHash({ lat: lineage.lat, lon: lineage.lon, zoom: 6.5, layer: "best", year: 2024 })}`}
-            className="font-medium text-blue-600 hover:underline"
+            className="font-medium text-brand hover:underline"
             target="_blank"
           >
             {t("viewInExplorer")}
@@ -163,7 +164,7 @@ export default function BuildHerePanel({
           <button
             type="button"
             onClick={() => setPickerOpen((v) => !v)}
-            className="font-medium text-blue-600 hover:underline"
+            className="font-medium text-brand hover:underline"
           >
             {pickerOpen ? t("hideMap") : t("repick")}
           </button>
@@ -254,13 +255,9 @@ export default function BuildHerePanel({
         </>
       )}
       {!pickerOpen && !lineage && (
-        <button
-          type="button"
-          onClick={() => setPickerOpen(true)}
-          className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium"
-        >
+        <Button onClick={() => setPickerOpen(true)} className="px-3 py-1.5">
           {t("openMap")}
-        </button>
+        </Button>
       )}
     </div>
   );

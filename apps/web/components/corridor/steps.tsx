@@ -1,8 +1,11 @@
 "use client";
 
-import { useId } from "react";
 import { useTranslations } from "next-intl";
 import type { ScenarioInput } from "@h2map/corridor-schema";
+import { NumberInput } from "@/components/ui/NumberInput";
+import { Select } from "@/components/ui/Select";
+import { SwitchRow } from "@/components/ui/Switch";
+import { Section, Advanced } from "@/components/ui/Card";
 import ResolvedField from "./ResolvedField";
 import BuildHerePanel from "./BuildHerePanel";
 import { isAdvanced, type CorridorModel } from "./state";
@@ -19,139 +22,13 @@ interface StepProps {
 }
 
 // ---------------------------------------------------------------------------
-// Local primitives
+// Shared primitives (components/ui) + thin corridor bindings
 // ---------------------------------------------------------------------------
 
-function PlainNumber({
-  label,
-  value,
-  onChange,
-  unit,
-  step = "any",
-  help,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  unit?: string;
-  step?: number | "any";
-  help?: string;
-}) {
-  const id = useId();
-  return (
-    <div>
-      <label
-        htmlFor={id}
-        className="flex items-center gap-1.5 text-xs font-medium text-neutral-600"
-        title={help}
-      >
-        {label}
-      </label>
-      <div className="mt-1 flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/40">
-        <input
-          id={id}
-          type="number"
-          inputMode="decimal"
-          step={step}
-          value={value}
-          onChange={(e) => {
-            const n = Number(e.target.value);
-            if (Number.isFinite(n)) onChange(n);
-          }}
-          className="min-w-0 flex-1 bg-transparent text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-        />
-        {unit ? <span className="shrink-0 text-xs text-neutral-500">{unit}</span> : null}
-      </div>
-    </div>
-  );
-}
-
-function Select({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (v: string) => void;
-}) {
-  const id = useId();
-  return (
-    <div>
-      <label
-        htmlFor={id}
-        className="text-xs font-medium text-neutral-600"
-      >
-        {label}
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/40"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-function Toggle({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <label className="flex cursor-pointer items-center justify-between gap-3 text-sm font-medium">
-      {label}
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-          checked ? "bg-blue-600" : "bg-neutral-300"
-        }`}
-      >
-        <span
-          className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-            checked ? "translate-x-4" : "translate-x-0"
-          }`}
-        />
-      </button>
-    </label>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-lg border border-neutral-200 p-3">
-      <h3 className="mb-3 text-sm font-semibold">{title}</h3>
-      <div className="grid gap-3 sm:grid-cols-2">{children}</div>
-    </section>
-  );
-}
-
-function Advanced({ children }: { children: React.ReactNode }) {
+/** Advanced fold labeled from the corridor namespace. */
+function AdvancedFold({ children }: { children: React.ReactNode }) {
   const t = useTranslations("corridor.field");
-  return (
-    <details className="rounded-lg border border-dashed border-neutral-300 p-3">
-      <summary className="cursor-pointer select-none text-xs font-medium uppercase tracking-wide text-neutral-500">
-        {t("advanced")}
-      </summary>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">{children}</div>
-    </details>
-  );
+  return <Advanced label={t("advanced")}>{children}</Advanced>;
 }
 
 /** Places a field in the main grid or collects it for the Advanced fold. */
@@ -176,7 +53,7 @@ export function CargoStep({ model }: StepProps) {
     {
       id: "cargo.oneWayDistanceNm",
       node: (
-        <PlainNumber
+        <NumberInput
           key="dist"
           label={t("distance")}
           unit="nm"
@@ -188,7 +65,7 @@ export function CargoStep({ model }: StepProps) {
     {
       id: "cargo.startYear",
       node: (
-        <PlainNumber
+        <NumberInput
           key="start"
           label={t("startYear")}
           step={1}
@@ -200,7 +77,7 @@ export function CargoStep({ model }: StepProps) {
     {
       id: "cargo.horizonYears",
       node: (
-        <PlainNumber
+        <NumberInput
           key="horizon"
           label={t("horizon")}
           step={1}
@@ -214,7 +91,7 @@ export function CargoStep({ model }: StepProps) {
     {
       id: "cargo.unitsPerYear",
       node: (
-        <PlainNumber
+        <NumberInput
           key="units"
           label={t("units")}
           unit="units/yr"
@@ -245,7 +122,7 @@ export function CargoStep({ model }: StepProps) {
     {
       id: "cargo.inflation",
       node: (
-        <PlainNumber
+        <NumberInput
           key="infl"
           label={t("inflation")}
           unit="fraction"
@@ -279,7 +156,7 @@ export function CargoStep({ model }: StepProps) {
         />
         {fields.main}
       </div>
-      {fields.advanced.length > 0 && <Advanced>{fields.advanced}</Advanced>}
+      {fields.advanced.length > 0 && <AdvancedFold>{fields.advanced}</AdvancedFold>}
     </div>
   );
 }
@@ -346,13 +223,13 @@ export function VesselStep({ model }: StepProps) {
             )
           }
         />
-        <PlainNumber
+        <NumberInput
           label={t("vessels")}
           step={1}
           value={scenario.cargo.vessels}
           onChange={(v) => update((d) => void (d.cargo.vessels = Math.max(1, Math.round(v))))}
         />
-        <PlainNumber
+        <NumberInput
           label={t("roundtrips")}
           step={1}
           value={scenario.cargo.roundtripsPerYear}
@@ -511,7 +388,7 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
         </p>
       )}
       {delivered && (
-        <PlainNumber
+        <NumberInput
           label={t("deliveredPrice")}
           unit="$/t"
           value={s.deliveredPriceUsdPerTonne ?? 0}
@@ -522,7 +399,7 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
       {entries.main}
       {entries.advanced.length > 0 && (
         <div className="sm:col-span-2">
-          <Advanced>{entries.advanced}</Advanced>
+          <AdvancedFold>{entries.advanced}</AdvancedFold>
         </div>
       )}
     </Section>
@@ -607,7 +484,7 @@ export function RegulationStep({ model }: StepProps) {
     <div className="space-y-3">
       <Section title={t("ets")}>
         <div className="sm:col-span-2">
-          <Toggle
+          <SwitchRow
             label={t("include")}
             checked={reg.ets.enabled}
             onChange={(v) => update((d) => void (d.regulation.ets.enabled = v))}
@@ -615,19 +492,19 @@ export function RegulationStep({ model }: StepProps) {
         </div>
         {reg.ets.enabled && (
           <>
-            <PlainNumber
+            <NumberInput
               label={t("eua")}
               unit="€/t CO2"
               value={reg.ets.euaEurPerTonne}
               onChange={(v) => update((d) => void (d.regulation.ets.euaEurPerTonne = v))}
             />
-            <PlainNumber
+            <NumberInput
               label={t("eurUsd")}
               step={0.01}
               value={reg.eurUsd}
               onChange={(v) => update((d) => void (d.regulation.eurUsd = v))}
             />
-            <PlainNumber
+            <NumberInput
               label={t("etsScope")}
               unit="0–1"
               step={0.05}
@@ -641,7 +518,7 @@ export function RegulationStep({ model }: StepProps) {
 
       <Section title={t("fuelEu")}>
         <div className="sm:col-span-2">
-          <Toggle
+          <SwitchRow
             label={t("include")}
             checked={reg.fuelEu.enabled}
             onChange={(v) => update((d) => void (d.regulation.fuelEu.enabled = v))}
@@ -649,26 +526,26 @@ export function RegulationStep({ model }: StepProps) {
         </div>
         {reg.fuelEu.enabled && (
           <>
-            <PlainNumber
+            <NumberInput
               label={t("penalty")}
               unit="€/t VLSFO-eq"
               value={reg.fuelEu.penaltyEurPerTonne}
               onChange={(v) => update((d) => void (d.regulation.fuelEu.penaltyEurPerTonne = v))}
             />
-            <PlainNumber
+            <NumberInput
               label={t("fuelEuScope")}
               unit="0–1"
               step={0.05}
               value={reg.fuelEu.scope}
               onChange={(v) => update((d) => void (d.regulation.fuelEu.scope = v))}
             />
-            <PlainNumber
+            <NumberInput
               label={t("vlsfo")}
               unit="MJ/t"
               value={reg.fuelEu.vlsfoMjPerTonne}
               onChange={(v) => update((d) => void (d.regulation.fuelEu.vlsfoMjPerTonne = v))}
             />
-            <PlainNumber
+            <NumberInput
               label={t("baseline")}
               unit="gCO2e/MJ"
               step={0.01}
@@ -682,7 +559,7 @@ export function RegulationStep({ model }: StepProps) {
 
       <Section title={t("ira")}>
         <div className="sm:col-span-2">
-          <Toggle
+          <SwitchRow
             label={t("include")}
             checked={reg.ira45z.enabled}
             onChange={(v) => update((d) => void (d.regulation.ira45z.enabled = v))}
@@ -691,13 +568,13 @@ export function RegulationStep({ model }: StepProps) {
         {reg.ira45z.enabled && (
           <>
             <div className="sm:col-span-2">
-              <Toggle
+              <SwitchRow
                 label={t("usProduced")}
                 checked={reg.ira45z.usProduced}
                 onChange={(v) => update((d) => void (d.regulation.ira45z.usProduced = v))}
               />
             </div>
-            <PlainNumber
+            <NumberInput
               label={t("rate")}
               unit="$/gal-eq"
               step={0.05}
@@ -710,7 +587,7 @@ export function RegulationStep({ model }: StepProps) {
 
       <Section title={t("selfDesigned")}>
         <div className="sm:col-span-2">
-          <Toggle
+          <SwitchRow
             label={t("include")}
             checked={reg.selfDesigned.enabled}
             onChange={(v) => update((d) => void (d.regulation.selfDesigned.enabled = v))}
@@ -718,7 +595,7 @@ export function RegulationStep({ model }: StepProps) {
         </div>
         {reg.selfDesigned.enabled && (
           <>
-            <PlainNumber
+            <NumberInput
               label={t("co2Price")}
               unit="$/t CO2"
               value={reg.selfDesigned.co2PriceUsdPerTonne}
@@ -726,28 +603,28 @@ export function RegulationStep({ model }: StepProps) {
                 update((d) => void (d.regulation.selfDesigned.co2PriceUsdPerTonne = v))
               }
             />
-            <PlainNumber
+            <NumberInput
               label={t("support")}
               unit="$/kg"
               step={0.05}
               value={reg.selfDesigned.supportUsdPerKg}
               onChange={(v) => update((d) => void (d.regulation.selfDesigned.supportUsdPerKg = v))}
             />
-            <PlainNumber
+            <NumberInput
               label={t("capexSupport")}
               unit="0–1"
               step={0.05}
               value={reg.selfDesigned.capexSupport}
               onChange={(v) => update((d) => void (d.regulation.selfDesigned.capexSupport = v))}
             />
-            <PlainNumber
+            <NumberInput
               label={t("opexSupport")}
               unit="0–1"
               step={0.05}
               value={reg.selfDesigned.opexSupport}
               onChange={(v) => update((d) => void (d.regulation.selfDesigned.opexSupport = v))}
             />
-            <PlainNumber
+            <NumberInput
               label={t("other")}
               unit="$m/yr"
               value={reg.selfDesigned.otherUsdM}

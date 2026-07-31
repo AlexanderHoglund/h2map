@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/Button";
 import type { CorridorModel } from "./state";
 
 /**
@@ -53,16 +54,16 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
   };
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-xs">
+    <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs shadow-sm">
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}
         aria-label={t("name")}
-        className="w-40 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs"
+        className="w-40 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs outline-none focus:border-brand focus:ring-2 focus:ring-brand/40"
       />
-      <Btn onClick={exportJson}>{t("export")}</Btn>
-      <Btn onClick={importJson}>{t("import")}</Btn>
-      <Btn
+      <Button onClick={exportJson}>{t("export")}</Button>
+      <Button onClick={importJson}>{t("import")}</Button>
+      <Button
         onClick={() => {
           if (!window.confirm(t("resetConfirm"))) return;
           model.reset();
@@ -71,7 +72,7 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
         }}
       >
         {t("reset")}
-      </Btn>
+      </Button>
       <span className="flex-1" />
       {notice && <span className="text-emerald-600">{notice}</span>}
       <span className="text-neutral-500">{t("draftNote")}</span>
@@ -79,23 +80,3 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
   );
 }
 
-function Btn({
-  children,
-  onClick,
-  disabled,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="rounded-md border border-neutral-300 px-2.5 py-1 text-xs font-medium hover:bg-neutral-100 disabled:opacity-40"
-    >
-      {children}
-    </button>
-  );
-}

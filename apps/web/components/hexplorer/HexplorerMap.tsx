@@ -493,7 +493,7 @@ export default function HexplorerMap({
           className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
         >
           <span className="sr-only">{t("loading")}</span>
-          <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-neutral-400/40 border-t-blue-600" />
+          <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-neutral-400/40 border-t-brand" />
         </div>
       )}
 

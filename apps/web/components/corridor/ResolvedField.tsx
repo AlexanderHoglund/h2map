@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Source } from "@h2map/corridor-schema";
+import { Help } from "@/components/ui/Help";
 
 /**
  * THE input component (build-plan 3.2): one component for every corridor
@@ -56,7 +57,7 @@ export default function ResolvedField({
   const overridden = override !== null;
 
   const badgeStyles: Record<Source, string> = {
-    override: "bg-blue-500/15 text-blue-700",
+    override: "bg-brand-tint text-brand-deep",
     derived: "bg-purple-500/15 text-purple-700",
     benchmark: "bg-neutral-500/15 text-neutral-600",
   };
@@ -87,8 +88,8 @@ export default function ResolvedField({
             : "bg-white"
         } ${
           overridden
-            ? "border-blue-400 focus-within:ring-blue-500/40"
-            : "border-neutral-300 focus-within:border-blue-600 focus-within:ring-blue-500/40"
+            ? "border-brand/60 focus-within:ring-brand/40"
+            : "border-neutral-300 focus-within:border-brand focus-within:ring-brand/40"
         }`}
       >
         <input
@@ -110,7 +111,7 @@ export default function ResolvedField({
           }}
           onBlur={() => setDraft(null)}
           className={`min-w-0 flex-1 bg-transparent text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
-            overridden ? "font-medium text-blue-700" : ""
+            overridden ? "font-medium text-brand-strong" : ""
           }`}
         />
         {unit ? (
@@ -132,7 +133,7 @@ export default function ResolvedField({
                 setDraft(null);
                 onChange(null);
               }}
-              className="font-medium text-blue-600 hover:underline"
+              className="font-medium text-brand hover:underline"
             >
               {t("restore")}
             </button>
@@ -148,21 +149,6 @@ export default function ResolvedField({
   );
 }
 
-function Help({ text }: { text: string }) {
-  return (
-    <span className="group relative inline-flex">
-      <span
-        aria-label={text}
-        className="flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-neutral-200 text-[9px] font-semibold text-neutral-600"
-      >
-        ?
-      </span>
-      <span className="pointer-events-none absolute left-0 top-5 z-20 hidden w-64 rounded-md border border-neutral-200 bg-white p-2 text-[11px] font-normal leading-snug text-neutral-700 shadow-lg group-hover:block">
-        {text}
-      </span>
-    </span>
-  );
-}
 
 function round(n: number): number {
   return Math.round(n * 1e6) / 1e6;

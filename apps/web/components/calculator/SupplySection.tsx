@@ -162,7 +162,7 @@ function SourceCard({
     <div
       className={`rounded-lg border transition-colors duration-150 ease-out ${
         enabled
-          ? "border-blue-600/50 bg-blue-50/40"
+          ? "border-brand/50 bg-brand-tint/60"
           : "border-neutral-200 bg-white"
       }`}
     >
@@ -204,7 +204,7 @@ function PricingFields({ slot }: { slot: "pv" | "wind" }) {
               onChange={() =>
                 setValue(`${slot}.pricingMode`, m, { shouldValidate: true })
               }
-              className="accent-blue-600"
+              className="accent-brand"
             />
             {m === "lcoe" ? t("supply.pricingLcoe") : t("supply.pricingCapex")}
           </label>
@@ -289,9 +289,9 @@ function CoupledCapacityField({
             title={coupled ? t("supply.coupledOn") : t("supply.coupledOff")}
             aria-label={coupled ? t("supply.coupledOn") : t("supply.coupledOff")}
             aria-pressed={coupled}
-            className={`shrink-0 rounded p-0.5 transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${
+            className={`shrink-0 rounded p-0.5 transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
               coupled
-                ? "text-blue-600"
+                ? "text-brand"
                 : "text-neutral-300 hover:text-neutral-500"
             }`}
           >

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/Button";
 import { useCorridorModel } from "./state";
 import { CargoStep, FuelStep, PortStep, RegulationStep, VesselStep } from "./steps";
 import ResultsPanel from "./ResultsPanel";
@@ -40,13 +41,9 @@ export default function CorridorClient() {
         <p className="mt-3 text-sm leading-relaxed text-neutral-600">
           {t("intro.body")}
         </p>
-        <button
-          type="button"
-          onClick={() => setEntered(true)}
-          className="mt-6 rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-strong"
-        >
+        <Button variant="primary" size="md" className="mt-6" onClick={() => setEntered(true)}>
           {model.hadDraft ? t("intro.resume") : t("intro.start")}
-        </button>
+        </Button>
         </div>
       </main>
     );
@@ -80,7 +77,7 @@ export default function CorridorClient() {
                 aria-current={active ? "step" : undefined}
                 className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
                   active
-                    ? "bg-blue-600 text-white"
+                    ? "bg-brand text-white"
                     : visited
                       ? "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
                       : "text-neutral-500 hover:bg-neutral-100"
@@ -96,22 +93,13 @@ export default function CorridorClient() {
 
         {/* Back / Next */}
         <div className="mt-4 flex justify-between">
-          <button
-            type="button"
-            disabled={stepIndex === 0}
-            onClick={() => setStep(STEPS[stepIndex - 1] ?? step)}
-            className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40"
-          >
+          <Button size="md" className="px-3 py-1.5 font-normal" disabled={stepIndex === 0} onClick={() => setStep(STEPS[stepIndex - 1] ?? step)}>
             {t("nav.back")}
-          </button>
+          </Button>
           {stepIndex < STEPS.length - 1 && (
-            <button
-              type="button"
-              onClick={() => setStep(STEPS[stepIndex + 1] ?? step)}
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500"
-            >
+            <Button variant="primary" size="md" className="px-3 py-1.5" onClick={() => setStep(STEPS[stepIndex + 1] ?? step)}>
               {t("nav.next")}
-            </button>
+            </Button>
           )}
         </div>
       </div>

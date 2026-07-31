@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
 import { useFormContext, type FieldPath } from "react-hook-form";
+import { Help } from "@/components/ui/Help";
 import type { CalculatorValues } from "./schema";
 
 type Name = FieldPath<CalculatorValues>;
@@ -59,7 +59,7 @@ export function NumberField({
         } ${
           error
             ? "border-red-500 focus-within:ring-red-500/30"
-            : "border-neutral-300 focus-within:border-blue-600 focus-within:ring-blue-500/50"
+            : "border-neutral-300 focus-within:border-brand focus-within:ring-brand/40"
         }`}
       >
         <input
@@ -117,7 +117,7 @@ export function SelectField({
       <select
         id={id}
         {...register(name)}
-        className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+        className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
       >
         {options.map(([value, text]) => (
           <option key={value} value={value}>
@@ -144,7 +144,7 @@ export function CheckboxField({
       <input
         type="checkbox"
         {...register(name)}
-        className="h-4 w-4 accent-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+        className="h-4 w-4 accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
       />
       <span className="flex items-center gap-1">
         {label}
@@ -154,71 +154,7 @@ export function CheckboxField({
   );
 }
 
-/**
- * Small "?" affordance: a focusable button with a hand-rolled popover shown
- * on hover and keyboard focus (dismissed on blur / mouse-leave / Escape).
- */
-export function Help({ text }: { text: string }) {
-  const [open, setOpen] = useState(false);
-  const tooltipId = useId();
-  return (
-    <span
-      className="relative inline-flex"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <button
-        type="button"
-        aria-label={text}
-        aria-describedby={open ? tooltipId : undefined}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") setOpen(false);
-        }}
-        className="inline-flex h-4 w-4 cursor-help select-none items-center justify-center rounded-full border border-neutral-300 text-[10px] leading-none text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
-      >
-        ?
-      </button>
-      {open ? (
-        <div
-          id={tooltipId}
-          role="tooltip"
-          className="absolute left-0 top-full z-20 mt-1.5 w-56 rounded-md border border-neutral-200 bg-white/95 px-2.5 py-1.5 text-xs font-normal normal-case text-neutral-600 backdrop-blur"
-        >
-          {text}
-        </div>
-      ) : null}
-    </span>
-  );
-}
-
-/** Accessible on/off switch (used by the source cards). */
-export function Switch({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={() => onChange(!checked)}
-      className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${
-        checked ? "bg-blue-600" : "bg-neutral-300"
-      }`}
-    >
-      <span
-        className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-150 ease-out ${
-          checked ? "translate-x-4" : "translate-x-0"
-        }`}
-      />
-    </button>
-  );
-}
+// Help and Switch moved to the shared primitives; re-exported here so the
+// calculator's existing imports keep working.
+export { Help };
+export { Switch } from "@/components/ui/Switch";

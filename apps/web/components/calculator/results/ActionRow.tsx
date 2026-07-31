@@ -67,7 +67,7 @@ export default function ActionRow({
   };
 
   const secondary =
-    "rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-blue-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50";
+    "rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40";
 
   return (
     <div className="flex flex-wrap items-center gap-2">

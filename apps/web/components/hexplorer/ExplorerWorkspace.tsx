@@ -80,7 +80,7 @@ function PanelSkeleton() {
   return (
     <div className="flex h-full items-center justify-center text-sm text-neutral-500">
       <span className="inline-flex items-center gap-2">
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-blue-600" />
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-brand" />
         {t("panel.loading")}
       </span>
     </div>

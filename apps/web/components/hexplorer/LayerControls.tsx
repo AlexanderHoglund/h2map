@@ -58,7 +58,7 @@ export default function LayerControls({
         aria-expanded={open}
         aria-controls={bodyId}
         aria-label={open ? t("controls.collapse") : t("controls.expand")}
-        className="flex w-full items-center justify-between rounded-lg px-3 py-2 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+        className="flex w-full items-center justify-between rounded-lg px-3 py-2 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
       >
         <span>{t("controls.title")}</span>
         <svg
@@ -91,7 +91,7 @@ export default function LayerControls({
                     value={key}
                     checked={layerKey === key}
                     onChange={() => onLayerChange(key)}
-                    className="accent-blue-600"
+                    className="accent-brand"
                   />
                   <span>{t(`controls.layers.${key}`)}</span>
                 </label>
@@ -107,7 +107,7 @@ export default function LayerControls({
                   <button
                     type="button"
                     aria-label={t("controls.basisHelp")}
-                    className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300 text-[10px] leading-none text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+                    className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300 text-[10px] leading-none text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                   >
                     i
                   </button>
@@ -128,7 +128,7 @@ export default function LayerControls({
                       value={b}
                       checked={basis === b}
                       onChange={() => onBasisChange(b)}
-                      className="accent-blue-600"
+                      className="accent-brand"
                     />
                     <span>{t(`controls.bases.${b}`)}</span>
                   </label>
@@ -150,9 +150,9 @@ export default function LayerControls({
                     type="button"
                     aria-pressed={active}
                     onClick={() => onCostYearChange(year)}
-                    className={`px-2.5 py-1.5 text-xs tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 ${
+                    className={`px-2.5 py-1.5 text-xs tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40 ${
                       active
-                        ? "bg-blue-600 text-white"
+                        ? "bg-brand text-white"
                         : "text-neutral-600 hover:bg-neutral-100"
                     }`}
                   >
@@ -179,7 +179,7 @@ export default function LayerControls({
               id={basemapId}
               value={basemap}
               onChange={(e) => onBasemapChange(e.target.value as Basemap)}
-              className="w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+              className="w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
             >
               {BASEMAPS.map((b) => (
                 <option key={b} value={b}>
@@ -206,7 +206,7 @@ export default function LayerControls({
               max={100}
               value={opacity}
               onChange={(e) => onOpacityChange(Number(e.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-blue-600"
+              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand"
             />
           </div>
 
@@ -216,7 +216,7 @@ export default function LayerControls({
               type="checkbox"
               checked={visible}
               onChange={(e) => onVisibleChange(e.target.checked)}
-              className="accent-blue-600"
+              className="accent-brand"
             />
             <span>{t("controls.visible")}</span>
           </label>

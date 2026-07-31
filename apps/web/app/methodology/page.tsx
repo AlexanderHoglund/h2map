@@ -70,7 +70,7 @@ export default function MethodologyPage() {
               <li key={id}>
                 <a
                   href={`#${id}`}
-                  className="text-blue-600 hover:underline"
+                  className="text-brand hover:underline"
                 >
                   {label}
                 </a>
@@ -612,7 +612,7 @@ export default function MethodologyPage() {
             Centre —{" "}
             <a
               href="https://re.jrc.ec.europa.eu/pvg_tools/"
-              className="text-blue-600 hover:underline"
+              className="text-brand hover:underline"
             >
               re.jrc.ec.europa.eu
             </a>

@@ -341,7 +341,7 @@ export default function CalculatorPanel({
                 type="button"
                 onClick={onClose}
                 aria-label={tExplorer("panel.close")}
-                className="rounded-md p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+                className="rounded-md p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
               >
                 <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                   <path d="M4 4l8 8M12 4l-8 8" />
@@ -426,7 +426,7 @@ export default function CalculatorPanel({
                     value={selectedCountry ?? ""}
                     onChange={(e) => applyCountry(e.target.value)}
                     disabled={countriesFailed}
-                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/40 disabled:opacity-50"
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:opacity-50"
                   >
                     <option value="">{t("location.countryNone")}</option>
                     {countryOptions.map((r) => (
@@ -615,7 +615,7 @@ export default function CalculatorPanel({
               <button
                 type="submit"
                 disabled={disabledReason !== null || running}
-                className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 ease-out hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 ease-out hover:bg-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {running ? (
                   <span className="inline-flex items-center gap-2">
@@ -642,7 +642,7 @@ export default function CalculatorPanel({
                   {sim.profileStatuses.map((s) => (
                     <li key={s.slot} className="flex flex-wrap items-center gap-2">
                       {s.state === "building" ? (
-                        <Spinner className="text-blue-600" />
+                        <Spinner className="text-brand" />
                       ) : s.state === "ready" ? (
                         <span className="text-emerald-600" aria-hidden>✓</span>
                       ) : (
@@ -686,14 +686,14 @@ export default function CalculatorPanel({
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                 >
                   {t("run.resetAll")}
                 </button>
                 <button
                   type="button"
                   onClick={copyLinkWithFlash}
-                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-blue-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                 >
                   {copied ? t("run.copied") : t("run.copyLink")}
                 </button>
@@ -775,7 +775,7 @@ export default function CalculatorPanel({
 
 function RailChip({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-blue-600/40 bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
+    <span className="inline-flex items-center gap-1 rounded-full border border-brand/40 bg-brand-tint px-2 py-0.5 text-xs text-brand-deep">
       {icon}
       {label}
     </span>
