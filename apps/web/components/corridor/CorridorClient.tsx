@@ -111,7 +111,7 @@ export default function CorridorClient() {
 
       {/* Docked results (desktop right rail with its own scroll; below the
           form on mobile) */}
-      <aside className="w-full shrink-0 pb-4 lg:w-[360px] lg:overflow-y-auto lg:pb-0">
+      <aside className="w-full shrink-0 pb-4 lg:w-[440px] lg:overflow-y-auto lg:pb-0 xl:w-[520px]">
         <h2 className="mb-2 text-sm font-semibold">{t("results.heading")}</h2>
         <ResultsPanel result={model.result} scenario={model.scenario} error={model.error} />
       </aside>

@@ -125,6 +125,13 @@ interface HexplorerMapProps {
    */
   embedded?: boolean;
   onSitePicked?: (site: SitePick) => void;
+  /**
+   * Embedded only: show the full Explorer control stack (layer / cost year /
+   * basis / basemap / opacity + search + legend). Hidden by default so the
+   * small embed stays uncluttered; the corridor's build-here panel exposes it
+   * under an Advanced fold.
+   */
+  showControls?: boolean;
 }
 
 /** The Explorer map: maplibre basemap + deck.gl H3 hexagon choropleth. */
@@ -132,7 +139,9 @@ export default function HexplorerMap({
   onEvaluate,
   embedded,
   onSitePicked,
+  showControls,
 }: HexplorerMapProps = {}) {
+  const controlsVisible = embedded ? showControls === true : true;
   const t = useTranslations("explorer");
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -470,6 +479,7 @@ export default function HexplorerMap({
           owns positioning and the inner container sizes via h-full. */}
       <div ref={containerRef} className="h-full w-full" />
 
+      {controlsVisible && (
       <div className="absolute left-4 top-4 z-10 flex w-64 flex-col gap-2">
         <LayerControls
           layerKey={layerKey}
@@ -487,6 +497,7 @@ export default function HexplorerMap({
         />
         <SearchBox onNavigate={flyTo} />
       </div>
+      )}
 
       {loading && (
         <div
@@ -498,7 +509,9 @@ export default function HexplorerMap({
         </div>
       )}
 
-      <Legend layerKey={layerKey} basis={basis} maxDetail={maxDetail} />
+      {controlsVisible && (
+        <Legend layerKey={layerKey} basis={basis} maxDetail={maxDetail} />
+      )}
 
       {hover && (
         <div

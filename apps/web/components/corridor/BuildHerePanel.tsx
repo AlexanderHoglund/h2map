@@ -49,6 +49,7 @@ export default function BuildHerePanel({
     distanceKm: s.buildHere?.distanceKm ?? 300,
   });
   const [pickError, setPickError] = useState<string | null>(null);
+  const [mapControls, setMapControls] = useState(false);
 
   let benchmark: ReturnType<typeof getSynthesisBenchmark> | null = null;
   try {
@@ -174,9 +175,28 @@ export default function BuildHerePanel({
 
       {/* The embedded map — same component as the Explorer, narrowed job */}
       {pickerOpen && (
-        <div className="relative h-72 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
-          <HexplorerMap embedded onSitePicked={onSitePicked} />
-        </div>
+        <>
+          <div
+            className={`relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 ${
+              mapControls ? "h-[28rem]" : "h-72"
+            }`}
+          >
+            <HexplorerMap embedded onSitePicked={onSitePicked} showControls={mapControls} />
+          </div>
+          {/* Advanced: the full Explorer control stack (layer / cost year /
+              basis / basemap / opacity + search + legend) on the embed. */}
+          <details
+            onToggle={(e) => setMapControls((e.target as HTMLDetailsElement).open)}
+            className="rounded-md border border-dashed border-neutral-300 px-2.5 py-1.5 dark:border-neutral-700"
+          >
+            <summary className="cursor-pointer select-none text-[11px] font-medium uppercase tracking-wide text-neutral-500">
+              {t("advancedMap")}
+            </summary>
+            <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+              {t("advancedMapNote")}
+            </p>
+          </details>
+        </>
       )}
       {!pickerOpen && !lineage && (
         <button
