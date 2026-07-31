@@ -1,15 +1,71 @@
 "use client";
 
 /**
- * Entry-panel artwork: a 2D technical shipping chart in the app's line-art
- * voice — abstract coastlines on the drafting grid, dashed green-corridor
- * routes with ships under way, mono port labels, a graticule and compass.
- * Purely decorative (aria-hidden); animation is CSS (offset-path +
- * stroke-dashoffset) so prefers-reduced-motion freezes it.
+ * Entry-panel artwork: a two-port green-corridor schematic in old-school
+ * technical-drawing style — monochrome, straight lines and right angles
+ * only. The supply chain is drawn end to end: PV array → NH3 synthesis →
+ * Port A → (angular dashed route with ships under way) → Port B. Purely
+ * decorative (aria-hidden); animation is CSS (offset-path + dashoffset) so
+ * prefers-reduced-motion freezes it.
  */
 
-const ROUTE_A = "M175 640 C 330 540, 500 400, 690 285";
-const ROUTE_B = "M175 640 C 380 760, 590 830, 745 795";
+const INK = "#3f3e3a";
+const INK_SOFT = "#9b9a90";
+const LABEL = "#52514e";
+
+/** Circuit-board route: right angles only, Port A quay → Port B quay. */
+const ROUTE = "M310 705 L470 705 L470 445 L620 445 L620 185 L680 185";
+
+const MONO = "var(--font-mono), monospace";
+
+function Label({
+  x,
+  y,
+  children,
+  anchor = "start",
+}: {
+  x: number;
+  y: number;
+  children: string;
+  anchor?: "start" | "middle" | "end";
+}) {
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor={anchor}
+      fontFamily={MONO}
+      fontSize="12"
+      letterSpacing="2"
+      fill={LABEL}
+    >
+      {children}
+    </text>
+  );
+}
+
+/** Container crane: straight lines only. */
+function Crane({ x, y, flip = false }: { x: number; y: number; flip?: boolean }) {
+  const d = flip ? -1 : 1;
+  return (
+    <g stroke={INK} strokeWidth="1.5" fill="none">
+      {/* legs + portal */}
+      <path d={`M${x} ${y} v-52 M${x + d * 26} ${y} v-52 M${x - d * 4} ${y - 52} h${d * 34}`} />
+      {/* jib over the water + tie */}
+      <path d={`M${x + d * 26} ${y - 52} h${d * 44}`} />
+      <path d={`M${x + d * 26} ${y - 52} l${d * 18} -14 l${d * 26} 14`} />
+      {/* trolley + hook */}
+      <path d={`M${x + d * 56} ${y - 52} v14`} />
+      <rect x={Math.min(x + d * 50, x + d * 62)} y={y - 38} width="12" height="8" />
+      {/* container stack on the quay */}
+      <g>
+        <rect x={x - d * 46 - (d > 0 ? 0 : 28)} y={y - 10} width="28" height="10" />
+        <rect x={x - d * 46 - (d > 0 ? 0 : 28)} y={y - 20} width="28" height="10" />
+        <rect x={x - d * 74 - (d > 0 ? 0 : 28)} y={y - 10} width="28" height="10" />
+      </g>
+    </g>
+  );
+}
 
 export default function ShippingCanvas() {
   return (
@@ -29,103 +85,115 @@ export default function ShippingCanvas() {
         ))}
       </g>
 
-      {/* Western landmass */}
+      {/* Land, angular: production shore (bottom-left) */}
       <path
-        d="M0 300 C 90 320, 140 380, 150 450 C 160 520, 120 560, 150 620 C 175 668, 160 730, 110 780 C 70 820, 40 900, 0 930 Z"
-        fill="#f1f1ec"
-        stroke="#52514e"
+        d="M0 600 L140 600 L140 650 L230 650 L230 720 L310 720 L310 1000 L0 1000 Z"
+        fill="#f2f2ed"
+        stroke={INK}
         strokeWidth="1.5"
       />
-      {/* Eastern landmass */}
+      {/* Land, angular: destination shore (top-right) */}
       <path
-        d="M900 60 C 800 90, 740 150, 730 230 C 723 290, 760 330, 820 355 C 865 373, 890 420, 900 460 Z"
-        fill="#f1f1ec"
-        stroke="#52514e"
-        strokeWidth="1.5"
-      />
-      {/* South-eastern island */}
-      <path
-        d="M900 720 C 840 715, 785 745, 770 795 C 758 838, 790 880, 845 890 C 870 894, 890 910, 900 930 Z"
-        fill="#f1f1ec"
-        stroke="#52514e"
+        d="M900 0 L900 330 L790 330 L790 270 L680 270 L680 170 L580 170 L580 90 L500 90 L500 0 Z"
+        fill="#f2f2ed"
+        stroke={INK}
         strokeWidth="1.5"
       />
 
-      {/* Wave hatches */}
-      <g stroke="#c3c2b7" strokeWidth="1.5" strokeLinecap="round">
+      {/* ===== Production shore: PV → NH3 → PORT A ===== */}
+      {/* PV array: cell grid with one diagonal per cell */}
+      <g stroke={INK} strokeWidth="1.2" fill="none">
+        {[0, 1, 2, 3].map((c) =>
+          [0, 1].map((r) => (
+            <g key={`pv${c}${r}`}>
+              <rect x={40 + c * 30} y={790 + r * 20} width="26" height="16" />
+              <path d={`M${40 + c * 30} ${806 + r * 20} L${66 + c * 30} ${790 + r * 20}`} />
+            </g>
+          )),
+        )}
+        {/* array legs */}
+        <path d="M52 830 v12 M144 830 v12" />
+      </g>
+      <Label x={40} y={868}>[ PV ARRAY ]</Label>
+
+      {/* NH3 synthesis: two braced tanks + stack */}
+      <g stroke={INK} strokeWidth="1.5" fill="none">
+        <rect x="200" y="800" width="34" height="44" />
+        <path d="M200 800 L234 844 M234 800 L200 844" strokeWidth="1" />
+        <rect x="242" y="800" width="34" height="44" />
+        <path d="M242 800 L276 844 M276 800 L242 844" strokeWidth="1" />
+        <path d="M283 844 v-58 h10" />
+      </g>
+      <Label x={198} y={868}>[ NH3 SYNTHESIS ]</Label>
+
+      {/* Process connectors: right-angle dashed pipes PV → NH3 → quay */}
+      <g stroke={INK_SOFT} strokeWidth="1.2" fill="none" strokeDasharray="3 3">
+        <path d="M160 812 h20" />
+        <path d="M276 822 h34 v-92" />
+      </g>
+
+      {/* PORT A: crane on the quay */}
+      <Crane x={250} y={720} />
+      <Label x={40} y={700}>[ PORT A ]</Label>
+
+      {/* ===== Destination shore: PORT B ===== */}
+      <Crane x={750} y={270} flip />
+      <Label x={790} y={370}>[ PORT B ]</Label>
+
+      {/* ===== The corridor: angular dashed route + ships ===== */}
+      <path d={ROUTE} className="route-line" fill="none" stroke={INK} strokeWidth="1.8" />
+      {/* waypoint ticks at the turns */}
+      <g stroke={INK} strokeWidth="1.5">
         {(
           [
-            [330, 330],
-            [520, 610],
-            [420, 860],
-            [620, 140],
-            [250, 170],
+            [470, 705],
+            [470, 445],
+            [620, 445],
+            [620, 185],
           ] as const
         ).map(([x, y]) => (
-          <g key={`${x}${y}`}>
-            <path d={`M${x} ${y} q 6 -5 12 0 q 6 5 12 0`} fill="none" />
-            <path d={`M${x + 8} ${y + 10} q 6 -5 12 0 q 6 5 12 0`} fill="none" />
-          </g>
+          <path key={`${x}${y}`} d={`M${x - 4} ${y} h8 M${x} ${y - 4} v8`} />
         ))}
       </g>
 
-      {/* Routes (marching dashes) */}
-      <path d={ROUTE_A} className="route-line" fill="none" stroke="#2171b5" strokeWidth="2" />
-      <path d={ROUTE_B} className="route-line" fill="none" stroke="#2171b5" strokeWidth="2" />
-
-      {/* Ports */}
-      {(
-        [
-          [175, 640, "PORT A", 14, 4],
-          [690, 285, "PORT B", 16, -8],
-          [745, 795, "PORT C", -84, 6],
-        ] as const
-      ).map(([x, y, label, dx, dy]) => (
-        <g key={label}>
-          <circle cx={x} cy={y} r="10" fill="none" stroke="#08306b" strokeWidth="1.5" />
-          <rect x={x - 4} y={y - 4} width="8" height="8" fill="#08306b" />
-          <text
-            x={x + dx}
-            y={y + dy}
-            fontFamily="var(--font-mono), monospace"
-            fontSize="13"
-            letterSpacing="2"
-            fill="#52514e"
-          >
-            {label}
-          </text>
-        </g>
-      ))}
-
-      {/* Ships under way (offset-path follows each route) */}
-      <g
-        className="ship"
-        style={{ offsetPath: `path('${ROUTE_A}')` }}
-        fill="#171717"
-      >
+      <g className="ship" style={{ offsetPath: `path('${ROUTE}')` }} fill={INK}>
         <path d="M-11 3 L11 3 L6 -3 L-6 -3 Z" />
         <rect x="-3" y="-8" width="6" height="5" />
       </g>
       <g
         className="ship"
-        style={{ offsetPath: `path('${ROUTE_B}')`, animationDelay: "-14s", animationDuration: "44s" }}
-        fill="#171717"
+        style={{ offsetPath: `path('${ROUTE}')`, animationDelay: "-18s" }}
+        fill={INK}
       >
         <path d="M-11 3 L11 3 L6 -3 L-6 -3 Z" />
         <rect x="-3" y="-8" width="6" height="5" />
       </g>
 
-      {/* Compass */}
-      <g transform="translate(80, 90)" stroke="#52514e" fill="none" strokeWidth="1.5">
-        <circle r="26" />
-        <path d="M0 -18 L5 8 L0 3 L-5 8 Z" fill="#52514e" stroke="none" />
+      {/* Sea marks: straight-line chevrons */}
+      <g stroke={INK_SOFT} strokeWidth="1.2" fill="none">
+        {(
+          [
+            [370, 300],
+            [720, 620],
+            [530, 850],
+            [250, 180],
+          ] as const
+        ).map(([x, y]) => (
+          <path key={`${x}${y}`} d={`M${x} ${y} l8 -6 l8 6 M${x + 6} ${y + 10} l8 -6 l8 6`} />
+        ))}
+      </g>
+
+      {/* Compass: crosshair + N */}
+      <g transform="translate(80, 84)" stroke={INK} strokeWidth="1.5" fill="none">
+        <path d="M-20 0 h40 M0 -20 v40" />
+        <rect x="-6" y="-6" width="12" height="12" />
         <text
           x="0"
-          y="-34"
+          y="-30"
           textAnchor="middle"
-          fontFamily="var(--font-mono), monospace"
+          fontFamily={MONO}
           fontSize="13"
-          fill="#52514e"
+          fill={LABEL}
           stroke="none"
         >
           N
@@ -133,7 +201,7 @@ export default function ShippingCanvas() {
       </g>
 
       {/* Scale bar */}
-      <g transform="translate(640, 950)" stroke="#52514e" strokeWidth="1.5">
+      <g transform="translate(620, 950)" stroke={INK} strokeWidth="1.5">
         <line x1="0" y1="0" x2="180" y2="0" />
         <line x1="0" y1="-5" x2="0" y2="5" />
         <line x1="90" y1="-4" x2="90" y2="4" />
@@ -142,10 +210,10 @@ export default function ShippingCanvas() {
           x="90"
           y="22"
           textAnchor="middle"
-          fontFamily="var(--font-mono), monospace"
+          fontFamily={MONO}
           fontSize="12"
           letterSpacing="2"
-          fill="#52514e"
+          fill={LABEL}
           stroke="none"
         >
           500 NM

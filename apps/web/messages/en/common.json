@@ -9,11 +9,18 @@
     "methodology": "Methodology",
     "scenarios": "Scenarios",
     "language": "EN",
-    "corridor": "Corridor"
+    "corridor": "Corridor",
+    "about": "About",
+    "documentation": "Documentation",
+    "disclaimer": "Disclaimer"
   },
   "footer": {
     "methodology": "Methodology: Motor de Cálculo LCOH — Ministerio de Energía de Chile, 2024",
     "dataProviders": "Resource data: Open-Meteo (CC BY 4.0) · PVGIS © EC JRC · NASA POWER",
     "aboutData": "About the data"
+  },
+  "disclaimer": {
+    "title": "Disclaimer",
+    "body": "Thaduberg is a techno-economic model. Every output is an estimate assembled from public benchmarks and your inputs — not investment, legal or regulatory advice. Benchmarks marked unverified have not been independently confirmed. Verify against primary sources before committing capital."
   }
 }

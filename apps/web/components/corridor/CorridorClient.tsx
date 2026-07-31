@@ -43,6 +43,7 @@ export default function CorridorClient() {
   const tc = useTranslations();
   const model = useCorridorModel();
   const [entered, setEntered] = useState(false);
+  const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [view, setView] = useState<View>("cargo");
   const stepIndex = view === "results" ? STEPS.length : STEPS.indexOf(view);
 
@@ -75,7 +76,7 @@ export default function CorridorClient() {
   return (
     <div className="flex h-dvh flex-col">
       {/* ===== The one nav bar: brand | 5 steps + Results | gap + docs ===== */}
-      <header className="flex shrink-0 items-stretch border-b border-neutral-300 bg-white">
+      <header className="relative flex shrink-0 items-stretch border-b border-neutral-300 bg-white">
         <Link
           href="/corridor"
           className="flex flex-col items-start justify-center gap-1 border-r border-neutral-300 px-4"
@@ -101,7 +102,7 @@ export default function CorridorClient() {
                 type="button"
                 onClick={() => goTo(key)}
                 aria-current={active ? "step" : undefined}
-                className={`flex min-w-28 flex-1 basis-0 flex-col items-start justify-center gap-0.5 border-r border-neutral-300 px-4 py-2 text-left transition-colors ${
+                className={`flex w-40 shrink-0 flex-col items-start justify-center gap-0.5 border-r border-neutral-300 px-4 py-2 text-left transition-colors ${
                   active
                     ? "bg-brand text-white"
                     : visited
@@ -124,9 +125,9 @@ export default function CorridorClient() {
           })}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-4 px-4">
+        <div className="ml-auto flex shrink-0 items-stretch">
           {entered && gap != null && (
-            <span className="hidden items-center gap-2 font-mono text-xs tabular-nums md:flex">
+            <span className="hidden items-center gap-2 px-4 font-mono text-xs tabular-nums md:flex">
               <span className="uppercase tracking-widest text-neutral-500">
                 {t("results.gapShort")}
               </span>
@@ -135,13 +136,47 @@ export default function CorridorClient() {
               </span>
             </span>
           )}
-          <Link
-            href="/methodology"
-            className="hidden text-xs text-neutral-500 hover:text-neutral-900 sm:block"
-          >
-            {tc("nav.methodology")}
-          </Link>
+          {/* The menu, far right */}
+          <nav className="hidden items-center gap-1 border-l border-neutral-300 px-3 sm:flex">
+            <Link
+              href="/about/data"
+              className="px-2.5 py-1 text-xs text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+            >
+              {tc("nav.about")}
+            </Link>
+            <Link
+              href="/methodology"
+              className="px-2.5 py-1 text-xs text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+            >
+              {tc("nav.documentation")}
+            </Link>
+            <button
+              type="button"
+              onClick={() => setDisclaimerOpen((v) => !v)}
+              aria-expanded={disclaimerOpen}
+              className="px-2.5 py-1 text-xs text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+            >
+              {tc("nav.disclaimer")}
+            </button>
+          </nav>
         </div>
+        {disclaimerOpen && (
+          <div className="absolute right-3 top-full z-50 mt-2 w-80 border border-neutral-300 bg-white p-4 shadow-md">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+              {tc("disclaimer.title")}
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-neutral-700">
+              {tc("disclaimer.body")}
+            </p>
+            <button
+              type="button"
+              onClick={() => setDisclaimerOpen(false)}
+              className="mt-3 border border-neutral-300 px-2.5 py-1 text-xs font-medium hover:bg-neutral-100"
+            >
+              OK
+            </button>
+          </div>
+        )}
       </header>
 
       {/* ===== Entry screen: split hero — copy left, shipping chart right ===== */}
