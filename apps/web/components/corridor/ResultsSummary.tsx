@@ -44,6 +44,9 @@ export default function ResultsSummary({
       <p className="mt-0.5 text-2xl font-semibold tracking-tight tabular-nums text-brand-deep">
         {fmtUsdM(s.gapPvUsdM)}
       </p>
+      <p className="text-[11px] tabular-nums text-neutral-500">
+        {fmtUsdM(result.reporting.gapPvPreRegulationUsdM)} {t("preRegLabel")}
+      </p>
       <dl className="mt-3 space-y-1.5 border-t border-neutral-200 pt-2 text-xs">
         <Row label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")} value={fmtUsd(s.costPerUnitUsd)} />
         <Row

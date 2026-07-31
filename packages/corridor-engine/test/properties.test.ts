@@ -215,4 +215,57 @@ describe("evaluateScenario — gap identity over randomized overrides", () => {
       ),
     );
   });
+
+  it("reporting: pre/post split identities hold (fix #1)", () => {
+    fc.assert(
+      fc.property(
+        fc.record({
+          price: fc.double({ min: 100, max: 2000, noNaN: true }),
+          co2Price: fc.double({ min: 0, max: 500, noNaN: true }),
+          horizon: fc.integer({ min: 1, max: 40 }),
+        }),
+        ({ price, co2Price, horizon }) => {
+          const input = migrateScenarioInput(
+            JSON.parse(JSON.stringify(baseInput)),
+          ).input as ScenarioInput;
+          input.green.overrides.priceUsdPerTonne = price;
+          input.regulation.selfDesigned.enabled = true;
+          input.regulation.selfDesigned.co2PriceUsdPerTonne = co2Price;
+          input.cargo.horizonYears = horizon;
+          const result = evaluateScenario(resolveScenario(input, bundle));
+          const s = result.summary;
+          const r = result.reporting;
+          // Exact identities (same FP expressions by construction):
+          if (r.gapPvPostRegulationUsdM !== s.gapPvUsdM) return false;
+          if (
+            r.gapPvPostRegulationUsdM - r.gapPvPreRegulationUsdM !==
+            r.netRegulatoryEffectUsdM
+          )
+            return false;
+          // Pre-reg side PV = capex PV + opex PV, exactly.
+          if (r.greenPreRegulationPvUsdM !== s.greenCapexPvUsdM + s.greenOpexPvUsdM)
+            return false;
+          if (r.fossilPreRegulationPvUsdM !== s.fossilCapexPvUsdM + s.fossilOpexPvUsdM)
+            return false;
+          // Net regulatory effect equals the sum of the per-scheme PV lines.
+          const netFromLines =
+            s.etsGreenPvUsdM +
+            s.fuelEuGreenPvUsdM +
+            s.ira45zGreenPvUsdM +
+            s.selfDesignedGreenPvUsdM -
+            (s.etsFossilPvUsdM + s.fuelEuFossilPvUsdM + s.selfDesignedFossilPvUsdM);
+          if (
+            Math.abs(r.netRegulatoryEffectUsdM - netFromLines) >
+            1e-9 * Math.max(1, Math.abs(netFromLines))
+          )
+            return false;
+          // Unit metrics: post equals the summary's figures exactly.
+          return (
+            r.costPerUnitPostRegulationUsd === s.costPerUnitUsd &&
+            r.costPerTonneCo2PostRegulationUsd === s.costPerTonneCo2Usd
+          );
+        },
+      ),
+    );
+  });
 });

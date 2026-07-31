@@ -37,6 +37,7 @@ export type {
 } from "./resolved";
 export type {
   ScenarioIntermediates,
+  ScenarioReporting,
   ScenarioResult,
   ScenarioSummary,
   SidePerYear,

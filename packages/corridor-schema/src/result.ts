@@ -49,6 +49,27 @@ export interface ScenarioSummary {
   readonly costPerTonneCo2Usd: number;
 }
 
+/**
+ * Reporting layer (Chilean-run fix #1): the gap BEFORE and AFTER the
+ * regulation modules, plus the same split for the unit metrics. Published
+ * green-corridor studies report the pre-regulation gap with regulatory
+ * effects as a separate waterfall line — the headline alone is not
+ * comparable to them. Pre-regulation = CAPEX + operating cost only.
+ * Lives OUTSIDE `summary` so the frozen golden shape is untouched.
+ */
+export interface ScenarioReporting {
+  readonly gapPvPreRegulationUsdM: number;
+  readonly gapPvPostRegulationUsdM: number;
+  /** post − pre; negative = regulation narrows the gap. Exact by construction. */
+  readonly netRegulatoryEffectUsdM: number;
+  readonly greenPreRegulationPvUsdM: number;
+  readonly fossilPreRegulationPvUsdM: number;
+  readonly costPerUnitPreRegulationUsd: number;
+  readonly costPerUnitPostRegulationUsd: number;
+  readonly costPerTonneCo2PreRegulationUsd: number;
+  readonly costPerTonneCo2PostRegulationUsd: number;
+}
+
 export interface ScenarioIntermediates {
   readonly greenFuelTonnesPerVesselYear: number;
   readonly fossilFuelTonnesPerVesselYear: number;
@@ -57,6 +78,7 @@ export interface ScenarioIntermediates {
 
 export interface ScenarioResult {
   readonly summary: ScenarioSummary;
+  readonly reporting: ScenarioReporting;
   readonly intermediates: ScenarioIntermediates;
   readonly perYear: {
     readonly green: SidePerYear;

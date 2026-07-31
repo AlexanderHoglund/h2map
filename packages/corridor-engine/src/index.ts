@@ -15,6 +15,7 @@ import type {
 import { toSideInputs } from "@h2map/corridor-schema";
 import { buildTimeline } from "./timeline";
 import { evaluateSide } from "./side";
+import { buildReporting } from "./reporting";
 
 /**
  * Version pinned into saved scenarios (scenarios.engine_version). Bump on any
@@ -23,6 +24,7 @@ import { evaluateSide } from "./side";
 export const CORRIDOR_ENGINE_VERSION = "0.1.0";
 
 export { evaluateSide } from "./side";
+export { buildReporting } from "./reporting";
 export { buildTimeline } from "./timeline";
 export { discountFactor, inflationFactor } from "./rates";
 export { stepValue } from "./schedule";
@@ -105,6 +107,10 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
       costPerUnitUsd: (gapPvUsdM * 1e6) / cargoUnitsLifetime,
       costPerTonneCo2Usd: (gapPvUsdM * 1e6) / co2AbatedTonnes,
     },
+    // Fix #1: pre/post-regulation split. Lives OUTSIDE `summary` — the
+    // golden compares summary/intermediates/perYear section-wise, so this
+    // block leaves the frozen fixture untouched.
+    reporting: buildReporting(green, fossil, cargoUnitsLifetime, co2AbatedTonnes),
     intermediates: {
       greenFuelTonnesPerVesselYear: resolved.green.tonnesPerVesselYear.value,
       fossilFuelTonnesPerVesselYear: resolved.fossil.tonnesPerVesselYear.value,

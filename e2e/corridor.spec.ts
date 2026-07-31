@@ -53,6 +53,9 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   // Side totals: green ≈ the study's $2,850m; fossil incl. the NZF proxy.
   await expect(results.getByText("$2,850.66m")).toBeVisible();
   await expect(results.getByText("$1,050.85m")).toBeVisible();
+  // Fix #1: the PRE-regulation gap (the study's $2,000m quantity) is shown
+  // as a secondary line under the headline.
+  await expect(results.getByText(/\$2,012\.44m/)).toBeVisible();
 
   // The FULL panel lives in its own Results tab (06): lifetime cargo and
   // the study-exact CO2 abatement render there.

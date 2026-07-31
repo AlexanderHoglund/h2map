@@ -187,7 +187,9 @@
       "perTonneCargo": "per tonne of cargo",
       "snapUnit": "Cargo unit",
       "perUnitTonne": "per tonne of cargo",
-      "perUnitTeu": "per TEU"
+      "perUnitTeu": "per TEU",
+      "preRegLabel": "before regulatory instruments",
+      "subtotalPreReg": "Subtotal before regulation"
     },
     "buildHere": {
       "openMap": "Pick a site on the map",

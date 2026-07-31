@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
   Bar,
@@ -130,11 +130,23 @@ export default function ResultsPanel({
     (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
   const unitWeight = scenario.cargo.unitWeightTonnes ?? (cargoUnit === "teu" ? 14 : 1);
 
-  const kpis: { label: React.ReactNode; value: string; strong?: boolean }[] = [
-    { label: t("gap"), value: fmtUsdM(s.gapPvUsdM), strong: true },
+  const rep = result.reporting;
+  const kpis: {
+    label: React.ReactNode;
+    value: string;
+    sub?: string;
+    strong?: boolean;
+  }[] = [
+    {
+      label: t("gap"),
+      value: fmtUsdM(s.gapPvUsdM),
+      sub: `${fmtUsdM(rep.gapPvPreRegulationUsdM)} ${t("preRegLabel")}`,
+      strong: true,
+    },
     {
       label: cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne"),
       value: fmtUsd(s.costPerUnitUsd),
+      sub: `${fmtUsd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`,
     },
     {
       label: (
@@ -146,15 +158,26 @@ export default function ResultsPanel({
         </>
       ),
       value: fmtUsd(s.costPerTonneCo2Usd),
+      sub: `${fmtUsd(rep.costPerTonneCo2PreRegulationUsd)} ${t("preRegLabel")}`,
     },
     { label: t("green"), value: fmtUsdM(s.greenTotalPvUsdM) },
     { label: t("fossil"), value: fmtUsdM(s.fossilTotalPvUsdM) },
     { label: t("co2"), value: `${fmtInt(s.co2AbatedTonnes)} t` },
   ];
 
-  const decompRows: { label: string; green: number; fossil: number | null }[] = [
+  const decompRows: {
+    label: string;
+    green: number;
+    fossil: number | null;
+    subtotalAfter?: boolean;
+  }[] = [
     { label: t("rowCapex"), green: s.greenCapexPvUsdM, fossil: s.fossilCapexPvUsdM },
-    { label: t("rowOpex"), green: s.greenOpexPvUsdM, fossil: s.fossilOpexPvUsdM },
+    {
+      label: t("rowOpex"),
+      green: s.greenOpexPvUsdM,
+      fossil: s.fossilOpexPvUsdM,
+      subtotalAfter: true,
+    },
     { label: t("regEts"), green: s.etsGreenPvUsdM, fossil: s.etsFossilPvUsdM },
     { label: t("regFuelEu"), green: s.fuelEuGreenPvUsdM, fossil: s.fuelEuFossilPvUsdM },
     { label: t("regIra"), green: s.ira45zGreenPvUsdM, fossil: null },
@@ -236,6 +259,11 @@ export default function ResultsPanel({
             >
               {k.value}
             </p>
+            {k.sub && (
+              <p className="mt-0.5 text-[11px] tabular-nums text-neutral-500">
+                {k.sub}
+              </p>
+            )}
           </div>
         ))}
       </div>
@@ -288,19 +316,35 @@ export default function ResultsPanel({
             </tr>
           </thead>
           <tbody>
-            {decompRows.map((r) => {
-              const delta = r.green - (r.fossil ?? 0);
+            {decompRows.map((row) => {
+              const delta = row.green - (row.fossil ?? 0);
               return (
-                <tr key={r.label} className="border-b border-neutral-100 last:border-0">
-                  <td className="py-1.5 text-neutral-600">{r.label}</td>
-                  <td className="py-1.5 text-right">{fmtUsdM(r.green)}</td>
-                  <td className="py-1.5 text-right text-neutral-500">
-                    {r.fossil === null ? "—" : fmtUsdM(r.fossil)}
-                  </td>
-                  <td className="py-1.5 text-right font-medium" style={deltaStyle(delta)}>
-                    {fmtSigned(delta)}
-                  </td>
-                </tr>
+                <React.Fragment key={row.label}>
+                  <tr className="border-b border-neutral-100 last:border-0">
+                    <td className="py-1.5 text-neutral-600">{row.label}</td>
+                    <td className="py-1.5 text-right">{fmtUsdM(row.green)}</td>
+                    <td className="py-1.5 text-right text-neutral-500">
+                      {row.fossil === null ? "—" : fmtUsdM(row.fossil)}
+                    </td>
+                    <td className="py-1.5 text-right font-medium" style={deltaStyle(delta)}>
+                      {fmtSigned(delta)}
+                    </td>
+                  </tr>
+                  {row.subtotalAfter && (
+                    <tr className="border-b border-neutral-300 bg-neutral-50 font-medium">
+                      <td className="py-1.5">{t("subtotalPreReg")}</td>
+                      <td className="py-1.5 text-right">
+                        {fmtUsdM(rep.greenPreRegulationPvUsdM)}
+                      </td>
+                      <td className="py-1.5 text-right text-neutral-500">
+                        {fmtUsdM(rep.fossilPreRegulationPvUsdM)}
+                      </td>
+                      <td className="py-1.5 text-right">
+                        {fmtSigned(rep.gapPvPreRegulationUsdM)}
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               );
             })}
           </tbody>
