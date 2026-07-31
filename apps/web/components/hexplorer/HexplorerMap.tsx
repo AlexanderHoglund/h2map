@@ -3,6 +3,7 @@
 import type { PickingInfo } from "@deck.gl/core";
 import { H3HexagonLayer } from "@deck.gl/geo-layers";
 import { MapboxOverlay } from "@deck.gl/mapbox";
+import { cellToLatLng } from "h3-js";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useTranslations } from "next-intl";
@@ -107,13 +108,31 @@ interface HoverState {
   datum: HexDatum;
 }
 
+export interface SitePick {
+  h3: string;
+  lat: number;
+  lon: number;
+  datum: HexDatum;
+}
+
 interface HexplorerMapProps {
   /** Open the split evaluate panel for a cell (from the drawer's "Evaluate here"). */
   onEvaluate?: (lat: number, lon: number) => void;
+  /**
+   * Embedded mode (corridor "build here", build-plan 3.3): the SAME map
+   * component with a narrowed job — no URL-hash writes (the host page owns
+   * its URL), no cell drawer; a cell click calls `onSitePicked` instead.
+   */
+  embedded?: boolean;
+  onSitePicked?: (site: SitePick) => void;
 }
 
 /** The Explorer map: maplibre basemap + deck.gl H3 hexagon choropleth. */
-export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
+export default function HexplorerMap({
+  onEvaluate,
+  embedded,
+  onSitePicked,
+}: HexplorerMapProps = {}) {
   const t = useTranslations("explorer");
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -167,6 +186,7 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
 
   /** Write the current camera (+ layer) into the location hash. */
   const syncCameraHash = useCallback(() => {
+    if (embedded) return; // the host page owns its URL
     const map = mapRef.current;
     if (!map) return;
     const center = map.getCenter();
@@ -263,14 +283,23 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
     });
   }, []);
 
-  const onHexClick = useCallback((info: PickingInfo<HexDatum>) => {
-    if (info.object) {
-      setSelected(info.object);
-      setDrawerOpen(true);
-    } else {
-      setDrawerOpen(false);
-    }
-  }, []);
+  const onHexClick = useCallback(
+    (info: PickingInfo<HexDatum>) => {
+      if (info.object && onSitePicked) {
+        // Embedded site picking: one job — hand the cell to the host.
+        const [lat, lon] = cellToLatLng(info.object.h3);
+        onSitePicked({ h3: info.object.h3, lat, lon, datum: info.object });
+        return;
+      }
+      if (info.object) {
+        setSelected(info.object);
+        setDrawerOpen(true);
+      } else {
+        setDrawerOpen(false);
+      }
+    },
+    [onSitePicked],
+  );
 
   // Map + overlay init (once).
   useEffect(() => {
@@ -491,15 +520,17 @@ export default function HexplorerMap({ onEvaluate }: HexplorerMapProps = {}) {
         </div>
       )}
 
-      <CellDrawer
-        datum={selected}
-        layerKey={layerKey}
-        basis={basis}
-        costYear={costYear}
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        onEvaluate={onEvaluate}
-      />
+      {!embedded && (
+        <CellDrawer
+          datum={selected}
+          layerKey={layerKey}
+          basis={basis}
+          costYear={costYear}
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          onEvaluate={onEvaluate}
+        />
+      )}
     </div>
   );
 }

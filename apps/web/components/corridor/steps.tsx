@@ -4,6 +4,7 @@ import { useId } from "react";
 import { useTranslations } from "next-intl";
 import type { ScenarioInput } from "@h2map/corridor-schema";
 import ResolvedField from "./ResolvedField";
+import BuildHerePanel from "./BuildHerePanel";
 import { isAdvanced, type CorridorModel } from "./state";
 
 /**
@@ -489,7 +490,10 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
           { value: "construct", label: t("sourcingConstruct") },
           { value: "purchase", label: t("sourcingPurchase") },
           { value: "named-plant", label: t("sourcingNamedPlant") },
-          { value: "build-here", label: t("sourcingBuildHere") },
+          // Build-here (pick an H2 production site) only makes sense green-side.
+          ...(side === "green"
+            ? [{ value: "build-here", label: t("sourcingBuildHere") }]
+            : []),
         ]}
         onChange={(v) =>
           update((d) => {
@@ -514,6 +518,7 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
           onChange={(v) => update((d) => void (d[side].deliveredPriceUsdPerTonne = v))}
         />
       )}
+      {s.sourcing === "build-here" && <BuildHerePanel model={model} side={side} />}
       {entries.main}
       {entries.advanced.length > 0 && (
         <div className="sm:col-span-2">

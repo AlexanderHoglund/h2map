@@ -80,10 +80,25 @@ export interface FuelSideInput {
   sourcing: FuelSourcing;
   /**
    * D4 — required for `named-plant`/`build-here`: the delivered price at the
-   * bunker port ($/t). For build-here it is derived server-side from
+   * bunker port ($/t). For build-here it is derived from
    * LCOH + synthesis + logistics; the corridor engine must not know which.
    */
   deliveredPriceUsdPerTonne?: number | null;
+  /**
+   * build-here lineage: where the delivered price came from, so the UI chip
+   * and provenance survive save/reload. Display data only — the engine never
+   * reads it (the price above is the input).
+   */
+  buildHere?: {
+    h3: string;
+    lat: number;
+    lon: number;
+    lcohUsdPerKg: number;
+    carrierId: string;
+    synthesisGateUsdPerTonne: number;
+    distanceKm: number;
+    logisticsUsdPerTonne: number;
+  } | null;
   overrides: FuelSideOverrides;
 }
 

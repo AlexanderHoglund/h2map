@@ -142,6 +142,20 @@
       "cargo": "Cargo units over lifetime",
       "invalid": "The scenario is incomplete: {message}",
       "bothBases": "CO2 abated — combustion: {ttw} t · well-to-wake: {wtw} t"
+    },
+    "buildHere": {
+      "openMap": "Pick a site on the map",
+      "hideMap": "Hide map",
+      "repick": "Pick a different site",
+      "viewInExplorer": "View in Explorer",
+      "chip": "cell {cell} · LCOH ${lcoh}/kg · {carrier} synthesis · {km} km to port",
+      "maskedCell": "That cell has no evaluated cost (masked or not yet computed) — pick a coloured cell.",
+      "unsupportedCarrier": "\"{fuel}\" has no synthesis pathway — build-here supports e-ammonia, e-methanol and liquid hydrogen.",
+      "productionWacc": "Production WACC",
+      "electricity": "Electricity",
+      "co2Price": "CO2 feedstock",
+      "distance": "Distance to port",
+      "configNote": "Production-side financing (deliberately separate from the corridor discount rate), synthesis electricity, CO2 feedstock (e-methanol), and plant→bunker-port distance. Delivered price = map-cell LCOH → carrier synthesis → logistics; re-pick the site after changing these."
     }
   }
 }

@@ -33,6 +33,19 @@ const fuelSideSchema = z
     fuelId: z.string().min(1),
     sourcing: z.enum(["construct", "purchase", "named-plant", "build-here"]),
     deliveredPriceUsdPerTonne: z.number().finite().nullable().optional(),
+    buildHere: z
+      .object({
+        h3: z.string().min(1),
+        lat: z.number().min(-90).max(90),
+        lon: z.number().min(-180).max(180),
+        lcohUsdPerKg: z.number().positive(),
+        carrierId: z.string().min(1),
+        synthesisGateUsdPerTonne: z.number().positive(),
+        distanceKm: z.number().nonnegative(),
+        logisticsUsdPerTonne: z.number().nonnegative(),
+      })
+      .nullable()
+      .optional(),
     overrides: fuelSideOverridesSchema,
   })
   .refine(
