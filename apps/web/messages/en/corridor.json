@@ -122,7 +122,9 @@
       "basisWtw": "Well-to-wake",
       "rateBasis": "Rate basis",
       "rateNominal": "Nominal (workbook)",
-      "rateReal": "Real (deflate inflation growth)"
+      "rateReal": "Real (deflate inflation growth)",
+      "escalation": "Annual price escalation",
+      "escalationHelp": "0 = flat nominal price — at 2% inflation that is a falling real price. Set equal to inflation to hold the real carbon price constant; the IMO framework’s remedial prices escalate by construction."
     },
     "results": {
       "heading": "Results",

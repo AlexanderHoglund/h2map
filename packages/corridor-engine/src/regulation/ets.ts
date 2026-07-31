@@ -14,7 +14,12 @@ export function etsCostUsdM(
   fuel: FuelParams,
   vessels: number,
   cal: CalendarYear,
+  idx = 1,
 ): number {
+  // Fix #3 — optional annual EUA escalation. Default 0 keeps the flat
+  // nominal price (Excel; a falling real price under inflation).
+  const effectiveEua =
+    params.euaEurPerTonne * Math.pow(1 + (params.euaEscalation ?? 0), idx - 1);
   // D3 — maritime ETS covers CH4 + N2O (as CO2e via GWP100) from 2026 when
   // gas coverage is enabled; the workbook counts CO2 only (gases absent).
   const gases = params.gases;
@@ -29,7 +34,7 @@ export function etsCostUsdM(
       co2ePerTonneFuel *
       stepValue(params.phaseIn, cal) *
       params.scope *
-      params.euaEurPerTonne *
+      effectiveEua *
       params.eurUsd) /
     1e6
   );

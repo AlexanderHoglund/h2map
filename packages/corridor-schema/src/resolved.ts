@@ -101,6 +101,8 @@ export interface ScheduleStep {
 
 export interface EtsParams {
   readonly euaEurPerTonne: EurPerTonne;
+  /** Fix #3 — annual price escalation; absent = flat nominal (Excel). */
+  readonly euaEscalation?: Fraction;
   readonly eurUsd: EurUsd;
   readonly scope: Fraction;
   readonly phaseIn: readonly ScheduleStep[];
@@ -147,6 +149,8 @@ export interface Ira45zParams {
  */
 export interface SelfDesignedParams {
   readonly co2PriceUsdPerTonne?: UsdPerTonne;
+  /** Fix #3 — annual price escalation; absent = flat nominal (Excel). */
+  readonly co2PriceEscalation?: Fraction;
   readonly supportUsdPerKg?: UsdPerKg;
   readonly capexSupport?: Fraction;
   readonly opexSupport?: Fraction;

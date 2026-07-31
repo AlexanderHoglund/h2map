@@ -39,7 +39,7 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
     for (const c of components) totalOpex += c.opexUsdMPerYear * infl;
 
     const ets = regulations.ets
-      ? etsCostUsdM(regulations.ets, fuel, vessels, calendarYear)
+      ? etsCostUsdM(regulations.ets, fuel, vessels, calendarYear, idx)
       : 0;
     const fuelEu = regulations.fuelEu
       ? fuelEuCostUsdM(regulations.fuelEu, fuel, vessels, calendarYear)
@@ -55,6 +55,7 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
           totalCapex,
           totalOpex,
           ctx.emissionsBasis ?? "combustion",
+          idx,
         )
       : 0;
 

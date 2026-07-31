@@ -22,6 +22,7 @@ export function selfDesignedCostUsdM(
   totalCapexUsdM: number,
   totalOpexUsdM: number,
   emissionsBasis: "combustion" | "wellToWake" = "combustion",
+  idx = 1,
 ): number {
   let cost = 0;
   if (params.co2PriceUsdPerTonne !== undefined) {
@@ -33,9 +34,12 @@ export function selfDesignedCostUsdM(
       emissionsBasis === "wellToWake"
         ? (fuel.lhv * fuel.wtw) / 1e6
         : fuel.combustionEf;
+    // Fix #3 — optional annual price escalation (default 0 = flat nominal).
+    const effectivePrice =
+      params.co2PriceUsdPerTonne *
+      Math.pow(1 + (params.co2PriceEscalation ?? 0), idx - 1);
     cost +=
-      (vessels * fuel.tonnesPerVesselYear * efTco2PerTonne * params.co2PriceUsdPerTonne) /
-      1e6;
+      (vessels * fuel.tonnesPerVesselYear * efTco2PerTonne * effectivePrice) / 1e6;
   }
   if (params.supportUsdPerKg !== undefined) {
     cost -= (vessels * fuel.tonnesPerVesselYear * 1000 * params.supportUsdPerKg) / 1e6;

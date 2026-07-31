@@ -21,7 +21,7 @@ at 1e-9 (`npm run test:golden`).
 
 Green Corridor engine — pure scenario evaluation.
 
-**Boundary (imports)**: `@h2map/corridor-schema`, `./timeline`, `./side`
+**Boundary (imports)**: `@h2map/corridor-schema`, `./timeline`, `./side`, `./reporting`
 
 **Exports (inputs/outputs)**: `CORRIDOR_ENGINE_VERSION`, `evaluateScenario`
 
@@ -122,6 +122,20 @@ a cost (+), the four support terms are subsidies (−):
 **Boundary (imports)**: `@h2map/corridor-schema`
 
 **Exports (inputs/outputs)**: `selfDesignedCostUsdM`
+
+**Assumptions**
+
+Documented inline (see source).
+
+### `@h2map/corridor-engine/reporting.ts`
+
+**Purpose**
+
+Reporting layer (Chilean-run fix #1): the pre/post-regulation split.
+
+**Boundary (imports)**: `@h2map/corridor-schema`
+
+**Exports (inputs/outputs)**: `buildReporting`
 
 **Assumptions**
 
@@ -323,7 +337,7 @@ with no adaptation layer.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SidePerYear`, `SideResult`, `ScenarioSummary`, `ScenarioIntermediates`, `ScenarioResult`
+**Exports (inputs/outputs)**: `SidePerYear`, `SideResult`, `ScenarioSummary`, `ScenarioReporting`, `ScenarioIntermediates`, `ScenarioResult`
 
 **Assumptions**
 

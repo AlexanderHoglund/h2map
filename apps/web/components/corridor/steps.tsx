@@ -567,6 +567,20 @@ export function RegulationStep({ model }: StepProps) {
               onChange={(v) => update((d) => void (d.regulation.ets.scope = v))}
             />
             <p className="sm:col-span-2 text-[11px] text-neutral-500">{t("phaseNote")}</p>
+            <div className="sm:col-span-2">
+              <AdvancedFold>
+                <NumberInput
+                  label={t("escalation")}
+                  unit="fraction/yr"
+                  step={0.005}
+                  help={t("escalationHelp")}
+                  value={reg.ets.euaEscalation ?? 0}
+                  onChange={(v) =>
+                    update((d) => void (d.regulation.ets.euaEscalation = v || undefined))
+                  }
+                />
+              </AdvancedFold>
+            </div>
           </>
         )}
       </Section>
@@ -685,6 +699,23 @@ export function RegulationStep({ model }: StepProps) {
               value={reg.selfDesigned.otherUsdM}
               onChange={(v) => update((d) => void (d.regulation.selfDesigned.otherUsdM = v))}
             />
+            <div className="sm:col-span-2">
+              <AdvancedFold>
+                <NumberInput
+                  label={t("escalation")}
+                  unit="fraction/yr"
+                  step={0.005}
+                  help={t("escalationHelp")}
+                  value={reg.selfDesigned.co2PriceEscalation ?? 0}
+                  onChange={(v) =>
+                    update(
+                      (d) =>
+                        void (d.regulation.selfDesigned.co2PriceEscalation = v || undefined),
+                    )
+                  }
+                />
+              </AdvancedFold>
+            </div>
           </>
         )}
       </Section>

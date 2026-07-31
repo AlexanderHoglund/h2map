@@ -144,6 +144,7 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["regulation.eurUsd", "number", "yes", "#22", "1.2%", "advanced"],
   ["regulation.ets.enabled", "boolean", "yes", "—", "—", "—"],
   ["regulation.ets.euaEurPerTonne", "number", "yes", "#18", "3.6%", "advanced"],
+  ["regulation.ets.euaEscalation", "number", "no", "—", "—", "advanced"],
   ["regulation.ets.scope", "number 0–1", "yes", "#20", "2.4%", "advanced"],
   ["regulation.ets.gasCoverage.enabled", "boolean", "yes", "—", "—", "—"],
   ["regulation.ets.gasCoverage.fromCalendarYear", "integer", "yes", "—", "—", "—"],
@@ -169,6 +170,7 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["regulation.ira45z.effectiveUntil", "integer | null", "no", "—", "—", "—"],
   ["regulation.selfDesigned.enabled", "boolean", "yes", "—", "—", "—"],
   ["regulation.selfDesigned.co2PriceUsdPerTonne", "number", "yes", "—", "—", "—"],
+  ["regulation.selfDesigned.co2PriceEscalation", "number", "no", "—", "—", "advanced"],
   ["regulation.selfDesigned.supportUsdPerKg", "number", "yes", "—", "—", "—"],
   ["regulation.selfDesigned.capexSupport", "number 0–1", "yes", "—", "—", "—"],
   ["regulation.selfDesigned.opexSupport", "number 0–1", "yes", "—", "—", "—"],
@@ -632,6 +634,10 @@ export default function DocsPage() {
         <p className="mt-2">
           Phase-in: 0 before 2024 → 40% (2024) → 70% (2025) → 100% (2026+).
           Defaults: EUA €80/t, scope 1.0 (fraction of voyages in ETS scope).
+          An optional annual <em>price escalation</em>{" "}(Advanced fold, default
+          0) compounds the EUA price as (1+esc)^(t−1) — 0 keeps the flat
+          nominal price, a falling real price under inflation; the same
+          control exists on the self-designed CO2 price.
           Because it prices <em>combustion</em>{" "}CO2, the green side&apos;s cost
           is tiny (EF 0.1 vs 3.3) — ETS mostly burdens the fossil side, closing
           the gap.

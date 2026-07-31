@@ -246,6 +246,9 @@ function resolveRegulations(
       ? {
           ets: {
             euaEurPerTonne: eurPerTonne(reg.ets.euaEurPerTonne),
+            ...(reg.ets.euaEscalation !== undefined
+              ? { euaEscalation: fraction(reg.ets.euaEscalation) }
+              : {}),
             eurUsd: eurUsd(reg.eurUsd),
             scope: fraction(reg.ets.scope),
             phaseIn: toSchedule(bundle.schedules.etsPhaseIn),
@@ -304,6 +307,9 @@ function resolveRegulations(
       ? {
           selfDesigned: {
             co2PriceUsdPerTonne: usdPerTonne(reg.selfDesigned.co2PriceUsdPerTonne),
+            ...(reg.selfDesigned.co2PriceEscalation !== undefined
+              ? { co2PriceEscalation: fraction(reg.selfDesigned.co2PriceEscalation) }
+              : {}),
             supportUsdPerKg: usdPerKg(reg.selfDesigned.supportUsdPerKg),
             capexSupport: fraction(reg.selfDesigned.capexSupport),
             opexSupport: fraction(reg.selfDesigned.opexSupport),
@@ -321,6 +327,9 @@ function resolveRegulations(
       ? {
           selfDesigned: {
             co2PriceUsdPerTonne: usdPerTonne(reg.selfDesigned.co2PriceUsdPerTonne),
+            ...(reg.selfDesigned.co2PriceEscalation !== undefined
+              ? { co2PriceEscalation: fraction(reg.selfDesigned.co2PriceEscalation) }
+              : {}),
           },
         }
       : {}),

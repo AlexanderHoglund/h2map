@@ -90,6 +90,7 @@ export const scenarioInputSchema = z.object({
     ets: z.object({
       enabled: z.boolean(),
       euaEurPerTonne: z.number().nonnegative(),
+      euaEscalation: z.number().gt(-1).lt(1).optional(),
       scope: z.number().min(0).max(1),
       gasCoverage: z
         .object({

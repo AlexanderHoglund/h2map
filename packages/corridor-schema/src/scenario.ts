@@ -134,6 +134,12 @@ export interface EtsGasFactors {
 export interface EtsInput {
   enabled: boolean;
   euaEurPerTonne: number;
+  /**
+   * Fix #3 — annual EUA price escalation, fraction/yr. Absent/0 = flat
+   * nominal price (the Excel behaviour; a FALLING real price under
+   * inflation). Effective price in year t = eua × (1+esc)^(t−1).
+   */
+  euaEscalation?: number;
   scope: number;
   /**
    * D3 — maritime ETS covers CH4 + N2O from 2026 (material for LNG slip and
@@ -185,6 +191,8 @@ export interface Ira45zInput {
 export interface SelfDesignedInput {
   enabled: boolean;
   co2PriceUsdPerTonne: number;
+  /** Fix #3 — annual CO2-price escalation, fraction/yr. Absent/0 = flat nominal. */
+  co2PriceEscalation?: number;
   supportUsdPerKg: number;
   capexSupport: number;
   opexSupport: number;

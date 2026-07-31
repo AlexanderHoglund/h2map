@@ -62,6 +62,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `regulation.eurUsd` | number | yes | #22 | 1.2% | advanced |
 | `regulation.ets.enabled` | boolean | yes | — | — | — |
 | `regulation.ets.euaEurPerTonne` | number | yes | #18 | 3.6% | advanced |
+| `regulation.ets.euaEscalation` | number | no | — | — | — |
 | `regulation.ets.scope` | number | yes | #20 | 2.4% | advanced |
 | `regulation.ets.gasCoverage.enabled` | boolean | yes | — | — | — |
 | `regulation.ets.gasCoverage.fromCalendarYear` | integer | yes | — | — | — |
