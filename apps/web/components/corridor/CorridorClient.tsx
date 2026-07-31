@@ -43,6 +43,7 @@ export default function CorridorClient() {
   const tc = useTranslations();
   const model = useCorridorModel();
   const [entered, setEntered] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [view, setView] = useState<View>("cargo");
   const stepIndex = view === "results" ? STEPS.length : STEPS.indexOf(view);
@@ -136,45 +137,53 @@ export default function CorridorClient() {
               </span>
             </span>
           )}
-          {/* The menu, far right */}
-          <nav className="hidden items-center gap-1 border-l border-neutral-300 px-3 sm:flex">
+          {/* The menu block, far right (dark, matta-style) */}
+          <button
+            type="button"
+            onClick={() => {
+              setMenuOpen((v) => !v);
+              setDisclaimerOpen(false);
+            }}
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+            className={`flex items-center gap-2 px-6 text-sm font-medium transition-colors ${
+              menuOpen
+                ? "bg-brand-deep text-white"
+                : "bg-brand-deep text-white hover:bg-brand-strong"
+            }`}
+          >
+            {tc("nav.menu")}
+          </button>
+        </div>
+        {menuOpen && (
+          <div className="absolute right-0 top-full z-50 w-80 border-b border-l border-neutral-300 bg-white shadow-md">
             <Link
               href="/about/data"
-              className="px-2.5 py-1 text-xs text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+              className="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5 text-sm text-neutral-800 transition-colors hover:bg-neutral-100"
             >
-              {tc("nav.about")}
+              {tc("nav.about")} <span aria-hidden>→</span>
             </Link>
             <Link
               href="/methodology"
-              className="px-2.5 py-1 text-xs text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+              className="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5 text-sm text-neutral-800 transition-colors hover:bg-neutral-100"
             >
-              {tc("nav.documentation")}
+              {tc("nav.documentation")} <span aria-hidden>→</span>
             </Link>
             <button
               type="button"
               onClick={() => setDisclaimerOpen((v) => !v)}
               aria-expanded={disclaimerOpen}
-              className="px-2.5 py-1 text-xs text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+              className="flex w-full items-center justify-between px-5 py-3.5 text-sm text-neutral-800 transition-colors hover:bg-neutral-100"
             >
-              {tc("nav.disclaimer")}
+              {tc("nav.disclaimer")} <span aria-hidden>{disclaimerOpen ? "↓" : "→"}</span>
             </button>
-          </nav>
-        </div>
-        {disclaimerOpen && (
-          <div className="absolute right-3 top-full z-50 mt-2 w-80 border border-neutral-300 bg-white p-4 shadow-md">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-              {tc("disclaimer.title")}
-            </p>
-            <p className="mt-2 text-xs leading-relaxed text-neutral-700">
-              {tc("disclaimer.body")}
-            </p>
-            <button
-              type="button"
-              onClick={() => setDisclaimerOpen(false)}
-              className="mt-3 border border-neutral-300 px-2.5 py-1 text-xs font-medium hover:bg-neutral-100"
-            >
-              OK
-            </button>
+            {disclaimerOpen && (
+              <div className="border-t border-neutral-200 bg-neutral-50 px-5 py-4">
+                <p className="text-xs leading-relaxed text-neutral-700">
+                  {tc("disclaimer.body")}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </header>

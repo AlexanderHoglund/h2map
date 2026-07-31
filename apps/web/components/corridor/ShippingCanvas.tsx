@@ -3,20 +3,25 @@
 /**
  * Entry-panel artwork: a two-port green-corridor schematic in old-school
  * technical-drawing style — monochrome, straight lines and right angles
- * only. The supply chain is drawn end to end: PV array → NH3 synthesis →
- * Port A → (angular dashed route with ships under way) → Port B. Purely
- * decorative (aria-hidden); animation is CSS (offset-path + dashoffset) so
+ * only, every element on a shared grid so the geometry actually connects:
+ * PV array → NH3 synthesis → Port A crane → quay → angular dashed route
+ * (ships under way) → Port B quay → crane. Purely decorative
+ * (aria-hidden); animation is CSS (offset-path + dashoffset) so
  * prefers-reduced-motion freezes it.
+ *
+ * Grid discipline: land edges on multiples of 20; the route leaves Port A
+ * exactly under crane A's hook (x=360, y=860) and ends exactly under crane
+ * B's hook (x=715, y=340); process pipes butt onto the structures they
+ * connect.
  */
 
 const INK = "#3f3e3a";
 const INK_SOFT = "#9b9a90";
 const LABEL = "#52514e";
-
-/** Circuit-board route: right angles only, Port A quay → Port B quay. */
-const ROUTE = "M310 705 L470 705 L470 445 L620 445 L620 185 L680 185";
-
 const MONO = "var(--font-mono), monospace";
+
+/** Port A hook (360,860) → right angles → Port B hook (715,340). */
+const ROUTE = "M360 860 L520 860 L520 620 L680 620 L680 340 L715 340";
 
 function Label({
   x,
@@ -44,29 +49,6 @@ function Label({
   );
 }
 
-/** Container crane: straight lines only. */
-function Crane({ x, y, flip = false }: { x: number; y: number; flip?: boolean }) {
-  const d = flip ? -1 : 1;
-  return (
-    <g stroke={INK} strokeWidth="1.5" fill="none">
-      {/* legs + portal */}
-      <path d={`M${x} ${y} v-52 M${x + d * 26} ${y} v-52 M${x - d * 4} ${y - 52} h${d * 34}`} />
-      {/* jib over the water + tie */}
-      <path d={`M${x + d * 26} ${y - 52} h${d * 44}`} />
-      <path d={`M${x + d * 26} ${y - 52} l${d * 18} -14 l${d * 26} 14`} />
-      {/* trolley + hook */}
-      <path d={`M${x + d * 56} ${y - 52} v14`} />
-      <rect x={Math.min(x + d * 50, x + d * 62)} y={y - 38} width="12" height="8" />
-      {/* container stack on the quay */}
-      <g>
-        <rect x={x - d * 46 - (d > 0 ? 0 : 28)} y={y - 10} width="28" height="10" />
-        <rect x={x - d * 46 - (d > 0 ? 0 : 28)} y={y - 20} width="28" height="10" />
-        <rect x={x - d * 74 - (d > 0 ? 0 : 28)} y={y - 10} width="28" height="10" />
-      </g>
-    </g>
-  );
-}
-
 export default function ShippingCanvas() {
   return (
     <svg
@@ -85,71 +67,113 @@ export default function ShippingCanvas() {
         ))}
       </g>
 
-      {/* Land, angular: production shore (bottom-left) */}
+      {/* ===== Land ===== */}
+      {/* Production shore (bottom-left); the quay is the edge x=340. */}
       <path
-        d="M0 600 L140 600 L140 650 L230 650 L230 720 L310 720 L310 1000 L0 1000 Z"
+        d="M0 620 L160 620 L160 680 L240 680 L240 740 L340 740 L340 1000 L0 1000 Z"
         fill="#f2f2ed"
         stroke={INK}
         strokeWidth="1.5"
       />
-      {/* Land, angular: destination shore (top-right) */}
+      {/* Destination shore (top-right); the quay is the edge x=740. */}
       <path
-        d="M900 0 L900 330 L790 330 L790 270 L680 270 L680 170 L580 170 L580 90 L500 90 L500 0 Z"
+        d="M900 0 L900 360 L740 360 L740 280 L640 280 L640 200 L540 200 L540 0 Z"
         fill="#f2f2ed"
         stroke={INK}
         strokeWidth="1.5"
       />
+      {/* Quay tick marks (berth edges) */}
+      <g stroke={INK} strokeWidth="1.5">
+        {[800, 830, 860, 890].map((y) => (
+          <line key={`qa${y}`} x1="340" y1={y} x2="348" y2={y} />
+        ))}
+        {[300, 320, 340].map((y) => (
+          <line key={`qb${y}`} x1="732" y1={y} x2="740" y2={y} />
+        ))}
+      </g>
 
       {/* ===== Production shore: PV → NH3 → PORT A ===== */}
-      {/* PV array: cell grid with one diagonal per cell */}
+      <Label x={50} y={776}>[ PORT A ]</Label>
+
+      {/* Crane A: legs on land, jib over the quay, hook above the berth.
+          Legs x=285/315 (ground y=850), portal y=795, jib to x=385,
+          trolley x=360 — the hook line drops toward the route start. */}
+      <g stroke={INK} strokeWidth="1.5" fill="none">
+        <path d="M285 850 V795 M315 850 V795 M275 795 H385" />
+        <path d="M315 795 L350 778 L385 795" strokeWidth="1" />
+        <path d="M360 795 V822" />
+        <rect x="354" y="822" width="12" height="9" />
+        {/* ground line under the crane, meeting the quay edge */}
+        <path d="M260 850 H340" />
+      </g>
+      {/* Container stack beside the crane */}
+      <g stroke={INK} strokeWidth="1.2" fill="none">
+        <rect x="196" y="840" width="28" height="10" />
+        <rect x="196" y="830" width="28" height="10" />
+        <rect x="228" y="840" width="28" height="10" />
+        <path d="M196 850 H256" />
+      </g>
+
+      {/* PV array: 4×2 cells, one diagonal per cell, legs to a ground line */}
       <g stroke={INK} strokeWidth="1.2" fill="none">
         {[0, 1, 2, 3].map((c) =>
           [0, 1].map((r) => (
             <g key={`pv${c}${r}`}>
-              <rect x={40 + c * 30} y={790 + r * 20} width="26" height="16" />
-              <path d={`M${40 + c * 30} ${806 + r * 20} L${66 + c * 30} ${790 + r * 20}`} />
+              <rect x={50 + c * 30} y={900 + r * 20} width="26" height="16" />
+              <path d={`M${50 + c * 30} ${916 + r * 20} L${76 + c * 30} ${900 + r * 20}`} />
             </g>
           )),
         )}
-        {/* array legs */}
-        <path d="M52 830 v12 M144 830 v12" />
+        <path d="M62 940 V952 M154 940 V952 M50 952 H166" />
       </g>
-      <Label x={40} y={868}>[ PV ARRAY ]</Label>
+      <Label x={50} y={978}>[ PV ARRAY ]</Label>
 
-      {/* NH3 synthesis: two braced tanks + stack */}
+      {/* NH3 synthesis: two braced tanks on a shared ground line + stack */}
       <g stroke={INK} strokeWidth="1.5" fill="none">
-        <rect x="200" y="800" width="34" height="44" />
-        <path d="M200 800 L234 844 M234 800 L200 844" strokeWidth="1" />
-        <rect x="242" y="800" width="34" height="44" />
-        <path d="M242 800 L276 844 M276 800 L242 844" strokeWidth="1" />
-        <path d="M283 844 v-58 h10" />
+        <rect x="210" y="908" width="34" height="44" />
+        <path d="M210 908 L244 952 M244 908 L210 952" strokeWidth="1" />
+        <rect x="252" y="908" width="34" height="44" />
+        <path d="M252 908 L286 952 M286 908 L252 952" strokeWidth="1" />
+        <path d="M202 952 H298" />
+        <path d="M292 908 V886 H302" />
       </g>
-      <Label x={198} y={868}>[ NH3 SYNTHESIS ]</Label>
+      <Label x={208} y={978}>[ NH3 SYNTHESIS ]</Label>
 
-      {/* Process connectors: right-angle dashed pipes PV → NH3 → quay */}
+      {/* Process pipes, right angles, butted onto the structures:
+          PV (x=166, mid y=928) → tank 1 (x=210); NH3 (x=286, y=930) →
+          up to the crane's ground line (y=850) at x=320. */}
       <g stroke={INK_SOFT} strokeWidth="1.2" fill="none" strokeDasharray="3 3">
-        <path d="M160 812 h20" />
-        <path d="M276 822 h34 v-92" />
+        <path d="M166 928 H210" />
+        <path d="M286 930 H320 V850" />
       </g>
-
-      {/* PORT A: crane on the quay */}
-      <Crane x={250} y={720} />
-      <Label x={40} y={700}>[ PORT A ]</Label>
 
       {/* ===== Destination shore: PORT B ===== */}
-      <Crane x={750} y={270} flip />
-      <Label x={790} y={370}>[ PORT B ]</Label>
+      {/* Crane B mirrors A: legs on land (x=785/815, ground y=300),
+          jib west over the quay to x=700, trolley x=715, hook drops
+          toward the route end (715, 340). */}
+      <g stroke={INK} strokeWidth="1.5" fill="none">
+        <path d="M785 300 V245 M815 300 V245 M700 245 H825" />
+        <path d="M785 245 L750 228 L715 245" strokeWidth="1" />
+        <path d="M715 245 V272" />
+        <rect x="709" y="272" width="12" height="9" />
+        <path d="M740 300 H840" />
+      </g>
+      <g stroke={INK} strokeWidth="1.2" fill="none">
+        <rect x="848" y="290" width="28" height="10" />
+        <rect x="848" y="280" width="28" height="10" />
+        <path d="M848 300 H890" />
+      </g>
+      <Label x={760} y={390}>[ PORT B ]</Label>
 
-      {/* ===== The corridor: angular dashed route + ships ===== */}
+      {/* ===== The corridor: angular dashed route + waypoints + ships ===== */}
       <path d={ROUTE} className="route-line" fill="none" stroke={INK} strokeWidth="1.8" />
-      {/* waypoint ticks at the turns */}
       <g stroke={INK} strokeWidth="1.5">
         {(
           [
-            [470, 705],
-            [470, 445],
-            [620, 445],
-            [620, 185],
+            [520, 860],
+            [520, 620],
+            [680, 620],
+            [680, 340],
           ] as const
         ).map(([x, y]) => (
           <path key={`${x}${y}`} d={`M${x - 4} ${y} h8 M${x} ${y - 4} v8`} />
@@ -169,14 +193,15 @@ export default function ShippingCanvas() {
         <rect x="-3" y="-8" width="6" height="5" />
       </g>
 
-      {/* Sea marks: straight-line chevrons */}
+      {/* Sea marks: straight-line chevrons, clear of the route */}
       <g stroke={INK_SOFT} strokeWidth="1.2" fill="none">
         {(
           [
-            [370, 300],
-            [720, 620],
-            [530, 850],
-            [250, 180],
+            [380, 300],
+            [780, 620],
+            [420, 950],
+            [240, 180],
+            [600, 90],
           ] as const
         ).map(([x, y]) => (
           <path key={`${x}${y}`} d={`M${x} ${y} l8 -6 l8 6 M${x + 6} ${y + 10} l8 -6 l8 6`} />
@@ -201,7 +226,7 @@ export default function ShippingCanvas() {
       </g>
 
       {/* Scale bar */}
-      <g transform="translate(620, 950)" stroke={INK} strokeWidth="1.5">
+      <g transform="translate(620, 60)" stroke={INK} strokeWidth="1.5">
         <line x1="0" y1="0" x2="180" y2="0" />
         <line x1="0" y1="-5" x2="0" y2="5" />
         <line x1="90" y1="-4" x2="90" y2="4" />
