@@ -142,7 +142,8 @@
       "cargo": "Cargo units over lifetime",
       "invalid": "The scenario is incomplete: {message}",
       "bothBases": "CO2 abated — combustion: {ttw} t · well-to-wake: {wtw} t",
-      "gapShort": "Gap (PV)"
+      "gapShort": "Gap (PV)",
+      "viewFull": "Full results"
     },
     "buildHere": {
       "openMap": "Pick a site on the map",

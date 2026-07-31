@@ -8,17 +8,18 @@ import { Button } from "@/components/ui/Button";
 import { useCorridorModel } from "./state";
 import { CargoStep, FuelStep, PortStep, RegulationStep, VesselStep } from "./steps";
 import ResultsPanel from "./ResultsPanel";
+import ResultsSummary from "./ResultsSummary";
 import ScenarioBar from "./ScenarioBar";
 
 /**
  * The integrated workspace: ONE model, one screen. The top bar is the only
- * nav — brand + the five steps (the workbook's input tabs). Below it: the
- * active step's form (left) and the results panel (right, wide, always
- * live — the engine runs client-side on every keystroke). On the FUEL step,
- * when the green fuel is constructed / built at a picked site, the full
- * Explorer (layers, cost years, basis, basemap, search, cell drawer,
- * evaluate split) opens as the center pane — "use as corridor fuel site"
- * feeds the green side directly.
+ * nav — brand + the five input steps + the Results tab. The input steps show
+ * the form with a COMPACT live summary docked right; the Results tab shows
+ * the full panel (waterfall, regulatory table, per-year chart) at full
+ * width. On the FUEL step, while the green fuel is constructed / built at a
+ * picked site, the full Explorer (layers, cost years, basis, basemap,
+ * search, cell drawer, evaluate split) opens as the center pane — "use as
+ * corridor fuel site" feeds the green side directly.
  */
 
 // The FULL Explorer (map + on-demand evaluate split) as the center canvas.
@@ -34,18 +35,19 @@ const ExplorerWorkspace = dynamic(
 
 const STEPS = ["cargo", "vessel", "fuel", "port", "regulation"] as const;
 type StepKey = (typeof STEPS)[number];
+type View = StepKey | "results";
 
 export default function CorridorClient() {
   const t = useTranslations("corridor");
   const tc = useTranslations();
   const model = useCorridorModel();
   const [entered, setEntered] = useState(false);
-  const [step, setStep] = useState<StepKey>("cargo");
-  const stepIndex = STEPS.indexOf(step);
+  const [view, setView] = useState<View>("cargo");
+  const stepIndex = view === "results" ? STEPS.length : STEPS.indexOf(view);
 
-  const goTo = (key: StepKey) => {
+  const goTo = (key: View) => {
     setEntered(true);
-    setStep(key);
+    setView(key);
   };
 
   const gap = model.result?.summary.gapPvUsdM;
@@ -54,7 +56,7 @@ export default function CorridorClient() {
   // constructed ("construct") or sited on the map ("build-here"). Picking a
   // cell on it converts construct → build-here with the cell as the site.
   const mapOpen =
-    step === "fuel" &&
+    view === "fuel" &&
     (model.scenario.green.sourcing === "construct" ||
       model.scenario.green.sourcing === "build-here");
 
@@ -66,9 +68,14 @@ export default function CorridorClient() {
     regulation: <RegulationStep model={model} />,
   };
 
+  const tabs: { key: View; label: string }[] = [
+    ...STEPS.map((key) => ({ key: key as View, label: t(`steps.${key}`) })),
+    { key: "results", label: t("results.heading") },
+  ];
+
   return (
     <div className="flex h-dvh flex-col">
-      {/* ===== The one nav bar: brand | five steps | live gap + docs ===== */}
+      {/* ===== The one nav bar: brand | 5 steps + Results | gap + docs ===== */}
       <header className="flex shrink-0 items-stretch border-b border-neutral-300 bg-white">
         <Link
           href="/corridor"
@@ -85,8 +92,8 @@ export default function CorridorClient() {
           aria-label={t("title")}
           className="flex min-w-0 flex-1 items-stretch overflow-x-auto"
         >
-          {STEPS.map((key, i) => {
-            const active = entered && key === step;
+          {tabs.map(({ key, label }, i) => {
+            const active = entered && key === view;
             const visited = entered && i <= stepIndex;
             return (
               <button
@@ -110,7 +117,7 @@ export default function CorridorClient() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="whitespace-nowrap text-sm font-medium">
-                  {t(`steps.${key}`)}
+                  {label}
                 </span>
               </button>
             );
@@ -157,32 +164,51 @@ export default function CorridorClient() {
             </Button>
           </div>
         </main>
+      ) : view === "results" ? (
+        /* ===== Results tab: the full panel, full width ===== */
+        <main className="min-h-0 flex-1 overflow-y-auto bg-page p-4">
+          <div className="mx-auto max-w-375">
+            <h2 className="mb-3 text-sm font-semibold">{t("results.heading")}</h2>
+            <ResultsPanel
+              result={model.result}
+              scenario={model.scenario}
+              error={model.error}
+              wide
+            />
+          </div>
+        </main>
       ) : (
-        /* ===== Workspace: form | map | results ===== */
+        /* ===== Input steps: form | (map) | compact summary ===== */
         <main className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
-          {/* Form pane */}
-          <div className="min-w-0 shrink-0 border-neutral-300 bg-page p-3 lg:w-95 lg:overflow-y-auto lg:border-r xl:w-100">
-            <ScenarioBar model={model} />
-            {stepBody[step]}
-            <div className="mt-4 flex justify-between">
-              <Button
-                size="md"
-                className="px-3 py-1.5 font-normal"
-                disabled={stepIndex === 0}
-                onClick={() => setStep(STEPS[stepIndex - 1] ?? step)}
-              >
-                {t("nav.back")}
-              </Button>
-              {stepIndex < STEPS.length - 1 && (
+          {/* Form pane — gets the room when the map is closed */}
+          <div
+            className={`min-w-0 border-neutral-300 bg-page p-3 lg:overflow-y-auto lg:border-r ${
+              mapOpen ? "shrink-0 lg:w-95 xl:w-100" : "lg:flex-1"
+            }`}
+          >
+            <div className={mapOpen ? "" : "mx-auto max-w-3xl"}>
+              <ScenarioBar model={model} />
+              {stepBody[view]}
+              <div className="mt-4 flex justify-between">
+                <Button
+                  size="md"
+                  className="px-3 py-1.5 font-normal"
+                  disabled={stepIndex === 0}
+                  onClick={() => setView(STEPS[stepIndex - 1] ?? view)}
+                >
+                  {t("nav.back")}
+                </Button>
                 <Button
                   variant="primary"
                   size="md"
                   className="px-3 py-1.5"
-                  onClick={() => setStep(STEPS[stepIndex + 1] ?? step)}
+                  onClick={() =>
+                    setView(stepIndex < STEPS.length - 1 ? STEPS[stepIndex + 1]! : "results")
+                  }
                 >
-                  {t("nav.next")}
+                  {stepIndex < STEPS.length - 1 ? t("nav.next") : t("results.heading")}
                 </Button>
-              )}
+              </div>
             </div>
           </div>
 
@@ -194,21 +220,14 @@ export default function CorridorClient() {
             </div>
           )}
 
-          {/* Results pane — always live; takes ALL remaining width when the
-              map is closed (two-column card grid on wide screens) */}
-          <aside
-            className={`w-full overflow-y-auto border-neutral-300 bg-page p-3 lg:border-l ${
-              mapOpen
-                ? "shrink-0 lg:w-100 xl:w-130 2xl:w-160"
-                : "min-w-0 lg:flex-1"
-            }`}
-          >
+          {/* Compact live summary — small; the full panel is the Results tab */}
+          <aside className="w-full shrink-0 overflow-y-auto border-neutral-300 bg-page p-3 lg:w-72 lg:border-l xl:w-80">
             <h2 className="mb-2 text-sm font-semibold">{t("results.heading")}</h2>
-            <ResultsPanel
+            <ResultsSummary
               result={model.result}
               scenario={model.scenario}
               error={model.error}
-              wide={!mapOpen}
+              onViewFull={() => goTo("results")}
             />
           </aside>
         </main>

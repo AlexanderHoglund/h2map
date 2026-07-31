@@ -41,8 +41,8 @@ test("default scenario reproduces the workbook's golden numbers", async ({ page 
   // $/tCO2 uses the app's WELL-TO-WAKE default (D1): 74,304 t abated →
   // 2246.86 → "$2,247" (the workbook's TTW basis shows "$2,267" and stays
   // selectable in Model options — the engine golden pins it exactly).
-  // The gap shows twice by design (top-bar chip + results headline) —
-  // scope the golden assertions to the results pane.
+  // The gap shows twice by design (top-bar chip + summary headline) —
+  // scope the golden assertions to the docked COMPACT summary.
   const results = page.getByRole("complementary");
   await expect(results.getByText("$166.95m")).toBeVisible();
   await expect(results.getByText("$377", { exact: true })).toBeVisible();
@@ -51,8 +51,14 @@ test("default scenario reproduces the workbook's golden numbers", async ({ page 
   // Side totals (Output rows 8–9).
   await expect(results.getByText("$205.60m")).toBeVisible();
   await expect(results.getByText("$38.64m")).toBeVisible();
-  // Lifetime cargo (row 80).
-  await expect(results.getByText("443,340")).toBeVisible();
+
+  // The FULL panel lives in its own Results tab (06): lifetime cargo
+  // (row 80) renders only there, with the waterfall + per-year chart.
+  await page.getByRole("button", { name: "06 Results" }).click();
+  const full = page.getByRole("main");
+  await expect(full.getByText("$166.95m")).toBeVisible();
+  await expect(full.getByText("443,340")).toBeVisible();
+  await expectNoSeriousViolations(page, "results tab");
 
   // Walk all five steps; results stay docked; axe on each.
   for (const [i, label] of STEPS.entries()) {
