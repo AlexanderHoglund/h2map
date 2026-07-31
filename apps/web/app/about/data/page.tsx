@@ -26,13 +26,13 @@ export default function AboutDataPage() {
         <h2 className="mt-8 text-lg font-medium">Resource data</h2>
         <ul className="mt-2 list-disc space-y-2 pl-5">
           <li>
-            <strong>Solar PV:</strong> PVGIS © European Commission, Joint
+            <strong>Solar PV:</strong>{" "}PVGIS © European Commission, Joint
             Research Centre — hourly PV output from the PVGIS model
             (mounting geometry, temperature losses; 14 % system loss,
             1 kWp normalization).
           </li>
           <li>
-            <strong>Wind:</strong> Weather data by{" "}
+            <strong>Wind:</strong>{" "}Weather data by{" "}
             <a href="https://open-meteo.com/" className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand">
               Open-Meteo.com
             </a>{" "}
@@ -41,7 +41,7 @@ export default function AboutDataPage() {
             5.6 MW turbine curve (profile shape only).
           </li>
           <li>
-            <strong>Fallbacks:</strong> NASA POWER (NASA Langley Research
+            <strong>Fallbacks:</strong>{" "}NASA POWER (NASA Langley Research
             Center) for wind; a labeled low-fidelity GHI proxy for PV.
             Responses always name the provider and dataset behind a result.
           </li>

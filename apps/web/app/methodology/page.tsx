@@ -108,7 +108,7 @@ export default function MethodologyPage() {
           H₂ [kg] = E_consumed [kWh] × η_LHV ÷ 33.33 [kWh/kg]
         </F>
         <p className="mt-2">
-          η<sub>LHV</sub> is the system efficiency on an LHV basis (default
+          η<sub>LHV</sub>{" "}is the system efficiency on an LHV basis (default
           60%), so producing 1 kg needs ≈ 33.33 / 0.60 ≈ 55.6 kWh. Water use is
           9 litres per kg of H₂. The electricity for water desalination and
           pumping is tracked for emissions only, never for cost (§8).
@@ -124,22 +124,22 @@ export default function MethodologyPage() {
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>Solar PV — PVGIS (authoritative):</strong> the JRC PVGIS
+            <strong>Solar PV — PVGIS (authoritative):</strong>{" "}the JRC PVGIS
             model (<code>seriescalc</code>, <code>pvcalculation=1</code>, 1 kWp,
-            14% system loss) returns hourly PV power <code>P</code> in watts;
+            14% system loss) returns hourly PV power <code>P</code>{" "}in watts;
             capacity factor = P / 1000. Mounting is fixed at optimal tilt, or
             single-/dual-axis tracking. If PVGIS is unavailable, a labeled
             low-fidelity fallback is used (GHI/1000 × 0.9).
           </li>
           <li>
-            <strong>PV pathway on the map.</strong> PVGIS auto-resolves a
+            <strong>PV pathway on the map.</strong>{" "}PVGIS auto-resolves a
             per-cell radiation database (SARAH3/NSRDB satellite, its own
             tilt-aware PV model). Where that coverage ends, the crude GHI proxy
             above is a categorically different model, so adjacent hexes stop being
             comparable and a seam appears in the surface. On the map we therefore
             drop the crude fallback for PV: a cell PVGIS cannot serve renders as
             no-data rather than a non-comparable value. (An earlier version pinned{" "}
-            <code>raddatabase=PVGIS-ERA5</code> for a &ldquo;consistent
+            <code>raddatabase=PVGIS-ERA5</code>{" "}for a &ldquo;consistent
             global&rdquo; model,
             but that endpoint is unreliable — frequent errors and materially
             too-low capacity factors — so the map uses PVGIS auto-resolve, which
@@ -148,7 +148,7 @@ export default function MethodologyPage() {
             recorded per cell.
           </li>
           <li>
-            <strong>Wind — Open-Meteo (ERA5, primary):</strong> hourly wind
+            <strong>Wind — Open-Meteo (ERA5, primary):</strong>{" "}hourly wind
             speed at 10 m and 100 m is extrapolated to hub height (120 or 160 m)
             with a per-hour power-law shear exponent, then converted through a
             digitized turbine power curve. NASA POWER (fixed shear α = 1/7) is
@@ -163,13 +163,13 @@ export default function MethodologyPage() {
         </F>
         <p className="mt-2">
           Wind capacity factor = P<sub>turbine</sub>(v<sub>hub</sub>) / P
-          <sub>rated</sub>, where P<sub>turbine</sub> is linear interpolation on
+          <sub>rated</sub>, where P<sub>turbine</sub>{" "}is linear interpolation on
           the reference 5.6 MW power curve (cut-in 3 m/s, rated ≈ 12 m/s,
-          cut-out 25 m/s). The turbine sets the profile <em>shape</em> only;
+          cut-out 25 m/s). The turbine sets the profile <em>shape</em>{" "}only;
           installed capacity scales linearly.
         </p>
         <p className="mt-2">
-          <strong>Air-density correction (improved mode).</strong> A power curve
+          <strong>Air-density correction (improved mode).</strong>{" "}A power curve
           is defined at sea-level density ρ₀ = 1.225 kg/m³; thinner air at
           elevation produces less power at a given speed. The lookup can be
           normalised (IEC 61400-12) using the site elevation and hourly air
@@ -186,14 +186,14 @@ export default function MethodologyPage() {
           to surface. Reference profiles apply no correction.
         </p>
         <p className="mt-2">
-          <strong>Turbine-class selection (improved mode).</strong> One
+          <strong>Turbine-class selection (improved mode).</strong>{" "}One
           mid-market machine applied everywhere penalises low-wind sites, where
           a developer would deploy a lower IEC wind class — same generator,
-          larger rotor, so a lower <em>specific power</em> (rated kW per m² of
+          larger rotor, so a lower <em>specific power</em>{" "}(rated kW per m² of
           swept area) that reaches rated power at a lower wind speed and yields
           far more energy in light winds. The improved path selects the class
           from the site&rsquo;s annual-mean hub-height speed (IEC classes are
-          defined on wind speed, so the <em>uncorrected</em> mean is used):
+          defined on wind speed, so the <em>uncorrected</em>{" "}mean is used):
           ≥9.5 m/s → Class I (rated ≈12.5 m/s), 7.5–9.5 → Class II (≈11.5),
           &lt;7.5 → Class III (≈10.5, largest rotor). The three curves are
           repositioned from the digitised generic curve; the selected class is
@@ -217,7 +217,7 @@ export default function MethodologyPage() {
           Each hour, renewables serve the electrolyzer first; the grid/PPA (if
           configured) tops up the shortfall up to its hourly cap and the
           electrolyzer&apos;s capacity. Available renewable power is{" "}
-          <code>CF × capacity</code> per source. If total available renewable
+          <code>CF × capacity</code>{" "}per source. If total available renewable
           power exceeds the electrolyzer demand, both sources are scaled down
           pro-rata by the same factor:
         </p>
@@ -229,7 +229,7 @@ export default function MethodologyPage() {
         </F>
         <p className="mt-2">
           Pro-rata scaling guarantees, per source,{" "}
-          <code>generated = consumed + curtailed</code> exactly. Because the TMY
+          <code>generated = consumed + curtailed</code>{" "}exactly. Because the TMY
           repeats, the 8760-hour dispatch is computed once; only per-year scalar
           quantities (efficiency, hydrogen) change over the project life.
         </p>
@@ -257,17 +257,17 @@ export default function MethodologyPage() {
           and operating costs occur in years 1 … N:
         </p>
         <p className="mt-2">
-          <strong>Financing layers.</strong> The map&rsquo;s default surface
+          <strong>Financing layers.</strong>{" "}The map&rsquo;s default surface
           applies a single uniform r = 8% everywhere, so it ranks{" "}
           <em>resource</em>, not project cost — it is labelled{" "}
           &ldquo;resource-driven, uniform financing&rdquo; on the map itself.
           The capital-recovery factor over 20 yr swings from 0.087 at 6% to
           0.134 at 12% — a larger spread than the resource gap between two good
-          sites — so an optional <em>risk-adjusted</em> layer instead applies
+          sites — so an optional <em>risk-adjusted</em>{" "}layer instead applies
           each cell&rsquo;s country cost of capital
           (<code>country_defaults.wacc_suggestion</code>, matched by
           point-in-polygon against the Natural Earth boundaries). That WACC is a
-          transparent World Bank income-group <em>heuristic</em> (0.06 OECD-high
+          transparent World Bank income-group <em>heuristic</em>{" "}(0.06 OECD-high
           → 0.12 low-income), labelled as such wherever it appears and isolated
           in code so a measured cost-of-capital source can replace it.
         </p>
@@ -328,9 +328,9 @@ export default function MethodologyPage() {
         <H id="lcoe">7. Electricity pricing (LCOE)</H>
         <p className="mt-2">
           Renewable electricity is priced one of two ways per source. In{" "}
-          <strong>LCOE mode</strong> a flat price per MWh is charged on{" "}
-          <em>consumed</em> energy only (curtailed energy is free). In{" "}
-          <strong>CAPEX mode</strong> the electricity cost is <em>derived</em>{" "}
+          <strong>LCOE mode</strong>{" "}a flat price per MWh is charged on{" "}
+          <em>consumed</em>{" "}energy only (curtailed energy is free). In{" "}
+          <strong>CAPEX mode</strong>{" "}the electricity cost is <em>derived</em>{" "}
           from the plant&apos;s build cost and its own generation — so a better
           resource yields cheaper electricity:
         </p>
@@ -339,7 +339,7 @@ export default function MethodologyPage() {
           [USD/MWh]
         </F>
         <p className="mt-2">
-          The reported <em>mix</em> LCOE is the consumed-energy-weighted average
+          The reported <em>mix</em>{" "}LCOE is the consumed-energy-weighted average
           of the active sources:
         </p>
         <F>
@@ -352,10 +352,10 @@ export default function MethodologyPage() {
         </p>
         <p className="mt-2">
           In CAPEX mode the electricity component charges the full plant CAPEX
-          regardless of curtailment, but <code>LCOE_mix</code> is per MWh{" "}
-          <em>generated</em> — so multiplying it by consumed energy under-counts
+          regardless of curtailment, but <code>LCOE_mix</code>{" "}is per MWh{" "}
+          <em>generated</em>{" "}— so multiplying it by consumed energy under-counts
           by the utilization ratio. The engine therefore also reports an{" "}
-          <strong>effective cost per consumed MWh</strong> (discounted
+          <strong>effective cost per consumed MWh</strong>{" "}(discounted
           electricity cost ÷ discounted consumed MWh), which reconciles to the
           electricity components exactly, and per-source utilization
           (E_consumed / E_generated).
@@ -382,11 +382,11 @@ export default function MethodologyPage() {
         <p className="mt-2">
           This ledger is <strong>operational only</strong>, measured against the
           annual-average grid emission factor. It is <strong>not an RFNBO /
-          RED II compliance assessment</strong> — that additionally requires
+          RED II compliance assessment</strong>{" "}— that additionally requires
           additionality and geographic (same bidding zone) and temporal
           (monthly, then hourly) correlation against defined comparators, with a
           3.38 kgCO₂e/kg threshold. Because dispatch is hourly, the engine does
-          report the <strong>hourly renewable-matched fraction</strong> (share
+          report the <strong>hourly renewable-matched fraction</strong>{" "}(share
           of consumption served hour-by-hour by the project&apos;s own
           renewables), which is the figure a compliance-minded reader wants — but
           a 0 here means operationally clean, not RFNBO-compliant.
@@ -425,11 +425,11 @@ export default function MethodologyPage() {
           configuration so cells are comparable: a 100 MW electrolyzer at the
           reference defaults, no grid, and a fixed 200 MW total of renewables
           whose PV share is swept over {"{0, 25, 50, 75, 100}"}%. The lowest-cost
-          mix is the <em>Best combination</em> layer; PV-only and wind-only give
-          the <em>Solar only</em> and <em>Wind only</em> layers.
+          mix is the <em>Best combination</em>{" "}layer; PV-only and wind-only give
+          the <em>Solar only</em>{" "}and <em>Wind only</em>{" "}layers.
         </p>
         <p className="mt-2">
-          <strong>Best-achievable layer (oversizing sweep).</strong> The fixed
+          <strong>Best-achievable layer (oversizing sweep).</strong>{" "}The fixed
           2:1 point is one arbitrary design; the true optimum also depends on the
           renewable-to-electrolyser <em>ratio</em>, which is strongly
           profile-dependent — flat wind wants a lower ratio than peaky solar — so
@@ -440,7 +440,7 @@ export default function MethodologyPage() {
         </p>
         <p className="mt-2">
           Unlike the flat-30 reference, the map prices electricity in{" "}
-          <strong>CAPEX mode</strong> so each cell&apos;s cost reflects its own
+          <strong>CAPEX mode</strong>{" "}so each cell&apos;s cost reflects its own
           capacity factor (IRENA 2023 global averages: solar 800 USD/kWp + 1.5%
           OPEX, onshore wind 1200 USD/kW + 2.5% OPEX). Colors use a fixed
           per-layer domain (never rescaled to the viewport), so a color means
@@ -451,7 +451,7 @@ export default function MethodologyPage() {
         <H id="costyears">11. Cost-year projections (2030 / 2040 / 2050)</H>
         <p className="mt-2">
           The cost-year buttons re-price each cell with future technology costs.
-          The <strong>resource is held constant</strong> — same capacity factors
+          The <strong>resource is held constant</strong>{" "}— same capacity factors
           — so the change is purely the techno-economic cost-down. Multipliers
           on the 2024 base:
         </p>
@@ -490,23 +490,23 @@ export default function MethodologyPage() {
           </table>
         </div>
         <p className="mt-2">
-          The <strong>2030</strong> multipliers are derived from the IEA Global
+          The <strong>2030</strong>{" "}multipliers are derived from the IEA Global
           Hydrogen Review 2025 Assumptions Annex (electrolyser CAPEX 2000–2600 →
           1400–1820 USD/kW; solar/wind regional cost declines). IEA&apos;s
           hydrogen publications have a 2030 horizon, so <strong>2040 and 2050
-          are extrapolated</strong> along IEA&apos;s stated direction and are
+          are extrapolated</strong>{" "}along IEA&apos;s stated direction and are
           labeled &quot;projected&quot; throughout the UI. Scenario: IEA
           Announced Pledges (APS); cost-down applied globally.
         </p>
         <p className="mt-2">
-          <strong>Durability trajectory.</strong> Earlier packs cut CAPEX but
+          <strong>Durability trajectory.</strong>{" "}Earlier packs cut CAPEX but
           held stack life at 40 000 h and degradation at 1%/yr — incoherent,
           since durability is a primary learning-curve target, and it made the
           cost-down conservative. Stack life and degradation now improve
           alongside CAPEX (2024 unchanged). These durability figures are a{" "}
-          <em>documented extrapolation</em> along the IEA/DOE direction, not
+          <em>documented extrapolation</em>{" "}along the IEA/DOE direction, not
           IEA-published values. Because solar CAPEX falls faster than wind, the
-          cheapest PV/wind mix <strong>flips</strong> in some cells between cost
+          cheapest PV/wind mix <strong>flips</strong>{" "}in some cells between cost
           years — shifting toward solar by 2050.
         </p>
 
@@ -538,7 +538,7 @@ export default function MethodologyPage() {
         {/* 14 */}
         <H id="validation">14. Validation</H>
         <p className="mt-2">
-          <strong>Chilean 47-project parity</strong> (Tabla 3-1, Motor de Cálculo
+          <strong>Chilean 47-project parity</strong>{" "}(Tabla 3-1, Motor de Cálculo
           LCOH, April 2024) is the one empirical comparison, and n = 32 with
           inferred coordinates is thin — the tool&apos;s job is screening, so the
           metrics that matter are shortlist fidelity, not a single global
@@ -550,7 +550,7 @@ export default function MethodologyPage() {
             τ_b = 0.66 with a bootstrap 95% CI of roughly [0.53, 0.78].
           </li>
           <li>
-            <strong>Precision@5 = @10 = 1.0</strong> and top-decile retention
+            <strong>Precision@5 = @10 = 1.0</strong>{" "}and top-decile retention
             1.0: the model identifies the cheapest sites — what a user actually
             shortlists — exactly. The discordance sits among the middle of the
             distribution, not the top.
@@ -566,7 +566,7 @@ export default function MethodologyPage() {
             cause may not be uniform across geographies.
           </li>
           <li>
-            <strong>One benchmark is thin for a global tool.</strong> A second
+            <strong>One benchmark is thin for a global tool.</strong>{" "}A second
             published dataset with fully disclosed assumptions and coordinates
             (e.g. an IEA/IRENA or national green-hydrogen cost study) is the
             outstanding validation work; the parity harness is dataset-agnostic
@@ -605,12 +605,12 @@ export default function MethodologyPage() {
         <H id="sources">16. Sources</H>
         <ul className="mt-2 space-y-2">
           <li>
-            <strong>Methodology:</strong> «Motor de Cálculo LCOH — Principales
+            <strong>Methodology:</strong>{" "}«Motor de Cálculo LCOH — Principales
             características», Ministerio de Energía de Chile / Centro de Energía
             FCFM U. de Chile / USACH / PUC, April 2024.
           </li>
           <li>
-            <strong>Solar:</strong> PVGIS © European Commission, Joint Research
+            <strong>Solar:</strong>{" "}PVGIS © European Commission, Joint Research
             Centre —{" "}
             <a
               href="https://re.jrc.ec.europa.eu/pvg_tools/"
@@ -621,24 +621,24 @@ export default function MethodologyPage() {
             .
           </li>
           <li>
-            <strong>Wind &amp; weather:</strong> Open-Meteo.com (CC BY 4.0),
+            <strong>Wind &amp; weather:</strong>{" "}Open-Meteo.com (CC BY 4.0),
             based on ERA5 (Copernicus Climate Change Service); NASA POWER (NASA
             Langley Research Center) fallback.
           </li>
           <li>
-            <strong>Renewable CAPEX:</strong> IRENA, Renewable Power Generation
+            <strong>Renewable CAPEX:</strong>{" "}IRENA, Renewable Power Generation
             Costs 2023.
           </li>
           <li>
-            <strong>Cost projections:</strong> IEA, Global Hydrogen Review 2025
+            <strong>Cost projections:</strong>{" "}IEA, Global Hydrogen Review 2025
             — Assumptions Annex (Announced Pledges Scenario).
           </li>
           <li>
-            <strong>Grid emission factors:</strong> Our World in Data (Ember +
+            <strong>Grid emission factors:</strong>{" "}Our World in Data (Ember +
             Energy Institute), carbon intensity of electricity.
           </li>
           <li>
-            <strong>Boundaries:</strong> Natural Earth (public domain).
+            <strong>Boundaries:</strong>{" "}Natural Earth (public domain).
             Basemap © CARTO, map data © OpenStreetMap contributors.
           </li>
         </ul>

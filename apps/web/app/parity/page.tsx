@@ -100,8 +100,8 @@ export default function ParityPage() {
         site-exact reproduction.
       </p>
       <p className="mt-2 max-w-3xl text-sm text-neutral-600">
-        This is <strong>validation</strong> (do the assumptions match reality?),
-        distinct from <strong>verification</strong> (does the code compute the
+        This is <strong>validation</strong>{" "}(do the assumptions match reality?),
+        distinct from <strong>verification</strong>{" "}(does the code compute the
         method? — analytical cases at 1e-6, golden files at 1e-12, in the test
         suite). For a screening tool, shortlist fidelity matters more than a
         single global correlation.
@@ -158,7 +158,7 @@ export default function ParityPage() {
         </>
       ) : (
         <p className="mt-6 border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-          No computed results yet — run <code>npm run parity:run</code> at the
+          No computed results yet — run <code>npm run parity:run</code>{" "}at the
           repo root, then reload.
         </p>
       )}

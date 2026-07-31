@@ -49,7 +49,7 @@ function splitByManifest(
 
 export function CargoStep({ model }: StepProps) {
   const t = useTranslations("corridor.cargo");
-  const { scenario, update, resolved, benchmarks, bundle } = model;
+  const { scenario, update, resolved, benchmarks } = model;
 
   const fields = splitByManifest([
     {
