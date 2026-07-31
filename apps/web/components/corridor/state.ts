@@ -9,7 +9,8 @@ import {
   type ResolvedScenario,
   type ScenarioInput,
 } from "@h2map/corridor-schema";
-import { evaluateScenario } from "@h2map/corridor-engine";
+import { evaluateScenario, synthesize } from "@h2map/corridor-engine";
+import { getSynthesisBenchmark } from "@h2map/corridor-schema";
 import type { ScenarioResult } from "@h2map/corridor-schema";
 import bundleJson from "../../../../data/corridor-ref/2026-07-30-excel-v1.json";
 import fixtureDefaults from "../../../../fixtures/golden/corridor/excel-baseline.input.json";
@@ -52,6 +53,57 @@ function clearOverrides(s: ScenarioInput): ScenarioInput {
 }
 
 const DRAFT_KEY = "corridor-draft-v1";
+const SITE_PICK_KEY = "corridor-site-pick";
+
+/**
+ * Consume a site handed over from the Explorer ("use as corridor fuel site"):
+ * switch the green side to build-here with a delivered price derived from the
+ * cell's LCOH via carrier synthesis + default logistics. One-shot — the key
+ * is cleared; the user refines config in the Fuel step's build-here panel.
+ */
+function applySitePick(scenario: ScenarioInput): ScenarioInput {
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(SITE_PICK_KEY);
+  } catch {
+    return scenario;
+  }
+  if (!raw) return scenario;
+  localStorage.removeItem(SITE_PICK_KEY);
+  try {
+    const pick = JSON.parse(raw) as { h3: string; lat: number; lon: number; lcoh: number };
+    if (typeof pick.lcoh !== "number" || !pick.h3) return scenario;
+    const next = JSON.parse(JSON.stringify(scenario)) as ScenarioInput;
+    // Ensure a synthesizable carrier (fall back to the workbook's e-ammonia).
+    let carrier;
+    try {
+      carrier = getSynthesisBenchmark(next.green.fuelId);
+    } catch {
+      next.green.fuelId = "e-ammonia";
+      carrier = getSynthesisBenchmark("e-ammonia");
+    }
+    const config = { productionWacc: 0.08, electricityUsdPerMwh: 60, co2UsdPerTonne: 30 };
+    const distanceKm = 300;
+    const synth = synthesize(pick.lcoh, carrier, config);
+    const logistics = distanceKm * 1.3 * carrier.shippingUsdPerTonneKm;
+    next.green.sourcing = "build-here";
+    next.green.deliveredPriceUsdPerTonne =
+      Math.round((synth.gateUsdPerTonne + logistics) * 100) / 100;
+    next.green.buildHere = {
+      h3: pick.h3,
+      lat: pick.lat,
+      lon: pick.lon,
+      lcohUsdPerKg: pick.lcoh,
+      carrierId: carrier.carrierId,
+      synthesisGateUsdPerTonne: Math.round(synth.gateUsdPerTonne * 100) / 100,
+      distanceKm,
+      logisticsUsdPerTonne: Math.round(logistics * 100) / 100,
+    };
+    return next;
+  } catch {
+    return scenario;
+  }
+}
 
 export interface CorridorModel {
   bundle: RefBundle;
@@ -75,13 +127,16 @@ export function useCorridorModel(): CorridorModel {
   // the ssr:false corridor island, so localStorage is always available.
   // Account save/share is scenario management (3.5).
   const [init] = useState<{ scenario: ScenarioInput; hadDraft: boolean }>(() => {
+    let base: { scenario: ScenarioInput; hadDraft: boolean } | null = null;
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
-      if (raw) return { scenario: migrateScenarioInput(JSON.parse(raw)).input, hadDraft: true };
+      if (raw) base = { scenario: migrateScenarioInput(JSON.parse(raw)).input, hadDraft: true };
     } catch {
       localStorage.removeItem(DRAFT_KEY);
     }
-    return { scenario: defaultScenario(), hadDraft: false };
+    base ??= { scenario: defaultScenario(), hadDraft: false };
+    // An Explorer hand-off ("use as corridor fuel site") lands here.
+    return { ...base, scenario: applySitePick(base.scenario) };
   });
   const [scenario, setScenario] = useState<ScenarioInput>(init.scenario);
 

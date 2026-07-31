@@ -27,7 +27,8 @@ export default function CorridorClient() {
 
   if (!entered) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-16">
+      <main className="flex h-[calc(100dvh-3rem)] items-center justify-center px-4">
+        <div className="max-w-2xl">
         <h1 className="text-2xl font-semibold">{t("intro.heading")}</h1>
         <p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           {t("intro.body")}
@@ -39,6 +40,7 @@ export default function CorridorClient() {
         >
           {model.hadDraft ? t("intro.resume") : t("intro.start")}
         </button>
+        </div>
       </main>
     );
   }
@@ -52,9 +54,11 @@ export default function CorridorClient() {
   };
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 lg:flex-row">
+    // Full-viewport app surface (like the Explorer): the page never scrolls on
+    // desktop — the form column and the results rail scroll independently.
+    <main className="flex h-[calc(100dvh-3rem)] w-full flex-col gap-4 overflow-y-auto px-4 py-4 lg:flex-row lg:overflow-hidden">
       {/* Form column */}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 lg:overflow-y-auto lg:pr-1">
         <ScenarioBar model={model} />
         {/* Stepper */}
         <nav aria-label={t("title")} className="mb-4 flex flex-wrap gap-1">
@@ -105,12 +109,11 @@ export default function CorridorClient() {
         </div>
       </div>
 
-      {/* Docked results (desktop right rail; below the form on mobile) */}
-      <aside className="w-full shrink-0 lg:w-[340px]">
-        <div className="lg:sticky lg:top-16">
-          <h2 className="mb-2 text-sm font-semibold">{t("results.heading")}</h2>
-          <ResultsPanel result={model.result} scenario={model.scenario} error={model.error} />
-        </div>
+      {/* Docked results (desktop right rail with its own scroll; below the
+          form on mobile) */}
+      <aside className="w-full shrink-0 pb-4 lg:w-[360px] lg:overflow-y-auto lg:pb-0">
+        <h2 className="mb-2 text-sm font-semibold">{t("results.heading")}</h2>
+        <ResultsPanel result={model.result} scenario={model.scenario} error={model.error} />
       </aside>
     </main>
   );

@@ -237,6 +237,18 @@ export default function ScenarioBar({ model }: { model: CorridorModel }) {
         {t("share")}
       </Btn>
       <Btn onClick={exportJson}>{t("export")}</Btn>
+      <Btn
+        onClick={() => {
+          if (!window.confirm(t("resetConfirm"))) return;
+          model.reset();
+          setCurrentId(null);
+          setName("My corridor");
+          window.history.replaceState(null, "", "/corridor");
+          flash(t("resetDone"));
+        }}
+      >
+        {t("reset")}
+      </Btn>
       {session && list.length > 0 && (
         <>
           <select

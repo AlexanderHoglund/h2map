@@ -183,7 +183,10 @@
       "diffCurrent": "Current",
       "diffOther": "Other",
       "loadedMigrated": "Loaded (payload migrated from schema v{from} and re-evaluated with the current engine)",
-      "loadedNewerEngine": "Loaded — saved with engine {saved}; results shown are re-evaluated with the current engine"
+      "loadedNewerEngine": "Loaded — saved with engine {saved}; results shown are re-evaluated with the current engine",
+      "reset": "Reset",
+      "resetConfirm": "Start a new corridor? This clears the current draft (saved scenarios are kept).",
+      "resetDone": "Draft reset to the workbook defaults"
     },
     "shared": {
       "notFound": "No shared scenario for this link (it may have been revoked).",

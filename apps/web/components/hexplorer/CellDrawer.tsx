@@ -1,6 +1,7 @@
 "use client";
 
 import { cellToLatLng } from "h3-js";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 import {
@@ -44,6 +45,7 @@ export default function CellDrawer({
   onEvaluate,
 }: Props) {
   const t = useTranslations("explorer");
+  const router = useRouter();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const shown = datum;
 
@@ -66,6 +68,23 @@ export default function CellDrawer({
     const [lat, lon] = cellToLatLng(shown.h3);
     onEvaluate(lat, lon);
     onClose(); // retract the quick popup as the split panel opens
+  };
+
+  /**
+   * Hand this cell to the Green Corridor as the fuel-production site: the pick
+   * travels via localStorage (the corridor model consumes and clears it on
+   * load) — the corridor URL stays clean.
+   */
+  const useForCorridor = () => {
+    if (!shown) return;
+    const lcoh = layerValue(shown.data, "best", 2024);
+    if (lcoh === null) return;
+    const [lat, lon] = cellToLatLng(shown.h3);
+    localStorage.setItem(
+      "corridor-site-pick",
+      JSON.stringify({ h3: shown.h3, lat, lon, lcoh }),
+    );
+    router.push("/corridor");
   };
 
   const lcohByLayer = shown
@@ -218,7 +237,7 @@ export default function CellDrawer({
             </div>
           </div>
 
-          <footer className="border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <footer className="space-y-2 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
             <button
               type="button"
               onClick={evaluateHere}
@@ -226,6 +245,15 @@ export default function CellDrawer({
             >
               {t("drawer.evaluate")}
             </button>
+            {layerValue(shown.data, "best", 2024) !== null && (
+              <button
+                type="button"
+                onClick={useForCorridor}
+                className="w-full rounded-lg border border-emerald-600 px-3 py-2 font-medium text-emerald-700 hover:bg-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 dark:border-emerald-500 dark:text-emerald-400"
+              >
+                {t("drawer.useForCorridor")}
+              </button>
+            )}
           </footer>
         </>
       )}

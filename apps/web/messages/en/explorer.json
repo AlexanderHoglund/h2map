@@ -79,7 +79,8 @@
       "trendNote": "* projected (IEA-anchored; 2040/2050 extrapolated)",
       "cellId": "Cell {id}",
       "approximate": "Approximate — value inherited from parent cell",
-      "evaluate": "Evaluate here"
+      "evaluate": "Evaluate here",
+      "useForCorridor": "Use as corridor fuel site"
     }
   }
 }
