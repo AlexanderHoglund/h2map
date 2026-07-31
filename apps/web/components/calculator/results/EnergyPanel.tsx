@@ -115,8 +115,8 @@ function CurtailmentTile({
   const generationKwh = consumedKwh + curtailedKwh;
   const pct = generationKwh > 0 ? (curtailedKwh / generationKwh) * 100 : 0;
   return (
-    <div className="rounded-md border border-neutral-200 px-3 py-2 text-xs dark:border-neutral-800">
-      <div className="text-neutral-500 dark:text-neutral-400">{label}</div>
+    <div className="rounded-md border border-neutral-200 px-3 py-2 text-xs">
+      <div className="text-neutral-500">{label}</div>
       <div className="mt-0.5 font-medium tabular-nums">
         {t("curtailmentValue", {
           mwh: Math.round(curtailedKwh / 1000).toLocaleString("en-US"),
@@ -141,7 +141,7 @@ function Provenance({ profiles }: { profiles: SimulateResponse["profiles"] }) {
   }
   if (lines.length === 0) return null;
   return (
-    <p className="mt-3 text-[11px] text-neutral-400 dark:text-neutral-500">
+    <p className="mt-3 text-[11px] text-neutral-400">
       {t("provenance")} — {lines.join(" · ")}
     </p>
   );

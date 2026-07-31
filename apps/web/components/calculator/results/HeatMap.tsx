@@ -42,7 +42,7 @@ export default function HeatMap({ matrix }: { matrix: number[][] }) {
           {Array.from({ length: 24 }, (_, h) => (
             <div
               key={h}
-              className="pt-0.5 text-center text-[9px] tabular-nums text-neutral-400 dark:text-neutral-500"
+              className="pt-0.5 text-center text-[9px] tabular-nums text-neutral-400"
             >
               {h % 3 === 0 ? h : ""}
             </div>
@@ -50,7 +50,7 @@ export default function HeatMap({ matrix }: { matrix: number[][] }) {
         </div>
       </div>
       {/* Compact color key */}
-      <div className="mt-2 flex items-center gap-2 text-[10px] text-neutral-500 dark:text-neutral-400">
+      <div className="mt-2 flex items-center gap-2 text-[10px] text-neutral-500">
         <span className="tabular-nums">0</span>
         <div
           className="h-2 w-28 rounded-sm"
@@ -76,7 +76,7 @@ function MonthRow({
 }) {
   return (
     <>
-      <div className="flex items-center justify-end pr-1 text-[9px] font-medium text-neutral-500 dark:text-neutral-400">
+      <div className="flex items-center justify-end pr-1 text-[9px] font-medium text-neutral-500">
         {MONTH_INITIALS[month]}
       </div>
       {Array.from({ length: 24 }, (_, h) => {

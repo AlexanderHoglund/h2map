@@ -51,14 +51,14 @@ export default function LayerControls({
   const bodyId = useId();
 
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white/95 text-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
+    <section className="rounded-lg border border-neutral-200 bg-white/95 text-sm shadow-md backdrop-blur">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={bodyId}
         aria-label={open ? t("controls.collapse") : t("controls.expand")}
-        className="flex w-full items-center justify-between rounded-lg px-3 py-2 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+        className="flex w-full items-center justify-between rounded-lg px-3 py-2 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
       >
         <span>{t("controls.title")}</span>
         <svg
@@ -76,10 +76,10 @@ export default function LayerControls({
       {open && (
         <div
           id={bodyId}
-          className="space-y-3 border-t border-neutral-200 px-3 py-3 dark:border-neutral-800"
+          className="space-y-3 border-t border-neutral-200 px-3 py-3"
         >
           <fieldset>
-            <legend className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+            <legend className="mb-1 text-xs font-medium text-neutral-500">
               {t("controls.layerGroup")}
             </legend>
             <div className="space-y-1">
@@ -91,7 +91,7 @@ export default function LayerControls({
                     value={key}
                     checked={layerKey === key}
                     onChange={() => onLayerChange(key)}
-                    className="accent-blue-600"
+                    className="accent-brand"
                   />
                   <span>{t(`controls.layers.${key}`)}</span>
                 </label>
@@ -101,19 +101,19 @@ export default function LayerControls({
 
           {layerKey === "best" && (
             <fieldset>
-              <legend className="mb-1 flex items-center gap-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              <legend className="mb-1 flex items-center gap-1 text-xs font-medium text-neutral-500">
                 {t("controls.basisGroup")}
                 <span className="group relative inline-flex">
                   <button
                     type="button"
                     aria-label={t("controls.basisHelp")}
-                    className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300 text-[10px] leading-none text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                    className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300 text-[10px] leading-none text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                   >
                     i
                   </button>
                   <span
                     role="tooltip"
-                    className="pointer-events-none absolute left-0 top-full z-20 mt-1 w-60 rounded-md border border-neutral-200 bg-white p-2 text-[11px] font-normal leading-snug text-neutral-600 opacity-0 shadow-lg transition-opacity duration-100 group-hover:opacity-100 group-focus-within:opacity-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+                    className="pointer-events-none absolute left-0 top-full z-20 mt-1 w-60 rounded-md border border-neutral-200 bg-white p-2 text-[11px] font-normal leading-snug text-neutral-600 opacity-0 shadow-lg transition-opacity duration-100 group-hover:opacity-100 group-focus-within:opacity-100"
                   >
                     {t("controls.basisHelp")}
                   </span>
@@ -128,7 +128,7 @@ export default function LayerControls({
                       value={b}
                       checked={basis === b}
                       onChange={() => onBasisChange(b)}
-                      className="accent-blue-600"
+                      className="accent-brand"
                     />
                     <span>{t(`controls.bases.${b}`)}</span>
                   </label>
@@ -138,10 +138,10 @@ export default function LayerControls({
           )}
 
           <div>
-            <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+            <p className="mb-1 text-xs font-medium text-neutral-500">
               {t("controls.costYear")}
             </p>
-            <div className="inline-flex overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
+            <div className="inline-flex overflow-hidden rounded-lg border border-neutral-200">
               {COST_YEARS.map((year) => {
                 const active = year === costYear;
                 return (
@@ -150,10 +150,10 @@ export default function LayerControls({
                     type="button"
                     aria-pressed={active}
                     onClick={() => onCostYearChange(year)}
-                    className={`px-2.5 py-1.5 text-xs tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 ${
+                    className={`px-2.5 py-1.5 text-xs tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40 ${
                       active
-                        ? "bg-blue-600 text-white"
-                        : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                        ? "bg-brand text-white"
+                        : "text-neutral-600 hover:bg-neutral-100"
                     }`}
                   >
                     {year}
@@ -162,7 +162,7 @@ export default function LayerControls({
               })}
             </div>
             {costYear !== 2024 && (
-              <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+              <p className="mt-1 text-[11px] text-neutral-500">
                 {t("controls.costYearProjected")}
               </p>
             )}
@@ -171,7 +171,7 @@ export default function LayerControls({
           <div>
             <label
               htmlFor={basemapId}
-              className="mb-1 block text-xs font-medium text-neutral-500 dark:text-neutral-400"
+              className="mb-1 block text-xs font-medium text-neutral-500"
             >
               {t("controls.basemap")}
             </label>
@@ -179,7 +179,7 @@ export default function LayerControls({
               id={basemapId}
               value={basemap}
               onChange={(e) => onBasemapChange(e.target.value as Basemap)}
-              className="w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-800 dark:bg-neutral-900"
+              className="w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
             >
               {BASEMAPS.map((b) => (
                 <option key={b} value={b}>
@@ -192,7 +192,7 @@ export default function LayerControls({
           <div>
             <label
               htmlFor={opacityId}
-              className="mb-1 flex justify-between text-xs font-medium text-neutral-500 dark:text-neutral-400"
+              className="mb-1 flex justify-between text-xs font-medium text-neutral-500"
             >
               <span>{t("controls.opacity")}</span>
               <span className="tabular-nums">
@@ -206,7 +206,7 @@ export default function LayerControls({
               max={100}
               value={opacity}
               onChange={(e) => onOpacityChange(Number(e.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:bg-neutral-700 [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-blue-600"
+              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand"
             />
           </div>
 
@@ -216,7 +216,7 @@ export default function LayerControls({
               type="checkbox"
               checked={visible}
               onChange={(e) => onVisibleChange(e.target.checked)}
-              className="accent-blue-600"
+              className="accent-brand"
             />
             <span>{t("controls.visible")}</span>
           </label>

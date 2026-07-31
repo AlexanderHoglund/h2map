@@ -101,20 +101,20 @@ export default function CellDrawer({
       aria-label={t("drawer.title")}
       aria-hidden={!open}
       inert={!open}
-      className={`absolute inset-y-0 right-0 z-20 flex w-[360px] max-w-[85vw] flex-col border-l border-neutral-200 bg-white text-sm transition-transform duration-200 ease-out dark:border-neutral-800 dark:bg-neutral-900 ${
+      className={`absolute inset-y-0 right-0 z-20 flex w-[360px] max-w-[85vw] flex-col border-l border-neutral-200 bg-white text-sm shadow-xl transition-transform duration-200 ease-out ${
         open ? "translate-x-0" : "translate-x-full"
       }`}
     >
       {shown && lcohByLayer && (
         <>
-          <header className="flex items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <header className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
             <h2 className="font-medium">{t("drawer.title")}</h2>
             <button
               ref={closeButtonRef}
               type="button"
               onClick={onClose}
               aria-label={t("drawer.close")}
-              className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+              className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
             >
               <svg
                 aria-hidden="true"
@@ -131,13 +131,13 @@ export default function CellDrawer({
 
           <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
             <section>
-              <h3 className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              <h3 className="mb-1 text-xs font-medium text-neutral-500">
                 {t("drawer.lcohHeading")} · {costYear} · {t("drawer.unit")}
               </h3>
               <dl>
                 {LAYER_KEYS.map((key) => (
                   <div key={key} className="flex justify-between py-0.5">
-                    <dt className="text-neutral-600 dark:text-neutral-300">
+                    <dt className="text-neutral-600">
                       {t(`drawer.layers.${key}`)}
                     </dt>
                     <dd className="tabular-nums font-medium">
@@ -149,18 +149,18 @@ export default function CellDrawer({
             </section>
 
             <section>
-              <h3 className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              <h3 className="mb-1 text-xs font-medium text-neutral-500">
                 {t("drawer.cfHeading")}
               </h3>
               <dl>
                 <div className="flex justify-between py-0.5">
-                  <dt className="text-neutral-600 dark:text-neutral-300">
+                  <dt className="text-neutral-600">
                     {t("drawer.solarCf")}
                   </dt>
                   <dd className="tabular-nums">{fmtPercent(shown.data.solarCf)}</dd>
                 </div>
                 <div className="flex justify-between py-0.5">
-                  <dt className="text-neutral-600 dark:text-neutral-300">
+                  <dt className="text-neutral-600">
                     {t("drawer.windCf")}
                   </dt>
                   <dd className="tabular-nums">{fmtPercent(shown.data.windCf)}</dd>
@@ -169,12 +169,12 @@ export default function CellDrawer({
             </section>
 
             <section>
-              <h3 className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              <h3 className="mb-1 text-xs font-medium text-neutral-500">
                 {t("drawer.mixHeading")}
               </h3>
               <dl>
                 <div className="flex justify-between py-0.5">
-                  <dt className="text-neutral-600 dark:text-neutral-300">
+                  <dt className="text-neutral-600">
                     {t("drawer.pvMw")}
                   </dt>
                   <dd className="tabular-nums">
@@ -182,7 +182,7 @@ export default function CellDrawer({
                   </dd>
                 </div>
                 <div className="flex justify-between py-0.5">
-                  <dt className="text-neutral-600 dark:text-neutral-300">
+                  <dt className="text-neutral-600">
                     {t("drawer.windMw")}
                   </dt>
                   <dd className="tabular-nums">
@@ -193,7 +193,7 @@ export default function CellDrawer({
             </section>
 
             <section>
-              <h3 className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              <h3 className="mb-1 text-xs font-medium text-neutral-500">
                 {t("drawer.trendHeading")} · {t(`drawer.layers.${layerKey}`)}
               </h3>
               <dl>
@@ -208,8 +208,8 @@ export default function CellDrawer({
                       <dt
                         className={
                           active
-                            ? "text-blue-600 dark:text-blue-400"
-                            : "text-neutral-600 dark:text-neutral-300"
+                            ? "text-brand"
+                            : "text-neutral-600"
                         }
                       >
                         {year}
@@ -220,28 +220,28 @@ export default function CellDrawer({
                   );
                 })}
               </dl>
-              <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="mt-0.5 text-xs text-neutral-500">
                 {t("drawer.trendNote")}
               </p>
             </section>
 
             <div className="space-y-0.5">
-              <p className="font-mono text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="font-mono text-xs text-neutral-400">
                 {t("drawer.cellId", { id: shown.data.h3 })}
               </p>
               {shown.parentFill && (
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-neutral-500">
                   {t("drawer.approximate")}
                 </p>
               )}
             </div>
           </div>
 
-          <footer className="space-y-2 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <footer className="space-y-2 border-t border-neutral-200 px-4 py-3">
             <button
               type="button"
               onClick={evaluateHere}
-              className="w-full rounded-lg bg-blue-600 px-3 py-2 font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full rounded-lg bg-brand px-3 py-2 font-medium text-white hover:bg-brand-strong focus:outline-none focus:ring-2 focus:ring-brand/40"
             >
               {t("drawer.evaluate")}
             </button>
@@ -249,7 +249,7 @@ export default function CellDrawer({
               <button
                 type="button"
                 onClick={useForCorridor}
-                className="w-full rounded-lg border border-emerald-600 px-3 py-2 font-medium text-emerald-700 hover:bg-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 dark:border-emerald-500 dark:text-emerald-400"
+                className="w-full rounded-lg border border-emerald-600 px-3 py-2 font-medium text-emerald-700 hover:bg-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
               >
                 {t("drawer.useForCorridor")}
               </button>

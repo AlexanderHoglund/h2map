@@ -27,7 +27,7 @@ export default function ResultsSection({
     lifetimeYears > 0 ? results.totals.h2Kg / lifetimeYears / 1000 : 0;
 
   const card =
-    "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
+    "rounded-lg border border-neutral-200 bg-white p-4";
 
   return (
     <div className="space-y-4">
@@ -35,14 +35,14 @@ export default function ResultsSection({
       <div className={card}>
         <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
           <div>
-            <div className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">
               {t("headline.lcoh")}
             </div>
             <div className="tabular-nums">
               <span className="text-4xl font-semibold tracking-tight">
                 {results.lcohUsdPerKg.toFixed(2)}
               </span>{" "}
-              <span className="text-sm text-neutral-500 dark:text-neutral-400">
+              <span className="text-sm text-neutral-500">
                 USD/kg H₂
               </span>
             </div>
@@ -89,7 +89,7 @@ export default function ResultsSection({
 
       <ActionRow response={response} onCopyLink={onCopyLink} />
 
-      <p className="text-[11px] text-neutral-400 dark:text-neutral-500">
+      <p className="text-[11px] text-neutral-400">
         {t("meta", {
           version: results.meta.engineVersion,
           mode: results.meta.referenceMode ? t("referenceMode") : t("customMode"),
@@ -110,12 +110,12 @@ function Headline({
 }) {
   return (
     <div>
-      <div className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+      <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">
         {label}
       </div>
       <div className="tabular-nums">
         <span className="text-xl font-semibold">{value}</span>{" "}
-        <span className="text-xs text-neutral-500 dark:text-neutral-400">{unit}</span>
+        <span className="text-xs text-neutral-500">{unit}</span>
       </div>
     </div>
   );

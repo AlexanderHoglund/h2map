@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "H2MAP — Global LCOH Explorer",
+  title: "Thaduberg — Global LCOH Explorer",
   description:
     "Explore the levelized cost of green hydrogen anywhere on Earth, from local wind and solar resources.",
 };

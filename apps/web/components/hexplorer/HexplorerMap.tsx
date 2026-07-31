@@ -29,8 +29,6 @@ import { lcohColor } from "./scale";
 
 const LIGHT_STYLE =
   "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
-const DARK_STYLE =
-  "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
 /**
  * Raster basemaps (no API key). Esri World Imagery for satellite and
@@ -75,11 +73,10 @@ const TOPO_STYLE: maplibregl.StyleSpecification = {
 
 function basemapStyle(
   basemap: Basemap,
-  dark: boolean,
 ): string | maplibregl.StyleSpecification {
   if (basemap === "satellite") return SATELLITE_STYLE;
   if (basemap === "topographic") return TOPO_STYLE;
-  return dark ? DARK_STYLE : LIGHT_STYLE;
+  return LIGHT_STYLE;
 }
 
 const DEFAULT_CAMERA = { lat: 10, lon: -20, zoom: 1.6 };
@@ -157,14 +154,6 @@ export default function HexplorerMap({
   const lastDataRef = useRef<HexDatum[]>([]);
 
   const { engine, version, bump, loading } = useHexCells();
-
-  // Matches the basemap style choice made at init; strokes use the surface
-  // tone so adjacent fills read as separated tiles.
-  const [isDark] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches,
-  );
 
   const [layerKey, setLayerKey] = useState<LayerKey>(() => {
     if (typeof window === "undefined") return "best";
@@ -315,10 +304,9 @@ export default function HexplorerMap({
     const container = containerRef.current;
     if (!container || mapRef.current) return;
     const parsed = parseCameraHash(window.location.hash);
-    const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const map = new maplibregl.Map({
       container,
-      style: basemapStyle(basemap, dark),
+      style: basemapStyle(basemap),
       center: [
         parsed?.lon ?? DEFAULT_CAMERA.lon,
         parsed?.lat ?? DEFAULT_CAMERA.lat,
@@ -437,7 +425,7 @@ export default function HexplorerMap({
           filled: true,
           extruded: false,
           stroked: true,
-          getLineColor: isDark ? [26, 26, 25, 200] : [252, 252, 251, 220],
+          getLineColor: [252, 252, 251, 220],
           lineWidthUnits: "pixels",
           getLineWidth: 1,
           lineWidthMinPixels: 1,
@@ -453,7 +441,7 @@ export default function HexplorerMap({
         }),
       ],
     });
-  }, [version, layerKey, costYear, basis, opacity, layerVisible, engine, isDark, onHexHover, onHexClick, styleEpoch]);
+  }, [version, layerKey, costYear, basis, opacity, layerVisible, engine, onHexHover, onHexClick, styleEpoch]);
 
   const flyTo = useCallback((lat: number, lon: number) => {
     const map = mapRef.current;
@@ -505,7 +493,7 @@ export default function HexplorerMap({
           className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
         >
           <span className="sr-only">{t("loading")}</span>
-          <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-neutral-400/40 border-t-blue-600 dark:border-neutral-500/40 dark:border-t-blue-400" />
+          <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-neutral-400/40 border-t-brand" />
         </div>
       )}
 
@@ -515,7 +503,7 @@ export default function HexplorerMap({
 
       {hover && (
         <div
-          className="pointer-events-none absolute z-30 rounded-lg border border-neutral-200 bg-white/95 px-2 py-1 text-xs backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95"
+          className="pointer-events-none absolute z-30 rounded-lg border border-neutral-200 bg-white/95 px-2 py-1 text-xs shadow-md backdrop-blur"
           style={{
             left:
               hover.x + (hover.flipX ? -TOOLTIP_CURSOR_GAP : TOOLTIP_CURSOR_GAP),
@@ -527,7 +515,7 @@ export default function HexplorerMap({
           <p className="tabular-nums font-medium">
             {hover.datum.value.toFixed(2)} {t("tooltip.unit")}
           </p>
-          <p className="text-neutral-500 dark:text-neutral-400">
+          <p className="text-neutral-500">
             {hoverSource(hover.datum)}
           </p>
         </div>

@@ -332,7 +332,7 @@ export default function CalculatorPanel({
         }
       >
         {embedded ? (
-          <div className="mb-3 flex items-center justify-between gap-2 border-b border-neutral-200 pb-2 dark:border-neutral-800">
+          <div className="mb-3 flex items-center justify-between gap-2 border-b border-neutral-200 pb-2">
             <h1 className="min-w-0 truncate text-base font-semibold">
               {tExplorer("panel.title")}
             </h1>
@@ -341,7 +341,7 @@ export default function CalculatorPanel({
                 type="button"
                 onClick={onClose}
                 aria-label={tExplorer("panel.close")}
-                className="rounded-md p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+                className="rounded-md p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
               >
                 <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                   <path d="M4 4l8 8M12 4l-8 8" />
@@ -352,7 +352,7 @@ export default function CalculatorPanel({
         ) : (
           <>
             <h1 className="text-lg font-semibold">{t("title")}</h1>
-            <p className="mb-5 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mb-5 text-sm text-neutral-500">
               {t("subtitle")}
             </p>
           </>
@@ -394,7 +394,7 @@ export default function CalculatorPanel({
                       });
                     }}
                   />
-                  <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">
+                  <p className="mt-1 text-[11px] text-neutral-400">
                     {t("location.mapHint")}
                   </p>
                 </>
@@ -417,7 +417,7 @@ export default function CalculatorPanel({
                 <div>
                   <label
                     htmlFor="field-country"
-                    className="text-xs font-medium text-neutral-600 dark:text-neutral-400"
+                    className="text-xs font-medium text-neutral-600"
                   >
                     {t("location.country")}
                   </label>
@@ -426,7 +426,7 @@ export default function CalculatorPanel({
                     value={selectedCountry ?? ""}
                     onChange={(e) => applyCountry(e.target.value)}
                     disabled={countriesFailed}
-                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/40 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900"
+                    className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm transition-colors duration-150 ease-out focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:opacity-50"
                   >
                     <option value="">{t("location.countryNone")}</option>
                     {countryOptions.map((r) => (
@@ -438,12 +438,12 @@ export default function CalculatorPanel({
                 </div>
               </div>
               {countryRow?.source ? (
-                <p className="mt-2 text-[11px] text-neutral-400 dark:text-neutral-500">
+                <p className="mt-2 text-[11px] text-neutral-400">
                   {t("location.defaultsSource", { source: countryRow.source })}
                 </p>
               ) : null}
               {countriesFailed ? (
-                <p className="mt-2 text-[11px] text-neutral-400 dark:text-neutral-500">
+                <p className="mt-2 text-[11px] text-neutral-400">
                   {t("location.countryUnavailable")}
                 </p>
               ) : null}
@@ -493,8 +493,8 @@ export default function CalculatorPanel({
                   help={t("help.transportDistance")}
                 />
               </div>
-              <div className="mt-4 border-t border-neutral-100 pt-3 dark:border-neutral-800/60">
-                <h3 className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
+              <div className="mt-4 border-t border-neutral-100 pt-3">
+                <h3 className="text-xs font-medium text-neutral-600">
                   {t("general.emissionsOnly")}
                 </h3>
                 <div className="mt-2 grid grid-cols-1 items-end gap-3 sm:grid-cols-2">
@@ -511,7 +511,7 @@ export default function CalculatorPanel({
                     help={t("help.pumpingHead")}
                   />
                 </div>
-                <p className="mt-3 text-[11px] text-neutral-400 dark:text-neutral-500">
+                <p className="mt-3 text-[11px] text-neutral-400">
                   {t("general.constantsNote", {
                     desal: DESAL_KWH_PER_M3,
                     pump: PUMP_KWH_PER_M3_PER_100M.toFixed(2),
@@ -539,7 +539,7 @@ export default function CalculatorPanel({
                     help={t("help.capacity")}
                   />
                   {indicativeTons !== null ? (
-                    <p className="mt-1 text-[11px] tabular-nums text-neutral-400 dark:text-neutral-500">
+                    <p className="mt-1 text-[11px] tabular-nums text-neutral-400">
                       {t("electrolyzer.indicative", {
                         tons: Math.round(indicativeTons).toLocaleString("en-US"),
                       })}
@@ -615,7 +615,7 @@ export default function CalculatorPanel({
               <button
                 type="submit"
                 disabled={disabledReason !== null || running}
-                className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 ease-out hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-150 ease-out hover:bg-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {running ? (
                   <span className="inline-flex items-center gap-2">
@@ -629,22 +629,22 @@ export default function CalculatorPanel({
                 )}
               </button>
               {disabledReason && !running ? (
-                <p className="text-xs text-red-600 dark:text-red-400">{disabledReason}</p>
+                <p className="text-xs text-red-600">{disabledReason}</p>
               ) : null}
               {stale && !running && !disabledReason ? (
-                <p className="text-xs text-amber-600 dark:text-amber-400">
+                <p className="text-xs text-amber-600">
                   {tExplorer("panel.coordsChanged")}
                 </p>
               ) : null}
 
               {sim.profileStatuses.length > 0 && sim.phase !== "idle" ? (
-                <ul className="space-y-1 rounded-md border border-neutral-200 px-3 py-2 text-xs dark:border-neutral-800">
+                <ul className="space-y-1 rounded-md border border-neutral-200 px-3 py-2 text-xs">
                   {sim.profileStatuses.map((s) => (
                     <li key={s.slot} className="flex flex-wrap items-center gap-2">
                       {s.state === "building" ? (
-                        <Spinner className="text-blue-600" />
+                        <Spinner className="text-brand" />
                       ) : s.state === "ready" ? (
-                        <span className="text-emerald-600 dark:text-emerald-400" aria-hidden>✓</span>
+                        <span className="text-emerald-600" aria-hidden>✓</span>
                       ) : (
                         <span className="text-red-600" aria-hidden>✕</span>
                       )}
@@ -658,12 +658,12 @@ export default function CalculatorPanel({
                         </span>
                       ) : null}
                       {s.state === "error" ? (
-                        <span className="text-red-600 dark:text-red-400">{s.message}</span>
+                        <span className="text-red-600">{s.message}</span>
                       ) : null}
                     </li>
                   ))}
                   {sim.phase === "profiles" ? (
-                    <li className="text-neutral-400 dark:text-neutral-500">
+                    <li className="text-neutral-400">
                       {t("run.firstVisitNote")}
                     </li>
                   ) : null}
@@ -673,7 +673,7 @@ export default function CalculatorPanel({
               {sim.phase === "error" ? (
                 <div
                   role="alert"
-                  className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+                  className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700"
                 >
                   <p className="font-medium">{t("run.errorTitle")}</p>
                   {/* Per-source profile errors already appear in the staged
@@ -686,14 +686,14 @@ export default function CalculatorPanel({
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-700 dark:hover:border-neutral-500"
+                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                 >
                   {t("run.resetAll")}
                 </button>
                 <button
                   type="button"
                   onClick={copyLinkWithFlash}
-                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-blue-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:border-neutral-700"
+                  className="flex-1 rounded-md border border-neutral-300 px-3 py-1.5 text-sm transition-colors duration-150 ease-out hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                 >
                   {copied ? t("run.copied") : t("run.copyLink")}
                 </button>
@@ -703,11 +703,11 @@ export default function CalculatorPanel({
 
           {/* Sticky summary rail (tablet and up; not in the embedded panel) */}
           <aside className={embedded ? "hidden" : "hidden md:block"}>
-            <div className="sticky top-16 space-y-3 rounded-lg border border-neutral-200 bg-white p-4 text-sm dark:border-neutral-800 dark:bg-neutral-950">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <div className="sticky top-16 space-y-3 rounded-lg border border-neutral-200 bg-white p-4 text-sm">
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 {t("rail.title")}
               </h2>
-              <div className="tabular-nums text-neutral-600 dark:text-neutral-300">
+              <div className="tabular-nums text-neutral-600">
                 {Number.isFinite(values.location.lat) && Number.isFinite(values.location.lon)
                   ? `${values.location.lat.toFixed(6)}°, ${values.location.lon.toFixed(6)}°`
                   : "—"}
@@ -724,21 +724,21 @@ export default function CalculatorPanel({
                   <RailChip icon={<BoltIcon className="h-3.5 w-3.5" />} label={t("supply.grid")} />
                 ) : null}
                 {!anySource ? (
-                  <span className="text-xs text-red-600 dark:text-red-400">
+                  <span className="text-xs text-red-600">
                     {t("supply.atLeastOne")}
                   </span>
                 ) : null}
               </div>
               {sim.response ? (
-                <div className="border-t border-neutral-100 pt-3 dark:border-neutral-800/60">
-                  <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                <div className="border-t border-neutral-100 pt-3">
+                  <div className="text-xs text-neutral-500">
                     {t("results.headline.lcoh")}
                   </div>
                   <div className="tabular-nums">
                     <span className="text-2xl font-semibold">
                       {sim.response.results.lcohUsdPerKg.toFixed(2)}
                     </span>{" "}
-                    <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <span className="text-xs text-neutral-500">
                       USD/kg H₂
                     </span>
                   </div>
@@ -775,7 +775,7 @@ export default function CalculatorPanel({
 
 function RailChip({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-blue-600/40 bg-blue-50 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+    <span className="inline-flex items-center gap-1 rounded-full border border-brand/40 bg-brand-tint px-2 py-0.5 text-xs text-brand-deep">
       {icon}
       {label}
     </span>
@@ -803,11 +803,11 @@ function Spinner({ className = "" }: { className?: string }) {
 function ResultsSkeleton() {
   return (
     <div className="space-y-4" aria-hidden>
-      <div className="h-24 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-900" />
-      <div className="h-80 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-900" />
+      <div className="h-24 animate-pulse rounded-lg bg-neutral-100" />
+      <div className="h-80 animate-pulse rounded-lg bg-neutral-100" />
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <div className="h-64 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-900" />
-        <div className="h-64 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-900" />
+        <div className="h-64 animate-pulse rounded-lg bg-neutral-100" />
+        <div className="h-64 animate-pulse rounded-lg bg-neutral-100" />
       </div>
     </div>
   );

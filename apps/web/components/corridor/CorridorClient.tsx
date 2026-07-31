@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/Button";
 import { useCorridorModel } from "./state";
 import { CargoStep, FuelStep, PortStep, RegulationStep, VesselStep } from "./steps";
 import ResultsPanel from "./ResultsPanel";
@@ -29,17 +30,20 @@ export default function CorridorClient() {
     return (
       <main className="flex h-[calc(100dvh-3rem)] items-center justify-center px-4">
         <div className="max-w-2xl">
-        <h1 className="text-2xl font-semibold">{t("intro.heading")}</h1>
-        <p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        {/* The full Thaduberg lockup gets its landing moment here. */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- static brand SVG */}
+        <img
+          src="/thaduberg-final-stripes-black-text.svg"
+          alt="Thaduberg"
+          className="mb-6 h-24 w-auto"
+        />
+        <h1 className="text-2xl font-semibold tracking-tight">{t("intro.heading")}</h1>
+        <p className="mt-3 text-sm leading-relaxed text-neutral-600">
           {t("intro.body")}
         </p>
-        <button
-          type="button"
-          onClick={() => setEntered(true)}
-          className="mt-6 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
-        >
+        <Button variant="primary" size="md" className="mt-6" onClick={() => setEntered(true)}>
           {model.hadDraft ? t("intro.resume") : t("intro.start")}
-        </button>
+        </Button>
         </div>
       </main>
     );
@@ -73,10 +77,10 @@ export default function CorridorClient() {
                 aria-current={active ? "step" : undefined}
                 className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
                   active
-                    ? "bg-blue-600 text-white"
+                    ? "bg-brand text-white"
                     : visited
-                      ? "bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
-                      : "text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      ? "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                      : "text-neutral-500 hover:bg-neutral-100"
                 }`}
               >
                 {i + 1} · {t(`steps.${key}`)}
@@ -89,22 +93,13 @@ export default function CorridorClient() {
 
         {/* Back / Next */}
         <div className="mt-4 flex justify-between">
-          <button
-            type="button"
-            disabled={stepIndex === 0}
-            onClick={() => setStep(STEPS[stepIndex - 1] ?? step)}
-            className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-neutral-700"
-          >
+          <Button size="md" className="px-3 py-1.5 font-normal" disabled={stepIndex === 0} onClick={() => setStep(STEPS[stepIndex - 1] ?? step)}>
             {t("nav.back")}
-          </button>
+          </Button>
           {stepIndex < STEPS.length - 1 && (
-            <button
-              type="button"
-              onClick={() => setStep(STEPS[stepIndex + 1] ?? step)}
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500"
-            >
+            <Button variant="primary" size="md" className="px-3 py-1.5" onClick={() => setStep(STEPS[stepIndex + 1] ?? step)}>
               {t("nav.next")}
-            </button>
+            </Button>
           )}
         </div>
       </div>

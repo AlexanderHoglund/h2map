@@ -81,7 +81,7 @@ export default function ResultsPanel({
 
   if (error || !result) {
     return (
-      <div className="rounded-lg border border-amber-300 bg-amber-500/10 p-3 text-xs leading-snug text-amber-700 dark:border-amber-700 dark:text-amber-500">
+      <div className="rounded-lg border border-amber-300 bg-amber-500/10 p-3 text-xs leading-snug text-amber-800">
         {t("invalid", { message: error ?? "…" })}
       </div>
     );
@@ -96,16 +96,22 @@ export default function ResultsPanel({
     s.selfDesignedGreenPvUsdM -
     (s.etsFossilPvUsdM + s.fuelEuFossilPvUsdM + s.selfDesignedFossilPvUsdM);
 
-  const COLORS = { total: "#525252", up: "#dc2626", down: "#16a34a" };
+  // Viz tokens (globals.css): CVD-safe blue-red diverging pair for the deltas,
+  // neutral anchored totals (baseline + x-label are the secondary encoding).
+  const COLORS = {
+    total: "var(--viz-total)",
+    up: "var(--viz-delta-up)",
+    down: "var(--viz-delta-down)",
+  };
 
   return (
     <div className="space-y-4">
       {/* Headline */}
-      <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
+      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
         <p className="text-xs text-neutral-500" title={t("gapHelp")}>
           {t("gap")}
         </p>
-        <p className="mt-0.5 text-2xl font-semibold tabular-nums">
+        <p className="mt-0.5 text-3xl font-semibold tracking-tight tabular-nums text-brand-deep">
           {fmtUsdM(s.gapPvUsdM)}
         </p>
         <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
@@ -117,13 +123,13 @@ export default function ResultsPanel({
             <p className="tabular-nums font-medium">{fmtUsd(s.costPerTonneCo2Usd)}</p>
             <p className="text-neutral-500">
               {t("perTonne")}
-              <span className="ml-1 rounded bg-neutral-500/10 px-1 py-px text-[10px] text-neutral-700 dark:text-neutral-200">
+              <span className="ml-1 rounded bg-neutral-500/10 px-1 py-px text-[10px] text-neutral-700">
                 {t(`basisLabel.${basis}`)}
               </span>
             </p>
           </div>
         </div>
-        <div className="mt-2 grid grid-cols-2 gap-2 border-t border-neutral-200 pt-2 text-xs dark:border-neutral-800">
+        <div className="mt-2 grid grid-cols-2 gap-2 border-t border-neutral-200 pt-2 text-xs">
           <div>
             <p className="tabular-nums">{fmtUsdM(s.greenTotalPvUsdM)}</p>
             <p className="text-neutral-500">{t("green")}</p>
@@ -144,16 +150,16 @@ export default function ResultsPanel({
       </div>
 
       {/* Waterfall */}
-      <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
-        <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
+        <p className="mb-2 text-xs font-medium text-neutral-600">
           {t("waterfall")}
         </p>
         <div className="h-44">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={waterfall} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.25} vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={0} />
-              <YAxis tick={{ fontSize: 10 }} width={44} unit="" />
+              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
+              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} unit="" />
               <Tooltip
                 formatter={(v, name) =>
                   name === "span" && typeof v === "number" ? [fmtUsdM(v), ""] : null
@@ -173,8 +179,8 @@ export default function ResultsPanel({
       </div>
 
       {/* Regulatory table */}
-      <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
-        <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
+        <p className="mb-2 text-xs font-medium text-neutral-600">
           {t("regTable")}
         </p>
         <table className="w-full text-xs tabular-nums">
@@ -187,8 +193,8 @@ export default function ResultsPanel({
                 [t("regSelf"), s.selfDesignedGreenPvUsdM, s.selfDesignedFossilPvUsdM],
               ] as const
             ).map(([label, g, f]) => (
-              <tr key={label} className="border-b border-neutral-100 last:border-0 dark:border-neutral-800/60">
-                <td className="py-1 text-neutral-600 dark:text-neutral-400">{label}</td>
+              <tr key={label} className="border-b border-neutral-100 last:border-0">
+                <td className="py-1 text-neutral-600">{label}</td>
                 <td className="py-1 text-right">{fmtUsdM(g)}</td>
                 <td className="py-1 text-right text-neutral-500">
                   {f === null ? "—" : fmtUsdM(f)}
@@ -199,7 +205,7 @@ export default function ResultsPanel({
               <td className="pt-1.5 font-medium">{t("netReg")}</td>
               <td
                 colSpan={2}
-                className={`pt-1.5 text-right font-medium ${netReg < 0 ? "text-emerald-700 dark:text-emerald-400" : ""}`}
+                className={`pt-1.5 text-right font-medium ${netReg < 0 ? "text-emerald-700" : ""}`}
               >
                 {fmtUsdM(netReg)}
               </td>
@@ -209,23 +215,42 @@ export default function ResultsPanel({
       </div>
 
       {/* Year-by-year */}
-      <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
-        <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-          {t("perYear")}
-        </p>
+      <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <p className="text-xs font-medium text-neutral-600">{t("perYear")}</p>
+          {/* Legend — color must never be the only series identifier */}
+          <div className="flex items-center gap-3 text-[11px] text-neutral-600">
+            <span className="flex items-center gap-1">
+              <span
+                aria-hidden
+                className="h-0.5 w-4 rounded-full"
+                style={{ background: "var(--viz-series-green)" }}
+              />
+              {t("green")}
+            </span>
+            <span className="flex items-center gap-1">
+              <span
+                aria-hidden
+                className="h-0.5 w-4 rounded-full"
+                style={{ background: "var(--viz-ink-muted)" }}
+              />
+              {t("fossil")}
+            </span>
+          </div>
+        </div>
         <div className="h-40">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={perYear} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.25} vertical={false} />
-              <XAxis dataKey="year" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} width={44} />
+              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" />
+              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} />
               <Tooltip
                 formatter={(v) => (typeof v === "number" ? fmtUsdM(v) : String(v))}
                 labelStyle={{ fontSize: 11 }}
                 contentStyle={{ fontSize: 11 }}
               />
-              <Line type="monotone" dataKey="green" stroke="#16a34a" dot={false} strokeWidth={2} isAnimationActive={false} />
-              <Line type="monotone" dataKey="fossil" stroke="#737373" dot={false} strokeWidth={2} isAnimationActive={false} />
+              <Line type="monotone" dataKey="green" stroke="var(--viz-series-green)" dot={false} strokeWidth={2} isAnimationActive={false} />
+              <Line type="monotone" dataKey="fossil" stroke="var(--viz-ink-muted)" dot={false} strokeWidth={2} isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -233,11 +258,11 @@ export default function ResultsPanel({
 
       {/* Footers */}
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-lg border border-neutral-200 p-2.5 dark:border-neutral-800">
+        <div className="rounded-lg border border-neutral-200 bg-white p-2.5 shadow-sm">
           <p className="tabular-nums font-medium">{fmtInt(s.co2AbatedTonnes)} t</p>
           <p className="text-neutral-500">{t("co2")}</p>
         </div>
-        <div className="rounded-lg border border-neutral-200 p-2.5 dark:border-neutral-800">
+        <div className="rounded-lg border border-neutral-200 bg-white p-2.5 shadow-sm">
           <p className="tabular-nums font-medium">{fmtInt(s.cargoUnitsLifetime)}</p>
           <p className="text-neutral-500">{t("cargo")}</p>
         </div>

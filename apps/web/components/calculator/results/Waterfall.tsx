@@ -170,9 +170,9 @@ function WaterfallTip(props: {
   const row = payload?.find((p) => p.dataKey === "value")?.payload;
   if (!active || !row) return null;
   return (
-    <div className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs dark:border-neutral-700 dark:bg-neutral-900">
+    <div className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs">
       <div className="font-medium">{row.label}</div>
-      <div className="tabular-nums text-neutral-500 dark:text-neutral-400">
+      <div className="tabular-nums text-neutral-500">
         {row.value.toFixed(3)} USD/kg · {row.pct.toFixed(1)}%
       </div>
     </div>

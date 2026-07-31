@@ -1,15 +1,15 @@
 import Footer from "@/components/shell/Footer";
 
 export const metadata = {
-  title: "Methodology — H2MAP",
+  title: "Methodology — Thaduberg",
   description:
-    "Full method behind the H2MAP LCOH estimates: formulas, assumptions, and sources.",
+    "Full method behind the Thaduberg LCOH estimates: formulas, assumptions, and sources.",
 };
 
 /** Block formula: monospace, scrolls horizontally on small screens. */
 function F({ children }: { children: React.ReactNode }) {
   return (
-    <div className="my-3 overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 font-mono text-[13px] leading-relaxed dark:border-neutral-800 dark:bg-neutral-900">
+    <div className="my-3 overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 font-mono text-[13px] leading-relaxed">
       {children}
     </div>
   );
@@ -19,7 +19,7 @@ function H({ id, children }: { id: string; children: React.ReactNode }) {
   return (
     <h2
       id={id}
-      className="mt-10 scroll-mt-16 border-b border-neutral-200 pb-1 text-lg font-semibold dark:border-neutral-800"
+      className="mt-10 scroll-mt-16 border-b border-neutral-200 pb-1 text-lg font-semibold"
     >
       {children}
     </h2>
@@ -48,12 +48,12 @@ const TOC: [string, string][] = [
 export default function MethodologyPage() {
   return (
     <>
-      <main className="mx-auto max-w-3xl px-4 py-10 text-sm leading-6 text-neutral-800 dark:text-neutral-200">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+      <main className="mx-auto max-w-3xl px-4 py-10 text-sm leading-6 text-neutral-800">
+        <h1 className="text-2xl font-semibold text-neutral-900">
           Methodology
         </h1>
-        <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-          How H2MAP estimates the levelized cost of hydrogen (LCOH) — the full
+        <p className="mt-2 text-neutral-600">
+          How Thaduberg estimates the levelized cost of hydrogen (LCOH) — the full
           method, every formula, and the data sources behind it. The
           calculation engine re-implements the published Chilean methodology
           «Motor de Cálculo LCOH» (Ministerio de Energía de Chile, April 2024);
@@ -61,7 +61,7 @@ export default function MethodologyPage() {
           below.
         </p>
 
-        <nav className="mt-6 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+        <nav className="mt-6 rounded-lg border border-neutral-200 p-4">
           <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
             Contents
           </p>
@@ -70,7 +70,7 @@ export default function MethodologyPage() {
               <li key={id}>
                 <a
                   href={`#${id}`}
-                  className="text-blue-600 hover:underline dark:text-blue-400"
+                  className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand"
                 >
                   {label}
                 </a>
@@ -284,7 +284,7 @@ export default function MethodologyPage() {
         <div className="mt-2 overflow-x-auto">
           <table className="w-full border-collapse text-[13px]">
             <thead>
-              <tr className="border-b border-neutral-300 text-left dark:border-neutral-700">
+              <tr className="border-b border-neutral-300 text-left">
                 <th className="py-1.5 pr-3">Component</th>
                 <th className="py-1.5">Discounted USD (numerator)</th>
               </tr>
@@ -310,10 +310,10 @@ export default function MethodologyPage() {
               ].map(([c, f]) => (
                 <tr
                   key={c}
-                  className="border-b border-neutral-100 dark:border-neutral-800"
+                  className="border-b border-neutral-100"
                 >
                   <td className="py-1.5 pr-3 font-medium">{c}</td>
-                  <td className="py-1.5 font-mono text-[12px] text-neutral-600 dark:text-neutral-400">
+                  <td className="py-1.5 font-mono text-[12px] text-neutral-600">
                     {f}
                   </td>
                 </tr>
@@ -456,7 +456,7 @@ export default function MethodologyPage() {
         <div className="mt-2 overflow-x-auto">
           <table className="w-full border-collapse text-[13px] tabular-nums">
             <thead>
-              <tr className="border-b border-neutral-300 text-left dark:border-neutral-700">
+              <tr className="border-b border-neutral-300 text-left">
                 <th className="py-1.5 pr-3">Driver</th>
                 <th className="py-1.5 pr-3">2024</th>
                 <th className="py-1.5 pr-3">2030</th>
@@ -475,7 +475,7 @@ export default function MethodologyPage() {
               ].map((r) => (
                 <tr
                   key={r[0]}
-                  className="border-b border-neutral-100 dark:border-neutral-800"
+                  className="border-b border-neutral-100"
                 >
                   <td className="py-1.5 pr-3 font-medium">{r[0]}</td>
                   <td className="py-1.5 pr-3">{r[1]}</td>
@@ -612,7 +612,7 @@ export default function MethodologyPage() {
             Centre —{" "}
             <a
               href="https://re.jrc.ec.europa.eu/pvg_tools/"
-              className="text-blue-600 hover:underline dark:text-blue-400"
+              className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand"
             >
               re.jrc.ec.europa.eu
             </a>

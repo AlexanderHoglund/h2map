@@ -38,7 +38,7 @@ function buildDocument(): unknown {
   return {
     openapi: "3.1.0",
     info: {
-      title: "H2MAP LCOH API",
+      title: "Thaduberg LCOH API",
       version: "1.0.0",
       description:
         "Global LCOH Explorer API: TMY resource profiles (Open-Meteo / PVGIS / NASA POWER with fallback), the reference-mode LCOH engine, and country default packs. Non-commercial use; provider attributions are included in profile responses.",

@@ -1,16 +1,16 @@
 import Footer from "@/components/shell/Footer";
 
-export const metadata = { title: "About the data — H2MAP" };
+export const metadata = { title: "About the data — Thaduberg" };
 
 export default function AboutDataPage() {
   return (
     <>
       <main className="mx-auto max-w-3xl px-4 py-10 text-sm leading-6">
-        <h1 className="text-2xl font-semibold">About the data</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">About the data</h1>
 
         <h2 className="mt-8 text-lg font-medium">Methodology</h2>
         <p className="mt-2">
-          H2MAP re-implements the published Chilean LCOH methodology — «Motor
+          Thaduberg re-implements the published Chilean LCOH methodology — «Motor
           de Cálculo LCOH: Principales características», Ministerio de Energía
           de Chile / Centro de Energía FCFM U. de Chile / USACH / PUC, April
           2024 — as an open, global calculation engine. With all reference
@@ -31,7 +31,7 @@ export default function AboutDataPage() {
           </li>
           <li>
             <strong>Wind:</strong> Weather data by{" "}
-            <a href="https://open-meteo.com/" className="underline">
+            <a href="https://open-meteo.com/" className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand">
               Open-Meteo.com
             </a>{" "}
             (CC BY 4.0), based on ERA5 (Copernicus Climate Change Service).
@@ -56,7 +56,7 @@ export default function AboutDataPage() {
         <h2 className="mt-8 text-lg font-medium">Basemap</h2>
         <p className="mt-2">
           Basemap tiles © CARTO, map data ©{" "}
-          <a href="https://www.openstreetmap.org/copyright" className="underline">
+          <a href="https://www.openstreetmap.org/copyright" className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand">
             OpenStreetMap
           </a>{" "}
           contributors. Non-commercial use.
