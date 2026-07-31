@@ -146,10 +146,10 @@ export default function CorridorClient() {
             }}
             aria-expanded={menuOpen}
             aria-haspopup="menu"
-            className={`flex items-center gap-2 px-6 text-sm font-medium transition-colors ${
+            className={`flex min-w-40 items-center justify-center gap-2 px-8 text-sm font-medium transition-colors ${
               menuOpen
-                ? "bg-brand-deep text-white"
-                : "bg-brand-deep text-white hover:bg-brand-strong"
+                ? "bg-neutral-800 text-white"
+                : "bg-neutral-700 text-white hover:bg-neutral-800"
             }`}
           >
             {tc("nav.menu")}
@@ -217,7 +217,7 @@ export default function CorridorClient() {
             </div>
           </div>
           {/* Right: the drafting-grid panel with the 2D shipping chart */}
-          <div className="bg-plus-grid relative hidden overflow-hidden border-l border-neutral-300 lg:block lg:w-[55%]">
+          <div className="bg-plus-grid relative hidden overflow-hidden border-l border-neutral-300 lg:block lg:w-1/2">
             <ShippingCanvas />
           </div>
         </main>

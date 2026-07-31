@@ -9,6 +9,7 @@ import { SwitchRow } from "@/components/ui/Switch";
 import { Section, Advanced } from "@/components/ui/Card";
 import ResolvedField from "./ResolvedField";
 import BuildHerePanel from "./BuildHerePanel";
+import { CORRIDOR_COUNTRIES } from "@/lib/corridor-countries";
 import { isAdvanced, type CorridorModel } from "./state";
 
 /**
@@ -167,7 +168,7 @@ export function CargoStep({ model }: StepProps) {
           label={twoPorts ? t("countryA") : t("country")}
           help={t("countryHelp")}
           value={scenario.cargo.countryId}
-          options={bundle.countries.map((c) => ({ value: c.id, label: c.label }))}
+          options={CORRIDOR_COUNTRIES}
           onChange={(v) => update((d) => void (d.cargo.countryId = v))}
         />
         {twoPorts && (
@@ -180,7 +181,7 @@ export function CargoStep({ model }: StepProps) {
             <Select
               label={t("countryB")}
               value={scenario.cargo.countryBId ?? scenario.cargo.countryId}
-              options={bundle.countries.map((c) => ({ value: c.id, label: c.label }))}
+              options={CORRIDOR_COUNTRIES}
               onChange={(v) => update((d) => void (d.cargo.countryBId = v))}
             />
           </>

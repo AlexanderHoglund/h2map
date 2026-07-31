@@ -20,8 +20,8 @@ const INK_SOFT = "#9b9a90";
 const LABEL = "#52514e";
 const MONO = "var(--font-mono), monospace";
 
-/** Port A hook (360,860) → right angles → Port B hook (715,340). */
-const ROUTE = "M360 860 L520 860 L520 620 L680 620 L680 340 L715 340";
+/** Quay to quay: Port A (340,860) → right angles → Port B (740,340). */
+const ROUTE = "M340 860 L520 860 L520 620 L680 620 L680 340 L740 340";
 
 function Label({
   x,
@@ -93,7 +93,7 @@ export default function ShippingCanvas() {
       </g>
 
       {/* ===== Production shore: PV → NH3 → PORT A ===== */}
-      <Label x={50} y={776}>[ PORT A ]</Label>
+      <Label x={50} y={776}>[ PECEM · BR ]</Label>
 
       {/* Crane A: legs on land, jib over the quay, hook above the berth.
           Legs x=285/315 (ground y=850), portal y=795, jib to x=385,
@@ -163,7 +163,7 @@ export default function ShippingCanvas() {
         <rect x="848" y="280" width="28" height="10" />
         <path d="M848 300 H890" />
       </g>
-      <Label x={760} y={390}>[ PORT B ]</Label>
+      <Label x={862} y={390} anchor="end">[ ROTTERDAM · NL ]</Label>
 
       {/* ===== The corridor: angular dashed route + waypoints + ships ===== */}
       <path d={ROUTE} className="route-line" fill="none" stroke={INK} strokeWidth="1.8" />
@@ -180,18 +180,27 @@ export default function ShippingCanvas() {
         ))}
       </g>
 
-      <g className="ship" style={{ offsetPath: `path('${ROUTE}')` }} fill={INK}>
-        <path d="M-11 3 L11 3 L6 -3 L-6 -3 Z" />
-        <rect x="-3" y="-8" width="6" height="5" />
-      </g>
-      <g
-        className="ship"
-        style={{ offsetPath: `path('${ROUTE}')`, animationDelay: "-18s" }}
-        fill={INK}
+      <text
+        x="534"
+        y="606"
+        fontFamily={MONO}
+        fontSize="12"
+        letterSpacing="2"
+        fill={LABEL}
       >
-        <path d="M-11 3 L11 3 L6 -3 L-6 -3 Z" />
-        <rect x="-3" y="-8" width="6" height="5" />
-      </g>
+        4600 NM
+      </text>
+
+      {/* The fleet: red dots under way, staggered along the corridor */}
+      {["0s", "-12s", "-24s"].map((delay) => (
+        <circle
+          key={delay}
+          className="ship"
+          style={{ offsetPath: `path('${ROUTE}')`, animationDelay: delay }}
+          r="5"
+          fill="#b2182b"
+        />
+      ))}
 
       {/* Sea marks: straight-line chevrons, clear of the route */}
       <g stroke={INK_SOFT} strokeWidth="1.2" fill="none">
@@ -241,7 +250,7 @@ export default function ShippingCanvas() {
           fill={LABEL}
           stroke="none"
         >
-          500 NM
+          1000 NM
         </text>
       </g>
     </svg>

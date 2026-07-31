@@ -28,5 +28,12 @@ export function getFuel(bundle: RefBundle, id: string): RefFuel {
 }
 
 export function getCountry(bundle: RefBundle, id: string): RefCountry {
+  const hit = bundle.countries.find((c) => c.id === id);
+  if (hit) return hit;
+  // Any-country selection: ids outside the workbook's benchmark set resolve
+  // to the generic "other" WACC benchmark instead of failing — the workbook
+  // itself models unlisted countries this way (Data_tables "Other" row).
+  const other = bundle.countries.find((c) => c.id === "other");
+  if (other) return { ...other, id, label: id };
   return find(bundle.countries, id, "country", bundle.bundleId);
 }

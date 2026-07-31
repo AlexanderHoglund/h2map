@@ -37,7 +37,7 @@
       "wacc": "Discount rate (WACC)",
       "waccHelp": "Benchmarked by country — override with a project-specific cost of capital. The country table is illustrative, not a verified source.",
       "inflation": "Inflation rate",
-      "countryHelp": "The corridor's anchor country — port A's country. It selects the financing (WACC) benchmark; ports and the second country are descriptive.",
+      "countryHelp": "The corridor's anchor country — port A's country — selects the financing (WACC) benchmark. Denmark, Netherlands, India, Brazil, Singapore and the United States carry workbook benchmarks; every other country uses the generic benchmark. Ports and the second country are descriptive.",
       "portA": "Port A",
       "portB": "Port B",
       "countryA": "Country (port A)",
