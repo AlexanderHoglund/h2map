@@ -68,6 +68,15 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   // Fix #4: ETS is disabled here — the carbon-price reference must come
   // from the ACTIVE scheme (self-designed $280), labelled as such.
   await expect(full.getByText("your carbon price $280")).toBeVisible();
+  // Fix #5: both time charts label every modelled year (15 ticks, 2030..2044)
+  // — no asymmetric decimation that reads as a data gap.
+  for (const heading of ["Annual cost, green vs fossil", "Cumulative discounted gap"]) {
+    const chart = page.locator("section", { hasText: heading }).last();
+    const ticks = chart.locator(".recharts-xAxis .recharts-cartesian-axis-tick");
+    await expect(ticks).toHaveCount(15);
+    await expect(chart.getByText("2030", { exact: true })).toBeVisible();
+    await expect(chart.getByText("2044", { exact: true })).toBeVisible();
+  }
   await expectNoSeriousViolations(page, "results tab");
 
   // Walk all five steps; the compact summary stays docked; axe on each.

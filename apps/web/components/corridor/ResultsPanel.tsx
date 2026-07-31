@@ -400,7 +400,7 @@ export default function ResultsPanel({
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={perYear} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" />
+              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
               <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} />
               <Tooltip
                 formatter={(v) => (typeof v === "number" ? fmtUsdM(v) : String(v))}
@@ -421,7 +421,7 @@ export default function ResultsPanel({
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={perYear} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" />
+              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
               <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} />
               <ReferenceLine y={0} stroke="var(--viz-baseline)" />
               <Tooltip
