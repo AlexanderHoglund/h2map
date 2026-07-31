@@ -171,17 +171,18 @@ export default function CorridorClient() {
               result={model.result}
               scenario={model.scenario}
               error={model.error}
-              wide
             />
           </div>
         </main>
       ) : (
         /* ===== Input steps: form | (map) | compact summary ===== */
         <main className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
-          {/* Form pane — gets the room when the map is closed */}
+          {/* Form pane — wide enough to breathe in both modes: with the map
+              open it keeps a comfortable fixed width (the map flexes), and
+              with it closed it takes the room next to the summary */}
           <div
             className={`min-w-0 border-neutral-300 bg-page p-3 lg:overflow-y-auto lg:border-r ${
-              mapOpen ? "shrink-0 lg:w-95 xl:w-100" : "lg:flex-1"
+              mapOpen ? "shrink-0 lg:w-130 xl:w-150" : "lg:flex-1"
             }`}
           >
             <div className={mapOpen ? "" : "mx-auto max-w-3xl"}>
@@ -218,16 +219,20 @@ export default function CorridorClient() {
             </div>
           )}
 
-          {/* Compact live summary — small; the full panel is the Results tab */}
-          <aside className="w-full shrink-0 overflow-y-auto border-neutral-300 bg-page p-3 lg:w-72 lg:border-l xl:w-80">
-            <h2 className="mb-2 text-sm font-semibold">{t("results.heading")}</h2>
-            <ResultsSummary
-              result={model.result}
-              scenario={model.scenario}
-              error={model.error}
-              onViewFull={() => goTo("results")}
-            />
-          </aside>
+          {/* Compact live summary — small; the full panel is the Results tab.
+              Hidden while the map is open (the top-bar gap chip stays live)
+              so form + map are never squeezed three ways. */}
+          {!mapOpen && (
+            <aside className="w-full shrink-0 overflow-y-auto border-neutral-300 bg-page p-3 lg:w-72 lg:border-l xl:w-80">
+              <h2 className="mb-2 text-sm font-semibold">{t("results.heading")}</h2>
+              <ResultsSummary
+                result={model.result}
+                scenario={model.scenario}
+                error={model.error}
+                onViewFull={() => goTo("results")}
+              />
+            </aside>
+          )}
         </main>
       )}
     </div>

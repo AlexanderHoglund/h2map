@@ -56,7 +56,7 @@ test("default scenario reproduces the workbook's golden numbers", async ({ page 
   // (row 80) renders only there, with the waterfall + per-year chart.
   await page.getByRole("button", { name: "06 Results" }).click();
   const full = page.getByRole("main");
-  await expect(full.getByText("$166.95m")).toBeVisible();
+  await expect(full.getByText("$166.95m", { exact: true })).toBeVisible();
   await expect(full.getByText("443,340")).toBeVisible();
   await expectNoSeriousViolations(page, "results tab");
 
