@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
+import { latLngToCell } from "h3-js";
 import HexplorerMap from "./HexplorerMap";
 import { CALCULATOR_DEFAULTS, type CalculatorValues } from "../calculator/schema";
 
@@ -74,6 +75,21 @@ export default function ExplorerWorkspace({
             initialValues={seed}
             coords={coords}
             onClose={() => setOpen(false)}
+            onUseResult={
+              onUseSite
+                ? (r) => {
+                    // The evaluated LCOH becomes the corridor's site value;
+                    // cell id at the map's max detail res for the lineage.
+                    onUseSite({
+                      h3: latLngToCell(r.lat, r.lon, 5),
+                      lat: r.lat,
+                      lon: r.lon,
+                      lcoh: Math.round(r.lcoh * 100) / 100,
+                    });
+                    setOpen(false); // back to form + map, pick applied
+                  }
+                : undefined
+            }
           />
         </aside>
       )}

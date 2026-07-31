@@ -49,6 +49,11 @@ export interface CalculatorPanelProps {
   coords?: { lat: number; lon: number } | null;
   /** Embedded only: collapse the panel. */
   onClose?: () => void;
+  /**
+   * Integrated corridor: hand the evaluated LCOH back to the model as the
+   * green production site ("build here"). Shown under the result readout.
+   */
+  onUseResult?: (r: { lat: number; lon: number; lcoh: number }) => void;
 }
 
 export default function CalculatorPanel({
@@ -57,6 +62,7 @@ export default function CalculatorPanel({
   syncUrl = false,
   coords = null,
   onClose,
+  onUseResult,
 }: CalculatorPanelProps) {
   const t = useTranslations("calculator");
   const tExplorer = useTranslations("explorer");
@@ -762,10 +768,31 @@ export default function CalculatorPanel({
         <div ref={resultsRef} className="mt-8 scroll-mt-16 lg:max-w-none">
           {running ? <ResultsSkeleton /> : null}
           {sim.phase === "done" && sim.response ? (
-            <ResultsSection
-              response={sim.response}
-              lifetimeYears={values.general.lifetimeYears}
-            />
+            <>
+              {/* Integrated corridor: hand the evaluated LCOH back as the
+                  green production site. Must live HERE — the sticky rail is
+                  hidden in the embedded panel. */}
+              {onUseResult ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    onUseResult({
+                      lat: values.location.lat,
+                      lon: values.location.lon,
+                      lcoh: sim.response!.results.lcohUsdPerKg,
+                    })
+                  }
+                  className="mb-4 w-full bg-brand px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+                >
+                  {tExplorer("drawer.useForCorridor")} —{" "}
+                  {sim.response.results.lcohUsdPerKg.toFixed(2)} USD/kg
+                </button>
+              ) : null}
+              <ResultsSection
+                response={sim.response}
+                lifetimeYears={values.general.lifetimeYears}
+              />
+            </>
           ) : null}
         </div>
       </div>

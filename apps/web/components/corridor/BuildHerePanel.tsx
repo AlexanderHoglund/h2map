@@ -50,15 +50,24 @@ export default function BuildHerePanel({
   const lineage = s.buildHere;
   const siteKey = lineage ? `${lineage.h3}` : null;
 
-  // A NEW pick from the map (different cell) re-seeds the local knobs.
+  // A NEW pick from the map re-seeds the local knobs — either a different
+  // cell, or the SAME cell with a new value (an "Evaluate here" run handed
+  // back as the site). `lastWritten` distinguishes external picks from this
+  // panel's own model write-backs, so local edits never get reverted.
   const lastH3 = useRef<string | null>(siteKey);
+  const lastWritten = useRef<number | null>(lineage?.lcohUsdPerKg ?? null);
   useEffect(() => {
-    if (siteKey && siteKey !== lastH3.current && lineage) {
+    if (!lineage || !siteKey) return;
+    const external = lineage.lcohUsdPerKg;
+    const newCell = siteKey !== lastH3.current;
+    const newValue = external !== siteLcoh && external !== lastWritten.current;
+    if (newCell || newValue) {
       lastH3.current = siteKey;
-      setSiteLcoh(lineage.lcohUsdPerKg);
+      lastWritten.current = external;
+      setSiteLcoh(external);
       setConfig((c) => ({ ...c, distanceKm: lineage.distanceKm }));
     }
-  }, [siteKey, lineage]);
+  }, [siteKey, lineage, siteLcoh]);
 
   // Reactive delivered price: once a site exists, ANY knob (site LCOH,
   // production WACC, electricity, CO2, distance, carrier) recomputes the
@@ -72,6 +81,7 @@ export default function BuildHerePanel({
     const delivered = Math.round((synth.gateUsdPerTonne + logistics) * 100) / 100;
     const gate = Math.round(synth.gateUsdPerTonne * 100) / 100;
     const logisticsR = Math.round(logistics * 100) / 100;
+    lastWritten.current = siteLcoh; // our own write — not an external pick
     const timer = setTimeout(() => update((d) => {
       const b = d[side].buildHere;
       if (!b) return;
