@@ -20,16 +20,12 @@ export default function TopBar() {
 
   return (
     <header className="flex h-12 items-center gap-4 border-b border-neutral-300 bg-white px-4">
-      <Link href="/corridor" className="flex items-center gap-2.5">
+      <Link href="/corridor" className="flex flex-col items-start justify-center gap-1">
+        {/* Small mark with the name BELOW the wave (the lockup's layout) */}
         {/* eslint-disable-next-line @next/next/no-img-element -- decorative SVG */}
-        <img src="/thaduberg-mark.svg" alt="" className="h-7 w-auto" />
-        <span className="flex items-baseline gap-2">
-          <span className="text-sm font-semibold tracking-tight">
-            {t("app.name")}
-          </span>
-          <span className="hidden text-xs text-neutral-500 sm:inline">
-            {t("app.tagline")}
-          </span>
+        <img src="/thaduberg-mark.svg" alt="" className="h-4 w-auto" />
+        <span className="text-[11px] font-semibold leading-none tracking-tight">
+          {t("app.name")}
         </span>
       </Link>
       <nav className="flex flex-1 items-center justify-end gap-1">

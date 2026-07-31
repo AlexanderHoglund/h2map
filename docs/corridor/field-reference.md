@@ -18,6 +18,11 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `cargo.vessels` | integer | yes | #5 | 32.9% | top-level |
 | `cargo.roundtripsPerYear` | number | yes | #14 | 8.2% | top-level |
 | `cargo.waccOverride` | number, null | yes | #9 | 14.6% | top-level |
+| `cargo.unit` | "tonne", "teu" | no | — | — | — |
+| `cargo.unitWeightTonnes` | number | no | — | — | — |
+| `cargo.portAName` | string | no | — | — | — |
+| `cargo.portBName` | string | no | — | — | — |
+| `cargo.countryBId` | string | no | — | — | — |
 | `vessel.typeId` | string | yes | — | — | — |
 | `vessel.consumptionMode` | "distance", "vessel-benchmark" | yes | — | — | — |
 | `vessel.green.capexUsdM` | number, null | yes | #2 | 56.9% | top-level |

@@ -36,7 +36,18 @@
       "units": "Annual cargo throughput",
       "wacc": "Discount rate (WACC)",
       "waccHelp": "Benchmarked by country — override with a project-specific cost of capital. The country table is illustrative, not a verified source.",
-      "inflation": "Inflation rate"
+      "inflation": "Inflation rate",
+      "countryHelp": "The corridor's anchor country — port A's country. It selects the financing (WACC) benchmark; ports and the second country are descriptive.",
+      "portA": "Port A",
+      "portB": "Port B",
+      "countryA": "Country (port A)",
+      "countryB": "Country (port B)",
+      "singlePort": "Port",
+      "unit": "Cargo unit",
+      "unitTonne": "Tonne",
+      "unitTeu": "TEU (container)",
+      "unitWeight": "Weight per unit",
+      "unitWeightHelp": "What one cargo unit weighs. Used to derive cost per tonne of cargo; the model itself counts units."
     },
     "vessel": {
       "type": "Vessel type (shared by both corridors)",
@@ -168,7 +179,15 @@
       "snapGreenUse": "Green fuel use",
       "snapFossilUse": "Fossil fuel use",
       "snapCargoLifetime": "Cargo over lifetime",
-      "unitTPerVesselYr": "t/vessel/yr"
+      "unitTPerVesselYr": "t/vessel/yr",
+      "wfGap": "Green premium",
+      "abatementChart": "Abatement cost vs carbon price",
+      "abatementChartNote": "The premium per tonne of CO2 avoided, next to the EU ETS allowance price you entered — the market's going rate for a tonne.",
+      "euaPrice": "EUA price",
+      "perTonneCargo": "per tonne of cargo",
+      "snapUnit": "Cargo unit",
+      "perUnitTonne": "per tonne of cargo",
+      "perUnitTeu": "per TEU"
     },
     "buildHere": {
       "openMap": "Pick a site on the map",

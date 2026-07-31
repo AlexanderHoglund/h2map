@@ -77,11 +77,12 @@ export default function CorridorClient() {
       <header className="flex shrink-0 items-stretch border-b border-neutral-300 bg-white">
         <Link
           href="/corridor"
-          className="flex items-center gap-2.5 border-r border-neutral-300 px-4"
+          className="flex flex-col items-start justify-center gap-1 border-r border-neutral-300 px-4"
         >
+          {/* Small mark with the name BELOW the wave (the lockup's layout) */}
           {/* eslint-disable-next-line @next/next/no-img-element -- decorative SVG */}
-          <img src="/thaduberg-mark.svg" alt="" className="h-7 w-auto" />
-          <span className="text-sm font-semibold tracking-tight">
+          <img src="/thaduberg-mark.svg" alt="" className="h-4 w-auto" />
+          <span className="text-[11px] font-semibold leading-none tracking-tight">
             {tc("app.name")}
           </span>
         </Link>
@@ -99,7 +100,7 @@ export default function CorridorClient() {
                 type="button"
                 onClick={() => goTo(key)}
                 aria-current={active ? "step" : undefined}
-                className={`flex shrink-0 flex-col items-start justify-center gap-0.5 border-r border-neutral-300 px-4 py-2 text-left transition-colors ${
+                className={`flex min-w-28 flex-1 basis-0 flex-col items-start justify-center gap-0.5 border-r border-neutral-300 px-4 py-2 text-left transition-colors ${
                   active
                     ? "bg-brand text-white"
                     : visited
@@ -114,7 +115,7 @@ export default function CorridorClient() {
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="whitespace-nowrap text-sm font-medium">
+                <span className="w-full truncate whitespace-nowrap text-sm font-medium">
                   {label}
                 </span>
               </button>

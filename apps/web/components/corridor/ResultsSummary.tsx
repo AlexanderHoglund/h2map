@@ -32,6 +32,9 @@ export default function ResultsSummary({
 
   const s = result.summary;
   const basis = scenario.flags?.emissionsBasis ?? "combustion";
+  const cargoUnit =
+    scenario.cargo.unit ??
+    (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
 
   return (
     <div className="border border-neutral-300 bg-white p-3">
@@ -42,7 +45,7 @@ export default function ResultsSummary({
         {fmtUsdM(s.gapPvUsdM)}
       </p>
       <dl className="mt-3 space-y-1.5 border-t border-neutral-200 pt-2 text-xs">
-        <Row label={t("perUnit")} value={fmtUsd(s.costPerUnitUsd)} />
+        <Row label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")} value={fmtUsd(s.costPerUnitUsd)} />
         <Row
           label={
             <>

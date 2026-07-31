@@ -66,6 +66,14 @@ export default function ResultsPanel({
         };
       }),
       { key: "wfGreen", base: 0, span: s.greenTotalPvUsdM, kind: "total" as const },
+      // The green premium (the gap itself) as its OWN bar, visually distinct
+      // from the anchored totals: it spans fossil total -> green total.
+      {
+        key: "wfGap",
+        base: Math.min(s.fossilTotalPvUsdM, s.greenTotalPvUsdM),
+        span: Math.abs(s.gapPvUsdM),
+        kind: "gap" as const,
+      },
     ];
     return steps.map((s2) => ({ ...s2, label: t(s2.key) }));
   }, [result, t]);
@@ -113,11 +121,21 @@ export default function ResultsPanel({
     total: "var(--viz-total)",
     up: "var(--viz-delta-up)",
     down: "var(--viz-delta-down)",
+    gap: "var(--color-brand-deep)",
   };
+
+  // Cargo-unit identity (presentation): explicit, else vessel-derived.
+  const cargoUnit =
+    scenario.cargo.unit ??
+    (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
+  const unitWeight = scenario.cargo.unitWeightTonnes ?? (cargoUnit === "teu" ? 14 : 1);
 
   const kpis: { label: React.ReactNode; value: string; strong?: boolean }[] = [
     { label: t("gap"), value: fmtUsdM(s.gapPvUsdM), strong: true },
-    { label: t("perUnit"), value: fmtUsd(s.costPerUnitUsd) },
+    {
+      label: cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne"),
+      value: fmtUsd(s.costPerUnitUsd),
+    },
     {
       label: (
         <>
@@ -150,9 +168,38 @@ export default function ResultsPanel({
       ]
     : [{ key: basis, tonnes: s.co2AbatedTonnes, active: true }];
 
+  // Abatement-cost diagram: the premium per tonne of CO2 avoided on each
+  // basis, next to the EU ETS allowance price (the market rate for a tonne).
+  const euaUsd = scenario.regulation.ets.enabled
+    ? scenario.regulation.ets.euaEurPerTonne * scenario.regulation.eurUsd
+    : null;
+  const abatementChart = abatement.map((row) => ({
+    name: t(`basisLabel.${row.key}`),
+    cost: Math.round(((s.gapPvUsdM * 1e6) / row.tonnes) * 100) / 100,
+    active: row.active,
+  }));
+
+  const portA = [scenario.cargo.portAName, fmtId(scenario.cargo.countryId)]
+    .filter(Boolean)
+    .join(", ");
+  const portB =
+    scenario.cargo.routeType === "point-to-point"
+      ? [scenario.cargo.portBName, fmtId(scenario.cargo.countryBId ?? scenario.cargo.countryId)]
+          .filter(Boolean)
+          .join(", ")
+      : null;
+
   const snapshot: [string, string][] = [
-    [t("snapCountry"), fmtId(scenario.cargo.countryId)],
     [t("snapRoute"), fmtId(scenario.cargo.routeType)],
+    ["Port A", portA],
+    ...(portB ? ([["Port B", portB]] as [string, string][]) : []),
+    [
+      t("snapUnit"),
+      `${cargoUnit === "teu" ? "TEU" : "Tonne"} · ${unitWeight} t`,
+    ],
+    ...(cargoUnit === "teu"
+      ? ([[t("perTonneCargo"), fmtUsd(s.costPerUnitUsd / unitWeight)]] as [string, string][])
+      : []),
     [t("snapDistance"), `${fmtInt(scenario.cargo.oneWayDistanceNm)} nm`],
     [t("snapStart"), String(scenario.cargo.startYear)],
     [t("snapHorizon"), String(scenario.cargo.horizonYears)],
@@ -414,6 +461,52 @@ export default function ResultsPanel({
             ))}
           </tbody>
         </table>
+
+        {/* Abatement cost vs the carbon price */}
+        <div className="mt-3 border-t border-neutral-100 pt-3">
+          <Eyebrow>{t("abatementChart")}</Eyebrow>
+          <div className="h-44">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={abatementChart}
+                margin={{ top: 12, right: 8, bottom: 0, left: 0 }}
+              >
+                <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
+                <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} />
+                {euaUsd !== null && (
+                  <ReferenceLine
+                    y={euaUsd}
+                    stroke="var(--viz-delta-up)"
+                    strokeDasharray="4 3"
+                    label={{
+                      value: `${t("euaPrice")} $${Math.round(euaUsd)}`,
+                      position: "insideTopRight",
+                      fontSize: 10,
+                      fill: "var(--viz-delta-up)",
+                    }}
+                  />
+                )}
+                <Tooltip
+                  formatter={(v) => (typeof v === "number" ? `$${v.toLocaleString("en-US")}/t` : String(v))}
+                  labelStyle={{ fontSize: 11 }}
+                  contentStyle={{ fontSize: 11 }}
+                />
+                <Bar dataKey="cost" isAnimationActive={false} maxBarSize={56}>
+                  {abatementChart.map((row) => (
+                    <Cell
+                      key={row.name}
+                      fill={row.active ? "var(--color-brand)" : "var(--viz-ink-muted)"}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+            {t("abatementChartNote")}
+          </p>
+        </div>
       </section>
 
       {/* ===== Scenario snapshot ===== */}

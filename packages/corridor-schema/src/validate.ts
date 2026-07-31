@@ -69,6 +69,13 @@ export const scenarioInputSchema = z.object({
     vessels: z.number().int().positive(),
     roundtripsPerYear: z.number().positive(),
     waccOverride: nullableNumber,
+    // Descriptive / presentation-only additions (absent = legacy scenario):
+    // cargo-unit identity + weight, and named ports. None affect the engine.
+    unit: z.enum(["tonne", "teu"]).optional(),
+    unitWeightTonnes: z.number().positive().optional(),
+    portAName: z.string().max(120).optional(),
+    portBName: z.string().max(120).optional(),
+    countryBId: z.string().max(80).optional(),
   }),
   vessel: z.object({
     typeId: z.string().min(1),

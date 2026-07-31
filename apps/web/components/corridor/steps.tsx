@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import type { ScenarioInput } from "@h2map/corridor-schema";
 import { NumberInput } from "@/components/ui/NumberInput";
 import { Select } from "@/components/ui/Select";
+import { TextInput } from "@/components/ui/TextInput";
 import { SwitchRow } from "@/components/ui/Switch";
 import { Section, Advanced } from "@/components/ui/Card";
 import ResolvedField from "./ResolvedField";
@@ -134,15 +135,16 @@ export function CargoStep({ model }: StepProps) {
     },
   ]);
 
+  const twoPorts = scenario.cargo.routeType === "point-to-point";
+  // Cargo-unit identity: explicit choice, else derived from the vessel
+  // (container → TEU, everything else → tonne). Presentation-only.
+  const cargoUnit =
+    scenario.cargo.unit ??
+    (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
+
   return (
     <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <Select
-          label={t("country")}
-          value={scenario.cargo.countryId}
-          options={bundle.countries.map((c) => ({ value: c.id, label: c.label }))}
-          onChange={(v) => update((d) => void (d.cargo.countryId = v))}
-        />
         <Select
           label={t("routeType")}
           value={scenario.cargo.routeType}
@@ -153,6 +155,58 @@ export function CargoStep({ model }: StepProps) {
           onChange={(v) =>
             update((d) => void (d.cargo.routeType = v as ScenarioInput["cargo"]["routeType"]))
           }
+        />
+        <div />
+        {/* Port A + its country (the model's anchor: WACC benchmark) */}
+        <TextInput
+          label={twoPorts ? t("portA") : t("singlePort")}
+          value={scenario.cargo.portAName ?? ""}
+          onChange={(v) => update((d) => void (d.cargo.portAName = v || undefined))}
+        />
+        <Select
+          label={twoPorts ? t("countryA") : t("country")}
+          help={t("countryHelp")}
+          value={scenario.cargo.countryId}
+          options={bundle.countries.map((c) => ({ value: c.id, label: c.label }))}
+          onChange={(v) => update((d) => void (d.cargo.countryId = v))}
+        />
+        {twoPorts && (
+          <>
+            <TextInput
+              label={t("portB")}
+              value={scenario.cargo.portBName ?? ""}
+              onChange={(v) => update((d) => void (d.cargo.portBName = v || undefined))}
+            />
+            <Select
+              label={t("countryB")}
+              value={scenario.cargo.countryBId ?? scenario.cargo.countryId}
+              options={bundle.countries.map((c) => ({ value: c.id, label: c.label }))}
+              onChange={(v) => update((d) => void (d.cargo.countryBId = v))}
+            />
+          </>
+        )}
+        {/* What one cargo unit IS (tonne / TEU) + its weight */}
+        <Select
+          label={t("unit")}
+          value={cargoUnit}
+          options={[
+            { value: "tonne", label: t("unitTonne") },
+            { value: "teu", label: t("unitTeu") },
+          ]}
+          onChange={(v) =>
+            update((d) => {
+              d.cargo.unit = v as "tonne" | "teu";
+              d.cargo.unitWeightTonnes = v === "teu" ? (d.cargo.unitWeightTonnes ?? 14) : 1;
+            })
+          }
+        />
+        <NumberInput
+          label={t("unitWeight")}
+          unit="t"
+          step={0.5}
+          help={t("unitWeightHelp")}
+          value={scenario.cargo.unitWeightTonnes ?? (cargoUnit === "teu" ? 14 : 1)}
+          onChange={(v) => update((d) => void (d.cargo.unitWeightTonnes = Math.max(0.01, v)))}
         />
         {fields.main}
       </div>

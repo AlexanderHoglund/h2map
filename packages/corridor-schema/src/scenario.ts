@@ -39,6 +39,10 @@ export interface DivergenceFlags {
 }
 
 export interface CargoInput {
+  /**
+   * Corridor anchor country (port A's country): selects the WACC benchmark.
+   * Descriptive port/second-country fields below don't affect the numbers.
+   */
   countryId: string;
   routeType: RouteType;
   oneWayDistanceNm: number;
@@ -51,6 +55,20 @@ export interface CargoInput {
   roundtripsPerYear: number;
   /** Project-specific WACC; null → country benchmark. */
   waccOverride: number | null;
+  /**
+   * What one cargo unit IS (presentation + per-tonne derivations only —
+   * the engine counts units). Absent = legacy generic "unit"; the UI
+   * defaults tonne for bulk/tanker and TEU for container vessels.
+   */
+  unit?: "tonne" | "teu";
+  /** Weight of one unit in tonnes (TEU ≈ 14 t loaded). Absent = 1. */
+  unitWeightTonnes?: number;
+  /** Port A (the anchor country's port) — descriptive. */
+  portAName?: string;
+  /** Port B — descriptive; point-to-point only. */
+  portBName?: string;
+  /** Port B's country — descriptive; point-to-point only. */
+  countryBId?: string;
 }
 
 export interface VesselSideInput {
