@@ -170,7 +170,7 @@
       "rowOpex": "Operating cost",
       "rowTotal": "Total (PV)",
       "cumulative": "Cumulative discounted gap",
-      "cumulativeNote": "Extra present-value cost of running green, accumulated year by year.",
+      "cumulativeNote": "The gap is front-loaded. Year 1 adds {y1inc} ({share}% of the total); by {lastYear} discounting has shrunk the annual increment to {lastInc}.",
       "emissions": "Emissions & abatement",
       "abated": "CO2 abated",
       "abatementCost": "Abatement cost",
@@ -206,7 +206,16 @@
       "abatementNoteNone": "No carbon price is active in this scenario — enable EU ETS, the self-designed scheme or the IMO framework to compare against one.",
       "regImo": "IMO Net-Zero",
       "imoSurplus": "ZNZ surplus balance (green)",
-      "imoNotParam": "IMO Net-Zero: not parameterised in the pinned reference bundle."
+      "imoNotParam": "IMO Net-Zero: not parameterised in the pinned reference bundle.",
+      "unitUsdM": "USD m",
+      "natureCapex": "CAPEX",
+      "natureOperating": "Operating",
+      "natureRegulation": "Regulation",
+      "annualYear1Caption": "Year 1 carries {capital} of green capital, charged in full up front — year 1 alone is {share}% of the lifetime gap.",
+      "cumIncrement": "Annual increment",
+      "cumTotal": "Cumulative",
+      "year1Marker": "Year 1 · capital",
+      "cumAxisOffset": "Cumulative axis starts at {floor}, not zero."
     },
     "buildHere": {
       "chip": "cell {cell} · LCOH ${lcoh}/kg ({rate}%) · synthesis {nameplate} kt/yr, scale ×{scale} · {km} km to port",

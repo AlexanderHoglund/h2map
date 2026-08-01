@@ -7,8 +7,9 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Line,
-  LineChart,
+  ReferenceDot,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -79,24 +80,81 @@ export default function ResultsPanel({
     return steps.map((s2) => ({ ...s2, label: t(s2.key) }));
   }, [result, t]);
 
-  // Per-year rows + the cumulative DISCOUNTED gap (PV columns): how the
-  // headline gap accumulates over the corridor's life.
+  // Per-year rows: each side's annual cost SPLIT BY NATURE (CAPEX / operating
+  // / regulation) so a chart can separate the one-off year-1 capital spike
+  // from the recurring cost, plus the cumulative discounted gap and its
+  // annual increment. A single summed series is unplottable — see the
+  // dev-mode dominance guard below.
   const perYear = useMemo(() => {
     if (!result) return [];
     const start = scenario.cargo.startYear;
+    const g = result.perYear.green;
+    const f = result.perYear.fossil;
+    const regOf = (side: typeof g, i: number) =>
+      (side.etsUsdM[i] ?? 0) +
+      (side.fuelEuUsdM[i] ?? 0) +
+      (side.ira45zUsdM[i] ?? 0) +
+      (side.selfDesignedUsdM[i] ?? 0) +
+      (side.imoNetZeroUsdM?.[i] ?? 0);
     let cum = 0;
-    return result.perYear.green.totalUsdM.map((g, i) => {
-      cum +=
-        (result.perYear.green.pvUsdM[i] ?? 0) -
-        (result.perYear.fossil.pvUsdM[i] ?? 0);
+    return g.totalUsdM.map((gt, i) => {
+      const inc = (g.pvUsdM[i] ?? 0) - (f.pvUsdM[i] ?? 0);
+      cum += inc;
       return {
         year: start + i,
-        green: round2(g),
-        fossil: round2(result.perYear.fossil.totalUsdM[i] ?? 0),
+        gCapex: round2(g.totalCapexUsdM[i] ?? 0),
+        gOpex: round2(g.totalOpexUsdM[i] ?? 0),
+        gReg: round2(regOf(g, i)),
+        fCapex: round2(f.totalCapexUsdM[i] ?? 0),
+        fOpex: round2(f.totalOpexUsdM[i] ?? 0),
+        fReg: round2(regOf(f, i)),
+        green: round2(gt),
+        fossil: round2(f.totalUsdM[i] ?? 0),
+        incGap: round2(inc),
         cumGap: round2(cum),
       };
     });
   }, [result, scenario.cargo.startYear]);
+
+  // Chart derivations: the year-1 dominance the charts must communicate, and
+  // the offset floor for the cumulative axis (never zero-based when the first
+  // point already sits high — spec §2).
+  const chartMeta = useMemo(() => {
+    if (perYear.length === 0 || !result) return null;
+    const y1 = perYear[0]!;
+    const last = perYear[perYear.length - 1]!;
+    const lifetimeGap = result.summary.gapPvUsdM;
+    const cums = perYear.map((r) => r.cumGap);
+    const minCum = Math.min(...cums);
+    const maxCum = Math.max(...cums);
+    // Zero-base the cumulative axis only if the first point is < 20% of the
+    // max; otherwise start below it at a round number and flag the break.
+    const zeroBased = maxCum <= 0 || minCum / maxCum < 0.2;
+    const cumFloor = zeroBased ? 0 : Math.floor(minCum / 100) * 100;
+    const cumCeil = Math.ceil(maxCum / 100) * 100;
+    return {
+      y1Capital: y1.gCapex,
+      y1Inc: y1.incGap,
+      y1Share: lifetimeGap ? Math.round((y1.incGap / lifetimeGap) * 100) : 0,
+      lastYear: last.year,
+      lastInc: last.incGap,
+      cumFloor,
+      cumCeil,
+      cumZeroBased: zeroBased,
+      firstYear: y1.year,
+    };
+  }, [perYear, result]);
+
+  // Dev-mode guard (spec §4): a series whose range is set by one outlier must
+  // be rendered separated (by nature / series / axis). Both charts below ARE
+  // separated, so this never fires for them; it documents the rule and warns
+  // if a future chart plots the summed annual series raw. Flip `separated` to
+  // false to see it fire on the current data.
+  warnIfDominated(
+    "annual-cost",
+    perYear.flatMap((r) => [r.green, r.fossil]),
+    { separated: true },
+  );
 
   if (error || !result) {
     return (
@@ -386,68 +444,136 @@ export default function ResultsPanel({
         </table>
       </section>
 
-      {/* ===== Annual cost ===== */}
+      {/* ===== Annual cost — stacked by nature, green vs fossil ===== */}
       <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <Eyebrow className="mb-0">{t("perYear")}</Eyebrow>
-          {/* Legend — color must never be the only series identifier */}
-          <div className="flex items-center gap-3 text-[11px] text-neutral-600">
-            <span className="flex items-center gap-1">
-              <span
-                aria-hidden
-                className="h-0.5 w-4"
-                style={{ background: "var(--viz-series-green)" }}
-              />
-              {t("green")}
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+          <Eyebrow className="mb-0">
+            {t("perYear")}{" "}
+            <span className="font-normal normal-case tracking-normal text-neutral-500">
+              · {t("unitUsdM")}
             </span>
-            <span className="flex items-center gap-1">
-              <span
-                aria-hidden
-                className="h-0.5 w-4"
-                style={{ background: "var(--viz-ink-muted)" }}
+          </Eyebrow>
+          {/* Legend — nature by shade, side by colour family; never colour alone */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
+            <span className="text-neutral-500">{t("green")}:</span>
+            <LegendSwatch color={NATURE_FILLS.gCapex} label={t("natureCapex")} />
+            <LegendSwatch color={NATURE_FILLS.gOpex} label={t("natureOperating")} />
+            <span className="text-neutral-500">{t("fossil")}:</span>
+            <LegendSwatch color={NATURE_FILLS.fCapex} label={t("natureCapex")} />
+            <LegendSwatch color={NATURE_FILLS.fOpex} label={t("natureOperating")} />
+            <LegendSwatch color={NATURE_FILLS.reg} label={t("natureRegulation")} />
+          </div>
+        </div>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={perYear} margin={{ top: 4, right: 14, bottom: 0, left: 0 }} barCategoryGap="16%">
+              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} tickMargin={4} />
+              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={46} />
+              <Tooltip
+                formatter={(v, name) => [
+                  typeof v === "number" ? fmtUsdM(v) : String(v),
+                  NATURE_NAMES[name as string] ? t(NATURE_NAMES[name as string]!) : String(name),
+                ]}
+                labelStyle={{ fontSize: 11 }}
+                contentStyle={{ fontSize: 11 }}
               />
-              {t("fossil")}
+              <Bar dataKey="gCapex" stackId="green" fill={NATURE_FILLS.gCapex} isAnimationActive={false} />
+              <Bar dataKey="gOpex" stackId="green" fill={NATURE_FILLS.gOpex} isAnimationActive={false} />
+              <Bar dataKey="gReg" stackId="green" fill={NATURE_FILLS.reg} isAnimationActive={false} />
+              <Bar dataKey="fCapex" stackId="fossil" fill={NATURE_FILLS.fCapex} isAnimationActive={false} />
+              <Bar dataKey="fOpex" stackId="fossil" fill={NATURE_FILLS.fOpex} isAnimationActive={false} />
+              <Bar dataKey="fReg" stackId="fossil" fill={NATURE_FILLS.reg} isAnimationActive={false} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        {chartMeta && (
+          <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+            {t("annualYear1Caption", {
+              capital: fmtUsdM(chartMeta.y1Capital),
+              share: chartMeta.y1Share,
+            })}
+          </p>
+        )}
+      </section>
+
+      {/* ===== Cumulative gap — annual increment (bars) + cumulative (line) ===== */}
+      <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+          <Eyebrow className="mb-0">
+            {t("cumulative")}{" "}
+            <span className="font-normal normal-case tracking-normal text-neutral-500">
+              · {t("unitUsdM")}
+            </span>
+          </Eyebrow>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
+            <LegendSwatch color="var(--viz-series-1)" label={t("cumIncrement")} />
+            <span className="flex items-center gap-1">
+              <span aria-hidden className="h-0.5 w-4" style={{ background: "var(--color-brand-deep)" }} />
+              {t("cumTotal")}
             </span>
           </div>
         </div>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={perYear} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+            <ComposedChart data={perYear} margin={{ top: 10, right: 6, bottom: 0, left: 0 }}>
               <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
-              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} />
+              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} tickMargin={4} />
+              <YAxis
+                yAxisId="inc"
+                tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }}
+                stroke="var(--viz-baseline)"
+                width={44}
+              />
+              <YAxis
+                yAxisId="cum"
+                orientation="right"
+                domain={chartMeta ? [chartMeta.cumFloor, chartMeta.cumCeil] : [0, "auto"]}
+                tick={{ fontSize: 10, fill: "var(--color-brand-deep)" }}
+                stroke="var(--viz-baseline)"
+                width={46}
+              />
               <Tooltip
-                formatter={(v) => (typeof v === "number" ? fmtUsdM(v) : String(v))}
+                formatter={(v, name) => [
+                  typeof v === "number" ? fmtUsdM(v) : String(v),
+                  name === "incGap" ? t("cumIncrement") : t("cumTotal"),
+                ]}
                 labelStyle={{ fontSize: 11 }}
                 contentStyle={{ fontSize: 11 }}
               />
-              <Line type="monotone" dataKey="green" stroke="var(--viz-series-green)" dot={false} strokeWidth={2} isAnimationActive={false} />
-              <Line type="monotone" dataKey="fossil" stroke="var(--viz-ink-muted)" dot={false} strokeWidth={2} isAnimationActive={false} />
-            </LineChart>
+              <Bar yAxisId="inc" dataKey="incGap" fill="var(--viz-series-1)" isAnimationActive={false} />
+              <Line yAxisId="cum" type="monotone" dataKey="cumGap" stroke="var(--color-brand-deep)" dot={false} strokeWidth={2} isAnimationActive={false} />
+              {chartMeta && (
+                <ReferenceDot
+                  yAxisId="inc"
+                  x={chartMeta.firstYear}
+                  y={chartMeta.y1Inc}
+                  r={3}
+                  fill="var(--viz-delta-up)"
+                  stroke="var(--viz-surface)"
+                  label={{
+                    value: t("year1Marker"),
+                    position: "top",
+                    fontSize: 10,
+                    fill: "var(--viz-delta-up)",
+                  }}
+                />
+              )}
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
-      </section>
-
-      {/* ===== Cumulative discounted gap ===== */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
-        <Eyebrow>{t("cumulative")}</Eyebrow>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={perYear} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
-              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} />
-              <ReferenceLine y={0} stroke="var(--viz-baseline)" />
-              <Tooltip
-                formatter={(v) => (typeof v === "number" ? fmtUsdM(v) : String(v))}
-                labelStyle={{ fontSize: 11 }}
-                contentStyle={{ fontSize: 11 }}
-              />
-              <Line type="monotone" dataKey="cumGap" stroke="var(--viz-series-1)" dot={false} strokeWidth={2} isAnimationActive={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        <p className="mt-1 text-[11px] leading-snug text-neutral-500">{t("cumulativeNote")}</p>
+        {chartMeta && (
+          <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+            {t("cumulativeNote", {
+              y1inc: fmtUsdM(chartMeta.y1Inc),
+              share: chartMeta.y1Share,
+              lastYear: chartMeta.lastYear,
+              lastInc: fmtUsdM(chartMeta.lastInc),
+            })}
+            {!chartMeta.cumZeroBased &&
+              ` ${t("cumAxisOffset", { floor: fmtUsdM(chartMeta.cumFloor) })}`}
+          </p>
+        )}
       </section>
 
       {/* ===== Regulatory table ===== */}
@@ -615,6 +741,16 @@ export default function ResultsPanel({
   );
 }
 
+/** A small filled square + label for chart legends (colour is never the sole cue). */
+function LegendSwatch({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="flex items-center gap-1">
+      <span aria-hidden className="h-2.5 w-2.5" style={{ background: color }} />
+      {label}
+    </span>
+  );
+}
+
 function Eyebrow({
   children,
   className = "mb-2",
@@ -635,6 +771,58 @@ function Eyebrow({
 function deltaStyle(delta: number): React.CSSProperties | undefined {
   if (Math.abs(delta) < 0.005) return undefined;
   return { color: delta > 0 ? "var(--viz-delta-up)" : "var(--viz-delta-down)" };
+}
+
+/**
+ * Cost-nature fills for the annual chart: side identity (green vs fossil)
+ * carried by colour family, nature (CAPEX / operating) by shade, and
+ * regulation in a shared carbon accent so the fossil charge is visible.
+ */
+const NATURE_FILLS = {
+  gCapex: "#006b00",
+  gOpex: "#5cb85c",
+  fCapex: "#4c4b48",
+  fOpex: "#a6a49d",
+  reg: "var(--viz-delta-up)",
+} as const;
+
+/** Bar dataKey → nature label message key (for the tooltip). */
+const NATURE_NAMES: Record<string, string> = {
+  gCapex: "natureCapex",
+  gOpex: "natureOperating",
+  gReg: "natureRegulation",
+  fCapex: "natureCapex",
+  fOpex: "natureOperating",
+  fReg: "natureRegulation",
+};
+
+/**
+ * Dev-mode dominance guard (design note: "one outlier ⇒ separated rendering").
+ * Warns when a series' max exceeds 5× its median and the chart is NOT using a
+ * separated rendering — the signal that the default rendering is wrong. No-op
+ * in production and when `separated` is set.
+ */
+function warnIfDominated(
+  label: string,
+  series: readonly number[],
+  { separated }: { separated: boolean },
+): void {
+  if (process.env.NODE_ENV === "production" || separated) return;
+  const vals = series
+    .filter((v) => Number.isFinite(v))
+    .map((v) => Math.abs(v))
+    .sort((a, b) => a - b);
+  if (vals.length < 3) return;
+  const median = vals[Math.floor(vals.length / 2)]!;
+  const max = vals[vals.length - 1]!;
+  if (median > 0 && max > 5 * median) {
+    console.warn(
+      `[chart:${label}] value range is set by a single outlier ` +
+        `(max ${max.toFixed(1)} > 5× median ${median.toFixed(1)}). ` +
+        `Separate it out — by cost nature, by series, or by axis — instead of ` +
+        `compressing every other point into illegibility.`,
+    );
+  }
 }
 
 function round2(n: number): number {
