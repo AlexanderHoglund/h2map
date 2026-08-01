@@ -210,8 +210,7 @@ export function CargoStep({ model }: StepProps) {
           onChange={(v) => update((d) => void (d.cargo.unitWeightTonnes = Math.max(0.01, v)))}
         />
         {fields.main}
-      </div>
-      <AdvancedFold>
+        {/* Everything standard on this tab — no Advanced fold. */}
         {fields.advanced}
         <NumberInput
           label={t("portALat")}
@@ -245,7 +244,7 @@ export function CargoStep({ model }: StepProps) {
             )
           }
         />
-      </AdvancedFold>
+      </div>
     </div>
   );
 }
@@ -485,12 +484,9 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
         </p>
       )}
       {s.sourcing === "build-here" && <BuildHerePanel model={model} side={side} />}
+      {/* Everything standard on this tab — no Advanced fold. */}
       {entries.main}
-      {entries.advanced.length > 0 && (
-        <div className="sm:col-span-2">
-          <AdvancedFold>{entries.advanced}</AdvancedFold>
-        </div>
-      )}
+      {entries.advanced}
     </Section>
   );
 }

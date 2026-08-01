@@ -38,6 +38,22 @@ const STEPS = ["cargo", "vessel", "fuel", "port", "regulation"] as const;
 type StepKey = (typeof STEPS)[number];
 type View = StepKey | "results";
 
+/**
+ * A very slight per-tab tone, swept along the logo's own blue→red diverging
+ * wave (#08306B → #2171B5 → #6BAED6 → #F4A582 → #D6604D → #B2182B). Held as
+ * space-separated RGB channels so it drops straight into an rgb(… / α) with a
+ * low alpha — the tint is decorative, never loud. Set as `--tone` on each tab
+ * (its own colour) and on the workspace (the active tab's colour).
+ */
+const TONES: Record<View, string> = {
+  cargo: "8 48 107",
+  vessel: "33 113 181",
+  fuel: "107 174 214",
+  port: "244 165 130",
+  regulation: "214 96 77",
+  results: "178 24 43",
+};
+
 export default function CorridorClient() {
   const t = useTranslations("corridor");
   const tc = useTranslations();
@@ -76,7 +92,10 @@ export default function CorridorClient() {
   ];
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div
+      className="flex h-dvh flex-col"
+      style={{ "--tone": TONES[view] } as React.CSSProperties}
+    >
       {/* ===== The one nav bar: brand | 5 steps + Results | gap + docs ===== */}
       <header className="relative flex shrink-0 items-stretch border-b border-neutral-300 bg-white">
         <Link
@@ -104,19 +123,16 @@ export default function CorridorClient() {
                 type="button"
                 onClick={() => goTo(key)}
                 aria-current={active ? "step" : undefined}
+                style={{ "--tone": TONES[key] } as React.CSSProperties}
                 className={`flex w-40 shrink-0 flex-col items-start justify-center gap-0.5 border-r border-neutral-300 px-4 py-2 text-left transition-colors ${
                   active
-                    ? "bg-brand text-white"
+                    ? "bg-[rgb(var(--tone)/0.12)] text-neutral-900 shadow-[inset_0_-2px_0_0_rgb(var(--tone))]"
                     : visited
-                      ? "bg-white text-neutral-900 hover:bg-neutral-100"
-                      : "bg-white text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
+                      ? "bg-[rgb(var(--tone)/0.06)] text-neutral-900 hover:bg-[rgb(var(--tone)/0.11)]"
+                      : "bg-[rgb(var(--tone)/0.05)] text-neutral-600 hover:bg-[rgb(var(--tone)/0.10)] hover:text-neutral-900"
                 }`}
               >
-                <span
-                  className={`font-mono text-[10px] uppercase tracking-widest ${
-                    active ? "text-white" : "text-neutral-500"
-                  }`}
-                >
+                <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-600">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="w-full truncate whitespace-nowrap text-sm font-medium">
@@ -171,7 +187,7 @@ export default function CorridorClient() {
               {tc("nav.documentation")} <span aria-hidden>→</span>
             </Link>
             <Link
-              href="/methodology"
+              href="/docs#m-overview"
               className="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5 text-sm text-neutral-800 transition-colors hover:bg-neutral-100"
             >
               {tc("nav.methodology")} <span aria-hidden>→</span>
@@ -230,7 +246,7 @@ export default function CorridorClient() {
         </main>
       ) : view === "results" ? (
         /* ===== Results tab: the full panel, full width ===== */
-        <main className="min-h-0 flex-1 overflow-y-auto p-4">
+        <main className="min-h-0 flex-1 overflow-y-auto bg-[rgb(var(--tone)/0.03)] p-4">
           <div className="mx-auto max-w-375">
             <h2 className="mb-3 text-sm font-semibold">{t("results.heading")}</h2>
             <ResultsPanel
@@ -242,7 +258,7 @@ export default function CorridorClient() {
         </main>
       ) : (
         /* ===== Input steps: form | (map) | compact summary ===== */
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-[rgb(var(--tone)/0.03)] lg:flex-row lg:overflow-hidden">
           {/* Form pane — wide enough to breathe in both modes: with the map
               open it keeps a comfortable fixed width (the map flexes), and
               with it closed it takes the room next to the summary */}

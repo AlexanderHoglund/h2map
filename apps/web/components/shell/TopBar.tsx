@@ -12,7 +12,6 @@ import { useTranslations } from "next-intl";
 const LINKS = [
   { href: "/corridor", key: "corridor" },
   { href: "/docs", key: "documentation" },
-  { href: "/methodology", key: "methodology" },
 ] as const;
 
 export default function TopBar() {
