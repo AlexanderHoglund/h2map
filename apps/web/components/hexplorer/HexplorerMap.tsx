@@ -123,10 +123,10 @@ interface HexplorerMapProps {
   embedded?: boolean;
   onSitePicked?: (site: SitePick) => void;
   /**
-   * Integrated corridor: the cell drawer's "use as corridor fuel site" hands
-   * the pick to this callback in place instead of navigating.
+   * Integrated corridor: the drawer's "use as corridor fuel site" launches
+   * the evaluation at the cell (tile values never enter the corridor).
    */
-  onUseSite?: (pick: { h3: string; lat: number; lon: number; lcoh: number }) => void;
+  corridorSitePicker?: boolean;
   /**
    * Embedded only: show the full Explorer control stack (layer / cost year /
    * basis / basemap / opacity + search + legend). Hidden by default so the
@@ -141,7 +141,7 @@ export default function HexplorerMap({
   onEvaluate,
   embedded,
   onSitePicked,
-  onUseSite,
+  corridorSitePicker,
   showControls,
 }: HexplorerMapProps = {}) {
   const controlsVisible = embedded ? showControls === true : true;
@@ -536,7 +536,7 @@ export default function HexplorerMap({
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           onEvaluate={onEvaluate}
-          onUseSite={onUseSite}
+          corridorSitePicker={corridorSitePicker}
         />
       )}
     </div>

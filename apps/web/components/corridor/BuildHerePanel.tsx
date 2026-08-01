@@ -1,21 +1,38 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { getSynthesisBenchmark } from "@h2map/corridor-schema";
-import { synthesize } from "@h2map/corridor-engine";
-import type { CorridorModel } from "./state";
+import { capitalRecoveryFactor } from "@h2map/corridor-engine";
+import ResolvedField from "./ResolvedField";
+import { LCOH_ENGINE_VERSION, type CorridorModel } from "./state";
 
 /**
- * "Build here" (build-plan 3.3), integrated-workspace edition: the site is
- * picked on THE map — the always-present center canvas (cell drawer → "use as
- * corridor fuel site" → model.pickSite). This panel holds the synthesis
- * config: delivered price = site LCOH → carrier synthesis (plant annuitized
- * at the PRODUCTION-side WACC, divergence D7) → logistics to the bunker
- * port. Every knob recomputes the delivered price live.
+ * Build-here (v3): the evaluated site's production cost as FIVE overridable
+ * components — H2 plant capital/operating (LCOH cost structure), synthesis
+ * plant capital/operating (scale-corrected), logistics operating — summing
+ * to the corridor's production CAPEX/OPEX lines. Derived values are a seed,
+ * not a lock: editing one field flips only that field to override, with the
+ * derived value retained as the restorable benchmark (ResolvedField).
+ *
+ * The delivered $/t on the chip is a DISPLAY figure (CRF at the corridor
+ * WACC over the plant life) — never an input to the calculation. The
+ * LCOH-internal rate is surfaced for transparency and warned about when it
+ * differs materially from the corridor rate; it is never used.
  */
 
-const ROUTE_FACTOR = 1.3;
+type ComponentKey =
+  | "h2Capital"
+  | "h2Operating"
+  | "synthCapital"
+  | "synthOperating"
+  | "logisticsOperating";
+
+const COMPONENT_ROWS: { key: ComponentKey; capex: boolean }[] = [
+  { key: "h2Capital", capex: true },
+  { key: "synthCapital", capex: true },
+  { key: "h2Operating", capex: false },
+  { key: "synthOperating", capex: false },
+  { key: "logisticsOperating", capex: false },
+];
 
 export default function BuildHerePanel({
   model,
@@ -25,170 +42,122 @@ export default function BuildHerePanel({
   side: "green" | "fossil";
 }) {
   const t = useTranslations("corridor.buildHere");
-  const { scenario, update } = model;
+  const { scenario, update, resolved } = model;
   const s = scenario[side];
-  const [config, setConfig] = useState({
-    productionWacc: 0.08,
-    electricityUsdPerMwh: 60,
-    co2UsdPerTonne: 30,
-    distanceKm: s.buildHere?.distanceKm ?? 300,
-  });
-  // The site's LCOH: seeded by the map pick (the cell's best-2024 value) and
-  // freely adjustable afterwards — every knob recomputes the delivered price
-  // live; no re-pick needed.
-  const [siteLcoh, setSiteLcoh] = useState<number | null>(
-    s.buildHere?.lcohUsdPerKg ?? null,
-  );
+  const site = s.buildHere;
 
-  let carrier: ReturnType<typeof getSynthesisBenchmark> | null = null;
-  try {
-    carrier = getSynthesisBenchmark(s.fuelId);
-  } catch {
-    carrier = null;
-  }
-
-  const lineage = s.buildHere;
-  const siteKey = lineage ? `${lineage.h3}` : null;
-
-  // A NEW pick from the map re-seeds the local knobs — either a different
-  // cell, or the SAME cell with a new value (an "Evaluate here" run handed
-  // back as the site). `lastWritten` distinguishes external picks from this
-  // panel's own model write-backs, so local edits never get reverted.
-  const lastH3 = useRef<string | null>(siteKey);
-  const lastWritten = useRef<number | null>(lineage?.lcohUsdPerKg ?? null);
-  useEffect(() => {
-    if (!lineage || !siteKey) return;
-    const external = lineage.lcohUsdPerKg;
-    const newCell = siteKey !== lastH3.current;
-    const newValue = external !== siteLcoh && external !== lastWritten.current;
-    if (newCell || newValue) {
-      lastH3.current = siteKey;
-      lastWritten.current = external;
-      setSiteLcoh(external);
-      setConfig((c) => ({ ...c, distanceKm: lineage.distanceKm }));
-    }
-  }, [siteKey, lineage, siteLcoh]);
-
-  // Reactive delivered price: once a site exists, ANY knob (site LCOH,
-  // production WACC, electricity, CO2, distance, carrier) recomputes the
-  // delivered price + lineage. Writes only when the numbers actually change,
-  // so the update cannot loop.
-  useEffect(() => {
-    // Hooks run unconditionally; the guards do the branching.
-    if (!carrier || !siteKey || siteLcoh === null) return;
-    const synth = synthesize(siteLcoh, carrier, config);
-    const logistics = config.distanceKm * ROUTE_FACTOR * carrier.shippingUsdPerTonneKm;
-    const delivered = Math.round((synth.gateUsdPerTonne + logistics) * 100) / 100;
-    const gate = Math.round(synth.gateUsdPerTonne * 100) / 100;
-    const logisticsR = Math.round(logistics * 100) / 100;
-    lastWritten.current = siteLcoh; // our own write — not an external pick
-    const timer = setTimeout(() => update((d) => {
-      const b = d[side].buildHere;
-      if (!b) return;
-      if (
-        d[side].deliveredPriceUsdPerTonne === delivered &&
-        b.lcohUsdPerKg === siteLcoh &&
-        b.synthesisGateUsdPerTonne === gate &&
-        b.distanceKm === config.distanceKm
-      ) {
-        return; // nothing changed — no state churn
-      }
-      d[side].deliveredPriceUsdPerTonne = delivered;
-      b.lcohUsdPerKg = siteLcoh;
-      b.carrierId = carrier.carrierId;
-      b.synthesisGateUsdPerTonne = gate;
-      b.distanceKm = config.distanceKm;
-      b.logisticsUsdPerTonne = logisticsR;
-    }), 0);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [siteKey, siteLcoh, config, carrier?.carrierId]);
-
-  // Unsupported carriers (no synthesis pathway) — after all hooks.
-  if (!carrier) {
+  if (!site) {
     return (
-      <p className="sm:col-span-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
-        {t("unsupportedCarrier", { fuel: s.fuelId })}
+      <p className="sm:col-span-2 border border-dashed border-brand/50 bg-brand-tint px-2.5 py-2 text-[11px] leading-snug text-brand-deep">
+        {t("pickOnMap")}
       </p>
     );
   }
 
+  const comp = (c: { derivedUsdM: number; overrideUsdM: number | null }) =>
+    c.overrideUsdM ?? c.derivedUsdM;
+  const capexTotal =
+    comp(site.components.h2Capital) + comp(site.components.synthCapital);
+  const opexTotal =
+    comp(site.components.h2Operating) +
+    comp(site.components.synthOperating) +
+    comp(site.components.logisticsOperating);
+
+  // Display-only delivered $/t at the CORRIDOR's rate over the plant life —
+  // the corridor engine itself discounts the raw CAPEX/OPEX lines.
+  const corridorWacc = resolved?.wacc.value ?? 0.08;
+  const demand = site.sizing.nameplateTonnesPerYear / site.sizing.nameplateMargin;
+  const displayPerTonne =
+    demand > 0
+      ? ((capexTotal * capitalRecoveryFactor(corridorWacc, site.evaluated.plantLifeYears) +
+          opexTotal) *
+          1e6) /
+        demand
+      : 0;
+
+  const rateGap = Math.abs(site.evaluated.lcohDiscountRate - corridorWacc);
+  const engineMoved = site.evaluated.lcohEngineVersion !== LCOH_ENGINE_VERSION;
+
+  const setOverride = (key: ComponentKey, v: number | null) =>
+    update((d) => {
+      const bh = d[side].buildHere;
+      if (!bh) return;
+      bh.components[key].overrideUsdM = v;
+    });
+
   return (
     <div className="sm:col-span-2 space-y-2">
-      {/* No site yet: the map is right there — point at it */}
-      {!lineage && (
-        <p className="border border-dashed border-brand/50 bg-brand-tint px-2.5 py-2 text-[11px] leading-snug text-brand-deep">
-          {t("pickOnMap")}
+      {/* Lineage chip: the full chain, every element with provenance */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border border-emerald-300 bg-emerald-500/10 px-2.5 py-2 text-xs">
+        <span className="font-semibold tabular-nums">
+          ${Math.round(displayPerTonne).toLocaleString("en-US")}/t{" "}
+          <span className="font-normal text-neutral-500">{t("displayOnly")}</span>
+        </span>
+        <span className="text-neutral-600">
+          {t("chip", {
+            cell: `${site.h3.slice(0, 6)}…`,
+            lcoh: site.evaluated.lcohUsdPerKg.toFixed(2),
+            rate: (site.evaluated.lcohDiscountRate * 100).toFixed(1),
+            nameplate: Math.round(site.sizing.nameplateTonnesPerYear / 1000),
+            scale: site.sizing.scaleFactor.toFixed(2),
+            km: Math.round(site.sizing.distanceKm),
+          })}
+        </span>
+        <span className="text-[11px] text-neutral-600">{t("repickNote")}</span>
+      </div>
+
+      {/* Sizing line */}
+      <p className="text-[11px] leading-snug text-neutral-600">
+        {t("sizingLine", {
+          demand: Math.round(demand).toLocaleString("en-US"),
+          margin: site.sizing.nameplateMargin,
+          nameplate: Math.round(site.sizing.nameplateTonnesPerYear).toLocaleString("en-US"),
+          surplus: Math.round(site.sizing.surplusTonnesPerYear).toLocaleString("en-US"),
+        })}
+      </p>
+
+      {/* Warnings: rate divergence + engine drift (never silent) */}
+      {rateGap > 0.01 && (
+        <p className="bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
+          {t("rateWarning", {
+            lcohRate: (site.evaluated.lcohDiscountRate * 100).toFixed(1),
+            corridorRate: (corridorWacc * 100).toFixed(1),
+          })}
+        </p>
+      )}
+      {engineMoved && (
+        <p className="bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
+          {t("engineMoved", {
+            evaluated: site.evaluated.lcohEngineVersion,
+            current: LCOH_ENGINE_VERSION,
+          })}
         </p>
       )}
 
-      {/* Lineage chip */}
-      {lineage && s.deliveredPriceUsdPerTonne != null && (
-        <div className="flex flex-wrap items-center gap-2 border border-emerald-300 bg-emerald-500/10 px-2.5 py-2 text-xs">
-          <span className="font-semibold tabular-nums">
-            ${s.deliveredPriceUsdPerTonne.toLocaleString("en-US")}/t
-          </span>
-          <span className="text-neutral-600">
-            {t("chip", {
-              cell: `${lineage.h3.slice(0, 6)}…`,
-              lcoh: lineage.lcohUsdPerKg.toFixed(2),
-              carrier: lineage.carrierId,
-              km: Math.round(lineage.distanceKm),
-            })}
-          </span>
-          <span className="text-[11px] text-neutral-600">{t("repickNote")}</span>
+      {/* The five components — derived seeds, individually overridable */}
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {COMPONENT_ROWS.map(({ key, capex }) => {
+          const c = site.components[key];
+          return (
+            <ResolvedField
+              key={key}
+              label={t(`component.${key}`)}
+              unit={capex ? "$m" : "$m/yr"}
+              override={c.overrideUsdM}
+              effective={comp(c)}
+              source={c.overrideUsdM !== null ? "override" : "derived"}
+              benchmark={c.derivedUsdM}
+              onChange={(v) => setOverride(key, v)}
+            />
+          );
+        })}
+        {/* The lines the corridor consumes (sums; read-only) */}
+        <div className="text-[11px] leading-snug text-neutral-600 sm:col-span-2">
+          {t("sumLine", {
+            capex: capexTotal.toFixed(2),
+            opex: opexTotal.toFixed(2),
+          })}
         </div>
-      )}
-
-      {/* Synthesis config (D7: production-side WACC, separate from corridor WACC) */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {siteKey && siteLcoh !== null && (
-          <label className="block text-[11px] text-neutral-600">
-            {t("siteLcoh")}
-            <span className="mt-0.5 flex items-center gap-1 border border-emerald-400 bg-white px-2 py-1">
-              <input
-                type="number"
-                step={0.05}
-                value={siteLcoh}
-                onChange={(e) => {
-                  const n = Number(e.target.value);
-                  if (Number.isFinite(n) && n > 0) setSiteLcoh(n);
-                }}
-                className="min-w-0 flex-1 bg-transparent text-xs tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="shrink-0 text-[10px] text-neutral-600">$/kg</span>
-            </span>
-          </label>
-        )}
-        {(
-          [
-            ["productionWacc", t("productionWacc"), 0.005, "fraction"],
-            ["electricityUsdPerMwh", t("electricity"), 5, "$/MWh"],
-            ...(carrier.co2TPerTonne > 0
-              ? ([["co2UsdPerTonne", t("co2Price"), 5, "$/t"]] as const)
-              : []),
-            ["distanceKm", t("distance"), 10, "km"],
-          ] as const
-        ).map(([key, label, step, unit]) => (
-          <label key={key} className="block text-[11px] text-neutral-600">
-            {label}
-            <span className="mt-0.5 flex items-center gap-1 border border-neutral-300 bg-white px-2 py-1">
-              <input
-                type="number"
-                step={step}
-                value={config[key]}
-                onChange={(e) => {
-                  const n = Number(e.target.value);
-                  if (!Number.isFinite(n)) return;
-                  const next = { ...config, [key]: n };
-                  setConfig(next);
-                }}
-                className="min-w-0 flex-1 bg-transparent text-xs tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="shrink-0 text-[10px] text-neutral-600">{unit}</span>
-            </span>
-          </label>
-        ))}
       </div>
       <p className="text-[10px] leading-snug text-neutral-500">{t("configNote")}</p>
     </div>

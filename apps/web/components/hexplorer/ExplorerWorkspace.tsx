@@ -24,8 +24,24 @@ const CalculatorPanel = dynamic(
 export default function ExplorerWorkspace({
   onUseSite,
 }: {
-  /** Integrated corridor: cell drawer's "use as corridor fuel site" → here. */
-  onUseSite?: (pick: { h3: string; lat: number; lon: number; lcoh: number }) => void;
+  /**
+   * Integrated corridor: the EVALUATED site hand-back (full cost structure)
+   * from the embedded calculator. The tile value never enters the corridor.
+   */
+  onUseSite?: (pick: {
+    h3: string;
+    lat: number;
+    lon: number;
+    lcoh: number;
+    costStructure: {
+      capitalUsd: number;
+      annualOperatingUsd: number;
+      annualH2Kg: number;
+      discountRate: number;
+      plantLifeYears: number;
+    };
+    lcohEngineVersion: string;
+  }) => void;
 } = {}) {
   const t = useTranslations("explorer");
   const [open, setOpen] = useState(false);
@@ -54,7 +70,7 @@ export default function ExplorerWorkspace({
       {/* Map — flexes to the space left of the panel; overflow-hidden clips the
           GL canvas to its (shrunk) box so it never bleeds over the panel. */}
       <div className="relative h-full min-w-0 flex-1 overflow-hidden">
-        <HexplorerMap onEvaluate={handleEvaluate} onUseSite={onUseSite} />
+        <HexplorerMap onEvaluate={handleEvaluate} corridorSitePicker={!!onUseSite} />
         {/* Bottom-right so it never collides with the legend (bottom-left) */}
         {!open && (
           <div className="pointer-events-none absolute bottom-8 right-4 z-10">
@@ -78,13 +94,15 @@ export default function ExplorerWorkspace({
             onUseResult={
               onUseSite
                 ? (r) => {
-                    // The evaluated LCOH becomes the corridor's site value;
-                    // cell id at the map's max detail res for the lineage.
+                    // The evaluated cost structure becomes the corridor's
+                    // site; cell id at the map's max detail res.
                     onUseSite({
                       h3: latLngToCell(r.lat, r.lon, 5),
                       lat: r.lat,
                       lon: r.lon,
                       lcoh: Math.round(r.lcoh * 100) / 100,
+                      costStructure: r.costStructure,
+                      lcohEngineVersion: r.lcohEngineVersion,
                     });
                     setOpen(false); // back to form + map, pick applied
                   }

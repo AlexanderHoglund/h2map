@@ -117,6 +117,48 @@ export interface FuelSideOverrides {
   bargeOpexUsdMPerYear: number | null;
 }
 
+/** One build-here production-cost component: map-derived + overridable. */
+export interface BuildHereComponent {
+  derivedUsdM: number;
+  overrideUsdM: number | null;
+}
+
+export interface BuildHereSite {
+  h3: string;
+  lat: number;
+  lon: number;
+  /** The LCOH evaluation snapshot (archived provenance; display + restore). */
+  evaluated: {
+    lcohUsdPerKg: number;
+    /** Year-1 H2 at the EVALUATED config, kg. */
+    annualH2Kg: number;
+    /** LCOH cost structure at the evaluated config, USD. */
+    capitalUsd: number;
+    annualOperatingUsd: number;
+    /** LCOH-internal rate — display/transparency only, never the corridor rate. */
+    lcohDiscountRate: number;
+    lcohEngineVersion: string;
+    plantLifeYears: number;
+  };
+  /** The decomposition the corridor consumes (spec §5): each overridable. */
+  components: {
+    h2Capital: BuildHereComponent;
+    h2Operating: BuildHereComponent;
+    synthCapital: BuildHereComponent;
+    synthOperating: BuildHereComponent;
+    logisticsOperating: BuildHereComponent;
+  };
+  sizing: {
+    nameplateTonnesPerYear: number;
+    nameplateMargin: number;
+    scaleFactor: number;
+    foakMultiplier: number;
+    /** Nameplate above corridor demand — reported, never apportioned. */
+    surplusTonnesPerYear: number;
+    distanceKm: number;
+  };
+}
+
 export interface FuelSideInput {
   fuelId: string;
   sourcing: FuelSourcing;
@@ -127,20 +169,14 @@ export interface FuelSideInput {
    */
   deliveredPriceUsdPerTonne?: number | null;
   /**
-   * build-here lineage: where the delivered price came from, so the UI chip
-   * and provenance survive save/reload. Display data only — the engine never
-   * reads it (the price above is the input).
+   * build-here (v3): the evaluated site and the DECOMPOSED production cost.
+   * The five components each carry a map-derived value and an optional
+   * override (seed, not lock): the resolver sums override ?? derived into
+   * the production CAPEX/OPEX lines. A scenario reproduces without
+   * re-calling the LCOH service; the engine-version pin drives the
+   * recompute affordance.
    */
-  buildHere?: {
-    h3: string;
-    lat: number;
-    lon: number;
-    lcohUsdPerKg: number;
-    carrierId: string;
-    synthesisGateUsdPerTonne: number;
-    distanceKm: number;
-    logisticsUsdPerTonne: number;
-  } | null;
+  buildHere?: BuildHereSite | null;
   overrides: FuelSideOverrides;
 }
 

@@ -430,20 +430,29 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
         help: t("wtwHelp"),
       }),
     },
-    {
-      id: `${side}.prodCapexUsdM`,
-      node: overrideField("prodCapexUsdM", "prodCapexUsdM", t("prodCapex"), "$m", {
-        disabled: prodZeroed,
-        disabledNote: t("prodZeroNote"),
-      }),
-    },
-    {
-      id: `${side}.prodOpexUsdMPerYear`,
-      node: overrideField("prodOpexUsdMPerYear", "prodOpexUsdMPerYear", t("prodOpex"), "$m/yr", {
-        disabled: prodZeroed,
-        disabledNote: t("prodZeroNote"),
-      }),
-    },
+    // Under build-here the production lines are component sums shown in the
+    // panel — the aggregate fields would fight the per-component overrides.
+    ...(s.sourcing === "build-here"
+      ? []
+      : [
+          {
+            id: `${side}.prodCapexUsdM`,
+            node: overrideField("prodCapexUsdM", "prodCapexUsdM", t("prodCapex"), "$m", {
+              disabled: prodZeroed,
+              disabledNote: t("prodZeroNote"),
+            }),
+          },
+          {
+            id: `${side}.prodOpexUsdMPerYear`,
+            node: overrideField(
+              "prodOpexUsdMPerYear",
+              "prodOpexUsdMPerYear",
+              t("prodOpex"),
+              "$m/yr",
+              { disabled: prodZeroed, disabledNote: t("prodZeroNote") },
+            ),
+          },
+        ]),
   ]);
 
   return (
@@ -461,8 +470,10 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
           { value: "purchase", label: t("sourcingPurchase") },
           { value: "named-plant", label: t("sourcingNamedPlant") },
           { value: "build-plant", label: t("sourcingBuildPlant") },
-          // build-here (map-derived plant inputs) returns in the build-here
-          // integration PR; green-side only.
+          // build-here (map-derived plant inputs) — green-side only.
+          ...(side === "green"
+            ? [{ value: "build-here", label: t("sourcingBuildHere") }]
+            : []),
         ]}
         onChange={(v) =>
           update((d) => {

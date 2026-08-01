@@ -53,7 +53,19 @@ export interface CalculatorPanelProps {
    * Integrated corridor: hand the evaluated LCOH back to the model as the
    * green production site ("build here"). Shown under the result readout.
    */
-  onUseResult?: (r: { lat: number; lon: number; lcoh: number }) => void;
+  onUseResult?: (r: {
+    lat: number;
+    lon: number;
+    lcoh: number;
+    costStructure: {
+      capitalUsd: number;
+      annualOperatingUsd: number;
+      annualH2Kg: number;
+      discountRate: number;
+      plantLifeYears: number;
+    };
+    lcohEngineVersion: string;
+  }) => void;
 }
 
 export default function CalculatorPanel({
@@ -780,6 +792,15 @@ export default function CalculatorPanel({
                       lat: values.location.lat,
                       lon: values.location.lon,
                       lcoh: sim.response!.results.lcohUsdPerKg,
+                      costStructure: {
+                        capitalUsd: sim.response!.results.costStructure.capitalUsd,
+                        annualOperatingUsd:
+                          sim.response!.results.costStructure.annualOperatingUsd,
+                        annualH2Kg: sim.response!.results.costStructure.annualH2Kg,
+                        discountRate: sim.response!.results.costStructure.discountRate,
+                        plantLifeYears: sim.response!.results.costStructure.plantLifeYears,
+                      },
+                      lcohEngineVersion: sim.response!.results.meta.engineVersion,
                     })
                   }
                   className="mb-4 w-full bg-brand px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"

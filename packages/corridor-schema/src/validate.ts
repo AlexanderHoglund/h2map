@@ -28,6 +28,11 @@ const fuelSideOverridesSchema = z.object({
   bargeOpexUsdMPerYear: nullableNumber,
 });
 
+const buildHereComponentSchema = z.object({
+  derivedUsdM: z.number().nonnegative(),
+  overrideUsdM: z.number().nonnegative().nullable(),
+});
+
 const fuelSideSchema = z
   .object({
     fuelId: z.string().min(1),
@@ -38,11 +43,30 @@ const fuelSideSchema = z
         h3: z.string().min(1),
         lat: z.number().min(-90).max(90),
         lon: z.number().min(-180).max(180),
-        lcohUsdPerKg: z.number().positive(),
-        carrierId: z.string().min(1),
-        synthesisGateUsdPerTonne: z.number().positive(),
-        distanceKm: z.number().nonnegative(),
-        logisticsUsdPerTonne: z.number().nonnegative(),
+        evaluated: z.object({
+          lcohUsdPerKg: z.number().positive(),
+          annualH2Kg: z.number().positive(),
+          capitalUsd: z.number().nonnegative(),
+          annualOperatingUsd: z.number().nonnegative(),
+          lcohDiscountRate: z.number().min(0).max(1),
+          lcohEngineVersion: z.string().min(1),
+          plantLifeYears: z.number().int().positive(),
+        }),
+        components: z.object({
+          h2Capital: buildHereComponentSchema,
+          h2Operating: buildHereComponentSchema,
+          synthCapital: buildHereComponentSchema,
+          synthOperating: buildHereComponentSchema,
+          logisticsOperating: buildHereComponentSchema,
+        }),
+        sizing: z.object({
+          nameplateTonnesPerYear: z.number().positive(),
+          nameplateMargin: z.number().min(1),
+          scaleFactor: z.number().positive(),
+          foakMultiplier: z.number().positive(),
+          surplusTonnesPerYear: z.number().nonnegative(),
+          distanceKm: z.number().nonnegative(),
+        }),
       })
       .nullable()
       .optional(),
@@ -59,7 +83,11 @@ const fuelSideSchema = z
       !(s.sourcing === "build-plant" || s.sourcing === "build-here") ||
       s.deliveredPriceUsdPerTonne == null,
     { message: "build-plant/build-here must not carry deliveredPriceUsdPerTonne" },
-  );
+  )
+  // build-here without an evaluated site has nothing to derive from.
+  .refine((s) => s.sourcing !== "build-here" || s.buildHere != null, {
+    message: "build-here sourcing requires an evaluated buildHere site",
+  });
 
 export const scenarioInputSchema = z.object({
   schemaVersion: z.literal(SCHEMA_VERSION),

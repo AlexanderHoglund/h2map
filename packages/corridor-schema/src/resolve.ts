@@ -160,12 +160,45 @@ function resolveFuelSide(
   // the production lines (typed for build-plant, map-derived for
   // build-here — one code path, different Resolved sources).
   const noProductionLines = pricedModes(input.sourcing);
+  // build-here: the production lines are the SUM of the five evaluated
+  // components, each override ?? derived (seed-not-lock). One code path
+  // with build-plant — only the Resolved source differs.
+  const bh = input.sourcing === "build-here" ? input.buildHere : null;
+  if (input.sourcing === "build-here" && !bh) {
+    throw new Error("build-here sourcing requires an evaluated buildHere site");
+  }
+  const comp = (c: { derivedUsdM: number; overrideUsdM: number | null }) =>
+    c.overrideUsdM ?? c.derivedUsdM;
+  const anyOverride = (...cs: { overrideUsdM: number | null }[]) =>
+    cs.some((c) => c.overrideUsdM !== null);
   const prodCapex: Resolved<UsdM> = noProductionLines
     ? derived(usdM(0))
-    : resolve(o.prodCapexUsdM, usdM, () => benchmark(usdM(fuel.prodCapexUsdM)));
+    : bh
+      ? {
+          value: usdM(comp(bh.components.h2Capital) + comp(bh.components.synthCapital)),
+          source: anyOverride(bh.components.h2Capital, bh.components.synthCapital)
+            ? "override"
+            : "derived",
+        }
+      : resolve(o.prodCapexUsdM, usdM, () => benchmark(usdM(fuel.prodCapexUsdM)));
   const prodOpex: Resolved<UsdM> = noProductionLines
     ? derived(usdM(0))
-    : resolve(o.prodOpexUsdMPerYear, usdM, () =>
+    : bh
+      ? {
+          value: usdM(
+            comp(bh.components.h2Operating) +
+              comp(bh.components.synthOperating) +
+              comp(bh.components.logisticsOperating),
+          ),
+          source: anyOverride(
+            bh.components.h2Operating,
+            bh.components.synthOperating,
+            bh.components.logisticsOperating,
+          )
+            ? "override"
+            : "derived",
+        }
+      : resolve(o.prodOpexUsdMPerYear, usdM, () =>
         benchmark(usdM(fuel.prodOpexUsdMPerYear)),
       );
 

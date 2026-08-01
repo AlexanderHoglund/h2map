@@ -9,8 +9,9 @@ import {
   type ResolvedScenario,
   type ScenarioInput,
 } from "@h2map/corridor-schema";
-import { evaluateScenario, synthesize } from "@h2map/corridor-engine";
+import { evaluateScenario, logisticsLeg, synthesizePlant } from "@h2map/corridor-engine";
 import { getSynthesisBenchmark } from "@h2map/corridor-schema";
+import { ENGINE_VERSION as LCOH_ENGINE_VERSION } from "@h2map/lcoh-engine";
 import type { ScenarioResult } from "@h2map/corridor-schema";
 import bundleJson from "../../../../data/corridor-ref/2026-07-30-excel-v1.json";
 import fixtureDefaults from "../../../../fixtures/golden/corridor/excel-baseline.input.json";
@@ -184,15 +185,31 @@ function clearOverrides(s: ScenarioInput): ScenarioInput {
 // v1 drafts (the workbook defaults) would shadow it on load, so the key
 // is versioned. The v1 entry stays in storage untouched.
 const DRAFT_KEY = "corridor-draft-v2";
-const SITE_PICK_KEY = "corridor-site-pick";
 
-/** A production-site pick coming from the map. */
+/**
+ * A production-site pick — the FULL evaluation hand-back (spec: the tile
+ * value never enters the calculation; evaluate-here is the only path).
+ */
 export interface SitePickPayload {
   h3: string;
   lat: number;
   lon: number;
   lcoh: number;
+  costStructure: {
+    capitalUsd: number;
+    annualOperatingUsd: number;
+    annualH2Kg: number;
+    discountRate: number;
+    plantLifeYears: number;
+  };
+  lcohEngineVersion: string;
 }
+
+export { LCOH_ENGINE_VERSION };
+
+/** Default plant sizing margin over corridor demand (57 kt → ~60 kt). */
+const NAMEPLATE_MARGIN = 1.05;
+const FALLBACK_DISTANCE_KM = 300;
 
 /**
  * Apply a map site pick: switch the green side to build-here with a delivered
@@ -203,13 +220,9 @@ function applyPickToScenario(
   scenario: ScenarioInput,
   pick: SitePickPayload,
 ): ScenarioInput {
-  // TODO(sourcing PR 5): build-here now derives production CAPEX/OPEX from
-  // the LCOH cost structure via the evaluate flow — the old delivered-price
-  // write is invalid under schema v3. Dormant until the new wiring lands.
-  void pick;
-  return scenario;
-  // eslint-disable-next-line no-unreachable
-  if (typeof pick.lcoh !== "number" || !pick.h3) return scenario;
+  if (!pick.h3 || !pick.costStructure || pick.costStructure.annualH2Kg <= 0) {
+    return scenario;
+  }
   const next = JSON.parse(JSON.stringify(scenario)) as ScenarioInput;
   // Ensure a synthesizable carrier (fall back to the workbook's e-ammonia).
   let carrier;
@@ -219,42 +232,91 @@ function applyPickToScenario(
     next.green.fuelId = "e-ammonia";
     carrier = getSynthesisBenchmark("e-ammonia");
   }
-  const config = { productionWacc: 0.08, electricityUsdPerMwh: 60, co2UsdPerTonne: 30 };
-  const distanceKm = 300;
-  const synth = synthesize(pick.lcoh, carrier, config);
-  const logistics = distanceKm * 1.3 * carrier.shippingUsdPerTonneKm;
+
+  // Corridor demand from the RESOLVED green tonnage (benchmark/derived when
+  // not overridden) — the plant is sized to the corridor, not to the tile.
+  let demandTonnesPerYear: number;
+  try {
+    // The scenario may already be in build-here-without-a-site (the user
+    // just selected the mode) — resolve the demand on a sizing pass with
+    // the green side temporarily downgraded to build-plant.
+    const sizing = JSON.parse(JSON.stringify(next)) as ScenarioInput;
+    sizing.green.sourcing = "build-plant";
+    sizing.green.buildHere = null;
+    const resolved = resolveScenario(sizing, DEFAULT_BUNDLE);
+    demandTonnesPerYear = resolved.vessels * resolved.green.tonnesPerVesselYear.value;
+  } catch {
+    return scenario; // unresolvable scenario — leave untouched
+  }
+  const nameplate = demandTonnesPerYear * NAMEPLATE_MARGIN;
+
+  // H2 block: LCOH cost structure scaled LINEARLY to the required H2
+  // (electrolysers/renewables are ~linear in capacity — spec §3).
+  const requiredH2Kg = nameplate * carrier.tH2PerTonne * 1000;
+  const k = requiredH2Kg / pick.costStructure.annualH2Kg;
+  const h2CapitalUsdM = (pick.costStructure.capitalUsd * k) / 1e6;
+  const h2OperatingUsdM = (pick.costStructure.annualOperatingUsd * k) / 1e6;
+
+  // Synthesis block: dedicated plant at the corridor's nameplate,
+  // scale-corrected (spec §3).
+  const synth = synthesizePlant(carrier, {
+    productionWacc: 0.08,
+    electricityUsdPerMwh: 60,
+    co2UsdPerTonne: 30,
+    nameplateTonnesPerYear: nameplate,
+  });
+
+  // Logistics: plant→port from coordinates when the port is pinned.
+  const port = next.cargo.portACoords;
+  const leg = port
+    ? logisticsLeg(
+        { lat: pick.lat, lon: pick.lon },
+        port,
+        carrier.shippingUsdPerTonneKm,
+        demandTonnesPerYear,
+      )
+    : {
+        distanceKm: FALLBACK_DISTANCE_KM,
+        perTonne: FALLBACK_DISTANCE_KM * 1.3 * carrier.shippingUsdPerTonneKm,
+        annualOperatingUsd:
+          FALLBACK_DISTANCE_KM * 1.3 * carrier.shippingUsdPerTonneKm * demandTonnesPerYear,
+      };
+
+  const r2 = (n: number) => Math.round(n * 100) / 100;
   next.green.sourcing = "build-here";
-  next.green.deliveredPriceUsdPerTonne =
-    Math.round((synth.gateUsdPerTonne + logistics) * 100) / 100;
+  next.green.deliveredPriceUsdPerTonne = null; // v3: never an engine input
   next.green.buildHere = {
     h3: pick.h3,
     lat: pick.lat,
     lon: pick.lon,
-    lcohUsdPerKg: pick.lcoh,
-    carrierId: carrier.carrierId,
-    synthesisGateUsdPerTonne: Math.round(synth.gateUsdPerTonne * 100) / 100,
-    distanceKm,
-    logisticsUsdPerTonne: Math.round(logistics * 100) / 100,
+    evaluated: {
+      lcohUsdPerKg: pick.lcoh,
+      annualH2Kg: pick.costStructure.annualH2Kg,
+      capitalUsd: pick.costStructure.capitalUsd,
+      annualOperatingUsd: pick.costStructure.annualOperatingUsd,
+      lcohDiscountRate: pick.costStructure.discountRate,
+      lcohEngineVersion: pick.lcohEngineVersion,
+      plantLifeYears: pick.costStructure.plantLifeYears,
+    },
+    components: {
+      h2Capital: { derivedUsdM: r2(h2CapitalUsdM), overrideUsdM: null },
+      h2Operating: { derivedUsdM: r2(h2OperatingUsdM), overrideUsdM: null },
+      synthCapital: { derivedUsdM: r2(synth.capitalUsd / 1e6), overrideUsdM: null },
+      synthOperating: { derivedUsdM: r2(synth.annualOperatingUsd / 1e6), overrideUsdM: null },
+      logisticsOperating: { derivedUsdM: r2(leg.annualOperatingUsd / 1e6), overrideUsdM: null },
+    },
+    sizing: {
+      nameplateTonnesPerYear: Math.round(nameplate),
+      nameplateMargin: NAMEPLATE_MARGIN,
+      scaleFactor: Math.round(synth.scaleFactor * 100) / 100,
+      foakMultiplier: 1,
+      surplusTonnesPerYear: Math.round(nameplate - demandTonnesPerYear),
+      distanceKm: Math.round(leg.distanceKm),
+    },
   };
   return next;
 }
 
-/** Consume a legacy localStorage hand-off (pre-integration deep link). */
-function applySitePick(scenario: ScenarioInput): ScenarioInput {
-  let raw: string | null = null;
-  try {
-    raw = localStorage.getItem(SITE_PICK_KEY);
-  } catch {
-    return scenario;
-  }
-  if (!raw) return scenario;
-  localStorage.removeItem(SITE_PICK_KEY);
-  try {
-    return applyPickToScenario(scenario, JSON.parse(raw) as SitePickPayload);
-  } catch {
-    return scenario;
-  }
-}
 
 export interface CorridorModel {
   bundle: RefBundle;
@@ -288,8 +350,7 @@ export function useCorridorModel(): CorridorModel {
       localStorage.removeItem(DRAFT_KEY);
     }
     base ??= { scenario: defaultScenario(), hadDraft: false };
-    // An Explorer hand-off ("use as corridor fuel site") lands here.
-    return { ...base, scenario: applySitePick(base.scenario) };
+    return base;
   });
   const [scenario, setScenario] = useState<ScenarioInput>(init.scenario);
 
@@ -333,12 +394,33 @@ export function useCorridorModel(): CorridorModel {
       const benchmarks = resolveScenario(clearOverrides(scenario), DEFAULT_BUNDLE);
       return { resolved, benchmarks, result: evaluateScenario(resolved), error: null };
     } catch (err) {
-      return {
-        resolved: null,
-        benchmarks: null,
-        result: null,
-        error: err instanceof Error ? err.message : String(err),
-      };
+      // Form-support fallback: build-here without a picked site cannot
+      // evaluate (no numbers are shown), but the FORM must stay alive so
+      // the user can pick — resolve with the site-less side downgraded to
+      // build-plant for field display only.
+      try {
+        const fallback = JSON.parse(JSON.stringify(scenario)) as ScenarioInput;
+        for (const side of [fallback.green, fallback.fossil]) {
+          if (side.sourcing === "build-here" && !side.buildHere) {
+            side.sourcing = "build-plant";
+          }
+        }
+        const resolved = resolveScenario(fallback, DEFAULT_BUNDLE);
+        const benchmarks = resolveScenario(clearOverrides(fallback), DEFAULT_BUNDLE);
+        return {
+          resolved,
+          benchmarks,
+          result: null,
+          error: err instanceof Error ? err.message : String(err),
+        };
+      } catch {
+        return {
+          resolved: null,
+          benchmarks: null,
+          result: null,
+          error: err instanceof Error ? err.message : String(err),
+        };
+      }
     }
   }, [scenario]);
 

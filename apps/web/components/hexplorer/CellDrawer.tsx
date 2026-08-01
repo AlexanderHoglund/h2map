@@ -1,7 +1,6 @@
 "use client";
 
 import { cellToLatLng } from "h3-js";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 import {
@@ -25,11 +24,12 @@ interface Props {
   /** Open the split evaluate panel for this cell (Explorer workspace). */
   onEvaluate?: (lat: number, lon: number) => void;
   /**
-   * Integrated corridor: hand the cell over as the green production site
-   * directly (no navigation). When absent, "use for corridor" falls back to
-   * the localStorage hand-off + /corridor navigation.
+   * Integrated corridor: "use as corridor fuel site" LAUNCHES the full
+   * evaluation at this cell (via onEvaluate) — the tile value never enters
+   * the corridor calculation; the evaluated cost structure is handed back
+   * from the calculator panel instead.
    */
-  onUseSite?: (pick: { h3: string; lat: number; lon: number; lcoh: number }) => void;
+  corridorSitePicker?: boolean;
 }
 
 function fmt(value: number | null, digits: number): string {
@@ -49,10 +49,9 @@ export default function CellDrawer({
   open,
   onClose,
   onEvaluate,
-  onUseSite,
+  corridorSitePicker,
 }: Props) {
   const t = useTranslations("explorer");
-  const router = useRouter();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const shown = datum;
 
@@ -83,21 +82,13 @@ export default function CellDrawer({
    * load) — the corridor URL stays clean.
    */
   const useForCorridor = () => {
-    if (!shown) return;
-    const lcoh = layerValue(shown.data, "best", 2024);
-    if (lcoh === null) return;
+    if (!shown || !onEvaluate) return;
+    // Evaluate-here is the ONLY site path: open the full LCOH evaluation at
+    // this cell; the calculator's own "use as corridor fuel site" completes
+    // the pick with the evaluated cost structure.
     const [lat, lon] = cellToLatLng(shown.h3);
-    if (onUseSite) {
-      // Integrated workspace: apply in place and retract the drawer.
-      onUseSite({ h3: shown.h3, lat, lon, lcoh });
-      onClose();
-      return;
-    }
-    localStorage.setItem(
-      "corridor-site-pick",
-      JSON.stringify({ h3: shown.h3, lat, lon, lcoh }),
-    );
-    router.push("/corridor");
+    onEvaluate(lat, lon);
+    onClose();
   };
 
   const lcohByLayer = shown
@@ -258,7 +249,7 @@ export default function CellDrawer({
             >
               {t("drawer.evaluate")}
             </button>
-            {layerValue(shown.data, "best", 2024) !== null && (
+            {corridorSitePicker && layerValue(shown.data, "best", 2024) !== null && (
               <button
                 type="button"
                 onClick={useForCorridor}

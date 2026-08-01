@@ -150,6 +150,38 @@ describe("D3 — etsGasCoverage", () => {
   });
 });
 
+
+/** Minimal evaluated build-here site: components sum to 55 capex / 3 opex. */
+const testBuildHereSite = () => ({
+  h3: "85e2000000000000",
+  lat: -22.35,
+  lon: -69.66,
+  evaluated: {
+    lcohUsdPerKg: 4.2,
+    annualH2Kg: 10_000_000,
+    capitalUsd: 40_000_000,
+    annualOperatingUsd: 2_000_000,
+    lcohDiscountRate: 0.08,
+    lcohEngineVersion: "0.1.0",
+    plantLifeYears: 20,
+  },
+  components: {
+    h2Capital: { derivedUsdM: 40, overrideUsdM: null },
+    h2Operating: { derivedUsdM: 2, overrideUsdM: null },
+    synthCapital: { derivedUsdM: 15, overrideUsdM: null },
+    synthOperating: { derivedUsdM: 0.7, overrideUsdM: null },
+    logisticsOperating: { derivedUsdM: 0.3, overrideUsdM: null },
+  },
+  sizing: {
+    nameplateTonnesPerYear: 60_000,
+    nameplateMargin: 1.05,
+    scaleFactor: 2.34,
+    foakMultiplier: 1,
+    surplusTonnesPerYear: 2850,
+    distanceKm: 116,
+  },
+});
+
 describe("D6 — rateBasis", () => {
   it("real basis removes the OPEX inflation growth", () => {
     const nominal = evaluateScenario(resolveScenario(baseInput(), bundle));
@@ -174,19 +206,57 @@ describe("D4 — sourcing modes", () => {
     expect(r.green.prodOpexUsdMPerYear.value).toBe(0);
   });
 
-  it("build-here (v3): no merchant price, production lines charged", () => {
+  it("build-here (v3): no merchant price, production lines summed from components", () => {
     const input = baseInput();
     input.green.sourcing = "build-here";
     input.green.deliveredPriceUsdPerTonne = null;
+    input.green.buildHere = testBuildHereSite();
     delete input.flags?.legacyExcelConstruct;
     const r = resolveScenario(input, bundle);
     // Price row forced to derived 0 — the cost is CAPEX + OPEX.
     expect(r.green.priceUsdPerTonne.value).toBe(0);
     expect(r.green.priceUsdPerTonne.source).toBe("derived");
-    // Production lines resolve normally (benchmarks here; map-derived in
-    // the app; typed overrides win either way).
+    // CAPEX = h2Capital + synthCapital; OPEX = the three operating lines.
     expect(r.green.prodCapexUsdM.value).toBe(55);
+    expect(r.green.prodCapexUsdM.source).toBe("derived");
     expect(r.green.prodOpexUsdMPerYear.value).toBe(3);
+  });
+
+  it("build-here: overriding ONE component flips only that (seed, not lock)", () => {
+    const input = baseInput();
+    input.green.sourcing = "build-here";
+    input.green.deliveredPriceUsdPerTonne = null;
+    input.green.buildHere = testBuildHereSite();
+    delete input.flags?.legacyExcelConstruct;
+    // A consortium replaces the synthesis plant with their EPC quote:
+    input.green.buildHere.components.synthCapital.overrideUsdM = 25;
+    const r = resolveScenario(input, bundle);
+    expect(r.green.prodCapexUsdM.value).toBe(65); // 40 derived + 25 override
+    expect(r.green.prodCapexUsdM.source).toBe("override");
+    // Operating untouched — still fully derived.
+    expect(r.green.prodOpexUsdMPerYear.value).toBe(3);
+    expect(r.green.prodOpexUsdMPerYear.source).toBe("derived");
+  });
+
+  it("waterfall integrity: build-here == equivalent build-plant, line for line", () => {
+    const plant = baseInput();
+    delete plant.flags?.legacyExcelConstruct;
+    plant.green.sourcing = "build-plant";
+    plant.green.overrides.prodCapexUsdM = 55;
+    plant.green.overrides.prodOpexUsdMPerYear = 3;
+
+    const here = baseInput();
+    delete here.flags?.legacyExcelConstruct;
+    here.green.sourcing = "build-here";
+    here.green.buildHere = testBuildHereSite();
+
+    const a = evaluateScenario(resolveScenario(plant, bundle));
+    const b = evaluateScenario(resolveScenario(here, bundle));
+    // The map changes where the numbers come from, never which line they
+    // land on: identical CAPEX/OPEX shape and totals.
+    expect(b.summary.greenCapexPvUsdM).toBe(a.summary.greenCapexPvUsdM);
+    expect(b.summary.greenOpexPvUsdM).toBe(a.summary.greenOpexPvUsdM);
+    expect(b.summary.gapPvUsdM).toBe(a.summary.gapPvUsdM);
   });
 
   it("dropping the legacy flag converts to CLEAN build-plant (no double charge possible)", () => {
@@ -205,6 +275,7 @@ describe("D4 — sourcing modes", () => {
       delete probe.flags?.legacyExcelConstruct;
       probe.green.sourcing = sourcing;
       probe.green.deliveredPriceUsdPerTonne = null;
+      if (sourcing === "build-here") probe.green.buildHere = testBuildHereSite();
       const rr = resolveScenario(probe, bundle);
       const doubleCharged =
         rr.green.priceUsdPerTonne.value > 0 &&

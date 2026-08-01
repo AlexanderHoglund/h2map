@@ -1,5 +1,7 @@
 export { SCHEMA_VERSION } from "./scenario";
 export type {
+  BuildHereComponent,
+  BuildHereSite,
   CargoInput,
   ConsumptionMode,
   EtsInput,
