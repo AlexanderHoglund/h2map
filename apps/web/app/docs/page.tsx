@@ -462,15 +462,8 @@ export default function DocsPage() {
           from. Both sides carry the same field set; the interesting choice is
           the green side&apos;s <strong>sourcing</strong>{" "}mode.
         </p>
-        <H3>Sourcing modes</H3>
+        <H3>Sourcing modes (schema v3)</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
-          <li>
-            <strong>Construct plant (legacy)</strong>{" "}— the workbook&apos;s
-            default. You pay the merchant fuel price AND production
-            CAPEX/O&amp;M. This double-counts production cost by design — it is
-            kept for comparability with the workbook and labeled as such in
-            the form.
-          </li>
           <li>
             <strong>Purchase fuel</strong>{" "}— merchant fuel at the (benchmark or
             overridden) price; production CAPEX and O&amp;M are forced to zero
@@ -478,53 +471,124 @@ export default function DocsPage() {
           </li>
           <li>
             <strong>Named plant (delivered price)</strong>{" "}— you know the
-            delivered price; type it directly. Production lines zeroed.
+            delivered price; type it directly. Production lines zeroed. The
+            only mode that accepts a delivered price — the other modes reject
+            one at validation.
+          </li>
+          <li>
+            <strong>Build a dedicated plant</strong>{" "}— the corridor pays the
+            plant&apos;s capital and operating cost directly (production
+            CAPEX/O&amp;M lines); the fuel price row is forced to zero so
+            production cost is never charged twice. The Chilean default uses
+            this mode with the study&apos;s fitted block ($1,100m /
+            $72m/yr).
           </li>
           <li>
             <strong>Build here (pick a site on the map)</strong>{" "}— green side
-            only. The full Explorer map opens as the center pane; click a
-            colored hex, open the cell, and choose{" "}
-            <em>&ldquo;Use as corridor fuel site&rdquo;</em>. The delivered
-            price is then derived live (see below). Production lines zeroed —
-            production cost lives inside the delivered price.
-          </li>
-        </ul>
-        <H3>Build-here: from a map cell to a delivered price</H3>
-        <p className="mt-2">The delivered $/t chains three steps:</p>
-        <F>
-          delivered $/t = synthesis gate price(site LCOH, carrier, config) +
-          distance × 1.3 × carrier shipping $/t·km
-        </F>
-        <ul className="mt-2 list-disc space-y-1.5 pl-5">
-          <li>
-            <strong>Site LCOH</strong>{" "}— seeded by the picked cell&apos;s
-            best-combination 2024 value (the same seeded engine value the
-            Explorer shows; masked cells cannot be picked). Freely adjustable
-            afterwards.
-          </li>
-          <li>
-            <strong>Synthesis</strong>{" "}— hydrogen at the site LCOH is converted
-            to the carrier (e-ammonia, e-methanol or LH2) through a plant
-            annuitized at the <em>production-side WACC</em>{" "}— deliberately a
-            separate rate from the corridor discount rate — plus synthesis
-            electricity and, for e-methanol, a CO2 feedstock price.
-          </li>
-          <li>
-            <strong>Logistics</strong>{" "}— plant→bunker-port distance × a 1.3
-            route factor × the carrier&apos;s shipping rate.
-          </li>
-          <li>
-            <strong>Evaluate here</strong>{" "}— from the cell drawer you can open
-            the full LCOH calculator, change any production assumption
-            (electrolyzer CAPEX, efficiency, financing…), recompute, and press
-            &ldquo;Use as corridor fuel site&rdquo; to hand the evaluated LCOH
-            back into the corridor.
+            only. Same economics as build-plant — the SAME production
+            CAPEX/OPEX lines — but the numbers come from evaluating a real
+            site: the Explorer map opens, you click a hex, and{" "}
+            <em>&ldquo;Use as corridor fuel site&rdquo;</em>{" "}launches the full
+            LCOH calculator at that cell. The map tile&apos;s $/kg is only a
+            guide for where to click; it never enters the corridor numbers.
           </li>
         </ul>
         <p className="mt-2">
-          Every knob — site LCOH, production WACC, electricity, CO2 feedstock,
-          distance — recomputes the delivered price live; picking any other
-          hex moves the site.
+          Scenarios saved before v3 in the legacy Construct mode (merchant
+          price AND production CAPEX — the workbook&apos;s deliberate
+          double-count) migrate to build-plant; if the price row was live, a
+          dismissable banner flags the legacy double-count and the price row
+          stays visible for workbook comparability.
+        </p>
+        <H3>Build-here: from an evaluated site to the cost structure</H3>
+        <p className="mt-2">
+          The evaluation hands back the LCOH engine&apos;s full cost structure
+          (capital, year-1 operating, year-1 hydrogen output, rate, life) and
+          the corridor decomposes it into <strong>five components</strong>,
+          each a derived seed you can override independently (the derived
+          value stays as the restorable benchmark):
+        </p>
+        <F>
+          prod CAPEX = H2 plant capital + synthesis plant capital{"   "}·{"   "}
+          prod OPEX = H2 operating + synthesis operating + plant→port
+          logistics
+        </F>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            <strong>Sizing</strong>{" "}— the plant is sized to the corridor, not
+            the tile: nameplate = corridor demand × 1.05 margin (57,000 t/yr →
+            59,850 t/yr for the Chilean default). The H2 block scales linearly
+            from the evaluated configuration; the surplus is reported, never
+            apportioned away.
+          </li>
+          <li>
+            <strong>Synthesis scale correction</strong>{" "}— benchmark synthesis
+            CAPEX ($/tpa) is quoted at a 500 kt/yr world-scale reference; a
+            corridor-scale plant costs more per tonne:{" "}
+            <code>(nameplate / 500kt)^(0.6−1) × FOAK</code>. At 60 kt/yr this
+            is ×2.34 on synthesis capital. FOAK defaults to 1.
+          </li>
+          <li>
+            <strong>Logistics</strong>{" "}— great-circle plant→port distance
+            (from the pinned Port A coordinates) × 1.3 route factor × the
+            carrier&apos;s $/t·km.
+          </li>
+          <li>
+            <strong>Rates</strong>{" "}— the corridor discounts the raw
+            CAPEX/OPEX lines on its own timeline at its own WACC. The LCOH
+            engine&apos;s internal discount rate is shown for transparency
+            (and warned about when it diverges) but never used. The $/t on
+            the lineage chip is a display figure only.
+          </li>
+        </ul>
+        <H3>Build-here acceptance: two Atacama sites (validated 2026-08-01)</H3>
+        <p className="mt-2">
+          Both study candidate sites evaluated through the real flow
+          (map-mode gated profiles → LCOH engine at the reference 100 MW
+          configuration → linear scaling to the 59,850 t/yr nameplate),
+          against the Chilean default corridor:
+        </p>
+        <Fields
+          rows={[
+            [
+              "María Elena (−22.35, −69.66)",
+              "LCOH $5.79/kg",
+              "CAPEX $483.9m · OPEX $31.8m/yr",
+              "116 km to Mejillones. Derived $1,422/t (display). Green PV $1,817.8m; gap $979.6m pre-regulation / $729.4m post; $502.98/tCO2 WTW. Without scale correction: CAPEX $387.8m, $1,200/t, gap $853.7m pre-reg.",
+            ],
+            [
+              "La Negra (−23.75, −70.30)",
+              "LCOH $6.15/kg",
+              "CAPEX $509.3m · OPEX $32.7m/yr",
+              "74 km to Mejillones. Derived $1,484/t (display). Green PV $1,852.7m; gap $1,014.5m pre-regulation / $764.3m post; $527.04/tCO2 WTW. Without scale correction: CAPEX $413.2m, $1,262/t, gap $888.6m pre-reg.",
+            ],
+          ]}
+        />
+        <p className="mt-2">
+          <strong>Reconciliation to the study&apos;s dedicated plant</strong>{" "}
+          (María Elena, scale correction on): the study&apos;s fitted block
+          ($1,100m / $72m/yr) annuitized at the corridor&apos;s 8% over 25
+          years is $3,071/t (the published $3,126/t differs by ~$55/t of
+          annuitization convention). The bottom-up build-here total is
+          $1,422/t — of which H2 feed ≈ $1,010/t, synthesis ≈ $410/t
+          (the ×2.34 scale correction contributes +$222/t; without it the
+          total is $1,200/t), logistics ≈ $2/t. That leaves an{" "}
+          <strong>unexplained residual of ≈ $1,650/t (54%)</strong>{" "}between
+          the study&apos;s fitted economics and the engine&apos;s
+          reference-default bottom-up. This residual is stated, not tuned
+          away. The structural suspects, in order: the reference evaluation
+          prices electricity as a $30/MWh PPA while the study builds
+          dedicated renewables on the project&apos;s books; the study block
+          embeds project-level costs (desalination, transmission, owner&apos;s
+          costs, contingency, Chilean EPC premium) absent from the global
+          reference defaults; and FOAK, which the study prices implicitly
+          while build-here defaults it to ×1. Decomposing it further needs
+          the consortium&apos;s plant-cost breakdown (their Figure 3); until
+          then, treat build-here reference-default results as an{" "}
+          <em>optimised-cost</em>{" "}floor and the fitted build-plant block as
+          the study-faithful case. Terminal / residual plant value at the
+          15-year horizon is not modeled (shipped off by design — the study
+          reproduction requires it off).
         </p>
         <H3>Per-fuel fields (each side)</H3>
         <Fields
@@ -539,7 +603,7 @@ export default function DocsPage() {
               "Fuel price",
               "$/t",
               "e-ammonia 900 · LSFO 594",
-              "Merchant price (construct/purchase modes).",
+              "Merchant price (purchase mode; named-plant types a delivered price instead). Hidden under build-plant/build-here unless the legacy Construct flag keeps it live.",
             ],
             [
               "Fuel consumption",
@@ -569,13 +633,13 @@ export default function DocsPage() {
               "Fuel production CAPEX (year 1)",
               "$m",
               "e-ammonia 55 · LSFO 0",
-              "Construct mode only; forced to 0 under purchase/named-plant/build-here.",
+              "Build-plant/build-here modes (under build-here it is the sum of the H2 + synthesis capital components); forced to 0 under purchase/named-plant.",
             ],
             [
               "Fuel production O&M",
               "$m/yr",
               "e-ammonia 3 · LSFO 0",
-              "Construct mode only; inflated; forced to 0 otherwise.",
+              "Build-plant/build-here modes (under build-here: H2 + synthesis operating + logistics components); inflated; forced to 0 otherwise.",
             ],
           ]}
         />
@@ -1168,8 +1232,14 @@ export default function DocsPage() {
         </div>
         <p className="mt-2 text-neutral-600">
           The <code>green.buildHere</code> / <code>fossil.buildHere</code>{" "}
-          object stores the map-pick lineage: cell id, coordinates, site LCOH,
-          carrier, synthesis gate price, distance to port and logistics cost.
+          object stores the evaluated site: cell id, coordinates, the LCOH
+          engine&apos;s evaluated snapshot (LCOH, annual H2, capital, year-1
+          operating, discount rate, engine version, plant life), the five
+          cost components (each{" "}
+          <code>{"{ derivedUsdM, overrideUsdM }"}</code>{" "}— H2 capital, H2
+          operating, synthesis capital, synthesis operating, logistics
+          operating) and the sizing record (nameplate, margin, scale factor,
+          FOAK, surplus, distance).
           The canonical, always-current version of this table is generated
           into <code>docs/corridor/field-reference.md</code>{" "}
           in the repository — CI fails if it drifts from the schema.
