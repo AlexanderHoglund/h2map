@@ -21,6 +21,8 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `cargo.unit` | "tonne", "teu" | no | — | — | — |
 | `cargo.unitWeightTonnes` | number | no | — | — | — |
 | `cargo.portAName` | string | no | — | — | — |
+| `cargo.portACoords.lat` | number | yes | — | — | — |
+| `cargo.portACoords.lon` | number | yes | — | — | — |
 | `cargo.portBName` | string | no | — | — | — |
 | `cargo.countryBId` | string | no | — | — | — |
 | `vessel.typeId` | string | yes | — | — | — |

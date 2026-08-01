@@ -211,7 +211,41 @@ export function CargoStep({ model }: StepProps) {
         />
         {fields.main}
       </div>
-      {fields.advanced.length > 0 && <AdvancedFold>{fields.advanced}</AdvancedFold>}
+      <AdvancedFold>
+        {fields.advanced}
+        <NumberInput
+          label={t("portALat")}
+          unit="°"
+          step={0.01}
+          help={t("portCoordsHelp")}
+          value={scenario.cargo.portACoords?.lat ?? 0}
+          onChange={(v) =>
+            update(
+              (d) =>
+                void (d.cargo.portACoords = {
+                  lat: Math.min(90, Math.max(-90, v)),
+                  lon: d.cargo.portACoords?.lon ?? 0,
+                }),
+            )
+          }
+        />
+        <NumberInput
+          label={t("portALon")}
+          unit="°"
+          step={0.01}
+          help={t("portCoordsHelp")}
+          value={scenario.cargo.portACoords?.lon ?? 0}
+          onChange={(v) =>
+            update(
+              (d) =>
+                void (d.cargo.portACoords = {
+                  lat: d.cargo.portACoords?.lat ?? 0,
+                  lon: Math.min(180, Math.max(-180, v)),
+                }),
+            )
+          }
+        />
+      </AdvancedFold>
     </div>
   );
 }

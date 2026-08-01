@@ -10,6 +10,7 @@ import {
   capitalRecoveryFactor,
   deliveredUsdPerTonne,
   greatCircleKm,
+  logisticsLeg,
   logisticsUsdPerTonne,
   synthesisScaleFactor,
   synthesize,
@@ -144,5 +145,31 @@ describe("synthesizePlant — scale sensitivity (spec §3)", () => {
       (r.capitalUsd * crf + r.annualOperatingUsd) / 60_000,
       9,
     );
+  });
+});
+
+describe("logisticsLeg — coordinate-derived plant→port leg (spec §4)", () => {
+  const MEJILLONES = { lat: -23.1, lon: -70.45 };
+  const MARIA_ELENA = { lat: -22.35, lon: -69.66 };
+  const LA_NEGRA = { lat: -23.75, lon: -70.3 };
+  const nh3Rate = 0.012;
+
+  it("María Elena → Mejillones ≈ 120 km, La Negra → Mejillones ≈ 75 km (from coordinates)", () => {
+    expect(greatCircleKm(MARIA_ELENA, MEJILLONES)).toBeGreaterThan(110);
+    expect(greatCircleKm(MARIA_ELENA, MEJILLONES)).toBeLessThan(125);
+    expect(greatCircleKm(LA_NEGRA, MEJILLONES)).toBeGreaterThan(70);
+    expect(greatCircleKm(LA_NEGRA, MEJILLONES)).toBeLessThan(80);
+  });
+
+  it("annual operating = distance × routeFactor × rate × tonnage; perTonne consistent", () => {
+    const leg = logisticsLeg(MARIA_ELENA, MEJILLONES, nh3Rate, 60_000);
+    expect(leg.perTonne).toBeCloseTo(leg.distanceKm * 1.3 * nh3Rate, 12);
+    expect(leg.annualOperatingUsd).toBeCloseTo(leg.perTonne * 60_000, 9);
+    // Replaceable-internals contract: only these three outputs.
+    expect(Object.keys(leg).sort()).toEqual([
+      "annualOperatingUsd",
+      "distanceKm",
+      "perTonne",
+    ]);
   });
 });

@@ -80,6 +80,9 @@ export const scenarioInputSchema = z.object({
     unit: z.enum(["tonne", "teu"]).optional(),
     unitWeightTonnes: z.number().positive().optional(),
     portAName: z.string().max(120).optional(),
+    portACoords: z
+      .object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) })
+      .optional(),
     portBName: z.string().max(120).optional(),
     countryBId: z.string().max(80).optional(),
   }),

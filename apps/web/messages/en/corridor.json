@@ -47,7 +47,10 @@
       "unitTonne": "Tonne",
       "unitTeu": "TEU (container)",
       "unitWeight": "Weight per unit",
-      "unitWeightHelp": "What one cargo unit weighs. Used to derive cost per tonne of cargo; the model itself counts units."
+      "unitWeightHelp": "What one cargo unit weighs. Used to derive cost per tonne of cargo; the model itself counts units.",
+      "portALat": "Port A latitude",
+      "portALon": "Port A longitude",
+      "portCoordsHelp": "Functional for build-here: the plant→port logistics leg computes from these coordinates. Leave untouched otherwise."
     },
     "vessel": {
       "type": "Vessel type (shared by both corridors)",

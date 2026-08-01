@@ -70,7 +70,8 @@ export function defaultScenario(): ScenarioInput {
     ...input.cargo,
     countryId: "chile", // [S]
     countryBId: "japan", // [S]
-    portAName: "Mejillones", // [S]
+    portAName: "Mejillones",
+    portACoords: { lat: -23.1, lon: -70.45 }, // [S]
     portBName: "Japan (Asia)", // [S] study does not name the discharge port
     routeType: "point-to-point", // [S]
     oneWayDistanceNm: 9500, // [D] great-circle 9,072 nm + 5% routing

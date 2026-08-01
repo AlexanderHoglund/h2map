@@ -46,9 +46,10 @@ export type {
 export {
   deliveredUsdPerTonne,
   greatCircleKm,
+  logisticsLeg,
   logisticsUsdPerTonne,
 } from "./logistics";
-export type { LatLon, LogisticsConfig } from "./logistics";
+export type { LatLon, LogisticsConfig, LogisticsLegResult } from "./logistics";
 
 export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
   const ctx: EvalContext = {

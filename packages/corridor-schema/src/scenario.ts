@@ -78,6 +78,12 @@ export interface CargoInput {
   unitWeightTonnes?: number;
   /** Port A (the anchor country's port) — descriptive. */
   portAName?: string;
+  /**
+   * Port A coordinates — functional for build-here (the plant→port
+   * logistics leg computes from coordinates, spec §4). Optional; absent =
+   * the panel's typed distance is used.
+   */
+  portACoords?: { lat: number; lon: number };
   /** Port B — descriptive; point-to-point only. */
   portBName?: string;
   /** Port B's country — descriptive; point-to-point only. */

@@ -40,7 +40,7 @@ engine can replace the internals later without touching callers.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `LatLon`, `greatCircleKm`, `LogisticsConfig`, `logisticsUsdPerTonne`, `deliveredUsdPerTonne`
+**Exports (inputs/outputs)**: `LatLon`, `greatCircleKm`, `LogisticsConfig`, `logisticsUsdPerTonne`, `deliveredUsdPerTonne`, `LogisticsLegResult`, `logisticsLeg`
 
 **Assumptions**
 

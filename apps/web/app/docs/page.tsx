@@ -103,6 +103,7 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["cargo.unit", '"tonne" | "teu"', "no", "—", "—", "—"],
   ["cargo.unitWeightTonnes", "number", "no", "—", "—", "—"],
   ["cargo.portAName", "string", "no", "—", "—", "—"],
+  ["cargo.portACoords", "{ lat, lon }", "no", "—", "—", "advanced"],
   ["cargo.portBName", "string", "no", "—", "—", "—"],
   ["cargo.countryBId", "string", "no", "—", "—", "—"],
   ["vessel.typeId", "string", "yes", "—", "—", "—"],

@@ -30,6 +30,7 @@ export function chileReferenceInput(
     countryId: "chile",
     countryBId: "japan",
     portAName: "Mejillones",
+    portACoords: { lat: -23.1, lon: -70.45 },
     portBName: "Japan (Asia)",
     routeType: "point-to-point",
     oneWayDistanceNm: 9500,

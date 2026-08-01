@@ -50,3 +50,32 @@ export function deliveredUsdPerTonne(
 ): number {
   return gateUsdPerTonne + logisticsUsdPerTonne(plant, port, config);
 }
+
+export interface LogisticsLegResult {
+  readonly distanceKm: number;
+  /** Route-factored cost of moving the year's tonnage, USD/yr. */
+  readonly annualOperatingUsd: number;
+  readonly perTonne: number;
+}
+
+/**
+ * Plant→port logistics leg for build-here (spec §4): great-circle distance ×
+ * route factor × the carrier's $/t·km, at the corridor's annual tonnage.
+ * v1 is deliberately simple — the interface is fixed so a routing engine can
+ * replace the internals without touching callers.
+ */
+export function logisticsLeg(
+  site: LatLon,
+  port: LatLon,
+  usdPerTonneKm: number,
+  tonnesPerYear: number,
+  routeFactor = 1.3,
+): LogisticsLegResult {
+  const distanceKm = greatCircleKm(site, port);
+  const perTonne = distanceKm * routeFactor * usdPerTonneKm;
+  return {
+    distanceKm,
+    perTonne,
+    annualOperatingUsd: perTonne * tonnesPerYear,
+  };
+}
