@@ -14,15 +14,17 @@
  * live; v2 `build-here` (delivered-price basis) is REJECTED — the
  * calculation basis changed to capital+operating. See migrate.ts.
  */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 export type RouteType = "point-to-point" | "single-point";
 export type ConsumptionMode = "distance" | "vessel-benchmark";
 
 /**
  * Fuel sourcing (restructured, spec §1 — no legacy in the menu):
- * - `purchase`      — market price × tonnage (typed or benchmark)
- * - `named-plant`   — contract (delivered) price × tonnage (typed)
+ * - `purchase`      — price × tonnage (benchmark, or typed as an override —
+ *                     a market assumption and a contracted delivered price
+ *                     are the same arithmetic; v4 removed the separate
+ *                     `named-plant` mode that only differed in provenance)
  * - `build-plant`   — production CAPEX + OPEX, typed directly
  * - `build-here`    — the SAME economics, inputs derived from the map
  * build-plant and build-here are ONE economic mode with two ways of
@@ -30,7 +32,7 @@ export type ConsumptionMode = "distance" | "vessel-benchmark";
  * The Excel double-count (price AND capex/opex) survives only as
  * `flags.legacyExcelConstruct`, set by migration, never selectable.
  */
-export type FuelSourcing = "purchase" | "named-plant" | "build-plant" | "build-here";
+export type FuelSourcing = "purchase" | "build-plant" | "build-here";
 
 /**
  * Divergences from the Excel (build-plan 1.4). Every field optional; the
@@ -162,12 +164,6 @@ export interface BuildHereSite {
 export interface FuelSideInput {
   fuelId: string;
   sourcing: FuelSourcing;
-  /**
-   * D4 — required for `named-plant`/`build-here`: the delivered price at the
-   * bunker port ($/t). For build-here it is derived from
-   * LCOH + synthesis + logistics; the corridor engine must not know which.
-   */
-  deliveredPriceUsdPerTonne?: number | null;
   /**
    * build-here (v3): the evaluated site and the DECOMPOSED production cost.
    * The five components each carry a map-derived value and an optional

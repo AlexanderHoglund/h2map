@@ -56,7 +56,6 @@ export function chileReferenceInput(
     ...input.green,
     fuelId: "e-ammonia",
     sourcing: "build-plant", // v3: CAPEX+OPEX, no merchant price
-    deliveredPriceUsdPerTonne: null,
     overrides: {
       ...input.green.overrides,
       priceUsdPerTonne: null,
@@ -77,7 +76,6 @@ export function chileReferenceInput(
     ...input.fossil,
     fuelId: "lsfo",
     sourcing: "purchase",
-    deliveredPriceUsdPerTonne: null,
     overrides: {
       ...input.fossil.overrides,
       priceUsdPerTonne: 650,

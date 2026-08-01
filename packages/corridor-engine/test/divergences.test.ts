@@ -196,10 +196,18 @@ describe("D6 — rateBasis", () => {
 });
 
 describe("D4 — sourcing modes", () => {
-  it("named-plant prices at the delivered price with production lines zeroed", () => {
-    const input = baseInput();
-    input.green.sourcing = "named-plant";
-    input.green.deliveredPriceUsdPerTonne = 847;
+  it("v3 named-plant migrates to purchase with the contract price as override", () => {
+    // v4 removed named-plant (same arithmetic as purchase); the typed
+    // delivered price must survive as a price override — identical numbers.
+    const raw = JSON.parse(JSON.stringify(baseInput())) as Record<string, unknown>;
+    raw.schemaVersion = 3;
+    const green = raw.green as Record<string, unknown>;
+    green.sourcing = "named-plant";
+    green.deliveredPriceUsdPerTonne = 847;
+    const { input } = migrateScenarioInput(raw);
+    expect(input.green.sourcing).toBe("purchase");
+    expect(input.green.overrides.priceUsdPerTonne).toBe(847);
+    expect("deliveredPriceUsdPerTonne" in input.green).toBe(false);
     const r = resolveScenario(input, bundle);
     expect(r.green.priceUsdPerTonne).toEqual({ value: 847, source: "override" });
     expect(r.green.prodCapexUsdM.value).toBe(0);
@@ -209,7 +217,6 @@ describe("D4 — sourcing modes", () => {
   it("build-here (v3): no merchant price, production lines summed from components", () => {
     const input = baseInput();
     input.green.sourcing = "build-here";
-    input.green.deliveredPriceUsdPerTonne = null;
     input.green.buildHere = testBuildHereSite();
     delete input.flags?.legacyExcelConstruct;
     const r = resolveScenario(input, bundle);
@@ -225,7 +232,6 @@ describe("D4 — sourcing modes", () => {
   it("build-here: overriding ONE component flips only that (seed, not lock)", () => {
     const input = baseInput();
     input.green.sourcing = "build-here";
-    input.green.deliveredPriceUsdPerTonne = null;
     input.green.buildHere = testBuildHereSite();
     delete input.flags?.legacyExcelConstruct;
     // A consortium replaces the synthesis plant with their EPC quote:
@@ -274,7 +280,6 @@ describe("D4 — sourcing modes", () => {
       const probe = baseInput();
       delete probe.flags?.legacyExcelConstruct;
       probe.green.sourcing = sourcing;
-      probe.green.deliveredPriceUsdPerTonne = null;
       if (sourcing === "build-here") probe.green.buildHere = testBuildHereSite();
       const rr = resolveScenario(probe, bundle);
       const doubleCharged =
@@ -293,10 +298,13 @@ describe("D4 — sourcing modes", () => {
     expect(() => migrateScenarioInput(raw)).toThrowError(/calculation basis changed/);
   });
 
-  it("delivered modes require the delivered price", () => {
-    const input = baseInput();
-    input.green.sourcing = "named-plant";
-    expect(() => migrateScenarioInput(JSON.parse(JSON.stringify(input)))).toThrowError();
+  it("v3 named-plant WITHOUT a price migrates to purchase at the benchmark", () => {
+    const raw = JSON.parse(JSON.stringify(baseInput())) as Record<string, unknown>;
+    raw.schemaVersion = 3;
+    (raw.green as Record<string, unknown>).sourcing = "named-plant";
+    const { input } = migrateScenarioInput(raw);
+    expect(input.green.sourcing).toBe("purchase");
+    expect(input.green.overrides.priceUsdPerTonne).toBeNull();
   });
 
   it("legacy construct (migrated: build-plant + flag) keeps the Excel double-count", () => {

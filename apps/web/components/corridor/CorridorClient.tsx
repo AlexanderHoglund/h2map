@@ -57,8 +57,8 @@ export default function CorridorClient() {
   const gap = model.result?.summary.gapPvUsdM;
 
   // The map opens only when it is actually needed: the fuel step with the
-  // green fuel sited on the map ("build-here"). Plain construct/purchase/
-  // named-plant are number entry — no map.
+  // green fuel sited on the map ("build-here"). Purchase/build-plant are
+  // number entry — no map.
   const mapOpen =
     view === "fuel" && model.scenario.green.sourcing === "build-here";
 

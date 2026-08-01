@@ -79,7 +79,7 @@ function derived<T>(value: T): Resolved<T> {
 
 /** Modes whose production capex/O&M are zeroed — the cost lives in the price. */
 function pricedModes(sourcing: FuelSideInput["sourcing"]): boolean {
-  return sourcing === "purchase" || sourcing === "named-plant";
+  return sourcing === "purchase";
 }
 
 /** Modes that build a plant: production CAPEX + OPEX, no merchant price. */
@@ -107,29 +107,22 @@ function resolveFuelSide(
   const { input, vesselOverrides, fuel, vesselType, isFossil } = ctx;
   const o = input.overrides;
 
-  // v3 sourcing semantics (spec §1):
-  // - named-plant: the contract (delivered) price IS the fuel price.
-  // - purchase: market price (override/benchmark).
+  // Sourcing semantics (spec §1; v4 folded named-plant into purchase):
+  // - purchase: price × tonnage — benchmark, or typed as an override (a
+  //   market assumption and a contracted delivered price are the same
+  //   arithmetic).
   // - build-plant/build-here: NO merchant price — production cost is
   //   CAPEX + OPEX. Price row forced to derived(0)… UNLESS the scenario
   //   carries flags.legacyExcelConstruct (the migrated Excel double-count),
   //   in which case the old construct behaviour runs verbatim.
   const legacyConstruct =
     plantModes(input.sourcing) && scenario.flags?.legacyExcelConstruct === true;
-  if (input.sourcing === "named-plant" && input.deliveredPriceUsdPerTonne == null) {
-    throw new Error("named-plant sourcing requires deliveredPriceUsdPerTonne");
-  }
   const price: Resolved<UsdPerTonne> =
-    input.sourcing === "named-plant"
-      ? {
-          value: usdPerTonne(input.deliveredPriceUsdPerTonne!),
-          source: "override",
-        }
-      : plantModes(input.sourcing) && !legacyConstruct
-        ? derived(usdPerTonne(0))
-        : resolve(o.priceUsdPerTonne, usdPerTonne, () =>
-            benchmark(usdPerTonne(fuel.priceUsdPerTonne)),
-          );
+    plantModes(input.sourcing) && !legacyConstruct
+      ? derived(usdPerTonne(0))
+      : resolve(o.priceUsdPerTonne, usdPerTonne, () =>
+          benchmark(usdPerTonne(fuel.priceUsdPerTonne)),
+        );
   const combustionEf = resolve(o.combustionEfTco2PerTonne, tCo2PerTonne, () =>
     benchmark(tCo2PerTonne(fuel.combustionEfTco2PerTonne)),
   );

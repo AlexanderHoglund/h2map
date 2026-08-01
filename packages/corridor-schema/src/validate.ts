@@ -36,8 +36,7 @@ const buildHereComponentSchema = z.object({
 const fuelSideSchema = z
   .object({
     fuelId: z.string().min(1),
-    sourcing: z.enum(["purchase", "named-plant", "build-plant", "build-here"]),
-    deliveredPriceUsdPerTonne: z.number().finite().nullable().optional(),
+    sourcing: z.enum(["purchase", "build-plant", "build-here"]),
     buildHere: z
       .object({
         h3: z.string().min(1),
@@ -72,18 +71,6 @@ const fuelSideSchema = z
       .optional(),
     overrides: fuelSideOverridesSchema,
   })
-  .refine(
-    (s) => s.sourcing !== "named-plant" || s.deliveredPriceUsdPerTonne != null,
-    { message: "named-plant sourcing requires deliveredPriceUsdPerTonne" },
-  )
-  // v3: build-plant/build-here are CAPEX+OPEX modes — a delivered price on
-  // them is the exact ambiguity the restructure removes. Reject loudly.
-  .refine(
-    (s) =>
-      !(s.sourcing === "build-plant" || s.sourcing === "build-here") ||
-      s.deliveredPriceUsdPerTonne == null,
-    { message: "build-plant/build-here must not carry deliveredPriceUsdPerTonne" },
-  )
   // build-here without an evaluated site has nothing to derive from.
   .refine((s) => s.sourcing !== "build-here" || s.buildHere != null, {
     message: "build-here sourcing requires an evaluated buildHere site",

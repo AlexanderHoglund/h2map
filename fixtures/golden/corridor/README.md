@@ -56,3 +56,14 @@ reproduces exactly through the migration chain. v2 payloads with
 `sourcing: "build-here"` are REJECTED at migration — the calculation basis
 changed from a delivered price in OPEX to capital+operating; the scenarios
 table was verified EMPTY at this date, so no archival machinery exists.
+
+## 2026-08-01 — schema v4: `named-plant` folded into `purchase`
+
+`named-plant` and `purchase` were the same arithmetic (price × tonnage,
+production lines zeroed) differing only in where the price came from. The
+v3→v4 migration maps `named-plant` to `purchase`, carrying the typed
+`deliveredPriceUsdPerTonne` over as the `priceUsdPerTonne` override —
+identical numbers by construction. The `deliveredPriceUsdPerTonne` field is
+removed from the schema entirely (stripped from every side at migration).
+The frozen fixture (v1, construct) is unaffected: it walks 1→2→3→4 and
+reproduces exactly.

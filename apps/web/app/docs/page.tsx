@@ -113,8 +113,7 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["vessel.fossil.capexUsdM", "number | null", "yes", "—", "—", "—"],
   ["vessel.fossil.opexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
   ["green.fuelId", "string", "yes", "—", "—", "—"],
-  ["green.sourcing", '"purchase" | "named-plant" | "build-plant" | "build-here"', "yes", "—", "—", "—"],
-  ["green.deliveredPriceUsdPerTonne", "number | null", "no", "—", "—", "—"],
+  ["green.sourcing", '"purchase" | "build-plant" | "build-here"', "yes", "—", "—", "—"],
   ["green.buildHere", "object | null", "no", "—", "—", "—"],
   ["green.overrides.priceUsdPerTonne", "number | null", "yes", "#11", "13.7%", "top-level"],
   ["green.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
@@ -128,8 +127,7 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["green.overrides.bargeCapexUsdM", "number | null", "yes", "#15", "4.2%", "advanced"],
   ["green.overrides.bargeOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
   ["fossil.fuelId", "string", "yes", "—", "—", "—"],
-  ["fossil.sourcing", '"purchase" | "named-plant" | "build-plant" | "build-here"', "yes", "—", "—", "—"],
-  ["fossil.deliveredPriceUsdPerTonne", "number | null", "no", "—", "—", "—"],
+  ["fossil.sourcing", '"purchase" | "build-plant" | "build-here"', "yes", "—", "—", "—"],
   ["fossil.buildHere", "object | null", "no", "—", "—", "—"],
   ["fossil.overrides.priceUsdPerTonne", "number | null", "yes", "#19", "3.2%", "advanced"],
   ["fossil.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
@@ -462,18 +460,16 @@ export default function DocsPage() {
           from. Both sides carry the same field set; the interesting choice is
           the green side&apos;s <strong>sourcing</strong>{" "}mode.
         </p>
-        <H3>Sourcing modes (schema v3)</H3>
+        <H3>Sourcing modes (schema v4)</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>Purchase fuel</strong>{" "}— merchant fuel at the (benchmark or
-            overridden) price; production CAPEX and O&amp;M are forced to zero
-            — an override cannot resurrect them, exactly as in the workbook.
-          </li>
-          <li>
-            <strong>Named plant (delivered price)</strong>{" "}— you know the
-            delivered price; type it directly. Production lines zeroed. The
-            only mode that accepts a delivered price — the other modes reject
-            one at validation.
+            <strong>Purchase fuel</strong>{" "}— fuel bought at a price:
+            the benchmark market price, or your own number as an override — a
+            market assumption and a contracted delivered price are the same
+            arithmetic, so both live here (schema v4 removed the separate
+            &ldquo;named plant&rdquo; mode that only differed in labeling).
+            Production CAPEX and O&amp;M are forced to zero — an override
+            cannot resurrect them, exactly as in the workbook.
           </li>
           <li>
             <strong>Build a dedicated plant</strong>{" "}— the corridor pays the
@@ -498,7 +494,9 @@ export default function DocsPage() {
           price AND production CAPEX — the workbook&apos;s deliberate
           double-count) migrate to build-plant; if the price row was live, a
           dismissable banner flags the legacy double-count and the price row
-          stays visible for workbook comparability.
+          stays visible for workbook comparability. Scenarios saved at v3
+          with the named-plant mode migrate to purchase with the contract
+          price carried over as a price override — identical numbers.
         </p>
         <H3>Build-here: from an evaluated site to the cost structure</H3>
         <p className="mt-2">
@@ -603,7 +601,7 @@ export default function DocsPage() {
               "Fuel price",
               "$/t",
               "e-ammonia 900 · LSFO 594",
-              "Merchant price (purchase mode; named-plant types a delivered price instead). Hidden under build-plant/build-here unless the legacy Construct flag keeps it live.",
+              "Fuel price under purchase mode — benchmark market price, or your contracted delivered price as an override. Hidden under build-plant/build-here unless the legacy Construct flag keeps it live.",
             ],
             [
               "Fuel consumption",
@@ -633,7 +631,7 @@ export default function DocsPage() {
               "Fuel production CAPEX (year 1)",
               "$m",
               "e-ammonia 55 · LSFO 0",
-              "Build-plant/build-here modes (under build-here it is the sum of the H2 + synthesis capital components); forced to 0 under purchase/named-plant.",
+              "Build-plant/build-here modes (under build-here it is the sum of the H2 + synthesis capital components); forced to 0 under purchase.",
             ],
             [
               "Fuel production O&M",

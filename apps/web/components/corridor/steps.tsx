@@ -348,7 +348,6 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
   const s = scenario[side];
   const r = resolved[side];
   const b = benchmarks[side];
-  const delivered = s.sourcing === "named-plant";
   const plantMode = s.sourcing === "build-plant" || s.sourcing === "build-here";
   const prodZeroed = !plantMode;
   const legacy = scenario.flags?.legacyExcelConstruct === true;
@@ -468,7 +467,6 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
         value={s.sourcing}
         options={[
           { value: "purchase", label: t("sourcingPurchase") },
-          { value: "named-plant", label: t("sourcingNamedPlant") },
           { value: "build-plant", label: t("sourcingBuildPlant") },
           // build-here (map-derived plant inputs) — green-side only.
           ...(side === "green"
@@ -478,13 +476,6 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
         onChange={(v) =>
           update((d) => {
             d[side].sourcing = v as ScenarioInput["green"]["sourcing"];
-            if (v === "named-plant") {
-              d[side].deliveredPriceUsdPerTonne ??=
-                bundle.fuels.find((f) => f.id === d[side].fuelId)?.priceUsdPerTonne ?? 900;
-            } else {
-              // v3: a delivered price on non-named-plant modes is invalid.
-              d[side].deliveredPriceUsdPerTonne = null;
-            }
           })
         }
       />
@@ -492,14 +483,6 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
         <p className="sm:col-span-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
           {t("legacyPriceNote")}
         </p>
-      )}
-      {delivered && (
-        <NumberInput
-          label={t("deliveredPrice")}
-          unit="$/t"
-          value={s.deliveredPriceUsdPerTonne ?? 0}
-          onChange={(v) => update((d) => void (d[side].deliveredPriceUsdPerTonne = v))}
-        />
       )}
       {s.sourcing === "build-here" && <BuildHerePanel model={model} side={side} />}
       {entries.main}

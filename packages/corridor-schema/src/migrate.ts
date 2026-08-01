@@ -67,6 +67,34 @@ const MIGRATIONS: Record<number, Migration> = {
     next.schemaVersion = 3;
     return next;
   },
+  // v3 → v4: `named-plant` folded into `purchase`. The two were the same
+  // arithmetic (price × tonnage, production lines zeroed) — only the
+  // provenance of the price differed. The contract price survives as a
+  // price override, so the numbers are identical after migration. The
+  // `deliveredPriceUsdPerTonne` field is removed from the schema.
+  3: (raw) => {
+    const next = JSON.parse(JSON.stringify(raw)) as RawScenario;
+    for (const key of ["green", "fossil"] as const) {
+      const side = next[key] as
+        | {
+            sourcing?: string;
+            deliveredPriceUsdPerTonne?: number | null;
+            overrides?: { priceUsdPerTonne?: number | null };
+          }
+        | undefined;
+      if (!side) continue;
+      if (side.sourcing === "named-plant") {
+        side.sourcing = "purchase";
+        side.overrides = {
+          ...side.overrides,
+          priceUsdPerTonne: side.deliveredPriceUsdPerTonne ?? null,
+        };
+      }
+      delete side.deliveredPriceUsdPerTonne;
+    }
+    next.schemaVersion = 4;
+    return next;
+  },
 };
 
 export interface MigratedScenario {

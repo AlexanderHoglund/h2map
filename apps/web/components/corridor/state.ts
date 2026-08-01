@@ -105,7 +105,6 @@ export function defaultScenario(): ScenarioInput {
     // v3: build-plant — production CAPEX + OPEX, no merchant price (the
     // mode the study actually uses; no price-0 workaround needed).
     sourcing: "build-plant", // [S] purpose-built plant
-    deliveredPriceUsdPerTonne: null,
     overrides: {
       ...input.green.overrides,
       priceUsdPerTonne: null,
@@ -126,7 +125,6 @@ export function defaultScenario(): ScenarioInput {
     ...input.fossil,
     fuelId: "lsfo", // [S]
     sourcing: "purchase",
-    deliveredPriceUsdPerTonne: null,
     overrides: {
       ...input.fossil.overrides,
       priceUsdPerTonne: 650, // [F]
@@ -284,7 +282,6 @@ function applyPickToScenario(
 
   const r2 = (n: number) => Math.round(n * 100) / 100;
   next.green.sourcing = "build-here";
-  next.green.deliveredPriceUsdPerTonne = null; // v3: never an engine input
   next.green.buildHere = {
     h3: pick.h3,
     lat: pick.lat,

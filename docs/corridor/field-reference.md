@@ -6,7 +6,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 
 | Field | Type | Required | Sensitivity rank | Headline movement | UI placement |
 |---|---|---|---|---|---|
-| `schemaVersion` | = 3 | yes | — | — | — |
+| `schemaVersion` | = 4 | yes | — | — | — |
 | `refBundleId` | string | yes | — | — | — |
 | `cargo.countryId` | string | yes | — | — | — |
 | `cargo.routeType` | "point-to-point", "single-point" | yes | — | — | — |
@@ -32,8 +32,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `vessel.fossil.capexUsdM` | number, null | yes | — | — | — |
 | `vessel.fossil.opexUsdMPerYear` | number, null | yes | — | — | — |
 | `green.fuelId` | string | yes | — | — | — |
-| `green.sourcing` | "purchase", "named-plant", "build-plant", "build-here" | yes | — | — | — |
-| `green.deliveredPriceUsdPerTonne` | number, null | no | — | — | — |
+| `green.sourcing` | "purchase", "build-plant", "build-here" | yes | — | — | — |
 | `green.buildHere` | object, null | no | — | — | — |
 | `green.overrides.priceUsdPerTonne` | number, null | yes | #11 | 13.7% | top-level |
 | `green.overrides.combustionEfTco2PerTonne` | number, null | yes | — | — | — |
@@ -47,8 +46,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `green.overrides.bargeCapexUsdM` | number, null | yes | #15 | 4.2% | advanced |
 | `green.overrides.bargeOpexUsdMPerYear` | number, null | yes | — | — | — |
 | `fossil.fuelId` | string | yes | — | — | — |
-| `fossil.sourcing` | "purchase", "named-plant", "build-plant", "build-here" | yes | — | — | — |
-| `fossil.deliveredPriceUsdPerTonne` | number, null | no | — | — | — |
+| `fossil.sourcing` | "purchase", "build-plant", "build-here" | yes | — | — | — |
 | `fossil.buildHere` | object, null | no | — | — | — |
 | `fossil.overrides.priceUsdPerTonne` | number, null | yes | #19 | 3.2% | advanced |
 | `fossil.overrides.combustionEfTco2PerTonne` | number, null | yes | — | — | — |
