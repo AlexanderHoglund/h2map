@@ -7,8 +7,8 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  ComposedChart,
   Line,
+  LineChart,
   ReferenceDot,
   ReferenceLine,
   ResponsiveContainer,
@@ -134,7 +134,9 @@ export default function ResultsPanel({
     const cumCeil = Math.ceil(maxCum / 100) * 100;
     return {
       y1Capital: y1.gCapex,
+      y1Cum: y1.cumGap,
       y1Inc: y1.incGap,
+      finalCum: last.cumGap,
       y1Share: lifetimeGap ? Math.round((y1.incGap / lifetimeGap) * 100) : 0,
       lastYear: last.year,
       lastInc: last.incGap,
@@ -145,15 +147,24 @@ export default function ResultsPanel({
     };
   }, [perYear, result]);
 
-  // Dev-mode guard (spec §4): a series whose range is set by one outlier must
-  // be rendered separated (by nature / series / axis). Both charts below ARE
-  // separated, so this never fires for them; it documents the rule and warns
-  // if a future chart plots the summed annual series raw. Flip `separated` to
-  // false to see it fire on the current data.
+  // Dev-mode guard (spec §4): check EVERY series a chart plots, not just the
+  // first. A series whose range is set by one outlier must be rendered
+  // separated (by nature / series / axis) or dropped.
+  //  - annual-cost: the axis-setting summed series is rendered separated
+  //    (stacked by cost nature) → separated: true, never fires.
+  //  - cumulative-gap: only the cumulative line is plotted; it is smooth
+  //    (~1.3× range), not dominated → passes on its own. The year-1-dominated
+  //    INCREMENT series is deliberately NOT plotted (30× outlier), so there is
+  //    no dominated series left in the panel.
   warnIfDominated(
     "annual-cost",
     perYear.flatMap((r) => [r.green, r.fossil]),
     { separated: true },
+  );
+  warnIfDominated(
+    "cumulative-gap",
+    perYear.map((r) => r.cumGap),
+    { separated: false },
   );
 
   if (error || !result) {
@@ -490,88 +501,71 @@ export default function ResultsPanel({
         {chartMeta && (
           <p className="mt-1 text-[11px] leading-snug text-neutral-500">
             {t("annualYear1Caption", {
-              capital: fmtUsdM(chartMeta.y1Capital),
+              capital: fmtUsdMShort(chartMeta.y1Capital),
               share: chartMeta.y1Share,
             })}
           </p>
         )}
       </section>
 
-      {/* ===== Cumulative gap — annual increment (bars) + cumulative (line) ===== */}
+      {/* ===== Cumulative gap — single cumulative line on an offset axis =====
+          The annual increment is a 30× year-1 outlier (spec §4) — plotting it
+          would only relocate the illegibility, so it is dropped; the caption
+          carries its decay in words. One series, one axis, no scale conflict. */}
       <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-          <Eyebrow className="mb-0">
-            {t("cumulative")}{" "}
-            <span className="font-normal normal-case tracking-normal text-neutral-500">
-              · {t("unitUsdM")}
-            </span>
-          </Eyebrow>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
-            <LegendSwatch color="var(--viz-series-1)" label={t("cumIncrement")} />
-            <span className="flex items-center gap-1">
-              <span aria-hidden className="h-0.5 w-4" style={{ background: "var(--color-brand-deep)" }} />
-              {t("cumTotal")}
-            </span>
-          </div>
-        </div>
+        <Eyebrow className="mb-2">
+          {t("cumulative")}{" "}
+          <span className="font-normal normal-case tracking-normal text-neutral-500">
+            · {t("unitUsdM")}
+          </span>
+        </Eyebrow>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={perYear} margin={{ top: 10, right: 6, bottom: 0, left: 0 }}>
+            <LineChart data={perYear} margin={{ top: 22, right: 14, bottom: 0, left: 0 }}>
               <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} tickMargin={4} />
               <YAxis
-                yAxisId="inc"
+                domain={chartMeta ? [chartMeta.cumFloor, chartMeta.cumCeil] : [0, "auto"]}
                 tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }}
                 stroke="var(--viz-baseline)"
-                width={44}
-              />
-              <YAxis
-                yAxisId="cum"
-                orientation="right"
-                domain={chartMeta ? [chartMeta.cumFloor, chartMeta.cumCeil] : [0, "auto"]}
-                tick={{ fontSize: 10, fill: "var(--color-brand-deep)" }}
-                stroke="var(--viz-baseline)"
-                width={46}
+                width={48}
+                allowDecimals={false}
               />
               <Tooltip
-                formatter={(v, name) => [
-                  typeof v === "number" ? fmtUsdM(v) : String(v),
-                  name === "incGap" ? t("cumIncrement") : t("cumTotal"),
-                ]}
+                formatter={(v) => (typeof v === "number" ? fmtUsdM(v) : String(v))}
                 labelStyle={{ fontSize: 11 }}
                 contentStyle={{ fontSize: 11 }}
               />
-              <Bar yAxisId="inc" dataKey="incGap" fill="var(--viz-series-1)" isAnimationActive={false} />
-              <Line yAxisId="cum" type="monotone" dataKey="cumGap" stroke="var(--color-brand-deep)" dot={false} strokeWidth={2} isAnimationActive={false} />
+              <Line type="monotone" dataKey="cumGap" stroke="var(--color-brand-deep)" dot={false} strokeWidth={2} isAnimationActive={false} />
               {chartMeta && (
                 <ReferenceDot
-                  yAxisId="inc"
                   x={chartMeta.firstYear}
-                  y={chartMeta.y1Inc}
+                  y={chartMeta.y1Cum}
                   r={3}
                   fill="var(--viz-delta-up)"
                   stroke="var(--viz-surface)"
                   label={{
                     value: t("year1Marker"),
-                    position: "top",
+                    position: "right",
                     fontSize: 10,
                     fill: "var(--viz-delta-up)",
                   }}
                 />
               )}
-            </ComposedChart>
+            </LineChart>
           </ResponsiveContainer>
         </div>
         {chartMeta && (
           <p className="mt-1 text-[11px] leading-snug text-neutral-500">
             {t("cumulativeNote", {
-              y1inc: fmtUsdM(chartMeta.y1Inc),
-              share: chartMeta.y1Share,
+              y1cum: fmtUsdMShort(chartMeta.y1Cum),
+              finalCum: fmtUsdMShort(chartMeta.finalCum),
               lastYear: chartMeta.lastYear,
-              lastInc: fmtUsdM(chartMeta.lastInc),
+              y1inc: fmtUsdMShort(chartMeta.y1Inc),
+              lastInc: fmtUsdMShort(chartMeta.lastInc),
             })}
             {!chartMeta.cumZeroBased &&
-              ` ${t("cumAxisOffset", { floor: fmtUsdM(chartMeta.cumFloor) })}`}
+              ` ${t("cumAxisOffset", { floor: fmtUsdMShort(chartMeta.cumFloor) })}`}
           </p>
         )}
       </section>
@@ -830,6 +824,15 @@ function round2(n: number): number {
 }
 function fmtUsdM(n: number): string {
   return `$${n.toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}m`;
+}
+/**
+ * Magnitude-aware $m for captions/annotations: whole millions above $100m
+ * (trailing zeros on a $1,690m figure are noise), two decimals below. Full
+ * precision stays in tooltips and the decomposition table via `fmtUsdM`.
+ */
+function fmtUsdMShort(n: number): string {
+  const max = Math.abs(n) >= 100 ? 0 : 2;
+  return `$${n.toLocaleString("en-US", { maximumFractionDigits: max })}m`;
 }
 function fmtSigned(n: number): string {
   return `${n > 0 ? "+" : ""}${fmtUsdM(n)}`;

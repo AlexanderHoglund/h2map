@@ -170,7 +170,7 @@
       "rowOpex": "Operating cost",
       "rowTotal": "Total (PV)",
       "cumulative": "Cumulative discounted gap",
-      "cumulativeNote": "The gap is front-loaded. Year 1 adds {y1inc} ({share}% of the total); by {lastYear} discounting has shrunk the annual increment to {lastInc}.",
+      "cumulativeNote": "The gap opens at {y1cum} on day one — driven by capital — and grinds up to {finalCum} by {lastYear}. Each year adds less as discounting shrinks the increment, from {y1inc} in year 1 to {lastInc} at the end.",
       "emissions": "Emissions & abatement",
       "abated": "CO2 abated",
       "abatementCost": "Abatement cost",
@@ -212,10 +212,8 @@
       "natureOperating": "Operating",
       "natureRegulation": "Regulation",
       "annualYear1Caption": "Year 1 carries {capital} of green capital, charged in full up front — year 1 alone is {share}% of the lifetime gap.",
-      "cumIncrement": "Annual increment",
-      "cumTotal": "Cumulative",
       "year1Marker": "Year 1 · capital",
-      "cumAxisOffset": "Cumulative axis starts at {floor}, not zero."
+      "cumAxisOffset": "Axis starts at {floor}, not zero."
     },
     "buildHere": {
       "chip": "cell {cell} · LCOH ${lcoh}/kg ({rate}%) · synthesis {nameplate} kt/yr, scale ×{scale} · {km} km to port",
