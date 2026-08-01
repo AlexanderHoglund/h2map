@@ -12,7 +12,10 @@ describe("scenarioInputSchema", () => {
       load("../../../fixtures/golden/corridor/excel-baseline.input.json"),
     ).input;
     expect(parsed.cargo.horizonYears).toBe(20);
-    expect(parsed.green.sourcing).toBe("construct");
+    // v3 migration: the workbook's `construct` arrives as build-plant with
+    // the legacy double-count flag (its benchmark price row was live).
+    expect(parsed.green.sourcing).toBe("build-plant");
+    expect(parsed.flags?.legacyExcelConstruct).toBe(true);
   });
 
   it("rejects horizon beyond the workbook's 40-year max", () => {

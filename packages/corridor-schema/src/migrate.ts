@@ -28,6 +28,45 @@ const MIGRATIONS: Record<number, Migration> = {
     next.schemaVersion = 2;
     return next;
   },
+  // v2 → v3: fuel-sourcing restructure (spec §1).
+  // - `construct` → `build-plant`; the Excel double-count survives as
+  //   flags.legacyExcelConstruct ONLY where it was actually live (a price
+  //   row that charges something — override non-zero, or no override, i.e.
+  //   the benchmark price). construct + price-override-0 was already clean
+  //   build-plant economics and converts silently.
+  // - v2 `build-here` is REJECTED: its calculation basis changed from a
+  //   delivered price in OPEX to capital+operating. The scenarios table was
+  //   verified EMPTY at the time of this change (2026-08-01) — no archival
+  //   machinery for an empty set; see fixtures/golden/corridor/README.md.
+  2: (raw) => {
+    const next = JSON.parse(JSON.stringify(raw)) as RawScenario;
+    let legacy = false;
+    for (const key of ["green", "fossil"] as const) {
+      const side = next[key] as
+        | { sourcing?: string; overrides?: { priceUsdPerTonne?: number | null } }
+        | undefined;
+      if (!side) continue;
+      if (side.sourcing === "build-here") {
+        throw new Error(
+          "schema-v2 build-here scenarios are not supported: the calculation " +
+            "basis changed (delivered price → capital + operating); re-create " +
+            "the site pick on the map",
+        );
+      }
+      if (side.sourcing === "construct") {
+        side.sourcing = "build-plant";
+        // Double count live unless the price override is exactly 0.
+        if (side.overrides?.priceUsdPerTonne !== 0) legacy = true;
+      }
+    }
+    if (legacy) {
+      const flags = (next.flags ?? {}) as Record<string, unknown>;
+      flags.legacyExcelConstruct = true;
+      next.flags = flags;
+    }
+    next.schemaVersion = 3;
+    return next;
+  },
 };
 
 export interface MigratedScenario {

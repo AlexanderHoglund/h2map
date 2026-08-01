@@ -314,8 +314,13 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
   const s = scenario[side];
   const r = resolved[side];
   const b = benchmarks[side];
-  const delivered = s.sourcing === "named-plant" || s.sourcing === "build-here";
-  const prodZeroed = s.sourcing !== "construct";
+  const delivered = s.sourcing === "named-plant";
+  const plantMode = s.sourcing === "build-plant" || s.sourcing === "build-here";
+  const prodZeroed = !plantMode;
+  const legacy = scenario.flags?.legacyExcelConstruct === true;
+  // The merchant price row exists for purchase — and for migrated legacy
+  // scenarios, where it is charged ON TOP of the production lines.
+  const showPrice = s.sourcing === "purchase" || (plantMode && legacy);
 
   const overrideField = (
     key:
@@ -354,14 +359,14 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
   );
 
   const entries = splitByManifest([
-    ...(delivered
-      ? []
-      : [
+    ...(showPrice
+      ? [
           {
             id: `${side}.priceUsdPerTonne`,
             node: overrideField("priceUsdPerTonne", "priceUsdPerTonne", t("price"), "$/t"),
           },
-        ]),
+        ]
+      : []),
     {
       id: `${side}.fuelTonnesPerVesselYear`,
       node: overrideField(
@@ -419,27 +424,28 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
         label={t("sourcing")}
         value={s.sourcing}
         options={[
-          { value: "construct", label: t("sourcingConstruct") },
           { value: "purchase", label: t("sourcingPurchase") },
           { value: "named-plant", label: t("sourcingNamedPlant") },
-          // Build-here (pick an H2 production site) only makes sense green-side.
-          ...(side === "green"
-            ? [{ value: "build-here", label: t("sourcingBuildHere") }]
-            : []),
+          { value: "build-plant", label: t("sourcingBuildPlant") },
+          // build-here (map-derived plant inputs) returns in the build-here
+          // integration PR; green-side only.
         ]}
         onChange={(v) =>
           update((d) => {
             d[side].sourcing = v as ScenarioInput["green"]["sourcing"];
-            if (v === "named-plant" || v === "build-here") {
+            if (v === "named-plant") {
               d[side].deliveredPriceUsdPerTonne ??=
                 bundle.fuels.find((f) => f.id === d[side].fuelId)?.priceUsdPerTonne ?? 900;
+            } else {
+              // v3: a delivered price on non-named-plant modes is invalid.
+              d[side].deliveredPriceUsdPerTonne = null;
             }
           })
         }
       />
-      {s.sourcing === "construct" && (
-        <p className="sm:col-span-2 rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
-          {t("constructNote")}
+      {plantMode && legacy && (
+        <p className="sm:col-span-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
+          {t("legacyPriceNote")}
         </p>
       )}
       {delivered && (

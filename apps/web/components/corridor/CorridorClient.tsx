@@ -45,6 +45,7 @@ export default function CorridorClient() {
   const [entered, setEntered] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
+  const [legacyDismissed, setLegacyDismissed] = useState(false);
   const [view, setView] = useState<View>("cargo");
   const stepIndex = view === "results" ? STEPS.length : STEPS.indexOf(view);
 
@@ -252,6 +253,18 @@ export default function CorridorClient() {
           >
             <div className={mapOpen ? "" : "mx-auto max-w-3xl"}>
               <ScenarioBar model={model} />
+              {model.scenario.flags?.legacyExcelConstruct && !legacyDismissed && (
+                <div className="mb-4 flex items-start gap-3 border border-amber-300 bg-amber-500/10 px-3 py-2 text-xs leading-snug text-amber-800">
+                  <span className="flex-1">{t("legacyBanner")}</span>
+                  <button
+                    type="button"
+                    onClick={() => setLegacyDismissed(true)}
+                    className="shrink-0 border border-amber-300 px-2 py-0.5 font-medium hover:bg-amber-500/10"
+                  >
+                    {t("legacyBannerDismiss")}
+                  </button>
+                </div>
+              )}
               {stepBody[view]}
               <div className="mt-4 flex justify-between">
                 <Button

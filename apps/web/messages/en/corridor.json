@@ -68,11 +68,9 @@
       "fossil": "Fossil fuel",
       "type": "Fuel type",
       "sourcing": "Fuel sourcing",
-      "sourcingConstruct": "Construct plant (legacy)",
       "sourcingPurchase": "Purchase fuel",
       "sourcingNamedPlant": "Named plant (contract price)",
       "sourcingBuildHere": "Build here (pick a site on the map)",
-      "constructNote": "Legacy Excel mode: charges the merchant fuel price AND production CAPEX/O&M — production cost is counted twice. Kept for comparability with the workbook.",
       "deliveredPrice": "Delivered price",
       "price": "Fuel price",
       "combustionEf": "CO2 emission factor, combustion",
@@ -83,7 +81,9 @@
       "consumptionHelp": "Benchmark from the vessel type, or derived from distance when selected in the Vessel step.",
       "prodCapex": "Fuel production CAPEX (year 1)",
       "prodOpex": "Fuel production O&M, excl. fuel purchase",
-      "prodZeroNote": "Forced to 0 under this sourcing — production cost lives inside the fuel price."
+      "prodZeroNote": "Forced to 0 under this sourcing — production cost lives inside the fuel price.",
+      "sourcingBuildPlant": "Build a dedicated plant",
+      "legacyPriceNote": "Legacy Excel accounting: this merchant price is charged ON TOP of the production CAPEX/O&M below."
     },
     "port": {
       "green": "Green port",
@@ -236,6 +236,8 @@
       "imported": "Scenario imported",
       "importFailed": "Not a valid scenario file",
       "draftNote": "Draft autosaves locally"
-    }
+    },
+    "legacyBanner": "Legacy Excel accounting loaded: this scenario charges the merchant fuel price AND production CAPEX/O&M — production cost is counted twice. Preserved verbatim for workbook comparison; new scenarios cannot select this mode.",
+    "legacyBannerDismiss": "Dismiss"
   }
 }

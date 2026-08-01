@@ -31,7 +31,7 @@ const fuelSideOverridesSchema = z.object({
 const fuelSideSchema = z
   .object({
     fuelId: z.string().min(1),
-    sourcing: z.enum(["construct", "purchase", "named-plant", "build-here"]),
+    sourcing: z.enum(["purchase", "named-plant", "build-plant", "build-here"]),
     deliveredPriceUsdPerTonne: z.number().finite().nullable().optional(),
     buildHere: z
       .object({
@@ -49,10 +49,16 @@ const fuelSideSchema = z
     overrides: fuelSideOverridesSchema,
   })
   .refine(
+    (s) => s.sourcing !== "named-plant" || s.deliveredPriceUsdPerTonne != null,
+    { message: "named-plant sourcing requires deliveredPriceUsdPerTonne" },
+  )
+  // v3: build-plant/build-here are CAPEX+OPEX modes — a delivered price on
+  // them is the exact ambiguity the restructure removes. Reject loudly.
+  .refine(
     (s) =>
-      !(s.sourcing === "named-plant" || s.sourcing === "build-here") ||
-      s.deliveredPriceUsdPerTonne != null,
-    { message: "delivered-price sourcing requires deliveredPriceUsdPerTonne" },
+      !(s.sourcing === "build-plant" || s.sourcing === "build-here") ||
+      s.deliveredPriceUsdPerTonne == null,
+    { message: "build-plant/build-here must not carry deliveredPriceUsdPerTonne" },
   );
 
 export const scenarioInputSchema = z.object({
@@ -144,6 +150,7 @@ export const scenarioInputSchema = z.object({
     .object({
       emissionsBasis: z.enum(["combustion", "wellToWake"]).optional(),
       rateBasis: z.enum(["nominal", "real"]).optional(),
+      legacyExcelConstruct: z.boolean().optional(),
     })
     .optional(),
 });

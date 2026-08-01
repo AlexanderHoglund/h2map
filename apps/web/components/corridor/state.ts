@@ -100,11 +100,13 @@ export function defaultScenario(): ScenarioInput {
   input.green = {
     ...input.green,
     fuelId: "e-ammonia", // [S]
-    sourcing: "construct", // [S] purpose-built plant (switch to build-here on the map)
+    // v3: build-plant — production CAPEX + OPEX, no merchant price (the
+    // mode the study actually uses; no price-0 workaround needed).
+    sourcing: "build-plant", // [S] purpose-built plant
     deliveredPriceUsdPerTonne: null,
     overrides: {
       ...input.green.overrides,
-      priceUsdPerTonne: 0, // plant cost sits in CAPEX/OPEX — no merchant price
+      priceUsdPerTonne: null,
       fuelTonnesPerVesselYear: 5700, // [D] 57,015 t/yr fleet ÷ 10 (pins 1.45 Mt)
       lhvMjPerTonne: 18600,
       combustionEfTco2PerTonne: 0, // [S]
@@ -200,6 +202,12 @@ function applyPickToScenario(
   scenario: ScenarioInput,
   pick: SitePickPayload,
 ): ScenarioInput {
+  // TODO(sourcing PR 5): build-here now derives production CAPEX/OPEX from
+  // the LCOH cost structure via the evaluate flow — the old delivered-price
+  // write is invalid under schema v3. Dormant until the new wiring lands.
+  void pick;
+  return scenario;
+  // eslint-disable-next-line no-unreachable
   if (typeof pick.lcoh !== "number" || !pick.h3) return scenario;
   const next = JSON.parse(JSON.stringify(scenario)) as ScenarioInput;
   // Ensure a synthesizable carrier (fall back to the workbook's e-ammonia).

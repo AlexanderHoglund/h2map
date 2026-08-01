@@ -54,11 +54,11 @@ export function chileReferenceInput(
   input.green = {
     ...input.green,
     fuelId: "e-ammonia",
-    sourcing: "construct",
+    sourcing: "build-plant", // v3: CAPEX+OPEX, no merchant price
     deliveredPriceUsdPerTonne: null,
     overrides: {
       ...input.green.overrides,
-      priceUsdPerTonne: 0,
+      priceUsdPerTonne: null,
       fuelTonnesPerVesselYear: 5700,
       lhvMjPerTonne: 18600,
       combustionEfTco2PerTonne: 0,

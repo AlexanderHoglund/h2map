@@ -77,9 +77,14 @@ function derived<T>(value: T): Resolved<T> {
   return { value, source: "derived" };
 }
 
-/** Sourcing modes whose production capex/O&M are zeroed (all but legacy construct). */
-function purchase_or_delivered(sourcing: FuelSideInput["sourcing"]): boolean {
-  return sourcing === "purchase" || sourcing === "named-plant" || sourcing === "build-here";
+/** Modes whose production capex/O&M are zeroed — the cost lives in the price. */
+function pricedModes(sourcing: FuelSideInput["sourcing"]): boolean {
+  return sourcing === "purchase" || sourcing === "named-plant";
+}
+
+/** Modes that build a plant: production CAPEX + OPEX, no merchant price. */
+function plantModes(sourcing: FuelSideInput["sourcing"]): boolean {
+  return sourcing === "build-plant" || sourcing === "build-here";
 }
 
 // ---------------------------------------------------------------------------
@@ -102,25 +107,29 @@ function resolveFuelSide(
   const { input, vesselOverrides, fuel, vesselType, isFossil } = ctx;
   const o = input.overrides;
 
-  // D4 — delivered-price sourcing modes: named-plant (contract) and
-  // build-here (LCOH+synthesis+logistics-derived) price at the delivered
-  // price; the engine must not know which mode ran. `construct`/`purchase`
-  // keep the market-price row (construct's production double-count is the
-  // LEGACY Excel behaviour, preserved for the golden fixture).
-  const delivered = input.sourcing === "named-plant" || input.sourcing === "build-here";
-  if (delivered && input.deliveredPriceUsdPerTonne == null) {
-    throw new Error(
-      `${input.sourcing} sourcing requires deliveredPriceUsdPerTonne`,
-    );
+  // v3 sourcing semantics (spec §1):
+  // - named-plant: the contract (delivered) price IS the fuel price.
+  // - purchase: market price (override/benchmark).
+  // - build-plant/build-here: NO merchant price — production cost is
+  //   CAPEX + OPEX. Price row forced to derived(0)… UNLESS the scenario
+  //   carries flags.legacyExcelConstruct (the migrated Excel double-count),
+  //   in which case the old construct behaviour runs verbatim.
+  const legacyConstruct =
+    plantModes(input.sourcing) && scenario.flags?.legacyExcelConstruct === true;
+  if (input.sourcing === "named-plant" && input.deliveredPriceUsdPerTonne == null) {
+    throw new Error("named-plant sourcing requires deliveredPriceUsdPerTonne");
   }
-  const price: Resolved<UsdPerTonne> = delivered
-    ? {
-        value: usdPerTonne(input.deliveredPriceUsdPerTonne!),
-        source: input.sourcing === "build-here" ? "derived" : "override",
-      }
-    : resolve(o.priceUsdPerTonne, usdPerTonne, () =>
-        benchmark(usdPerTonne(fuel.priceUsdPerTonne)),
-      );
+  const price: Resolved<UsdPerTonne> =
+    input.sourcing === "named-plant"
+      ? {
+          value: usdPerTonne(input.deliveredPriceUsdPerTonne!),
+          source: "override",
+        }
+      : plantModes(input.sourcing) && !legacyConstruct
+        ? derived(usdPerTonne(0))
+        : resolve(o.priceUsdPerTonne, usdPerTonne, () =>
+            benchmark(usdPerTonne(fuel.priceUsdPerTonne)),
+          );
   const combustionEf = resolve(o.combustionEfTco2PerTonne, tCo2PerTonne, () =>
     benchmark(tCo2PerTonne(fuel.combustionEfTco2PerTonne)),
   );
@@ -146,11 +155,11 @@ function resolveFuelSide(
       : benchmark(tonnesPerVesselYear(vesselType.fuelTonnesPerYear)),
   );
 
-  // Purchase zeroes production cost BEFORE the override check (Fuel!E16/E17).
-  // D4: delivered-price modes also zero them — production cost lives inside
-  // the delivered price. Only legacy `construct` charges the production lines
-  // (on top of the merchant price — the documented Excel double-count).
-  const noProductionLines = purchase_or_delivered(input.sourcing);
+  // Priced modes zero production cost BEFORE the override check
+  // (Fuel!E16/E17) — the cost lives inside the price. Plant modes charge
+  // the production lines (typed for build-plant, map-derived for
+  // build-here — one code path, different Resolved sources).
+  const noProductionLines = pricedModes(input.sourcing);
   const prodCapex: Resolved<UsdM> = noProductionLines
     ? derived(usdM(0))
     : resolve(o.prodCapexUsdM, usdM, () => benchmark(usdM(fuel.prodCapexUsdM)));
@@ -159,6 +168,22 @@ function resolveFuelSide(
     : resolve(o.prodOpexUsdMPerYear, usdM, () =>
         benchmark(usdM(fuel.prodOpexUsdMPerYear)),
       );
+
+  // THE GUARD (spec §1): charging a fuel price AND production CAPEX/OPEX on
+  // one side is the Excel double-count — allowed only under the migrated
+  // legacy flag. A silent zero is what hid this; throw loudly.
+  if (
+    !legacyConstruct &&
+    price.value > 0 &&
+    (prodCapex.value > 0 || prodOpex.value > 0)
+  ) {
+    throw new Error(
+      `${ctx.isFossil ? "fossil" : "green"} side charges a fuel price ` +
+        `(${price.value} $/t) AND production CAPEX/OPEX — the Excel ` +
+        "double-count. Load a legacy scenario (flags.legacyExcelConstruct) " +
+        "or zero one of the two.",
+    );
+  }
 
   // Port storage & barge. Fossil benchmarks: capex = 0 ("existing
   // infrastructure assumed"), opex = fossil fuel-table opex × 0.3.

@@ -7,24 +7,30 @@
  */
 
 /**
- * Current scenario schema version. v2 renamed
- * `regulation.ira45z.rateUsdPerGallon` → `creditUsdPerGallon` — a deliberate
- * rename proving the migration machinery (build-plan 4.1); see migrate.ts.
+ * Current scenario schema version.
+ * v2 renamed `regulation.ira45z.rateUsdPerGallon` → `creditUsdPerGallon`.
+ * v3 restructured fuel sourcing: `construct` (the Excel double-count) became
+ * `build-plant` + `flags.legacyExcelConstruct` where the double count was
+ * live; v2 `build-here` (delivered-price basis) is REJECTED — the
+ * calculation basis changed to capital+operating. See migrate.ts.
  */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export type RouteType = "point-to-point" | "single-point";
 export type ConsumptionMode = "distance" | "vessel-benchmark";
 
 /**
- * Fuel sourcing (divergence D4). `construct` is the LEGACY Excel mode — it
- * charges full merchant fuel price AND production capex AND O&M (production
- * cost twice); kept verbatim for the golden fixture. `purchase` buys at
- * market/contract price. `named-plant` and `build-here` price at a DELIVERED
- * price (contract, or LCOH+synthesis+logistics-derived) with production
- * capex/opex forced to zero — they live inside the delivered price.
+ * Fuel sourcing (restructured, spec §1 — no legacy in the menu):
+ * - `purchase`      — market price × tonnage (typed or benchmark)
+ * - `named-plant`   — contract (delivered) price × tonnage (typed)
+ * - `build-plant`   — production CAPEX + OPEX, typed directly
+ * - `build-here`    — the SAME economics, inputs derived from the map
+ * build-plant and build-here are ONE economic mode with two ways of
+ * populating its inputs (override vs derived) — a single code path.
+ * The Excel double-count (price AND capex/opex) survives only as
+ * `flags.legacyExcelConstruct`, set by migration, never selectable.
  */
-export type FuelSourcing = "construct" | "purchase" | "named-plant" | "build-here";
+export type FuelSourcing = "purchase" | "named-plant" | "build-plant" | "build-here";
 
 /**
  * Divergences from the Excel (build-plan 1.4). Every field optional; the
@@ -36,6 +42,13 @@ export interface DivergenceFlags {
   emissionsBasis?: "combustion" | "wellToWake";
   /** D6 — real deflates the OPEX inflation growth. Excel: nominal. */
   rateBasis?: "nominal" | "real";
+  /**
+   * The Excel construct double-count: a build-plant side charges the
+   * merchant fuel price AND production CAPEX/OPEX. Set by MIGRATION when a
+   * legacy `construct` scenario with a live price row is loaded (the golden
+   * fixture); never offered in the UI. Without it, charging both throws.
+   */
+  legacyExcelConstruct?: boolean;
 }
 
 export interface CargoInput {

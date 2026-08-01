@@ -45,3 +45,14 @@ documented exception to the new-bundle-id rule: the addition is purely
 additive (every pre-existing row byte-identical), the golden scenario never
 enables the module, and the frozen expected file is untouched. A bundle
 whose EXISTING rows change still requires a new bundle id.
+
+## 2026-08-01 — schema v3: fuel-sourcing restructure
+
+`construct` was removed from the sourcing menu. The v2→v3 migration maps it
+to `build-plant`, setting `flags.legacyExcelConstruct` ONLY where the Excel
+double-count was actually live (a price row charging something — the frozen
+fixture, whose benchmark price row is live). The fixture stays at v1 and
+reproduces exactly through the migration chain. v2 payloads with
+`sourcing: "build-here"` are REJECTED at migration — the calculation basis
+changed from a delivered price in OPEX to capital+operating; the scenarios
+table was verified EMPTY at this date, so no archival machinery exists.

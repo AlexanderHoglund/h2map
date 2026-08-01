@@ -154,7 +154,7 @@ describe("D6 — rateBasis", () => {
   it("real basis removes the OPEX inflation growth", () => {
     const nominal = evaluateScenario(resolveScenario(baseInput(), bundle));
     const input = baseInput();
-    input.flags = { rateBasis: "real" };
+    input.flags = { ...input.flags, rateBasis: "real" };
     const real = evaluateScenario(resolveScenario(input, bundle));
     // Year 1 identical (growth exponent 0); later years cheaper under real.
     expect(real.perYear.green.totalUsdM[0]).toBeCloseTo(nominal.perYear.green.totalUsdM[0]!, 12);
@@ -174,13 +174,52 @@ describe("D4 — sourcing modes", () => {
     expect(r.green.prodOpexUsdMPerYear.value).toBe(0);
   });
 
-  it("build-here marks the delivered price as derived", () => {
+  it("build-here (v3): no merchant price, production lines charged", () => {
     const input = baseInput();
     input.green.sourcing = "build-here";
-    input.green.deliveredPriceUsdPerTonne = 847;
+    input.green.deliveredPriceUsdPerTonne = null;
+    delete input.flags?.legacyExcelConstruct;
     const r = resolveScenario(input, bundle);
+    // Price row forced to derived 0 — the cost is CAPEX + OPEX.
+    expect(r.green.priceUsdPerTonne.value).toBe(0);
     expect(r.green.priceUsdPerTonne.source).toBe("derived");
-    expect(r.green.prodCapexUsdM.value).toBe(0);
+    // Production lines resolve normally (benchmarks here; map-derived in
+    // the app; typed overrides win either way).
+    expect(r.green.prodCapexUsdM.value).toBe(55);
+    expect(r.green.prodOpexUsdMPerYear.value).toBe(3);
+  });
+
+  it("dropping the legacy flag converts to CLEAN build-plant (no double charge possible)", () => {
+    const input = baseInput();
+    delete input.flags?.legacyExcelConstruct;
+    const r = resolveScenario(input, bundle);
+    // Without the flag the price row is forced to 0 — the double charge is
+    // structurally impossible (the in-resolver guard remains as a backstop
+    // invariant should the mode semantics ever regress).
+    expect(r.green.priceUsdPerTonne.value).toBe(0);
+    expect(r.green.prodCapexUsdM.value).toBe(55);
+    // Invariant across ALL modes: never price>0 AND production>0 without
+    // the legacy flag.
+    for (const sourcing of ["purchase", "build-plant", "build-here"] as const) {
+      const probe = baseInput();
+      delete probe.flags?.legacyExcelConstruct;
+      probe.green.sourcing = sourcing;
+      probe.green.deliveredPriceUsdPerTonne = null;
+      const rr = resolveScenario(probe, bundle);
+      const doubleCharged =
+        rr.green.priceUsdPerTonne.value > 0 &&
+        (rr.green.prodCapexUsdM.value > 0 || rr.green.prodOpexUsdMPerYear.value > 0);
+      expect(doubleCharged).toBe(false);
+    }
+  });
+
+  it("v2 build-here payloads are rejected at migration (basis changed)", () => {
+    const raw = {
+      schemaVersion: 2,
+      green: { sourcing: "build-here" },
+      fossil: { sourcing: "purchase" },
+    };
+    expect(() => migrateScenarioInput(raw)).toThrowError(/calculation basis changed/);
   });
 
   it("delivered modes require the delivered price", () => {
@@ -189,7 +228,7 @@ describe("D4 — sourcing modes", () => {
     expect(() => migrateScenarioInput(JSON.parse(JSON.stringify(input)))).toThrowError();
   });
 
-  it("legacy construct keeps the Excel double-count (fixture behaviour)", () => {
+  it("legacy construct (migrated: build-plant + flag) keeps the Excel double-count", () => {
     const r = resolveScenario(baseInput(), bundle);
     expect(r.green.priceUsdPerTonne.value).toBe(900); // merchant price
     expect(r.green.prodCapexUsdM.value).toBe(55); // AND production capex

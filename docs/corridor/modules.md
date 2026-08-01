@@ -204,9 +204,9 @@ H2 → carrier synthesis at plant gate (build-plan 1.5). Pure:
 sums exactly to the total (same decomposition contract as the corridor
 evaluator).
 
-**Boundary (imports)**: `@h2map/corridor-schema`
+**Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SynthesisBreakdown`, `SynthesisResult`, `capitalRecoveryFactor`, `synthesize`
+**Exports (inputs/outputs)**: `SynthesisBreakdown`, `SynthesisResult`, `capitalRecoveryFactor`, `synthesisScaleFactor`, `SynthesisPlantResult`, `synthesizePlant`, `synthesize`
 
 **Assumptions**
 
@@ -299,7 +299,7 @@ H2→carrier synthesis + logistics planning benchmarks (build-plan 1.5/1.6).
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SynthesisBenchmark`, `SYNTHESIS_BENCHMARKS`, `getSynthesisBenchmark`, `SynthesisConfig`
+**Exports (inputs/outputs)**: `SynthesisBenchmark`, `SYNTHESIS_BENCHMARKS`, `getSynthesisBenchmark`, `SynthesisConfig`, `SynthesisPlantConfig`
 
 **Assumptions**
 

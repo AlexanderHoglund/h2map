@@ -86,12 +86,13 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     await expectNoSeriousViolations(page, `step ${label}`);
   }
 
-  // A live-model probe: the green fuel price is overridden to 0 (plant cost
-  // sits in CAPEX/OPEX). Pricing it moves the gap; restoring 0 restores it.
+  // A live-model probe: under v3 the green side (build-plant) has NO
+  // merchant price row — probe the production CAPEX the mode is built on
+  // (the fossil price now lives in the Advanced fold, rank #19).
   await page.getByRole("button", { name: "03 Fuel" }).click();
-  const price = page.getByLabel("Fuel price").first();
-  await price.fill("1200");
+  const prodCapex = page.getByLabel("Fuel production CAPEX (year 1)").first();
+  await prodCapex.fill("2000");
   await expect(page.getByText(GAP)).toHaveCount(0);
-  await price.fill("0");
+  await prodCapex.fill("1100");
   await expect(results.getByText(GAP)).toBeVisible();
 });
