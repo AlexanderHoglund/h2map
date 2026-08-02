@@ -58,11 +58,24 @@ export interface CostPack {
 export const COST_YEARS = [2024, 2030, 2040, 2050] as const;
 export type CostYear = (typeof COST_YEARS)[number];
 
+/**
+ * Cost-year packs. The electrolyser CAPEX trajectory is anchored on IEA GHR
+ * 2025 (2026-08-02 realism pass): 2024 = USD 2,300/kW (midpoint of the
+ * 2,000–2,600 ex-China installed range, EPC and contingency included, power
+ * generation excluded), 2030 = 1,610 (midpoint of IEA's 1,400–1,820) = ×0.70;
+ * 2040/2050 keep the previously documented ×0.58 / ×0.50 EXTRAPOLATION along
+ * IEA's stated direction (IEA does not publish those years). This replaces the
+ * former $1,000/kW anchor, which contradicted the very IEA basis the
+ * multipliers were derived from — see docs/COST_YEARS.md.
+ *
+ * Stack life keeps the documented ×1.5 / ×2.0 / ×2.5 durability trajectory,
+ * now measured from the IEA economic optimum of 50,000 h rather than 40,000.
+ */
 export const COST_PACKS: Record<CostYear, CostPack> = {
-  2024: { electrolyzerCapexUsdPerKw: 1000, efficiencyLhv: 0.6, solarCapexUsdPerKw: 800, solarOpexFrac: 0.015, windCapexUsdPerKw: 1200, windOpexFrac: 0.025, stackLifetimeHours: 40_000, degradationPerYear: 0.01 },
-  2030: { electrolyzerCapexUsdPerKw: 700, efficiencyLhv: 0.61, solarCapexUsdPerKw: 552, solarOpexFrac: 0.015, windCapexUsdPerKw: 1104, windOpexFrac: 0.025, stackLifetimeHours: 60_000, degradationPerYear: 0.008 },
-  2040: { electrolyzerCapexUsdPerKw: 580, efficiencyLhv: 0.63, solarCapexUsdPerKw: 496, solarOpexFrac: 0.015, windCapexUsdPerKw: 1056, windOpexFrac: 0.025, stackLifetimeHours: 80_000, degradationPerYear: 0.006 },
-  2050: { electrolyzerCapexUsdPerKw: 500, efficiencyLhv: 0.65, solarCapexUsdPerKw: 456, solarOpexFrac: 0.015, windCapexUsdPerKw: 1020, windOpexFrac: 0.025, stackLifetimeHours: 100_000, degradationPerYear: 0.005 },
+  2024: { electrolyzerCapexUsdPerKw: 2300, efficiencyLhv: 0.6, solarCapexUsdPerKw: 800, solarOpexFrac: 0.015, windCapexUsdPerKw: 1200, windOpexFrac: 0.025, stackLifetimeHours: 50_000, degradationPerYear: 0.01 },
+  2030: { electrolyzerCapexUsdPerKw: 1610, efficiencyLhv: 0.61, solarCapexUsdPerKw: 552, solarOpexFrac: 0.015, windCapexUsdPerKw: 1104, windOpexFrac: 0.025, stackLifetimeHours: 75_000, degradationPerYear: 0.008 },
+  2040: { electrolyzerCapexUsdPerKw: 1334, efficiencyLhv: 0.63, solarCapexUsdPerKw: 496, solarOpexFrac: 0.015, windCapexUsdPerKw: 1056, windOpexFrac: 0.025, stackLifetimeHours: 100_000, degradationPerYear: 0.006 },
+  2050: { electrolyzerCapexUsdPerKw: 1150, efficiencyLhv: 0.65, solarCapexUsdPerKw: 456, solarOpexFrac: 0.015, windCapexUsdPerKw: 1020, windOpexFrac: 0.025, stackLifetimeHours: 125_000, degradationPerYear: 0.005 },
 };
 
 export interface SweepPoint {

@@ -227,7 +227,15 @@ untouched (an `improved-*` golden set is added beside it).
   trajectories (2024 = reference 40 000 h / 1 %; 2030/2040/2050 = 60/80/100 k h
   and 0.8/0.6/0.5 %), documented as an IEA/DOE-direction *extrapolation*, not an
   IEA figure. 2024 keeps the reference values so the current map is bit-identical
-  (parity/goldens hold). Measured (`npm run rankdiff:costyear`, full 500-cell
+  (parity/goldens hold). **⚠ Superseded 2026-08-02** — the fuel-production
+  realism pass re-based the electrolyser cost anchor to IEA GHR 2025's 2024
+  vintage (1000 → 2300 USD/kW, stack life 40 k → 50 k h, with the OPEX and
+  stack-replacement FRACTIONS retuned to hold absolute $/kW/yr). The
+  "2024 is bit-identical" invariant no longer holds: every map cell moved and
+  a full `hex:recompute` is required. Measured effect (500-cell benchmark,
+  improved mode): `best` layer mean +1.83 USD/kg (2024) falling to +0.91
+  (2050), **top-decile retention 100 % and top-50 churn 0–2 %** — a level
+  re-base, not a re-ranking. See docs/COST_YEARS.md and PARITY_NOTES.md. Measured (`npm run rankdiff:costyear`, full 500-cell
   benchmark): 2024 shift exactly 0 (invariant); future-year LCOH −0.25 (2030) →
   −0.34 (2050) USD/kg mean — the size of the prior conservatism. Because solar
   CAPEX falls faster than wind, the best PV/wind mix shifts toward solar

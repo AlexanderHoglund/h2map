@@ -134,7 +134,7 @@ async function main(): Promise<void> {
     generatedAt: new Date().toISOString(),
     method: {
       scenario:
-        "2022 (doc-literal REFERENCE_DEFAULTS: 100 MW electrolyzer, LCOE-priced renewables 30 USD/MWh, no grid)",
+        "Published column: 2022. Engine basis: REFERENCE_DEFAULTS on the IEA GHR 2025 (2024) cost vintage — 100 MW electrolyzer at 2300 USD/kW, LCOE-priced renewables 30 USD/MWh, no grid. VINTAGE MISMATCH: the level comparison is not like-for-like (see docs/PARITY_NOTES.md); the rank metrics are the meaningful signal.",
       sweep: `pv share of ${TOTAL_RENEWABLE_MW} MW total in [${PV_SHARES.join(", ")}], best combination kept`,
       caveat:
         "Site coordinates are inferred from region hints (not published); projects without a hint are excluded. Site-level LCOH is shared by all projects at that site.",

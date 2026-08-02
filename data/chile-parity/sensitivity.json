@@ -1,61 +1,61 @@
 {
- "generatedAt": "2026-07-26T10:59:30.132Z",
+ "generatedAt": "2026-08-02T20:19:45.309Z",
  "computableProjects": 32,
- "baseMeanBias": -0.207,
+ "baseMeanBias": 1.654,
  "note": "mean bias = computed − published 2022 (USD/kg). deltaVsBase shows how each perturbation moves it.",
  "perturbations": [
   {
    "driver": "efficiency (LHV)",
    "setting": "0.57 (−5%)",
-   "meanBias": 0.019,
-   "deltaVsBase": 0.226
+   "meanBias": 1.978,
+   "deltaVsBase": 0.324
   },
   {
    "driver": "efficiency (LHV)",
    "setting": "0.63 (+5%)",
-   "meanBias": -0.412,
-   "deltaVsBase": -0.205
+   "meanBias": 1.361,
+   "deltaVsBase": -0.293
   },
   {
    "driver": "electrolyser CAPEX",
-   "setting": "900 (−10%)",
-   "meanBias": -0.456,
-   "deltaVsBase": -0.249
+   "setting": "2070 (−10%)",
+   "meanBias": 1.218,
+   "deltaVsBase": -0.436
   },
   {
    "driver": "electrolyser CAPEX",
-   "setting": "1100 (+10%)",
-   "meanBias": 0.043,
-   "deltaVsBase": 0.249
+   "setting": "2530 (+10%)",
+   "meanBias": 2.089,
+   "deltaVsBase": 0.436
   },
   {
    "driver": "discount rate",
    "setting": "0.06",
-   "meanBias": -0.38,
-   "deltaVsBase": -0.173
+   "meanBias": 1.185,
+   "deltaVsBase": -0.469
   },
   {
    "driver": "discount rate",
    "setting": "0.10",
-   "meanBias": -0.019,
-   "deltaVsBase": 0.188
+   "meanBias": 2.152,
+   "deltaVsBase": 0.498
   },
   {
    "driver": "oversizing ratio",
    "setting": "1.5:1 (150 MW)",
-   "meanBias": 0.158,
-   "deltaVsBase": 0.365
+   "meanBias": 2.296,
+   "deltaVsBase": 0.642
   },
   {
    "driver": "oversizing ratio",
    "setting": "3.0:1 (300 MW)",
-   "meanBias": -0.53,
-   "deltaVsBase": -0.323
+   "meanBias": 1.084,
+   "deltaVsBase": -0.57
   }
  ],
  "coordinateJitter": {
   "degrees": 0.2,
-  "meanPerSiteLcohSpread": 0.403,
+  "meanPerSiteLcohSpread": 0.765,
   "interpretation": "coordinate error moves a site's LCOH by roughly this spread in EITHER direction — noise, not a one-directional offset, so it cannot explain a consistent mean bias."
  }
 }

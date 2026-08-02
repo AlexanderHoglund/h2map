@@ -43,7 +43,7 @@ interface Config {
 
 const BASE: Config = {
   efficiencyLhv: REFERENCE_DEFAULTS.electrolyzer.efficiencyLhv, // 0.60
-  electrolyzerCapex: REFERENCE_DEFAULTS.electrolyzer.capexUsdPerKw, // 1000
+  electrolyzerCapex: REFERENCE_DEFAULTS.electrolyzer.capexUsdPerKw, // 2300 (IEA GHR 2025, ex-China installed)
   discountRate: REFERENCE_DEFAULTS.finance.discountRate, // 0.08
   totalRenewableMw: 200, // 2:1 on the 100 MW electrolyser
 };
@@ -118,8 +118,12 @@ async function main(): Promise<void> {
 
   record("efficiency (LHV)", "0.57 (−5%)", { ...BASE, efficiencyLhv: 0.57 });
   record("efficiency (LHV)", "0.63 (+5%)", { ...BASE, efficiencyLhv: 0.63 });
-  record("electrolyser CAPEX", "900 (−10%)", { ...BASE, electrolyzerCapex: 900 });
-  record("electrolyser CAPEX", "1100 (+10%)", { ...BASE, electrolyzerCapex: 1100 });
+  // ±10% derived from BASE, so the rows cannot go stale when the reference
+  // CAPEX is re-based (they were hardcoded 900/1100 against a 1000 base).
+  const capexLo = Math.round(BASE.electrolyzerCapex * 0.9);
+  const capexHi = Math.round(BASE.electrolyzerCapex * 1.1);
+  record("electrolyser CAPEX", `${capexLo} (−10%)`, { ...BASE, electrolyzerCapex: capexLo });
+  record("electrolyser CAPEX", `${capexHi} (+10%)`, { ...BASE, electrolyzerCapex: capexHi });
   record("discount rate", "0.06", { ...BASE, discountRate: 0.06 });
   record("discount rate", "0.10", { ...BASE, discountRate: 0.1 });
   record("oversizing ratio", "1.5:1 (150 MW)", { ...BASE, totalRenewableMw: 150 });

@@ -13,9 +13,18 @@ announced Chilean H₂ projects with published LCOH under cost-year scenarios
   table — 8 sites covering 32 of 47 projects; the other 15 have no region
   hint and are excluded from computation).
 - The **2030/2040/2050 cost trajectories are undocumented**, so the parity
-  target is the 2022 column (doc-literal defaults) plus rank-order
-  correlation. Column means published for reference: 4.62 / 3.11 / 2.52 /
-  2.04 USD/kg.
+  target is the 2022 column plus rank-order correlation. Column means
+  published for reference: 4.62 / 3.11 / 2.52 / 2.04 USD/kg.
+- ⚠ **Vintage mismatch (from 2026-08-02).** The published column is a **2022**
+  cost basis; the engine's reference defaults were re-based to IEA GHR 2025's
+  **2024** installed CAPEX ($2,300/kW, up from $1,000/kW) in the fuel-production
+  realism pass. **The level comparison is therefore no longer like-for-like**,
+  and the mean delta is not a bias estimate. What remains meaningful is the
+  **rank-order** signal: a near-uniform CAPEX re-base is close to
+  rank-preserving within a layer, and the metrics below confirm it (ρ, τ_b,
+  P@5, P@10 and top-decile retention are all **unchanged** from the pre-re-base
+  run). Read this harness as a *screening-fidelity* test, not a level check,
+  until a same-vintage published dataset is available.
 - All projects sharing a site get the same computed LCOH — the published
   table varies within a region (project-specific configs we can't see), so
   per-project deltas of a few tenths are expected even at methodology parity.
@@ -30,30 +39,40 @@ at 30 USD/MWh, no grid, sweeping the PV share of a fixed 200 MW renewable
 total over {0, 25, 50, 75, 100} % and keeping the best mix. Results land in
 `data/chile-parity/results.json`, rendered by the `/parity` page.
 
-## Results (2022 column, run of 2026-07-22)
+## Results (run of 2026-08-02, IEA-2024 cost basis vs a 2022 column)
 
-**32/47 projects computed · mean published 4.51 vs computed 4.30 USD/kg
-(Δ −0.21) · Spearman ρ = 0.850.** Full detail in
+**32/47 projects computed · mean published 4.51 vs computed 6.16 USD/kg
+(Δ +1.65) · Spearman ρ = 0.850 · Kendall τ_b 0.663 [0.525, 0.781] · P@5 =
+P@10 = top-decile retention = 1.0.** Full detail in
 `data/chile-parity/results.json` and on `/parity`.
 
-| Site | Best mix (PV+wind MW) | H2MAP 2022 | Published range at site |
-|---|---|---|---|
-| Magallanes | 0 + 200 | 3.28 | 3.31 – 4.27 |
-| Antofagasta | 200 + 0 | 4.66 | 4.04 – 4.22 |
-| Calama | 0 + 200 | 4.10 | 4.03 – 4.19 |
-| Metropolitana | 200 + 0 | 5.21 | 5.22 – 5.57 |
-| Valparaíso | 200 + 0 | 5.13 | 5.86 – 6.15 |
-| Biobío | 100 + 100 | 5.11 | 5.66 – 5.87 |
-| Los Lagos | 0 + 200 | 4.17 | 5.03 |
-| La Araucanía | 50 + 150 | 5.10 | 5.91 |
+**The Δ is a vintage artefact, not an error signal** — see the warning above.
+The screening metrics are the result that matters, and every one of them is
+**identical** to the pre-re-base run (which had Δ −0.21 on a 2022-vs-2022
+basis): the re-base moved the level, not the ranking.
 
-Reading: Magallanes, Calama, and Metropolitana are within ~0.1 of the
-published values; Antofagasta runs ~0.5 high (published projects there are
-likely PV-favored micro-sites or hybrid configs we can't see); the
-south-central coastal sites (Valparaíso, Biobío, Los Lagos, Araucanía) run
-0.5–0.9 low — plausible where announced projects are small pilots at
-non-optimal industrial locations while our representative coordinate picks a
-good renewable site in the region. Rank order is preserved well (ρ 0.85).
+| Site | Best mix (PV+wind MW) | H2MAP (2024 basis) | Published 2022 range |
+|---|---|---|---|
+| Magallanes | 0 + 200 | 4.24 | 3.31 – 4.27 |
+| Calama | 50 + 150 | 5.72 | 4.03 – 4.19 |
+| Los Lagos | 0 + 200 | 5.80 | 5.03 |
+| Antofagasta | 200 + 0 | 6.95 | 4.04 – 4.22 |
+| La Araucanía | 50 + 150 | 7.38 | 5.91 |
+| Biobío | 100 + 100 | 7.40 | 5.66 – 5.87 |
+| Valparaíso | 200 + 0 | 7.81 | 5.86 – 6.15 |
+| Metropolitana | 200 + 0 | 7.94 | 5.22 – 5.57 |
+
+Reading: the site ORDER still tracks the published table (Magallanes cheapest,
+the south-central coastal sites expensive), which is what the tool is for. The
+uniform ~+1.6–1.9 level offset is the 2024-vs-2022 CAPEX vintage. Note Calama's
+best mix moved 0+200 → 50+150 and Magallanes' absolute value rose 3.28 → 4.24;
+with a higher electrolyser CAPEX the optimiser leans slightly more on cheap
+capacity factor, which is the expected direction.
+
+The pre-re-base numbers (mean computed 4.30, Δ −0.21, per-site column
+3.28/4.66/4.10/5.21/5.13/5.11/4.17/5.10) are preserved here for the record:
+that was the last same-vintage comparison, and its −0.21 structural bias
+finding (documented below) still stands as the 2022-basis result.
 
 ## Caveats
 
