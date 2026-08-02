@@ -68,7 +68,17 @@ async function main(): Promise<void> {
     .lte("lon", BBOX.lonMax);
   if (error) throw new Error(error.message);
   const cells = data ?? [];
-  console.log(`recover-solar: ${cells.length} Kenya cells lack solar`);
+
+  // Time-box the pass so the job always exits on its own, well under the
+  // workflow's hard timeout — each cell commits independently and the script
+  // only ever touches NULL-solar cells, so a stop mid-run loses nothing and
+  // the next scheduled run resumes on the remainder. (Without this the loop
+  // ran to the 50-min Actions ceiling and was killed → "Cancelled".)
+  const budgetMin = Number(process.env.SEED_MINUTES ?? 40);
+  const deadline = Date.now() + budgetMin * 60_000;
+  console.log(
+    `recover-solar: ${cells.length} Kenya cells lack solar · budget ${budgetMin} min`,
+  );
 
   // Any provider failure (transient 500 or non-physical) → null for that source;
   // never throws, so a PV outage still lets the cell keep its valid wind.
@@ -87,7 +97,14 @@ async function main(): Promise<void> {
   let gotSolar = 0;
   let windOnly = 0;
   let stillDown = 0;
+  let processed = 0;
+  let stoppedEarly = false;
   for (const { h3 } of cells) {
+    if (Date.now() > deadline) {
+      stoppedEarly = true;
+      break;
+    }
+    processed++;
     const [lat, lon] = cellToLatLng(h3);
     const pvCf = await safe(lat, lon, "pv_fixed");
     const windCf = await safe(lat, lon, "wind_120");
@@ -126,8 +143,11 @@ async function main(): Promise<void> {
     if (pvCf) gotSolar++;
     else windOnly++;
   }
+  const remaining = cells.length - processed;
   console.log(
-    `recover-solar done: ${gotSolar} gained solar, ${windOnly} wind-only, ${stillDown} still unservable`,
+    `recover-solar ${stoppedEarly ? "paused (time budget)" : "done"}: ` +
+      `${gotSolar} gained solar, ${windOnly} wind-only, ${stillDown} still unservable` +
+      (stoppedEarly ? ` · ${remaining} cells left for the next run` : ""),
   );
 }
 

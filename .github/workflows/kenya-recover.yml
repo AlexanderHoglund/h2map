@@ -24,7 +24,12 @@ concurrency:
 jobs:
   recover:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    # Hard backstop only — the recovery step is time-boxed to SEED_MINUTES (40)
+    # below, so the job exits on its own with ~8 min of headroom for npm ci +
+    # the health probe. A killed run loses nothing (each cell commits
+    # independently; only NULL-solar cells are touched) and the next run
+    # resumes on the remainder.
+    timeout-minutes: 48
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,9 +40,10 @@ jobs:
       - name: Probe PVGIS health
         id: health
         run: npx tsx scripts/hex/pvgis-health.ts
-      - name: Recover Kenya solar (targeted — only cells lacking solar)
+      - name: Recover Kenya solar (targeted — only cells lacking solar, time-boxed)
         if: steps.health.outputs.healthy == 'true'
         run: npm run hex:recover-solar
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SEED_MINUTES: "40"
