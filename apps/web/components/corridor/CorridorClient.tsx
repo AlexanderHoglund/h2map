@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { useCorridorModel } from "./state";
+import { downloadResultsXlsx } from "./exportXlsx";
 import { CargoStep, FuelStep, PortStep, RegulationStep, VesselStep } from "./steps";
 import ResultsPanel from "./ResultsPanel";
 import ResultsSummary from "./ResultsSummary";
@@ -248,7 +249,21 @@ export default function CorridorClient() {
         /* ===== Results tab: the full panel, full width ===== */
         <main className="min-h-0 flex-1 overflow-y-auto bg-[rgb(var(--tone)/0.03)] p-4">
           <div className="mx-auto max-w-375">
-            <h2 className="mb-3 text-sm font-semibold">{t("results.heading")}</h2>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold">{t("results.heading")}</h2>
+              <Button
+                size="md"
+                className="px-3 py-1.5"
+                disabled={!model.result || !model.resolved}
+                onClick={() => {
+                  if (model.result && model.resolved) {
+                    void downloadResultsXlsx(model.scenario, model.resolved, model.result);
+                  }
+                }}
+              >
+                {t("results.downloadXlsx")}
+              </Button>
+            </div>
             <ResultsPanel
               result={model.result}
               scenario={model.scenario}

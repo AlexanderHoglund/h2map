@@ -226,7 +226,8 @@
       "emissionsChart": "Emissions & abatement",
       "unitUsdPerTco2": "$/t CO2 abated",
       "abatePre": "Before regulation",
-      "abatePost": "After regulation"
+      "abatePost": "After regulation",
+      "downloadXlsx": "Download Excel"
     },
     "buildHere": {
       "chip": "cell {cell} · LCOH ${lcoh}/kg ({rate}%) · synthesis {nameplate} kt/yr, scale ×{scale} · {km} km to port",
