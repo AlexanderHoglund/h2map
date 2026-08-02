@@ -15,6 +15,20 @@ at 1e-9 (`npm run test:golden`).
 
 ## Modules
 
+### `@h2map/corridor-engine/band.ts`
+
+**Purpose**
+
+Uncertainty band (realism pass, Task 5) — report a range, not a point.
+
+**Boundary (imports)**: none — leaf module
+
+**Exports (inputs/outputs)**: `BandDriver`, `BAND_DRIVERS`, `BandDriverKey`, `BandContribution`, `BandResult`, `BandSample`, `computeBand`
+
+**Assumptions**
+
+estimate is: five assumptions swing it 2.4×. This module varies the four
+
 ### `@h2map/corridor-engine/firming.ts`
 
 **Purpose**

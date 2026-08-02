@@ -165,3 +165,11 @@ export type {
   FirmingResult,
   FirmingStrategy,
 } from "./firming";
+export { BAND_DRIVERS, computeBand } from "./band";
+export type {
+  BandContribution,
+  BandDriver,
+  BandDriverKey,
+  BandResult,
+  BandSample,
+} from "./band";

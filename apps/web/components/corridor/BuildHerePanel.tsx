@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { capitalRecoveryFactor } from "@h2map/corridor-engine";
+import { capitalRecoveryFactor, computeBand } from "@h2map/corridor-engine";
 import { ARCHETYPE_FOAK_MULTIPLIER } from "@h2map/corridor-schema";
 import ResolvedField from "./ResolvedField";
 import { LCOH_ENGINE_VERSION, type CorridorModel } from "./state";
@@ -76,6 +76,29 @@ export default function BuildHerePanel({
         demand
       : 0;
 
+  // Band (Task 5): vary the four sourced drivers across their published
+  // ranges. The H2 block scales with electrolyser CAPEX and firming with the
+  // firm multiplier; synthesis carries the scale exponent and FOAK.
+  const crf = capitalRecoveryFactor(corridorWacc, site.evaluated.plantLifeYears);
+  const h2Cap = comp(site.components.h2Capital);
+  const synthCap = comp(site.components.synthCapital);
+  const firmOpex = site.firming?.operatingUsdMPerYear ?? 0;
+  const band =
+    demand > 0
+      ? computeBand((sample) => {
+          const h2 = h2Cap * (sample.electrolyserCapex / 2300);
+          const synth =
+            (synthCap / (site.sizing.foakMultiplier || 1)) *
+            sample.foak *
+            (site.sizing.nameplateTonnesPerYear / 1_200_000) **
+              (sample.scaleExponent - 0.6);
+          const firm = firmOpex * (sample.firmMultiplier - 1) / 0.9;
+          const capex = h2 + synth;
+          const opex = opexTotal - firmOpex + firm;
+          return ((capex * crf + opex) * 1e6) / demand;
+        })
+      : null;
+
   const rateGap = Math.abs(site.evaluated.lcohDiscountRate - corridorWacc);
   const engineMoved = site.evaluated.lcohEngineVersion !== LCOH_ENGINE_VERSION;
 
@@ -92,6 +115,14 @@ export default function BuildHerePanel({
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border border-emerald-300 bg-emerald-500/10 px-2.5 py-2 text-xs">
         <span className="font-semibold tabular-nums">
           ${Math.round(displayPerTonne).toLocaleString("en-US")}/t{" "}
+          {band && (
+            <span className="font-normal text-neutral-600">
+              {t("bandRange", {
+                low: Math.round(band.low).toLocaleString("en-US"),
+                high: Math.round(band.high).toLocaleString("en-US"),
+              })}{" "}
+            </span>
+          )}
           <span className="font-normal text-neutral-500">{t("displayOnly")}</span>
         </span>
         <span className="text-neutral-600">
@@ -188,6 +219,13 @@ export default function BuildHerePanel({
               })}`}
           </p>
         </div>
+      )}
+
+      {band?.largestDriver && (
+        <p className="text-[11px] leading-snug text-neutral-500">
+          {t("bandNote")}{" "}
+          {t(`bandDriver.${band.largestDriver}`)}.
+        </p>
       )}
 
       {/* Warnings: rate divergence + engine drift (never silent) */}

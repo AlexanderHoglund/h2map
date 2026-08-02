@@ -258,7 +258,15 @@
       "archetypeFoak": "First-of-a-kind, dedicated",
       "archetypeNoak": "Nth-of-a-kind, merchant scale",
       "archetypeStudy": "Match a published study",
-      "archetypeFoakFactor": "FOAK ×{foak} on plant capital"
+      "archetypeFoakFactor": "FOAK ×{foak} on plant capital",
+      "bandRange": "(range ${low}–${high})",
+      "bandNote": "A screening estimate, not a quote — the range comes from the four sourced drivers. Most of the spread is",
+      "bandDriver": {
+        "electrolyserCapex": "electrolyser CAPEX ($2,000–2,600/kW, IEA)",
+        "firmMultiplier": "the firm-power price step (1.6–2.2×)",
+        "scaleExponent": "the scale exponent (0.6–0.7)",
+        "foak": "the first-of-a-kind premium (1.0–1.4×)"
+      }
     },
     "scenarioBar": {
       "name": "Scenario name",
