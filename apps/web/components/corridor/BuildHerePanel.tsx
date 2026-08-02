@@ -116,6 +116,52 @@ export default function BuildHerePanel({
         })}
       </p>
 
+      {/* Firm power: the site's duty vs what the carrier's loop needs.
+          The ONE user-facing control the realism pass adds — it replaces
+          what would otherwise be four or five separate parameters. */}
+      {site.firming && (
+        <div className="border border-amber-300 bg-amber-500/10 px-2.5 py-2 text-[11px] leading-snug text-amber-900">
+          <p>
+            {t("firmingHeadline", {
+              evaluated: Math.round(site.firming.evaluatedDuty * 100),
+              required: Math.round(site.firming.requiredDuty * 100),
+            })}
+          </p>
+          <label className="mt-1.5 flex flex-wrap items-center gap-2">
+            <span className="font-medium">{t("firmingStrategy")}</span>
+            <select
+              value={site.firming.strategy}
+              onChange={(e) =>
+                update((d) => {
+                  const f = d[side].buildHere?.firming;
+                  if (!f) return;
+                  f.strategy = e.target.value as typeof f.strategy;
+                  f.strategyOverridden = true;
+                })
+              }
+              className="border border-amber-300 bg-white px-1.5 py-0.5 text-[11px]"
+            >
+              <option value="buffer-oversize">{t("firmingBuffer")}</option>
+              <option value="firm-ppa">{t("firmingPpa")}</option>
+              <option value="grid-hybrid">{t("firmingGrid")}</option>
+            </select>
+            {!site.firming.strategyOverridden && (
+              <span className="text-amber-800">{t("firmingCheapest")}</span>
+            )}
+          </label>
+          <p className="mt-1 tabular-nums">
+            {t("firmingCost", {
+              capital: site.firming.capitalUsdM.toFixed(2),
+              operating: site.firming.operatingUsdMPerYear.toFixed(2),
+            })}
+            {site.firming.emissionsTco2PerYear > 0 &&
+              ` · ${t("firmingEmissions", {
+                tco2: Math.round(site.firming.emissionsTco2PerYear).toLocaleString("en-US"),
+              })}`}
+          </p>
+        </div>
+      )}
+
       {/* Warnings: rate divergence + engine drift (never silent) */}
       {rateGap > 0.01 && (
         <p className="bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">

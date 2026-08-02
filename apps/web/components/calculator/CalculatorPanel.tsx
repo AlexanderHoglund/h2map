@@ -64,6 +64,12 @@ export interface CalculatorPanelProps {
       discountRate: number;
       plantLifeYears: number;
     };
+    /**
+     * Duty cycle the evaluated configuration achieves (0-1). The corridor
+     * needs it to decide whether the site can physically feed a synthesis
+     * loop — see corridor-engine firming.
+     */
+    dutyCycle: number;
     lcohEngineVersion: string;
   }) => void;
 }
@@ -800,6 +806,8 @@ export default function CalculatorPanel({
                         discountRate: sim.response!.results.costStructure.discountRate,
                         plantLifeYears: sim.response!.results.costStructure.plantLifeYears,
                       },
+                      dutyCycle:
+                        sim.response!.results.performance.electrolyzerCapacityFactor,
                       lcohEngineVersion: sim.response!.results.meta.engineVersion,
                     })
                   }

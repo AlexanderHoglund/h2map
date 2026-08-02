@@ -164,11 +164,21 @@ function resolveFuelSide(
     c.overrideUsdM ?? c.derivedUsdM;
   const anyOverride = (...cs: { overrideUsdM: number | null }[]) =>
     cs.some((c) => c.overrideUsdM !== null);
+  // Firm power (realism pass): when the evaluated site cannot meet the
+  // carrier's duty, the chosen strategy's cost is part of producing the fuel
+  // and rides the SAME production lines — a firming cost that sat outside
+  // them would be a cost the corridor never sees.
+  const firmCapexUsdM = bh?.firming ? bh.firming.capitalUsdM : 0;
+  const firmOpexUsdM = bh?.firming ? bh.firming.operatingUsdMPerYear : 0;
   const prodCapex: Resolved<UsdM> = noProductionLines
     ? derived(usdM(0))
     : bh
       ? {
-          value: usdM(comp(bh.components.h2Capital) + comp(bh.components.synthCapital)),
+          value: usdM(
+            comp(bh.components.h2Capital) +
+              comp(bh.components.synthCapital) +
+              firmCapexUsdM,
+          ),
           source: anyOverride(bh.components.h2Capital, bh.components.synthCapital)
             ? "override"
             : "derived",
@@ -181,7 +191,8 @@ function resolveFuelSide(
           value: usdM(
             comp(bh.components.h2Operating) +
               comp(bh.components.synthOperating) +
-              comp(bh.components.logisticsOperating),
+              comp(bh.components.logisticsOperating) +
+              firmOpexUsdM,
           ),
           source: anyOverride(
             bh.components.h2Operating,

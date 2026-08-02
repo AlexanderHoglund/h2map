@@ -150,6 +150,26 @@ export interface BuildHereSite {
     synthOperating: BuildHereComponent;
     logisticsOperating: BuildHereComponent;
   };
+  /**
+   * Firm-power resolution (realism pass). Present when the evaluated site's
+   * duty falls short of the carrier's firmness requirement — the corridor
+   * prices a strategy rather than silently producing a carrier the plant
+   * could not make. Absent when the site already meets the requirement.
+   */
+  firming?: {
+    /** Duty the evaluated configuration achieves, 0-1. */
+    evaluatedDuty: number;
+    /** Duty the carrier's synthesis loop requires, 0-1. */
+    requiredDuty: number;
+    /** Chosen strategy; user-overridable, defaults to the cheapest. */
+    strategy: "buffer-oversize" | "firm-ppa" | "grid-hybrid";
+    /** True when the user picked the strategy rather than taking the cheapest. */
+    strategyOverridden: boolean;
+    capitalUsdM: number;
+    operatingUsdMPerYear: number;
+    /** Added CO2 from imported grid power, t/yr (grid-hybrid only). */
+    emissionsTco2PerYear: number;
+  } | null;
   sizing: {
     nameplateTonnesPerYear: number;
     nameplateMargin: number;

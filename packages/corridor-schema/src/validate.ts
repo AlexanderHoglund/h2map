@@ -58,6 +58,18 @@ const fuelSideSchema = z
           synthOperating: buildHereComponentSchema,
           logisticsOperating: buildHereComponentSchema,
         }),
+        firming: z
+          .object({
+            evaluatedDuty: z.number().min(0).max(1),
+            requiredDuty: z.number().min(0).max(1),
+            strategy: z.enum(["buffer-oversize", "firm-ppa", "grid-hybrid"]),
+            strategyOverridden: z.boolean(),
+            capitalUsdM: z.number().nonnegative(),
+            operatingUsdMPerYear: z.number().nonnegative(),
+            emissionsTco2PerYear: z.number().nonnegative(),
+          })
+          .nullable()
+          .optional(),
         sizing: z.object({
           nameplateTonnesPerYear: z.number().positive(),
           nameplateMargin: z.number().min(1),

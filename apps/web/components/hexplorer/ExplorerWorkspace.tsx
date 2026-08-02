@@ -40,6 +40,7 @@ export default function ExplorerWorkspace({
       discountRate: number;
       plantLifeYears: number;
     };
+    dutyCycle: number;
     lcohEngineVersion: string;
   }) => void;
 } = {}) {
@@ -102,6 +103,7 @@ export default function ExplorerWorkspace({
                       lon: r.lon,
                       lcoh: Math.round(r.lcoh * 100) / 100,
                       costStructure: r.costStructure,
+                      dutyCycle: r.dutyCycle,
                       lcohEngineVersion: r.lcohEngineVersion,
                     });
                     setOpen(false); // back to form + map, pick applied

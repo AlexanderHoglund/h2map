@@ -245,7 +245,15 @@
         "synthOperating": "Synthesis plant operating",
         "logisticsOperating": "Plant→port logistics"
       },
-      "sumLine": "Production CAPEX = ${capex}m · production OPEX = ${opex}m/yr — the lines the corridor engine consumes."
+      "sumLine": "Production CAPEX = ${capex}m · production OPEX = ${opex}m/yr — the lines the corridor engine consumes.",
+      "firmingHeadline": "This site runs {evaluated}% of the year; the carrier's synthesis loop needs {required}%. The shortfall is priced below — a plant fed by unbuffered daytime power could not make this fuel.",
+      "firmingStrategy": "Close the gap by",
+      "firmingBuffer": "H2 buffer + oversized plant",
+      "firmingPpa": "Firm (round-the-clock) power",
+      "firmingGrid": "Grid top-up",
+      "firmingCheapest": "cheapest option",
+      "firmingCost": "Adds ${capital}m capital and ${operating}m/yr",
+      "firmingEmissions": "{tco2} tCO2/yr from imported grid power"
     },
     "scenarioBar": {
       "name": "Scenario name",

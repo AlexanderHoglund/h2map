@@ -9,7 +9,13 @@ import {
   type ResolvedScenario,
   type ScenarioInput,
 } from "@h2map/corridor-schema";
-import { evaluateScenario, logisticsLeg, synthesizePlant } from "@h2map/corridor-engine";
+import {
+  capitalRecoveryFactor,
+  evaluateScenario,
+  logisticsLeg,
+  resolveFirming,
+  synthesizePlant,
+} from "@h2map/corridor-engine";
 import { getSynthesisBenchmark } from "@h2map/corridor-schema";
 import { ENGINE_VERSION as LCOH_ENGINE_VERSION } from "@h2map/lcoh-engine";
 import type { ScenarioResult } from "@h2map/corridor-schema";
@@ -200,6 +206,8 @@ export interface SitePickPayload {
     discountRate: number;
     plantLifeYears: number;
   };
+  /** Duty cycle the evaluated configuration achieves (0-1). */
+  dutyCycle: number;
   lcohEngineVersion: string;
 }
 
@@ -210,6 +218,27 @@ const NAMEPLATE_MARGIN = 1.05;
 const FALLBACK_DISTANCE_KM = 300;
 /** Road/rail winding allowance over great-circle (engine default, mirrored). */
 const ROUTE_FACTOR = 1.3;
+
+/**
+ * Firm-power reference values (realism pass, Task 2). Reference data, not
+ * user inputs — the ONE user-facing control is which strategy to use.
+ *
+ * The firm multiplier is the step from solar-shaped to round-the-clock
+ * supply: northern-Chile utility-scale solar LCOE is under $35/MWh and the
+ * 2023 tender cleared $56.6/MWh, while Codelco's round-the-clock requirement
+ * had to be met with solar-plus-battery — so ~1.9x (≈$32 shaped → ≈$60 firm).
+ */
+const FIRM_PRICE_MULTIPLIER = 1.9;
+/** Shaped (daytime solar) electricity price the evaluated LCOH pays, $/MWh. */
+const SHAPED_ELECTRICITY_USD_PER_MWH = 32;
+/** Grid price for the hybrid strategy, $/MWh. */
+const GRID_USD_PER_MWH = 70;
+/** Grid emission factor for the hybrid strategy, tCO2/MWh (Chilean SEN). */
+const GRID_EF_TCO2_PER_MWH = 0.35;
+/** H2 buffer storage capital, $/kg of storage capacity. */
+const BUFFER_CAPEX_USD_PER_KG_H2 = 500;
+/** Electrolyser energy intensity for firming sizing, MWh per tonne of H2. */
+const MWH_PER_TONNE_H2 = 55.6;
 
 /**
  * Apply a map site pick: switch the green side to build-here with a delivered
@@ -236,6 +265,7 @@ function applyPickToScenario(
   // Corridor demand from the RESOLVED green tonnage (benchmark/derived when
   // not overridden) — the plant is sized to the corridor, not to the tile.
   let demandTonnesPerYear: number;
+  let resolved: ReturnType<typeof resolveScenario>;
   try {
     // The scenario may already be in build-here-without-a-site (the user
     // just selected the mode) — resolve the demand on a sizing pass with
@@ -243,7 +273,7 @@ function applyPickToScenario(
     const sizing = JSON.parse(JSON.stringify(next)) as ScenarioInput;
     sizing.green.sourcing = "build-plant";
     sizing.green.buildHere = null;
-    const resolved = resolveScenario(sizing, DEFAULT_BUNDLE);
+    resolved = resolveScenario(sizing, DEFAULT_BUNDLE);
     demandTonnesPerYear = resolved.vessels * resolved.green.tonnesPerVesselYear.value;
   } catch {
     return scenario; // unresolvable scenario — leave untouched
@@ -285,6 +315,29 @@ function applyPickToScenario(
           FALLBACK_DISTANCE_KM * ROUTE_FACTOR * legRate * demandTonnesPerYear,
       };
 
+  // Firm power: can this site physically feed the carrier's synthesis loop?
+  // The corridor prices the cheapest resolution rather than silently
+  // producing a carrier the plant could not make.
+  const requiredDuty = carrier.firmnessRequirement;
+  const corridorWacc = resolved.wacc.value;
+  const firmingResult = resolveFirming(
+    {
+      evaluatedDuty: pick.dutyCycle,
+      requiredDuty,
+      h2CapitalUsd: h2CapitalUsdM * 1e6,
+      h2OperatingUsd: h2OperatingUsdM * 1e6,
+      shapedElectricityUsdPerMwh: SHAPED_ELECTRICITY_USD_PER_MWH,
+      firmPriceMultiplier: FIRM_PRICE_MULTIPLIER,
+      annualElectricityMwh: (requiredH2Kg / 1000) * MWH_PER_TONNE_H2,
+      gridUsdPerMwh: GRID_USD_PER_MWH,
+      gridEmissionFactorTco2PerMwh: GRID_EF_TCO2_PER_MWH,
+      bufferCapexUsdPerKgH2: BUFFER_CAPEX_USD_PER_KG_H2,
+      annualH2Kg: requiredH2Kg,
+    },
+    (capitalUsd) =>
+      capitalUsd * capitalRecoveryFactor(corridorWacc, pick.costStructure.plantLifeYears),
+  );
+
   const r2 = (n: number) => Math.round(n * 100) / 100;
   next.green.sourcing = "build-here";
   next.green.buildHere = {
@@ -307,6 +360,17 @@ function applyPickToScenario(
       synthOperating: { derivedUsdM: r2(synth.annualOperatingUsd / 1e6), overrideUsdM: null },
       logisticsOperating: { derivedUsdM: r2(leg.annualOperatingUsd / 1e6), overrideUsdM: null },
     },
+    firming: firmingResult.chosen
+      ? {
+          evaluatedDuty: Math.round(firmingResult.evaluatedDuty * 10000) / 10000,
+          requiredDuty,
+          strategy: firmingResult.chosen.strategy,
+          strategyOverridden: false,
+          capitalUsdM: r2(firmingResult.chosen.capitalUsd / 1e6),
+          operatingUsdMPerYear: r2(firmingResult.chosen.operatingUsdPerYear / 1e6),
+          emissionsTco2PerYear: Math.round(firmingResult.chosen.emissionsTco2PerYear),
+        }
+      : null,
     sizing: {
       nameplateTonnesPerYear: Math.round(nameplate),
       nameplateMargin: NAMEPLATE_MARGIN,
