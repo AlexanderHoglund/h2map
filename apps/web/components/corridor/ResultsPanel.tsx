@@ -9,7 +9,6 @@ import {
   Cell,
   Line,
   LineChart,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -24,12 +23,13 @@ import { stepValue } from "@h2map/corridor-engine";
 import { DEFAULT_BUNDLE } from "./state";
 
 /**
- * The full results report (its own tab): a technical spec-sheet reading of
- * the model — KPI strip, scenario snapshot strip, cost-bridge waterfall
- * (Output rows 33–42, hidden float base), green/fossil/Δ decomposition
- * table, annual cost chart, carbon-intensity-vs-rules chart, regulatory PV
- * table, and emissions & abatement on both bases. Updates on every
- * keystroke — the engine runs client-side.
+ * The full results report (its own tab), in two bands: RESULTS & DIAGRAMS
+ * first — KPI strip, scenario snapshot strip, cost-bridge waterfall (Output
+ * rows 33–42, hidden float base) + green/fossil/Δ decomposition table,
+ * annual cost chart + carbon-intensity-vs-rules chart — then RESULTS BY
+ * TAB: one equal-framed card per input step (cargo, vessel, fuel, port,
+ * regulation incl. abatement cost & the carbon-price reference). Updates
+ * on every keystroke — the engine runs client-side.
  */
 export default function ResultsPanel({
   result,
@@ -43,6 +43,7 @@ export default function ResultsPanel({
   error: string | null;
 }) {
   const t = useTranslations("corridor.results");
+  const ts = useTranslations("corridor.steps");
 
   const waterfall = useMemo(() => {
     if (!result) return [];
@@ -354,12 +355,6 @@ export default function ResultsPanel({
               note: t("abatementNoteImo"),
             }
           : null;
-  const abatementChart = abatement.map((row) => ({
-    name: t(`basisLabel.${row.key}`),
-    cost: Math.round(((s.gapPvUsdM * 1e6) / row.tonnes) * 100) / 100,
-    active: row.active,
-  }));
-
   const portA = [scenario.cargo.portAName, fmtId(scenario.cargo.countryId)]
     .filter(Boolean)
     .join(", ");
@@ -400,7 +395,7 @@ export default function ResultsPanel({
   ];
 
   return (
-    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-12">
+    <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-12">
       {/* ===== KPI strip: one pixel-grid box ===== */}
       <div className="grid grid-cols-2 gap-px border border-neutral-300 bg-neutral-300 sm:grid-cols-3 lg:col-span-12 xl:grid-cols-6">
         {kpis.map((k, i) => (
@@ -678,153 +673,259 @@ export default function ResultsPanel({
         </section>
       )}
 
-      {/* ===== Regulatory table ===== */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
-        <Eyebrow>{t("regTable")}</Eyebrow>
-        <table className="w-full text-xs tabular-nums">
-          <thead>
-            <tr className="border-b border-neutral-300 text-[11px] uppercase tracking-wider text-neutral-500">
-              <th className="py-1.5 text-left font-medium" scope="col">
-                &nbsp;
-              </th>
-              <th className="py-1.5 text-right font-medium" scope="col">
-                {t("green")}
-              </th>
-              <th className="py-1.5 text-right font-medium" scope="col">
-                {t("fossil")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {(
-              [
+      {/* ===== Results by tab: one section per input step, equal frames ===== */}
+      {resolved && (
+        <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:col-span-12 lg:grid-cols-3 xl:grid-cols-5">
+          {/* 01 Cargo & Corridor */}
+          <section className="border border-neutral-300 bg-white p-3">
+            <Eyebrow>01 · {ts("cargo")}</Eyebrow>
+            <dl className="text-xs">
+              <TabRow label={t("tabCargoPerYear")} value={fmtInt(resolved.unitsPerYear)} />
+              <TabRow label={t("snapCargoLifetime")} value={fmtInt(s.cargoUnitsLifetime)} />
+              <TabRow
+                label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")}
+                value={fmtUsd(s.costPerUnitUsd)}
+                sub={`${fmtUsd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`}
+              />
+              <TabRow label={t("co2")} value={`${fmtInt(s.co2AbatedTonnes)} t`} />
+            </dl>
+          </section>
+
+          {/* 02 Vessel */}
+          <section className="border border-neutral-300 bg-white p-3">
+            <Eyebrow>02 · {ts("vessel")}</Eyebrow>
+            <TabTable
+              green={t("sideGreen")}
+              fossil={t("sideFossil")}
+              rows={[
+                [
+                  t("tabFleetCapex"),
+                  resolved.green.vesselCapexUsdM.value,
+                  resolved.fossil.vesselCapexUsdM.value,
+                ],
+                [
+                  t("tabFleetOpex"),
+                  resolved.green.vesselOpexUsdMPerYear.value,
+                  resolved.fossil.vesselOpexUsdMPerYear.value,
+                ],
+              ]}
+            />
+          </section>
+
+          {/* 03 Fuel */}
+          <section className="border border-neutral-300 bg-white p-3">
+            <Eyebrow>03 · {ts("fuel")}</Eyebrow>
+            <TabTable
+              green={t("sideGreen")}
+              fossil={t("sideFossil")}
+              rows={[
+                [
+                  t("tabFuelUse"),
+                  result.intermediates.greenFuelTonnesPerVesselYear,
+                  result.intermediates.fossilFuelTonnesPerVesselYear,
+                ],
+                [
+                  t("tabProdCapex"),
+                  resolved.green.prodCapexUsdM.value,
+                  resolved.fossil.prodCapexUsdM.value,
+                ],
+                [
+                  t("tabProdOpex"),
+                  resolved.green.prodOpexUsdMPerYear.value,
+                  resolved.fossil.prodOpexUsdMPerYear.value,
+                ],
+                [
+                  t("tabFuelPrice"),
+                  resolved.green.priceUsdPerTonne.value,
+                  resolved.fossil.priceUsdPerTonne.value,
+                ],
+                [t("tabWtw"), resolved.green.wtw.value, resolved.fossil.wtw.value],
+              ]}
+            />
+          </section>
+
+          {/* 04 Port */}
+          <section className="border border-neutral-300 bg-white p-3">
+            <Eyebrow>04 · {ts("port")}</Eyebrow>
+            <TabTable
+              green={t("sideGreen")}
+              fossil={t("sideFossil")}
+              rows={[
+                [
+                  t("tabStorageCapex"),
+                  resolved.green.portStorageCapexUsdM.value,
+                  resolved.fossil.portStorageCapexUsdM.value,
+                ],
+                [
+                  t("tabStorageOpex"),
+                  resolved.green.portStorageOpexUsdMPerYear.value,
+                  resolved.fossil.portStorageOpexUsdMPerYear.value,
+                ],
+                [
+                  t("tabBargeCapex"),
+                  resolved.green.bargeCapexUsdM.value,
+                  resolved.fossil.bargeCapexUsdM.value,
+                ],
+                [
+                  t("tabBargeOpex"),
+                  resolved.green.bargeOpexUsdMPerYear.value,
+                  resolved.fossil.bargeOpexUsdMPerYear.value,
+                ],
+              ]}
+            />
+          </section>
+
+          {/* 05 Regulation */}
+          <section className="border border-neutral-300 bg-white p-3">
+            <Eyebrow>05 · {ts("regulation")}</Eyebrow>
+            <TabTable
+              green={t("sideGreen")}
+              fossil={t("sideFossil")}
+              money
+              rows={[
                 [t("regEts"), s.etsGreenPvUsdM, s.etsFossilPvUsdM],
                 [t("regFuelEu"), s.fuelEuGreenPvUsdM, s.fuelEuFossilPvUsdM],
                 [t("regIra"), s.ira45zGreenPvUsdM, null],
                 [t("regSelf"), s.selfDesignedGreenPvUsdM, s.selfDesignedFossilPvUsdM],
                 ...(imo
-                  ? ([[t("regImo"), imo.green.pvUsdM, imo.fossil.pvUsdM]] as const)
+                  ? ([[t("regImo"), imo.green.pvUsdM, imo.fossil.pvUsdM]] as [
+                      string,
+                      number,
+                      number | null,
+                    ][])
                   : []),
-              ] as const
-            ).map(([label, g, f]) => (
-              <tr key={label} className="border-b border-neutral-100 last:border-0">
-                <td className="py-1.5 text-neutral-600">{label}</td>
-                <td className="py-1.5 text-right">{fmtUsdM(g)}</td>
-                <td className="py-1.5 text-right text-neutral-500">
-                  {f === null ? "—" : fmtUsdM(f)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="border-t border-neutral-300 font-semibold">
-              <td className="pt-2">{t("netReg")}</td>
-              <td colSpan={2} className="pt-2 text-right" style={deltaStyle(netReg)}>
+              ]}
+            />
+            <div className="mt-1.5 flex items-baseline justify-between border-t border-neutral-300 pt-1.5 text-xs font-semibold">
+              <span>{t("netReg")}</span>
+              <span className="tabular-nums" style={deltaStyle(netReg)}>
                 {fmtSigned(netReg)}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-        {imo && imo.green.surplusTonnesCo2e > 0 && (
-          <p className="mt-2 text-[11px] leading-snug text-neutral-500">
-            {t("imoSurplus")}:{" "}
-            <span className="tabular-nums font-medium text-neutral-700">
-              {fmtInt(imo.green.surplusTonnesCo2e)} tCO2e
-            </span>
-          </p>
-        )}
-        {imoNotParam && (
-          <p className="mt-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
-            {t("imoNotParam")}
-          </p>
-        )}
-      </section>
-
-      {/* ===== Emissions & abatement, both bases ===== */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
-        <Eyebrow>{t("emissions")}</Eyebrow>
-        <table className="w-full text-xs tabular-nums">
-          <thead>
-            <tr className="border-b border-neutral-300 text-[11px] uppercase tracking-wider text-neutral-500">
-              <th className="py-1.5 text-left font-medium" scope="col">
-                &nbsp;
-              </th>
-              <th className="py-1.5 text-right font-medium" scope="col">
-                {t("abated")}
-              </th>
-              <th className="py-1.5 text-right font-medium" scope="col">
-                {t("abatementCost")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {abatement.map((row) => (
-              <tr key={row.key} className="border-b border-neutral-100 last:border-0">
-                <td className="py-1.5 text-neutral-600">
-                  {t(`basisLabel.${row.key}`)}
-                  {row.active && (
-                    <span className="ml-1.5 bg-brand-tint px-1 py-px text-[10px] font-medium text-brand-deep">
-                      {t("activeBasis")}
-                    </span>
-                  )}
-                </td>
-                <td className="py-1.5 text-right">{fmtInt(row.tonnes)} t</td>
-                <td className="py-1.5 text-right font-medium">
-                  {fmtUsd((s.gapPvUsdM * 1e6) / row.tonnes)}/t
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Abatement cost vs the carbon price */}
-        <div className="mt-3 border-t border-neutral-100 pt-3">
-          <Eyebrow>{t("abatementChart")}</Eyebrow>
-          <div className="h-44">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={abatementChart}
-                margin={{ top: 12, right: 8, bottom: 0, left: 0 }}
-              >
-                <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
-                <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} />
-                {refPrice !== null && (
-                  <ReferenceLine
-                    y={refPrice.usdPerTonne}
-                    stroke="var(--viz-delta-up)"
-                    strokeDasharray="4 3"
-                    label={{
-                      value: `${refPrice.label} $${Math.round(refPrice.usdPerTonne)}`,
-                      position: "insideTopRight",
-                      fontSize: 10,
-                      fill: "var(--viz-delta-up)",
-                    }}
-                  />
-                )}
-                <Tooltip
-                  formatter={(v) => (typeof v === "number" ? `$${v.toLocaleString("en-US")}/t` : String(v))}
-                  labelStyle={{ fontSize: 11 }}
-                  contentStyle={{ fontSize: 11 }}
+              </span>
+            </div>
+            <dl className="mt-2 border-t border-neutral-100 pt-2 text-xs">
+              {abatement.map((row) => (
+                <TabRow
+                  key={row.key}
+                  label={
+                    <>
+                      {t("abatementCost")} · {t(`basisLabel.${row.key}`)}
+                      {row.active && (
+                        <span className="ml-1 bg-brand-tint px-1 py-px text-[10px] font-medium text-brand-deep">
+                          {t("activeBasis")}
+                        </span>
+                      )}
+                    </>
+                  }
+                  value={`${fmtUsd((s.gapPvUsdM * 1e6) / row.tonnes)}/t`}
+                  sub={`${t("abated")}: ${fmtInt(row.tonnes)} t`}
                 />
-                <Bar dataKey="cost" isAnimationActive={false} maxBarSize={56}>
-                  {abatementChart.map((row) => (
-                    <Cell
-                      key={row.name}
-                      fill={row.active ? "var(--color-brand)" : "var(--viz-ink-muted)"}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="mt-1 text-[11px] leading-snug text-neutral-500">
-            {refPrice ? refPrice.note : t("abatementNoteNone")}
-          </p>
+              ))}
+            </dl>
+            <p className="mt-2 border-t border-neutral-100 pt-2 text-[11px] leading-snug text-neutral-600">
+              {refPrice ? (
+                <>
+                  <span className="font-medium text-neutral-800">
+                    {t("carbonPriceRef")}:{" "}
+                    <span className="tabular-nums">
+                      {refPrice.label} ${Math.round(refPrice.usdPerTonne)}
+                    </span>
+                  </span>
+                  <br />
+                  {refPrice.note}
+                </>
+              ) : (
+                t("abatementNoteNone")
+              )}
+            </p>
+            {imo && imo.green.surplusTonnesCo2e > 0 && (
+              <p className="mt-2 text-[11px] leading-snug text-neutral-500">
+                {t("imoSurplus")}:{" "}
+                <span className="tabular-nums font-medium text-neutral-700">
+                  {fmtInt(imo.green.surplusTonnesCo2e)} tCO2e
+                </span>
+              </p>
+            )}
+            {imoNotParam && (
+              <p className="mt-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
+                {t("imoNotParam")}
+              </p>
+            )}
+          </section>
         </div>
-      </section>
-
+      )}
     </div>
+  );
+}
+
+/**
+ * One label/value row for the by-tab result cards. A <div> child of <dl>
+ * must contain dt then dd DIRECTLY (axe definition-list rule) — the sub-line
+ * therefore lives inside the dd.
+ */
+function TabRow({
+  label,
+  value,
+  sub,
+}: {
+  label: React.ReactNode;
+  value: string;
+  sub?: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-x-2 border-b border-neutral-100 py-1.5 last:border-0">
+      <dt className="text-neutral-600">{label}</dt>
+      <dd className="text-right font-medium tabular-nums">
+        {value}
+        {sub && (
+          <span className="block text-[11px] font-normal text-neutral-500">{sub}</span>
+        )}
+      </dd>
+    </div>
+  );
+}
+
+/** Green | fossil mini-table for the by-tab result cards. */
+function TabTable({
+  rows,
+  green,
+  fossil,
+  money,
+}: {
+  rows: [label: string, green: number, fossil: number | null][];
+  green: string;
+  fossil: string;
+  /** Format values as $m (regulation PV); default plain numbers. */
+  money?: boolean;
+}) {
+  const fmt = (n: number) =>
+    money ? fmtUsdM(n) : n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  return (
+    <table className="w-full text-xs tabular-nums">
+      <thead>
+        <tr className="border-b border-neutral-300 text-[11px] uppercase tracking-wider text-neutral-500">
+          <th className="py-1 text-left font-medium" scope="col">
+            &nbsp;
+          </th>
+          <th className="py-1 pl-3 text-right font-medium" scope="col">
+            {green}
+          </th>
+          <th className="py-1 pl-3 text-right font-medium" scope="col">
+            {fossil}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(([label, g, f]) => (
+          <tr key={label} className="border-b border-neutral-100 last:border-0">
+            <td className="py-1.5 pr-2 text-neutral-600">{label}</td>
+            <td className="py-1.5 pl-3 text-right">{fmt(g)}</td>
+            <td className="py-1.5 pl-3 text-right text-neutral-500">
+              {f === null ? "—" : fmt(f)}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 

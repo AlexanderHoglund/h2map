@@ -63,7 +63,8 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await page.getByRole("button", { name: "06 Results" }).click();
   const full = page.getByRole("main");
   await expect(full.getByText(GAP, { exact: true })).toBeVisible();
-  await expect(full.getByText("24,750,000")).toBeVisible();
+  // Twice by design: the snapshot strip and the Cargo & Corridor result card.
+  await expect(full.getByText("24,750,000")).toHaveCount(2);
   await expect(full.getByText("1,450,095 t").first()).toBeVisible();
   // Fix #4: ETS is disabled here — the carbon-price reference must come
   // from the ACTIVE scheme (self-designed $280), labelled as such.

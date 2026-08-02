@@ -929,17 +929,35 @@ export default function DocsPage() {
             this corridor&apos;s abatement currently is.
           </li>
         </ul>
-        <H3>Tables</H3>
+        <H3>Results by tab</H3>
+        <p className="mt-2">
+          The bottom band mirrors the input steps: one equal-framed card per
+          tab, so every number can be traced back to where it was entered.
+        </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>Regulatory impact (PV)</strong>{" "}— each scheme&apos;s
-            discounted total per side, and the net regulatory effect on the
-            gap (negative = regulation narrows it).
+            <strong>01 Cargo &amp; Corridor</strong>{" "}— cargo per year,
+            lifetime cargo, cost per unit (pre- and post-regulation), CO2
+            abated on the active basis.
           </li>
           <li>
-            <strong>Emissions &amp; abatement</strong>{" "}— CO2 abated and
-            abatement cost on BOTH bases (combustion and well-to-wake), the
-            model&apos;s active basis tagged.
+            <strong>02 Vessel</strong>{" "}— fleet CAPEX and OPEX, green vs
+            fossil.
+          </li>
+          <li>
+            <strong>03 Fuel</strong>{" "}— fuel use per vessel-year, production
+            CAPEX/O&amp;M, fuel price and WTW intensity for both fuels.
+          </li>
+          <li>
+            <strong>04 Port</strong>{" "}— storage and barge CAPEX/OPEX per
+            side.
+          </li>
+          <li>
+            <strong>05 Regulation</strong>{" "}— each scheme&apos;s discounted
+            total per side, the net regulatory effect on the gap (negative =
+            regulation narrows it), abatement cost on both bases with the
+            model&apos;s active basis tagged, and the carbon-price reference
+            drawn from the active scheme.
           </li>
         </ul>
 
