@@ -252,6 +252,7 @@ export default function CorridorClient() {
             <ResultsPanel
               result={model.result}
               scenario={model.scenario}
+              resolved={model.resolved}
               error={model.error}
             />
           </div>

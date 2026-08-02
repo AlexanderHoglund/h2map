@@ -846,6 +846,9 @@ export default function DocsPage() {
         <p className="mt-2">
           The full report. Every element recomputes on every keystroke; a
           compact summary of the same numbers stays docked on the input tabs.
+          Reading order: KPI strip, scenario snapshot strip, cost bridge +
+          decomposition, the two charts, then the regulatory and emissions
+          tables.
         </p>
         <H3>KPI strip</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
@@ -870,6 +873,15 @@ export default function DocsPage() {
             <strong>CO2 abated over lifetime</strong>{" "}— on the active basis.
           </li>
         </ul>
+        <H3>Scenario snapshot strip</H3>
+        <p className="mt-2">
+          Directly under the KPIs: one compact line stating what corridor the
+          numbers describe — route &amp; ports, cargo unit &amp; weight,
+          distance, start year &amp; horizon, fleet &amp; roundtrips, fuels
+          &amp; sourcing, derived fuel use per vessel-year, lifetime cargo.
+          Everything below reads in that context, and an exported screenshot
+          is self-describing.
+        </p>
         <H3>Cost bridge (waterfall)</H3>
         <p className="mt-2">
           Reads left to right: the fossil corridor total, then what changes
@@ -898,11 +910,17 @@ export default function DocsPage() {
             and the slow drift from inflation and the FuelEU ladder.
           </li>
           <li>
-            <strong>Cumulative discounted gap</strong>{" "}— the year-by-year PV
-            difference accumulated: how the headline gap builds over the
-            corridor&apos;s life. If regulation ever flips the annual
-            difference negative, this curve bends down — the break-even
-            signal.
+            <strong>Carbon intensity vs the rules</strong>{" "}— the fuel &amp;
+            energy story: each fuel&apos;s well-to-wake intensity (flat lines
+            — intensity is a property of the fuel) against the compliance
+            limits that FALL through the horizon: the FuelEU reduction line
+            and, when the reference bundle carries them, the IMO base and
+            direct ladders (dashed). Where a limit drops below a fuel&apos;s
+            line, that fuel pays from that year on — the caption names the
+            crossing years and states which schemes are actually enabled in
+            the scenario. The limit lines are drawn from the pinned reference
+            bundle even when a scheme is off, so the chart shows what
+            WOULD bite.
           </li>
           <li>
             <strong>Abatement cost vs carbon price</strong>{" "}— the premium per
@@ -911,7 +929,7 @@ export default function DocsPage() {
             this corridor&apos;s abatement currently is.
           </li>
         </ul>
-        <H3>Tables &amp; snapshot</H3>
+        <H3>Tables</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Regulatory impact (PV)</strong>{" "}— each scheme&apos;s
@@ -922,12 +940,6 @@ export default function DocsPage() {
             <strong>Emissions &amp; abatement</strong>{" "}— CO2 abated and
             abatement cost on BOTH bases (combustion and well-to-wake), the
             model&apos;s active basis tagged.
-          </li>
-          <li>
-            <strong>Scenario snapshot</strong>{" "}— the inputs that produced the
-            report: route, ports, cargo unit &amp; weight, horizon, fleet,
-            fuels &amp; sourcing, derived fuel use per vessel-year, lifetime
-            cargo. Makes an exported screenshot self-describing.
           </li>
         </ul>
 

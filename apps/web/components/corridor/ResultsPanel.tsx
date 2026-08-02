@@ -9,31 +9,37 @@ import {
   Cell,
   Line,
   LineChart,
-  ReferenceDot,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import type { ScenarioInput, ScenarioResult } from "@h2map/corridor-schema";
+import type {
+  ResolvedScenario,
+  ScenarioInput,
+  ScenarioResult,
+} from "@h2map/corridor-schema";
+import { stepValue } from "@h2map/corridor-engine";
 import { DEFAULT_BUNDLE } from "./state";
 
 /**
  * The full results report (its own tab): a technical spec-sheet reading of
- * the model — KPI strip, cost-bridge waterfall (Output rows 33–42, hidden
- * float base), green/fossil/Δ decomposition table, annual + cumulative
- * discounted cost charts, regulatory PV table, emissions & abatement on
- * both bases, and the scenario snapshot. Updates on every keystroke — the
- * engine runs client-side.
+ * the model — KPI strip, scenario snapshot strip, cost-bridge waterfall
+ * (Output rows 33–42, hidden float base), green/fossil/Δ decomposition
+ * table, annual cost chart, carbon-intensity-vs-rules chart, regulatory PV
+ * table, and emissions & abatement on both bases. Updates on every
+ * keystroke — the engine runs client-side.
  */
 export default function ResultsPanel({
   result,
   scenario,
+  resolved,
   error,
 }: {
   result: ScenarioResult | null;
   scenario: ScenarioInput;
+  resolved: ResolvedScenario | null;
   error: string | null;
 }) {
   const t = useTranslations("corridor.results");
@@ -81,10 +87,9 @@ export default function ResultsPanel({
   }, [result, t]);
 
   // Per-year rows: each side's annual cost SPLIT BY NATURE (CAPEX / operating
-  // / regulation) so a chart can separate the one-off year-1 capital spike
-  // from the recurring cost, plus the cumulative discounted gap and its
-  // annual increment. A single summed series is unplottable — see the
-  // dev-mode dominance guard below.
+  // / regulation) so the annual chart can separate the one-off year-1 capital
+  // spike from the recurring cost. A single summed series is unplottable —
+  // see the dev-mode dominance guard below.
   const perYear = useMemo(() => {
     if (!result) return [];
     const start = scenario.cargo.startYear;
@@ -96,76 +101,133 @@ export default function ResultsPanel({
       (side.ira45zUsdM[i] ?? 0) +
       (side.selfDesignedUsdM[i] ?? 0) +
       (side.imoNetZeroUsdM?.[i] ?? 0);
-    let cum = 0;
-    return g.totalUsdM.map((gt, i) => {
-      const inc = (g.pvUsdM[i] ?? 0) - (f.pvUsdM[i] ?? 0);
-      cum += inc;
-      return {
-        year: start + i,
-        gCapex: round2(g.totalCapexUsdM[i] ?? 0),
-        gOpex: round2(g.totalOpexUsdM[i] ?? 0),
-        gReg: round2(regOf(g, i)),
-        fCapex: round2(f.totalCapexUsdM[i] ?? 0),
-        fOpex: round2(f.totalOpexUsdM[i] ?? 0),
-        fReg: round2(regOf(f, i)),
-        green: round2(gt),
-        fossil: round2(f.totalUsdM[i] ?? 0),
-        incGap: round2(inc),
-        cumGap: round2(cum),
-      };
-    });
+    return g.totalUsdM.map((gt, i) => ({
+      year: start + i,
+      gCapex: round2(g.totalCapexUsdM[i] ?? 0),
+      gOpex: round2(g.totalOpexUsdM[i] ?? 0),
+      gReg: round2(regOf(g, i)),
+      fCapex: round2(f.totalCapexUsdM[i] ?? 0),
+      fOpex: round2(f.totalOpexUsdM[i] ?? 0),
+      fReg: round2(regOf(f, i)),
+      green: round2(gt),
+      fossil: round2(f.totalUsdM[i] ?? 0),
+    }));
   }, [result, scenario.cargo.startYear]);
 
-  // Chart derivations: the year-1 dominance the charts must communicate, and
-  // the offset floor for the cumulative axis (never zero-based when the first
-  // point already sits high — spec §2).
+  // Annual-chart caption: the year-1 dominance the chart must communicate.
   const chartMeta = useMemo(() => {
     if (perYear.length === 0 || !result) return null;
     const y1 = perYear[0]!;
-    const last = perYear[perYear.length - 1]!;
     const lifetimeGap = result.summary.gapPvUsdM;
-    const cums = perYear.map((r) => r.cumGap);
-    const minCum = Math.min(...cums);
-    const maxCum = Math.max(...cums);
-    // Zero-base the cumulative axis only if the first point is < 20% of the
-    // max; otherwise start below it at a round number and flag the break.
-    const zeroBased = maxCum <= 0 || minCum / maxCum < 0.2;
-    const cumFloor = zeroBased ? 0 : Math.floor(minCum / 100) * 100;
-    const cumCeil = Math.ceil(maxCum / 100) * 100;
+    const y1Inc =
+      (result.perYear.green.pvUsdM[0] ?? 0) - (result.perYear.fossil.pvUsdM[0] ?? 0);
     return {
       y1Capital: y1.gCapex,
-      y1Cum: y1.cumGap,
-      y1Inc: y1.incGap,
-      finalCum: last.cumGap,
-      y1Share: lifetimeGap ? Math.round((y1.incGap / lifetimeGap) * 100) : 0,
-      lastYear: last.year,
-      lastInc: last.incGap,
-      cumFloor,
-      cumCeil,
-      cumZeroBased: zeroBased,
-      firstYear: y1.year,
+      y1Share: lifetimeGap ? Math.round((y1Inc / lifetimeGap) * 100) : 0,
     };
   }, [perYear, result]);
+
+  // Carbon intensity vs the rules (the fuel & energy story): the two fuels'
+  // WTW intensities (flat — a fuel's intensity is a property, not a
+  // trajectory) against the FuelEU reduction line and, when the bundle
+  // carries the IMO rows, the IMO base/direct ladders. The limits FALL
+  // through the horizon; where a limit drops below a fuel's line, that fuel
+  // pays from that year on. Drawn from the pinned bundle regardless of
+  // whether the schemes are enabled — the caption states enablement.
+  const intensity = useMemo(() => {
+    if (!result || !resolved) return null;
+    const { startYear, horizonYears } = scenario.cargo;
+    // The bundle's zod-parsed steps are plain numbers; the engine's
+    // ScheduleStep carries branded fields of the SAME runtime shape. Assert
+    // at this display-only boundary instead of pulling @h2map/units in.
+    const asSchedule = (s: readonly { fromCalendarYear: number; value: number }[]) =>
+      s as unknown as Parameters<typeof stepValue>[0];
+    const asCal = (y: number) => y as Parameters<typeof stepValue>[1];
+    const fe = DEFAULT_BUNDLE.regulationDefaults.fuelEu;
+    const feTargets = asSchedule(DEFAULT_BUNDLE.schedules.fuelEuTargets);
+    // IMO lines need BOTH the pricing defaults and the reduction ladders —
+    // an older bundle may lack either (the "not parameterised" case).
+    const imoDefaults = DEFAULT_BUNDLE.regulationDefaults.imoNetZero;
+    const imoBaseTargets = DEFAULT_BUNDLE.schedules.imoBaseTargets;
+    const imoDirectTargets = DEFAULT_BUNDLE.schedules.imoDirectTargets;
+    const imo =
+      imoDefaults && imoBaseTargets && imoDirectTargets
+        ? {
+            ...imoDefaults,
+            baseTargets: asSchedule(imoBaseTargets),
+            directTargets: asSchedule(imoDirectTargets),
+          }
+        : null;
+    const greenWtw = resolved.green.wtw.value;
+    const fossilWtw = resolved.fossil.wtw.value;
+    const rows = Array.from({ length: horizonYears }, (_, i) => {
+      const cal = startYear + i;
+      const fuelEuLimit = fe.baselineGco2PerMj * (1 - stepValue(feTargets, asCal(cal)));
+      const imoActive = imo !== null && cal >= imo.effectiveFromCalendarYear;
+      return {
+        year: cal,
+        greenWtw: round2(greenWtw),
+        fossilWtw: round2(fossilWtw),
+        fuelEuLimit: round2(fuelEuLimit),
+        imoBase:
+          imoActive && imo
+            ? round2(
+                imo.referenceIntensityGco2PerMj * (1 - stepValue(imo.baseTargets, asCal(cal))),
+              )
+            : null,
+        imoDirect:
+          imoActive && imo
+            ? round2(
+                imo.referenceIntensityGco2PerMj * (1 - stepValue(imo.directTargets, asCal(cal))),
+              )
+            : null,
+      };
+    });
+    // First calendar year each limit sits below the fossil fuel's intensity —
+    // the year the fossil side starts paying that scheme.
+    const crossFuelEu = rows.find((r) => r.fuelEuLimit < fossilWtw)?.year ?? null;
+    const crossImoBase =
+      rows.find((r) => r.imoBase !== null && r.imoBase < fossilWtw)?.year ?? null;
+    const yMax = Math.max(
+      greenWtw,
+      fossilWtw,
+      ...rows.map((r) => r.fuelEuLimit),
+      imo?.referenceIntensityGco2PerMj ?? 0,
+    );
+    return {
+      rows,
+      hasImo: imo !== null,
+      greenWtw,
+      fossilWtw,
+      crossFuelEu,
+      crossImoBase,
+      yMax: Math.ceil(yMax / 10) * 10,
+      fuelEuOn: scenario.regulation.fuelEu.enabled,
+      imoOn: scenario.regulation.imoNetZero?.enabled === true,
+    };
+  }, [result, resolved, scenario.cargo, scenario.regulation]);
 
   // Dev-mode guard (spec §4): check EVERY series a chart plots, not just the
   // first. A series whose range is set by one outlier must be rendered
   // separated (by nature / series / axis) or dropped.
   //  - annual-cost: the axis-setting summed series is rendered separated
   //    (stacked by cost nature) → separated: true, never fires.
-  //  - cumulative-gap: only the cumulative line is plotted; it is smooth
-  //    (~1.3× range), not dominated → passes on its own. The year-1-dominated
-  //    INCREMENT series is deliberately NOT plotted (30× outlier), so there is
-  //    no dominated series left in the panel.
+  //  - intensity: flat fuel lines and smoothly-falling limits — no outliers;
+  //    each plotted series is checked on its own.
   warnIfDominated(
     "annual-cost",
     perYear.flatMap((r) => [r.green, r.fossil]),
     { separated: true },
   );
-  warnIfDominated(
-    "cumulative-gap",
-    perYear.map((r) => r.cumGap),
-    { separated: false },
-  );
+  if (intensity) {
+    for (const key of ["greenWtw", "fossilWtw", "fuelEuLimit", "imoBase", "imoDirect"] as const) {
+      warnIfDominated(
+        `intensity:${key}`,
+        intensity.rows.map((r) => r[key]).filter((v): v is number => v !== null),
+        { separated: false },
+      );
+    }
+  }
 
   if (error || !result) {
     return (
@@ -310,8 +372,8 @@ export default function ResultsPanel({
 
   const snapshot: [string, string][] = [
     [t("snapRoute"), fmtId(scenario.cargo.routeType)],
-    ["Port A", portA],
-    ...(portB ? ([["Port B", portB]] as [string, string][]) : []),
+    [t("snapPortA"), portA],
+    ...(portB ? ([[t("snapPortB"), portB]] as [string, string][]) : []),
     [
       t("snapUnit"),
       `${cargoUnit === "teu" ? "TEU" : "Tonne"} · ${unitWeight} t`,
@@ -363,6 +425,27 @@ export default function ResultsPanel({
           </div>
         ))}
       </div>
+
+      {/* ===== Scenario snapshot strip: what corridor these numbers describe.
+          Directly under the KPIs so everything below reads in context. ===== */}
+      <section className="border border-neutral-300 bg-white px-3 py-2 lg:col-span-12">
+        <Eyebrow className="mb-1.5">{t("snapshot")}</Eyebrow>
+        <dl className="flex flex-wrap items-baseline gap-x-0 gap-y-1 text-xs">
+          {snapshot.map(([label, value], i) => (
+            <div
+              key={label}
+              className={`flex items-baseline gap-1.5 pr-3 ${
+                i > 0 ? "border-l border-neutral-200 pl-3" : ""
+              }`}
+            >
+              <dt className="whitespace-nowrap text-neutral-500">{label}</dt>
+              <dd className="whitespace-nowrap font-medium tabular-nums text-neutral-900">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
 
       {/* ===== Cost bridge ===== */}
       <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
@@ -508,70 +591,95 @@ export default function ResultsPanel({
         )}
       </section>
 
-      {/* ===== Cumulative gap — single cumulative line on an offset axis =====
-          The annual increment is a 30× year-1 outlier (spec §4) — plotting it
-          would only relocate the illegibility, so it is dropped; the caption
-          carries its decay in words. One series, one axis, no scale conflict. */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
-        <Eyebrow className="mb-2">
-          {t("cumulative")}{" "}
-          <span className="font-normal normal-case tracking-normal text-neutral-500">
-            · {t("unitUsdM")}
-          </span>
-        </Eyebrow>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={perYear} margin={{ top: 22, right: 14, bottom: 0, left: 0 }}>
-              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} tickMargin={4} />
-              <YAxis
-                domain={chartMeta ? [chartMeta.cumFloor, chartMeta.cumCeil] : [0, "auto"]}
-                tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }}
-                stroke="var(--viz-baseline)"
-                width={48}
-                allowDecimals={false}
-              />
-              <Tooltip
-                formatter={(v) => (typeof v === "number" ? fmtUsdM(v) : String(v))}
-                labelStyle={{ fontSize: 11 }}
-                contentStyle={{ fontSize: 11 }}
-              />
-              <Line type="monotone" dataKey="cumGap" stroke="var(--color-brand-deep)" dot={false} strokeWidth={2} isAnimationActive={false} />
-              {chartMeta && (
-                <ReferenceDot
-                  x={chartMeta.firstYear}
-                  y={chartMeta.y1Cum}
-                  r={3}
-                  fill="var(--viz-delta-up)"
-                  stroke="var(--viz-surface)"
-                  label={{
-                    value: t("year1Marker"),
-                    position: "right",
-                    fontSize: 10,
-                    fill: "var(--viz-delta-up)",
-                  }}
-                />
+      {/* ===== Carbon intensity vs the rules — the fuel & energy story =====
+          The fuels are flat lines (intensity is a property of the fuel); the
+          compliance limits FALL through the horizon. Where a limit drops
+          below a fuel's line, that fuel pays from that year on. */}
+      {intensity && (
+        <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+            <Eyebrow className="mb-0">
+              {t("intensity")}{" "}
+              <span className="font-normal normal-case tracking-normal text-neutral-500">
+                · {t("unitGco2Mj")}
+              </span>
+            </Eyebrow>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
+              <LegendLine color="var(--viz-series-green)" label={t("seriesGreenWtw")} />
+              <LegendLine color="var(--viz-total)" label={t("seriesFossilWtw")} />
+              <LegendLine color="var(--viz-series-1)" dash label={t("seriesFuelEuLimit")} />
+              {intensity.hasImo && (
+                <>
+                  <LegendLine color="var(--viz-delta-up)" dash label={t("seriesImoBase")} />
+                  <LegendLine color="var(--viz-delta-up)" dash="8 3" label={t("seriesImoDirect")} />
+                </>
               )}
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        {chartMeta && (
+            </div>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={intensity.rows} margin={{ top: 8, right: 14, bottom: 0, left: 0 }}>
+                <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} tickMargin={4} />
+                <YAxis
+                  domain={[0, intensity.yMax]}
+                  tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }}
+                  stroke="var(--viz-baseline)"
+                  width={36}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  formatter={(v, name) => [
+                    typeof v === "number" ? `${v.toLocaleString("en-US")} ${t("unitGco2Mj")}` : String(v),
+                    INTENSITY_NAMES[name as string] ? t(INTENSITY_NAMES[name as string]!) : String(name),
+                  ]}
+                  labelStyle={{ fontSize: 11 }}
+                  contentStyle={{ fontSize: 11 }}
+                />
+                <Line type="monotone" dataKey="greenWtw" stroke="var(--viz-series-green)" dot={false} strokeWidth={2} isAnimationActive={false} />
+                <Line type="monotone" dataKey="fossilWtw" stroke="var(--viz-total)" dot={false} strokeWidth={2} isAnimationActive={false} />
+                <Line type="stepAfter" dataKey="fuelEuLimit" stroke="var(--viz-series-1)" strokeDasharray="4 3" dot={false} strokeWidth={1.5} isAnimationActive={false} />
+                {intensity.hasImo && (
+                  <>
+                    <Line type="stepAfter" dataKey="imoBase" stroke="var(--viz-delta-up)" strokeDasharray="2 3" dot={false} strokeWidth={1.5} isAnimationActive={false} connectNulls={false} />
+                    <Line type="stepAfter" dataKey="imoDirect" stroke="var(--viz-delta-up)" strokeDasharray="8 3" dot={false} strokeWidth={1.5} isAnimationActive={false} connectNulls={false} />
+                  </>
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
           <p className="mt-1 text-[11px] leading-snug text-neutral-500">
-            {t("cumulativeNote", {
-              y1cum: fmtUsdMShort(chartMeta.y1Cum),
-              finalCum: fmtUsdMShort(chartMeta.finalCum),
-              lastYear: chartMeta.lastYear,
-              y1inc: fmtUsdMShort(chartMeta.y1Inc),
-              lastInc: fmtUsdMShort(chartMeta.lastInc),
-            })}
-            {!chartMeta.cumZeroBased &&
-              ` ${t("cumAxisOffset", { floor: fmtUsdMShort(chartMeta.cumFloor) })}`}
+            {intensity.crossFuelEu !== null || intensity.crossImoBase !== null
+              ? t("intensityNote", {
+                  fossilWtw: intensity.fossilWtw.toLocaleString("en-US"),
+                  crossings: [
+                    ...(intensity.crossFuelEu !== null
+                      ? [t("intensityCrossFuelEu", { year: intensity.crossFuelEu })]
+                      : []),
+                    ...(intensity.crossImoBase !== null
+                      ? [t("intensityCrossImo", { year: intensity.crossImoBase })]
+                      : []),
+                  ].join(t("intensityCrossJoin")),
+                  greenWtw: intensity.greenWtw.toLocaleString("en-US"),
+                })
+              : t("intensityNoteNoCross", {
+                  fossilWtw: intensity.fossilWtw.toLocaleString("en-US"),
+                  greenWtw: intensity.greenWtw.toLocaleString("en-US"),
+                })}{" "}
+            {intensity.fuelEuOn || intensity.imoOn
+              ? t("intensityEnabled", {
+                  schemes: [
+                    ...(intensity.fuelEuOn ? [t("regFuelEu")] : []),
+                    ...(intensity.imoOn ? [t("regImo")] : []),
+                  ].join(", "),
+                })
+              : t("intensityDisabled")}
           </p>
-        )}
-      </section>
+        </section>
+      )}
 
       {/* ===== Regulatory table ===== */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-4">
+      <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
         <Eyebrow>{t("regTable")}</Eyebrow>
         <table className="w-full text-xs tabular-nums">
           <thead>
@@ -633,7 +741,7 @@ export default function ResultsPanel({
       </section>
 
       {/* ===== Emissions & abatement, both bases ===== */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-4">
+      <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
         <Eyebrow>{t("emissions")}</Eyebrow>
         <table className="w-full text-xs tabular-nums">
           <thead>
@@ -716,21 +824,6 @@ export default function ResultsPanel({
         </div>
       </section>
 
-      {/* ===== Scenario snapshot ===== */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-4">
-        <Eyebrow>{t("snapshot")}</Eyebrow>
-        <dl className="text-xs">
-          {snapshot.map(([label, value]) => (
-            <div
-              key={label}
-              className="flex items-baseline justify-between gap-3 border-b border-neutral-100 py-1.5 last:border-0"
-            >
-              <dt className="text-neutral-600">{label}</dt>
-              <dd className="text-right font-medium tabular-nums">{value}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
     </div>
   );
 }
@@ -740,6 +833,39 @@ function LegendSwatch({ color, label }: { color: string; label: string }) {
   return (
     <span className="flex items-center gap-1">
       <span aria-hidden className="h-2.5 w-2.5" style={{ background: color }} />
+      {label}
+    </span>
+  );
+}
+
+/**
+ * Line-sample legend entry for line charts: solid or dashed to mirror the
+ * series' stroke, so dash pattern (not colour alone) identifies the series.
+ */
+function LegendLine({
+  color,
+  label,
+  dash,
+}: {
+  color: string;
+  label: string;
+  /** true → default dash; a string → that SVG dash pattern. */
+  dash?: boolean | string;
+}) {
+  const dashArray = dash === true ? "4 3" : dash || undefined;
+  return (
+    <span className="flex items-center gap-1">
+      <svg aria-hidden width="18" height="6" className="shrink-0">
+        <line
+          x1="0"
+          y1="3"
+          x2="18"
+          y2="3"
+          stroke={color}
+          strokeWidth="2"
+          strokeDasharray={dashArray}
+        />
+      </svg>
       {label}
     </span>
   );
@@ -788,6 +914,15 @@ const NATURE_NAMES: Record<string, string> = {
   fCapex: "natureCapex",
   fOpex: "natureOperating",
   fReg: "natureRegulation",
+};
+
+/** Intensity-chart dataKey → series label message key (for the tooltip). */
+const INTENSITY_NAMES: Record<string, string> = {
+  greenWtw: "seriesGreenWtw",
+  fossilWtw: "seriesFossilWtw",
+  fuelEuLimit: "seriesFuelEuLimit",
+  imoBase: "seriesImoBase",
+  imoDirect: "seriesImoDirect",
 };
 
 /**
