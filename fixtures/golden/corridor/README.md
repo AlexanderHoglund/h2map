@@ -67,3 +67,18 @@ identical numbers by construction. The `deliveredPriceUsdPerTonne` field is
 removed from the schema entirely (stripped from every side at migration).
 The frozen fixture (v1, construct) is unaffected: it walks 1→2→3→4 and
 reproduces exactly.
+
+## 2026-08-02 — production nameplate added to bundle fuel rows (additive)
+
+The realism pass added an OPTIONAL `prodNameplateTonnesPerYear` to each fuel
+row that carries a non-zero `prodCapexUsdM`, stating the capacity those
+production rows describe (60,000 t/yr — the workbook's implicit small
+corridor plant). Without a stated capacity a bare "$55m" is unrelatable to
+any $/tpa benchmark, which is exactly how the build-here path came to sit
+~20× below an anchored reference.
+
+This follows the same additive exception as the IMO rows above: the field is
+`.optional()` in the zod schema, every pre-existing row is byte-identical,
+the golden scenario never reads it, and the frozen expected file is
+untouched. A bundle whose EXISTING rows change still requires a new bundle
+id.

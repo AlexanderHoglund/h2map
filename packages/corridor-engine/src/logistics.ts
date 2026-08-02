@@ -63,6 +63,12 @@ export interface LogisticsLegResult {
  * route factor × the carrier's $/t·km, at the corridor's annual tonnage.
  * v1 is deliberately simple — the interface is fixed so a routing engine can
  * replace the internals without touching callers.
+ *
+ * ⚠ `usdPerTonneKm` must be the **inland** first-mile rate
+ * (`SynthesisBenchmark.inlandUsdPerTonneKm`, ~$0.10-0.15/t·km for ammonia
+ * road haulage), NOT `shippingUsdPerTonneKm`, which is deep-sea bulk freight
+ * an order of magnitude cheaper. Passing the sea rate for an ~80 km plant→port
+ * leg understates it ~8× (2026-08-02 realism pass).
  */
 export function logisticsLeg(
   site: LatLon,

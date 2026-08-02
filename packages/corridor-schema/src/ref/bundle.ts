@@ -32,6 +32,16 @@ const fuelSchema = z.object({
   vesselCapexPremium: z.number(),
   lhvMjPerTonne: z.number(),
   wtwGco2PerMj: z.number(),
+  /**
+   * Nameplate the prodCapex/prodOpex rows describe, t/yr (2026-08-02, additive
+   * and OPTIONAL per the bundle's additive-extension rule — an older bundle
+   * without it simply cannot be scale-corrected). Without a stated capacity a
+   * bare "$55m" is unrelatable to any $/tpa benchmark: at 60 kt/yr it implies
+   * $917/tpa for a complete green-ammonia complex, ~20x below the NEOM-derived
+   * $1,400/tpa. Stating the nameplate is what makes the two commensurable and
+   * lets a user typing over the row anchor it correctly.
+   */
+  prodNameplateTonnesPerYear: z.number().positive().optional(),
   verified: z.boolean(),
   sourceNote: z.string(),
 });

@@ -206,7 +206,7 @@ evaluator).
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SynthesisBreakdown`, `SynthesisResult`, `capitalRecoveryFactor`, `synthesisScaleFactor`, `SynthesisPlantResult`, `synthesizePlant`, `synthesize`
+**Exports (inputs/outputs)**: `SynthesisBreakdown`, `SynthesisResult`, `capitalRecoveryFactor`, `synthesisScaleFactor`, `SCALE_EXTRAPOLATION_LIMIT`, `SynthesisPlantResult`, `synthesizePlant`, `synthesize`
 
 **Assumptions**
 

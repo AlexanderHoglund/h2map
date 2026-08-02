@@ -208,6 +208,8 @@ export { LCOH_ENGINE_VERSION };
 /** Default plant sizing margin over corridor demand (57 kt → ~60 kt). */
 const NAMEPLATE_MARGIN = 1.05;
 const FALLBACK_DISTANCE_KM = 300;
+/** Road/rail winding allowance over great-circle (engine default, mirrored). */
+const ROUTE_FACTOR = 1.3;
 
 /**
  * Apply a map site pick: switch the green side to build-here with a delivered
@@ -265,19 +267,22 @@ function applyPickToScenario(
   });
 
   // Logistics: plant→port from coordinates when the port is pinned.
+  // INLAND first-mile rate, not the deep-sea shipping rate: this leg is
+  // plant -> bunker port (road/rail/short pipeline), ~10x the sea rate.
   const port = next.cargo.portACoords;
+  const legRate = carrier.inlandUsdPerTonneKm;
   const leg = port
     ? logisticsLeg(
         { lat: pick.lat, lon: pick.lon },
         port,
-        carrier.shippingUsdPerTonneKm,
+        legRate,
         demandTonnesPerYear,
       )
     : {
         distanceKm: FALLBACK_DISTANCE_KM,
-        perTonne: FALLBACK_DISTANCE_KM * 1.3 * carrier.shippingUsdPerTonneKm,
+        perTonne: FALLBACK_DISTANCE_KM * ROUTE_FACTOR * legRate,
         annualOperatingUsd:
-          FALLBACK_DISTANCE_KM * 1.3 * carrier.shippingUsdPerTonneKm * demandTonnesPerYear,
+          FALLBACK_DISTANCE_KM * ROUTE_FACTOR * legRate * demandTonnesPerYear,
       };
 
   const r2 = (n: number) => Math.round(n * 100) / 100;

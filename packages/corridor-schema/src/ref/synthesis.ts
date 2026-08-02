@@ -45,13 +45,59 @@ export interface SynthesisBenchmark {
   plantLifeYears: number;
   /** Sea freight, USD per tonne-km (great-circle basis; route factor applies). */
   shippingUsdPerTonneKm: number;
+  /**
+   * INLAND first-mile haulage, USD per tonne-km — plant→bunker port. An order
+   * of magnitude above sea freight (road/rail/short pipeline vs deep-sea
+   * bulk): ammonia road haulage runs ~$0.10-0.15/t·km. Using the sea rate for
+   * an ~80 km inland leg understated it ~8× (it priced a 116 km leg at
+   * $1.81/t, i.e. 0.14% of production cost).
+   */
+  inlandUsdPerTonneKm: number;
   verified: false;
   sourceNote: string;
 }
 
-const NOTE =
-  "Planning-level benchmark (unverified). Scale reference 500 kt/yr, exponent 0.6 (six-tenths rule; applies to SYNTHESIS PLANT CAPITAL only - electrolysers/renewables are ~linear in capacity and already carried by the LCOH engine). Planning-level, unverified."
-  + "  — see ref/synthesis.ts header; replace via SynthesisConfig or a future reference bundle.";
+/**
+ * NEOM anchor (2026-08-02 realism pass). The former 500 kt/yr reference scale
+ * was unanchored to any real project; these values are now tied to the
+ * largest green-ammonia project to reach FID.
+ *
+ * NEOM Green Hydrogen Company (FID May 2023; Air Products / ACWA Power / NEOM):
+ * USD 8.4bn total, 1.2 Mt NH3/yr, ~219 kt H2/yr, 2.2 GW electrolysis,
+ * ~3.8 GW dedicated renewables (2.2 GW solar + 1.6 GW wind) → $7,000/tpa
+ * all-in at world scale, excellent resource, low cost of capital.
+ *
+ * DECOMPOSITION — the corridor prices the electrolyser island and the
+ * renewables SEPARATELY (LCOH engine), so the synthesis benchmark must cover
+ * only the rest: HB loop, ASU, storage, site and jetty. Subtracting at
+ * NEOM's own 2023 procurement:
+ *
+ *   total                                    $8.40bn   ($7,000/tpa)
+ *   − renewables  2.2 GWp solar @ $800/kWp   $1.76bn
+ *                 1.6 GW wind  @ $1,200/kW   $1.92bn
+ *   − electrolysis 2.2 GW @ $1,200-1,500/kW  $2.64-3.30bn
+ *   = synthesis/ASU/storage/site/jetty       $1.42-2.08bn
+ *                                          → $1,183-1,733/tpa
+ *
+ * We adopt **$1,400/tpa at 1.2 Mt/yr** (mid-band). Two findings are STATED,
+ * not tuned away:
+ *  1. Subtracting the electrolyser island at the corridor's OWN 2024 basis
+ *     ($2,300/kW, IEA GHR 2025) leaves a NEGATIVE residual (−$0.34bn). NEOM's
+ *     $8.4bn cannot simultaneously contain 2.2 GW at 2024 ex-China prices and
+ *     a synthesis complex. NEOM procured earlier and at scale; the gap is a
+ *     real vintage/scale/supply-route difference, not an arithmetic error.
+ *     Do not reconcile it by lowering the electrolyser basis — that number is
+ *     independently sourced for a 2024 corridor-scale project.
+ *  2. A corridor plant (~60 kt/yr) is ~20× below this reference scale. The
+ *     six-tenths rule is being extrapolated well past its comfortable range;
+ *     `synthesizePlant` flags any extrapolation beyond 5×.
+ */
+const SCALE_NOTE =
+  "Scale reference 1.2 Mt/yr (NEOM), exponent 0.6 (six-tenths rule; applies to SYNTHESIS PLANT CAPITAL only - electrolysers/renewables are ~linear in capacity and already carried by the LCOH engine).";
+
+const NEOM_NOTE =
+  "Anchored to NEOM Green Hydrogen (FID May 2023, $8.4bn / 1.2 Mt NH3/yr), net of the electrolyser island and dedicated renewables which the LCOH engine prices separately - see the decomposition in ref/synthesis.ts. Unverified planning benchmark; replace via SynthesisConfig or a future reference bundle. "
+  + SCALE_NOTE;
 
 export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
   {
@@ -59,14 +105,15 @@ export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
     tH2PerTonne: 0.178,
     co2TPerTonne: 0,
     electricityMwhPerTonne: 0.35, // ASU + synthesis loop
-    plantCapexUsdPerTpa: 1200,
-    referenceScaleTonnesPerYear: 500_000,
+    plantCapexUsdPerTpa: 1400,
+    referenceScaleTonnesPerYear: 1_200_000,
     scaleExponent: 0.6,
     plantOpexFracPerYear: 0.03,
     plantLifeYears: 25,
     shippingUsdPerTonneKm: 0.012,
+    inlandUsdPerTonneKm: 0.12,
     verified: false,
-    sourceNote: NOTE,
+    sourceNote: NEOM_NOTE,
   },
   {
     carrierId: "e-methanol",
@@ -79,8 +126,11 @@ export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
     plantOpexFracPerYear: 0.03,
     plantLifeYears: 25,
     shippingUsdPerTonneKm: 0.01,
+    inlandUsdPerTonneKm: 0.12,
     verified: false,
-    sourceNote: NOTE,
+    sourceNote:
+      "Planning-level MeOH-synthesis magnitude (unverified) - NOT yet anchored to a named project, unlike e-ammonia. "
+      + SCALE_NOTE,
   },
   {
     carrierId: "lh2",
@@ -93,8 +143,11 @@ export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
     plantOpexFracPerYear: 0.04,
     plantLifeYears: 25,
     shippingUsdPerTonneKm: 0.05,
+    inlandUsdPerTonneKm: 0.20, // cryogenic road/pipe haulage carries a premium
     verified: false,
-    sourceNote: NOTE,
+    sourceNote:
+      "Planning-level liquefier magnitude (unverified) - NOT yet anchored to a named project, unlike e-ammonia. "
+      + SCALE_NOTE,
   },
 ];
 

@@ -63,6 +63,13 @@ export function synthesisScaleFactor(
   );
 }
 
+/**
+ * Beyond this factor from the benchmark's reference scale, the six-tenths
+ * rule is being stretched past its comfortable range and the lineage must
+ * say so. A ~60 kt/yr corridor plant against NEOM's 1.2 Mt/yr is ~20×.
+ */
+export const SCALE_EXTRAPOLATION_LIMIT = 5;
+
 export interface SynthesisPlantResult {
   /** Year-0 plant capital at the given nameplate, USD (scale-corrected). */
   capitalUsd: number;
@@ -71,6 +78,13 @@ export interface SynthesisPlantResult {
   /** CRF-based display figure at the production WACC (NOT a corridor input). */
   perTonne: number;
   scaleFactor: number;
+  /**
+   * How far the nameplate sits from the benchmark's reference scale (always
+   * >= 1; 20 means the reference is 20x larger than this plant).
+   */
+  scaleExtrapolationFactor: number;
+  /** True when the extrapolation exceeds SCALE_EXTRAPOLATION_LIMIT. */
+  scaleExtrapolated: boolean;
   breakdown: {
     plantCapitalUsd: number;
     fixedOmUsdPerYear: number;
@@ -109,11 +123,15 @@ export function synthesizePlant(
     (capitalUsd * capitalRecoveryFactor(config.productionWacc, benchmark.plantLifeYears) +
       annualOperatingUsd) /
     config.nameplateTonnesPerYear;
+  const ratio = config.nameplateTonnesPerYear / benchmark.referenceScaleTonnesPerYear;
+  const scaleExtrapolationFactor = ratio > 0 ? Math.max(ratio, 1 / ratio) : Infinity;
   return {
     capitalUsd,
     annualOperatingUsd,
     perTonne,
     scaleFactor,
+    scaleExtrapolationFactor,
+    scaleExtrapolated: scaleExtrapolationFactor > SCALE_EXTRAPOLATION_LIMIT,
     breakdown: {
       plantCapitalUsd: capitalUsd,
       fixedOmUsdPerYear,

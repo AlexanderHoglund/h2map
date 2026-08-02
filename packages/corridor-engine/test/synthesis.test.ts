@@ -99,6 +99,29 @@ describe("logistics", () => {
   });
 });
 
+describe("inland logistics rate (realism pass)", () => {
+  const nh3 = getSynthesisBenchmark("e-ammonia");
+
+  it("prices the plant→port leg an order of magnitude above sea freight", () => {
+    // The leg is road/rail/short pipeline, not deep-sea bulk. Using the sea
+    // rate understated a ~116 km María Elena→Mejillones leg ~8x.
+    expect(nh3.inlandUsdPerTonneKm).toBeGreaterThanOrEqual(0.1);
+    expect(nh3.inlandUsdPerTonneKm).toBeLessThanOrEqual(0.15);
+    expect(nh3.inlandUsdPerTonneKm / nh3.shippingUsdPerTonneKm).toBeGreaterThan(5);
+  });
+
+  it("moves the María Elena leg from ~$0.10m/yr to a material figure", () => {
+    const site = { lat: -22.35, lon: -69.66 };
+    const mejillones = { lat: -23.1, lon: -70.45 };
+    const tonnes = 57_000;
+    const sea = logisticsLeg(site, mejillones, nh3.shippingUsdPerTonneKm, tonnes);
+    const inland = logisticsLeg(site, mejillones, nh3.inlandUsdPerTonneKm, tonnes);
+    expect(sea.annualOperatingUsd).toBeLessThan(0.15e6);
+    expect(inland.annualOperatingUsd).toBeGreaterThan(0.8e6);
+    expect(inland.distanceKm).toBeCloseTo(sea.distanceKm, 12);
+  });
+});
+
 describe("synthesizePlant — scale sensitivity (spec §3)", () => {
   const nh3 = getSynthesisBenchmark("e-ammonia");
   const config = {
@@ -108,8 +131,25 @@ describe("synthesizePlant — scale sensitivity (spec §3)", () => {
     nameplateTonnesPerYear: 60_000,
   };
 
-  it("scale factor at 60 kt vs the 500 kt reference is 2.34 ± 0.01", () => {
-    expect(synthesisScaleFactor(nh3, 60_000)).toBeCloseTo(2.34, 2);
+  it("scale factor at 60 kt vs the 1.2 Mt NEOM reference is 3.31 ± 0.01", () => {
+    // Re-anchored 2026-08-02: the reference scale moved 500 kt -> 1.2 Mt/yr
+    // (NEOM), so a 60 kt/yr corridor plant now carries 3.31x the specific
+    // capital rather than 2.34x.
+    expect(synthesisScaleFactor(nh3, 60_000)).toBeCloseTo(3.31, 2);
+  });
+
+  it("flags extrapolation beyond 5x from the reference scale", () => {
+    // 60 kt against a 1.2 Mt reference is 20x - the six-tenths rule is being
+    // stretched well past its comfortable range and the lineage must say so.
+    const small = synthesizePlant(nh3, config);
+    expect(small.scaleExtrapolationFactor).toBeCloseTo(20, 0);
+    expect(small.scaleExtrapolated).toBe(true);
+    const atRef = synthesizePlant(nh3, {
+      ...config,
+      nameplateTonnesPerYear: nh3.referenceScaleTonnesPerYear,
+    });
+    expect(atRef.scaleExtrapolationFactor).toBeCloseTo(1, 12);
+    expect(atRef.scaleExtrapolated).toBe(false);
   });
 
   it("at the reference scale with foak 1 the correction is inert (factor 1)", () => {
