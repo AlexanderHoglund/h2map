@@ -910,17 +910,13 @@ export default function DocsPage() {
             and the slow drift from inflation and the FuelEU ladder.
           </li>
           <li>
-            <strong>Carbon intensity vs the rules</strong>{" "}— the fuel &amp;
-            energy story: each fuel&apos;s well-to-wake intensity (flat lines
-            — intensity is a property of the fuel) against the compliance
-            limits that FALL through the horizon: the FuelEU reduction line
-            and, when the reference bundle carries them, the IMO base and
-            direct ladders (dashed). Where a limit drops below a fuel&apos;s
-            line, that fuel pays from that year on — the caption names the
-            crossing years and states which schemes are actually enabled in
-            the scenario. The limit lines are drawn from the pinned reference
-            bundle even when a scheme is off, so the chart shows what
-            WOULD bite.
+            <strong>Emissions &amp; abatement</strong>{" "}— the premium per
+            tonne of CO2 avoided on each emissions basis, BEFORE and AFTER
+            the regulation modules (grouped bars), against the active
+            scheme&apos;s carbon price as a dashed reference line: how far
+            above (or below) the market price of carbon this corridor&apos;s
+            abatement sits, and how much of that distance regulation already
+            closes.
           </li>
           <li>
             <strong>Abatement cost vs carbon price</strong>{" "}— the premium per

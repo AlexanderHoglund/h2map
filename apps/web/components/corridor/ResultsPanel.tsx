@@ -9,6 +9,7 @@ import {
   Cell,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -19,7 +20,6 @@ import type {
   ScenarioInput,
   ScenarioResult,
 } from "@h2map/corridor-schema";
-import { stepValue } from "@h2map/corridor-engine";
 import { DEFAULT_BUNDLE } from "./state";
 
 /**
@@ -128,107 +128,19 @@ export default function ResultsPanel({
     };
   }, [perYear, result]);
 
-  // Carbon intensity vs the rules (the fuel & energy story): the two fuels'
-  // WTW intensities (flat — a fuel's intensity is a property, not a
-  // trajectory) against the FuelEU reduction line and, when the bundle
-  // carries the IMO rows, the IMO base/direct ladders. The limits FALL
-  // through the horizon; where a limit drops below a fuel's line, that fuel
-  // pays from that year on. Drawn from the pinned bundle regardless of
-  // whether the schemes are enabled — the caption states enablement.
-  const intensity = useMemo(() => {
-    if (!result || !resolved) return null;
-    const { startYear, horizonYears } = scenario.cargo;
-    // The bundle's zod-parsed steps are plain numbers; the engine's
-    // ScheduleStep carries branded fields of the SAME runtime shape. Assert
-    // at this display-only boundary instead of pulling @h2map/units in.
-    const asSchedule = (s: readonly { fromCalendarYear: number; value: number }[]) =>
-      s as unknown as Parameters<typeof stepValue>[0];
-    const asCal = (y: number) => y as Parameters<typeof stepValue>[1];
-    const fe = DEFAULT_BUNDLE.regulationDefaults.fuelEu;
-    const feTargets = asSchedule(DEFAULT_BUNDLE.schedules.fuelEuTargets);
-    // IMO lines need BOTH the pricing defaults and the reduction ladders —
-    // an older bundle may lack either (the "not parameterised" case).
-    const imoDefaults = DEFAULT_BUNDLE.regulationDefaults.imoNetZero;
-    const imoBaseTargets = DEFAULT_BUNDLE.schedules.imoBaseTargets;
-    const imoDirectTargets = DEFAULT_BUNDLE.schedules.imoDirectTargets;
-    const imo =
-      imoDefaults && imoBaseTargets && imoDirectTargets
-        ? {
-            ...imoDefaults,
-            baseTargets: asSchedule(imoBaseTargets),
-            directTargets: asSchedule(imoDirectTargets),
-          }
-        : null;
-    const greenWtw = resolved.green.wtw.value;
-    const fossilWtw = resolved.fossil.wtw.value;
-    const rows = Array.from({ length: horizonYears }, (_, i) => {
-      const cal = startYear + i;
-      const fuelEuLimit = fe.baselineGco2PerMj * (1 - stepValue(feTargets, asCal(cal)));
-      const imoActive = imo !== null && cal >= imo.effectiveFromCalendarYear;
-      return {
-        year: cal,
-        greenWtw: round2(greenWtw),
-        fossilWtw: round2(fossilWtw),
-        fuelEuLimit: round2(fuelEuLimit),
-        imoBase:
-          imoActive && imo
-            ? round2(
-                imo.referenceIntensityGco2PerMj * (1 - stepValue(imo.baseTargets, asCal(cal))),
-              )
-            : null,
-        imoDirect:
-          imoActive && imo
-            ? round2(
-                imo.referenceIntensityGco2PerMj * (1 - stepValue(imo.directTargets, asCal(cal))),
-              )
-            : null,
-      };
-    });
-    // First calendar year each limit sits below the fossil fuel's intensity —
-    // the year the fossil side starts paying that scheme.
-    const crossFuelEu = rows.find((r) => r.fuelEuLimit < fossilWtw)?.year ?? null;
-    const crossImoBase =
-      rows.find((r) => r.imoBase !== null && r.imoBase < fossilWtw)?.year ?? null;
-    const yMax = Math.max(
-      greenWtw,
-      fossilWtw,
-      ...rows.map((r) => r.fuelEuLimit),
-      imo?.referenceIntensityGco2PerMj ?? 0,
-    );
-    return {
-      rows,
-      hasImo: imo !== null,
-      greenWtw,
-      fossilWtw,
-      crossFuelEu,
-      crossImoBase,
-      yMax: Math.ceil(yMax / 10) * 10,
-      fuelEuOn: scenario.regulation.fuelEu.enabled,
-      imoOn: scenario.regulation.imoNetZero?.enabled === true,
-    };
-  }, [result, resolved, scenario.cargo, scenario.regulation]);
 
   // Dev-mode guard (spec §4): check EVERY series a chart plots, not just the
   // first. A series whose range is set by one outlier must be rendered
   // separated (by nature / series / axis) or dropped.
   //  - annual-cost: the axis-setting summed series is rendered separated
   //    (stacked by cost nature) → separated: true, never fires.
-  //  - intensity: flat fuel lines and smoothly-falling limits — no outliers;
-  //    each plotted series is checked on its own.
+  //  - emissions/abatement: pre/post $-per-tonne per basis — same order of
+  //    magnitude by construction; checked where the data is built below.
   warnIfDominated(
     "annual-cost",
     perYear.flatMap((r) => [r.green, r.fossil]),
     { separated: true },
   );
-  if (intensity) {
-    for (const key of ["greenWtw", "fossilWtw", "fuelEuLimit", "imoBase", "imoDirect"] as const) {
-      warnIfDominated(
-        `intensity:${key}`,
-        intensity.rows.map((r) => r[key]).filter((v): v is number => v !== null),
-        { separated: false },
-      );
-    }
-  }
 
   if (error || !result) {
     return (
@@ -355,6 +267,22 @@ export default function ResultsPanel({
               note: t("abatementNoteImo"),
             }
           : null;
+  // Emissions & abatement diagram: the $-per-tonne premium on each emissions
+  // basis, BEFORE and AFTER the regulation modules, against the active
+  // scheme's carbon price as a reference line. Same-magnitude series by
+  // construction (pre vs post share the tonnes denominator).
+  const abatementDiagram = abatement.map((row) => ({
+    name: t(`basisLabel.${row.key}`),
+    pre: Math.round(((rep.gapPvPreRegulationUsdM * 1e6) / row.tonnes) * 100) / 100,
+    post: Math.round(((s.gapPvUsdM * 1e6) / row.tonnes) * 100) / 100,
+    active: row.active,
+  }));
+  warnIfDominated(
+    "abatement",
+    abatementDiagram.flatMap((r) => [r.pre, r.post]),
+    { separated: false },
+  );
+
   const portA = [scenario.cargo.portAName, fmtId(scenario.cargo.countryId)]
     .filter(Boolean)
     .join(", ");
@@ -586,92 +514,60 @@ export default function ResultsPanel({
         )}
       </section>
 
-      {/* ===== Carbon intensity vs the rules — the fuel & energy story =====
-          The fuels are flat lines (intensity is a property of the fuel); the
-          compliance limits FALL through the horizon. Where a limit drops
-          below a fuel's line, that fuel pays from that year on. */}
-      {intensity && (
-        <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-            <Eyebrow className="mb-0">
-              {t("intensity")}{" "}
-              <span className="font-normal normal-case tracking-normal text-neutral-500">
-                · {t("unitGco2Mj")}
-              </span>
-            </Eyebrow>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
-              <LegendLine color="var(--viz-series-green)" label={t("seriesGreenWtw")} />
-              <LegendLine color="var(--viz-total)" label={t("seriesFossilWtw")} />
-              <LegendLine color="var(--viz-series-1)" dash label={t("seriesFuelEuLimit")} />
-              {intensity.hasImo && (
-                <>
-                  <LegendLine color="var(--viz-delta-up)" dash label={t("seriesImoBase")} />
-                  <LegendLine color="var(--viz-delta-up)" dash="8 3" label={t("seriesImoDirect")} />
-                </>
+      {/* ===== Emissions & abatement — the premium per tonne avoided =====
+          Grouped bars per emissions basis, before and after the regulation
+          modules, against the active scheme's carbon price as a reference
+          line: how far above (or below) the market price of carbon this
+          corridor's abatement sits. */}
+      <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+          <Eyebrow className="mb-0">
+            {t("emissionsChart")}{" "}
+            <span className="font-normal normal-case tracking-normal text-neutral-500">
+              · {t("unitUsdPerTco2")}
+            </span>
+          </Eyebrow>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
+            <LegendSwatch color="var(--viz-ink-muted)" label={t("abatePre")} />
+            <LegendSwatch color="var(--color-brand)" label={t("abatePost")} />
+          </div>
+        </div>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={abatementDiagram} margin={{ top: 14, right: 14, bottom: 0, left: 0 }} barCategoryGap="28%">
+              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} tickMargin={4} />
+              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} allowDecimals={false} />
+              {refPrice !== null && (
+                <ReferenceLine
+                  y={refPrice.usdPerTonne}
+                  stroke="var(--viz-delta-up)"
+                  strokeDasharray="4 3"
+                  label={{
+                    value: `${refPrice.label} $${Math.round(refPrice.usdPerTonne)}`,
+                    position: "insideTopRight",
+                    fontSize: 10,
+                    fill: "var(--viz-delta-up)",
+                  }}
+                />
               )}
-            </div>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={intensity.rows} margin={{ top: 8, right: 14, bottom: 0, left: 0 }}>
-                <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} tickMargin={4} />
-                <YAxis
-                  domain={[0, intensity.yMax]}
-                  tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }}
-                  stroke="var(--viz-baseline)"
-                  width={36}
-                  allowDecimals={false}
-                />
-                <Tooltip
-                  formatter={(v, name) => [
-                    typeof v === "number" ? `${v.toLocaleString("en-US")} ${t("unitGco2Mj")}` : String(v),
-                    INTENSITY_NAMES[name as string] ? t(INTENSITY_NAMES[name as string]!) : String(name),
-                  ]}
-                  labelStyle={{ fontSize: 11 }}
-                  contentStyle={{ fontSize: 11 }}
-                />
-                <Line type="monotone" dataKey="greenWtw" stroke="var(--viz-series-green)" dot={false} strokeWidth={2} isAnimationActive={false} />
-                <Line type="monotone" dataKey="fossilWtw" stroke="var(--viz-total)" dot={false} strokeWidth={2} isAnimationActive={false} />
-                <Line type="stepAfter" dataKey="fuelEuLimit" stroke="var(--viz-series-1)" strokeDasharray="4 3" dot={false} strokeWidth={1.5} isAnimationActive={false} />
-                {intensity.hasImo && (
-                  <>
-                    <Line type="stepAfter" dataKey="imoBase" stroke="var(--viz-delta-up)" strokeDasharray="2 3" dot={false} strokeWidth={1.5} isAnimationActive={false} connectNulls={false} />
-                    <Line type="stepAfter" dataKey="imoDirect" stroke="var(--viz-delta-up)" strokeDasharray="8 3" dot={false} strokeWidth={1.5} isAnimationActive={false} connectNulls={false} />
-                  </>
-                )}
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="mt-1 text-[11px] leading-snug text-neutral-500">
-            {intensity.crossFuelEu !== null || intensity.crossImoBase !== null
-              ? t("intensityNote", {
-                  fossilWtw: intensity.fossilWtw.toLocaleString("en-US"),
-                  crossings: [
-                    ...(intensity.crossFuelEu !== null
-                      ? [t("intensityCrossFuelEu", { year: intensity.crossFuelEu })]
-                      : []),
-                    ...(intensity.crossImoBase !== null
-                      ? [t("intensityCrossImo", { year: intensity.crossImoBase })]
-                      : []),
-                  ].join(t("intensityCrossJoin")),
-                  greenWtw: intensity.greenWtw.toLocaleString("en-US"),
-                })
-              : t("intensityNoteNoCross", {
-                  fossilWtw: intensity.fossilWtw.toLocaleString("en-US"),
-                  greenWtw: intensity.greenWtw.toLocaleString("en-US"),
-                })}{" "}
-            {intensity.fuelEuOn || intensity.imoOn
-              ? t("intensityEnabled", {
-                  schemes: [
-                    ...(intensity.fuelEuOn ? [t("regFuelEu")] : []),
-                    ...(intensity.imoOn ? [t("regImo")] : []),
-                  ].join(", "),
-                })
-              : t("intensityDisabled")}
-          </p>
-        </section>
-      )}
+              <Tooltip
+                formatter={(v, name) => [
+                  typeof v === "number" ? `$${v.toLocaleString("en-US")}/t` : String(v),
+                  name === "pre" ? t("abatePre") : t("abatePost"),
+                ]}
+                labelStyle={{ fontSize: 11 }}
+                contentStyle={{ fontSize: 11 }}
+              />
+              <Bar dataKey="pre" fill="var(--viz-ink-muted)" isAnimationActive={false} maxBarSize={48} />
+              <Bar dataKey="post" fill="var(--color-brand)" isAnimationActive={false} maxBarSize={48} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+          {refPrice ? refPrice.note : t("abatementNoteNone")}
+        </p>
+      </section>
 
       {/* ===== Results by tab: one section per input step, equal frames ===== */}
       {resolved && (
@@ -821,22 +717,6 @@ export default function ResultsPanel({
                 />
               ))}
             </dl>
-            <p className="mt-2 border-t border-neutral-100 pt-2 text-[11px] leading-snug text-neutral-600">
-              {refPrice ? (
-                <>
-                  <span className="font-medium text-neutral-800">
-                    {t("carbonPriceRef")}:{" "}
-                    <span className="tabular-nums">
-                      {refPrice.label} ${Math.round(refPrice.usdPerTonne)}
-                    </span>
-                  </span>
-                  <br />
-                  {refPrice.note}
-                </>
-              ) : (
-                t("abatementNoteNone")
-              )}
-            </p>
             {imo && imo.green.surplusTonnesCo2e > 0 && (
               <p className="mt-2 text-[11px] leading-snug text-neutral-500">
                 {t("imoSurplus")}:{" "}
@@ -939,39 +819,6 @@ function LegendSwatch({ color, label }: { color: string; label: string }) {
   );
 }
 
-/**
- * Line-sample legend entry for line charts: solid or dashed to mirror the
- * series' stroke, so dash pattern (not colour alone) identifies the series.
- */
-function LegendLine({
-  color,
-  label,
-  dash,
-}: {
-  color: string;
-  label: string;
-  /** true → default dash; a string → that SVG dash pattern. */
-  dash?: boolean | string;
-}) {
-  const dashArray = dash === true ? "4 3" : dash || undefined;
-  return (
-    <span className="flex items-center gap-1">
-      <svg aria-hidden width="18" height="6" className="shrink-0">
-        <line
-          x1="0"
-          y1="3"
-          x2="18"
-          y2="3"
-          stroke={color}
-          strokeWidth="2"
-          strokeDasharray={dashArray}
-        />
-      </svg>
-      {label}
-    </span>
-  );
-}
-
 function Eyebrow({
   children,
   className = "mb-2",
@@ -1015,15 +862,6 @@ const NATURE_NAMES: Record<string, string> = {
   fCapex: "natureCapex",
   fOpex: "natureOperating",
   fReg: "natureRegulation",
-};
-
-/** Intensity-chart dataKey → series label message key (for the tooltip). */
-const INTENSITY_NAMES: Record<string, string> = {
-  greenWtw: "seriesGreenWtw",
-  fossilWtw: "seriesFossilWtw",
-  fuelEuLimit: "seriesFuelEuLimit",
-  imoBase: "seriesImoBase",
-  imoDirect: "seriesImoDirect",
 };
 
 /**
