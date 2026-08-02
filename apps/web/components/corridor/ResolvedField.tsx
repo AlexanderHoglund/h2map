@@ -7,15 +7,15 @@ import { Help } from "@/components/ui/Help";
 
 /**
  * THE input component (build-plan 3.2): one component for every corridor
- * input, the direct implementation of `Resolved<T>` and of the workbook's
+ * input, the direct implementation of `Resolved<T>` and of the reference
  * blue-input/black-formula convention:
  *
  * - value + unit label (from the branded type's unit, passed as a string)
  * - source badge: override / derived / benchmark
  * - the benchmark stays visible while overridden ("benchmark: 900 — restore")
- * - unverified benchmarks carry an explicit badge (the workbook's country-
+ * - unverified benchmarks carry an explicit badge (the country-
  *   WACC footnote becomes UI, not a footnote)
- * - overridden values render blue (the workbook's "blue = your input")
+ * - overridden values render blue ("blue = your input")
  */
 export default function ResolvedField({
   label,

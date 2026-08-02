@@ -37,7 +37,7 @@
       "wacc": "Discount rate (WACC)",
       "waccHelp": "Benchmarked by country — override with a project-specific cost of capital. The country table is illustrative, not a verified source.",
       "inflation": "Inflation rate",
-      "countryHelp": "The corridor's anchor country — port A's country — selects the financing (WACC) benchmark. Denmark, Netherlands, India, Brazil, Singapore and the United States carry workbook benchmarks; every other country uses the generic benchmark. Ports and the second country are descriptive.",
+      "countryHelp": "The corridor's anchor country — port A's country — selects the financing (WACC) benchmark. Denmark, Netherlands, India, Brazil, Singapore and the United States carry their own reference benchmarks; every other country uses the generic benchmark. Ports and the second country are descriptive.",
       "portA": "Port A",
       "portB": "Port B",
       "countryA": "Country (port A)",
@@ -84,7 +84,7 @@
       "prodOpex": "Fuel production O&M, excl. fuel purchase",
       "prodZeroNote": "Forced to 0 under this sourcing — production cost lives inside the fuel price.",
       "sourcingBuildPlant": "Build a dedicated plant",
-      "legacyPriceNote": "Legacy Excel accounting: this merchant price is charged ON TOP of the production CAPEX/O&M below."
+      "legacyPriceNote": "Legacy accounting: this merchant price is charged ON TOP of the production CAPEX/O&M below."
     },
     "port": {
       "green": "Green port",
@@ -117,12 +117,12 @@
       "capexSupport": "CAPEX support (of green CAPEX)",
       "opexSupport": "OPEX support (of green OPEX)",
       "other": "Other support (green corridor)",
-      "flags": "Model options (divergences from the workbook)",
+      "flags": "Model options",
       "emissionsBasis": "Emissions basis for CO2 abated",
-      "basisCombustion": "Combustion (tank-to-wake) — workbook",
+      "basisCombustion": "Combustion (tank-to-wake)",
       "basisWtw": "Well-to-wake",
       "rateBasis": "Rate basis",
-      "rateNominal": "Nominal (workbook)",
+      "rateNominal": "Nominal",
       "rateReal": "Real (deflate inflation growth)",
       "escalation": "Annual price escalation",
       "escalationHelp": "0 = flat nominal price — at 2% inflation that is a falling real price. Set equal to inflation to hold the real carbon price constant; the IMO framework’s remedial prices escalate by construction.",
@@ -279,7 +279,7 @@
       "importFailed": "Not a valid scenario file",
       "draftNote": "Draft autosaves locally"
     },
-    "legacyBanner": "Legacy Excel accounting loaded: this scenario charges the merchant fuel price AND production CAPEX/O&M — production cost is counted twice. Preserved verbatim for workbook comparison; new scenarios cannot select this mode.",
+    "legacyBanner": "Legacy accounting loaded: this scenario charges the merchant fuel price AND production CAPEX/O&M — production cost is counted twice. Preserved verbatim for comparison with the original source; new scenarios cannot select this mode.",
     "legacyBannerDismiss": "Dismiss"
   }
 }

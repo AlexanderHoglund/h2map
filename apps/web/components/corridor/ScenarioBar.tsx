@@ -8,7 +8,7 @@ import type { CorridorModel } from "./state";
 /**
  * Scenario bar — local-only, no accounts. The draft autosaves to
  * localStorage; here you can name it, export it as JSON, import a
- * previously exported file, or reset to the workbook defaults.
+ * previously exported file, or reset to the reference defaults.
  *
  * (Account save / share links / scenario diff were removed with the
  * sign-in UI — the Phase-2 API routes remain server-side for when auth

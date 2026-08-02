@@ -13,7 +13,7 @@ import { CORRIDOR_COUNTRIES } from "@/lib/corridor-countries";
 import { isAdvanced, type CorridorModel } from "./state";
 
 /**
- * The five wizard steps, mirroring the workbook's input tabs (build-plan 3.1).
+ * The five wizard steps of the corridor model (build-plan 3.1).
  * Every benchmarkable input renders through ResolvedField; field prominence
  * (top-level vs the Advanced fold) comes from the sensitivity-derived
  * ui-manifest (build-plan 3.2) — the interface tracks the model.

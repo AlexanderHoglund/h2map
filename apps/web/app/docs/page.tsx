@@ -108,7 +108,7 @@ const TOC_METHOD: [string, string][] = [
  * required, sensitivity rank, max headline movement, UI placement.
  */
 const ALL_INPUTS: [string, string, string, string, string, string][] = [
-  ["schemaVersion", "= 3", "yes", "—", "—", "—"],
+  ["schemaVersion", "= 5", "yes", "—", "—", "—"],
   ["refBundleId", "string", "yes", "—", "—", "—"],
   ["cargo.countryId", "string", "yes", "—", "—", "—"],
   ["cargo.routeType", '"point-to-point" | "single-point"', "yes", "—", "—", "—"],
@@ -217,10 +217,10 @@ export default function DocsPage() {
           corridor as the <strong>net-present-value cost gap</strong>{" "}between
           running the corridor on a green fuel versus a fossil fuel, with EU
           ETS, FuelEU Maritime, IRA&nbsp;45Z and self-designed regulation
-          layered on top. The engine is a faithful re-implementation of the{" "}
-          <em>Green Corridor Model Simplified</em>{" "}workbook, pinned to its
-          numbers at 10 significant digits by a frozen test fixture. The
-          app&apos;s DEFAULT scenario is a real published case: the{" "}
+          layered on top. The engine is pinned to a frozen reference case at 10
+          significant digits, so a change that moves a number is always
+          deliberate. The app&apos;s DEFAULT scenario is a real published
+          case: the{" "}
           <strong>Chilean copper-concentrate green corridor</strong>{" "}
           (MMMCZCS, Sep 2025 — Sumitomo, Interacid, NYK, Codelco, MMMCZCS):
           Mejillones → Japan, 25 Mt of concentrate over 15 years on ten
@@ -288,9 +288,8 @@ export default function DocsPage() {
         </p>
         <H3>Benchmarks, overrides and the source badges</H3>
         <p className="mt-2">
-          Every numeric input follows the workbook&apos;s resolution
-          convention: <em>value used = your override if given, else the
-          benchmark</em>. The interface shows where each number comes from with
+          Every numeric input follows one resolution convention:{" "}
+          <em>value used = your override if given, else the benchmark</em>. The interface shows where each number comes from with
           a badge on the field:
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
@@ -309,7 +308,7 @@ export default function DocsPage() {
             can always get back.
           </li>
           <li>
-            <strong>unverified benchmark</strong>{" "}— the workbook itself flags
+            <strong>unverified benchmark</strong>{" "}— the reference data flags
             the value as illustrative, not sourced (all country WACCs carry
             this).
           </li>
@@ -334,7 +333,7 @@ export default function DocsPage() {
             Files carry a schema version; older files are migrated on load.
           </li>
           <li>
-            <strong>Reset</strong>{" "}— returns every field to the workbook
+            <strong>Reset</strong>{" "}— returns every field to the reference
             defaults (with confirmation).
           </li>
           <li>
@@ -369,7 +368,7 @@ export default function DocsPage() {
               "Country (port A)",
               "—",
               "Chile (default)",
-              "THE anchor input: selects the financing (WACC) benchmark. Denmark, Netherlands, India, Brazil, Singapore and the United States carry workbook benchmarks (5.5–11.5%); any other country uses the generic 8% benchmark. All are flagged unverified.",
+              "THE anchor input: selects the financing (WACC) benchmark. Denmark, Netherlands, India, Brazil, Singapore and the United States carry their own reference benchmarks (5.5–11.5%); any other country uses the generic 8% benchmark. All are flagged unverified.",
             ],
             [
               "Country (port B)",
@@ -411,7 +410,7 @@ export default function DocsPage() {
               "Annual cargo throughput",
               "units/yr",
               "1,650,000 (default)",
-              "Only feeds the per-unit figures and lifetime cargo — it is NOT linked to fuel burn or vessel counts (the workbook keeps them independent; so does the model). Advanced fold.",
+              "Only feeds the per-unit figures and lifetime cargo — it is NOT linked to fuel burn or vessel counts; the model keeps them independent. Advanced fold.",
             ],
             [
               "Discount rate (WACC)",
@@ -434,7 +433,7 @@ export default function DocsPage() {
           The ships that serve the corridor. One vessel type is shared by
           both sides. <strong>The CAPEX/OPEX cells are FLEET totals</strong>{" "}
           — the vessel count multiplies fuel burn and regulation only, never
-          these cells (the workbook&apos;s semantics; the field labels say
+          these cells (the field labels say
           &ldquo;Fleet&rdquo;). The default scenario costs both fleets as
           newbuilds: green 10 × $44m = $440m, fossil 10 × $35m = $350m.
         </p>
@@ -480,7 +479,7 @@ export default function DocsPage() {
               "Fossil vessel CAPEX",
               "$m",
               "benchmark 0 · default 350",
-              "The workbook's benchmark encodes 'existing baseline fleet' (zero). The Chilean default OVERRIDES it: the study costs a fossil newbuild fleet too.",
+              "The reference benchmark encodes 'existing baseline fleet' (zero). The Chilean default OVERRIDES it: the study costs a fossil newbuild fleet too.",
             ],
             [
               "Fossil vessel OPEX",
@@ -507,7 +506,7 @@ export default function DocsPage() {
             arithmetic, so both live here (schema v4 removed the separate
             &ldquo;named plant&rdquo; mode that only differed in labeling).
             Production CAPEX and O&amp;M are forced to zero — an override
-            cannot resurrect them, exactly as in the workbook.
+            cannot resurrect them.
           </li>
           <li>
             <strong>Build a dedicated plant</strong>{" "}— the corridor pays the
@@ -529,10 +528,10 @@ export default function DocsPage() {
         </ul>
         <p className="mt-2">
           Scenarios saved before v3 in the legacy Construct mode (merchant
-          price AND production CAPEX — the workbook&apos;s deliberate
-          double-count) migrate to build-plant; if the price row was live, a
-          dismissable banner flags the legacy double-count and the price row
-          stays visible for workbook comparability. Scenarios saved at v3
+          price AND production CAPEX — a deliberate double-count in the
+          original source) migrate to build-plant; if the price row was live,
+          a dismissable banner flags it and the price row stays visible for
+          comparison. Scenarios saved at v3
           with the named-plant mode migrate to purchase with the contract
           price carried over as a price override — identical numbers.
         </p>
@@ -558,16 +557,36 @@ export default function DocsPage() {
             apportioned away.
           </li>
           <li>
-            <strong>Synthesis scale correction</strong>{" "}— benchmark synthesis
-            CAPEX ($/tpa) is quoted at a 500 kt/yr world-scale reference; a
-            corridor-scale plant costs more per tonne:{" "}
-            <code>(nameplate / 500kt)^(0.6−1) × FOAK</code>. At 60 kt/yr this
-            is ×2.34 on synthesis capital. FOAK defaults to 1.
+            <strong>Synthesis scale correction</strong>{" "}— the synthesis
+            benchmark is anchored to NEOM Green Hydrogen ($8.4bn / 1.2 Mt
+            NH₃/yr, FID 2023), net of the electrolyser island and dedicated
+            renewables that the LCOH engine prices separately, giving
+            $1,400/tpa at 1.2 Mt/yr. A corridor-scale plant costs more per
+            tonne:{" "}
+            <code>(nameplate / 1.2Mt)^(0.6−1) × FOAK</code>. At 60 kt/yr that
+            is ×3.31 on synthesis capital. A ~60 kt plant sits ~20× below the
+            reference scale, so the six-tenths rule is being stretched well
+            past its comfortable range — anything beyond 5× is flagged in the
+            lineage.
+          </li>
+          <li>
+            <strong>Firm power</strong>{" "}— a solar site runs its electrolyser
+            around 30% of the year, but conventional Haber-Bosch has a 40–60%
+            minimum load and is not commercially flexible, so an ammonia plant
+            needs roughly 85% duty. Where the evaluated site falls short the
+            model does <em>not</em>{" "}silently produce the carrier: it prices
+            the cheapest way to close the gap — an H₂ buffer plus oversized
+            plant (capital), firm round-the-clock power (the step from
+            solar-shaped to firm, operating), or a grid top-up (operating,
+            and it carries the grid&apos;s CO₂ into the ledger). The chosen
+            strategy and its cost are always shown, and you can switch it.
           </li>
           <li>
             <strong>Logistics</strong>{" "}— great-circle plant→port distance
             (from the pinned Port A coordinates) × 1.3 route factor × the
-            carrier&apos;s $/t·km.
+            carrier&apos;s <em>inland</em>{" "}$/t·km. This first mile is road,
+            rail or short pipeline — about ten times the deep-sea freight rate,
+            which is a separate number.
           </li>
           <li>
             <strong>Rates</strong>{" "}— the corridor discounts the raw
@@ -575,6 +594,27 @@ export default function DocsPage() {
             engine&apos;s internal discount rate is shown for transparency
             (and warned about when it diverges) but never used. The $/t on
             the lineage chip is a display figure only.
+          </li>
+          <li>
+            <strong>Project type</strong>{" "}— one selector moves the
+            first-of-a-kind premium, the scale basis and the firming
+            requirement together, because they are not independent in reality.
+            A corridor defaults to{" "}
+            <strong>first-of-a-kind, dedicated</strong>{" "}(FOAK ×1.25): one
+            plant, one offtaker, no shared infrastructure — which is what a
+            green corridor is. <em>Nth-of-a-kind, merchant</em>{" "}(×1.0)
+            assumes a mature supply chain at world scale;{" "}
+            <em>match a published study</em>{" "}expects every value typed with
+            its own provenance.
+          </li>
+          <li>
+            <strong>A range, not a point</strong>{" "}— the headline carries its
+            uncertainty band, computed by varying the four sourced drivers
+            across their published ranges: electrolyser CAPEX
+            $2,000–2,600/kW, the firm-power step 1.6–2.2×, the scale exponent
+            0.6–0.7 and FOAK 1.0–1.4. The panel also names whichever driver
+            contributes most of the spread. This is a screening estimate and
+            the rendering says so.
           </li>
         </ul>
         <H3>Build-here acceptance: two Atacama sites (re-validated 2026-08-02)</H3>
@@ -707,7 +747,7 @@ export default function DocsPage() {
           Shore-side infrastructure per side: bunkering storage and the barge
           (or pipeline) that moves fuel to the ship. The fossil side assumes
           existing infrastructure: its CAPEX benchmarks are zero and its OPEX
-          benchmarks are 30% of the fuel-table values — the workbook&apos;s
+          benchmarks are 30% of the fuel-table values — the reference
           &ldquo;×0.3 existing-infrastructure&rdquo; rule, shown as DERIVED.
         </p>
         <Fields
@@ -794,7 +834,7 @@ export default function DocsPage() {
         </F>
         <p className="mt-2">
           A negative cost (income). Default rate $1/gal-equivalent, converted
-          through the fuel&apos;s energy content. The workbook has no sunset
+          through the fuel&apos;s energy content. The reference case has no sunset
           year; the model reproduces that, with an optional
           &ldquo;effective-until&rdquo; divergence flag for realistic
           expiry.
@@ -850,13 +890,13 @@ export default function DocsPage() {
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Emissions basis</strong>{" "}— what &ldquo;CO2 abated&rdquo;
-            (and $/tCO2) counts: combustion (tank-to-wake, the workbook&apos;s
+            (and $/tCO2) counts: combustion (tank-to-wake, the reference
             convention) or well-to-wake (lifecycle, the app&apos;s default for
             new scenarios). Both tonnages are always reported side by side in
             the results (§8).
           </li>
           <li>
-            <strong>Rate basis</strong>{" "}— nominal (workbook: inflation
+            <strong>Rate basis</strong>{" "}— nominal (inflation
             escalates costs, the nominal WACC discounts them) or real
             (deflates the OPEX escalation).
           </li>
@@ -1107,7 +1147,7 @@ export default function DocsPage() {
           storage/barge cost benchmarks (e.g. e-ammonia: 55 / 3 / 12 / 0.5 / 5
           / 0.3 $m-terms). Country WACC benchmarks: Denmark and Netherlands
           5.5%, Singapore 6%, United States 7%, generic/other 8%, India 9.5%,
-          Brazil 11.5% — all flagged <em>unverified</em>{" "}per the workbook.
+          Brazil 11.5% — all flagged <em>unverified</em>.
           Regulation defaults: EUA €80/t, EUR/USD 1.08, FuelEU penalty
           €2,400/t VLSFO-eq, VLSFO 41,000 MJ/t, baseline 91.16 gCO2e/MJ, 45Z
           $1/gal at 122.5 MJ/gal.
@@ -1165,23 +1205,25 @@ export default function DocsPage() {
         <H id="provenance">12. Provenance, versions &amp; limits</H>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>Source of truth</strong>{" "}— the{" "}
-            <em>Green Corridor Model Simplified</em>{" "}workbook (sha256
-            d3b219…38fbd), transcribed cell by cell. A frozen golden fixture
-            pins the engine to the workbook&apos;s cached values at 10⁻⁹
-            relative tolerance: gap $166.95m, green total $205.60m, fossil
-            $38.64m, $377/unit, all 20 years of every per-year line.
+            <strong>Regression pinning</strong>{" "}— a frozen golden fixture
+            pins the engine at 10⁻⁹ relative tolerance across every summary
+            figure and all 20 years of every per-year line (gap $166.95m,
+            green total $205.60m, fossil $38.64m, $377/unit). Any change that
+            moves a number fails the suite, so it has to be deliberate.
           </li>
           <li>
-            <strong>Deliberate quirks preserved</strong>{" "}— construct-mode
-            double counting; no 45Z sunset; cargo throughput not linked to
-            fuel burn; TTW as the workbook&apos;s abatement basis. Deviations
-            are opt-in flags with the workbook behavior as default.
+            <strong>Legacy behaviours preserved</strong>{" "}— the
+            construct-mode double count (migrated scenarios only, never
+            selectable), no 45Z sunset, and cargo throughput deliberately not
+            linked to fuel burn. Deviations from the original source are
+            opt-in flags whose defaults reproduce it.
           </li>
           <li>
             <strong>Schema versioning</strong>{" "}— scenarios carry a schema
-            version (currently 2); older exports are migrated on load through
-            an append-only migration registry.
+            version (currently 5); older exports are migrated on load through
+            an append-only migration registry. v3 restructured fuel sourcing,
+            v4 folded the named-plant mode into purchase, v5 added the project
+            archetype.
           </li>
           <li>
             <strong>Not modelled</strong>{" "}— port congestion, vessel routing,
@@ -1321,8 +1363,10 @@ export default function DocsPage() {
           cost components (each{" "}
           <code>{"{ derivedUsdM, overrideUsdM }"}</code>{" "}— H2 capital, H2
           operating, synthesis capital, synthesis operating, logistics
-          operating) and the sizing record (nameplate, margin, scale factor,
-          FOAK, surplus, distance).
+          operating), the firm-power resolution (evaluated vs required duty,
+          the chosen strategy and whether you picked it, its capital,
+          operating and imported-CO₂ cost) and the sizing record (nameplate,
+          margin, scale factor, project archetype, FOAK, surplus, distance).
           The canonical, always-current version of this table is generated
           into <code>docs/corridor/field-reference.md</code>{" "}
           in the repository — CI fails if it drifts from the schema.
@@ -1509,9 +1553,10 @@ export default function DocsPage() {
         <F>η_t = η₀ × (1 − d)^t , for operating years t = 1 … N</F>
         <p className="mt-2">
           The stack is replaced whenever cumulative operating hours (hours with
-          load &gt; 0) cross a multiple of its rated life (default 40 000 h);
-          each replacement is a capital event costing a fraction of electrolyzer
-          CAPEX (default 30%). A replacement falling in the final operating year
+          load &gt; 0) cross a multiple of its rated life (default 50 000 h —
+          IEA&apos;s economic optimum); each replacement is a capital event costing
+          a fraction of electrolyzer CAPEX (default 13%, which holds the event
+          at ~$300/kW). A replacement falling in the final operating year
           is skipped. In reference mode efficiency is not reset on replacement.
         </p>
 
@@ -1675,9 +1720,9 @@ export default function DocsPage() {
             <p className="font-medium">Reference defaults</p>
             <ul className="mt-1 list-disc space-y-1 pl-5 text-[13px]">
               <li>Lifetime 20 yr · discount rate 8%/yr</li>
-              <li>Electrolyzer 100 MW · 1000 USD/kW · 3% OPEX/yr</li>
+              <li>Electrolyzer 100 MW · 2300 USD/kW · 1.3% OPEX/yr</li>
               <li>Efficiency 60% LHV · degradation 1%/yr</li>
-              <li>Stack life 40 000 h · replacement 30% of CAPEX</li>
+              <li>Stack life 50 000 h · replacement 13% of CAPEX (~$300/kW)</li>
               <li>Renewables 30 USD/MWh (or 850 USD/kW + 1% OPEX)</li>
               <li>Water 0.50 USD/m³ + 0.09/m³ per 100 km</li>
             </ul>
@@ -1766,7 +1811,7 @@ export default function DocsPage() {
         </p>
         <p className="mt-2">
           <strong>Durability trajectory.</strong>{" "}Earlier packs cut CAPEX but
-          held stack life at 40 000 h and degradation at 1%/yr — incoherent,
+          held stack life flat and degradation at 1%/yr — incoherent,
           since durability is a primary learning-curve target, and it made the
           cost-down conservative. Stack life and degradation now improve
           alongside CAPEX (2024 unchanged). These durability figures are a{" "}
@@ -1812,8 +1857,19 @@ export default function DocsPage() {
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            Mean 4.30 vs 4.51 USD/kg (−0.21, −4.7%); Spearman ρ = 0.85; Kendall
-            τ_b = 0.66 with a bootstrap 95% CI of roughly [0.53, 0.78].
+            <strong>Rank fidelity: Spearman ρ = 0.85; Kendall τ_b = 0.66</strong>{" "}
+            with a bootstrap 95% CI of roughly [0.53, 0.78] — unchanged by the
+            2026-08-02 cost re-base, which moved the level without disturbing
+            the ordering.
+          </li>
+          <li>
+            <strong>⚠ The level is no longer like-for-like.</strong>{" "}The
+            published column is a <em>2022</em>{" "}cost basis; the engine now
+            runs on IEA&apos;s <em>2024</em>{" "}installed CAPEX ($2,300/kW).
+            Mean computed is 6.16 vs 4.51 published — that gap is a vintage
+            difference, not a bias estimate. Read this harness as a
+            screening-fidelity test until a same-vintage published dataset is
+            available.
           </li>
           <li>
             <strong>Precision@5 = @10 = 1.0</strong>{" "}and top-decile retention
@@ -1822,11 +1878,13 @@ export default function DocsPage() {
             distribution, not the top.
           </li>
           <li>
-            <strong>The −0.21 bias is structural, not geolocation.</strong>{" "}
+            <strong>The pre-re-base −0.21 bias was structural, not
+            geolocation.</strong>{" "}On the last same-vintage comparison
+            (2022 basis vs the 2022 column) the model ran 4.30 vs 4.51 USD/kg.
             Coordinate inference is symmetric noise (a sensitivity run perturbing
             inferred coordinates ±0.2° moves a site&apos;s LCOH in either
             direction, so it can&apos;t produce a one-directional offset); the
-            consistent gap traces to a baseline assumption differing from the
+            consistent gap traced to a baseline assumption differing from the
             study (efficiency, electrolyser CAPEX, discount rate, or oversizing
             ratio — see <code>npm run parity:sensitivity</code>). A baseline
             cause may not be uniform across geographies.
