@@ -253,7 +253,12 @@
       "firmingGrid": "Grid top-up",
       "firmingCheapest": "cheapest option",
       "firmingCost": "Adds ${capital}m capital and ${operating}m/yr",
-      "firmingEmissions": "{tco2} tCO2/yr from imported grid power"
+      "firmingEmissions": "{tco2} tCO2/yr from imported grid power",
+      "archetype": "Project type",
+      "archetypeFoak": "First-of-a-kind, dedicated",
+      "archetypeNoak": "Nth-of-a-kind, merchant scale",
+      "archetypeStudy": "Match a published study",
+      "archetypeFoakFactor": "FOAK ×{foak} on plant capital"
     },
     "scenarioBar": {
       "name": "Scenario name",

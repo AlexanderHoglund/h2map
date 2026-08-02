@@ -6,7 +6,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 
 | Field | Type | Required | Sensitivity rank | Headline movement | UI placement |
 |---|---|---|---|---|---|
-| `schemaVersion` | = 4 | yes | — | — | — |
+| `schemaVersion` | = 5 | yes | — | — | — |
 | `refBundleId` | string | yes | — | — | — |
 | `cargo.countryId` | string | yes | — | — | — |
 | `cargo.routeType` | "point-to-point", "single-point" | yes | — | — | — |

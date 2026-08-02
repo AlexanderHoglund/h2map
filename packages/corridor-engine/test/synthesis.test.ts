@@ -5,7 +5,10 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { getSynthesisBenchmark } from "@h2map/corridor-schema";
+import {
+  ARCHETYPE_FOAK_MULTIPLIER,
+  getSynthesisBenchmark,
+} from "@h2map/corridor-schema";
 import {
   capitalRecoveryFactor,
   deliveredUsdPerTonne,
@@ -96,6 +99,41 @@ describe("logistics", () => {
   it("zero distance costs nothing", () => {
     const p = { lat: 10, lon: 10 };
     expect(logisticsUsdPerTonne(p, p, { usdPerTonneKm: 0.05 })).toBe(0);
+  });
+});
+
+describe("project archetype (realism pass, Task 4)", () => {
+  const nh3 = getSynthesisBenchmark("e-ammonia");
+  const config = {
+    productionWacc: 0.08,
+    electricityUsdPerMwh: 60,
+    co2UsdPerTonne: 30,
+    nameplateTonnesPerYear: 59_850,
+  };
+
+  it("moves FOAK coherently: dedicated corridors cost 25% more than merchant", () => {
+    const foak = synthesizePlant(nh3, {
+      ...config,
+      foakMultiplier: ARCHETYPE_FOAK_MULTIPLIER["foak-dedicated"],
+    });
+    const noak = synthesizePlant(nh3, {
+      ...config,
+      foakMultiplier: ARCHETYPE_FOAK_MULTIPLIER["noak-merchant"],
+    });
+    expect(ARCHETYPE_FOAK_MULTIPLIER["foak-dedicated"]).toBe(1.25);
+    expect(ARCHETYPE_FOAK_MULTIPLIER["noak-merchant"]).toBe(1);
+    expect(foak.capitalUsd / noak.capitalUsd).toBeCloseTo(1.25, 12);
+    // Fixed O&M follows capital, so it moves too - that is the point of a
+    // coherent archetype rather than five independent knobs.
+    expect(foak.breakdown.fixedOmUsdPerYear / noak.breakdown.fixedOmUsdPerYear).toBeCloseTo(
+      1.25,
+      12,
+    );
+    // Feedstock/electricity are physical - they must NOT scale with FOAK.
+    expect(foak.breakdown.electricityUsdPerYear).toBeCloseTo(
+      noak.breakdown.electricityUsdPerYear,
+      12,
+    );
   });
 });
 

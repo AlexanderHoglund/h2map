@@ -14,7 +14,34 @@
  * live; v2 `build-here` (delivered-price basis) is REJECTED — the
  * calculation basis changed to capital+operating. See migrate.ts.
  */
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
+
+/**
+ * Project archetype (realism pass, Task 4) — ONE selector that moves FOAK,
+ * scale and firming coherently.
+ *
+ * Realism needs a first-of-a-kind premium, contingency, scale basis and
+ * firming to move TOGETHER. Exposing them individually produces five inputs
+ * a user cannot calibrate and will leave at defaults anyway; worse, the
+ * previous defaults sat at the optimistic end of EVERY parameter at once —
+ * each individually defensible, the compound not.
+ *
+ * - `foak-dedicated` (corridor default): one plant, one offtaker, no
+ *   synergies — what a green corridor actually is, and what the MMMCZCS
+ *   study costs. FOAK ×1.25, corridor-sized nameplate, firm power required.
+ * - `noak-merchant`: mature supply chain, shared infrastructure, world-scale
+ *   plant. FOAK ×1.0, PPA available.
+ * - `match-study`: reproduce a specific published source — every value typed,
+ *   provenance required per field.
+ */
+export type ProjectArchetype = "foak-dedicated" | "noak-merchant" | "match-study";
+
+/** The multipliers each archetype implies. Reference data, not user inputs. */
+export const ARCHETYPE_FOAK_MULTIPLIER: Record<ProjectArchetype, number> = {
+  "foak-dedicated": 1.25,
+  "noak-merchant": 1.0,
+  "match-study": 1.0,
+};
 
 export type RouteType = "point-to-point" | "single-point";
 export type ConsumptionMode = "distance" | "vessel-benchmark";
@@ -174,6 +201,12 @@ export interface BuildHereSite {
     nameplateTonnesPerYear: number;
     nameplateMargin: number;
     scaleFactor: number;
+    /**
+     * Project archetype driving foakMultiplier and the firming default.
+     * Optional: sites picked before v5 carry no archetype and are read as
+     * the historical `noak-merchant` behaviour (foak 1.0).
+     */
+    archetype?: ProjectArchetype;
     foakMultiplier: number;
     /** Nameplate above corridor demand — reported, never apportioned. */
     surplusTonnesPerYear: number;

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { capitalRecoveryFactor } from "@h2map/corridor-engine";
+import { ARCHETYPE_FOAK_MULTIPLIER } from "@h2map/corridor-schema";
 import ResolvedField from "./ResolvedField";
 import { LCOH_ENGINE_VERSION, type CorridorModel } from "./state";
 
@@ -105,6 +106,33 @@ export default function BuildHerePanel({
         </span>
         <span className="text-[11px] text-neutral-600">{t("repickNote")}</span>
       </div>
+
+      {/* Project archetype — user-facing control #2. One selector moving
+          FOAK, scale basis and firming together, because the previous
+          defaults sat at the optimistic end of every parameter at once. */}
+      <label className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-700">
+        <span className="font-medium">{t("archetype")}</span>
+        <select
+          value={site.sizing.archetype ?? "noak-merchant"}
+          onChange={(e) =>
+            update((d) => {
+              const sz = d[side].buildHere?.sizing;
+              if (!sz) return;
+              const next = e.target.value as NonNullable<typeof sz.archetype>;
+              sz.archetype = next;
+              sz.foakMultiplier = ARCHETYPE_FOAK_MULTIPLIER[next];
+            })
+          }
+          className="border border-neutral-300 bg-white px-1.5 py-0.5 text-[11px]"
+        >
+          <option value="foak-dedicated">{t("archetypeFoak")}</option>
+          <option value="noak-merchant">{t("archetypeNoak")}</option>
+          <option value="match-study">{t("archetypeStudy")}</option>
+        </select>
+        <span className="text-neutral-500">
+          {t("archetypeFoakFactor", { foak: site.sizing.foakMultiplier.toFixed(2) })}
+        </span>
+      </label>
 
       {/* Sizing line */}
       <p className="text-[11px] leading-snug text-neutral-600">

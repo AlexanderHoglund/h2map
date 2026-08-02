@@ -95,6 +95,15 @@ const MIGRATIONS: Record<number, Migration> = {
     next.schemaVersion = 4;
     return next;
   },
+  // v4 -> v5: the project archetype (realism pass). Purely additive - the
+  // field is optional and an absent archetype reads as the historical
+  // behaviour (foak 1.0, i.e. noak-merchant), so v4 scenarios reproduce
+  // their numbers exactly. Only the version literal moves.
+  4: (raw) => {
+    const next = JSON.parse(JSON.stringify(raw)) as RawScenario;
+    next.schemaVersion = 5;
+    return next;
+  },
 };
 
 export interface MigratedScenario {

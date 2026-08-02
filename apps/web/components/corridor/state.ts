@@ -16,7 +16,10 @@ import {
   resolveFirming,
   synthesizePlant,
 } from "@h2map/corridor-engine";
-import { getSynthesisBenchmark } from "@h2map/corridor-schema";
+import {
+  ARCHETYPE_FOAK_MULTIPLIER,
+  getSynthesisBenchmark,
+} from "@h2map/corridor-schema";
 import { ENGINE_VERSION as LCOH_ENGINE_VERSION } from "@h2map/lcoh-engine";
 import type { ScenarioResult } from "@h2map/corridor-schema";
 import bundleJson from "../../../../data/corridor-ref/2026-07-30-excel-v1.json";
@@ -229,6 +232,12 @@ const ROUTE_FACTOR = 1.3;
  * had to be met with solar-plus-battery — so ~1.9x (≈$32 shaped → ≈$60 firm).
  */
 const FIRM_PRICE_MULTIPLIER = 1.9;
+/**
+ * Corridors are first-of-a-kind dedicated plants by default (Task 4): one
+ * plant, one offtaker, no synergies — which is what a green corridor IS, and
+ * what the MMMCZCS study costs.
+ */
+const DEFAULT_ARCHETYPE = "foak-dedicated" as const;
 /** Shaped (daytime solar) electricity price the evaluated LCOH pays, $/MWh. */
 const SHAPED_ELECTRICITY_USD_PER_MWH = 32;
 /** Grid price for the hybrid strategy, $/MWh. */
@@ -289,11 +298,13 @@ function applyPickToScenario(
 
   // Synthesis block: dedicated plant at the corridor's nameplate,
   // scale-corrected (spec §3).
+  const foakMultiplier = ARCHETYPE_FOAK_MULTIPLIER[DEFAULT_ARCHETYPE];
   const synth = synthesizePlant(carrier, {
     productionWacc: 0.08,
     electricityUsdPerMwh: 60,
     co2UsdPerTonne: 30,
     nameplateTonnesPerYear: nameplate,
+    foakMultiplier,
   });
 
   // Logistics: plant→port from coordinates when the port is pinned.
@@ -375,7 +386,8 @@ function applyPickToScenario(
       nameplateTonnesPerYear: Math.round(nameplate),
       nameplateMargin: NAMEPLATE_MARGIN,
       scaleFactor: Math.round(synth.scaleFactor * 100) / 100,
-      foakMultiplier: 1,
+      archetype: DEFAULT_ARCHETYPE,
+      foakMultiplier,
       surplusTonnesPerYear: Math.round(nameplate - demandTonnesPerYear),
       distanceKm: Math.round(leg.distanceKm),
     },

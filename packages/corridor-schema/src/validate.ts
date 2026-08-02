@@ -74,6 +74,9 @@ const fuelSideSchema = z
           nameplateTonnesPerYear: z.number().positive(),
           nameplateMargin: z.number().min(1),
           scaleFactor: z.number().positive(),
+          archetype: z
+            .enum(["foak-dedicated", "noak-merchant", "match-study"])
+            .optional(),
           foakMultiplier: z.number().positive(),
           surplusTonnesPerYear: z.number().nonnegative(),
           distanceKm: z.number().nonnegative(),

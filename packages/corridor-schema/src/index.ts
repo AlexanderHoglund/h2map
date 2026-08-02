@@ -1,4 +1,4 @@
-export { SCHEMA_VERSION } from "./scenario";
+export { ARCHETYPE_FOAK_MULTIPLIER, SCHEMA_VERSION } from "./scenario";
 export type {
   BuildHereComponent,
   BuildHereSite,
@@ -9,6 +9,7 @@ export type {
   FuelSideInput,
   FuelSideOverrides,
   FuelSourcing,
+  ProjectArchetype,
   Ira45zInput,
   RegulationInput,
   RouteType,
