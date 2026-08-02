@@ -96,6 +96,17 @@ describe("fuelEuCostUsdM (r29/r55)", () => {
     const cost = fuelEuCostUsdM(params, fuel({ wtw: 15 }), count(1), calendarYear(2035));
     expect(cost).toBe(0);
   });
+
+  it("returns 0 (not NaN) for a zero-emission fuel — no ÷WTW blow-up", () => {
+    // A fully renewable fuel (wtw = 0, e.g. the Chilean e-ammonia default) is
+    // maximally compliant. The notional-mass conversion divides by WTW, so the
+    // compliant clamp must short-circuit BEFORE it — otherwise 0 × Infinity =
+    // NaN poisons the whole green side (regression: enabling FuelEU on the
+    // Chilean scenario produced $NaN across the results panel).
+    const cost = fuelEuCostUsdM(params, fuel({ wtw: 0 }), count(1), calendarYear(2035));
+    expect(cost).toBe(0);
+    expect(Number.isNaN(cost)).toBe(false);
+  });
 });
 
 describe("ira45zCreditUsdM (r30)", () => {

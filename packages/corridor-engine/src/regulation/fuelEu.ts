@@ -26,16 +26,18 @@ export function fuelEuCostUsdM(
   const target = stepValue(params.targets, cal);
   const rawDeficit = fuel.wtw - params.baselineGco2PerMj * (1 - target);
 
-  // Notional VLSFO-equivalent tonnes per unit intensity (the ÷WTW ÷41000
-  // energy→mass conversion, preserved verbatim).
-  const massPerIntensity =
-    (vessels * fuel.tonnesPerVesselYear * fuel.lhv) /
-    fuel.wtw /
-    params.vlsfoMjPerTonne;
-
   if (rawDeficit > 0 || !params.credit) {
     // Deficit (or Excel behaviour): MAX(0, ·) penalty — the workbook's clamp.
     const deficit = Math.max(0, rawDeficit);
+    // A compliant fuel owes nothing. Return before the ÷WTW conversion below,
+    // which is 0/0-degenerate for a zero-emission fuel (wtw = 0): computing it
+    // would give 0 × Infinity = NaN and poison the whole side's total.
+    if (deficit === 0) return 0;
+    // Here deficit > 0 ⇒ fuel.wtw > baseline×(1−target) ≥ 0, so the division is safe.
+    const massPerIntensity =
+      (vessels * fuel.tonnesPerVesselYear * fuel.lhv) /
+      fuel.wtw /
+      params.vlsfoMjPerTonne;
     return (
       ((deficit * massPerIntensity * params.penaltyEurPerTonne) *
         params.scope *
@@ -46,8 +48,14 @@ export function fuelEuCostUsdM(
 
   // D2 — over-compliance credit: the surplus (|rawDeficit|) is poolable and
   // priced at the surplus value, with the RFNBO ×multiplier until its cutoff.
-  // Negative return = revenue reducing the side's cost.
+  // Negative return = revenue reducing the side's cost. The ÷WTW mass
+  // conversion is undefined for a zero-emission fuel — no priced surplus.
+  if (fuel.wtw === 0) return 0;
   const multiplier = cal <= params.credit.multiplierUntil ? params.credit.multiplier : 1;
+  const massPerIntensity =
+    (vessels * fuel.tonnesPerVesselYear * fuel.lhv) /
+    fuel.wtw /
+    params.vlsfoMjPerTonne;
   return (
     ((rawDeficit * multiplier * massPerIntensity * params.credit.surplusValueEurPerTonne) *
       params.scope *
