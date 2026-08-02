@@ -249,6 +249,9 @@ export default function CorridorClient() {
         /* ===== Results tab: the full panel, full width ===== */
         <main className="min-h-0 flex-1 overflow-y-auto bg-[rgb(var(--tone)/0.03)] p-4">
           <div className="mx-auto max-w-375">
+            {/* Same scenario bar as the input steps — name, JSON round-trip,
+                reset and the autosave note apply to the report too. */}
+            <ScenarioBar model={model} />
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-sm font-semibold">{t("results.heading")}</h2>
               <Button
