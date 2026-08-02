@@ -577,54 +577,75 @@ export default function DocsPage() {
             the lineage chip is a display figure only.
           </li>
         </ul>
-        <H3>Build-here acceptance: two Atacama sites (validated 2026-08-01)</H3>
+        <H3>Build-here acceptance: two Atacama sites (re-validated 2026-08-02)</H3>
         <p className="mt-2">
           Both study candidate sites evaluated through the real flow
-          (map-mode gated profiles → LCOH engine at the reference 100 MW
-          configuration → linear scaling to the 59,850 t/yr nameplate),
-          against the Chilean default corridor:
+          (map-mode gated profiles → LCOH engine → scaled to the 59,850 t/yr
+          nameplate) against the Chilean default corridor, after the
+          fuel-production realism pass (IEA-2024 electrolyser basis,
+          NEOM-anchored synthesis, firm power, first-of-a-kind archetype):
         </p>
         <Fields
           rows={[
             [
               "María Elena (−22.35, −69.66)",
-              "LCOH $5.79/kg",
-              "CAPEX $483.9m · OPEX $31.8m/yr",
-              "116 km to Mejillones. Derived $1,422/t (display). Green PV $1,817.8m; gap $979.6m pre-regulation / $729.4m post; $502.98/tCO2 WTW. Without scale correction: CAPEX $387.8m, $1,200/t, gap $853.7m pre-reg.",
+              "LCOH $8.97/kg · 27.6% duty",
+              "CAPEX $973.5m · OPEX $55.2m/yr",
+              "116 km to Mejillones. Central $2,707/t (range $2,209–$3,027). H2 plant $626.0m + synthesis $347.5m; firm PPA chosen at $17.1m/yr. Green PV $2,549.6m; gap $1,711.3m pre-regulation / $1,461.1m post; $1,007.60/tCO2 WTW.",
             ],
             [
               "La Negra (−23.75, −70.30)",
-              "LCOH $6.15/kg",
-              "CAPEX $509.3m · OPEX $32.7m/yr",
-              "74 km to Mejillones. Derived $1,484/t (display). Green PV $1,852.7m; gap $1,014.5m pre-regulation / $764.3m post; $527.04/tCO2 WTW. Without scale correction: CAPEX $413.2m, $1,262/t, gap $888.6m pre-reg.",
+              "LCOH $9.58/kg · 24.5% duty",
+              "CAPEX $1,024.2m · OPEX $55.7m/yr",
+              "74 km to Mejillones. Central $2,808/t (range $2,297–$3,140). H2 plant $676.7m + synthesis $347.5m; firm PPA chosen at $17.1m/yr. Green PV $2,606.0m; gap $1,767.8m pre-regulation / $1,517.6m post; $1,046.55/tCO2 WTW.",
             ],
           ]}
         />
         <p className="mt-2">
-          <strong>Reconciliation to the study&apos;s dedicated plant</strong>{" "}
-          (María Elena, scale correction on): the study&apos;s fitted block
-          ($1,100m / $72m/yr) annuitized at the corridor&apos;s 8% over 25
-          years is $3,071/t (the published $3,126/t differs by ~$55/t of
-          annuitization convention). The bottom-up build-here total is
-          $1,422/t — of which H2 feed ≈ $1,010/t, synthesis ≈ $410/t
-          (the ×2.34 scale correction contributes +$222/t; without it the
-          total is $1,200/t), logistics ≈ $2/t. That leaves an{" "}
-          <strong>unexplained residual of ≈ $1,650/t (54%)</strong>{" "}between
-          the study&apos;s fitted economics and the engine&apos;s
-          reference-default bottom-up. This residual is stated, not tuned
-          away. The structural suspects, in order: the reference evaluation
-          prices electricity as a $30/MWh PPA while the study builds
-          dedicated renewables on the project&apos;s books; the study block
-          embeds project-level costs (desalination, transmission, owner&apos;s
-          costs, contingency, Chilean EPC premium) absent from the global
-          reference defaults; and FOAK, which the study prices implicitly
-          while build-here defaults it to ×1. Decomposing it further needs
-          the consortium&apos;s plant-cost breakdown (their Figure 3); until
-          then, treat build-here reference-default results as an{" "}
-          <em>optimised-cost</em>{" "}floor and the fitted build-plant block as
-          the study-faithful case. Terminal / residual plant value at the
-          15-year horizon is not modeled (shipped off by design — the study
-          reproduction requires it off).
+          <strong>Reconciliation — the residual closed from 54% to 12%.</strong>{" "}
+          The study&apos;s fitted block ($1,100m / $72m/yr) annuitized at the
+          corridor&apos;s 8% over 25 years is <strong>$3,071/t</strong>. Before
+          the realism pass the bottom-up build-here total was $1,422/t, leaving
+          an unexplained residual of ≈$1,650/t (54%). It is now{" "}
+          <strong>$2,707/t at María Elena — a residual of $364/t (11.8%)</strong>{" "}
+          — and $2,808/t at La Negra, a residual of $263/t (8.6%). Both sit
+          inside the ~20% threshold this exercise set for validating build-here
+          for screening use, and the study&apos;s figure falls inside La
+          Negra&apos;s reported range ($2,297–$3,140).
+        </p>
+        <p className="mt-2">
+          The three suspects named in the previous write-up were all real, and
+          each is now priced explicitly rather than assumed away:{" "}
+          <strong>electricity</strong>{" "}— the site cannot run a synthesis loop
+          on unbuffered daytime solar (27.6% duty vs the 85% Haber-Bosch needs),
+          so a firm-power step is charged;{" "}
+          <strong>project-level cost</strong>{" "}— the electrolyser island moved
+          to IEA&apos;s installed basis, which explicitly includes EPC and
+          contingency, and synthesis is anchored to a real project&apos;s
+          balance sheet rather than an unanchored reference scale; and{" "}
+          <strong>FOAK</strong>{" "}— a corridor plant is now costed as
+          first-of-a-kind (×1.25) by default rather than nth-of-a-kind.
+        </p>
+        <p className="mt-2">
+          <strong>What the remaining ~10% is, stated rather than tuned.</strong>{" "}
+          Three things are still unmodelled and each would move the number in
+          the same direction: differentiated (dual-WACC) green financing and a
+          scenario-level synergy adjustment, which the study quantifies at
+          ≈$250m each; and terminal/residual plant value at the 15-year
+          horizon, deliberately off so the study reproduction holds. The
+          consortium&apos;s plant-cost breakdown (their Figure 3) would replace
+          the NEOM-scaled calibration with a direct one and remains the
+          highest-value outstanding input. A ~10% residual on a screening
+          estimate whose own reported range spans ±15% is not a discrepancy
+          worth tuning.
+        </p>
+        <p className="mt-2">
+          <strong>Site-to-site is the point.</strong>{" "}La Negra costs $100/t
+          (3.7%) more than María Elena — better siting economics at María Elena
+          (LCOH $8.97 vs $9.58/kg) partly offset by its longer haul (116 vs 74
+          km). Absolute-level errors largely cancel in that comparison, which
+          is what the map is actually for; the level is a screening estimate,
+          the ordering is the product.
         </p>
         <H3>Per-fuel fields (each side)</H3>
         <Fields
