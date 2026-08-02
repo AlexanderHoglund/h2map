@@ -43,6 +43,19 @@ export interface SynthesisBenchmark {
   /** Fixed O&M as a fraction of CAPEX per year. */
   plantOpexFracPerYear: number;
   plantLifeYears: number;
+  /**
+   * Duty cycle the synthesis loop REQUIRES, 0-1 (realism pass, Task 2).
+   * Conventional Haber-Bosch has a 40-60% minimum load and is not
+   * commercially flexible, so an NH3 plant needs near-continuous feed; a
+   * liquefier tolerates more cycling; gaseous H2 has no downstream process
+   * and so requires nothing. When an evaluated site's duty falls short, the
+   * corridor must price a firming strategy rather than silently produce the
+   * carrier — see corridor-engine/src/firming.ts.
+   *
+   * Sources: Energy Convers. Manag. 280; Int. J. Hydrogen Energy 2025;
+   * Ammonia Energy Association.
+   */
+  firmnessRequirement: number;
   /** Sea freight, USD per tonne-km (great-circle basis; route factor applies). */
   shippingUsdPerTonneKm: number;
   /**
@@ -110,6 +123,7 @@ export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
     scaleExponent: 0.6,
     plantOpexFracPerYear: 0.03,
     plantLifeYears: 25,
+    firmnessRequirement: 0.85, // Haber-Bosch min load 40-60%, not commercially flexible
     shippingUsdPerTonneKm: 0.012,
     inlandUsdPerTonneKm: 0.12,
     verified: false,
@@ -125,6 +139,7 @@ export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
     scaleExponent: 0.6,
     plantOpexFracPerYear: 0.03,
     plantLifeYears: 25,
+    firmnessRequirement: 0.8, // synthesis loop, similar constraint
     shippingUsdPerTonneKm: 0.01,
     inlandUsdPerTonneKm: 0.12,
     verified: false,
@@ -142,6 +157,7 @@ export const SYNTHESIS_BENCHMARKS: readonly SynthesisBenchmark[] = [
     scaleExponent: 0.6,
     plantOpexFracPerYear: 0.04,
     plantLifeYears: 25,
+    firmnessRequirement: 0.6, // liquefaction tolerates more cycling
     shippingUsdPerTonneKm: 0.05,
     inlandUsdPerTonneKm: 0.20, // cryogenic road/pipe haulage carries a premium
     verified: false,

@@ -15,6 +15,20 @@ at 1e-9 (`npm run test:golden`).
 
 ## Modules
 
+### `@h2map/corridor-engine/firming.ts`
+
+**Purpose**
+
+Firm-power resolution (realism pass, Task 2) — the physics fix.
+
+**Boundary (imports)**: none — leaf module
+
+**Exports (inputs/outputs)**: `FirmingStrategy`, `FirmingInputs`, `FirmingOption`, `FirmingResult`, `resolveFirming`
+
+**Assumptions**
+
+Documented inline (see source).
+
 ### `@h2map/corridor-engine/index.ts`
 
 **Purpose**

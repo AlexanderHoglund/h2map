@@ -37,6 +37,7 @@ export {
   synthesisScaleFactor,
   synthesize,
   synthesizePlant,
+  SCALE_EXTRAPOLATION_LIMIT,
 } from "./synthesis";
 export type {
   SynthesisBreakdown,
@@ -157,3 +158,10 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
       : {}),
   };
 }
+export { resolveFirming } from "./firming";
+export type {
+  FirmingInputs,
+  FirmingOption,
+  FirmingResult,
+  FirmingStrategy,
+} from "./firming";
