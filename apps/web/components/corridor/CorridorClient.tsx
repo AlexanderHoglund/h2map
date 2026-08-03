@@ -201,12 +201,6 @@ export default function CorridorClient() {
             >
               {tc("nav.documentation")} <span aria-hidden>→</span>
             </Link>
-            <Link
-              href="/docs#m-overview"
-              className="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5 text-sm text-neutral-800 transition-colors hover:bg-neutral-100"
-            >
-              {tc("nav.methodology")} <span aria-hidden>→</span>
-            </Link>
             <button
               type="button"
               onClick={() => setDisclaimerOpen((v) => !v)}
