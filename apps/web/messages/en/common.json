@@ -1,27 +1,75 @@
 {
-  "app": {
-    "name": "Thaduberg",
-    "tagline": "Global LCOH Explorer"
+ "app": {
+  "name": "Thaduberg",
+  "tagline": "Global LCOH Explorer"
+ },
+ "nav": {
+  "explorer": "Explorer",
+  "calculator": "Calculator",
+  "methodology": "Methodology",
+  "scenarios": "Scenarios",
+  "language": "EN",
+  "corridor": "Corridor",
+  "about": "About",
+  "documentation": "Documentation",
+  "disclaimer": "Disclaimer",
+  "menu": "Menu",
+  "signOut": "Sign out"
+ },
+ "footer": {
+  "methodology": "Methodology: Motor de Cálculo LCOH — Ministerio de Energía de Chile, 2024",
+  "dataProviders": "Resource data: Open-Meteo (CC BY 4.0) · PVGIS © EC JRC · NASA POWER",
+  "aboutData": "About the data"
+ },
+ "disclaimer": {
+  "title": "Disclaimer",
+  "body": "Thaduberg is a techno-economic model. Every output is an estimate assembled from public benchmarks and your inputs — not investment, legal or regulatory advice. Benchmarks marked unverified have not been independently confirmed. Verify against primary sources before committing capital."
+ },
+ "landing": {
+  "heading": "Green corridors, priced end to end.",
+  "body": "Thaduberg models the full cost of running a shipping corridor on green fuel versus fossil — production, vessels, ports and regulation — anchored to real project data, with a global hydrogen-cost map to site the plant. Sign in to open the platform, or request access below.",
+  "signedInAs": "Signed in as",
+  "enterPlatform": "Enter platform",
+  "adminLink": "Admin",
+  "signOut": "Sign out",
+  "authTabsLabel": "Sign in or request access",
+  "tabSignIn": "Sign in",
+  "tabRequest": "Request access",
+  "fieldName": "Full name",
+  "fieldOrganisation": "Organisation",
+  "fieldEmail": "Email",
+  "fieldPassword": "Password",
+  "submitSignIn": "Sign in",
+  "submitRequest": "Request access",
+  "submitForgot": "Send reset link",
+  "forgotLink": "Forgot password?",
+  "backToSignIn": "Back to sign in",
+  "requestSent": "Almost there — check your inbox and confirm your email address to activate your account.",
+  "forgotSent": "If that address has an account, a reset link is on its way.",
+  "requestNote": "Access is granted automatically once you confirm your email. Teaching and trial accounts are time-limited.",
+  "errorSignIn": "Sign-in failed — check your email and password.",
+  "errorRequest": "Could not create the account. If you already have one, sign in instead.",
+  "errorForgot": "Could not send the reset link. Try again in a moment.",
+  "errorConfirmLink": "That confirmation link is invalid or has expired. Sign in, or request a new link.",
+  "footnote": "Estimates from public benchmarks and your inputs — not investment advice."
+ },
+ "auth": {
+  "reset": {
+   "heading": "Choose a new password",
+   "newPassword": "New password",
+   "submit": "Set password",
+   "error": "Could not set the password — the link may have expired.",
+   "expired": "This reset link has expired or was already used. Request a new one from the sign-in page.",
+   "backHome": "Back to sign in"
   },
-  "nav": {
-    "explorer": "Explorer",
-    "calculator": "Calculator",
-    "methodology": "Methodology",
-    "scenarios": "Scenarios",
-    "language": "EN",
-    "corridor": "Corridor",
-    "about": "About",
-    "documentation": "Documentation",
-    "disclaimer": "Disclaimer",
-    "menu": "Menu"
-  },
-  "footer": {
-    "methodology": "Methodology: Motor de Cálculo LCOH — Ministerio de Energía de Chile, 2024",
-    "dataProviders": "Resource data: Open-Meteo (CC BY 4.0) · PVGIS © EC JRC · NASA POWER",
-    "aboutData": "About the data"
-  },
-  "disclaimer": {
-    "title": "Disclaimer",
-    "body": "Thaduberg is a techno-economic model. Every output is an estimate assembled from public benchmarks and your inputs — not investment, legal or regulatory advice. Benchmarks marked unverified have not been independently confirmed. Verify against primary sources before committing capital."
+  "expired": {
+   "heading": "Your access has ended",
+   "body": "This trial or teaching account has reached the end of its access period. To keep working with the platform, get in touch and we can extend or upgrade the account.",
+   "dataKept": "Your saved scenarios are kept — they will all be there when access is restored.",
+   "contact": "Contact us",
+   "contactEmail": "alexander.hoglund@gmail.com",
+   "contactSubject": "Thaduberg access extension",
+   "signOut": "Sign out"
   }
+ }
 }

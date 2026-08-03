@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { getBrowserSupabase } from "@/lib/supabase/browser";
 
 /**
  * Slim bar for CONTENT pages (methodology, about, parity). The integrated
@@ -17,6 +19,19 @@ const LINKS = [
 export default function TopBar() {
   const t = useTranslations();
   const pathname = usePathname();
+  const router = useRouter();
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = getBrowserSupabase();
+    void supabase.auth
+      .getSession()
+      .then(({ data }) => setEmail(data.session?.user.email ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
+      setEmail(session?.user.email ?? null),
+    );
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   return (
     <header className="flex h-12 items-center gap-4 border-b border-neutral-300 bg-white px-4">
@@ -46,6 +61,24 @@ export default function TopBar() {
             </Link>
           );
         })}
+        {email && (
+          <span className="ml-2 flex items-center gap-2 border-l border-neutral-300 pl-3 text-xs text-neutral-500">
+            <span className="hidden max-w-48 truncate sm:inline" title={email}>
+              {email}
+            </span>
+            <button
+              type="button"
+              onClick={async () => {
+                await getBrowserSupabase().auth.signOut();
+                router.push("/");
+                router.refresh();
+              }}
+              className="px-1.5 py-1 text-neutral-600 transition-colors hover:text-neutral-900"
+            >
+              {t("nav.signOut")}
+            </button>
+          </span>
+        )}
       </nav>
     </header>
   );
