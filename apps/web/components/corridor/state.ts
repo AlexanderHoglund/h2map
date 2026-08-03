@@ -191,7 +191,7 @@ function clearOverrides(s: ScenarioInput): ScenarioInput {
 // v2: the default scenario changed to the Chilean copper corridor — old
 // v1 drafts (the workbook defaults) would shadow it on load, so the key
 // is versioned. The v1 entry stays in storage untouched.
-const DRAFT_KEY = "corridor-draft-v2";
+export const DRAFT_KEY = "corridor-draft-v2";
 
 /**
  * A production-site pick — the FULL evaluation hand-back (spec: the tile

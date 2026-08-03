@@ -128,3 +128,40 @@ export async function PUT(
   if (!data) return jsonError(404, "not_found", "No such scenario (or not yours)");
   return Response.json(data);
 }
+
+/**
+ * Delete a scenario (login build). RLS scopes the delete to the caller's own
+ * rows; cross-owner and absent ids both come back 404 (the same anti-leak
+ * convention as GET/PUT — a 403 would confirm existence).
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<Response> {
+  const limit = checkRateLimit(`corridor-scn:${clientIp(request)}`, GENERAL_POLICY);
+  if (!limit.allowed) return rateLimited(limit.retryAfterSeconds);
+  const { id } = await params;
+  if (!UUID_RE.test(id)) return jsonError(404, "not_found", "No such scenario");
+
+  const supabase = getUserSupabase(request);
+  const access = await getCallerWithAccess(supabase);
+  if (!access.ok) {
+    return access.code === "access_expired"
+      ? jsonError(403, "access_expired", "Your access period has ended")
+      : jsonError(401, "unauthorized", "Sign-in required");
+  }
+
+  const { data, error } = await supabase
+    .from("scenarios")
+    .delete()
+    .eq("id", id)
+    .eq("kind", "corridor")
+    .select("id")
+    .maybeSingle();
+  if (error) {
+    console.error("[api/corridor/scenarios/:id DELETE]", error);
+    return jsonError(500, "db_error", "Could not delete the scenario");
+  }
+  if (!data) return jsonError(404, "not_found", "No such scenario (or not yours)");
+  return Response.json({ deleted: data.id });
+}
