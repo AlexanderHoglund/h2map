@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
+import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { useCorridorModel } from "./state";
 import { downloadResultsXlsx } from "./exportXlsx";
 import { CargoStep, FuelStep, PortStep, RegulationStep, VesselStep } from "./steps";
@@ -221,6 +222,28 @@ export default function CorridorClient() {
                 </p>
               </div>
             )}
+            {/* Account, last: who you are + sign out. */}
+            <div className="border-t border-neutral-300 bg-neutral-50">
+              {projects.session?.user.email && (
+                <p
+                  className="truncate px-5 pt-3 text-[11px] text-neutral-500"
+                  title={projects.session.user.email}
+                >
+                  {tc("nav.signedInAs", { email: projects.session.user.email })}
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={async () => {
+                  setMenuOpen(false);
+                  await getBrowserSupabase().auth.signOut();
+                  window.location.assign("/");
+                }}
+                className="flex w-full items-center justify-between px-5 py-3.5 text-sm font-medium text-neutral-800 transition-colors hover:bg-neutral-100"
+              >
+                {tc("nav.signOut")} <span aria-hidden>→</span>
+              </button>
+            </div>
           </div>
         )}
       </header>

@@ -14,7 +14,8 @@
   "documentation": "Documentation",
   "disclaimer": "Disclaimer",
   "menu": "Menu",
-  "signOut": "Sign out"
+  "signOut": "Sign out",
+  "signedInAs": "Signed in as {email}"
  },
  "footer": {
   "methodology": "Methodology: Motor de Cálculo LCOH — Ministerio de Energía de Chile, 2024",
