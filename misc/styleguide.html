@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Thaduberg — style guide</title>
+<style>
+  /* ---------------------------------------------------------------------
+     The tokens below are COPIED from apps/web/app/globals.css. That file is
+     the source of truth; this page mirrors it so the guide can be opened
+     standalone (no build step). If you change a token there, change it here.
+     --------------------------------------------------------------------- */
+  :root {
+    color-scheme: light;
+
+    /* Surfaces */
+    --color-page: #f9f9f7;
+    --color-surface: #ffffff;
+    --color-sunken: #f4f4f2;
+
+    /* Brand (Thaduberg stripes) */
+    --color-brand: #2171b5;
+    --color-brand-strong: #1b5e97;
+    --color-brand-deep: #08306b;
+    --color-brand-tint: #eaf1f8;
+
+    /* Text */
+    --color-ink: #171717;
+    --color-neutral-600: #525252;
+    --color-neutral-500: #6d6d6d;   /* darkened: AA on the off-white page */
+    --color-neutral-300: #d4d4d4;
+    --color-neutral-200: #e5e5e5;
+    --color-neutral-100: #f5f5f5;
+
+    /* Semantic */
+    --color-success: #15803d;
+    --color-warning: #b45309;
+    --color-danger: #dc2626;
+
+    /* Data-viz */
+    --viz-grid: #e1e0d9;
+    --viz-baseline: #c3c2b7;
+    --viz-ink-muted: #898781;
+    --viz-series-1: #2171b5;
+    --viz-series-green: #008300;
+    --viz-delta-up: #d03b3b;
+    --viz-delta-down: #2171b5;
+    --viz-total: #52514e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background-color: var(--color-page);
+    /* The app-wide technical "+" grid (fainter cut). */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 10v8M10 14h8' stroke='%23e9e8e1' stroke-width='1'/%3E%3C/svg%3E");
+    color: var(--color-ink);
+    font-family: Geist, "Geist Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .bg-plus-grid {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 10v8M10 14h8' stroke='%23dbdad2' stroke-width='1'/%3E%3C/svg%3E");
+  }
+
+  main { max-width: 60rem; margin: 0 auto; padding: 2.5rem 1rem 6rem; }
+  h1 { font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+  h2 {
+    font-size: 1.125rem; font-weight: 600; margin: 3rem 0 0.25rem;
+    border-bottom: 1px solid var(--color-neutral-300); padding-bottom: 0.25rem;
+    scroll-margin-top: 1rem;
+  }
+  h3 { font-size: 0.875rem; font-weight: 600; margin: 1.75rem 0 0.5rem; }
+  p { margin: 0.5rem 0; }
+  .lede { color: var(--color-neutral-500); }
+  code, .mono { font-family: Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace; }
+  code {
+    font-size: 0.8125em; background: var(--color-neutral-100);
+    padding: 0.1em 0.35em;
+  }
+  a { color: var(--color-brand); text-underline-offset: 2px; }
+
+  /* Square everything — the whole radius scale is zeroed in the app. */
+  .card {
+    border: 1px solid var(--color-neutral-300);
+    background: var(--color-surface);
+    padding: 1rem;
+  }
+  .grid { display: grid; gap: 1rem; }
+  .cols-2 { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  .cols-3 { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+  .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+
+  /* Swatches */
+  .sw { border: 1px solid var(--color-neutral-300); }
+  .sw-chip { height: 3.5rem; }
+  .sw-meta { padding: 0.5rem 0.625rem; background: var(--color-surface); }
+  .sw-name { font-weight: 500; font-size: 0.75rem; }
+  .sw-val { font-size: 0.6875rem; color: var(--color-neutral-500); }
+
+  /* Component demos */
+  .btn {
+    border: 0; cursor: pointer; font: inherit; font-weight: 500;
+    transition: background-color 150ms ease-out;
+  }
+  .btn-sm { padding: 0.25rem 0.625rem; font-size: 0.75rem; }
+  .btn-md { padding: 0.5rem 1rem; font-size: 0.875rem; }
+  .btn-primary { background: var(--color-brand); color: #fff; }
+  .btn-primary:hover { background: var(--color-brand-strong); }
+  .btn-secondary {
+    border: 1px solid var(--color-neutral-300); background: #fff;
+    color: #262626;
+  }
+  .btn-secondary:hover { background: var(--color-neutral-100); }
+  .btn-ghost { background: transparent; color: #404040; }
+  .btn-ghost:hover { background: var(--color-neutral-100); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .badge {
+    padding: 0.125rem 0.375rem; font-size: 0.625rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .badge-neutral { background: var(--color-neutral-100); color: var(--color-neutral-600); }
+  .badge-brand { background: var(--color-brand-tint); color: var(--color-brand-deep); }
+  .badge-warning { background: rgb(245 158 11 / 0.2); color: #92400e; }
+  .badge-override { background: var(--color-brand-tint); color: var(--color-brand-deep); }
+  .badge-derived { background: rgb(168 85 247 / 0.15); color: #7e22ce; }
+  .badge-benchmark { background: rgb(109 109 109 / 0.15); color: var(--color-neutral-600); }
+
+  label.field { display: block; }
+  .field-label {
+    display: block; font-size: 0.75rem; font-weight: 500;
+    color: var(--color-neutral-600); margin-bottom: 0.25rem;
+  }
+  .input {
+    width: 100%; border: 1px solid var(--color-neutral-300); background: #fff;
+    padding: 0.375rem 0.625rem; font: inherit; font-size: 0.875rem;
+    outline: none; transition: border-color 150ms ease-out;
+  }
+  .input:focus { border-color: var(--color-brand); box-shadow: 0 0 0 2px rgb(33 113 181 / 0.4); }
+  .input:disabled { background: var(--color-sunken); color: var(--color-neutral-500); }
+
+  .note { font-size: 0.6875rem; line-height: 1.45; color: var(--color-neutral-500); }
+  .callout { padding: 0.5rem 0.625rem; font-size: 0.75rem; line-height: 1.45; }
+  .callout-warn { background: rgb(245 158 11 / 0.1); color: #92400e; }
+  .callout-ok { background: rgb(16 185 129 / 0.1); color: #065f46; }
+  .callout-err { background: rgb(239 68 68 / 0.1); color: #991b1b; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+  thead tr {
+    border-bottom: 1px solid var(--color-neutral-300);
+    background: #fafafa; text-align: left;
+    font-size: 0.6875rem; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--color-neutral-500);
+  }
+  th, td { padding: 0.5rem 0.75rem; }
+  tbody tr { border-bottom: 1px solid var(--color-neutral-200); }
+  tbody tr:last-child { border-bottom: 0; }
+  .num { font-variant-numeric: tabular-nums; text-align: right; }
+
+  .tabs { display: flex; border: 1px solid var(--color-neutral-300); background: #fff; overflow-x: auto; }
+  .tab {
+    flex: 0 0 auto; width: 8.5rem; padding: 0.5rem 1rem; text-align: left;
+    border-right: 1px solid var(--color-neutral-300); background: rgb(var(--tone) / 0.05);
+  }
+  .tab:last-child { border-right: 0; }
+  .tab-active { background: rgb(var(--tone) / 0.12); box-shadow: inset 0 -2px 0 0 rgb(var(--tone)); }
+  .tab-num {
+    display: block; font-size: 0.625rem; letter-spacing: 0.12em;
+    color: var(--color-neutral-600);
+  }
+  .tab-label { display: block; font-size: 0.8125rem; font-weight: 500; }
+
+  .do-dont { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+  .do { border-left: 3px solid var(--color-success); padding-left: 0.75rem; }
+  .dont { border-left: 3px solid var(--color-danger); padding-left: 0.75rem; }
+  .do h4, .dont h4 { margin: 0 0 0.25rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .do h4 { color: var(--color-success); }
+  .dont h4 { color: var(--color-danger); }
+
+  ul { margin: 0.5rem 0; padding-left: 1.15rem; }
+  li { margin: 0.3rem 0; }
+  .toc { columns: 2; column-gap: 2rem; font-size: 0.8125rem; }
+  .toc a { display: block; padding: 0.15rem 0; }
+</style>
+</head>
+<body>
+<main>
+
+  <p class="mono" style="font-size:0.6875rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-500);margin:0 0 0.5rem">
+    Thaduberg
+  </p>
+  <h1>Style guide</h1>
+  <p class="lede" style="max-width:44rem">
+    The design language of the Thaduberg platform, extracted from the running
+    code. The voice is <strong>technical-modern</strong>: simple minimal boxes
+    on a bright surface, straight lines, no ornament — a precise instrument
+    rather than a marketing page. Everything here mirrors
+    <code>apps/web/app/globals.css</code> and <code>apps/web/components/ui/</code>,
+    which remain the source of truth.
+  </p>
+
+  <div class="card" style="margin-top:1.5rem">
+    <nav class="toc" aria-label="Contents">
+      <a href="#principles">1. Principles</a>
+      <a href="#color">2. Colour</a>
+      <a href="#type">3. Typography</a>
+      <a href="#surfaces">4. Surfaces &amp; texture</a>
+      <a href="#shape">5. Shape &amp; spacing</a>
+      <a href="#buttons">6. Buttons</a>
+      <a href="#forms">7. Forms &amp; fields</a>
+      <a href="#provenance">8. Provenance badges</a>
+      <a href="#feedback">9. Notices &amp; callouts</a>
+      <a href="#tables">10. Tables</a>
+      <a href="#tabs">11. Workspace tabs</a>
+      <a href="#viz">12. Data visualisation</a>
+      <a href="#a11y">13. Accessibility rules</a>
+      <a href="#voice">14. Writing</a>
+    </nav>
+  </div>
+
+  <!-- 1 -->
+  <h2 id="principles">1. Principles</h2>
+  <ul>
+    <li><strong>Light only.</strong> There is no dark mode. <code>color-scheme: light</code>
+      is pinned so native controls, scrollbars and <code>&lt;select&gt;</code> popups stay
+      light even when the OS prefers dark. Never add a <code>dark:</code> variant.</li>
+    <li><strong>Square.</strong> The entire Tailwind radius scale is zeroed, so every
+      <code>rounded-*</code> utility renders square. Only <code>rounded-full</code> survives
+      (switch knobs, dots, spinners).</li>
+    <li><strong>Hairlines, not shadows.</strong> Structure comes from 1px
+      <code>neutral-300</code> borders on white. Shadows appear only on things that
+      float above the page (dropdowns, modals).</li>
+    <li><strong>The number is the hero.</strong> Chrome recedes; figures are
+      tabular, aligned and never dimmed below AA.</li>
+    <li><strong>Say where a number came from.</strong> Every value carries its
+      provenance (override / derived / benchmark) — see §8.</li>
+  </ul>
+
+  <!-- 2 -->
+  <h2 id="color">2. Colour</h2>
+  <p>Brand blues are sampled from the Thaduberg stripes gradient. Contrast on
+    white: brand 5.1:1, brand-deep 12.7:1, deep-on-tint ≈ 11:1.</p>
+
+  <h3>Brand</h3>
+  <div class="grid cols-3">
+    <div class="sw"><div class="sw-chip" style="background:var(--color-brand)"></div>
+      <div class="sw-meta"><div class="sw-name">brand</div><div class="sw-val mono">#2171b5 · primary actions</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-brand-strong)"></div>
+      <div class="sw-meta"><div class="sw-name">brand-strong</div><div class="sw-val mono">#1b5e97 · hover</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-brand-deep)"></div>
+      <div class="sw-meta"><div class="sw-name">brand-deep</div><div class="sw-val mono">#08306b · emphasis</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-brand-tint)"></div>
+      <div class="sw-meta"><div class="sw-name">brand-tint</div><div class="sw-val mono">#eaf1f8 · selected wash</div></div></div>
+  </div>
+
+  <h3>Surfaces &amp; text</h3>
+  <div class="grid cols-3">
+    <div class="sw"><div class="sw-chip" style="background:var(--color-page)"></div>
+      <div class="sw-meta"><div class="sw-name">page</div><div class="sw-val mono">#f9f9f7</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-surface)"></div>
+      <div class="sw-meta"><div class="sw-name">surface</div><div class="sw-val mono">#ffffff · cards</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-sunken)"></div>
+      <div class="sw-meta"><div class="sw-name">sunken</div><div class="sw-val mono">#f4f4f2 · disabled</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-ink)"></div>
+      <div class="sw-meta"><div class="sw-name">ink</div><div class="sw-val mono">#171717 · body</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-neutral-500)"></div>
+      <div class="sw-meta"><div class="sw-name">neutral-500</div><div class="sw-val mono">#6d6d6d · muted</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-neutral-300)"></div>
+      <div class="sw-meta"><div class="sw-name">neutral-300</div><div class="sw-val mono">#d4d4d4 · hairline</div></div></div>
+  </div>
+  <p class="note">
+    <strong>Why neutral-500 is overridden.</strong> Stock Tailwind
+    <code>neutral-500</code> (#737373) is 4.49:1 on the off-white page — a hair
+    under AA. It is darkened one step to #6d6d6d (4.9:1 on page, 5.2:1 on
+    white). Muted text must clear AA on <em>page</em>, not just on white.
+  </p>
+
+  <h3>Semantic</h3>
+  <div class="grid cols-3">
+    <div class="sw"><div class="sw-chip" style="background:var(--color-success)"></div>
+      <div class="sw-meta"><div class="sw-name">success</div><div class="sw-val mono">#15803d</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-warning)"></div>
+      <div class="sw-meta"><div class="sw-name">warning</div><div class="sw-val mono">#b45309</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--color-danger)"></div>
+      <div class="sw-meta"><div class="sw-name">danger</div><div class="sw-val mono">#dc2626</div></div></div>
+  </div>
+  <p class="note">
+    On amber washes use <code>amber-800</code>, not <code>amber-700</code> —
+    700 fails AA against the tint.
+  </p>
+
+  <!-- 3 -->
+  <h2 id="type">3. Typography</h2>
+  <p><strong>Geist</strong> for text, <strong>Geist Mono</strong> for numbers,
+    codes, eyebrows and identifiers.</p>
+  <div class="card grid" style="gap:0.75rem">
+    <div style="font-size:2rem;font-weight:600;letter-spacing:-0.02em;line-height:1.05">Display — page titles</div>
+    <div style="font-size:1.125rem;font-weight:600">Heading — section titles</div>
+    <div style="font-size:0.875rem">Body — 14px, the workspace default</div>
+    <div style="font-size:0.75rem;color:var(--color-neutral-600)">Small — field labels, table cells</div>
+    <div class="note">Note — 11px, captions and provenance lines</div>
+    <div class="mono" style="font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--color-neutral-500)">Eyebrow — mono, uppercase, wide tracking</div>
+    <div class="mono num" style="font-size:1.5rem;font-weight:600;color:var(--color-brand-deep)">$1,762.21m</div>
+  </div>
+  <ul>
+    <li>Every figure gets <code>tabular-nums</code> so columns align and digits
+      don't jitter as values update live.</li>
+    <li>Money in captions uses whole millions above $100m
+      (<code>$1,690m</code>); full precision stays in tooltips and tables.</li>
+    <li>Units are stated on the axis or in the column header, never guessed
+      (<code>USD m</code>, <code>$/t CO2</code>, <code>t/vessel/yr</code>).</li>
+  </ul>
+
+  <!-- 4 -->
+  <h2 id="surfaces">4. Surfaces &amp; texture</h2>
+  <p>A technical <strong>“+” grid</strong> runs across the whole app — drafting
+    paper under the instrument. White cards sit on top of it.</p>
+  <div class="grid cols-2">
+    <div style="border:1px solid var(--color-neutral-300);padding:1.25rem;background-color:var(--color-page);background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 10v8M10 14h8' stroke='%23e9e8e1' stroke-width='1'/%3E%3C/svg%3E&quot;)">
+      <div class="card">Card on the app-wide grid</div>
+      <p class="note" style="margin-top:0.5rem">body — faint cut (#e9e8e1)</p>
+    </div>
+    <div class="bg-plus-grid" style="border:1px solid var(--color-neutral-300);padding:1.25rem;background-color:var(--color-page)">
+      <div class="card">Card on the emphasis grid</div>
+      <p class="note" style="margin-top:0.5rem"><code>.bg-plus-grid</code> — stronger (#dbdad2), entry &amp; auth panels</p>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <h2 id="shape">5. Shape &amp; spacing</h2>
+  <ul>
+    <li><strong>Radius: 0.</strong> Boxes are square, everywhere.</li>
+    <li><strong>Borders:</strong> 1px <code>neutral-300</code>. Dashed
+      <code>neutral-300</code> marks a collapsed “advanced” fold or an empty state.</li>
+    <li><strong>Card padding:</strong> <code>p-3</code> (12px) in dense workspace
+      panels, <code>p-4</code>–<code>p-6</code> on standalone pages.</li>
+    <li><strong>Field grid:</strong> two columns from <code>sm</code> up
+      (<code>grid gap-3 sm:grid-cols-2</code>); full-width fields span both.</li>
+    <li><strong>Rhythm:</strong> gaps of 2 / 3 / 4 (8/12/16px). Sections separate
+      by <code>gap-4</code> in the results grid.</li>
+  </ul>
+
+  <!-- 6 -->
+  <h2 id="buttons">6. Buttons</h2>
+  <p class="note"><code>components/ui/Button.tsx</code> — <code>variant</code>:
+    primary | secondary | ghost, <code>size</code>: sm | md.</p>
+  <div class="card">
+    <div class="row" style="margin-bottom:0.75rem">
+      <button class="btn btn-md btn-primary">Primary</button>
+      <button class="btn btn-md btn-secondary">Secondary</button>
+      <button class="btn btn-md btn-ghost">Ghost</button>
+      <button class="btn btn-md btn-secondary" disabled>Disabled</button>
+    </div>
+    <div class="row">
+      <button class="btn btn-sm btn-primary">Primary sm</button>
+      <button class="btn btn-sm btn-secondary">Secondary sm</button>
+      <button class="btn btn-sm btn-secondary" style="color:var(--color-danger)">Delete</button>
+    </div>
+  </div>
+  <ul>
+    <li><strong>One primary per view.</strong> Everything else is secondary or ghost.</li>
+    <li><strong>sm</strong> is the workspace default (toolbars, table rows);
+      <strong>md</strong> for page-level actions and forms.</li>
+    <li>Destructive actions are secondary buttons with
+      <code>text-red-700</code> plus an inline confirm — never a lone red button
+      that fires immediately.</li>
+  </ul>
+
+  <!-- 7 -->
+  <h2 id="forms">7. Forms &amp; fields</h2>
+  <div class="card grid cols-2">
+    <label class="field">
+      <span class="field-label">Text input</span>
+      <input class="input" value="Mejillones" />
+    </label>
+    <label class="field">
+      <span class="field-label">Number input</span>
+      <input class="input num" value="9500" />
+    </label>
+    <label class="field">
+      <span class="field-label">Select</span>
+      <select class="input"><option>Point-to-point</option></select>
+    </label>
+    <label class="field">
+      <span class="field-label">Disabled — surface greys, label stays readable</span>
+      <input class="input" value="0" disabled />
+    </label>
+  </div>
+  <ul>
+    <li>Label above, 12px medium <code>neutral-600</code>; unit suffix inside the
+      control on the right.</li>
+    <li>Focus is <code>border-brand</code> + a 2px <code>brand/40</code> ring —
+      never <code>outline: none</code> alone.</li>
+    <li><strong>Disabled greys the input surface only.</strong> Never
+      opacity-dim the whole block: dimmed labels and notes fail contrast, and
+      the note is information (“forced to 0 under this sourcing”), not chrome.</li>
+  </ul>
+
+  <!-- 8 -->
+  <h2 id="provenance">8. Provenance badges</h2>
+  <p>The signature pattern of this app: every resolved value says where it came
+    from, and an overridden value keeps its benchmark one keystroke away.</p>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <span class="field-label" style="margin:0">Fuel consumption</span>
+      <span class="badge badge-override">override</span>
+    </div>
+    <input class="input num" value="5700" style="margin-top:0.25rem;color:var(--color-brand)" />
+    <p class="note" style="margin-top:0.25rem">
+      benchmark: 2,638 t/vessel/yr · <a href="#provenance">restore</a>
+    </p>
+    <div class="row" style="margin-top:0.75rem">
+      <span class="badge badge-override">override</span>
+      <span class="badge badge-derived">derived</span>
+      <span class="badge badge-benchmark">benchmark</span>
+      <span class="badge badge-warning">unverified</span>
+    </div>
+  </div>
+  <ul>
+    <li><strong>override</strong> — your typed value (renders in brand blue).</li>
+    <li><strong>derived</strong> — computed from other inputs (purple).</li>
+    <li><strong>benchmark</strong> — reference data (neutral).</li>
+    <li><strong>unverified</strong> — a benchmark flagged as planning-level.</li>
+  </ul>
+  <p class="note">Other badge tones: <span class="badge badge-neutral">neutral</span>
+    <span class="badge badge-brand">brand</span>
+    <span class="badge badge-warning">warning</span> —
+    <code>components/ui/Badge.tsx</code>.</p>
+
+  <!-- 9 -->
+  <h2 id="feedback">9. Notices &amp; callouts</h2>
+  <div class="grid" style="gap:0.5rem">
+    <p class="callout callout-ok" role="status">Saved — a transient flash, cleared after ~3s.</p>
+    <p class="callout callout-warn">
+      Legacy accounting loaded: this scenario charges the merchant fuel price
+      AND production CAPEX/O&amp;M — production cost is counted twice.
+    </p>
+    <p class="callout callout-err">Sign-in failed — check your email and password.</p>
+  </div>
+  <ul>
+    <li>Amber = a model caveat the reader must know (never silent).</li>
+    <li>Green = a completed action, transient.</li>
+    <li>Red = a failure the user can act on. Say what to do, not just what broke.</li>
+  </ul>
+
+  <!-- 10 -->
+  <h2 id="tables">10. Tables</h2>
+  <div class="card" style="padding:0">
+    <table>
+      <thead><tr><th>Project</th><th>Last saved</th><th class="num">Gap (PV)</th></tr></thead>
+      <tbody>
+        <tr><td>Mejillones–Japan copper corridor <span class="badge badge-brand">editing</span></td>
+            <td>03 Aug 2026, 15:30</td><td class="num mono">$1,762.21m</td></tr>
+        <tr><td>Rotterdam–Pecém ammonia</td><td>02 Aug 2026, 09:12</td>
+            <td class="num mono">$1,609.21m</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul>
+    <li>Header: 11px mono-ish uppercase, wide tracking, <code>neutral-500</code>
+      on a <code>neutral-50</code> band.</li>
+    <li>Rows separate with <code>neutral-200</code> hairlines; the last row has none.</li>
+    <li>Numbers right-aligned and tabular; text left-aligned.</li>
+  </ul>
+
+  <!-- 11 -->
+  <h2 id="tabs">11. Workspace tabs</h2>
+  <p>The corridor workspace has one nav bar. Each tab carries a very slight
+    tone swept along the logo’s own blue→red diverging wave, held as
+    <code>--tone</code> RGB channels and used at low alpha. The active tab is
+    marked by a solid 2px inset bar, not by a loud fill.</p>
+  <div class="tabs">
+    <div class="tab tab-active" style="--tone:82 81 78"><span class="tab-num mono">00</span><span class="tab-label">Projects</span></div>
+    <div class="tab" style="--tone:8 48 107"><span class="tab-num mono">01</span><span class="tab-label">Cargo</span></div>
+    <div class="tab" style="--tone:33 113 181"><span class="tab-num mono">02</span><span class="tab-label">Vessel</span></div>
+    <div class="tab" style="--tone:107 174 214"><span class="tab-num mono">03</span><span class="tab-label">Fuel</span></div>
+    <div class="tab" style="--tone:244 165 130"><span class="tab-num mono">04</span><span class="tab-label">Port</span></div>
+    <div class="tab" style="--tone:214 96 77"><span class="tab-num mono">05</span><span class="tab-label">Regulation</span></div>
+    <div class="tab" style="--tone:178 24 43"><span class="tab-num mono">06</span><span class="tab-label">Results</span></div>
+  </div>
+  <p class="note">Active 12% · visited 6% · idle 5% alpha, plus a 3% wash of the
+    active tone on the workspace background. Eyebrow numerals and idle labels
+    are <code>neutral-600</code> — <code>neutral-500</code> fails AA on the warm
+    active tint (measured 3.91:1).</p>
+
+  <!-- 12 -->
+  <h2 id="viz">12. Data visualisation</h2>
+  <div class="grid cols-3">
+    <div class="sw"><div class="sw-chip" style="background:var(--viz-series-1)"></div>
+      <div class="sw-meta"><div class="sw-name">series-1</div><div class="sw-val mono">#2171b5</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--viz-series-green)"></div>
+      <div class="sw-meta"><div class="sw-name">series-green</div><div class="sw-val mono">#008300 · green fuel</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--viz-delta-up)"></div>
+      <div class="sw-meta"><div class="sw-name">delta-up</div><div class="sw-val mono">#d03b3b · cost ↑</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--viz-delta-down)"></div>
+      <div class="sw-meta"><div class="sw-name">delta-down</div><div class="sw-val mono">#2171b5 · saving</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--viz-total)"></div>
+      <div class="sw-meta"><div class="sw-name">total</div><div class="sw-val mono">#52514e · anchors</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:var(--viz-grid)"></div>
+      <div class="sw-meta"><div class="sw-name">grid</div><div class="sw-val mono">#e1e0d9</div></div></div>
+  </div>
+  <ul>
+    <li>The delta pair is a <strong>CVD-safe blue↔red</strong> diverging pair;
+      colour is never the only cue — a legend swatch and an axis label always
+      accompany it.</li>
+    <li><strong>Separate the outlier, never compress the rest.</strong> If one
+      value exceeds the series median by more than 5×, the default rendering is
+      wrong: decompose by cost nature, split the series, offset the axis (and
+      label the break) — or drop the series and state its shape in words.
+      <code>warnIfDominated()</code> enforces this in development, per series.</li>
+    <li>No log axis for money in a non-technical panel; no broken axis on a
+      primary series.</li>
+    <li>Fixed colour domains on the map — a colour means the same LCOH
+      everywhere on that layer, never rescaled to the viewport.</li>
+  </ul>
+
+  <!-- 13 -->
+  <h2 id="a11y">13. Accessibility rules</h2>
+  <p>Every page is checked with axe (serious + critical must be zero) in the e2e
+    suite. Rules that have actually bitten, kept here so they don't again:</p>
+  <div class="do-dont">
+    <div class="do">
+      <h4>Do</h4>
+      <ul>
+        <li>Darken muted text to clear AA on the <em>page</em>, not just white.</li>
+        <li>Grey a disabled input's surface; keep its label and note readable.</li>
+        <li>Pair every colour cue with a swatch, label or badge.</li>
+        <li>Give icon-only controls an <code>aria-label</code>; modals a
+          <code>role="dialog"</code> + accessible name.</li>
+        <li>Keep <code>&lt;dt&gt;</code>/<code>&lt;dd&gt;</code> as direct children of a
+          <code>&lt;dl&gt;</code>'s wrapper div.</li>
+      </ul>
+    </div>
+    <div class="dont">
+      <h4>Don't</h4>
+      <ul>
+        <li>Use <code>opacity</code> to show disabled state on a whole block.</li>
+        <li>Use <code>amber-700</code> on an amber wash (fails AA) — use 800.</li>
+        <li>Use <code>neutral-500</code> on a tinted tab or wash.</li>
+        <li>Rely on red/green alone to carry meaning.</li>
+        <li>Animate without honouring <code>prefers-reduced-motion</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 14 -->
+  <h2 id="voice">14. Writing</h2>
+  <ul>
+    <li><strong>Plain and specific.</strong> “This site runs 32% of the year;
+      the carrier's synthesis loop needs 85%” — not “suboptimal duty cycle”.</li>
+    <li><strong>Name the consequence.</strong> Deleting says what is lost;
+      expiry says scenarios are kept.</li>
+    <li><strong>State uncertainty.</strong> A screening estimate shows its range
+      and names the driver of the spread. Never render precision the number
+      doesn't have.</li>
+    <li><strong>Never silent.</strong> Loading under a newer engine, a legacy
+      accounting quirk, an unverified benchmark — all announced inline.</li>
+    <li>Sentence case for labels and buttons; units always stated; en dashes in
+      ranges ($2,209–$3,027).</li>
+  </ul>
+
+  <p class="note" style="margin-top:3rem;border-top:1px solid var(--color-neutral-300);padding-top:1rem">
+    Sources: <code>apps/web/app/globals.css</code> (tokens),
+    <code>apps/web/components/ui/</code> (primitives),
+    <code>apps/web/components/corridor/ResolvedField.tsx</code> (provenance),
+    <code>docs/FRONTEND_NOTES.md</code> (chart rules).
+    Update this page when those change.
+  </p>
+
+</main>
+</body>
+</html>
