@@ -36,7 +36,7 @@ export async function GET(
       ? jsonError(403, "access_expired", "Your access period has ended")
       : jsonError(401, "unauthorized", "Sign-in required");
   }
-  const caller = access.caller;
+
 
   const { data, error } = await supabase
     .from("scenarios")
@@ -68,7 +68,7 @@ export async function PUT(
       ? jsonError(403, "access_expired", "Your access period has ended")
       : jsonError(401, "unauthorized", "Sign-in required");
   }
-  const caller = access.caller;
+
 
   let body: { name?: unknown; payload?: unknown; share?: unknown };
   try {

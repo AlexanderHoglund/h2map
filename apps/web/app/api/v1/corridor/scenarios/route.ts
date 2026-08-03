@@ -94,7 +94,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       ? jsonError(403, "access_expired", "Your access period has ended")
       : jsonError(401, "unauthorized", "Sign-in required");
   }
-  const caller = access.caller;
+
 
   const { data, error } = await supabase
     .from("scenarios")

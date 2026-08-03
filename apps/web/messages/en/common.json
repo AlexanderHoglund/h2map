@@ -71,5 +71,31 @@
    "contactSubject": "Thaduberg access extension",
    "signOut": "Sign out"
   }
+ },
+ "admin": {
+  "heading": "User administration",
+  "note": "Access types: full (no limit), trial and teaching (time-limited — use +30 days to grant or extend). Expiring an account locks it out at the next request; saved scenarios are kept and restored on extension. Deleting a user permanently removes their account AND their saved scenarios.",
+  "refresh": "Refresh",
+  "loading": "Loading users…",
+  "loadError": "Could not load users (HTTP {status}).",
+  "actionError": "Action failed (HTTP {status}).",
+  "colUser": "User",
+  "colType": "Account type",
+  "colExpires": "Access expires",
+  "colLastSignIn": "Last sign-in",
+  "colActions": "Actions",
+  "typeFull": "Full",
+  "typeTrial": "Trial",
+  "typeTeaching": "Teaching",
+  "adminBadge": "admin",
+  "never": "Never",
+  "expiredBadge": "expired",
+  "extend30": "+30 days",
+  "expireNow": "Expire now",
+  "delete": "Delete…",
+  "deleteConfirmTitle": "Delete this user?",
+  "deleteConfirmBody": "{email} will be permanently removed, together with all of their saved scenarios. This cannot be undone.",
+  "deleteConfirmAction": "Delete user",
+  "cancel": "Cancel"
  }
 }
