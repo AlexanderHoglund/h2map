@@ -4,7 +4,7 @@ import { parseScenarioInput, resolveScenario } from "@h2map/corridor-schema";
 import { CORRIDOR_ENGINE_VERSION, evaluateScenario } from "@h2map/corridor-engine";
 import { jsonError, rateLimited, validationError } from "@/lib/api/responses";
 import { checkRateLimit, clientIp, GENERAL_POLICY } from "@/lib/server/rateLimit";
-import { getCaller, getUserSupabase } from "@/lib/server/userSupabase";
+import { getCallerWithAccess, getUserSupabase } from "@/lib/server/userSupabase";
 import { loadRefBundle } from "@/lib/server/corridorRef";
 import type { TablesUpdate } from "@/lib/supabase/database.types";
 
@@ -30,8 +30,13 @@ export async function GET(
   if (!UUID_RE.test(id)) return jsonError(400, "invalid_id", "id must be a UUID");
 
   const supabase = getUserSupabase(request);
-  const caller = await getCaller(supabase);
-  if (!caller) return jsonError(401, "unauthorized", "Sign-in required");
+  const access = await getCallerWithAccess(supabase);
+  if (!access.ok) {
+    return access.code === "access_expired"
+      ? jsonError(403, "access_expired", "Your access period has ended")
+      : jsonError(401, "unauthorized", "Sign-in required");
+  }
+  const caller = access.caller;
 
   const { data, error } = await supabase
     .from("scenarios")
@@ -57,8 +62,13 @@ export async function PUT(
   if (!UUID_RE.test(id)) return jsonError(400, "invalid_id", "id must be a UUID");
 
   const supabase = getUserSupabase(request);
-  const caller = await getCaller(supabase);
-  if (!caller) return jsonError(401, "unauthorized", "Sign-in required");
+  const access = await getCallerWithAccess(supabase);
+  if (!access.ok) {
+    return access.code === "access_expired"
+      ? jsonError(403, "access_expired", "Your access period has ended")
+      : jsonError(401, "unauthorized", "Sign-in required");
+  }
+  const caller = access.caller;
 
   let body: { name?: unknown; payload?: unknown; share?: unknown };
   try {

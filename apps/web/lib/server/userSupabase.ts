@@ -32,3 +32,41 @@ export async function getCaller(
   if (error || !data.user) return null;
   return data.user;
 }
+
+export type CallerAccess =
+  | { ok: true; caller: User }
+  | { ok: false; status: 401 | 403; code: "unauthorized" | "access_expired" };
+
+/**
+ * getCaller + the access check (login build): expired trial/teaching
+ * accounts get a typed 403 `access_expired` so the client can route them to
+ * /expired. Mirrors lib/server/access.ts semantics:
+ *  - profile row cleanly MISSING => no access (deleted-user protection —
+ *    Supabase does not revoke live JWTs on delete);
+ *  - profile QUERY ERROR => fail-open with a warning (DB outage or the
+ *    profiles migration not yet applied; bricking the API on a transient
+ *    error is worse than briefly not enforcing expiry).
+ */
+export async function getCallerWithAccess(
+  supabase: SupabaseClient<Database>,
+): Promise<CallerAccess> {
+  const caller = await getCaller(supabase);
+  if (!caller) return { ok: false, status: 401, code: "unauthorized" };
+
+  const { data: row, error } = await supabase
+    .from("profiles")
+    .select("access_expires_at")
+    .eq("id", caller.id)
+    .maybeSingle();
+
+  if (error) {
+    console.warn(`[access] API profile read failed (fail-open): ${error.message}`);
+    return { ok: true, caller };
+  }
+  if (!row) return { ok: false, status: 403, code: "access_expired" };
+  const exp = row.access_expires_at;
+  if (exp !== null && new Date(exp).getTime() <= Date.now()) {
+    return { ok: false, status: 403, code: "access_expired" };
+  }
+  return { ok: true, caller };
+}
