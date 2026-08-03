@@ -136,6 +136,37 @@ Dashboard settings the login flows require:
    attempts. Deliberately do NOT extend `apps/web/lib/server/rateLimit.ts`
    for auth — it is in-memory, per-instance, and resets on deploy.
 
+### Applying the profiles migration
+
+The CLI is not installed globally in this repo — always prefix with `npx`
+(`supabase login` alone fails with "not recognized"). Two routes:
+
+**A. CLI (preferred — records migration history).** `supabase link` needs a
+personal ACCESS TOKEN, which is a different credential from the
+`SUPABASE_SECRET_KEY` in `.env.local` (that one is the service key and
+cannot run DDL). Create a token at
+<https://supabase.com/dashboard/account/tokens>, then:
+
+```powershell
+npx supabase login --token <sbp_...>      # or: npx supabase login  (browser flow)
+npx supabase link --project-ref vbsfniydnuovmhnlusms   # asks for the DB password
+npx supabase db push
+npx supabase gen types typescript --linked > apps/web/lib/supabase/database.types.ts
+```
+
+**B. Dashboard SQL editor (no token needed).** Paste the contents of
+`supabase/migrations/20260803000001_profiles.sql` into the SQL editor and
+run it. The migration is idempotent-safe to run once and includes the
+backfill for pre-existing users. Then either run route A's `db push` later
+(it will detect the objects already exist — reconcile with
+`npx supabase migration repair --status applied 20260803000001`) or record
+it manually so history stays truthful.
+
+Until the migration is applied the app runs FAIL-OPEN: sign-in and page
+gating work, but trial expiry is not enforced and `/admin` cannot load
+(`lib/server/access.ts` and `getCallerWithAccess` log a warning and allow —
+deliberately, so a missing migration or DB outage never bricks every page).
+
 ### First admin
 
 Admin rights are held in `public.profiles.is_admin`, which no user can
