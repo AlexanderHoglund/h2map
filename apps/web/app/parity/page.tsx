@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import TopBar from "@/components/shell/TopBar";
+import { requireAccess } from "@/lib/server/access";
 import path from "node:path";
 
 export const dynamic = "force-dynamic";
@@ -64,7 +65,8 @@ function loadJson<T>(file: string): T | null {
   return JSON.parse(readFileSync(p, "utf8")) as T;
 }
 
-export default function ParityPage() {
+export default async function ParityPage() {
+  await requireAccess("/parity");
   const dataset = loadJson<Dataset>("chile-47-projects-lcoh.json");
   const results = loadJson<Results>("results.json");
 

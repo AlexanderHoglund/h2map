@@ -91,3 +91,15 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- Backfill: users created BEFORE this migration get a profile too — the
+-- trigger only fires on future inserts, and requireAccess treats a missing
+-- profile row as no-access (deleted-user protection), which would otherwise
+-- lock out every pre-existing account.
+insert into public.profiles (id, full_name, organisation)
+select
+  u.id,
+  coalesce(u.raw_user_meta_data ->> 'full_name', ''),
+  coalesce(u.raw_user_meta_data ->> 'organisation', '')
+from auth.users u
+on conflict (id) do nothing;

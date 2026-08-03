@@ -1,9 +1,11 @@
 import Footer from "@/components/shell/Footer";
+import { requireAccess } from "@/lib/server/access";
 import TopBar from "@/components/shell/TopBar";
 
 export const metadata = { title: "About the data — Thaduberg" };
 
-export default function AboutDataPage() {
+export default async function AboutDataPage() {
+  await requireAccess("/about/data");
   return (
     <>
       <TopBar />

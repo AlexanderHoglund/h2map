@@ -1,4 +1,5 @@
 import Footer from "@/components/shell/Footer";
+import { requireAccess } from "@/lib/server/access";
 import TopBar from "@/components/shell/TopBar";
 
 export const metadata = {
@@ -203,7 +204,8 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ['flags.rateBasis', '"nominal" | "real"', "no", "—", "—", "—"],
 ];
 
-export default function DocsPage() {
+export default async function DocsPage() {
+  await requireAccess("/docs");
   return (
     <>
       <TopBar />
