@@ -104,3 +104,60 @@ Supabase agent skills are installed in `.agents/skills/` (committed) with Claude
 - [ ] Share RPC callable: `select id from public.get_scenario_by_share_token('no-such-token');` returns 0 rows (no error).
 - [ ] Direct `select * from public.scenarios;` in the SQL editor returns 0 rows (RLS blocks; table empty anyway).
 - [ ] `apps/web/lib/supabase/database.types.ts` exists after §5 and typechecks.
+
+## 10. Auth configuration (login / access management build, 2026-08-03)
+
+The `20260803000001_profiles.sql` migration adds the account layer:
+`public.profiles` (display name/organisation + ADMIN-CONTROLLED
+`account_type` / `access_expires_at` / `is_admin`), the `is_admin()` RLS
+helper, and the signup trigger that auto-creates a profile row. Apply with
+`npx supabase db push`, then regen types (§5) and re-run the advisors.
+
+Dashboard settings the login flows require:
+
+1. **Auth → Providers → Email**: keep **email confirmations ON**
+   (recommended — auto-granted accounts still confirm their address first,
+   which is the anti-bot line; turning it off gives instant access but
+   invites spam signups).
+2. **Auth → URL Configuration**: Site URL = the production origin.
+   Additional redirect URLs: `http://localhost:3000/**` (dev),
+   `http://127.0.0.1:3100/**` (the e2e prod server), and the prod `/**`.
+3. **Auth → Email templates**: switch "Confirm signup" and "Reset password"
+   to the token-hash form the server-side confirm route expects:
+   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`
+   (reset template: `type=recovery` and `next=/reset-password`).
+4. **Custom SMTP before real users** — the built-in sender is limited to a
+   couple of emails per hour and silently drops the rest; confirmation and
+   reset mails will appear "lost" during testing without this.
+5. **Settings → API → JWT keys**: enable **asymmetric JWT signing keys** so
+   the proxy's `getClaims()` verifies sessions locally; on legacy HS256
+   projects it falls back to a network call per navigation.
+6. **Auth rate limits**: Supabase's built-in limits cover sign-in/sign-up
+   attempts. Deliberately do NOT extend `apps/web/lib/server/rateLimit.ts`
+   for auth — it is in-memory, per-instance, and resets on deploy.
+
+### First admin
+
+Admin rights are held in `public.profiles.is_admin`, which no user can
+self-write (no authenticated write policy). Bootstrap the first admin once,
+in the SQL editor:
+
+```sql
+update public.profiles set is_admin = true
+where id = (select id from auth.users where email = '<your email>');
+```
+
+Every further grant can then be done from `/admin` in the app.
+
+### Smoke test
+
+```powershell
+npm run auth:smoke   # against a running dev server on :3000
+```
+
+Creates two throwaway users via the service-role admin API (deleted at the
+end), and verifies: the signup trigger + copied metadata, profiles RLS
+(cross-read and self-promotion blocked), expired-trial 403s, the admin API
+guard rails, scenario DELETE ownership, and the delete-user cascade. Checks
+whose routes are not yet deployed report SKIP, so the script is useful from
+the migration onward.

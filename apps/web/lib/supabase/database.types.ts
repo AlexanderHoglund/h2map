@@ -101,6 +101,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          access_expires_at: string | null
+          account_type: string
+          created_at: string
+          full_name: string
+          id: string
+          is_admin: boolean
+          organisation: string
+          updated_at: string
+        }
+        Insert: {
+          access_expires_at?: string | null
+          account_type?: string
+          created_at?: string
+          full_name?: string
+          id: string
+          is_admin?: boolean
+          organisation?: string
+          updated_at?: string
+        }
+        Update: {
+          access_expires_at?: string | null
+          account_type?: string
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_admin?: boolean
+          organisation?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ref_bundles: {
         Row: {
           bundle_id: string
@@ -465,6 +498,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
     Enums: {
