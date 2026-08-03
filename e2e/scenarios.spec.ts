@@ -1,19 +1,18 @@
 /**
- * Authed scenario round-trip (login build): save the default draft to the
- * account, reload it via the ?s= URL, then delete it through the Manage
- * modal. Exercises the real API + RLS end-to-end with the e2e user.
+ * Authed project round-trip (login build + Projects tab): save the draft as
+ * a project, reload it via the ?s= URL, rename it, then delete it from tab
+ * 00. Exercises the real API + RLS end-to-end with the e2e user.
  */
 
 import { expect, test } from "@playwright/test";
 
-test("save → reload via ?s= → delete through Manage", async ({ page }) => {
+test("save → reload via ?s= → rename → delete from the Projects tab", async ({ page }) => {
   await page.goto("/corridor");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
 
-  // Name + save the scenario.
+  // Name + save the project from the scenario bar.
   const name = `e2e round-trip ${Date.now().toString(36)}`;
-  const nameInput = page.getByLabel("Scenario name");
-  await nameInput.fill(name);
+  await page.getByLabel("Scenario name").fill(name);
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Saved", { exact: true })).toBeVisible({ timeout: 15_000 });
   await expect(page).toHaveURL(/\/corridor\?s=[0-9a-f-]{36}/);
@@ -25,12 +24,26 @@ test("save → reload via ?s= → delete through Manage", async ({ page }) => {
   await expect(page.getByText("Loaded", { exact: true })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByLabel("Scenario name")).toHaveValue(name);
 
-  // Delete via the Manage modal (confirm step included).
-  await page.getByRole("button", { name: "Manage…" }).click();
-  const dialog = page.getByRole("dialog", { name: "My scenarios" });
-  await expect(dialog.getByText(name, { exact: true })).toBeVisible();
-  const row = dialog.locator("tr", { hasText: name });
-  await row.getByRole("button", { name: "Delete…" }).click();
-  await row.getByRole("button", { name: "Delete", exact: true }).click();
-  await expect(dialog.getByText(name, { exact: true })).toHaveCount(0, { timeout: 15_000 });
+  // Tab 00 lists it, marked as the project being edited.
+  await page.getByRole("button", { name: "00 Projects" }).click();
+  const row = page.locator("table tr", { hasText: name });
+  await expect(row).toBeVisible();
+  await expect(row.getByText("(editing)")).toBeVisible();
+
+  // Rename in place. Edit mode swaps the name text for an input, so the
+  // hasText locator would stop matching — pin the row by position first.
+  const editRow = page.locator("table tbody tr").first();
+  const renamed = `${name} renamed`;
+  await row.getByRole("button", { name: "Rename" }).click();
+  await editRow.locator("input").fill(renamed);
+  await editRow.getByRole("button", { name: "Save name" }).click();
+  const renamedRow = page.locator("table tr", { hasText: renamed });
+  await expect(renamedRow).toBeVisible({ timeout: 15_000 });
+
+  // Delete (confirm step included).
+  await renamedRow.getByRole("button", { name: "Delete", exact: true }).click();
+  await renamedRow.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(page.locator("table tr", { hasText: renamed })).toHaveCount(0, {
+    timeout: 15_000,
+  });
 });

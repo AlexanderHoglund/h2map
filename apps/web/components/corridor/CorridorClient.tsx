@@ -11,6 +11,8 @@ import { CargoStep, FuelStep, PortStep, RegulationStep, VesselStep } from "./ste
 import ResultsPanel from "./ResultsPanel";
 import ResultsSummary from "./ResultsSummary";
 import ScenarioBar from "./ScenarioBar";
+import ProjectsPanel from "./ProjectsPanel";
+import { useProjects } from "./useProjects";
 import ShippingCanvas from "./ShippingCanvas";
 
 /**
@@ -37,7 +39,8 @@ const ExplorerWorkspace = dynamic(
 
 const STEPS = ["cargo", "vessel", "fuel", "port", "regulation"] as const;
 type StepKey = (typeof STEPS)[number];
-type View = StepKey | "results";
+/** Tab 00 (projects) sits before the five input steps; results closes. */
+type View = "projects" | StepKey | "results";
 
 /**
  * A very slight per-tab tone, swept along the logo's own blue→red diverging
@@ -47,6 +50,7 @@ type View = StepKey | "results";
  * (its own colour) and on the workspace (the active tab's colour).
  */
 const TONES: Record<View, string> = {
+  projects: "82 81 78",
   cargo: "8 48 107",
   vessel: "33 113 181",
   fuel: "107 174 214",
@@ -59,12 +63,20 @@ export default function CorridorClient() {
   const t = useTranslations("corridor");
   const tc = useTranslations();
   const model = useCorridorModel();
+  const projects = useProjects(model);
   const [entered, setEntered] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [legacyDismissed, setLegacyDismissed] = useState(false);
   const [view, setView] = useState<View>("cargo");
-  const stepIndex = view === "results" ? STEPS.length : STEPS.indexOf(view);
+  // Step position for Back/Next + the visited shading. Projects (tab 00) is
+  // not part of the walk: it reports -1.
+  const stepIndex =
+    view === "results"
+      ? STEPS.length
+      : view === "projects"
+        ? -1
+        : STEPS.indexOf(view);
 
   const goTo = (key: View) => {
     setEntered(true);
@@ -88,6 +100,7 @@ export default function CorridorClient() {
   };
 
   const tabs: { key: View; label: string }[] = [
+    { key: "projects", label: t("projects.tab") },
     ...STEPS.map((key) => ({ key: key as View, label: t(`steps.${key}`) })),
     { key: "results", label: t("results.heading") },
   ];
@@ -117,7 +130,7 @@ export default function CorridorClient() {
         >
           {tabs.map(({ key, label }, i) => {
             const active = entered && key === view;
-            const visited = entered && i <= stepIndex;
+            const visited = entered && i <= stepIndex + 1;
             return (
               <button
                 key={key}
@@ -134,7 +147,7 @@ export default function CorridorClient() {
                 }`}
               >
                 <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-600">
-                  {String(i + 1).padStart(2, "0")}
+                  {String(i).padStart(2, "0")}
                 </span>
                 <span className="w-full truncate whitespace-nowrap text-sm font-medium">
                   {label}
@@ -245,13 +258,18 @@ export default function CorridorClient() {
             <ShippingCanvas />
           </div>
         </main>
+      ) : view === "projects" ? (
+        /* ===== Tab 00 — Projects: saved work, managed ===== */
+        <main className="min-h-0 flex-1 overflow-y-auto bg-[rgb(var(--tone)/0.03)] p-4">
+          <ProjectsPanel projects={projects} onOpen={() => setView("cargo")} />
+        </main>
       ) : view === "results" ? (
         /* ===== Results tab: the full panel, full width ===== */
         <main className="min-h-0 flex-1 overflow-y-auto bg-[rgb(var(--tone)/0.03)] p-4">
           <div className="mx-auto max-w-375">
             {/* Same scenario bar as the input steps — name, JSON round-trip,
                 reset and the autosave note apply to the report too. */}
-            <ScenarioBar model={model} />
+            <ScenarioBar model={model} projects={projects} />
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-sm font-semibold">{t("results.heading")}</h2>
               <Button
@@ -287,7 +305,7 @@ export default function CorridorClient() {
             }`}
           >
             <div className={mapOpen ? "" : "mx-auto max-w-3xl"}>
-              <ScenarioBar model={model} />
+              <ScenarioBar model={model} projects={projects} />
               {model.scenario.flags?.legacyExcelConstruct && !legacyDismissed && (
                 <div className="mb-4 flex items-start gap-3 border border-amber-300 bg-amber-500/10 px-3 py-2 text-xs leading-snug text-amber-800">
                   <span className="flex-1">{t("legacyBanner")}</span>
