@@ -323,11 +323,45 @@ export default async function DocsPage() {
         </p>
 
         {/* 2 ---------------------------------------------------------- */}
-        <H id="workflow">2. Working with scenarios</H>
+        <H id="workflow">2. Accounts &amp; working with scenarios</H>
+        <p className="mt-2">
+          The platform sits behind a sign-in: request access on the home page
+          (granted automatically once you confirm your email), or sign in
+          with an existing account. Teaching and trial accounts are
+          time-limited — at the end of the access period the platform locks
+          with a contact screen, your saved scenarios are kept, and an
+          extension restores everything exactly as it was.
+        </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Draft autosave</strong>{" "}— every change is saved locally in
             your browser; returning to the app offers to resume the draft.
+            Drafts are per-browser and work independently of account saves.
+          </li>
+          <li>
+            <strong>Save / Duplicate</strong>{" "}— the scenario bar stores the
+            current scenario to your account (server-validated, with the
+            engine and reference-data versions pinned). Save updates the
+            loaded scenario; Duplicate makes a copy. The URL then carries the
+            scenario id, so a bookmark reopens it.
+          </li>
+          <li>
+            <strong>Open / Manage</strong>{" "}— Open loads a saved scenario
+            (loading under a newer schema or engine is announced, never
+            silent). Manage lists all of your scenarios with load, share-link
+            copy/revoke and <strong>delete</strong>{" "}(with confirmation).
+          </li>
+          <li>
+            <strong>Share</strong>{" "}— creates a read-only link
+            (/corridor/s/…) anyone can open without an account; the
+            unguessable token is the access, and revoking it kills the link.
+            Shared views show the stored results with an explicit
+            recompute-under-current-model option.
+          </li>
+          <li>
+            <strong>Field-level diff</strong>{" "}— compare the current draft
+            against any saved scenario: every differing input plus the
+            headline-gap delta.
           </li>
           <li>
             <strong>Export / Import JSON</strong>{" "}— the scenario bar downloads
