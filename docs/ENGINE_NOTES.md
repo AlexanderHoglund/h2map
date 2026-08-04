@@ -197,6 +197,17 @@ untouched (an `improved-*` golden set is added beside it).
   (`scripts/providers/fetch-pvgis.ts`, whose output feeds the LCOH goldens)
   deliberately still uses `optimalangles` and must not be "fixed".
 
+  **Re-seed outcome (Kenya, 2026-08-04).** `npm run hex:recover-solar` over the
+  Kenya bbox: **171 → 13 cells without solar**, 193 → 351 with solar, and *no
+  cell that had solar lost it* (the script can only upgrade a cell). Recovered
+  cells land at solar CF 0.164–0.238 (median 0.194), LCOH 6.0–11.1 USD/kg —
+  matching the predicted 0.17–0.20 band and confirming the diagnosis rather
+  than merely filling holes. The vertical-panel signature (CF ≈ 0.084) is gone:
+  **zero** Kenya cells now sit below the `solar_cf < 0.12` threshold of the old
+  ad-hoc mask, which is therefore obsolete rather than load-bearing. Global
+  `lcoh_solar IS NULL` fell 320 → 163; the residue is non-Kenya and mostly
+  >45° latitude, where rejection may be legitimate polar-winter behaviour.
+
 - **Known open items (data layer, 2026-08-04):**
   - `apps/web/lib/server/profileCache.ts` upserts on
     `"lat_r,lon_r,kind,dataset_version"` — **missing `mode`**, inconsistent
