@@ -16,6 +16,17 @@ export default function Footer() {
             {t("aboutData")} →
           </Link>
         </span>
+        {/* Legal notices. The landing page carries its own copy of these links
+            (it is fixed-height and cannot take this footer) — see LandingClient. */}
+        <span>
+          <Link href="/legal/privacy" className="underline underline-offset-2 hover:text-brand">
+            {t("privacy")}
+          </Link>{" "}
+          ·{" "}
+          <Link href="/legal/cookies" className="underline underline-offset-2 hover:text-brand">
+            {t("cookies")}
+          </Link>
+        </span>
       </div>
     </footer>
   );

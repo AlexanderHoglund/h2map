@@ -33,6 +33,10 @@ function isPublic(pathname: string): boolean {
   if (pathname === "/auth/confirm") return true;
   if (pathname === "/reset-password") return true;
   if (pathname === "/expired") return true;
+  // Legal notices (privacy, cookies; imprint later). Their audience is
+  // LOGGED-OUT visitors, so they must never redirect. Prefix rule so a new
+  // document needs no proxy change. Hardcoded — the proxy imports nothing.
+  if (pathname.startsWith("/legal/")) return true;
   return false;
 }
 

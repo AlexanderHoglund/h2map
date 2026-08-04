@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -39,6 +40,9 @@ export default function LandingClient({
   authError: string | null;
 }) {
   const t = useTranslations("landing");
+  // One label, one key: the legal links reuse the footer's, so they cannot
+  // drift apart from the copy shown on the content pages.
+  const tFooter = useTranslations("footer");
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
@@ -283,6 +287,27 @@ export default function LandingClient({
           </div>
 
           <p className="mt-6 text-xs text-neutral-500">{t("footnote")}</p>
+          {/* The only page an anonymous visitor is guaranteed to see, and where
+              they hand over name, organisation and email — so the legal notices
+              must be reachable from here. This page is fixed-height
+              (lg:overflow-hidden) and cannot take the shared Footer.
+              neutral-600, not -500: 12px on the warm bg-page needs the margin.
+              Deliberately OUTSIDE the auth card — these are notices, not consent. */}
+          <p className="mt-2 text-xs text-neutral-600">
+            <Link
+              href="/legal/privacy"
+              className="underline underline-offset-2 hover:text-brand"
+            >
+              {tFooter("privacy")}
+            </Link>{" "}
+            ·{" "}
+            <Link
+              href="/legal/cookies"
+              className="underline underline-offset-2 hover:text-brand"
+            >
+              {tFooter("cookies")}
+            </Link>
+          </p>
         </div>
       </div>
 
