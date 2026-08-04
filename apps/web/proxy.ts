@@ -36,6 +36,29 @@ function isPublic(pathname: string): boolean {
   return false;
 }
 
+/**
+ * True when the session could not be refreshed because the refresh token is
+ * gone/invalid server-side — as opposed to a transient network or 5xx blip,
+ * where dropping the user's session would be wrong.
+ */
+function isStaleRefreshToken(error: { code?: string; message?: string }): boolean {
+  const code = error.code ?? "";
+  if (code === "refresh_token_not_found" || code === "refresh_token_already_used") {
+    return true;
+  }
+  // Older/edge responses report a generic validation failure with the reason
+  // only in the message.
+  return /refresh token/i.test(error.message ?? "");
+}
+
+/** Landing URL carrying a sanitized same-origin return-to. */
+function redirectToLanding(request: NextRequest, pathname: string, search: string): URL {
+  const url = new URL("/", request.url);
+  const next = pathname + search;
+  if (/^\/(?!\/)/.test(next)) url.searchParams.set("next", next);
+  return url;
+}
+
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   let response = NextResponse.next({ request });
 
@@ -62,17 +85,31 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
   // No logic between client creation and the claims read (token refresh
   // must happen before any early return writes the response).
-  const { data } = await supabase.auth.getClaims();
+  const { data, error } = await supabase.auth.getClaims();
   const signedIn = Boolean(data?.claims);
 
   const { pathname, search } = request.nextUrl;
+
+  // A cookie whose refresh token the server no longer accepts (session
+  // revoked, user deleted, or the token already rotated) can never recover:
+  // @supabase/ssr does not clear it, so EVERY later request retries the same
+  // dead token and logs `refresh_token_not_found`. Clear it once, here — the
+  // only place that can write cookies on any navigation — so the visitor
+  // simply becomes anonymous instead of looping on a broken session.
+  if (!signedIn && error && isStaleRefreshToken(error)) {
+    const cleared = isPublic(pathname)
+      ? response
+      : NextResponse.redirect(redirectToLanding(request, pathname, search));
+    for (const { name } of request.cookies.getAll()) {
+      if (/^sb-.*-auth-token(\.\d+)?$/.test(name)) cleared.cookies.delete(name);
+    }
+    return cleared;
+  }
+
   if (signedIn || isPublic(pathname)) return response;
 
   // Anonymous on a gated page → landing with a sanitized return-to.
-  const redirectUrl = new URL("/", request.url);
-  const next = pathname + search;
-  if (/^\/(?!\/)/.test(next)) redirectUrl.searchParams.set("next", next);
-  const redirect = NextResponse.redirect(redirectUrl);
+  const redirect = NextResponse.redirect(redirectToLanding(request, pathname, search));
   // Carry any refreshed session cookies onto the redirect.
   for (const cookie of response.cookies.getAll()) {
     redirect.cookies.set(cookie);
