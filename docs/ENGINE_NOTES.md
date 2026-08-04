@@ -144,9 +144,15 @@ untouched (an `improved-*` golden set is added beside it).
 
 - **T1.1 — profile-validation gate** (profile layer; `validate.ts`,
   `ProfileServiceDeps.validateProfiles`). Auto-resolve fixed the ERA5 breakage,
-  but a live probe showed PVGIS-SARAH3 *itself* returns non-physical cells in
-  Kenya — e.g. (0.5, 37.3) peaks at CF 0.39 (mean 0.059) every year where ~0.19
-  is real — cleanly bimodal against the good cells (peak ~0.82). A structurally
+  but a live probe showed PVGIS returning non-physical series in Kenya — e.g.
+  (0.5, 37.3) peaking at CF 0.39 (mean 0.059) every year where ~0.19 is real —
+  cleanly bimodal against the good cells (peak ~0.82). **Correction
+  (2026-08-04): this was NOT a SARAH3 data fault as originally recorded.** The
+  root cause was our own request: `optimalangles=1` made PVGIS's tilt optimiser
+  return non-physical mountings near the equator (a 90° vertical north-facing
+  panel, a nonsense azimuth, or HTTP 500). The same cells fetched with an
+  explicit latitude-rule tilt return healthy data (mean 0.178-0.207, peak
+  ~0.80) and pass the gate. See "Fixed-mount geometry" below. A structurally
   valid 8760-hour profile can still be physically impossible, and it renders as
   a colour that breaks comparability with its true neighbours. `validateProfile`
   screens each built (and cached-on-read) profile against loose one-sided
@@ -163,6 +169,54 @@ untouched (an `improved-*` golden set is added beside it).
   Masking is **per-source**: a cell whose solar profile fails keeps its valid
   wind value (separate `lcoh_solar` / `lcoh_wind` layers) rather than becoming a
   full hole. Golden set and parity unchanged.
+
+- **Fixed-mount geometry — do not delegate the panel angle** (profile layer;
+  `providers/pvgis.ts` `fixedMounting`, 2026-08-04). We used to send
+  `optimalangles=1` and let PVGIS choose the tilt. Near the equator its
+  optimiser is unreliable: measured at (−0.86, 37.92) it returned a **90°
+  vertical, north-facing panel** (azimuth −180°) giving mean CF 0.084 / peak
+  0.41, where the same cell mounted flat gives **0.179 / 0.83**. Other observed
+  failures: a valid 0° slope with a nonsense 52° azimuth, and outright HTTP
+  500 from the optimiser. T1.1 then correctly rejected the collapsed series as
+  non-physical, so the cell rendered as no-data — this, not bad satellite data,
+  is what put the holes in Kenya's solar layer (**46 % of all |lat|<10° cells
+  were missing solar, vs 0.4–5 % elsewhere**). The tilt is now computed
+  locally: `tilt = min(round(|lat|), 35)`, equator-facing. The 35° cap reflects
+  that the yield curve flattens while self-shading and wind load grow. Azimuth
+  convention was verified against the live API rather than assumed —
+  `aspect=0` is equator-facing in the northern hemisphere (Spain 40.4°N: 0.175
+  at aspect 0 vs 0.090 at 180), `aspect=180` in the southern (Chile 23.5°S:
+  0.249 at 180 vs 0.180 at 0). **The mounting is part of the dataset tag**
+  (`…-pv_fixed-tilt<N>a<A>-<years>`) because the cache key is
+  `(lat_r, lon_r, kind, mode, dataset_version)` — without it a re-mounted
+  profile would silently upsert onto rows computed under the old assumption.
+  Consequence: every pre-existing PV profile is a cache miss and re-fetches on
+  next touch. Controls improved as a side effect (Chile 0.229→0.250, Spain
+  0.175→0.190). Tracking kinds (`pv_1axis`/`pv_2axis`) keep PVGIS's geometry —
+  a tracker has no fixed tilt to get wrong. The frozen provider spike
+  (`scripts/providers/fetch-pvgis.ts`, whose output feeds the LCOH goldens)
+  deliberately still uses `optimalangles` and must not be "fixed".
+
+- **Known open items (data layer, 2026-08-04):**
+  - `apps/web/lib/server/profileCache.ts` upserts on
+    `"lat_r,lon_r,kind,dataset_version"` — **missing `mode`**, inconsistent
+    with migration `20260729000001` and with `scripts/lib/serviceDeps.ts`
+    (which is correct). Reference and improved profiles sharing a dataset
+    version would collide on the WEB path (calculator / lcoh-evaluate); the
+    seeding path is unaffected. Not bundled with the mounting fix.
+  - `scripts/hex/pvgis-health.ts` counts only HTTP success, so it reports
+    "healthy" for cells whose data the T1.1 gate rejects — its canary
+    (0.5, 37.3) was exactly such a cell. The health gate blocks the
+    `kenya-recover` cron, so a false "healthy" is benign but a false
+    "unhealthy" silently stalls recovery. Worth teaching it the gate.
+  - Some `hex_lcoh.lcoh_solar` values were nulled by **ad-hoc SQL** during the
+    July Kenya work (a `solar_cf < 0.12` mask). No committed script or
+    migration performs it, so that DB state is not reproducible from the repo.
+    The 2026-08-04 re-seed supersedes it for Kenya.
+  - ~149 non-Kenya cells still lack solar, mostly above 45° latitude where a
+    genuine polar-winter profile can legitimately fail the gate. Unverified
+    whether those are the same mounting bug — the fix makes them recoverable
+    whenever a wider re-seed is run.
 
 - **P0 #3 — stack life on EFLH + efficiency reset**
   (`stackLifeOnEquivalentFullLoadHours` + `resetEfficiencyOnStackReplacement`).

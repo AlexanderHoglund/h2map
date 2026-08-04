@@ -25,6 +25,14 @@ const ATTRIBUTION =
  * Authoritative PV capacity factors: PVGIS's own PV model (seriescalc,
  * pvcalculation=1, 1 kWp, 14 % system loss, optimal fixed angles).
  * With peakpower=1 kWp the hourly P is in W, so CF = P/1000.
+ *
+ * NOTE — deliberately still `optimalangles=1`, unlike the production provider
+ * (`packages/profile-service/src/providers/pvgis.ts`, which now computes an
+ * explicit latitude-rule tilt because PVGIS's optimiser is non-physical near
+ * the equator). This is the FROZEN one-off provider spike whose output in
+ * `data/spike/` feeds the LCOH golden fixtures; re-running it under different
+ * mounting would invalidate those goldens. It is an archive, not a live path —
+ * do not "fix" it to match.
  */
 export async function fetchPvgisSeries(site: Site): Promise<ProviderOutput> {
   const endpoint =

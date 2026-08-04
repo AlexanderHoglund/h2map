@@ -12,12 +12,50 @@ interface PvgisSeriesResponse {
   outputs?: { hourly?: Array<{ time?: string; P?: number }> };
 }
 
-/** PVGIS `trackingtype` values (0 fixed, 1 horizontal N–S axis, 2 two-axis). */
+/** PVGIS `trackingtype` values (1 horizontal N–S axis, 2 two-axis). */
 const TRACKING_PARAM: Record<string, string> = {
-  pv_fixed: "&optimalangles=1",
   pv_1axis: "&trackingtype=1",
   pv_2axis: "&trackingtype=2",
 };
+
+/**
+ * Cap on the fixed-mount tilt. The rule below tracks latitude, but past ~35°
+ * the yield curve is flat while self-shading and wind load grow, so real
+ * high-latitude arrays are not built at 60°+.
+ */
+const MAX_TILT_DEG = 35;
+
+/**
+ * Fixed-mount geometry for a cell — computed HERE, never delegated to PVGIS.
+ *
+ * `optimalangles=1` looks like the better answer and is a trap: near the
+ * equator PVGIS's optimiser returns non-physical mountings — a 90° VERTICAL,
+ * north-facing panel (azimuth −180°), or a valid 0° slope with a nonsense 52°
+ * azimuth, or HTTP 500. A wall is not a solar array, so the series collapses
+ * (measured at −0.86, 37.92: mean CF 0.084 / peak 0.41 optimised, versus
+ * 0.179 / 0.83 for the same cell mounted flat). The T1.1 validation gate then
+ * correctly rejected the optimised series as non-physical and the cell
+ * rendered as no-data — which is what put the holes in Kenya's solar layer
+ * (46 % of all equatorial cells, vs 0.4–5 % elsewhere).
+ *
+ * The standard planning rule — tilt ≈ |latitude|, equator-facing — is
+ * deterministic, physically sound at every latitude, and makes cells
+ * comparable on one stated assumption. It costs a little against a truly
+ * optimal mounting at some mid-latitude sites (immaterial for a screening
+ * map) and removes an entire class of upstream failure.
+ *
+ * Azimuth convention verified against the live API (2026-08-04), because it
+ * is not what the echoed values suggest: `aspect=0` is EQUATOR-FACING in the
+ * northern hemisphere (Spain 40.4°N, tilt 35: mean 0.175 at aspect 0 vs 0.090
+ * at 180) and `aspect=180` is equator-facing in the southern (Chile 23.5°S,
+ * tilt 23: mean 0.249 at aspect 180 vs 0.180 at 0).
+ */
+export function fixedMounting(lat: number): { tiltDeg: number; aspectDeg: number } {
+  return {
+    tiltDeg: Math.min(Math.round(Math.abs(lat)), MAX_TILT_DEG),
+    aspectDeg: lat >= 0 ? 0 : 180,
+  };
+}
 
 /**
  * Authoritative PV capacity factors from PVGIS's own PV model (seriescalc,
@@ -40,14 +78,19 @@ export async function fetchPvgisPv(
   kind: ProfileKind,
   radDb?: string,
 ): Promise<ProviderResult> {
-  const tracking = TRACKING_PARAM[kind];
-  if (tracking === undefined) {
+  // Fixed mount: our own latitude rule. Tracking kinds keep PVGIS's geometry
+  // (a tracker has no fixed tilt to get wrong).
+  const mounting = kind === "pv_fixed" ? fixedMounting(lat) : null;
+  const geometry = mounting
+    ? `&angle=${mounting.tiltDeg}&aspect=${mounting.aspectDeg}`
+    : TRACKING_PARAM[kind];
+  if (geometry === undefined) {
     throw new Error(`pvgis: unsupported kind ${kind}`);
   }
   const url =
     `https://re.jrc.ec.europa.eu/api/v5_3/seriescalc` +
     `?lat=${lat}&lon=${lon}` +
-    `&pvcalculation=1&peakpower=1&loss=14${tracking}` +
+    `&pvcalculation=1&peakpower=1&loss=14${geometry}` +
     (radDb ? `&raddatabase=${radDb}` : "") +
     `&outputformat=json`;
   const data = (await fetchJson(url)) as PvgisSeriesResponse;
@@ -96,13 +139,23 @@ export async function fetchPvgisPv(
   const lastYear = series[series.length - 1]!.year;
   return {
     provider: "pvgis-seriescalc",
-    datasetTag: `pvgis-5.3-${resolvedRadDb.toLowerCase()}-${kind}-${firstYear}-${lastYear}`,
+    // Mounting geometry is PART OF THE TAG: the cache key is
+    // (lat_r, lon_r, kind, mode, dataset_version), so without it a re-mounted
+    // profile would silently upsert onto rows computed under a different
+    // assumption and the two would be indistinguishable.
+    datasetTag:
+      `pvgis-5.3-${resolvedRadDb.toLowerCase()}-${kind}` +
+      (mounting ? `-tilt${mounting.tiltDeg}a${mounting.aspectDeg}` : "") +
+      `-${firstYear}-${lastYear}`,
     attribution: ATTRIBUTION,
     series,
     notes: [
       radDbParam
         ? `radiation database pinned to: ${resolvedRadDb}`
         : `radiation database auto-resolved to: ${resolvedRadDb}`,
+      mounting
+        ? `fixed mount, tilt ${mounting.tiltDeg}° aspect ${mounting.aspectDeg}° (latitude rule, equator-facing)`
+        : "PVGIS tracking geometry",
       "PVGIS PV model incl. mounting/tracking geometry and temperature losses; 14 % system loss, 1 kWp",
     ],
   };
