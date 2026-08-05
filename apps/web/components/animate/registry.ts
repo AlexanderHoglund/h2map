@@ -25,9 +25,9 @@ export interface AnimationEntry {
 export const ANIMATIONS: readonly [AnimationEntry, ...AnimationEntry[]] = [
   {
     id: "shipping",
-    title: "Two-port shipping corridor",
+    title: "Green corridor, end to end",
     description:
-      "Canvas port of the entry-panel schematic. Marching route dashes, and three ships positioned by arc length along the polyline — the canvas equivalent of CSS offset-path.",
+      "Wind and solar into electrolysis, synthesis and storage, then export by sea. Turbines turn, flow marches along the pipelines, and the fleet runs a closed circuit — laden out, ballast back.",
     scene: shippingScene,
   },
 ];
