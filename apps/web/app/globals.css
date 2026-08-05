@@ -99,6 +99,16 @@
   --viz-delta-up: #d03b3b; /* waterfall cost increase */
   --viz-delta-down: #2171b5; /* waterfall savings */
   --viz-total: #52514e; /* waterfall anchored totals (neutral) */
+
+  /* Technical-schematic artwork (the corridor chart on the entry panel, and
+     its canvas port at /animate). Deliberately NOT --viz-*: those carry
+     data-legibility contracts, these are a draughtsman's palette. `ship` is
+     the dark end of a RdBu ramp, not --color-danger — it marks a vessel, it
+     does not signal an error. */
+  --anim-ink: #3f3e3a; /* primary linework */
+  --anim-ink-soft: #9b9a90; /* secondary: dashed pipes, sea marks */
+  --anim-land: #f2f2ed; /* landmass fill */
+  --anim-ship: #b2182b; /* fleet marks */
 }
 
 body {

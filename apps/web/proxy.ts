@@ -37,6 +37,10 @@ function isPublic(pathname: string): boolean {
   // LOGGED-OUT visitors, so they must never redirect. Prefix rule so a new
   // document needs no proxy change. Hardcoded — the proxy imports nothing.
   if (pathname.startsWith("/legal/")) return true;
+  // The canvas animation gallery: a self-contained visual sandbox with no user
+  // data and no engine access. Public so it can be reviewed without an account
+  // — and so CI can e2e it, which the gated pages cannot be under dummy creds.
+  if (pathname === "/animate") return true;
   return false;
 }
 
