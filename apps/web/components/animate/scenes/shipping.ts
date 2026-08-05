@@ -90,25 +90,86 @@ function drawQuayTicks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ticks(ctx, 732, [300, 320, 340], 8);
 }
 
-// ===== Production shore: PV → NH3 → PORT A ==================================
-/** Legs on land, jib over the quay, hook above the berth — the hook line
- *  drops toward the route start at (360, 860). */
-function drawCraneA(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+// ===== Cranes ===============================================================
+/**
+ * Ship-to-shore gantry, drawn from the quay edge outward.
+ *
+ * `dir` is +1 when the jib reaches right over the water, -1 when it reaches
+ * left, so Port B is a true mirror rather than a second set of literals.
+ *
+ * The silhouette is the real machine: two A-framed legs on a sill beam, a
+ * horizontal boom cantilevered over the berth with a short backreach behind,
+ * a diagonal tie from the apex out to the boom tip, and a trolley whose hoist
+ * ropes drop to the spreader above the hold. The previous version peaked the
+ * boom into a gable, which read as a house rather than a crane.
+ */
+function drawGantry(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  quayX: number,
+  groundY: number,
+  dir: 1 | -1,
+): void {
+  // Lessons from three attempts, all of which read as buildings:
+  //  - anything drawn ABOVE the boom (pylon, stays) makes a roofline;
+  //  - a horizontal tie between the legs closes a box and makes a shed.
+  // So: no superstructure and no closed rectangle. A ship-to-shore crane in
+  // elevation is essentially an inverted L — tall A-frame legs carrying one
+  // long boom that cantilevers out over the water, with the hoist hanging
+  // from it. The cantilever IS the silhouette; keep it unobstructed.
+  const legFore = quayX - dir * 26;
+  const legBack = quayX - dir * 86;
+  const apexFore = quayX - dir * 40; // legs lean together toward the top…
+  const apexBack = quayX - dir * 72; // …but stop well short of meeting
+  const beam = groundY - 74;
+  const boomTip = quayX + dir * 66;
+  const backTip = quayX - dir * 108;
+  const trolley = quayX + dir * 34;
+  const spreader = groundY - 30;
+
   ctx.strokeStyle = frame.palette.ink;
+
+  // Ground.
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(285, 850); ctx.lineTo(285, 795);
-  ctx.moveTo(315, 850); ctx.lineTo(315, 795);
-  ctx.moveTo(275, 795); ctx.lineTo(385, 795);
-  ctx.moveTo(360, 795); ctx.lineTo(360, 822);
-  ctx.moveTo(260, 850); ctx.lineTo(340, 850); // ground line, meeting the quay
+  ctx.moveTo(legBack - dir * 26, groundY); ctx.lineTo(quayX, groundY);
   ctx.stroke();
+
+  // The A-frame: two legs leaning in, joined only where they meet the boom.
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(legBack, groundY); ctx.lineTo(apexBack, beam);
+  ctx.moveTo(legFore, groundY); ctx.lineTo(apexFore, beam);
+  ctx.stroke();
+
+  // One diagonal brace INSIDE the portal — bracing, not a lintel. Kept off
+  // the legs' own lines so it doesn't read as a second structure.
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(315, 795); ctx.lineTo(350, 778); ctx.lineTo(385, 795);
+  ctx.moveTo(legBack - dir * 4, groundY - 14);
+  ctx.lineTo(apexFore - dir * 4, beam + 20);
   ctx.stroke();
-  ctx.lineWidth = 1.5;
-  box(ctx, 354, 822, 12, 9);
+
+  // The boom: the whole point. One long horizontal, nothing above it.
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(backTip, beam); ctx.lineTo(boomTip, beam);
+  ctx.stroke();
+  // Tip taper, so the cantilever ends in a point rather than a blunt stop.
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(boomTip, beam); ctx.lineTo(boomTip - dir * 16, beam + 7);
+  ctx.lineTo(apexFore, beam + 7);
+  ctx.stroke();
+
+  // Trolley + hoist hanging over the berth.
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(trolley - 4, beam); ctx.lineTo(trolley - 4, spreader);
+  ctx.moveTo(trolley + 4, beam); ctx.lineTo(trolley + 4, spreader);
+  ctx.stroke();
+  ctx.lineWidth = 1.2;
+  box(ctx, trolley - 7, spreader, 14, 5);
 }
 
 function drawContainersA(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
@@ -180,24 +241,6 @@ function drawPipes(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 }
 
 // ===== Destination shore: PORT B ============================================
-/** Mirrors crane A: jib west over the quay, hook dropping to (715, 340). */
-function drawCraneB(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(785, 300); ctx.lineTo(785, 245);
-  ctx.moveTo(815, 300); ctx.lineTo(815, 245);
-  ctx.moveTo(700, 245); ctx.lineTo(825, 245);
-  ctx.moveTo(715, 245); ctx.lineTo(715, 272);
-  ctx.moveTo(740, 300); ctx.lineTo(840, 300);
-  ctx.stroke();
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(785, 245); ctx.lineTo(750, 228); ctx.lineTo(715, 245);
-  ctx.stroke();
-  ctx.lineWidth = 1.5;
-  box(ctx, 709, 272, 12, 9);
-}
 
 function drawContainersB(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
@@ -226,20 +269,62 @@ function drawWaypoints(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   for (const [x, y] of WAYPOINTS) crosshair(ctx, x, y, 4);
 }
 
+/**
+ * A vessel in plan view, bow pointing along +x before rotation: a hull with a
+ * raked bow and a square transom, deckhouse aft, and a short mast.
+ *
+ * Drawn in the ship's own frame so the heading from `poseAt` simply rotates
+ * it. That heading is what CSS `offset-rotate: auto` was already asking for —
+ * it was invisible while the fleet were dots.
+ */
+function drawVessel(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  x: number,
+  y: number,
+  angle: number,
+): void {
+  const L = 22; // length overall
+  const B = 7; // beam
+  const half = B / 2;
+  const bow = L * 0.5;
+  const stern = -L * 0.5;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+
+  // Hull: straight sides, raked stem, square transom.
+  ctx.beginPath();
+  ctx.moveTo(stern, -half);
+  ctx.lineTo(bow - 7, -half);
+  ctx.lineTo(bow, 0);
+  ctx.lineTo(bow - 7, half);
+  ctx.lineTo(stern, half);
+  ctx.closePath();
+  ctx.fillStyle = frame.palette.ship;
+  ctx.fill();
+
+  // Deckhouse aft + mast, in the ink so they read against the hull colour.
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.rect(stern + 3, -half + 1.2, 5, B - 2.4);
+  ctx.moveTo(stern + 10, 0);
+  ctx.lineTo(stern + 13, 0);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 /** The fleet: staggered along the corridor, one loop every 36 s. */
 function drawFleet(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   if (!routePath) return;
-  ctx.fillStyle = frame.palette.ship;
   for (const offset of SHIP_OFFSETS) {
     const t = ((frame.time + offset) % VOYAGE_S) / VOYAGE_S;
-    const { x, y } = poseAt(routePath, t);
-    ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI * 2);
-    ctx.fill();
+    const { x, y, angle } = poseAt(routePath, t);
+    drawVessel(ctx, frame, x, y, angle);
   }
-  // `poseAt` also returns the heading. It is unused while the ships are
-  // circles, but the SVG carries `offset-rotate: auto`, so the moment a hull
-  // shape replaces the dot the rotation is already available.
 }
 
 function drawSeaMarks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
@@ -280,6 +365,37 @@ function drawScaleBar(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.restore();
 }
 
+
+/**
+ * A caption tied to what it names by an elbow leader — the draughtsman's
+ * convention. Without it a bare label floats in empty land and the reader has
+ * to guess which structure it belongs to.
+ */
+function caption(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  text: string,
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  anchor: "start" | "end" = "start",
+): void {
+  ctx.strokeStyle = frame.palette.inkSoft;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(fromX, toY);
+  ctx.lineTo(toX + (anchor === "start" ? -6 : 6), toY);
+  ctx.stroke();
+  // Tick at the subject end, so the leader clearly originates somewhere.
+  ctx.beginPath();
+  ctx.moveTo(fromX - 3, fromY); ctx.lineTo(fromX + 3, fromY);
+  ctx.stroke();
+  ctx.fillStyle = frame.palette.label;
+  monoLabel(ctx, text, toX, toY + 4, frame.font, { anchor });
+}
+
 // ===== The scene ============================================================
 export const shippingScene: Scene<Ink> = {
   id: "shipping",
@@ -302,26 +418,26 @@ export const shippingScene: Scene<Ink> = {
     drawShores(ctx, frame);
     drawQuayTicks(ctx, frame);
 
-    ctx.fillStyle = frame.palette.label;
-    monoLabel(ctx, "[ PECEM · BR ]", 50, 776, frame.font);
-
-    drawCraneA(ctx, frame);
-    drawContainersA(ctx, frame);
+    // --- Production shore: the works, then the quay it feeds ---------------
     drawPvArray(ctx, frame);
-    ctx.fillStyle = frame.palette.label;
-    monoLabel(ctx, "[ PV ARRAY ]", 50, 978, frame.font);
-
     drawNh3(ctx, frame);
-    ctx.fillStyle = frame.palette.label;
-    monoLabel(ctx, "[ NH3 SYNTHESIS ]", 208, 978, frame.font);
-
     drawPipes(ctx, frame);
+    drawContainersA(ctx, frame);
+    drawGantry(ctx, frame, 340, 850, 1);
 
-    drawCraneB(ctx, frame);
-    drawContainersB(ctx, frame);
+    // Captions hang off their subject rather than floating in the land.
+    caption(ctx, frame, "[ PV ARRAY ]", 108, 956, 50, 984);
+    caption(ctx, frame, "[ NH3 SYNTHESIS ]", 250, 956, 208, 984);
     ctx.fillStyle = frame.palette.label;
-    monoLabel(ctx, "[ ROTTERDAM · NL ]", 862, 390, frame.font, { anchor: "end" });
+    monoLabel(ctx, "[ PECEM · BR ]", 50, 706, frame.font);
 
+    // --- Destination shore -------------------------------------------------
+    drawContainersB(ctx, frame);
+    drawGantry(ctx, frame, 740, 300, -1);
+    ctx.fillStyle = frame.palette.label;
+    monoLabel(ctx, "[ ROTTERDAM · NL ]", 872, 168, frame.font, { anchor: "end" });
+
+    // --- The corridor ------------------------------------------------------
     drawRoute(ctx, frame);
     drawWaypoints(ctx, frame);
     ctx.fillStyle = frame.palette.label;
