@@ -85,6 +85,19 @@ const DASH: readonly number[] = [7, 5];
 /** 7 + 5: the CSS animates dashoffset to -24, i.e. two whole periods. */
 const DASH_PERIOD = 12;
 const DASH_CYCLE_S = 1.6;
+/** Rotterdam's distribution road: import quay to the east frame edge. */
+const ROAD_B_X = 856;
+const ROAD_B_NORTH = 0; // the outer border — trucks fade out here
+const ROAD_B_SOUTH = 274; // stops on the apron, short of the y=330 coast
+/** One round trip on the northern road. */
+const HAUL_B_S = 52;
+const TRUCKS_B: readonly (readonly [offset: number, kind: CargoKind])[] = [
+  [0, "container"],
+  [13, "bulk"],
+  [26, "container"],
+  [39, "bulk"],
+];
+
 /** The inland road: west frame edge to the port apron, and back. */
 const ROAD_Y = 936;
 const ROAD_WEST = 0; // the outer border — trucks fade out here
@@ -216,23 +229,82 @@ let routePath: MeasuredPath | null = null;
 let returnPath: MeasuredPath | null = null;
 
 // ===== Graticule ============================================================
-function drawGraticule(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  // Fine black mesh — a chart's grid. Thin enough to sit under the linework,
-  // but in the ink rather than the pale grid tone, so it actually reads.
+function gridLines(
+  ctx: CanvasRenderingContext2D,
+  wavy: boolean,
+  time: number,
+): void {
+  // One mesh, drawn two ways. On land the lines are straight — it is a survey
+  // grid over solid ground. At sea they undulate, which is the chart-maker's
+  // shorthand for water and costs nothing but a sine.
+  const AMP = 1.6; // wave height, well under the 50-unit spacing
+  const WAVELENGTH = 46;
+  const DRIFT = 5; // units per second the pattern slides
+  const STEP = 6; // segment length when curving
+
+  ctx.beginPath();
+  for (let y = GRID_STEP; y < 1000; y += GRID_STEP) {
+    if (!wavy) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(900, y);
+      continue;
+    }
+    for (let x = 0; x <= 900; x += STEP) {
+      const wy = y + Math.sin((x + time * DRIFT) / WAVELENGTH) * AMP;
+      if (x === 0) ctx.moveTo(x, wy);
+      else ctx.lineTo(x, wy);
+    }
+  }
+  for (let x = GRID_STEP; x < 900; x += GRID_STEP) {
+    if (!wavy) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 1000);
+      continue;
+    }
+    for (let y = 0; y <= 1000; y += STEP) {
+      const wx = x + Math.sin((y + time * DRIFT) / WAVELENGTH) * AMP;
+      if (y === 0) ctx.moveTo(wx, y);
+      else ctx.lineTo(wx, y);
+    }
+  }
+  ctx.stroke();
+}
+
+/** The sea mesh: wavy, and drawn under everything else. */
+function drawSeaGrid(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 0.35;
   ctx.globalAlpha = 0.45;
-  ctx.beginPath();
-  for (let y = GRID_STEP; y < 1000; y += GRID_STEP) {
-    ctx.moveTo(0, y);
-    ctx.lineTo(900, y);
-  }
-  for (let x = GRID_STEP; x < 900; x += GRID_STEP) {
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, 1000);
-  }
-  ctx.stroke();
+  gridLines(ctx, true, frame.time);
   ctx.globalAlpha = 1;
+}
+
+/**
+ * The land mesh: straight, and clipped to the shores so it stops exactly at
+ * the coastline. Drawn after the landmasses, which would otherwise cover it.
+ */
+function drawLandGrid(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  ctx.save();
+  ctx.beginPath();
+  for (const shore of [SHORE_A, SHORE_B]) {
+    let first = true;
+    for (const [x, y] of shore) {
+      if (first) {
+        ctx.moveTo(x, y);
+        first = false;
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.closePath();
+  }
+  ctx.clip();
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 0.35;
+  ctx.globalAlpha = 0.32; // a touch fainter: the land carries more linework
+  gridLines(ctx, false, frame.time);
+  ctx.globalAlpha = 1;
+  ctx.restore();
 }
 
 // ===== Land =================================================================
@@ -403,7 +475,7 @@ function drawGantry(
       ctx.fill();
     }
   } else {
-    box(ctx, trolley - 6, spreader, 12, 3.4);
+    box(ctx, trolley - 6, spreader, 12, 3.4, frame.palette.land);
     if (holding) {
       // The container under the spreader — the thing actually being moved.
       ctx.fillStyle = frame.palette.land;
@@ -430,6 +502,8 @@ function drawExportTerminal(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): v
     ctx.lineWidth = 1.3;
     ctx.beginPath();
     ctx.arc(cx, base - r - 3, r, 0, Math.PI * 2);
+    ctx.fillStyle = frame.palette.land;
+    ctx.fill();
     ctx.stroke();
     ctx.lineWidth = 0.8;
     ctx.beginPath();
@@ -531,6 +605,10 @@ function drawPvArray(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     [228, 740, 92, 5],
   ];
   for (const [bx, by, bw, rows] of blocks) {
+    // Parcel first — it is an opaque plate that masks the background mesh, so
+    // it has to go down BEFORE the rows or it paints over them.
+    ctx.lineWidth = 1.2;
+    box(ctx, bx - 6, by - 5, bw + 12, rows * 6.6 + 4, frame.palette.land);
     ctx.lineWidth = 0.9;
     ctx.beginPath();
     for (let r = 0; r < rows; r += 1) {
@@ -539,9 +617,6 @@ function drawPvArray(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
       ctx.lineTo(bx + bw, y + 1.5); // a row of panels, seen near-edge on
     }
     ctx.stroke();
-    // Block outline, so the field reads as a fenced parcel.
-    ctx.lineWidth = 1.2;
-    box(ctx, bx - 6, by - 5, bw + 12, rows * 6.6 + 4);
   }
 }
 
@@ -553,7 +628,7 @@ function drawElectrolyser(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): voi
   const d = 17; // ~45 m deep
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.4;
-  box(ctx, x, y, w, d);
+  box(ctx, x, y, w, d, frame.palette.land);
   // Stack modules inside — the repeated cell that says "electrolyser".
   ctx.lineWidth = 0.9;
   ctx.beginPath();
@@ -564,7 +639,7 @@ function drawElectrolyser(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): voi
   ctx.stroke();
   // A second hall behind, so it reads as a plant rather than one shed.
   ctx.lineWidth = 1.2;
-  box(ctx, x + 4, y - 22, w - 8, 15);
+  box(ctx, x + 4, y - 22, w - 8, 15, frame.palette.land);
   ctx.lineWidth = 1.4;
   ctx.beginPath();
   ctx.moveTo(x - 8, y + d); ctx.lineTo(x + w + 8, y + d);
@@ -578,8 +653,8 @@ function drawSynthesis(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 
   // Two reactor columns, ~40 m tall.
   ctx.lineWidth = 1.3;
-  box(ctx, 482, base - 15, 5, 15);
-  box(ctx, 491, base - 15, 5, 15);
+  box(ctx, 482, base - 15, 5, 15, frame.palette.land);
+  box(ctx, 491, base - 15, 5, 15, frame.palette.land);
   ctx.lineWidth = 0.8;
   ctx.beginPath();
   ctx.moveTo(482, base - 15); ctx.lineTo(487, base);
@@ -599,6 +674,8 @@ function drawSynthesis(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     ctx.lineWidth = 1.3;
     ctx.beginPath();
     ctx.arc(cx, base - r - 2, r, 0, Math.PI * 2);
+    ctx.fillStyle = frame.palette.land;
+    ctx.fill();
     ctx.stroke();
     ctx.lineWidth = 0.8;
     ctx.beginPath();
@@ -699,7 +776,7 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   for (let col = 0; col < 7; col += 1) {
     const stack = (col % 3) + 1;
     for (let r = 0; r < stack; r += 1) {
-      box(ctx, ROAD_EAST - 66 + col * 6.4, ROAD_Y - 22 - r * 2.6, 5.4, 2.4);
+      box(ctx, ROAD_EAST - 66 + col * 6.4, ROAD_Y - 22 - r * 2.6, 5.4, 2.4, frame.palette.land);
     }
   }
   for (const [px, w, h] of [[ROAD_EAST - 158, 26, 11], [ROAD_EAST - 124, 20, 9]] as const) {
@@ -709,6 +786,8 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     ctx.lineTo(px + w / 2, ROAD_Y - 22 - h);
     ctx.lineTo(px + w, ROAD_Y - 22);
     ctx.closePath();
+    ctx.fillStyle = frame.palette.land;
+    ctx.fill();
     ctx.stroke();
     ctx.lineWidth = 0.6;
     ctx.beginPath();
@@ -735,7 +814,7 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   for (let col = 0; col < 4; col += 1) {
     const stack = (col % 2) + 1;
     for (let r = 0; r < stack; r += 1) {
-      box(ctx, 636 + col * 6.4, CONTAINER_YARD_Y - r * 2.6, 5.4, 2.4);
+      box(ctx, 636 + col * 6.4, CONTAINER_YARD_Y - r * 2.6, 5.4, 2.4, frame.palette.land);
     }
   }
   ctx.lineWidth = 1;
@@ -751,6 +830,8 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     ctx.lineTo(px + w / 2, BULK_YARD_Y - h);
     ctx.lineTo(px + w, BULK_YARD_Y);
     ctx.closePath();
+    ctx.fillStyle = frame.palette.land;
+    ctx.fill();
     ctx.stroke();
     ctx.lineWidth = 0.6;
     ctx.beginPath();
@@ -803,7 +884,7 @@ function drawTruck(
 
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 0.9;
-  box(ctx, 4, -2.4, 4, 4.8); // tractor unit
+  box(ctx, 4, -2.4, 4, 4.8, frame.palette.land); // tractor unit
   ctx.beginPath();
   ctx.moveTo(-9, 2.4);
   ctx.lineTo(4, 2.4); // trailer bed
@@ -866,6 +947,88 @@ function drawTrucks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   }
 }
 
+/**
+ * Rotterdam's landside: the distribution road out to the hinterland, and the
+ * yards that feed it. The export end has generation to explain where the
+ * cargo comes from; the import end is purely a port, so it gets port and road
+ * infrastructure instead of turbines it would never have.
+ */
+function drawImportRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(ROAD_B_X - 9, ROAD_B_NORTH);
+  ctx.lineTo(ROAD_B_X - 9, ROAD_B_SOUTH);
+  ctx.moveTo(ROAD_B_X + 9, ROAD_B_NORTH);
+  ctx.lineTo(ROAD_B_X + 9, ROAD_B_SOUTH);
+  ctx.stroke();
+  ctx.lineWidth = 0.8;
+  dashed(
+    ctx,
+    () => {
+      ctx.beginPath();
+      ctx.moveTo(ROAD_B_X, ROAD_B_NORTH);
+      ctx.lineTo(ROAD_B_X, ROAD_B_SOUTH);
+      ctx.stroke();
+    },
+    [10, 10],
+  );
+
+  // Warehousing along the road — the shed roofs of a distribution park.
+  ctx.lineWidth = 1;
+  for (const [wy, h] of [[92, 26], [132, 20], [166, 24]] as const) {
+    box(ctx, 700, wy, 44, h, frame.palette.land);
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    for (let i = 1; i < 4; i += 1) {
+      ctx.moveTo(700 + i * 11, wy);
+      ctx.lineTo(700 + i * 11, wy + h);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    // Apron in front of each shed, joining the road.
+    ctx.beginPath();
+    ctx.moveTo(744, wy + h / 2);
+    ctx.lineTo(ROAD_B_X - 9, wy + h / 2);
+    ctx.stroke();
+  }
+
+  // Import container yard, landward of the berth.
+  ctx.lineWidth = 0.9;
+  for (let col = 0; col < 6; col += 1) {
+    const stack = (col % 3) + 1;
+    for (let r = 0; r < stack; r += 1) {
+      box(ctx, 796 + col * 6.4, 248 - r * 2.6, 5.4, 2.4, frame.palette.land);
+    }
+  }
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.moveTo(792, 250.4);
+  ctx.lineTo(840, 250.4);
+  ctx.stroke();
+}
+
+/** Trucks on Rotterdam's road: in loaded from the quay, back out empty. */
+function drawImportTrucks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  const span = ROAD_B_SOUTH - ROAD_B_NORTH;
+  const FADE = 70;
+  for (const [offset, kind] of TRUCKS_B) {
+    const cycle = ((frame.time + offset) % HAUL_B_S) / HAUL_B_S;
+    const outbound = cycle < 0.5; // heading north, away from the quay
+    const u = outbound ? 1 - cycle * 2 : (cycle - 0.5) * 2;
+    const y = ROAD_B_NORTH + span * u;
+    const x = ROAD_B_X + (outbound ? -4.5 : 4.5);
+    const fade = Math.min(1, (y - ROAD_B_NORTH) / FADE);
+    if (fade <= 0.02) continue;
+    // The road runs north-south, so the truck is drawn rotated a quarter turn.
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(outbound ? -Math.PI / 2 : Math.PI / 2);
+    drawTruck(ctx, frame, 0, 0, 1, outbound, fade, kind);
+    ctx.restore();
+  }
+}
+
 /** Import terminal storage: spheres, mirroring the export side's tankage. */
 function drawContainersB(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
@@ -876,6 +1039,8 @@ function drawContainersB(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void
     ctx.lineWidth = 1.3;
     ctx.beginPath();
     ctx.arc(cx, base - r - 2, r, 0, Math.PI * 2);
+    ctx.fillStyle = frame.palette.land;
+    ctx.fill();
     ctx.stroke();
     ctx.lineWidth = 0.8;
     ctx.beginPath();
@@ -1087,7 +1252,7 @@ function drawCompass(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.moveTo(-20, 0); ctx.lineTo(20, 0);
   ctx.moveTo(0, -20); ctx.lineTo(0, 20);
   ctx.stroke();
-  box(ctx, -6, -6, 12, 12);
+  box(ctx, -6, -6, 12, 12, frame.palette.land);
   ctx.fillStyle = frame.palette.label;
   monoLabel(ctx, "N", 0, -30, frame.font, { size: 13, spacing: 0, anchor: "middle" });
   ctx.restore();
@@ -1100,6 +1265,28 @@ function drawCompass(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
  * convention. Without it a bare label floats in empty land and the reader has
  * to guess which structure it belongs to.
  */
+/**
+ * Clear a rectangle behind text so the background mesh does not run through
+ * the glyphs. Measured from the actual string rather than assumed, so it stays
+ * right if the font or the label changes.
+ */
+function labelPlate(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  text: string,
+  x: number,
+  y: number,
+  anchor: "start" | "middle" | "end" = "start",
+): void {
+  ctx.font = `12px ${frame.font}`;
+  ctx.letterSpacing = "2px";
+  const w = ctx.measureText(text).width;
+  ctx.letterSpacing = "0px";
+  const x0 = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2;
+  ctx.fillStyle = frame.palette.land;
+  ctx.fillRect(x0 - 3, y - 10, w + 6, 13);
+}
+
 function caption(
   ctx: CanvasRenderingContext2D,
   frame: Frame<Ink>,
@@ -1132,6 +1319,7 @@ function caption(
   ctx.moveTo(fromX - 3, fromY); ctx.lineTo(fromX + 3, fromY);
   ctx.stroke();
 
+  labelPlate(ctx, frame, text, textX, toY, anchor);
   ctx.fillStyle = frame.palette.label;
   monoLabel(ctx, text, textX, toY, frame.font, { anchor });
 }
@@ -1155,8 +1343,9 @@ export const shippingScene: Scene<Ink> = {
   },
 
   draw(ctx, frame) {
-    drawGraticule(ctx, frame);
+    drawSeaGrid(ctx, frame);
     drawShores(ctx, frame);
+    drawLandGrid(ctx, frame);
     drawQuayTicks(ctx, frame);
 
     // --- Production shore, in process order: generation → conversion → export
@@ -1179,11 +1368,18 @@ export const shippingScene: Scene<Ink> = {
     caption(ctx, frame, "[ NH3 SYNTHESIS ]", 470, 710, 402, 812);
     caption(ctx, frame, "[ FREIGHT ROAD ]", 300, 945, 292, 978);
     ctx.fillStyle = frame.palette.label;
+    labelPlate(ctx, frame, "[ PECEM · BR ]", 128, 420);
+    ctx.fillStyle = frame.palette.label;
     monoLabel(ctx, "[ PECEM · BR ]", 128, 420, frame.font);
 
     // --- Destination shore --------------------------------------------------
+    drawImportRoad(ctx, frame);
     drawContainersB(ctx, frame);
     drawGantry(ctx, frame, 790, 300, -1, 2.3);
+    drawImportTrucks(ctx, frame);
+    caption(ctx, frame, "[ DISTRIBUTION ]", 722, 190, 700, 232);
+    ctx.fillStyle = frame.palette.label;
+    labelPlate(ctx, frame, "[ ROTTERDAM · NL ]", 878, 66, "end");
     ctx.fillStyle = frame.palette.label;
     monoLabel(ctx, "[ ROTTERDAM · NL ]", 878, 66, frame.font, { anchor: "end" });
 
@@ -1191,6 +1387,8 @@ export const shippingScene: Scene<Ink> = {
     drawReturnLane(ctx, frame);
     drawRoute(ctx, frame);
     drawWaypoints(ctx, frame);
+    ctx.fillStyle = frame.palette.label;
+    labelPlate(ctx, frame, "4600 NM", 800, 560);
     ctx.fillStyle = frame.palette.label;
     monoLabel(ctx, "4600 NM", 800, 560, frame.font);
 

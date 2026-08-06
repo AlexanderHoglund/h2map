@@ -78,16 +78,44 @@ export function dashed(
   ctx.lineDashOffset = 0;
 }
 
-/** Rectangle outline. */
+/**
+ * Rectangle. Filled before stroking by default, so a background grid does not
+ * show through the object sitting on top of it — a stroked-only outline over a
+ * mesh reads as transparent, which is wrong for a container or a tank.
+ *
+ * Pass `fill: null` for a genuine outline (a window, a bounding box).
+ */
 export function box(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   w: number,
   h: number,
+  fill: string | null = null,
 ): void {
   ctx.beginPath();
   ctx.rect(x, y, w, h);
+  if (fill !== null) {
+    const previous = ctx.fillStyle;
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.fillStyle = previous;
+  }
+  ctx.stroke();
+}
+
+/** Fill a polygon opaquely, then stroke it — the "sits on the grid" idiom. */
+export function solid(
+  ctx: CanvasRenderingContext2D,
+  render: () => void,
+  fill: string,
+): void {
+  const previous = ctx.fillStyle;
+  ctx.beginPath();
+  render();
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.fillStyle = previous;
   ctx.stroke();
 }
 
