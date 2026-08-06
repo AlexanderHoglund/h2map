@@ -12,6 +12,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { landfallCount } from "../apps/web/lib/animation/geometry";
 import {
+  BERTH_A,
   ROUTE,
   ROUTE_BACK,
   SHORE_A,
@@ -157,4 +158,17 @@ test("the circuit closes and ships berth alongside", () => {
 
   expect(isHorizontal(heading(ROUTE)), "laden must arrive parallel to quay B").toBe(true);
   expect(isVertical(heading(ROUTE_BACK)), "ballast must arrive parallel to quay A").toBe(true);
+});
+
+// The cranes derive their seaward reach from the berth, so a container is
+// released onto a deck rather than into open water. Before this, the spreader
+// came down 25 units east of the hull -- a crane loading the sea.
+test("the berth is where the ships actually stop", () => {
+  const last = <T,>(a: readonly T[]) => a[a.length - 1]!;
+  // Laden departs from the berth; ballast arrives back at it.
+  expect(ROUTE[0], "laden must depart the export berth").toEqual([BERTH_A.x, BERTH_A.y]);
+  expect(last(ROUTE_BACK), "ballast must arrive at the export berth").toEqual([
+    BERTH_A.x,
+    BERTH_A.y,
+  ]);
 });

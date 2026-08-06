@@ -109,6 +109,35 @@ const TRUCK_OFFSETS = [0, 10, 20, 30, 40, 50] as const;
 const CRANE_S = 9;
 
 /**
+ * Is a vessel alongside the export quay at this moment?
+ *
+ * The cranes ask this before reaching out, so they only work a ship that is
+ * actually there. Mirrors the leg boundaries in drawFleet — with SAIL 0.33 and
+ * DWELL 0.17 the second dwell runs from SAIL*2 + DWELL to the end of the cycle.
+ */
+function berthOccupied(time: number): boolean {
+  const SAIL = 0.33;
+  const DWELL = 0.17;
+  for (const [offset] of FLEET) {
+    const cycle = ((time + offset) % VOYAGE_S) / VOYAGE_S;
+    if (cycle >= SAIL * 2 + DWELL) return true;
+  }
+  return false;
+}
+
+/**
+ * Where a vessel lies at the export quay, and where its deck sits.
+ *
+ * The crane derives its seaward reach and hoist depth from THESE numbers, so
+ * the spreader lands on the hatch instead of somewhere near it. Previously
+ * the two were positioned independently and the spreader came down 25 units
+ * east of the hull — a crane loading open water.
+ */
+export const BERTH_A = { x: 712, y: 900 } as const;
+/** Deck height above the waterline, in design units. */
+const DECK_RISE = 3;
+
+/**
  * What each vessel carries. The corridor exports ammonia in bulk, but a
  * working port is mixed traffic, so half the fleet are boxboats.
  */
@@ -180,6 +209,8 @@ function drawGantry(
   groundY: number,
   dir: 1 | -1,
   cranePhase = 0,
+  /** The vessel this crane works. Omitted = a crane with no ship alongside. */
+  berth?: { readonly x: number; readonly y: number },
 ): void {
   // A crane on an east-west quay is the same machine rotated a quarter turn.
   // Draw it in the canonical orientation and let the transform place it,
@@ -207,8 +238,12 @@ function drawGantry(
   //   0.45-0.75  traverse landward, loaded
   //   0.75-0.90  lower onto the apron and release
   //   0.90-1.00  hoist back up, empty
-  const phase = ((frame.time + cranePhase) % CRANE_S) / CRANE_S;
-  const overShip = quayX + dir * 37;
+  // No ship alongside: park the trolley over the apron with the spreader up,
+  // rather than miming a load into empty water.
+  const working = berth ? berthOccupied(frame.time) : true;
+  const phase = working ? ((frame.time + cranePhase) % CRANE_S) / CRANE_S : 0.95;
+  // Reach out to the vessel's centreline, not an arbitrary distance.
+  const overShip = berth ? berth.x : quayX + dir * 37;
   const overApron = quayX - dir * 38;
   let travel: number; // 0 = over the apron, 1 = over the ship
   let drop: number; // 0 = hoisted up, 1 = down at the load
@@ -235,7 +270,13 @@ function drawGantry(
     holding = false;
   }
   const trolley = overApron + (overShip - overApron) * travel;
-  const spreader = beam + 8 + drop * (groundY - beam - 20);
+  // Lowering stops at the deck when working a ship, at the apron otherwise —
+  // so a container is released where there is something to receive it.
+  const restY = beam + 8;
+  const seaDeckY = (berth ? berth.y : groundY) - DECK_RISE;
+  const landStackY = groundY - 12;
+  const targetY = travel > 0.5 ? seaDeckY : landStackY;
+  const spreader = restY + drop * (targetY - restY);
 
   ctx.strokeStyle = frame.palette.ink;
 
@@ -811,8 +852,8 @@ function berthEase(u: number): number {
  */
 function drawFleet(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   if (!routePath || !returnPath) return;
-  const SAIL = 0.42; // of the cycle, each way
-  const DWELL = 0.08; // alongside, each end
+  const SAIL = 0.33; // of the cycle, each way
+  const DWELL = 0.17; // alongside, each end — long enough to work cargo
 
   for (const [offset, kind] of FLEET) {
     const cycle = ((frame.time + offset) % VOYAGE_S) / VOYAGE_S;
@@ -944,8 +985,9 @@ export const shippingScene: Scene<Ink> = {
     drawRoad(ctx, frame);
     drawExportTerminal(ctx, frame);
     drawTrucks(ctx, frame);
-    drawGantry(ctx, frame, 700, 812, 1, 0);
-    drawGantry(ctx, frame, 700, 918, 1, 4.1);
+    // Both cranes stand over the berth so either can reach the ship alongside.
+    drawGantry(ctx, frame, 700, BERTH_A.y - 26, 1, 0, BERTH_A);
+    drawGantry(ctx, frame, 700, BERTH_A.y + 30, 1, 4.1, BERTH_A);
 
     caption(ctx, frame, "[ WIND ]", 128, 570, 120, 600);
     caption(ctx, frame, "[ PV ARRAY ]", 128, 794, 120, 826);
