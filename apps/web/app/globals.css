@@ -51,36 +51,6 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 10v8M10 14h8' stroke='%23dbdad2' stroke-width='1'/%3E%3C/svg%3E");
 }
 
-/* Entry-panel shipping chart: marching route dashes + ships sailing along
-   their offset-path. Frozen under prefers-reduced-motion. */
-@keyframes route-flow {
-  to {
-    stroke-dashoffset: -24;
-  }
-}
-@keyframes ship-sail {
-  0% {
-    offset-distance: 0%;
-  }
-  100% {
-    offset-distance: 100%;
-  }
-}
-.route-line {
-  stroke-dasharray: 7 5;
-  animation: route-flow 1.6s linear infinite;
-}
-.ship {
-  offset-rotate: auto;
-  animation: ship-sail 36s linear infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .route-line,
-  .ship {
-    animation: none;
-  }
-}
-
 :root {
   /* Light-only app: keep native form controls, scrollbars and <select>
      popups light even when the OS prefers dark. */

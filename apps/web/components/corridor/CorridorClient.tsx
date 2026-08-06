@@ -14,7 +14,7 @@ import ResultsSummary from "./ResultsSummary";
 import ScenarioBar from "./ScenarioBar";
 import ProjectsPanel from "./ProjectsPanel";
 import { useProjects } from "./useProjects";
-import ShippingCanvas from "./ShippingCanvas";
+import CorridorArtwork from "./CorridorArtwork";
 
 /**
  * The integrated workspace: ONE model, one screen. The top bar is the only
@@ -272,7 +272,7 @@ export default function CorridorClient() {
           </div>
           {/* Right: the drafting-grid panel with the 2D shipping chart */}
           <div className="bg-plus-grid relative hidden overflow-hidden border-l border-neutral-300 lg:block lg:w-1/2">
-            <ShippingCanvas />
+            <CorridorArtwork />
           </div>
         </main>
       ) : view === "projects" ? (

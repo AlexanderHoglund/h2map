@@ -8,9 +8,9 @@ import { useTranslations } from "next-intl";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/Button";
 
-// The 2D shipping schematic used on the corridor entry screen — heavy and
-// canvas-based, so client-only (ssr:false must live inside a client file).
-const ShippingCanvas = dynamic(() => import("@/components/corridor/ShippingCanvas"), {
+// The animated corridor schematic. Genuinely canvas-based (rAF + DPR), so
+// client-only — ssr:false must live inside a client file.
+const CorridorArtwork = dynamic(() => import("@/components/corridor/CorridorArtwork"), {
   ssr: false,
 });
 
@@ -313,7 +313,7 @@ export default function LandingClient({
 
       {/* Right: the drafting-grid panel with the 2D shipping chart */}
       <div className="bg-plus-grid relative hidden overflow-hidden border-l border-neutral-300 lg:block lg:w-1/2">
-        <ShippingCanvas />
+        <CorridorArtwork />
       </div>
     </div>
   );
