@@ -237,10 +237,13 @@ function gridLines(
   // One mesh, drawn two ways. On land the lines are straight — it is a survey
   // grid over solid ground. At sea they undulate, which is the chart-maker's
   // shorthand for water and costs nothing but a sine.
-  const AMP = 1.6; // wave height, well under the 50-unit spacing
-  const WAVELENGTH = 46;
-  const DRIFT = 5; // units per second the pattern slides
-  const STEP = 6; // segment length when curving
+  // Small, tight ripples rather than long swells: the eye should still read a
+  // straight grid, with the water texture legible only up close. A long
+  // wavelength makes the mesh look bent, which loses the chart impression.
+  const AMP = 0.9;
+  const WAVELENGTH = 13;
+  const DRIFT = 4; // units per second the pattern slides
+  const STEP = 2; // short segments, so a tight curve stays smooth
 
   ctx.beginPath();
   for (let y = GRID_STEP; y < 1000; y += GRID_STEP) {
@@ -733,6 +736,34 @@ function drawFlow(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 }
 
 /**
+ * A row of container stacks standing ON a ground line.
+ *
+ * The base of the lowest box sits exactly at `groundY` and the stack grows
+ * upward — the road-side yard used to be drawn from the line downward, so its
+ * boxes hung underneath it. Boxes touch (pitch == height) rather than floating
+ * 0.2 apart, which at this scale read as a gap.
+ */
+const BOX_W = 5.4;
+const BOX_H = 2.4;
+
+function containerStacks(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  x: number,
+  groundY: number,
+  columns: number,
+  heightAt: (col: number) => number,
+): void {
+  ctx.lineWidth = 0.9;
+  for (let col = 0; col < columns; col += 1) {
+    const stack = heightAt(col);
+    for (let r = 0; r < stack; r += 1) {
+      box(ctx, x + col * (BOX_W + 1), groundY - (r + 1) * BOX_H, BOX_W, BOX_H, frame.palette.land);
+    }
+  }
+}
+
+/**
  * The inland road and its container apron. The road leaves the frame at the
  * west border, so the corridor visibly connects to a hinterland rather than
  * beginning nowhere.
@@ -772,13 +803,7 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   // the first, the road delivers to nothing.
 
   // --- 1. Road-side yard -------------------------------------------------
-  ctx.lineWidth = 0.9;
-  for (let col = 0; col < 7; col += 1) {
-    const stack = (col % 3) + 1;
-    for (let r = 0; r < stack; r += 1) {
-      box(ctx, ROAD_EAST - 66 + col * 6.4, ROAD_Y - 22 - r * 2.6, 5.4, 2.4, frame.palette.land);
-    }
-  }
+  containerStacks(ctx, frame, ROAD_EAST - 66, ROAD_Y - 22, 7, (col) => (col % 3) + 1);
   for (const [px, w, h] of [[ROAD_EAST - 158, 26, 11], [ROAD_EAST - 124, 20, 9]] as const) {
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -810,13 +835,7 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const CONTAINER_YARD_Y = BERTH_CONTAINER.y - 28;
   const BULK_YARD_Y = BERTH_BULK.y + 32;
 
-  ctx.lineWidth = 0.9;
-  for (let col = 0; col < 4; col += 1) {
-    const stack = (col % 2) + 1;
-    for (let r = 0; r < stack; r += 1) {
-      box(ctx, 636 + col * 6.4, CONTAINER_YARD_Y - r * 2.6, 5.4, 2.4, frame.palette.land);
-    }
-  }
+  containerStacks(ctx, frame, 636, CONTAINER_YARD_Y + 2.4, 4, (col) => (col % 2) + 1);
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(632, CONTAINER_YARD_Y + 2.4);
@@ -994,13 +1013,7 @@ function drawImportRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void 
   }
 
   // Import container yard, landward of the berth.
-  ctx.lineWidth = 0.9;
-  for (let col = 0; col < 6; col += 1) {
-    const stack = (col % 3) + 1;
-    for (let r = 0; r < stack; r += 1) {
-      box(ctx, 796 + col * 6.4, 248 - r * 2.6, 5.4, 2.4, frame.palette.land);
-    }
-  }
+  containerStacks(ctx, frame, 796, 250.4, 6, (col) => (col % 3) + 1);
   ctx.lineWidth = 1.1;
   ctx.beginPath();
   ctx.moveTo(792, 250.4);
