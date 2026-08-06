@@ -36,8 +36,8 @@ type Ink = "ink" | "inkSoft" | "land" | "ship" | "label" | "grid";
 const SPACE: DesignSpace = { width: 900, height: 1000, fit: "slice" };
 
 // --- geometry ---------------------------------------------------------------
-const LAT = [125, 375, 625, 875] as const;
-const LON = [150, 450, 750] as const;
+/** Ocean graticule: a fine mesh rather than a few widely-spaced rules. */
+const GRID_STEP = 50;
 
 /**
  * Production shore: enlarged to carry the whole chain — wind and solar
@@ -46,9 +46,9 @@ const LON = [150, 450, 750] as const;
  * story is the process, not the ocean.
  */
 export const SHORE_A: readonly Point[] = [
-  [40, 300], [200, 300], [200, 360], [400, 360],
-  [400, 470], [600, 470], [600, 640], [700, 640],
-  [700, 1000], [40, 1000],
+  [110, 300], [250, 300], [250, 360], [420, 360],
+  [420, 470], [600, 470], [600, 640], [700, 640],
+  [700, 1000], [110, 1000],
 ];
 /** Destination shore: the import terminal, top-right. */
 export const SHORE_B: readonly Point[] = [
@@ -65,7 +65,8 @@ export const SHORE_B: readonly Point[] = [
  * arrives alongside and swings there rather than driving into the land.
  */
 export const ROUTE: readonly Point[] = [
-  [706, 840], [756, 840], [756, 600], [830, 600], [830, 360], [806, 344],
+  [712, 900], [712, 820], [770, 760], [770, 560],
+  [840, 500], [840, 392], [800, 342], [760, 342],
 ];
 /**
  * Ballast, the return leg. Offset from the laden track so the two are legible
@@ -73,10 +74,11 @@ export const ROUTE: readonly Point[] = [
  * the outbound and inbound vessels from overrunning each other.
  */
 export const ROUTE_BACK: readonly Point[] = [
-  [806, 344], [880, 380], [880, 640], [792, 640], [792, 900], [706, 900],
+  [760, 342], [716, 342], [716, 420], [740, 470],
+  [740, 700], [730, 800], [730, 880], [712, 930], [712, 900],
 ];
-const WAYPOINTS: readonly Point[] = [[756, 840], [756, 600], [830, 600], [830, 360]];
-const SEA_MARKS: readonly Point[] = [[726, 250], [860, 760]];
+const WAYPOINTS: readonly Point[] = [[770, 760], [770, 560], [840, 500], [840, 392]];
+const SEA_MARKS: readonly Point[] = [[868, 640]];
 
 // --- motion, matching globals.css:56-76 exactly -----------------------------
 const DASH: readonly number[] = [7, 5];
@@ -94,18 +96,22 @@ let returnPath: MeasuredPath | null = null;
 
 // ===== Graticule ============================================================
 function drawGraticule(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  ctx.strokeStyle = frame.palette.grid;
-  ctx.lineWidth = 1;
+  // Fine black mesh — a chart's grid. Thin enough to sit under the linework,
+  // but in the ink rather than the pale grid tone, so it actually reads.
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 0.35;
+  ctx.globalAlpha = 0.45;
   ctx.beginPath();
-  for (const y of LAT) {
+  for (let y = GRID_STEP; y < 1000; y += GRID_STEP) {
     ctx.moveTo(0, y);
     ctx.lineTo(900, y);
   }
-  for (const x of LON) {
+  for (let x = GRID_STEP; x < 900; x += GRID_STEP) {
     ctx.moveTo(x, 0);
     ctx.lineTo(x, 1000);
   }
   ctx.stroke();
+  ctx.globalAlpha = 1;
 }
 
 // ===== Land =================================================================
@@ -117,7 +123,7 @@ function drawShores(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 function drawQuayTicks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.5;
-  ticks(ctx, 700, [800, 830, 860, 890], 8);
+  ticks(ctx, 700, [790, 820, 850, 880, 910], 8);
   ticks(ctx, 782, [240, 270, 300], 8);
 }
 
@@ -289,21 +295,21 @@ function drawTurbine(
 /** The wind farm: a row along the high ground, staggered so it reads as depth. */
 function drawWindFarm(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const rows: readonly [x: number, y: number, h: number, phase: number, spin: number][] = [
-    [70, 500, 44, 0.0, 0.22],
-    [128, 500, 41, 1.7, 0.19],
-    [186, 500, 46, 3.1, 0.25],
-    [244, 500, 42, 5.0, 0.20],
-    [99, 566, 38, 2.3, 0.17],
-    [157, 566, 40, 0.8, 0.21],
-    [215, 566, 36, 4.4, 0.24],
-    [273, 566, 39, 2.9, 0.18],
+    [128, 500, 44, 0.0, 0.22],
+    [186, 500, 41, 1.7, 0.19],
+    [244, 500, 46, 3.1, 0.25],
+    [302, 500, 42, 5.0, 0.20],
+    [157, 566, 38, 2.3, 0.17],
+    [215, 566, 40, 0.8, 0.21],
+    [273, 566, 36, 4.4, 0.24],
+    [331, 566, 39, 2.9, 0.18],
   ];
   for (const [x, y, h, phase, spin] of rows) drawTurbine(ctx, frame, x, y, h, phase, spin);
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.moveTo(50, 500); ctx.lineTo(300, 500);
-  ctx.moveTo(79, 566); ctx.lineTo(329, 566);
+  ctx.moveTo(108, 500); ctx.lineTo(358, 500);
+  ctx.moveTo(137, 566); ctx.lineTo(387, 566);
   ctx.stroke();
 }
 
@@ -315,10 +321,10 @@ function drawWindFarm(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 function drawPvArray(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
   const blocks: readonly [x: number, y: number, w: number, rows: number][] = [
-    [64, 656, 112, 7],
-    [192, 656, 112, 7],
-    [64, 742, 112, 6],
-    [192, 742, 112, 6],
+    [122, 656, 112, 7],
+    [250, 656, 112, 7],
+    [122, 742, 112, 6],
+    [250, 742, 112, 6],
   ];
   for (const [bx, by, bw, rows] of blocks) {
     ctx.lineWidth = 0.9;
@@ -337,7 +343,7 @@ function drawPvArray(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 
 /** Electrolyser hall: a stack module block, the heart of the chain. */
 function drawElectrolyser(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  const x = 344;
+  const x = 402;
   const y = 686;
   const w = 40; // ~110 m hall
   const d = 17; // ~45 m deep
@@ -368,20 +374,20 @@ function drawSynthesis(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 
   // Two reactor columns, ~40 m tall.
   ctx.lineWidth = 1.3;
-  box(ctx, 424, base - 15, 5, 15);
-  box(ctx, 433, base - 15, 5, 15);
+  box(ctx, 482, base - 15, 5, 15);
+  box(ctx, 491, base - 15, 5, 15);
   ctx.lineWidth = 0.8;
   ctx.beginPath();
-  ctx.moveTo(424, base - 15); ctx.lineTo(429, base);
-  ctx.moveTo(429, base - 15); ctx.lineTo(424, base);
-  ctx.moveTo(433, base - 15); ctx.lineTo(438, base);
-  ctx.moveTo(438, base - 15); ctx.lineTo(433, base);
+  ctx.moveTo(482, base - 15); ctx.lineTo(487, base);
+  ctx.moveTo(487, base - 15); ctx.lineTo(482, base);
+  ctx.moveTo(491, base - 15); ctx.lineTo(496, base);
+  ctx.moveTo(496, base - 15); ctx.lineTo(491, base);
   ctx.stroke();
 
   // Flare stack, ~60 m — the tallest thing in the works after the turbines.
   ctx.lineWidth = 1.1;
   ctx.beginPath();
-  ctx.moveTo(446, base); ctx.lineTo(446, base - 22); ctx.lineTo(451, base - 22);
+  ctx.moveTo(562, base); ctx.lineTo(562, base - 22); ctx.lineTo(509, base - 22);
   ctx.stroke();
 
   // Storage spheres, ~45 m across, on their skirts.
@@ -400,7 +406,7 @@ function drawSynthesis(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 
   ctx.lineWidth = 1.4;
   ctx.beginPath();
-  ctx.moveTo(416, base); ctx.lineTo(504, base);
+  ctx.moveTo(474, base); ctx.lineTo(562, base);
   ctx.stroke();
 }
 
@@ -419,18 +425,18 @@ function drawFlow(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     () => {
       ctx.beginPath();
       // Wind farm → substation busbar → electrolyser.
-      ctx.moveTo(296, 562); ctx.lineTo(320, 562); ctx.lineTo(320, 656);
+      ctx.moveTo(354, 562); ctx.lineTo(378, 562); ctx.lineTo(378, 656);
       // PV fields → the same busbar.
-      ctx.moveTo(304, 686); ctx.lineTo(320, 686);
-      ctx.moveTo(304, 772); ctx.lineTo(320, 772); ctx.lineTo(320, 656);
+      ctx.moveTo(362, 686); ctx.lineTo(378, 686);
+      ctx.moveTo(362, 772); ctx.lineTo(378, 772); ctx.lineTo(378, 656);
       // Busbar → electrolyser hall.
-      ctx.moveTo(320, 656); ctx.lineTo(344, 656); ctx.lineTo(344, 686);
+      ctx.moveTo(378, 656); ctx.lineTo(402, 656); ctx.lineTo(402, 686);
       // Electrolyser → synthesis (hydrogen).
-      ctx.moveTo(384, 696); ctx.lineTo(416, 696);
+      ctx.moveTo(442, 696); ctx.lineTo(474, 696);
       // Synthesis → the export tank farm → the loading arms ON the quay.
       // This used to stop at x=614, dying in open land 86 units short of the
       // waterfront, so the chain never actually reached the ship.
-      ctx.moveTo(504, 696); ctx.lineTo(524, 696); ctx.lineTo(524, 760);
+      ctx.moveTo(562, 696); ctx.lineTo(582, 696); ctx.lineTo(582, 760);
       ctx.lineTo(616, 760);
       ctx.moveTo(660, 760); ctx.lineTo(688, 760); ctx.lineTo(688, 830);
       ctx.moveTo(688, 760); ctx.lineTo(688, 916);
@@ -623,7 +629,7 @@ function drawSeaMarks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 // ===== Chrome ===============================================================
 function drawCompass(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.save();
-  ctx.translate(726, 560);
+  ctx.translate(64, 76);
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -636,21 +642,6 @@ function drawCompass(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.restore();
 }
 
-function drawScaleBar(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  ctx.save();
-  ctx.translate(60, 170);
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(0, 0); ctx.lineTo(180, 0);
-  ctx.moveTo(0, -5); ctx.lineTo(0, 5);
-  ctx.moveTo(90, -4); ctx.lineTo(90, 4);
-  ctx.moveTo(180, -5); ctx.lineTo(180, 5);
-  ctx.stroke();
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "1000 NM", 90, 22, frame.font, { anchor: "middle" });
-  ctx.restore();
-}
 
 
 /**
@@ -727,12 +718,12 @@ export const shippingScene: Scene<Ink> = {
     drawGantry(ctx, frame, 700, 830, 1);
     drawGantry(ctx, frame, 700, 916, 1);
 
-    caption(ctx, frame, "[ WIND ]", 70, 570, 62, 600);
-    caption(ctx, frame, "[ PV ARRAY ]", 70, 794, 62, 826);
-    caption(ctx, frame, "[ ELECTROLYSIS ]", 350, 706, 342, 748);
-    caption(ctx, frame, "[ NH3 SYNTHESIS ]", 452, 706, 444, 786);
+    caption(ctx, frame, "[ WIND ]", 128, 570, 120, 600);
+    caption(ctx, frame, "[ PV ARRAY ]", 128, 794, 120, 826);
+    caption(ctx, frame, "[ ELECTROLYSIS ]", 408, 706, 400, 748);
+    caption(ctx, frame, "[ NH3 SYNTHESIS ]", 510, 706, 502, 786);
     ctx.fillStyle = frame.palette.label;
-    monoLabel(ctx, "[ PECEM · BR ]", 62, 340, frame.font);
+    monoLabel(ctx, "[ PECEM · BR ]", 128, 420, frame.font);
 
     // --- Destination shore --------------------------------------------------
     drawContainersB(ctx, frame);
@@ -746,11 +737,10 @@ export const shippingScene: Scene<Ink> = {
     drawRoute(ctx, frame);
     drawWaypoints(ctx, frame);
     ctx.fillStyle = frame.palette.label;
-    monoLabel(ctx, "4600 NM", 700, 430, frame.font);
+    monoLabel(ctx, "4600 NM", 800, 560, frame.font);
 
     drawFleet(ctx, frame);
     drawSeaMarks(ctx, frame);
     drawCompass(ctx, frame);
-    drawScaleBar(ctx, frame);
   },
 };

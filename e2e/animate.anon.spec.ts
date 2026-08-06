@@ -133,3 +133,28 @@ test("both shipping legs stay in water, hull included", () => {
   expect(landfallCount(ROUTE, land), "laden track crosses land").toBe(0);
   expect(landfallCount(ROUTE_BACK, land), "ballast track crosses land").toBe(0);
 });
+
+// The two ways a "loop" silently isn't one. Both were real: the legs used to
+// meet at the import quay but leave a 60-unit gap at the export quay, so a
+// vessel teleported along the dock; and both final approaches ran
+// perpendicular to the quay, so ships drove bow-first into the land.
+test("the circuit closes and ships berth alongside", () => {
+  const first = <T,>(a: readonly T[]) => a[0]!;
+  const last = <T,>(a: readonly T[]) => a[a.length - 1]!;
+
+  expect(last(ROUTE), "laden must end where ballast begins").toEqual(first(ROUTE_BACK));
+  expect(last(ROUTE_BACK), "ballast must end where laden begins").toEqual(first(ROUTE));
+
+  // Final approach heading vs the quay it lands on. Quay B runs east-west,
+  // quay A runs north-south, so "alongside" is 0/180 and ±90 respectively.
+  const heading = (track: readonly (readonly [number, number])[]) => {
+    const a = track[track.length - 2]!;
+    const b = last(track);
+    return (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+  };
+  const isHorizontal = (deg: number) => Math.abs(Math.abs(deg) - 180) < 1 || Math.abs(deg) < 1;
+  const isVertical = (deg: number) => Math.abs(Math.abs(deg) - 90) < 1;
+
+  expect(isHorizontal(heading(ROUTE)), "laden must arrive parallel to quay B").toBe(true);
+  expect(isVertical(heading(ROUTE_BACK)), "ballast must arrive parallel to quay A").toBe(true);
+});
