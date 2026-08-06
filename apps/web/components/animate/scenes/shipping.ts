@@ -66,7 +66,7 @@ export const SHORE_B: readonly Point[] = [
  */
 export const ROUTE: readonly Point[] = [
   [712, 900], [712, 820], [770, 760], [770, 560],
-  [840, 500], [840, 392], [800, 342], [760, 342],
+  [878, 500], [878, 410], [854, 346], [812, 346],
 ];
 /**
  * Ballast, the return leg. Offset from the laden track so the two are legible
@@ -74,7 +74,7 @@ export const ROUTE: readonly Point[] = [
  * the outbound and inbound vessels from overrunning each other.
  */
 export const ROUTE_BACK: readonly Point[] = [
-  [760, 342], [716, 342], [716, 420], [740, 470],
+  [812, 346], [764, 346], [744, 400], [744, 470],
   [740, 700], [730, 800], [730, 880], [712, 930], [712, 900],
 ];
 const WAYPOINTS: readonly Point[] = [[770, 760], [770, 560], [840, 500], [840, 392]];
@@ -183,13 +183,24 @@ export function loadsSince(time: number, since: number, stagger: number): number
  * actually there. Mirrors the leg boundaries in drawFleet — with SAIL 0.33 and
  * DWELL 0.17 the second dwell runs from SAIL*2 + DWELL to the end of the cycle.
  */
-function berthOccupied(time: number, kind?: CargoKind): boolean {
+function berthOccupied(
+  time: number,
+  kind?: CargoKind,
+  quay: "export" | "import" = "export",
+): boolean {
   const SAIL = 0.33;
   const DWELL = 0.17;
   for (const [offset, shipKind] of FLEET) {
     if (kind && shipKind !== kind) continue;
     const cycle = ((time + offset) % VOYAGE_S) / VOYAGE_S;
-    if (cycle >= SAIL * 2 + DWELL) return true;
+    // The two dwell windows are currently the same length, so testing the
+    // wrong one happens to agree — state the quay explicitly so it keeps
+    // agreeing when the timings diverge.
+    const alongside =
+      quay === "export"
+        ? cycle >= SAIL * 2 + DWELL
+        : cycle >= SAIL && cycle < SAIL + DWELL;
+    if (alongside) return true;
   }
   return false;
 }
@@ -206,6 +217,8 @@ export const BERTH_A = { x: 712, y: 900 } as const;
 /** Container ships lie at the northern berth, bulk carriers at the southern. */
 export const BERTH_CONTAINER = { x: 712, y: 878 } as const;
 export const BERTH_BULK = { x: 712, y: 926 } as const;
+/** Where a vessel lies at the import quay (the end of the laden route). */
+export const BERTH_IMPORT = { x: 812, y: 346 } as const;
 /** Deck height above the waterline, in design units. */
 const DECK_RISE = 3;
 
@@ -1040,6 +1053,110 @@ function drawTrucks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 }
 
 /**
+ * A gantry on an east-west quay, reaching SOUTH over the berth.
+ *
+ * The same machine as drawGantry, a quarter turn round. Written out rather
+ * than rotated: wrapping the canonical crane in a ctx.rotate fights the
+ * design-space transform and renders it as vertical lines off-frame (tried,
+ * reverted). Two explicit primitives are duller but they actually work.
+ */
+function drawGantrySouth(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  quayY: number,
+  standX: number,
+  cranePhase: number,
+  berth: { readonly x: number; readonly y: number },
+  handles: CargoKind,
+): void {
+  // Traverses along X (the quay runs east-west) and hoists along Y (down to
+  // the water). Written out rather than rotating the canonical crane: a
+  // nested ctx.rotate fights the design-space transform and renders off-frame.
+  const legWest = standX - 11;
+  const legEast = standX + 11;
+  const beamY = quayY - 44; // boom height above the quay
+  const boomWest = standX - 40; // out over the berth
+  const boomEast = standX + 27; // backreach over the yard
+
+  const working = berthOccupied(frame.time, handles, "import");
+  const phase = working ? cranePhaseAt(frame.time, cranePhase) : 0.95;
+  const overShip = berth.x;
+  const overApron = standX + 22;
+  let travel: number;
+  let drop: number;
+  let holding: boolean;
+  if (phase < 0.3) {
+    travel = phase / 0.3;
+    drop = 0;
+    holding = false;
+  } else if (phase < 0.45) {
+    travel = 1;
+    drop = Math.sin(((phase - 0.3) / 0.15) * Math.PI);
+    holding = phase > CRANE_TOUCH;
+  } else if (phase < 0.75) {
+    travel = 1 - (phase - 0.45) / 0.3;
+    drop = 0;
+    holding = true;
+  } else if (phase < 0.9) {
+    travel = 0;
+    drop = Math.sin(((phase - 0.75) / 0.15) * Math.PI);
+    holding = phase < CRANE_TOUCH_LAND;
+  } else {
+    travel = 0;
+    drop = 0;
+    holding = false;
+  }
+  const trolley = overApron + (overShip - overApron) * travel;
+  const restY = beamY + 8;
+  const targetY = travel > 0.5 ? berth.y - DECK_RISE : quayY - 12;
+  const spreader = restY + drop * (targetY - restY);
+
+  ctx.strokeStyle = frame.palette.ink;
+
+  // Ground line along the quay.
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(standX + 46, quayY); ctx.lineTo(standX - 30, quayY);
+  ctx.stroke();
+
+  // A-frame legs, leaning together toward the boom.
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(legWest, quayY); ctx.lineTo(standX - 5, beamY);
+  ctx.moveTo(legEast, quayY); ctx.lineTo(standX + 5, beamY);
+  ctx.stroke();
+
+  // Diagonal brace inside the portal.
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(legEast - 2, quayY - 7); ctx.lineTo(standX - 4, beamY + 11);
+  ctx.stroke();
+
+  // The boom: one long horizontal, nothing above it.
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(boomEast, beamY); ctx.lineTo(boomWest, beamY);
+  ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(boomWest, beamY); ctx.lineTo(boomWest + 10, beamY + 5);
+  ctx.lineTo(standX - 5, beamY + 5);
+  ctx.stroke();
+
+  // Trolley, hoist ropes, and the load.
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(trolley - 2.6, beamY); ctx.lineTo(trolley - 2.6, spreader);
+  ctx.moveTo(trolley + 2.6, beamY); ctx.lineTo(trolley + 2.6, spreader);
+  ctx.stroke();
+  ctx.lineWidth = 1.2;
+  box(ctx, trolley - 6, spreader, 12, 3.4, frame.palette.land);
+  if (holding) {
+    box(ctx, trolley - 7, spreader + 3.4, 14, 5, frame.palette.land);
+  }
+}
+
+/**
  * Rotterdam's landside: the distribution road out to the hinterland, and the
  * yards that feed it. The export end has generation to explain where the
  * cargo comes from; the import end is purely a port, so it gets port and road
@@ -1086,10 +1203,10 @@ function drawImportRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void 
   }
 
   // Import container yard, landward of the berth.
-  containerStacks(ctx, frame, 796, 250.4, 6, (col) => (col % 3) + 1);
+  containerStacks(ctx, frame, 800, 250.4, 5, (col) => (col % 3) + 1);
   ctx.lineWidth = 1.1;
   ctx.beginPath();
-  ctx.moveTo(792, 250.4);
+  ctx.moveTo(796, 250.4);
   ctx.lineTo(840, 250.4);
   ctx.stroke();
 }
@@ -1463,7 +1580,7 @@ export const shippingScene: Scene<Ink> = {
     // --- Destination shore --------------------------------------------------
     drawImportRoad(ctx, frame);
     drawContainersB(ctx, frame);
-    drawGantry(ctx, frame, 790, 300, -1, 2.3);
+    drawGantrySouth(ctx, frame, 330, 846, IMPORT_CRANE_STAGGER, BERTH_IMPORT, "container");
     drawImportTrucks(ctx, frame);
     caption(ctx, frame, "[ DISTRIBUTION ]", 722, 190, 700, 232);
     ctx.fillStyle = frame.palette.label;
