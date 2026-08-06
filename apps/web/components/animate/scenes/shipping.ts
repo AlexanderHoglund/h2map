@@ -99,8 +99,19 @@ const ROAD_EAST = 640; // the container apron behind the berths
  * 36 s circuit, the trucks only cross a shore.
  */
 const HAUL_S = 60;
-/** Six trucks, evenly spread so the road is busy but never a convoy. */
-const TRUCK_OFFSETS = [0, 10, 20, 30, 40, 50] as const;
+/**
+ * Six trucks, evenly spread so the road is busy but never a convoy, and
+ * carrying both trades — the road feeds a container berth and a bulk berth,
+ * so a yard of nothing but boxes would only tell half the story.
+ */
+const TRUCKS: readonly (readonly [offset: number, kind: CargoKind])[] = [
+  [0, "container"],
+  [10, "bulk"],
+  [20, "container"],
+  [30, "bulk"],
+  [40, "container"],
+  [50, "bulk"],
+];
 
 /**
  * One crane cycle: traverse out over the hold, lower, lift, traverse back,
@@ -119,7 +130,18 @@ export const CRANE_S = 9;
  */
 export const CRANE_TOUCH = 0.375;
 /** Stagger of the crane that works the export berth (must match the draw call). */
-export const EXPORT_CRANE_STAGGER = 0;
+export const EXPORT_CRANE_STAGGER = 0; // = BERTH_CARGO.container
+/**
+ * A terminal handles each trade at its own berth, because the machines are
+ * not interchangeable: a container crane lifts a box with a spreader, a bulk
+ * crane swings a grab. So the fleet splits — boxboats to the container berth,
+ * bulk carriers to the bulk berth — and each crane only works when its own
+ * kind of ship is alongside.
+ */
+const BERTH_CARGO: Readonly<Record<CargoKind, number>> = {
+  container: 0,
+  bulk: 4.1,
+};
 /** Stagger of the crane that works the import berth. */
 const IMPORT_CRANE_STAGGER = 2.3;
 /** Phase of the matching touch when landing on the apron. */
@@ -148,10 +170,11 @@ export function loadsSince(time: number, since: number, stagger: number): number
  * actually there. Mirrors the leg boundaries in drawFleet — with SAIL 0.33 and
  * DWELL 0.17 the second dwell runs from SAIL*2 + DWELL to the end of the cycle.
  */
-function berthOccupied(time: number): boolean {
+function berthOccupied(time: number, kind?: CargoKind): boolean {
   const SAIL = 0.33;
   const DWELL = 0.17;
-  for (const [offset] of FLEET) {
+  for (const [offset, shipKind] of FLEET) {
+    if (kind && shipKind !== kind) continue;
     const cycle = ((time + offset) % VOYAGE_S) / VOYAGE_S;
     if (cycle >= SAIL * 2 + DWELL) return true;
   }
@@ -167,6 +190,9 @@ function berthOccupied(time: number): boolean {
  * east of the hull — a crane loading open water.
  */
 export const BERTH_A = { x: 712, y: 900 } as const;
+/** Container ships lie at the northern berth, bulk carriers at the southern. */
+export const BERTH_CONTAINER = { x: 712, y: 878 } as const;
+export const BERTH_BULK = { x: 712, y: 926 } as const;
 /** Deck height above the waterline, in design units. */
 const DECK_RISE = 3;
 
@@ -244,6 +270,8 @@ function drawGantry(
   cranePhase = 0,
   /** The vessel this crane works. Omitted = a crane with no ship alongside. */
   berth?: { readonly x: number; readonly y: number },
+  /** Which trade this machine handles; it idles when the other kind is in. */
+  handles?: CargoKind,
 ): void {
   // A crane on an east-west quay is the same machine rotated a quarter turn.
   // Draw it in the canonical orientation and let the transform place it,
@@ -273,7 +301,7 @@ function drawGantry(
   //   0.90-1.00  hoist back up, empty
   // No ship alongside: park the trolley over the apron with the spreader up,
   // rather than miming a load into empty water.
-  const working = berth ? berthOccupied(frame.time) : true;
+  const working = berth ? berthOccupied(frame.time, handles) : true;
   const phase = working ? cranePhaseAt(frame.time, cranePhase) : 0.95;
   // Reach out to the vessel's centreline, not an arbitrary distance.
   const overShip = berth ? berth.x : quayX + dir * 37;
@@ -353,14 +381,37 @@ function drawGantry(
   ctx.moveTo(trolley + 2.6, beam); ctx.lineTo(trolley + 2.6, spreader);
   ctx.stroke();
   ctx.lineWidth = 1.2;
-  box(ctx, trolley - 6, spreader, 12, 3.4);
-  if (holding) {
-    // The container under the spreader — the thing actually being moved.
-    ctx.fillStyle = frame.palette.land;
+  if (handles === "bulk") {
+    // A clamshell grab: two jaws, open on the way out, closed on the load.
+    const jaw = holding ? 3.5 : 7;
     ctx.beginPath();
-    ctx.rect(trolley - 7, spreader + 3.4, 14, 5);
-    ctx.fill();
+    ctx.moveTo(trolley - 7, spreader);
+    ctx.lineTo(trolley, spreader + 2);
+    ctx.lineTo(trolley + 7, spreader);
+    ctx.moveTo(trolley - jaw, spreader + 2);
+    ctx.lineTo(trolley - jaw * 0.4, spreader + 7);
+    ctx.lineTo(trolley + jaw * 0.4, spreader + 7);
+    ctx.lineTo(trolley + jaw, spreader + 2);
     ctx.stroke();
+    if (holding) {
+      ctx.fillStyle = frame.palette.ink;
+      ctx.beginPath();
+      ctx.moveTo(trolley - 2.6, spreader + 3);
+      ctx.lineTo(trolley + 2.6, spreader + 3);
+      ctx.lineTo(trolley, spreader + 7);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else {
+    box(ctx, trolley - 6, spreader, 12, 3.4);
+    if (holding) {
+      // The container under the spreader — the thing actually being moved.
+      ctx.fillStyle = frame.palette.land;
+      ctx.beginPath();
+      ctx.rect(trolley - 7, spreader + 3.4, 14, 5);
+      ctx.fill();
+      ctx.stroke();
+    }
   }
 }
 
@@ -634,43 +685,56 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   // The apron: boxes waiting to be lifted, beside the berths.
   // The apron: stacked boxes between the road and the berths, plus a spur
   // up to the quay so the road visibly serves the ship.
-  // Stacks stay LOW and WEST of the crane's backreach: at full height they
-  // reached up into the lower boom, so the machine appeared to sit in the yard.
+  // Each trade's stock sits behind the crane that lifts it: boxes landward of
+  // the container berth, heaps landward of the bulk berth. A yard where the
+  // two are mixed would have each crane reaching over the wrong stockpile.
+  const CONTAINER_YARD_Y = BERTH_CONTAINER.y - 30;
+  const BULK_YARD_Y = BERTH_BULK.y + 34;
+
+  // Container stacks, under the container crane.
   ctx.lineWidth = 0.9;
-  for (let col = 0; col < 7; col += 1) {
+  for (let col = 0; col < 6; col += 1) {
     const stack = (col % 3) + 1;
     for (let r = 0; r < stack; r += 1) {
-      box(ctx, ROAD_EAST - 66 + col * 6.4, ROAD_Y - 22 - r * 2.6, 5.4, 2.4);
+      box(ctx, 560 + col * 6.4, CONTAINER_YARD_Y - r * 2.6, 5.4, 2.4);
     }
   }
-  // Bulk stockpiles beside the boxes: the other half of the port's traffic.
-  ctx.lineWidth = 1;
-  for (const [px, w, h] of [[ROAD_EAST - 158, 26, 11], [ROAD_EAST - 124, 20, 9]] as const) {
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.moveTo(554, CONTAINER_YARD_Y + 2.4);
+  ctx.lineTo(602, CONTAINER_YARD_Y + 2.4);
+  ctx.stroke();
+
+  // Bulk stockpiles, under the bulk crane. Conical, with angle-of-repose
+  // hatching so a heap reads as loose material rather than a solid.
+  for (const [px, w, h] of [[556, 26, 11], [590, 20, 9]] as const) {
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(px, ROAD_Y - 22);
-    ctx.lineTo(px + w / 2, ROAD_Y - 22 - h);
-    ctx.lineTo(px + w, ROAD_Y - 22);
+    ctx.moveTo(px, BULK_YARD_Y);
+    ctx.lineTo(px + w / 2, BULK_YARD_Y - h);
+    ctx.lineTo(px + w, BULK_YARD_Y);
     ctx.closePath();
     ctx.stroke();
-    // Angle-of-repose hatching, so a heap reads as loose material.
     ctx.lineWidth = 0.6;
     ctx.beginPath();
     for (let i = 1; i < 4; i += 1) {
       const t = i / 4;
-      ctx.moveTo(px + (w / 2) * t, ROAD_Y - 22 - h * t);
-      ctx.lineTo(px + w - (w / 2) * t, ROAD_Y - 22 - h * t);
+      ctx.moveTo(px + (w / 2) * t, BULK_YARD_Y - h * t);
+      ctx.lineTo(px + w - (w / 2) * t, BULK_YARD_Y - h * t);
     }
     ctx.stroke();
-    ctx.lineWidth = 1;
   }
-
   ctx.lineWidth = 1.1;
   ctx.beginPath();
-  ctx.moveTo(ROAD_EAST - 162, ROAD_Y - 22);
-  ctx.lineTo(ROAD_EAST - 20, ROAD_Y - 22);
-  // Spur from the apron up to the lower berth's crane.
-  ctx.moveTo(ROAD_EAST - 24, ROAD_Y - 22);
-  ctx.lineTo(ROAD_EAST - 24, ROAD_Y - 40);
+  ctx.moveTo(550, BULK_YARD_Y);
+  ctx.lineTo(618, BULK_YARD_Y);
+  ctx.stroke();
+
+  // Spur from the road up to both yards.
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.moveTo(590, ROAD_Y - 9);
+  ctx.lineTo(590, BULK_YARD_Y);
   ctx.stroke();
 }
 
@@ -686,6 +750,7 @@ function drawTruck(
   dir: 1 | -1,
   loaded: boolean,
   fade: number,
+  kind: CargoKind,
 ): void {
   ctx.save();
   ctx.globalAlpha = fade;
@@ -700,10 +765,32 @@ function drawTruck(
   ctx.lineTo(4, 2.4); // trailer bed
   ctx.stroke();
   if (loaded) {
-    ctx.fillStyle = frame.palette.land;
+    if (kind === "bulk") {
+      // A tipper body: sloped front, heaped load — never a square box.
+      ctx.fillStyle = frame.palette.land;
+      ctx.beginPath();
+      ctx.moveTo(-9, 2.4);
+      ctx.lineTo(-9, -1);
+      ctx.lineTo(-6, -2.6);
+      ctx.lineTo(1, -2.6);
+      ctx.lineTo(3, 2.4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = frame.palette.land;
+      ctx.beginPath();
+      ctx.rect(-9, -2.2, 12, 4.6);
+      ctx.fill();
+      ctx.stroke();
+    }
+  } else if (kind === "bulk") {
+    // Empty tipper: the body is still there, just not heaped.
     ctx.beginPath();
-    ctx.rect(-9, -2.2, 12, 4.6);
-    ctx.fill();
+    ctx.moveTo(-9, 2.4);
+    ctx.lineTo(-9, 0);
+    ctx.moveTo(3, 2.4);
+    ctx.lineTo(3, 0);
     ctx.stroke();
   }
   ctx.restore();
@@ -721,7 +808,7 @@ function drawTrucks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const span = ROAD_EAST - ROAD_WEST;
   const FADE = 90; // units over which a truck dissolves at the border
 
-  for (const offset of TRUCK_OFFSETS) {
+  for (const [offset, kind] of TRUCKS) {
     const cycle = ((frame.time + offset) % HAUL_S) / HAUL_S;
     const outbound = cycle < 0.5;
     const u = outbound ? cycle * 2 : 1 - (cycle - 0.5) * 2;
@@ -731,7 +818,7 @@ function drawTrucks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     const y = ROAD_Y + (outbound ? -4.5 : 4.5);
     const fade = Math.min(1, (x - ROAD_WEST) / FADE);
     if (fade <= 0.02) continue;
-    drawTruck(ctx, frame, x, y, outbound ? 1 : -1, outbound, fade);
+    drawTruck(ctx, frame, x, y, outbound ? 1 : -1, outbound, fade, kind);
   }
 }
 
@@ -924,10 +1011,18 @@ function drawFleet(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
       path = returnPath;
       u = 1;
       const arrived = frame.time - (cycle - (SAIL * 2 + DWELL)) * VOYAGE_S;
-      laden = loadsSince(frame.time, arrived, EXPORT_CRANE_STAGGER) > 0;
+      laden = loadsSince(frame.time, arrived, BERTH_CARGO[kind]) > 0;
     }
 
-    const { x, y, angle } = poseAt(path, u);
+    let { x, y } = poseAt(path, u);
+    const { angle } = poseAt(path, u);
+    // Alongside at the export quay, each trade lies at its own berth rather
+    // than every ship stacking on the same point.
+    if (cycle >= SAIL * 2 + DWELL) {
+      const berth = kind === "bulk" ? BERTH_BULK : BERTH_CONTAINER;
+      x = berth.x;
+      y = berth.y;
+    }
     drawVessel(ctx, frame, x, y, angle, laden, kind);
   }
 }
@@ -1030,14 +1125,15 @@ export const shippingScene: Scene<Ink> = {
     drawExportTerminal(ctx, frame);
     drawTrucks(ctx, frame);
     // Both cranes stand over the berth so either can reach the ship alongside.
-    drawGantry(ctx, frame, 700, BERTH_A.y - 26, 1, 0, BERTH_A);
-    drawGantry(ctx, frame, 700, BERTH_A.y + 30, 1, 4.1, BERTH_A);
+    // One crane per trade, each over the berth its ships use.
+    drawGantry(ctx, frame, 700, BERTH_CONTAINER.y - 26, 1, BERTH_CARGO.container, BERTH_CONTAINER, "container");
+    drawGantry(ctx, frame, 700, BERTH_BULK.y + 26, 1, BERTH_CARGO.bulk, BERTH_BULK, "bulk");
 
     caption(ctx, frame, "[ WIND ]", 128, 570, 120, 600);
     caption(ctx, frame, "[ PV ARRAY ]", 128, 794, 120, 826);
     caption(ctx, frame, "[ ELECTROLYSIS ]", 408, 710, 402, 772);
     caption(ctx, frame, "[ NH3 SYNTHESIS ]", 470, 710, 402, 812);
-    caption(ctx, frame, "[ CONTAINER ROAD ]", 300, 945, 292, 978);
+    caption(ctx, frame, "[ FREIGHT ROAD ]", 300, 945, 292, 978);
     ctx.fillStyle = frame.palette.label;
     monoLabel(ctx, "[ PECEM · BR ]", 128, 420, frame.font);
 

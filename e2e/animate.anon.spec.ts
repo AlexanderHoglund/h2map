@@ -13,6 +13,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { landfallCount } from "../apps/web/lib/animation/geometry";
 import {
   BERTH_A,
+  BERTH_BULK,
+  BERTH_CONTAINER,
   CRANE_S,
   CRANE_TOUCH,
   EXPORT_CRANE_STAGGER,
@@ -197,4 +199,13 @@ test("a vessel turns laden exactly when the cargo lands", () => {
     loadsSince(touch + EPS, arrived, EXPORT_CRANE_STAGGER),
     "laden from the frame the box touches down",
   ).toBe(1);
+});
+
+// Each trade has its own berth and its own machine: a spreader cannot lift
+// loose cargo and a grab cannot lift a box. The two berths must therefore be
+// distinct points, or the ships would stack on one spot.
+test("bulk and container ships use separate berths", () => {
+  expect(BERTH_BULK.y).not.toBe(BERTH_CONTAINER.y);
+  // Both lie on the same quay line, just at different points along it.
+  expect(BERTH_BULK.x).toBe(BERTH_CONTAINER.x);
 });
