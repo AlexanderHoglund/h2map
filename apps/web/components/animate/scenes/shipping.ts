@@ -17,6 +17,14 @@ type Ink = "ink" | "inkSoft" | "land" | "ship" | "label" | "grid";
  * grid so the geometry actually connects. PV array → NH3 synthesis → Port A
  * crane → quay → angular dashed route (ships under way) → Port B quay → crane.
  *
+ * SCALE. The ship is the yardstick: 22 units LOA = a ~180 m carrier, so one
+ * unit is ~8 m. Shore plant is drawn at 3x that, uniformly — true scale would
+ * put a PV panel at half a unit, invisible. The exaggeration is uniform, so
+ * relative sizes stay honest: a 120 m turbine is ~2/3 a 180 m ship in reality
+ * and ~2x here, consistently with everything else on the shore. Sea distance
+ * is a third scale entirely (the bar reads 1000 NM) — unavoidable when a
+ * 4600 NM crossing shares a frame with a 45 m tank.
+ *
  * Grid discipline: land edges on multiples of 20; the route leaves Port A
  * exactly under crane A's hook (x=360, y=860) and ends exactly under crane B's
  * hook (x=715, y=340); process pipes butt onto the structures they connect.
@@ -37,31 +45,38 @@ const LON = [150, 450, 750] as const;
  * quay. The sea is now just the corridor between the two coasts, because the
  * story is the process, not the ocean.
  */
-const SHORE_A: readonly Point[] = [
+export const SHORE_A: readonly Point[] = [
   [0, 300], [200, 300], [200, 360], [420, 360],
   [420, 470], [640, 470], [640, 660], [700, 660],
   [700, 1000], [0, 1000],
 ];
 /** Destination shore: the import terminal, top-right. */
-const SHORE_B: readonly Point[] = [
+export const SHORE_B: readonly Point[] = [
   [900, 0], [900, 330], [790, 330], [790, 210],
   [690, 210], [690, 100], [540, 100], [540, 0],
 ];
 
-/** Laden, quay to quay: Port A (620,880) → right angles → Port B (790,250). */
-const ROUTE: readonly Point[] = [
-  [700, 850], [770, 850], [770, 620], [840, 620], [840, 280], [790, 280],
+/**
+ * Laden: berth A (706,840) → the corridor → berth B (806,344).
+ *
+ * Every vertex is verified to lie in water — the previous track ran straight
+ * through Shore B, so the fleet sailed over the import terminal. Both ends sit
+ * just off the quay line (A's coast is x=700, B's is y=330), so a vessel
+ * arrives alongside and swings there rather than driving into the land.
+ */
+export const ROUTE: readonly Point[] = [
+  [706, 840], [756, 840], [756, 600], [830, 600], [830, 360], [806, 344],
 ];
 /**
  * Ballast, the return leg. Offset from the laden track so the two are legible
  * as separate lanes — the convention on a real routeing chart, and it stops
  * the outbound and inbound vessels from overrunning each other.
  */
-const ROUTE_BACK: readonly Point[] = [
-  [790, 280], [872, 280], [872, 660], [800, 660], [800, 900], [700, 900],
+export const ROUTE_BACK: readonly Point[] = [
+  [806, 344], [880, 380], [880, 640], [792, 640], [792, 900], [706, 900],
 ];
-const WAYPOINTS: readonly Point[] = [[770, 850], [770, 620], [840, 620], [840, 280]];
-const SEA_MARKS: readonly Point[] = [[724, 200]];
+const WAYPOINTS: readonly Point[] = [[756, 840], [756, 600], [830, 600], [830, 360]];
+const SEA_MARKS: readonly Point[] = [[726, 250], [860, 760]];
 
 // --- motion, matching globals.css:56-76 exactly -----------------------------
 const DASH: readonly number[] = [7, 5];
@@ -133,22 +148,24 @@ function drawGantry(
   // elevation is essentially an inverted L — tall A-frame legs carrying one
   // long boom that cantilevers out over the water, with the hoist hanging
   // from it. The cantilever IS the silhouette; keep it unobstructed.
-  const legFore = quayX - dir * 26;
-  const legBack = quayX - dir * 86;
-  const apexFore = quayX - dir * 40; // legs lean together toward the top…
-  const apexBack = quayX - dir * 72; // …but stop well short of meeting
-  const beam = groundY - 74;
-  const boomTip = quayX + dir * 66;
-  const backTip = quayX - dir * 108;
-  const trolley = quayX + dir * 34;
-  const spreader = groundY - 30;
+  // Sized from a real ship-to-shore crane at the shore scale (1 u ≈ 8 m, x3):
+  // 30 m rail gauge, 60 m to the boom, 55 m seaward reach, 30 m backreach.
+  const legFore = quayX - dir * 5;
+  const legBack = quayX - dir * 16;
+  const apexFore = quayX - dir * 8;
+  const apexBack = quayX - dir * 13;
+  const beam = groundY - 22;
+  const boomTip = quayX + dir * 20;
+  const backTip = quayX - dir * 27;
+  const trolley = quayX + dir * 11;
+  const spreader = groundY - 9;
 
   ctx.strokeStyle = frame.palette.ink;
 
   // Ground.
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(legBack - dir * 26, groundY); ctx.lineTo(quayX, groundY);
+  ctx.moveTo(legBack - dir * 30, groundY); ctx.lineTo(quayX, groundY);
   ctx.stroke();
 
   // The A-frame: two legs leaning in, joined only where they meet the boom.
@@ -162,12 +179,12 @@ function drawGantry(
   // the legs' own lines so it doesn't read as a second structure.
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(legBack - dir * 4, groundY - 14);
-  ctx.lineTo(apexFore - dir * 4, beam + 20);
+  ctx.moveTo(legBack - dir * 1, groundY - 4);
+  ctx.lineTo(apexFore - dir * 1, beam + 7);
   ctx.stroke();
 
   // The boom: the whole point. One long horizontal, nothing above it.
-  ctx.lineWidth = 1.8;
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(backTip, beam); ctx.lineTo(boomTip, beam);
   ctx.stroke();
@@ -181,21 +198,28 @@ function drawGantry(
   // Trolley + hoist hanging over the berth.
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(trolley - 4, beam); ctx.lineTo(trolley - 4, spreader);
-  ctx.moveTo(trolley + 4, beam); ctx.lineTo(trolley + 4, spreader);
+  ctx.moveTo(trolley - 1.6, beam); ctx.lineTo(trolley - 1.6, spreader);
+  ctx.moveTo(trolley + 1.6, beam); ctx.lineTo(trolley + 1.6, spreader);
   ctx.stroke();
   ctx.lineWidth = 1.2;
-  box(ctx, trolley - 7, spreader, 14, 5);
+  box(ctx, trolley - 3, spreader, 6, 2.4);
 }
 
+/** Container yard beside the export quay: 40 ft boxes, stacked three high. */
 function drawContainersA(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 0.9;
+  const w = 4.4;
+  const h = 1.6;
+  for (let col = 0; col < 7; col += 1) {
+    const stack = col % 3 === 0 ? 3 : col % 3 === 1 ? 2 : 3;
+    for (let r = 0; r < stack; r += 1) {
+      box(ctx, 618 + col * (w + 1), 884 - (r + 1) * h, w, h);
+    }
+  }
   ctx.lineWidth = 1.2;
-  box(ctx, 196, 840, 28, 10);
-  box(ctx, 196, 830, 28, 10);
-  box(ctx, 228, 840, 28, 10);
   ctx.beginPath();
-  ctx.moveTo(196, 850); ctx.lineTo(256, 850);
+  ctx.moveTo(614, 884); ctx.lineTo(660, 884);
   ctx.stroke();
 }
 
@@ -214,10 +238,10 @@ function drawTurbine(
   spin: number,
 ): void {
   const hubY = groundY - h;
-  const blade = h * 0.42;
+  const blade = h * 0.62; // rotor ~150 m against a 120 m hub
 
   ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.4;
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
   // Tower, tapering very slightly by being drawn as one line at this scale.
   ctx.moveTo(x, groundY);
@@ -242,7 +266,7 @@ function drawTurbine(
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.arc(x, hubY, 2.6, 0, Math.PI * 2);
+  ctx.arc(x, hubY, 1.6, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 }
@@ -250,107 +274,118 @@ function drawTurbine(
 /** The wind farm: a row along the high ground, staggered so it reads as depth. */
 function drawWindFarm(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const rows: readonly [x: number, y: number, h: number, phase: number, spin: number][] = [
-    [80, 520, 86, 0.0, 0.22],
-    [166, 520, 78, 1.7, 0.19],
-    [250, 520, 90, 3.1, 0.25],
-    [124, 604, 66, 2.3, 0.17],
-    [212, 604, 72, 0.8, 0.21],
-    [300, 604, 62, 4.4, 0.24],
+    [70, 500, 44, 0.0, 0.22],
+    [128, 500, 41, 1.7, 0.19],
+    [186, 500, 46, 3.1, 0.25],
+    [244, 500, 42, 5.0, 0.20],
+    [99, 566, 38, 2.3, 0.17],
+    [157, 566, 40, 0.8, 0.21],
+    [215, 566, 36, 4.4, 0.24],
+    [273, 566, 39, 2.9, 0.18],
   ];
   for (const [x, y, h, phase, spin] of rows) drawTurbine(ctx, frame, x, y, h, phase, spin);
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.moveTo(50, 520); ctx.lineTo(320, 520);
-  ctx.moveTo(94, 604); ctx.lineTo(360, 604);
+  ctx.moveTo(50, 500); ctx.lineTo(300, 500);
+  ctx.moveTo(79, 566); ctx.lineTo(329, 566);
   ctx.stroke();
 }
 
-/** PV array: rows of tilted panels on a ground line. */
+/**
+ * PV field. At this scale a single 4 m module is half a unit, so the array is
+ * drawn as what you would actually see from the corridor: blocks of parallel
+ * rows, with the row pitch (~9 m) as the readable unit rather than the panel.
+ */
 function drawPvArray(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.2;
-  for (let row = 0; row < 2; row += 1) {
-    const y = 690 + row * 46;
-    for (let c = 0; c < 6; c += 1) {
-      const x = 50 + c * 44;
-      // Panel in section: a tilted face on a short post.
-      ctx.beginPath();
-      ctx.moveTo(x, y + 14);
-      ctx.lineTo(x + 30, y);
-      ctx.moveTo(x + 15, y + 7);
-      ctx.lineTo(x + 15, y + 20);
-      ctx.moveTo(x + 6, y + 20);
-      ctx.lineTo(x + 24, y + 20);
-      ctx.stroke();
-    }
+  const blocks: readonly [x: number, y: number, w: number, rows: number][] = [
+    [60, 660, 118, 7],
+    [196, 660, 118, 7],
+    [60, 748, 118, 6],
+    [196, 748, 118, 6],
+  ];
+  for (const [bx, by, bw, rows] of blocks) {
+    ctx.lineWidth = 0.9;
     ctx.beginPath();
-    ctx.moveTo(40, y + 20); ctx.lineTo(320, y + 20);
+    for (let r = 0; r < rows; r += 1) {
+      const y = by + r * 3.3 * 2;
+      ctx.moveTo(bx, y + 1.5);
+      ctx.lineTo(bx + bw, y + 1.5); // a row of panels, seen near-edge on
+    }
     ctx.stroke();
+    // Block outline, so the field reads as a fenced parcel.
+    ctx.lineWidth = 1.2;
+    box(ctx, bx - 6, by - 5, bw + 12, rows * 6.6 + 4);
   }
 }
 
 /** Electrolyser hall: a stack module block, the heart of the chain. */
 function drawElectrolyser(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  const x = 360;
-  const y = 700;
+  const x = 372;
+  const y = 690;
+  const w = 40; // ~110 m hall
+  const d = 17; // ~45 m deep
   ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.5;
-  box(ctx, x, y, 120, 62);
+  ctx.lineWidth = 1.4;
+  box(ctx, x, y, w, d);
   // Stack modules inside — the repeated cell that says "electrolyser".
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 0.9;
   ctx.beginPath();
-  for (let i = 1; i < 6; i += 1) {
-    ctx.moveTo(x + i * 20, y + 6);
-    ctx.lineTo(x + i * 20, y + 56);
+  for (let i = 1; i < 5; i += 1) {
+    ctx.moveTo(x + (i * w) / 5, y + 2);
+    ctx.lineTo(x + (i * w) / 5, y + d - 2);
   }
-  ctx.moveTo(x + 6, y + 31); ctx.lineTo(x + 114, y + 31);
   ctx.stroke();
-  ctx.lineWidth = 1.5;
+  // A second hall behind, so it reads as a plant rather than one shed.
+  ctx.lineWidth = 1.2;
+  box(ctx, x + 4, y - 22, w - 8, 15);
+  ctx.lineWidth = 1.4;
   ctx.beginPath();
-  ctx.moveTo(x - 10, y + 62); ctx.lineTo(x + 130, y + 62);
+  ctx.moveTo(x - 8, y + d); ctx.lineTo(x + w + 8, y + d);
   ctx.stroke();
 }
 
-/** Ammonia synthesis + storage: braced reactors and a spherical tank. */
+/** Ammonia synthesis + storage: reactor columns, a flare, and spheres. */
 function drawSynthesis(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  const y = 700;
+  const base = 707; // shared ground line with the electrolyser
   ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.5;
-  // Two reactor columns.
-  box(ctx, 512, y + 6, 26, 56);
-  box(ctx, 548, y + 6, 26, 56);
-  ctx.lineWidth = 1;
+
+  // Two reactor columns, ~40 m tall.
+  ctx.lineWidth = 1.3;
+  box(ctx, 452, base - 15, 5, 15);
+  box(ctx, 461, base - 15, 5, 15);
+  ctx.lineWidth = 0.8;
   ctx.beginPath();
-  ctx.moveTo(512, y + 6); ctx.lineTo(538, y + 62);
-  ctx.moveTo(538, y + 6); ctx.lineTo(512, y + 62);
-  ctx.moveTo(548, y + 6); ctx.lineTo(574, y + 62);
-  ctx.moveTo(574, y + 6); ctx.lineTo(548, y + 62);
-  ctx.stroke();
-  // Flare stack.
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.moveTo(582, y + 62); ctx.lineTo(582, y - 16); ctx.lineTo(592, y - 16);
-  ctx.stroke();
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(502, y + 62); ctx.lineTo(596, y + 62);
+  ctx.moveTo(452, base - 15); ctx.lineTo(457, base);
+  ctx.moveTo(457, base - 15); ctx.lineTo(452, base);
+  ctx.moveTo(461, base - 15); ctx.lineTo(466, base);
+  ctx.moveTo(466, base - 15); ctx.lineTo(461, base);
   ctx.stroke();
 
-  // Spherical storage — the unmistakable ammonia silhouette.
+  // Flare stack, ~60 m — the tallest thing in the works after the turbines.
+  ctx.lineWidth = 1.1;
   ctx.beginPath();
-  ctx.arc(452, y + 40, 22, 0, Math.PI * 2);
+  ctx.moveTo(474, base); ctx.lineTo(474, base - 22); ctx.lineTo(479, base - 22);
   ctx.stroke();
-  ctx.lineWidth = 1;
+
+  // Storage spheres, ~45 m across, on their skirts.
+  for (const [cx, r] of [[500, 8.5], [522, 8.5]] as const) {
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.arc(cx, base - r - 2, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(cx - r, base - r - 2); ctx.lineTo(cx + r, base - r - 2);
+    ctx.moveTo(cx - r * 0.7, base - 2); ctx.lineTo(cx - r * 0.7, base);
+    ctx.moveTo(cx + r * 0.7, base - 2); ctx.lineTo(cx + r * 0.7, base);
+    ctx.stroke();
+  }
+
+  ctx.lineWidth = 1.4;
   ctx.beginPath();
-  ctx.moveTo(430, y + 40); ctx.lineTo(474, y + 40);
-  ctx.moveTo(452, y + 18); ctx.lineTo(452, y + 62);
-  ctx.stroke();
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(438, y + 62); ctx.lineTo(442, y + 56);
-  ctx.moveTo(466, y + 62); ctx.lineTo(462, y + 56);
-  ctx.moveTo(426, y + 62); ctx.lineTo(478, y + 62);
+  ctx.moveTo(444, base); ctx.lineTo(538, base);
   ctx.stroke();
 }
 
@@ -363,22 +398,23 @@ function drawFlow(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const phase = (frame.time % DASH_CYCLE_S) / DASH_CYCLE_S;
   const offset = -phase * DASH_PERIOD;
   ctx.strokeStyle = frame.palette.inkSoft;
-  ctx.lineWidth = 1.4;
+  ctx.lineWidth = 1.1;
   dashed(
     ctx,
     () => {
       ctx.beginPath();
-      // Wind + solar → electrolyser busbar.
-      ctx.moveTo(320, 580); ctx.lineTo(350, 580); ctx.lineTo(350, 700);
-      ctx.lineTo(380, 700);
-      ctx.moveTo(320, 710); ctx.lineTo(350, 710);
-      ctx.moveTo(320, 756); ctx.lineTo(350, 756); ctx.lineTo(350, 710);
-      // Electrolyser → storage → synthesis.
-      ctx.moveTo(480, 720); ctx.lineTo(500, 720);
-      ctx.moveTo(474, 740); ctx.lineTo(512, 740);
-      // Synthesis → quay.
-      ctx.moveTo(596, 762); ctx.lineTo(640, 762); ctx.lineTo(640, 840);
-      ctx.lineTo(672, 840);
+      // Wind farm → substation busbar → electrolyser.
+      ctx.moveTo(300, 566); ctx.lineTo(340, 566); ctx.lineTo(340, 660);
+      // PV fields → the same busbar.
+      ctx.moveTo(320, 690); ctx.lineTo(340, 690);
+      ctx.moveTo(320, 778); ctx.lineTo(340, 778); ctx.lineTo(340, 660);
+      // Busbar → electrolyser hall.
+      ctx.moveTo(340, 660); ctx.lineTo(372, 660); ctx.lineTo(372, 690);
+      // Electrolyser → synthesis (hydrogen).
+      ctx.moveTo(412, 700); ctx.lineTo(444, 700);
+      // Synthesis → storage → the quay (ammonia).
+      ctx.moveTo(538, 700); ctx.lineTo(560, 700); ctx.lineTo(560, 830);
+      ctx.lineTo(614, 830);
       ctx.stroke();
     },
     DASH,
@@ -386,24 +422,27 @@ function drawFlow(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   );
 }
 
-// ===== Destination shore: PORT B ============================================
-
 /** Import terminal storage: spheres, mirroring the export side's tankage. */
 function drawContainersB(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.4;
-  for (const [cx, r] of [[840, 16], [878, 12]] as const) {
+  const base = 316;
+  for (const cx of [828, 850, 872] as const) {
+    const r = 8.5; // ~45 m sphere, same as the export side
+    ctx.lineWidth = 1.3;
     ctx.beginPath();
-    ctx.arc(cx, 300 - r, r, 0, Math.PI * 2);
+    ctx.arc(cx, base - r - 2, r, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 0.8;
     ctx.beginPath();
-    ctx.moveTo(cx - r, 300 - r); ctx.lineTo(cx + r, 300 - r);
+    ctx.moveTo(cx - r, base - r - 2); ctx.lineTo(cx + r, base - r - 2);
+    ctx.moveTo(cx - r * 0.7, base - 2); ctx.lineTo(cx - r * 0.7, base);
+    ctx.moveTo(cx + r * 0.7, base - 2); ctx.lineTo(cx + r * 0.7, base);
     ctx.stroke();
-    ctx.lineWidth = 1.4;
   }
+  ctx.lineWidth = 1.4;
   ctx.beginPath();
-  ctx.moveTo(816, 300); ctx.lineTo(896, 300);
+  ctx.moveTo(812, base); ctx.lineTo(888, base);
   ctx.stroke();
 }
 
@@ -492,18 +531,66 @@ function drawVessel(
 }
 
 /**
+ * Ease in and out of a berth: a vessel decelerates as it comes alongside,
+ * holds while it works cargo, then accelerates away. `smoothstep` on the
+ * outer thirds of each leg, linear in the middle.
+ */
+function berthEase(u: number): number {
+  const ramp = 0.18; // fraction of the leg spent slowing / speeding up
+  if (u < ramp) {
+    const k = u / ramp;
+    return ramp * k * k * (3 - 2 * k);
+  }
+  if (u > 1 - ramp) {
+    const k = (1 - u) / ramp;
+    return 1 - ramp * k * k * (3 - 2 * k);
+  }
+  return u;
+}
+
+/**
  * The fleet, on a continuous circuit: laden along the corridor, then back in
- * ballast down the return lane. Each vessel spends the first half of its cycle
- * outbound and the second half inbound, so the two lanes stay populated and
- * the loop closes without anything teleporting.
+ * ballast down the return lane.
+ *
+ * Each cycle is [sail out | alongside at B | sail back | alongside at A], so a
+ * vessel actually arrives, stops at the quay and turns, rather than sliding
+ * through the berth and reappearing. The dwell is what makes it read as a
+ * port call.
  */
 function drawFleet(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   if (!routePath || !returnPath) return;
+  const SAIL = 0.42; // of the cycle, each way
+  const DWELL = 0.08; // alongside, each end
+
   for (const offset of SHIP_OFFSETS) {
     const cycle = ((frame.time + offset) % VOYAGE_S) / VOYAGE_S;
-    const laden = cycle < 0.5;
-    const leg = laden ? cycle * 2 : (cycle - 0.5) * 2;
-    const { x, y, angle } = poseAt(laden ? routePath : returnPath, leg);
+    let path = routePath;
+    let u: number;
+    let laden: boolean;
+
+    if (cycle < SAIL) {
+      // Outbound, loaded.
+      path = routePath;
+      u = berthEase(cycle / SAIL);
+      laden = true;
+    } else if (cycle < SAIL + DWELL) {
+      // Alongside at the import terminal, discharging.
+      path = routePath;
+      u = 1;
+      laden = cycle < SAIL + DWELL * 0.5; // cargo comes off part-way through
+    } else if (cycle < SAIL * 2 + DWELL) {
+      // Home in ballast.
+      path = returnPath;
+      u = berthEase((cycle - SAIL - DWELL) / SAIL);
+      laden = false;
+    } else {
+      // Alongside at the export quay, loading.
+      path = returnPath;
+      u = 1;
+      laden = cycle > SAIL * 2 + DWELL + DWELL * 0.5;
+    }
+
+    const { x, y, angle } = poseAt(path, u);
     drawVessel(ctx, frame, x, y, angle, laden);
   }
 }
@@ -609,10 +696,10 @@ export const shippingScene: Scene<Ink> = {
     drawContainersA(ctx, frame);
     drawGantry(ctx, frame, 700, 870, 1);
 
-    caption(ctx, frame, "[ WIND ]", 150, 470, 44, 428);
-    caption(ctx, frame, "[ PV ARRAY ]", 150, 756, 44, 800);
-    caption(ctx, frame, "[ ELECTROLYSIS ]", 420, 762, 360, 800);
-    caption(ctx, frame, "[ NH3 SYNTHESIS ]", 540, 762, 470, 838, "start");
+    caption(ctx, frame, "[ WIND ]", 128, 500, 44, 452);
+    caption(ctx, frame, "[ PV ARRAY ]", 130, 790, 44, 826);
+    caption(ctx, frame, "[ ELECTROLYSIS ]", 392, 707, 350, 862);
+    caption(ctx, frame, "[ NH3 SYNTHESIS ]", 500, 707, 452, 900, "start");
     ctx.fillStyle = frame.palette.label;
     monoLabel(ctx, "[ PECEM · BR ]", 44, 340, frame.font);
 

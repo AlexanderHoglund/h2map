@@ -10,6 +10,13 @@
 
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { landfallCount } from "../apps/web/lib/animation/geometry";
+import {
+  ROUTE,
+  ROUTE_BACK,
+  SHORE_A,
+  SHORE_B,
+} from "../apps/web/components/animate/scenes/shipping";
 
 /**
  * A cheap digest of what is currently painted. Strided so we ship a number
@@ -116,4 +123,13 @@ test("the page is axe-clean", async ({ page }) => {
     (v) => v.impact === "serious" || v.impact === "critical",
   );
   expect(serious, serious.map((v) => `${v.id} (${v.impact})`).join(", ")).toEqual([]);
+});
+
+// Pure geometry, so no browser needed. The tracks once ran straight through
+// the import terminal and the fleet sailed over the land; this makes that a
+// build failure rather than something you have to notice by eye.
+test("both shipping legs stay in water, hull included", () => {
+  const land = [SHORE_A, SHORE_B];
+  expect(landfallCount(ROUTE, land), "laden track crosses land").toBe(0);
+  expect(landfallCount(ROUTE_BACK, land), "ballast track crosses land").toBe(0);
 });
