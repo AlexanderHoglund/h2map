@@ -89,10 +89,18 @@ const DASH_CYCLE_S = 1.6;
 const ROAD_Y = 936;
 const ROAD_WEST = 0; // the outer border — trucks fade out here
 const ROAD_EAST = 640; // the container apron behind the berths
-/** One round trip: out to the port loaded, back empty (or vice versa). */
-const HAUL_S = 22;
-/** Six trucks, spread so the road is busy but never a convoy. */
-const TRUCK_OFFSETS = [0, 3.7, 7.4, 11, 14.7, 18.4] as const;
+/**
+ * One round trip: out to the port loaded, back empty (or vice versa).
+ *
+ * Slow on purpose. The road is ~640 units end to end, so a shorter cycle has
+ * trucks crossing the whole hinterland in a couple of seconds, which reads as
+ * scurrying rather than hauling. At 60 s a truck moves about 21 units/second —
+ * slower than the fleet, which is right: the ships cover an ocean in their
+ * 36 s circuit, the trucks only cross a shore.
+ */
+const HAUL_S = 60;
+/** Six trucks, evenly spread so the road is busy but never a convoy. */
+const TRUCK_OFFSETS = [0, 10, 20, 30, 40, 50] as const;
 
 /** One full circuit: out laden, back in ballast. */
 const VOYAGE_S = 36;
