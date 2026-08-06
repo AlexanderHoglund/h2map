@@ -685,29 +685,66 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   // The apron: boxes waiting to be lifted, beside the berths.
   // The apron: stacked boxes between the road and the berths, plus a spur
   // up to the quay so the road visibly serves the ship.
-  // Each trade's stock sits behind the crane that lifts it: boxes landward of
-  // the container berth, heaps landward of the bulk berth. A yard where the
-  // two are mixed would have each crane reaching over the wrong stockpile.
-  const CONTAINER_YARD_Y = BERTH_CONTAINER.y - 30;
-  const BULK_YARD_Y = BERTH_BULK.y + 34;
+  // TWO tiers of storage, which is how a terminal actually works:
+  //
+  //  1. the road-side yard, where trucks tip and drop — the bulk of the stock;
+  //  2. small quayside stacks directly under each crane, the ready pile the
+  //     machine is actually working from.
+  //
+  // Without the second tier the cranes appear to lift out of nowhere; without
+  // the first, the road delivers to nothing.
 
-  // Container stacks, under the container crane.
+  // --- 1. Road-side yard -------------------------------------------------
   ctx.lineWidth = 0.9;
-  for (let col = 0; col < 6; col += 1) {
+  for (let col = 0; col < 7; col += 1) {
     const stack = (col % 3) + 1;
     for (let r = 0; r < stack; r += 1) {
-      box(ctx, 560 + col * 6.4, CONTAINER_YARD_Y - r * 2.6, 5.4, 2.4);
+      box(ctx, ROAD_EAST - 66 + col * 6.4, ROAD_Y - 22 - r * 2.6, 5.4, 2.4);
     }
+  }
+  for (const [px, w, h] of [[ROAD_EAST - 158, 26, 11], [ROAD_EAST - 124, 20, 9]] as const) {
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px, ROAD_Y - 22);
+    ctx.lineTo(px + w / 2, ROAD_Y - 22 - h);
+    ctx.lineTo(px + w, ROAD_Y - 22);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    for (let i = 1; i < 4; i += 1) {
+      const t = i / 4;
+      ctx.moveTo(px + (w / 2) * t, ROAD_Y - 22 - h * t);
+      ctx.lineTo(px + w - (w / 2) * t, ROAD_Y - 22 - h * t);
+    }
+    ctx.stroke();
   }
   ctx.lineWidth = 1.1;
   ctx.beginPath();
-  ctx.moveTo(554, CONTAINER_YARD_Y + 2.4);
-  ctx.lineTo(602, CONTAINER_YARD_Y + 2.4);
+  ctx.moveTo(ROAD_EAST - 162, ROAD_Y - 22);
+  ctx.lineTo(ROAD_EAST - 20, ROAD_Y - 22);
   ctx.stroke();
 
-  // Bulk stockpiles, under the bulk crane. Conical, with angle-of-repose
-  // hatching so a heap reads as loose material rather than a solid.
-  for (const [px, w, h] of [[556, 26, 11], [590, 20, 9]] as const) {
+  // --- 2. Ready piles under the cranes -----------------------------------
+  // Small, and landward of each berth, so the trolley visibly picks up from
+  // them on its way out to the ship.
+  const CONTAINER_YARD_Y = BERTH_CONTAINER.y - 28;
+  const BULK_YARD_Y = BERTH_BULK.y + 32;
+
+  ctx.lineWidth = 0.9;
+  for (let col = 0; col < 4; col += 1) {
+    const stack = (col % 2) + 1;
+    for (let r = 0; r < stack; r += 1) {
+      box(ctx, 636 + col * 6.4, CONTAINER_YARD_Y - r * 2.6, 5.4, 2.4);
+    }
+  }
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(632, CONTAINER_YARD_Y + 2.4);
+  ctx.lineTo(668, CONTAINER_YARD_Y + 2.4);
+  ctx.stroke();
+
+  for (const [px, w, h] of [[638, 18, 8], [662, 14, 6]] as const) {
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(px, BULK_YARD_Y);
@@ -717,25 +754,32 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     ctx.stroke();
     ctx.lineWidth = 0.6;
     ctx.beginPath();
-    for (let i = 1; i < 4; i += 1) {
-      const t = i / 4;
+    for (let i = 1; i < 3; i += 1) {
+      const t = i / 3;
       ctx.moveTo(px + (w / 2) * t, BULK_YARD_Y - h * t);
       ctx.lineTo(px + w - (w / 2) * t, BULK_YARD_Y - h * t);
     }
     ctx.stroke();
   }
-  ctx.lineWidth = 1.1;
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(550, BULK_YARD_Y);
-  ctx.lineTo(618, BULK_YARD_Y);
+  ctx.moveTo(634, BULK_YARD_Y);
+  ctx.lineTo(680, BULK_YARD_Y);
   ctx.stroke();
 
-  // Spur from the road up to both yards.
-  ctx.lineWidth = 1.1;
-  ctx.beginPath();
-  ctx.moveTo(590, ROAD_Y - 9);
-  ctx.lineTo(590, BULK_YARD_Y);
-  ctx.stroke();
+  // Haul route from the road-side yard up to the quayside piles.
+  ctx.lineWidth = 0.9;
+  dashed(
+    ctx,
+    () => {
+      ctx.beginPath();
+      ctx.moveTo(ROAD_EAST - 40, ROAD_Y - 22);
+      ctx.lineTo(640, ROAD_Y - 22);
+      ctx.lineTo(640, BULK_YARD_Y + 4);
+      ctx.stroke();
+    },
+    [4, 4],
+  );
 }
 
 /**
