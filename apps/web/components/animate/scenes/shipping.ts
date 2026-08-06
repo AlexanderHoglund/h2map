@@ -526,7 +526,7 @@ function drawSynthesis(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 
   ctx.lineWidth = 1.4;
   ctx.beginPath();
-  ctx.moveTo(474, base); ctx.lineTo(562, base);
+  ctx.moveTo(458, base); ctx.lineTo(562, base);
   ctx.stroke();
 }
 
@@ -556,10 +556,14 @@ function drawFlow(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
       // Synthesis → the export tank farm → the loading arms ON the quay.
       // This used to stop at x=614, dying in open land 86 units short of the
       // waterfront, so the chain never actually reached the ship.
-      ctx.moveTo(562, 696); ctx.lineTo(582, 696); ctx.lineTo(582, 760);
-      ctx.lineTo(616, 760);
-      ctx.moveTo(660, 760); ctx.lineTo(688, 760); ctx.lineTo(688, 830);
-      ctx.moveTo(688, 760); ctx.lineTo(688, 916);
+      // Synthesis outlet -> export tank farm -> loading arms at both berths.
+      // Starts at the plant's own edge (x=504); it used to begin at x=562,
+      // 58 units east of anything, so the last link floated in empty land.
+      ctx.moveTo(504, 696); ctx.lineTo(540, 696); ctx.lineTo(540, 760);
+      ctx.lineTo(621, 760);
+      ctx.moveTo(673, 760); ctx.lineTo(688, 760);
+      ctx.moveTo(688, 760); ctx.lineTo(688, 874);
+      ctx.moveTo(688, 760); ctx.lineTo(688, 930);
       ctx.stroke();
     },
     DASH,
@@ -597,16 +601,18 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   // The apron: boxes waiting to be lifted, beside the berths.
   // The apron: stacked boxes between the road and the berths, plus a spur
   // up to the quay so the road visibly serves the ship.
+  // Stacks stay LOW and WEST of the crane's backreach: at full height they
+  // reached up into the lower boom, so the machine appeared to sit in the yard.
   ctx.lineWidth = 0.9;
-  for (let col = 0; col < 9; col += 1) {
-    const stack = (col % 4) + 2;
+  for (let col = 0; col < 7; col += 1) {
+    const stack = (col % 3) + 1;
     for (let r = 0; r < stack; r += 1) {
-      box(ctx, ROAD_EAST - 10 + col * 6.4, ROAD_Y - 24 - r * 2.6, 5.4, 2.4);
+      box(ctx, ROAD_EAST - 66 + col * 6.4, ROAD_Y - 22 - r * 2.6, 5.4, 2.4);
     }
   }
   // Bulk stockpiles beside the boxes: the other half of the port's traffic.
   ctx.lineWidth = 1;
-  for (const [px, w, h] of [[ROAD_EAST - 96, 26, 11], [ROAD_EAST - 62, 20, 9]] as const) {
+  for (const [px, w, h] of [[ROAD_EAST - 158, 26, 11], [ROAD_EAST - 124, 20, 9]] as const) {
     ctx.beginPath();
     ctx.moveTo(px, ROAD_Y - 22);
     ctx.lineTo(px + w / 2, ROAD_Y - 22 - h);
@@ -627,11 +633,11 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 
   ctx.lineWidth = 1.1;
   ctx.beginPath();
-  ctx.moveTo(ROAD_EAST - 100, ROAD_Y - 22);
-  ctx.lineTo(ROAD_EAST + 56, ROAD_Y - 22);
+  ctx.moveTo(ROAD_EAST - 162, ROAD_Y - 22);
+  ctx.lineTo(ROAD_EAST - 20, ROAD_Y - 22);
   // Spur from the apron up to the lower berth's crane.
-  ctx.moveTo(ROAD_EAST + 52, ROAD_Y - 22);
-  ctx.lineTo(ROAD_EAST + 52, ROAD_Y - 48);
+  ctx.moveTo(ROAD_EAST - 24, ROAD_Y - 22);
+  ctx.lineTo(ROAD_EAST - 24, ROAD_Y - 40);
   ctx.stroke();
 }
 
@@ -991,8 +997,8 @@ export const shippingScene: Scene<Ink> = {
 
     caption(ctx, frame, "[ WIND ]", 128, 570, 120, 600);
     caption(ctx, frame, "[ PV ARRAY ]", 128, 794, 120, 826);
-    caption(ctx, frame, "[ ELECTROLYSIS ]", 408, 706, 400, 748);
-    caption(ctx, frame, "[ NH3 SYNTHESIS ]", 510, 706, 502, 786);
+    caption(ctx, frame, "[ ELECTROLYSIS ]", 408, 710, 402, 772);
+    caption(ctx, frame, "[ NH3 SYNTHESIS ]", 470, 710, 402, 812);
     caption(ctx, frame, "[ CONTAINER ROAD ]", 300, 945, 292, 978);
     ctx.fillStyle = frame.palette.label;
     monoLabel(ctx, "[ PECEM · BR ]", 128, 420, frame.font);
