@@ -6,6 +6,7 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { fraction, yearIndex } from "@h2map/units";
 import { parseRefBundle, resolveScenario } from "@h2map/corridor-schema";
 import { evaluateScenario, inflationFactor } from "../src/index";
 import { loadRefBundleJson } from "./golden/loader";
@@ -39,7 +40,7 @@ describe("fix #3: carbon-price escalation", () => {
     const fossil = result.perYear.fossil.selfDesignedUsdM;
     const year1 = fossil[0]!;
     const year15 = fossil[14]!;
-    expect(year15 / inflationFactor(inflation, 15)).toBeCloseTo(year1, 12);
+    expect(year15 / inflationFactor(fraction(inflation), yearIndex(15))).toBeCloseTo(year1, 12);
     // And it is genuinely escalating in nominal terms.
     expect(year15).toBeGreaterThan(year1);
   });

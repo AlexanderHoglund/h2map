@@ -78,7 +78,7 @@ describe("fetchPvgisPv — request + dataset tag", () => {
   it("reports the mounting in the provenance notes", async () => {
     const { fetchJson } = capture();
     const r = await fetchPvgisPv(fetchJson, -23.5, -69.4, "pv_fixed");
-    expect(r.notes.some((n) => /tilt 24° aspect 180°/.test(n))).toBe(true);
+    expect(r.notes?.some((n) => /tilt 24° aspect 180°/.test(n))).toBe(true);
   });
 
   it("leaves tracking kinds on PVGIS geometry (no fixed tilt to get wrong)", async () => {
