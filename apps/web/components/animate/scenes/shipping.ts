@@ -106,7 +106,40 @@ const TRUCK_OFFSETS = [0, 10, 20, 30, 40, 50] as const;
  * One crane cycle: traverse out over the hold, lower, lift, traverse back,
  * land it on the apron. Slow enough to follow — a real move takes minutes.
  */
-const CRANE_S = 9;
+export const CRANE_S = 9;
+
+/**
+ * The phase of a crane cycle at which the spreader is at the bottom of its
+ * arc — the instant the load is set down or picked up.
+ *
+ * Both the crane and the vessel read this, so the hull changes colour on the
+ * exact frame the box touches the deck. Previously each ran on its own clock:
+ * the crane released at 0.375 of a 9 s cycle while the ship flipped at the
+ * midpoint of a 36 s dwell, so the cargo and the colour were unrelated.
+ */
+export const CRANE_TOUCH = 0.375;
+/** Stagger of the crane that works the export berth (must match the draw call). */
+export const EXPORT_CRANE_STAGGER = 0;
+/** Stagger of the crane that works the import berth. */
+const IMPORT_CRANE_STAGGER = 2.3;
+/** Phase of the matching touch when landing on the apron. */
+const CRANE_TOUCH_LAND = 0.825;
+
+/** Cycle phase for a crane with the given stagger, at a given time. */
+function cranePhaseAt(time: number, stagger: number): number {
+  return ((time + stagger) % CRANE_S) / CRANE_S;
+}
+
+/**
+ * How many loads a crane has landed on the ship since it berthed — used to
+ * decide whether the vessel is carrying cargo yet.
+ */
+export function loadsSince(time: number, since: number, stagger: number): number {
+  if (time <= since) return 0;
+  const firstTouch = Math.ceil((since + stagger) / CRANE_S - CRANE_TOUCH);
+  const lastTouch = Math.floor((time + stagger) / CRANE_S - CRANE_TOUCH);
+  return Math.max(0, lastTouch - firstTouch + 1);
+}
 
 /**
  * Is a vessel alongside the export quay at this moment?
@@ -150,7 +183,7 @@ const FLEET: readonly (readonly [offset: number, kind: CargoKind])[] = [
 ];
 
 /** One full circuit: out laden, back in ballast. */
-const VOYAGE_S = 36;
+export const VOYAGE_S = 36;
 
 /** Precomputed once in setup(); the fleet needs arc length, not vertices. */
 let routePath: MeasuredPath | null = null;
@@ -241,7 +274,7 @@ function drawGantry(
   // No ship alongside: park the trolley over the apron with the spreader up,
   // rather than miming a load into empty water.
   const working = berth ? berthOccupied(frame.time) : true;
-  const phase = working ? ((frame.time + cranePhase) % CRANE_S) / CRANE_S : 0.95;
+  const phase = working ? cranePhaseAt(frame.time, cranePhase) : 0.95;
   // Reach out to the vessel's centreline, not an arbitrary distance.
   const overShip = berth ? berth.x : quayX + dir * 37;
   const overApron = quayX - dir * 38;
@@ -255,7 +288,7 @@ function drawGantry(
   } else if (phase < 0.45) {
     travel = 1;
     drop = Math.sin(((phase - 0.3) / 0.15) * Math.PI); // down and back up
-    holding = phase > 0.375;
+    holding = phase > CRANE_TOUCH;
   } else if (phase < 0.75) {
     travel = 1 - (phase - 0.45) / 0.3;
     drop = 0;
@@ -263,7 +296,7 @@ function drawGantry(
   } else if (phase < 0.9) {
     travel = 0;
     drop = Math.sin(((phase - 0.75) / 0.15) * Math.PI);
-    holding = phase < 0.825;
+    holding = phase < CRANE_TOUCH_LAND;
   } else {
     travel = 0;
     drop = 0;
@@ -873,20 +906,25 @@ function drawFleet(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
       u = berthEase(cycle / SAIL);
       laden = true;
     } else if (cycle < SAIL + DWELL) {
-      // Alongside at the import terminal, discharging.
+      // Alongside at the import terminal, discharging. The hull goes from
+      // loaded to empty on the frame the crane lifts the last box clear —
+      // not on a timer of its own.
       path = routePath;
       u = 1;
-      laden = cycle < SAIL + DWELL * 0.5; // cargo comes off part-way through
+      const arrived = frame.time - (cycle - SAIL) * VOYAGE_S;
+      laden = loadsSince(frame.time, arrived, IMPORT_CRANE_STAGGER) === 0;
     } else if (cycle < SAIL * 2 + DWELL) {
       // Home in ballast.
       path = returnPath;
       u = berthEase((cycle - SAIL - DWELL) / SAIL);
       laden = false;
     } else {
-      // Alongside at the export quay, loading.
+      // Alongside at the export quay, loading. Empty until the crane sets the
+      // first box down on the deck; red from that exact frame.
       path = returnPath;
       u = 1;
-      laden = cycle > SAIL * 2 + DWELL + DWELL * 0.5;
+      const arrived = frame.time - (cycle - (SAIL * 2 + DWELL)) * VOYAGE_S;
+      laden = loadsSince(frame.time, arrived, EXPORT_CRANE_STAGGER) > 0;
     }
 
     const { x, y, angle } = poseAt(path, u);

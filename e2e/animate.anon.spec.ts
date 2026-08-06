@@ -13,6 +13,10 @@ import { expect, test, type Page } from "@playwright/test";
 import { landfallCount } from "../apps/web/lib/animation/geometry";
 import {
   BERTH_A,
+  CRANE_S,
+  CRANE_TOUCH,
+  EXPORT_CRANE_STAGGER,
+  loadsSince,
   ROUTE,
   ROUTE_BACK,
   SHORE_A,
@@ -171,4 +175,26 @@ test("the berth is where the ships actually stop", () => {
     BERTH_A.x,
     BERTH_A.y,
   ]);
+});
+
+// The hull must change colour on the exact frame the spreader reaches the
+// deck. The two used to run on unrelated clocks — the crane released at 0.375
+// of a 9 s cycle, the ship flipped at the midpoint of a 36 s dwell — so the
+// cargo and the colour had nothing to do with each other.
+test("a vessel turns laden exactly when the cargo lands", () => {
+  const arrived = 29.9; // just after this vessel comes alongside
+  const touch =
+    (Math.floor((arrived + EXPORT_CRANE_STAGGER) / CRANE_S - CRANE_TOUCH) + 1 + CRANE_TOUCH) *
+      CRANE_S -
+    EXPORT_CRANE_STAGGER;
+
+  const EPS = 1e-6;
+  expect(
+    loadsSince(touch - EPS, arrived, EXPORT_CRANE_STAGGER),
+    "empty right up to the moment of contact",
+  ).toBe(0);
+  expect(
+    loadsSince(touch + EPS, arrived, EXPORT_CRANE_STAGGER),
+    "laden from the frame the box touches down",
+  ).toBe(1);
 });
