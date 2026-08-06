@@ -102,10 +102,26 @@ const HAUL_S = 60;
 /** Six trucks, evenly spread so the road is busy but never a convoy. */
 const TRUCK_OFFSETS = [0, 10, 20, 30, 40, 50] as const;
 
+/**
+ * One crane cycle: traverse out over the hold, lower, lift, traverse back,
+ * land it on the apron. Slow enough to follow — a real move takes minutes.
+ */
+const CRANE_S = 9;
+
+/**
+ * What each vessel carries. The corridor exports ammonia in bulk, but a
+ * working port is mixed traffic, so half the fleet are boxboats.
+ */
+type CargoKind = "bulk" | "container";
+const FLEET: readonly (readonly [offset: number, kind: CargoKind])[] = [
+  [0, "bulk"],
+  [9, "container"],
+  [18, "bulk"],
+  [27, "container"],
+];
+
 /** One full circuit: out laden, back in ballast. */
 const VOYAGE_S = 36;
-/** Four vessels evenly spaced around the circuit, so the corridor is never empty. */
-const SHIP_OFFSETS = [0, 9, 18, 27] as const;
 
 /** Precomputed once in setup(); the fleet needs arc length, not vertices. */
 let routePath: MeasuredPath | null = null;
@@ -163,7 +179,12 @@ function drawGantry(
   quayX: number,
   groundY: number,
   dir: 1 | -1,
+  cranePhase = 0,
 ): void {
+  // A crane on an east-west quay is the same machine rotated a quarter turn.
+  // Draw it in the canonical orientation and let the transform place it,
+  // rather than maintaining two sets of coordinates that can drift apart.
+
   // Lessons from three attempts, all of which read as buildings:
   //  - anything drawn ABOVE the boom (pylon, stays) makes a roofline;
   //  - a horizontal tie between the legs closes a box and makes a shed.
@@ -173,22 +194,55 @@ function drawGantry(
   // from it. The cantilever IS the silhouette; keep it unobstructed.
   // Sized from a real ship-to-shore crane at the shore scale (1 u ≈ 8 m, x3):
   // 30 m rail gauge, 60 m to the boom, 55 m seaward reach, 30 m backreach.
-  const legFore = quayX - dir * 8;
-  const legBack = quayX - dir * 26;
-  const apexFore = quayX - dir * 13;
-  const apexBack = quayX - dir * 21;
-  const beam = groundY - 35;
-  const boomTip = quayX + dir * 32;
-  const backTip = quayX - dir * 43;
-  const trolley = quayX + dir * 17;
-  const spreader = groundY - 14;
+  const legFore = quayX - dir * 10;
+  const legBack = quayX - dir * 33;
+  const apexFore = quayX - dir * 16;
+  const apexBack = quayX - dir * 27;
+  const beam = groundY - 44;
+  const boomTip = quayX + dir * 40;
+  const backTip = quayX - dir * 54;
+  // The working cycle, as a phase in [0,1):
+  //   0.00-0.30  traverse seaward with an empty spreader
+  //   0.30-0.45  lower into the hold and take the load
+  //   0.45-0.75  traverse landward, loaded
+  //   0.75-0.90  lower onto the apron and release
+  //   0.90-1.00  hoist back up, empty
+  const phase = ((frame.time + cranePhase) % CRANE_S) / CRANE_S;
+  const overShip = quayX + dir * 37;
+  const overApron = quayX - dir * 38;
+  let travel: number; // 0 = over the apron, 1 = over the ship
+  let drop: number; // 0 = hoisted up, 1 = down at the load
+  let holding: boolean;
+  if (phase < 0.3) {
+    travel = phase / 0.3;
+    drop = 0;
+    holding = false;
+  } else if (phase < 0.45) {
+    travel = 1;
+    drop = Math.sin(((phase - 0.3) / 0.15) * Math.PI); // down and back up
+    holding = phase > 0.375;
+  } else if (phase < 0.75) {
+    travel = 1 - (phase - 0.45) / 0.3;
+    drop = 0;
+    holding = true;
+  } else if (phase < 0.9) {
+    travel = 0;
+    drop = Math.sin(((phase - 0.75) / 0.15) * Math.PI);
+    holding = phase < 0.825;
+  } else {
+    travel = 0;
+    drop = 0;
+    holding = false;
+  }
+  const trolley = overApron + (overShip - overApron) * travel;
+  const spreader = beam + 8 + drop * (groundY - beam - 20);
 
   ctx.strokeStyle = frame.palette.ink;
 
   // Ground.
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(legBack - dir * 46, groundY); ctx.lineTo(quayX, groundY);
+  ctx.moveTo(legBack - dir * 56, groundY); ctx.lineTo(quayX, groundY);
   ctx.stroke();
 
   // The A-frame: two legs leaning in, joined only where they meet the boom.
@@ -225,7 +279,15 @@ function drawGantry(
   ctx.moveTo(trolley + 2.6, beam); ctx.lineTo(trolley + 2.6, spreader);
   ctx.stroke();
   ctx.lineWidth = 1.2;
-  box(ctx, trolley - 5, spreader, 10, 4);
+  box(ctx, trolley - 6, spreader, 12, 3.4);
+  if (holding) {
+    // The container under the spreader — the thing actually being moved.
+    ctx.fillStyle = frame.palette.land;
+    ctx.beginPath();
+    ctx.rect(trolley - 7, spreader + 3.4, 14, 5);
+    ctx.fill();
+    ctx.stroke();
+  }
 }
 
 /**
@@ -312,14 +374,14 @@ function drawTurbine(
 /** The wind farm: a row along the high ground, staggered so it reads as depth. */
 function drawWindFarm(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const rows: readonly [x: number, y: number, h: number, phase: number, spin: number][] = [
-    [128, 500, 44, 0.0, 0.22],
-    [186, 500, 41, 1.7, 0.19],
-    [244, 500, 46, 3.1, 0.25],
-    [302, 500, 42, 5.0, 0.20],
-    [157, 566, 38, 2.3, 0.17],
-    [215, 566, 40, 0.8, 0.21],
-    [273, 566, 36, 4.4, 0.24],
-    [331, 566, 39, 2.9, 0.18],
+    [128, 500, 34, 0.0, 0.22],
+    [186, 500, 32, 1.7, 0.19],
+    [244, 500, 36, 3.1, 0.25],
+    [302, 500, 33, 5.0, 0.20],
+    [157, 566, 30, 2.3, 0.17],
+    [215, 566, 31, 0.8, 0.21],
+    [273, 566, 28, 4.4, 0.24],
+    [331, 566, 30, 2.9, 0.18],
   ];
   for (const [x, y, h, phase, spin] of rows) drawTurbine(ctx, frame, x, y, h, phase, spin);
   ctx.strokeStyle = frame.palette.ink;
@@ -338,10 +400,10 @@ function drawWindFarm(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 function drawPvArray(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
   const blocks: readonly [x: number, y: number, w: number, rows: number][] = [
-    [122, 656, 112, 7],
-    [250, 656, 112, 7],
-    [122, 742, 112, 6],
-    [250, 742, 112, 6],
+    [122, 668, 92, 6],
+    [228, 668, 92, 6],
+    [122, 740, 92, 5],
+    [228, 740, 92, 5],
   ];
   for (const [bx, by, bw, rows] of blocks) {
     ctx.lineWidth = 0.9;
@@ -501,9 +563,30 @@ function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
       box(ctx, ROAD_EAST - 10 + col * 6.4, ROAD_Y - 24 - r * 2.6, 5.4, 2.4);
     }
   }
+  // Bulk stockpiles beside the boxes: the other half of the port's traffic.
+  ctx.lineWidth = 1;
+  for (const [px, w, h] of [[ROAD_EAST - 96, 26, 11], [ROAD_EAST - 62, 20, 9]] as const) {
+    ctx.beginPath();
+    ctx.moveTo(px, ROAD_Y - 22);
+    ctx.lineTo(px + w / 2, ROAD_Y - 22 - h);
+    ctx.lineTo(px + w, ROAD_Y - 22);
+    ctx.closePath();
+    ctx.stroke();
+    // Angle-of-repose hatching, so a heap reads as loose material.
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    for (let i = 1; i < 4; i += 1) {
+      const t = i / 4;
+      ctx.moveTo(px + (w / 2) * t, ROAD_Y - 22 - h * t);
+      ctx.lineTo(px + w - (w / 2) * t, ROAD_Y - 22 - h * t);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+  }
+
   ctx.lineWidth = 1.1;
   ctx.beginPath();
-  ctx.moveTo(ROAD_EAST - 14, ROAD_Y - 22);
+  ctx.moveTo(ROAD_EAST - 100, ROAD_Y - 22);
   ctx.lineTo(ROAD_EAST + 56, ROAD_Y - 22);
   // Spur from the apron up to the lower berth's crane.
   ctx.moveTo(ROAD_EAST + 52, ROAD_Y - 22);
@@ -635,9 +718,11 @@ function drawVessel(
   y: number,
   angle: number,
   laden: boolean,
+  kind: CargoKind,
 ): void {
-  const L = 22; // length overall
-  const B = 7; // beam
+  // Bulk carriers are the bigger, beamier hull; boxboats sit a little finer.
+  const L = kind === "bulk" ? 26 : 22;
+  const B = kind === "bulk" ? 8 : 7;
   const half = B / 2;
   const bow = L * 0.5;
   const stern = -L * 0.5;
@@ -655,12 +740,10 @@ function drawVessel(
   ctx.lineTo(stern, half);
   ctx.closePath();
   if (laden) {
-    // Outbound with cargo: solid, so the export direction carries the weight.
     ctx.fillStyle = frame.palette.ship;
     ctx.fill();
   } else {
-    // Ballast return: outline only. Same convention as an empty symbol on a
-    // flow diagram — the return leg is real but carries nothing.
+    // Ballast: outline only, the empty-symbol convention.
     ctx.fillStyle = frame.palette.land;
     ctx.fill();
     ctx.strokeStyle = frame.palette.ship;
@@ -668,13 +751,32 @@ function drawVessel(
     ctx.stroke();
   }
 
-  // Deckhouse aft + mast.
   ctx.strokeStyle = laden ? frame.palette.ink : frame.palette.ship;
+  ctx.lineWidth = 0.9;
+  if (kind === "bulk") {
+    // Hatch covers down the deck — the bulk carrier's giveaway from above.
+    ctx.beginPath();
+    for (let i = 0; i < 4; i += 1) {
+      const hx = stern + 6 + i * 4.2;
+      ctx.rect(hx, -half + 1.2, 3, B - 2.4);
+    }
+    ctx.stroke();
+  } else if (laden) {
+    // Container rows: two lines of boxes on deck.
+    ctx.beginPath();
+    for (let i = 0; i < 5; i += 1) {
+      const cx = stern + 5 + i * 2.8;
+      ctx.rect(cx, -half + 1, 2.2, B - 2);
+    }
+    ctx.stroke();
+  }
+
+  // Deckhouse aft + mast, on both types.
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.rect(stern + 3, -half + 1.2, 5, B - 2.4);
-  ctx.moveTo(stern + 10, 0);
-  ctx.lineTo(stern + 13, 0);
+  ctx.rect(stern + 1.5, -half + 1.2, 3.5, B - 2.4);
+  ctx.moveTo(stern + 7, 0);
+  ctx.lineTo(stern + 9, 0);
   ctx.stroke();
 
   ctx.restore();
@@ -712,7 +814,7 @@ function drawFleet(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const SAIL = 0.42; // of the cycle, each way
   const DWELL = 0.08; // alongside, each end
 
-  for (const offset of SHIP_OFFSETS) {
+  for (const [offset, kind] of FLEET) {
     const cycle = ((frame.time + offset) % VOYAGE_S) / VOYAGE_S;
     let path = routePath;
     let u: number;
@@ -741,7 +843,7 @@ function drawFleet(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     }
 
     const { x, y, angle } = poseAt(path, u);
-    drawVessel(ctx, frame, x, y, angle, laden);
+    drawVessel(ctx, frame, x, y, angle, laden, kind);
   }
 }
 
@@ -842,8 +944,8 @@ export const shippingScene: Scene<Ink> = {
     drawRoad(ctx, frame);
     drawExportTerminal(ctx, frame);
     drawTrucks(ctx, frame);
-    drawGantry(ctx, frame, 700, 830, 1);
-    drawGantry(ctx, frame, 700, 916, 1);
+    drawGantry(ctx, frame, 700, 812, 1, 0);
+    drawGantry(ctx, frame, 700, 918, 1, 4.1);
 
     caption(ctx, frame, "[ WIND ]", 128, 570, 120, 600);
     caption(ctx, frame, "[ PV ARRAY ]", 128, 794, 120, 826);
@@ -855,8 +957,7 @@ export const shippingScene: Scene<Ink> = {
 
     // --- Destination shore --------------------------------------------------
     drawContainersB(ctx, frame);
-    drawGantry(ctx, frame, 790, 330, -1);
-    drawGantry(ctx, frame, 790, 246, -1);
+    drawGantry(ctx, frame, 790, 300, -1, 2.3);
     ctx.fillStyle = frame.palette.label;
     monoLabel(ctx, "[ ROTTERDAM · NL ]", 878, 66, frame.font, { anchor: "end" });
 
