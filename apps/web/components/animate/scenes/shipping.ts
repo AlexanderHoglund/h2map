@@ -46,9 +46,9 @@ const GRID_STEP = 50;
  * story is the process, not the ocean.
  */
 export const SHORE_A: readonly Point[] = [
-  [110, 300], [250, 300], [250, 360], [420, 360],
+  [0, 300], [250, 300], [250, 360], [420, 360],
   [420, 470], [600, 470], [600, 640], [700, 640],
-  [700, 1000], [110, 1000],
+  [700, 1000], [0, 1000],
 ];
 /** Destination shore: the import terminal, top-right. */
 export const SHORE_B: readonly Point[] = [
@@ -85,6 +85,15 @@ const DASH: readonly number[] = [7, 5];
 /** 7 + 5: the CSS animates dashoffset to -24, i.e. two whole periods. */
 const DASH_PERIOD = 12;
 const DASH_CYCLE_S = 1.6;
+/** The inland road: west frame edge to the port apron, and back. */
+const ROAD_Y = 936;
+const ROAD_WEST = 0; // the outer border — trucks fade out here
+const ROAD_EAST = 640; // the container apron behind the berths
+/** One round trip: out to the port loaded, back empty (or vice versa). */
+const HAUL_S = 22;
+/** Six trucks, spread so the road is busy but never a convoy. */
+const TRUCK_OFFSETS = [0, 3.7, 7.4, 11, 14.7, 18.4] as const;
+
 /** One full circuit: out laden, back in ballast. */
 const VOYAGE_S = 36;
 /** Four vessels evenly spaced around the circuit, so the corridor is never empty. */
@@ -447,6 +456,114 @@ function drawFlow(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   );
 }
 
+/**
+ * The inland road and its container apron. The road leaves the frame at the
+ * west border, so the corridor visibly connects to a hinterland rather than
+ * beginning nowhere.
+ */
+function drawRoad(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(ROAD_WEST, ROAD_Y - 9);
+  ctx.lineTo(ROAD_EAST + 20, ROAD_Y - 9);
+  ctx.moveTo(ROAD_WEST, ROAD_Y + 9);
+  ctx.lineTo(ROAD_EAST + 20, ROAD_Y + 9);
+  ctx.stroke();
+  // Centre line, dashed like a carriageway marking.
+  ctx.lineWidth = 0.8;
+  dashed(
+    ctx,
+    () => {
+      ctx.beginPath();
+      ctx.moveTo(ROAD_WEST, ROAD_Y);
+      ctx.lineTo(ROAD_EAST + 20, ROAD_Y);
+      ctx.stroke();
+    },
+    [10, 10],
+  );
+
+  // The apron: boxes waiting to be lifted, beside the berths.
+  // The apron: stacked boxes between the road and the berths, plus a spur
+  // up to the quay so the road visibly serves the ship.
+  ctx.lineWidth = 0.9;
+  for (let col = 0; col < 9; col += 1) {
+    const stack = (col % 4) + 2;
+    for (let r = 0; r < stack; r += 1) {
+      box(ctx, ROAD_EAST - 10 + col * 6.4, ROAD_Y - 24 - r * 2.6, 5.4, 2.4);
+    }
+  }
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.moveTo(ROAD_EAST - 14, ROAD_Y - 22);
+  ctx.lineTo(ROAD_EAST + 56, ROAD_Y - 22);
+  // Spur from the apron up to the lower berth's crane.
+  ctx.moveTo(ROAD_EAST + 52, ROAD_Y - 22);
+  ctx.lineTo(ROAD_EAST + 52, ROAD_Y - 48);
+  ctx.stroke();
+}
+
+/**
+ * A truck in plan: tractor unit plus a container on the trailer when loaded.
+ * `dir` is +1 heading east (to the port), -1 heading west (leaving).
+ */
+function drawTruck(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  x: number,
+  y: number,
+  dir: 1 | -1,
+  loaded: boolean,
+  fade: number,
+): void {
+  ctx.save();
+  ctx.globalAlpha = fade;
+  ctx.translate(x, y);
+  ctx.scale(dir, 1);
+
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 0.9;
+  box(ctx, 4, -2.4, 4, 4.8); // tractor unit
+  ctx.beginPath();
+  ctx.moveTo(-9, 2.4);
+  ctx.lineTo(4, 2.4); // trailer bed
+  ctx.stroke();
+  if (loaded) {
+    ctx.fillStyle = frame.palette.land;
+    ctx.beginPath();
+    ctx.rect(-9, -2.2, 12, 4.6);
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/**
+ * Trucks shuttling boxes between the hinterland and the quay: out loaded,
+ * turn at the apron, back with a box picked up there — the same two-way
+ * exchange the sea corridor runs.
+ *
+ * They fade over the last stretch before the west border rather than winking
+ * out at it, which is what leaving the frame should look like.
+ */
+function drawTrucks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  const span = ROAD_EAST - ROAD_WEST;
+  const FADE = 90; // units over which a truck dissolves at the border
+
+  for (const offset of TRUCK_OFFSETS) {
+    const cycle = ((frame.time + offset) % HAUL_S) / HAUL_S;
+    const outbound = cycle < 0.5;
+    const u = outbound ? cycle * 2 : 1 - (cycle - 0.5) * 2;
+    const x = ROAD_WEST + span * u;
+    // Outbound in the north lane, inbound in the south, so the directions
+    // never overlap — as on a real carriageway.
+    const y = ROAD_Y + (outbound ? -4.5 : 4.5);
+    const fade = Math.min(1, (x - ROAD_WEST) / FADE);
+    if (fade <= 0.02) continue;
+    drawTruck(ctx, frame, x, y, outbound ? 1 : -1, outbound, fade);
+  }
+}
+
 /** Import terminal storage: spheres, mirroring the export side's tankage. */
 function drawContainersB(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
@@ -714,7 +831,9 @@ export const shippingScene: Scene<Ink> = {
     drawFlow(ctx, frame);
     drawElectrolyser(ctx, frame);
     drawSynthesis(ctx, frame);
+    drawRoad(ctx, frame);
     drawExportTerminal(ctx, frame);
+    drawTrucks(ctx, frame);
     drawGantry(ctx, frame, 700, 830, 1);
     drawGantry(ctx, frame, 700, 916, 1);
 
@@ -722,6 +841,7 @@ export const shippingScene: Scene<Ink> = {
     caption(ctx, frame, "[ PV ARRAY ]", 128, 794, 120, 826);
     caption(ctx, frame, "[ ELECTROLYSIS ]", 408, 706, 400, 748);
     caption(ctx, frame, "[ NH3 SYNTHESIS ]", 510, 706, 502, 786);
+    caption(ctx, frame, "[ CONTAINER ROAD ]", 300, 945, 292, 978);
     ctx.fillStyle = frame.palette.label;
     monoLabel(ctx, "[ PECEM · BR ]", 128, 420, frame.font);
 
