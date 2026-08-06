@@ -623,6 +623,76 @@ function drawPvArray(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   }
 }
 
+/**
+ * Desalination plant, on the coast north of the works.
+ *
+ * Sited against the shoreline because that is what dictates its position in
+ * reality: it draws seawater. The intake runs out through the coast, the
+ * pressure vessels sit in banks, and the product water heads inland to the
+ * electrolyser — which is why the plant is here at all, since an electrolyser
+ * needs fresh water and the sea is the only source on this shore.
+ */
+function drawDesalination(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  const base = 560; // ground line
+  ctx.strokeStyle = frame.palette.ink;
+
+  // Banks of RO pressure vessels: long horizontal tubes, stacked in racks.
+  for (let rack = 0; rack < 2; rack += 1) {
+    const ry = base - 31 + rack * 16;
+    box(ctx, 478, ry, 49, 9, frame.palette.land);
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    for (let i = 1; i < 4; i += 1) {
+      ctx.moveTo(478, ry + i * 2.25);
+      ctx.lineTo(527, ry + i * 2.25);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1.2;
+  }
+
+  // Clearwater tank beside the racks.
+  ctx.lineWidth = 1.3;
+  box(ctx, 534, base - 22, 17, 22, frame.palette.land);
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(534, base - 17);
+  ctx.lineTo(551, base - 17);
+  ctx.stroke();
+
+  // Ground line.
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(472, base);
+  ctx.lineTo(558, base);
+  ctx.stroke();
+
+  // Intake and brine outfall, crossing the coast into the sea. Dashed like
+  // the other process lines, so they read as pipework rather than structure.
+  ctx.strokeStyle = frame.palette.inkSoft;
+  ctx.lineWidth = 1.1;
+  dashed(
+    ctx,
+    () => {
+      ctx.beginPath();
+      ctx.moveTo(558, base - 11);
+      ctx.lineTo(624, base - 11); // intake, out past the shoreline
+      ctx.moveTo(558, base - 4);
+      ctx.lineTo(612, base - 4); // brine return
+      ctx.stroke();
+    },
+    [3, 3],
+  );
+  // Intake head in the water.
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.beginPath();
+  ctx.moveTo(621, base - 14);
+  ctx.lineTo(628, base - 14);
+  ctx.lineTo(628, base - 8);
+  ctx.lineTo(621, base - 8);
+  ctx.stroke();
+}
+
 /** Electrolyser hall: a stack module block, the heart of the chain. */
 function drawElectrolyser(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const x = 402;
@@ -713,6 +783,9 @@ function drawFlow(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
       // PV fields → the same busbar.
       ctx.moveTo(362, 686); ctx.lineTo(378, 686);
       ctx.moveTo(362, 772); ctx.lineTo(378, 772); ctx.lineTo(378, 656);
+      // Desalination → electrolyser: the fresh water the stacks consume.
+      ctx.moveTo(504, 560); ctx.lineTo(504, 620); ctx.lineTo(392, 620);
+      ctx.lineTo(392, 686);
       // Busbar → electrolyser hall.
       ctx.moveTo(378, 656); ctx.lineTo(402, 656); ctx.lineTo(402, 686);
       // Electrolyser → synthesis (hydrogen).
@@ -1364,6 +1437,7 @@ export const shippingScene: Scene<Ink> = {
     // --- Production shore, in process order: generation → conversion → export
     drawWindFarm(ctx, frame);
     drawPvArray(ctx, frame);
+    drawDesalination(ctx, frame);
     drawFlow(ctx, frame);
     drawElectrolyser(ctx, frame);
     drawSynthesis(ctx, frame);
@@ -1377,6 +1451,7 @@ export const shippingScene: Scene<Ink> = {
 
     caption(ctx, frame, "[ WIND ]", 128, 570, 120, 600);
     caption(ctx, frame, "[ PV ARRAY ]", 128, 794, 120, 826);
+    caption(ctx, frame, "[ DESALINATION ]", 500, 560, 472, 600);
     caption(ctx, frame, "[ ELECTROLYSIS ]", 408, 710, 402, 772);
     caption(ctx, frame, "[ NH3 SYNTHESIS ]", 470, 710, 402, 812);
     caption(ctx, frame, "[ FREIGHT ROAD ]", 300, 945, 292, 978);
