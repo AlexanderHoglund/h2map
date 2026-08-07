@@ -22,6 +22,8 @@ import {
   phaseAt,
   POSTER_OFFSET_S,
   RORO_ROUTE,
+  RORO_ROUTE_BACK,
+  BERTH_AU,
   type AttributeHolder,
 } from "../apps/web/components/animate/scenes/decoupling";
 
@@ -32,7 +34,8 @@ test("all three sea routes stay in water, hull included", () => {
   // rail runs overland from the berth to the registry to the plant.
   expect(landfallCount(ORE_ROUTE, LAND, 4), "laden ore route crosses land").toBe(0);
   expect(landfallCount(ORE_ROUTE_BACK, LAND, 4), "ballast return crosses land").toBe(0);
-  expect(landfallCount(RORO_ROUTE, LAND, 4), "RoRo export route crosses land").toBe(0);
+  expect(landfallCount(RORO_ROUTE, LAND, 4), "RoRo outbound route crosses land").toBe(0);
+  expect(landfallCount(RORO_ROUTE_BACK, LAND, 4), "RoRo return route crosses land").toBe(0);
 });
 
 test("the ore circuit closes and every approach is alongside", () => {
@@ -58,10 +61,28 @@ test("the ore circuit closes and every approach is alongside", () => {
     BERTH_ORE.y,
   ]);
 
-  // Both quays run east-west, so every arrival/departure must be horizontal.
+  // The RoRo runs a closed loop too: Gwangyang → Fremantle → Gwangyang.
+  expect(last(RORO_ROUTE), "RoRo outbound ends where the return begins").toEqual(
+    first(RORO_ROUTE_BACK),
+  );
+  expect(last(RORO_ROUTE_BACK), "RoRo return ends where the outbound begins").toEqual(
+    first(RORO_ROUTE),
+  );
+  expect(first(RORO_ROUTE), "the RoRo loop starts at its Gwangyang berth").toEqual([
+    BERTH_RORO.x,
+    BERTH_RORO.y,
+  ]);
+  expect(last(RORO_ROUTE), "the outbound leg ends at the Fremantle berth").toEqual([
+    BERTH_AU.x,
+    BERTH_AU.y,
+  ]);
+
+  // All quays run east-west, so every arrival/departure must be horizontal.
   expect(horizontal(heading(ORE_ROUTE, "last")), "ore arrival not alongside").toBe(true);
   expect(horizontal(heading(ORE_ROUTE_BACK, "last")), "return arrival not alongside").toBe(true);
   expect(horizontal(heading(RORO_ROUTE, "first")), "RoRo departure not alongside").toBe(true);
+  expect(horizontal(heading(RORO_ROUTE, "last")), "RoRo AU arrival not alongside").toBe(true);
+  expect(horizontal(heading(RORO_ROUTE_BACK, "last")), "RoRo home arrival not alongside").toBe(true);
 
   // Two trades, two berths: distinct points on the same quay line.
   expect(BERTH_ORE.x).not.toBe(BERTH_RORO.x);
@@ -80,23 +101,25 @@ test("the attribute exists in exactly one place at every moment", () => {
   for (let i = 0; i <= SAMPLES; i += 1) {
     const t = (i / SAMPLES) * CYCLE_S;
     const h = attributeHolderAt(t);
-    expect(["ore-vessel", "token", "roro", "none-in-frame"]).toContain(h);
+    expect(["ore-vessel", "token", "cargo-owner", "roro", "retired"]).toContain(h);
     if (prev !== null && h !== prev) transitions.push({ at: t, from: prev, to: h });
     seen.push(h);
     prev = h;
   }
 
   // Every state occurs, with positive duration.
-  for (const state of ["ore-vessel", "token", "roro", "none-in-frame"] as const) {
+  for (const state of ["ore-vessel", "token", "cargo-owner", "roro", "retired"] as const) {
     expect(seen.filter((s) => s === state).length, `${state} never occurs`).toBeGreaterThan(5);
   }
 
-  // Exactly four handoffs per cycle, in the story's order.
+  // Exactly five handoffs per cycle, in the story's order: the certificate
+  // reaches the CARGO OWNER before any ship can claim it, and ends retired.
   expect(transitions.map((t) => `${t.from}->${t.to}`)).toEqual([
     "ore-vessel->token",
-    "token->roro",
-    "roro->none-in-frame",
-    "none-in-frame->ore-vessel",
+    "token->cargo-owner",
+    "cargo-owner->roro",
+    "roro->retired",
+    "retired->ore-vessel",
   ]);
 
   // Each handoff lands at its documented boundary (mod the poster offset).
@@ -105,12 +128,13 @@ test("the attribute exists in exactly one place at every moment", () => {
     (((phase * CYCLE_S - POSTER_OFFSET_S) % CYCLE_S) + CYCLE_S) % CYCLE_S;
   const expected = [
     boundary(PHASES.detach),
-    boundary(PHASES.attach),
-    boundary(PHASES.exit),
+    boundary(PHASES.own),
+    boundary(PHASES.claim),
+    boundary(PHASES.retire),
     boundary(PHASES.bunker),
   ].sort((a, b) => a - b);
   const actual = transitions.map((t) => t.at).sort((a, b) => a - b);
-  for (let i = 0; i < 4; i += 1) {
+  for (let i = 0; i < 5; i += 1) {
     expect(Math.abs(actual[i]! - expected[i]!)).toBeLessThanOrEqual(step * 1.5);
   }
 });

@@ -35,7 +35,7 @@ export const ANIMATIONS: readonly [AnimationEntry, ...AnimationEntry[]] = [
     id: "decoupling",
     title: "Decoupling: book and claim",
     description:
-      "Iron ore sails Port Hedland to Gwangyang on green fuel; the fuel's environmental attribute detaches as a certificate, passes through the registry, and a conventional car carrier claims it — the green exists in exactly one place at every moment.",
+      "Iron ore sails Port Hedland to Gwangyang on green fuel. The fuel's attribute detaches as an EAC, passes through the registry to the CARGO OWNER — the key actor — whose conventional car carrier claims it for the voyage to Australia, where the certificate is retired at delivery. The green exists in exactly one place at every moment.",
     scene: decouplingScene,
   },
 ];
