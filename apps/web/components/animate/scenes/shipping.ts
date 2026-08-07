@@ -1,4 +1,5 @@
-import { box, chevron, crosshair, dashed, monoLabel, polyline, shape, ticks } from "@/lib/animation/draw";
+import { box, caption as libCaption, chevron, crosshair, dashed, gridLines as libGridLines, labelPlate as libLabelPlate, monoLabel, polyline, shape, ticks } from "@/lib/animation/draw";
+import { berthEase } from "@/lib/animation/ease";
 import { measure, poseAt, type MeasuredPath } from "@/lib/animation/polyline";
 import type { DesignSpace, Frame, Point, Scene } from "@/lib/animation/types";
 
@@ -242,48 +243,8 @@ let routePath: MeasuredPath | null = null;
 let returnPath: MeasuredPath | null = null;
 
 // ===== Graticule ============================================================
-function gridLines(
-  ctx: CanvasRenderingContext2D,
-  wavy: boolean,
-  time: number,
-): void {
-  // One mesh, drawn two ways. On land the lines are straight — it is a survey
-  // grid over solid ground. At sea they undulate, which is the chart-maker's
-  // shorthand for water and costs nothing but a sine.
-  // Small, tight ripples rather than long swells: the eye should still read a
-  // straight grid, with the water texture legible only up close. A long
-  // wavelength makes the mesh look bent, which loses the chart impression.
-  const AMP = 0.9;
-  const WAVELENGTH = 13;
-  const DRIFT = 4; // units per second the pattern slides
-  const STEP = 2; // short segments, so a tight curve stays smooth
-
-  ctx.beginPath();
-  for (let y = GRID_STEP; y < 1000; y += GRID_STEP) {
-    if (!wavy) {
-      ctx.moveTo(0, y);
-      ctx.lineTo(900, y);
-      continue;
-    }
-    for (let x = 0; x <= 900; x += STEP) {
-      const wy = y + Math.sin((x + time * DRIFT) / WAVELENGTH) * AMP;
-      if (x === 0) ctx.moveTo(x, wy);
-      else ctx.lineTo(x, wy);
-    }
-  }
-  for (let x = GRID_STEP; x < 900; x += GRID_STEP) {
-    if (!wavy) {
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, 1000);
-      continue;
-    }
-    for (let y = 0; y <= 1000; y += STEP) {
-      const wx = x + Math.sin((y + time * DRIFT) / WAVELENGTH) * AMP;
-      if (y === 0) ctx.moveTo(wx, y);
-      else ctx.lineTo(wx, y);
-    }
-  }
-  ctx.stroke();
+function gridLines(ctx: CanvasRenderingContext2D, wavy: boolean, time: number): void {
+  libGridLines(ctx, 900, 1000, GRID_STEP, wavy, time);
 }
 
 /** The sea mesh: wavy, and drawn under everything else. */
@@ -1361,23 +1322,6 @@ function drawVessel(
   ctx.restore();
 }
 
-/**
- * Ease in and out of a berth: a vessel decelerates as it comes alongside,
- * holds while it works cargo, then accelerates away. `smoothstep` on the
- * outer thirds of each leg, linear in the middle.
- */
-function berthEase(u: number): number {
-  const ramp = 0.18; // fraction of the leg spent slowing / speeding up
-  if (u < ramp) {
-    const k = u / ramp;
-    return ramp * k * k * (3 - 2 * k);
-  }
-  if (u > 1 - ramp) {
-    const k = (1 - u) / ramp;
-    return 1 - ramp * k * k * (3 - 2 * k);
-  }
-  return u;
-}
 
 /**
  * The fleet, on a continuous circuit: laden along the corridor, then back in
@@ -1481,13 +1425,7 @@ function labelPlate(
   y: number,
   anchor: "start" | "middle" | "end" = "start",
 ): void {
-  ctx.font = `12px ${frame.font}`;
-  ctx.letterSpacing = "2px";
-  const w = ctx.measureText(text).width;
-  ctx.letterSpacing = "0px";
-  const x0 = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2;
-  ctx.fillStyle = frame.palette.land;
-  ctx.fillRect(x0 - 3, y - 10, w + 6, 13);
+  libLabelPlate(ctx, text, x, y, frame.font, frame.palette.land, anchor);
 }
 
 function caption(
@@ -1500,31 +1438,11 @@ function caption(
   toY: number,
   anchor: "start" | "end" = "start",
 ): void {
-  // Leader geometry, and why it is written this way: the label sits BELOW its
-  // subject and the leader drops to a point just above the text's cap height,
-  // never alongside or through it. The earlier elbow ran horizontally at the
-  // baseline from the subject's x back to the label's x — which, whenever the
-  // label sat under the subject, traversed the whole string and rendered as a
-  // strikethrough. A vertical drop cannot cross its own label.
-  const capTop = toY - 11; // clear of the 12px glyphs' cap height
-  const textX = anchor === "start" ? toX : toX;
-
-  ctx.strokeStyle = frame.palette.inkSoft;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(fromX, fromY);
-  ctx.lineTo(fromX, capTop - 4);
-  // A short foot toward the label, stopping short of the first glyph.
-  ctx.lineTo(anchor === "start" ? textX + 3 : textX - 3, capTop - 4);
-  ctx.stroke();
-  // Tick at the subject end, so the leader clearly originates somewhere.
-  ctx.beginPath();
-  ctx.moveTo(fromX - 3, fromY); ctx.lineTo(fromX + 3, fromY);
-  ctx.stroke();
-
-  labelPlate(ctx, frame, text, textX, toY, anchor);
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, text, textX, toY, frame.font, { anchor });
+  libCaption(ctx, text, fromX, fromY, toX, toY, frame.font, {
+    leader: frame.palette.inkSoft,
+    plate: frame.palette.land,
+    text: frame.palette.label,
+  }, anchor);
 }
 
 // ===== The scene ============================================================

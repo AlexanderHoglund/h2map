@@ -1,4 +1,5 @@
 import type { Scene } from "@/lib/animation/types";
+import { decouplingScene } from "./scenes/decoupling";
 import { shippingScene } from "./scenes/shipping";
 
 /**
@@ -29,5 +30,12 @@ export const ANIMATIONS: readonly [AnimationEntry, ...AnimationEntry[]] = [
     description:
       "Wind and solar into electrolysis, synthesis and storage, then export by sea. Turbines turn, flow marches along the pipelines, and the fleet runs a closed circuit — laden out, ballast back.",
     scene: shippingScene,
+  },
+  {
+    id: "decoupling",
+    title: "Decoupling: book and claim",
+    description:
+      "Iron ore sails Port Hedland to Gwangyang on green fuel; the fuel's environmental attribute detaches as a certificate, passes through the registry, and a conventional car carrier claims it — the green exists in exactly one place at every moment.",
+    scene: decouplingScene,
   },
 ];

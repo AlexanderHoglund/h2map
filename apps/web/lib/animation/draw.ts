@@ -195,3 +195,122 @@ export function monoLabel(
   ctx.letterSpacing = "0px";
   ctx.textAlign = "left";
 }
+
+/**
+ * Chart mesh over a design space: straight lines on land, a tight ripple at
+ * sea — the chart-maker's shorthand for water, costing one sine. Small
+ * wavelength on purpose: the eye should still read a straight grid, with the
+ * texture legible only up close; long swells make the mesh look bent.
+ *
+ * The caller owns stroke colour, alpha and any clipping (land grids are
+ * clipped to shore polygons); this draws geometry only.
+ */
+export function gridLines(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  step: number,
+  wavy: boolean,
+  time: number,
+): void {
+  const AMP = 0.9;
+  const WAVELENGTH = 13;
+  const DRIFT = 4; // units per second the pattern slides
+  const STEP = 2; // short segments, so a tight curve stays smooth
+
+  ctx.beginPath();
+  for (let y = step; y < height; y += step) {
+    if (!wavy) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      continue;
+    }
+    for (let x = 0; x <= width; x += STEP) {
+      const wy = y + Math.sin((x + time * DRIFT) / WAVELENGTH) * AMP;
+      if (x === 0) ctx.moveTo(x, wy);
+      else ctx.lineTo(x, wy);
+    }
+  }
+  for (let x = step; x < width; x += step) {
+    if (!wavy) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      continue;
+    }
+    for (let y = 0; y <= height; y += STEP) {
+      const wx = x + Math.sin((y + time * DRIFT) / WAVELENGTH) * AMP;
+      if (y === 0) ctx.moveTo(wx, y);
+      else ctx.lineTo(wx, y);
+    }
+  }
+  ctx.stroke();
+}
+
+/**
+ * Clear a rectangle behind a 12px mono label so a background mesh does not
+ * run through the glyphs. Measured from the actual string — it stays right if
+ * the font or the text changes.
+ */
+export function labelPlate(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  font: string,
+  plateFill: string,
+  anchor: "start" | "middle" | "end" = "start",
+): void {
+  ctx.font = `12px ${font}`;
+  ctx.letterSpacing = "2px";
+  const w = ctx.measureText(text).width;
+  ctx.letterSpacing = "0px";
+  const x0 = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2;
+  ctx.fillStyle = plateFill;
+  ctx.fillRect(x0 - 3, y - 10, w + 6, 13);
+}
+
+export interface CaptionColors {
+  readonly leader: string;
+  readonly plate: string;
+  readonly text: string;
+}
+
+/**
+ * A caption tied to its subject by a leader that CANNOT strike the text.
+ *
+ * The label sits below the subject and the leader drops vertically to just
+ * above cap height, with a short foot stopping shy of the first glyph. The
+ * geometry is written this way because the obvious elbow — horizontal along
+ * the baseline from the subject back to the label — traverses the whole
+ * string whenever the label sits underneath, and renders as a strikethrough.
+ */
+export function caption(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  font: string,
+  colors: CaptionColors,
+  anchor: "start" | "end" = "start",
+): void {
+  const capTop = toY - 11; // clear of the 12px glyphs' cap height
+
+  ctx.strokeStyle = colors.leader;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(fromX, capTop - 4);
+  ctx.lineTo(anchor === "start" ? toX + 3 : toX - 3, capTop - 4);
+  ctx.stroke();
+  // Tick at the subject end, so the leader clearly originates somewhere.
+  ctx.beginPath();
+  ctx.moveTo(fromX - 3, fromY);
+  ctx.lineTo(fromX + 3, fromY);
+  ctx.stroke();
+
+  labelPlate(ctx, text, toX, toY, font, colors.plate, anchor);
+  ctx.fillStyle = colors.text;
+  monoLabel(ctx, text, toX, toY, font, { anchor });
+}
