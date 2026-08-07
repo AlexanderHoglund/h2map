@@ -35,7 +35,7 @@ export const ANIMATIONS: readonly [AnimationEntry, ...AnimationEntry[]] = [
     id: "decoupling",
     title: "Decoupling: book and claim",
     description:
-      "One green corridor, many buyers. The voyage's verified reductions are minted into standardized units at the registry and flow through a demand aggregator to three dispersed cargo owners — none with cargo on board — who each retire their unit as a Scope 3 claim. The pooled commitments flow back to finance the corridor, and the ledger always sums to three.",
+      "Book & claim as a diagram. Left: the green ore corridor, its whole environmental value aboard as one large unit. Centre: the registry splits it into three standardized EACs, pooled by a demand aggregator whose commitments flow back to finance the fuel. Right: each unit docks onto a cargo owner's shipment of cars — the cargo sails visibly decarbonized and the claim retires at delivery. The ledger always sums to three.",
     scene: decouplingScene,
   },
 ];

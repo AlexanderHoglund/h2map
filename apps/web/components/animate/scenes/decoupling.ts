@@ -1,14 +1,10 @@
 import {
   box,
-  caption as libCaption,
-  chevron,
-  crosshair,
   dashed,
   gridLines,
   labelPlate,
   monoLabel,
   polyline,
-  shape,
 } from "@/lib/animation/draw";
 import { berthEase, smoothstep } from "@/lib/animation/ease";
 import { measure, poseAt, type MeasuredPath } from "@/lib/animation/polyline";
@@ -19,144 +15,126 @@ import type { DesignSpace, Frame, Point, Scene } from "@/lib/animation/types";
 type Ink = "ink" | "inkSoft" | "land" | "ship" | "label" | "attr";
 
 /**
- * Decoupling — book & claim with AGGREGATION, after the MMMCZCS model.
+ * Decoupling — book & claim as a DIAGRAM, after the MMMCZCS model.
  *
- * One green corridor: iron ore sails Port Hedland → Gwangyang on a bulk
- * carrier that physically burns green fuel. The voyage's verified emission
- * reductions are registered and MINTED into standardized units at the
- * registry — and here the story widens: the units are sold to MANY
- * geographically dispersed cargo owners (Korea, Japan, Australia) with
- * Scope 3 commitments, none of whom need cargo on board. A DEMAND
- * AGGREGATOR pools their scattered purchase commitments and channels the
- * combined offtake toward the corridor — the counter-flow that makes the
- * corridor financeable. Each owner retires its unit at its own office: three
- * separate Scope 3 claims, no buyer vessel anywhere.
+ * Geography is gone: countries made the mechanism hard to see, so the stage
+ * is now a drafting sheet read left → right. LEFT: the green corridor — an
+ * ore carrier shuttling a vertical water strip on green fuel, its whole
+ * environmental value aboard as one LARGE diamond. CENTRE: the ledger — the
+ * value is verified at the REGISTRY and SPLIT into three standardized units,
+ * pooled and routed by the DEMAND AGGREGATOR, whose counter-flow of pooled
+ * purchase commitments marches back to finance the corridor's fuel. RIGHT:
+ * three car-shipment lanes, one per cargo owner. Each unit docks onto a
+ * specific shipment of cars — the cargo sails visibly decarbonized, green
+ * with its diamond riding the hull — and is RETIRED at delivery.
  *
- * THE INVARIANT. Not "one holder" but a LEDGER: the voyage carries three
- * units of environmental value, and at every instant
- * aboard + verifying + in-transit + held + retired === 3. Green enters the
- * frame once per cycle (bunkering) and leaves only by retirement. The draw
- * code may not have green booleans of its own — every green reads
- * `unitStateAt`/`ledgerAt`, and a browserless test pins the ledger at 4801
- * points plus every unit's transition times.
- *
- * SCALE. The ore carrier is the yardstick: 26 units LOA ≈ a 260 m Capesize,
- * so 1 u ≈ 10 m; shore furniture at ~3× exaggeration; sea distance symbolic
- * (the bar reads 3300 NM, the real Port Hedland–Gwangyang run).
+ * THE INVARIANT. A LEDGER, not a single holder: at every instant
+ * aboard + verifying + in-transit + applied + retired === 3. Green enters
+ * once per cycle (bunkering) and leaves only by retirement. Draw code may
+ * not have green booleans of its own — every green reads `unitStateAt` /
+ * `ledgerAt`, and a browserless test pins the ledger at 4801 samples plus
+ * every unit's transition times. Each unit's retirement boundary IS its
+ * carrier's arrival — one constant serves both, so they cannot drift apart.
  */
 
 const SPACE: DesignSpace = { width: 900, height: 1000, fit: "slice" };
 const GRID_STEP = 50;
 
-// ===== Coastlines ===========================================================
-export const AUSTRALIA: readonly Point[] = [
-  [0, 870], [120, 870], [120, 845], [230, 845],
-  [230, 820], [290, 820], [290, 835], [330, 835],
-  [330, 820], [420, 820], [420, 795], [560, 795],
-  [560, 770], [720, 770], [720, 745], [900, 745],
-  [900, 1000], [0, 1000],
+// ===== The stage ============================================================
+export interface Rect {
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly h: number;
+}
+
+/** The corridor's vertical water strip (left column). */
+export const CORRIDOR_STRIP: Rect = { x: 100, y: 120, w: 120, h: 760 };
+/** Three car-shipment lanes (right column), top to bottom. */
+export const LANE_STRIPS: readonly Rect[] = [
+  { x: 580, y: 195, w: 300, h: 70 },
+  { x: 580, y: 475, w: 300, h: 70 },
+  { x: 580, y: 755, w: 300, h: 70 },
 ];
 
-export const KOREA: readonly Point[] = [
-  [290, 0], [290, 70], [310, 70], [310, 140],
-  [335, 140], [335, 210], [365, 210], [365, 265],
-  [410, 265], [410, 285], [540, 285],
-  [540, 235], [575, 235], [575, 170], [590, 170],
-  [590, 90], [600, 90], [600, 0],
+/** The ledger cards (centre column) and the owner cards (one per lane). */
+export const REGISTRY_CARD: Rect = { x: 380, y: 240, w: 140, h: 60 };
+export const HUB_CARD: Rect = { x: 380, y: 460, w: 160, h: 80 };
+export const OWNER_CARDS: readonly Rect[] = [
+  { x: 596, y: 132, w: 96, h: 40 },
+  { x: 596, y: 412, w: 96, h: 40 },
+  { x: 596, y: 692, w: 96, h: 40 },
 ];
 
-/** Japan carries one of the three cargo owners — dispersion made visible. */
-export const JAPAN: readonly Point[] = [
-  [700, 0], [700, 60], [740, 60], [740, 120],
-  [790, 120], [790, 180], [845, 180], [845, 240],
-  [900, 240], [900, 0],
+// --- corridor geometry ------------------------------------------------------
+const ORE_LANE_X = 160;
+const DISCHARGE_Y = 185; // berth at the top of the corridor strip
+const LOAD_Y = 830; // berth at the bottom, beside the bunker
+const ORE_SHUTTLE: readonly Point[] = [
+  [ORE_LANE_X, LOAD_Y],
+  [ORE_LANE_X, DISCHARGE_Y],
 ];
 
-// ===== Berths and the physical corridor =====================================
-export const BERTH_LOAD = { x: 370, y: 806 } as const; // Port Hedland, quay y=820
-export const BERTH_ORE = { x: 438, y: 299 } as const; // Gwangyang discharge, quay y=285
-
-export const ORE_ROUTE: readonly Point[] = [
-  [370, 806], [300, 806], [250, 740], [250, 450],
-  [300, 360], [320, 320], [340, 299], [438, 299],
+/** Verification leg: discharge quay → registry. One big token, all 3 units. */
+const TOKEN_PATH: readonly Point[] = [
+  [205, 185], [300, 228], [380, 264],
 ];
-export const ORE_ROUTE_BACK: readonly Point[] = [
-  [438, 299], [380, 299], [330, 340], [310, 420],
-  [310, 740], [310, 806], [370, 806],
-];
-
-/** Verification path: berth → registry (in the side accounting column). The
- *  voyage's whole value travels this as one LARGE EAC-tagged token. */
-export const TOKEN_PATH: readonly Point[] = [
-  [430, 292], [500, 318], [576, 330], [630, 346],
-];
-
-// ===== The accounting network ==============================================
-/** The accounting column, set aside on open sea: registry above, aggregator
- *  below — market infrastructure, not places, so they live off the map. */
-const REGISTRY_BOX = { x: 630, y: 330, w: 64, h: 32 } as const;
-const HUB = { x: 618, y: 430, w: 88, h: 48 } as const;
-
-/** Owner offices — three cargo owners, three regions. */
-const OFFICES = [
-  { x: 484, y: 192, w: 40, h: 40, diamond: [532, 198] }, // KR
-  { x: 812, y: 120, w: 32, h: 32, diamond: [852, 136] }, // JP
-  { x: 800, y: 770, w: 32, h: 32, diamond: [792, 786] }, // AU
-] as const;
-
-/** Attribute rails: registry → hub, then hub → each owner. The units travel
- *  these; the commitments march them the other way. */
+/** Registry → aggregator. */
 const REG_HUB: readonly Point[] = [
-  [662, 362], [662, 430],
+  [450, 300], [450, 460],
 ];
+/** Aggregator → each owner card, then down to the berth where the unit
+ *  docks onto the shipment. */
 const HUB_OWNER: readonly (readonly Point[])[] = [
-  [[618, 446], [540, 330], [508, 236]], // → KR
-  [[690, 430], [770, 300], [828, 156]], // → JP
-  [[662, 478], [700, 600], [780, 720], [816, 770]], // → AU
+  [[540, 480], [572, 300], [644, 172], [644, 230]],
+  [[540, 500], [572, 448], [644, 452], [644, 510]],
+  [[540, 520], [572, 660], [644, 732], [644, 790]],
 ];
-/** The pooled offtake, hub → corridor (the Gwangyang berth). */
-const HUB_CORRIDOR: readonly Point[] = [
-  [618, 470], [500, 430], [452, 330], [446, 308],
+/** The commitments' last leg: aggregator → the corridor's bunker. */
+const HUB_BUNKER: readonly Point[] = [
+  [380, 510], [290, 660], [215, 820],
 ];
 
-// ===== Physical cargo to the owners' countries ==============================
-/**
- * The owners are shippers: their cargo moves on CONVENTIONAL vessels into
- * each country — never green-marked. That contrast is the model: physical
- * trade is everywhere on ordinary ships; only the environmental value routes
- * through the registry.
- */
-export const JP_CARGO_IN: readonly Point[] = [[940, 254], [870, 254]];
-export const JP_CARGO_OUT: readonly Point[] = [[870, 266], [940, 266]];
-export const AU_CARGO_IN: readonly Point[] = [[940, 731], [790, 731]];
-export const AU_CARGO_OUT: readonly Point[] = [[790, 717], [940, 717]];
-const JP_BERTH = { x: 870, y: 254 } as const; // Japan south quay y=240
-const AU_BERTH = { x: 790, y: 731 } as const; // eastern AU quay y=745
+// --- lane geometry ----------------------------------------------------------
+const BERTH_X = 644; // where a carrier waits and its unit docks
+const DELIVER_X = 856; // arrival: retirement fires here
+const laneCenter = (lane: number): number => {
+  const strip = LANE_STRIPS[lane];
+  return strip ? strip.y + strip.h / 2 : 0;
+};
 
 // ===== The cycle and the ledger =============================================
-export type UnitState = "aboard" | "verifying" | "in-transit" | "held" | "retired";
+export type UnitState = "aboard" | "verifying" | "in-transit" | "applied" | "retired";
 export type UnitIndex = 0 | 1 | 2;
 
 export const UNITS = 3;
 export const CYCLE_S = 24;
-/** t=0 — the reduced-motion poster — lands mid-outbound: all three units of
- *  value aboard the green ship, offices neutral, rails idle. */
+/** t=0 — the reduced-motion poster — lands mid-voyage: the whole value
+ *  aboard the green ship, the three shipments waiting at their quays. */
 export const POSTER_OFFSET_S = 0.1 * CYCLE_S;
 
 export const PHASES = {
-  /** Counter-flow window: pooled commitments march owners → hub → corridor. */
-  commit: [0.05, 0.2],
-  /** The voyage attribute lifts off at discharge. */
-  detach: 0.3,
-  /** Registered and SPLIT into three standardized units at the registry. */
-  mint: 0.38,
-  /** Unit i reaches owner i (staggered). */
-  arrive: [0.5, 0.53, 0.56],
-  /** Unit i retired at owner i (staggered Scope 3 claims). */
-  retire: [0.7, 0.74, 0.78],
-  /** Next voyage's value bunkered — the ledger wraps to aboard. */
-  bunker: 0.9,
+  /** Counter-flow: pooled commitments march owners → aggregator → bunker. */
+  commit: [0.04, 0.16],
+  /** The big token lifts off at the discharge quay. */
+  detach: 0.24,
+  /** Verified and SPLIT into three standardized units at the registry. */
+  mint: 0.32,
+  /** Unit i docks onto shipment i — the cargo is now decarbonized. */
+  dock: [0.42, 0.45, 0.48],
+  /** Shipment i delivers; unit i retired against that voyage. */
+  retire: [0.68, 0.72, 0.76],
+  /** Next voyage's fuel bunkered — the ledger wraps to aboard. */
+  bunker: 0.88,
 } as const;
+
+/** A carrier departs this long after its unit docks. */
+export const CARRIER_DEPART_OFFSET = 0.04;
+
+/** Carrier i's sailing window — arrival IS the unit's retirement boundary. */
+export function carrierWindow(lane: UnitIndex): { depart: number; arrive: number } {
+  return { depart: PHASES.dock[lane] + CARRIER_DEPART_OFFSET, arrive: PHASES.retire[lane] };
+}
 
 export function phaseAt(time: number): number {
   const s = (time + POSTER_OFFSET_S) % CYCLE_S;
@@ -168,173 +146,108 @@ export function unitStateAt(unit: UnitIndex, time: number): UnitState {
   const p = phaseAt(time);
   if (p < PHASES.detach) return "aboard";
   if (p < PHASES.mint) return "verifying";
-  if (p < PHASES.arrive[unit]) return "in-transit";
-  if (p < PHASES.retire[unit]) return "held";
+  if (p < PHASES.dock[unit]) return "in-transit";
+  if (p < PHASES.retire[unit]) return "applied";
   if (p < PHASES.bunker) return "retired";
-  return "aboard"; // bunkered for the next voyage
+  return "aboard";
 }
 
-/** The ledger, derived by summing — total is UNITS by construction, and the
- *  test pins it anyway. */
 export function ledgerAt(time: number): Record<UnitState, number> {
   const out: Record<UnitState, number> = {
     aboard: 0,
     verifying: 0,
     "in-transit": 0,
-    held: 0,
+    applied: 0,
     retired: 0,
   };
   for (const unit of [0, 1, 2] as const) out[unitStateAt(unit, time)] += 1;
   return out;
 }
 
-// --- vessel sub-timings -----------------------------------------------------
+// --- ore ship sub-timings ---------------------------------------------------
 const ORE = {
-  sailOut: [0.0, 0.22],
-  dischargeFlip: 0.25,
-  depart: 0.32,
-  arriveHome: 0.6,
-  loadFlip: 0.85,
+  sailOut: [0.0, 0.2], // up the corridor, laden + the big green
+  depart: 0.3, // leaves the discharge quay in ballast
+  arriveHome: 0.55,
+  loadFlip: 0.8,
 } as const;
 
 // --- marching-dash idiom ----------------------------------------------------
-const DASH: readonly number[] = [7, 5];
-const DASH_PERIOD = 12;
 const DASH_CYCLE_S = 1.6;
 
 /** Precomputed in setup(). */
 let orePath: MeasuredPath | null = null;
-let oreBackPath: MeasuredPath | null = null;
 let tokenPath: MeasuredPath | null = null;
-/** Per-unit distribution path: registry → hub → owner i, measured once. */
 let unitPaths: readonly MeasuredPath[] = [];
 
-// ===== Water and land =======================================================
-function drawSeaGrid(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+// ===== The sheet ============================================================
+/** Paper with a straight grid; the water strips are cut out of it and carry
+ *  the wavy grid — lanes read as water without any geography. */
+function drawSheet(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  ctx.fillStyle = frame.palette.land;
+  ctx.fillRect(0, 0, 900, 1000);
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 0.35;
-  ctx.globalAlpha = 0.45;
-  gridLines(ctx, 900, 1000, GRID_STEP, true, frame.time);
-  ctx.globalAlpha = 1;
-}
-
-function drawShores(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  shape(ctx, AUSTRALIA, frame.palette.land, frame.palette.ink, 1.5);
-  shape(ctx, KOREA, frame.palette.land, frame.palette.ink, 1.5);
-  shape(ctx, JAPAN, frame.palette.land, frame.palette.ink, 1.5);
-}
-
-function drawLandGrid(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  ctx.save();
-  ctx.beginPath();
-  for (const shore of [AUSTRALIA, KOREA, JAPAN]) {
-    let first = true;
-    for (const [x, y] of shore) {
-      if (first) {
-        ctx.moveTo(x, y);
-        first = false;
-      } else {
-        ctx.lineTo(x, y);
-      }
-    }
-    ctx.closePath();
-  }
-  ctx.clip();
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 0.35;
-  ctx.globalAlpha = 0.32;
+  ctx.globalAlpha = 0.3;
   gridLines(ctx, 900, 1000, GRID_STEP, false, frame.time);
   ctx.globalAlpha = 1;
-  ctx.restore();
+
+  for (const strip of [CORRIDOR_STRIP, ...LANE_STRIPS]) {
+    ctx.clearRect(strip.x, strip.y, strip.w, strip.h);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(strip.x, strip.y, strip.w, strip.h);
+    ctx.clip();
+    ctx.strokeStyle = frame.palette.ink;
+    ctx.lineWidth = 0.35;
+    ctx.globalAlpha = 0.4;
+    gridLines(ctx, 900, 1000, GRID_STEP, true, frame.time);
+    ctx.restore();
+    ctx.strokeStyle = frame.palette.ink;
+    ctx.lineWidth = 1.2;
+    box(ctx, strip.x, strip.y, strip.w, strip.h, null);
+  }
 }
 
-function drawQuayTicks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+// ===== Corridor furniture ===================================================
+function drawCorridorPorts(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  for (const x of [340, 365, 390, 415]) {
-    ctx.moveTo(x, 820);
-    ctx.lineTo(x, 828);
+  // Berth ticks: discharge quay at the top, loading quay at the bottom.
+  for (const y of [150, 168, 186, 204]) {
+    ctx.moveTo(220, y);
+    ctx.lineTo(228, y);
   }
-  for (const x of [420, 445, 460]) {
-    ctx.moveTo(x, 285);
-    ctx.lineTo(x, 277);
-  }
-  // The owners' own import berths: Japan's south quay, eastern Australia's.
-  for (const x of [852, 872, 892]) {
-    ctx.moveTo(x, 240);
-    ctx.lineTo(x, 248);
-  }
-  for (const x of [764, 788, 812]) {
-    ctx.moveTo(x, 745);
-    ctx.lineTo(x, 753);
+  for (const y of [800, 818, 836, 854]) {
+    ctx.moveTo(220, y);
+    ctx.lineTo(228, y);
   }
   ctx.stroke();
-}
 
-// ===== Australia furniture ==================================================
-function drawHeap(
-  ctx: CanvasRenderingContext2D,
-  frame: Frame<Ink>,
-  x: number,
-  groundY: number,
-  w: number,
-  h: number,
-): void {
-  ctx.strokeStyle = frame.palette.ink;
+  // The ore stock and the green-fuel bunker at the loading port.
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(x, groundY);
-  ctx.lineTo(x + w / 2, groundY - h);
-  ctx.lineTo(x + w, groundY);
+  ctx.moveTo(240, 850);
+  ctx.lineTo(252, 838);
+  ctx.lineTo(264, 850);
   ctx.closePath();
   ctx.fillStyle = frame.palette.land;
   ctx.fill();
   ctx.stroke();
-  ctx.lineWidth = 0.6;
-  ctx.beginPath();
-  for (let i = 1; i < 4; i += 1) {
-    const t = i / 4;
-    ctx.moveTo(x + (w / 2) * t, groundY - h * t);
-    ctx.lineTo(x + w - (w / 2) * t, groundY - h * t);
-  }
-  ctx.stroke();
-}
-
-function drawPortHedland(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  drawHeap(ctx, frame, 388, 856, 26, 11);
-  drawHeap(ctx, frame, 422, 856, 20, 9);
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.1;
-  ctx.beginPath();
-  ctx.moveTo(382, 856);
-  ctx.lineTo(450, 856);
-  ctx.stroke();
-
-  // Ship loader over the berth.
-  ctx.lineWidth = 1.4;
-  ctx.beginPath();
-  ctx.moveTo(392, 846);
-  ctx.lineTo(392, 814);
-  ctx.lineTo(376, 814);
-  ctx.moveTo(376, 814);
-  ctx.lineTo(376, 809);
-  ctx.stroke();
-
-  // Green-fuel bunker tank: the attribute's point of entry.
   ctx.lineWidth = 1.3;
-  box(ctx, 340, 826, 20, 16, frame.palette.land);
+  box(ctx, 234, 806, 20, 16, frame.palette.land);
   ctx.lineWidth = 0.8;
   ctx.beginPath();
-  ctx.moveTo(340, 831);
-  ctx.lineTo(360, 831);
+  ctx.moveTo(234, 811);
+  ctx.lineTo(254, 811);
   ctx.stroke();
 }
 
-/** Bunkering line: green ENTERS the system here, once per cycle. */
+/** Bunkering line: green ENTERS the diagram here, once per cycle. */
 function drawBunkerLine(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const p = phaseAt(frame.time);
-  const active = p >= 0.88 && p < 0.98;
+  const active = p >= 0.86 && p < 0.96;
   const phase = (frame.time % DASH_CYCLE_S) / DASH_CYCLE_S;
   ctx.strokeStyle = active ? frame.palette.attr : frame.palette.inkSoft;
   ctx.lineWidth = active ? 1.4 : 1;
@@ -342,9 +255,9 @@ function drawBunkerLine(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void 
     ctx,
     () => {
       ctx.beginPath();
-      ctx.moveTo(352, 826);
-      ctx.lineTo(352, 810);
-      ctx.lineTo(362, 810);
+      ctx.moveTo(234, 814);
+      ctx.lineTo(200, 826);
+      ctx.lineTo(172, 830);
       ctx.stroke();
     },
     [3, 3],
@@ -352,87 +265,88 @@ function drawBunkerLine(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void 
   );
 }
 
-// ===== The accounting layer =================================================
-/** A window-grid office block: a cargo owner. Highlighted while it holds. */
-function drawOffice(
-  ctx: CanvasRenderingContext2D,
-  frame: Frame<Ink>,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  holding: boolean,
-): void {
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.4;
-  box(ctx, x, y, w, h, frame.palette.land);
-  ctx.lineWidth = 0.7;
-  ctx.beginPath();
-  const cols = Math.max(2, Math.round(w / 10));
-  const rows = Math.max(2, Math.round(h / 10));
-  for (let i = 1; i < rows; i += 1) {
-    ctx.moveTo(x, y + (i * h) / rows);
-    ctx.lineTo(x + w, y + (i * h) / rows);
-  }
-  for (let i = 1; i < cols; i += 1) {
-    ctx.moveTo(x + (i * w) / cols, y);
-    ctx.lineTo(x + (i * w) / cols, y + h);
-  }
-  ctx.stroke();
-  if (holding) {
-    ctx.strokeStyle = frame.palette.attr;
-    ctx.lineWidth = 1.6;
-    box(ctx, x - 2, y - 2, w + 4, h + 4, null);
-  }
-}
-
+// ===== The ledger cards =====================================================
 function drawRegistry(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const p = phaseAt(frame.time);
+  const c = REGISTRY_CARD;
   ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.3;
-  box(ctx, REGISTRY_BOX.x, REGISTRY_BOX.y, REGISTRY_BOX.w, REGISTRY_BOX.h, frame.palette.land);
+  ctx.lineWidth = 1.4;
+  box(ctx, c.x, c.y, c.w, c.h, frame.palette.land);
   ctx.lineWidth = 0.8;
-  box(ctx, REGISTRY_BOX.x + 3, REGISTRY_BOX.y + 3, REGISTRY_BOX.w - 6, REGISTRY_BOX.h - 6, null);
+  box(ctx, c.x + 4, c.y + 4, c.w - 8, c.h - 8, null);
+  // Ledger lines inside.
+  ctx.beginPath();
+  for (let i = 1; i < 4; i += 1) {
+    ctx.moveTo(c.x + 12, c.y + 8 + i * 11);
+    ctx.lineTo(c.x + c.w - 12, c.y + 8 + i * 11);
+  }
+  ctx.stroke();
 
-  // The mint: the registry acknowledges as the attribute splits into units.
-  if (p >= PHASES.mint - 0.01 && p < PHASES.mint + 0.03) {
-    const k = (p - (PHASES.mint - 0.01)) / 0.04;
+  // The mint: the card acknowledges as the value splits into units.
+  if (p >= PHASES.mint - 0.01 && p < PHASES.mint + 0.04) {
+    const k = (p - (PHASES.mint - 0.01)) / 0.05;
     ctx.save();
     ctx.globalAlpha = Math.sin(Math.min(Math.max(k, 0), 1) * Math.PI);
     ctx.strokeStyle = frame.palette.attr;
     ctx.lineWidth = 1.6;
-    box(ctx, REGISTRY_BOX.x - 2, REGISTRY_BOX.y - 2, REGISTRY_BOX.w + 4, REGISTRY_BOX.h + 4, null);
+    box(ctx, c.x - 3, c.y - 3, c.w + 6, c.h + 6, null);
     ctx.restore();
   }
 }
 
-/** The demand aggregator: a floating institution card — double-outlined like
- *  the registry, because both are market infrastructure, not places. */
 function drawHub(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  const c = HUB_CARD;
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.4;
-  box(ctx, HUB.x, HUB.y, HUB.w, HUB.h, frame.palette.land);
+  box(ctx, c.x, c.y, c.w, c.h, frame.palette.land);
   ctx.lineWidth = 0.8;
-  box(ctx, HUB.x + 4, HUB.y + 4, HUB.w - 8, HUB.h - 8, null);
-  // Pool glyph: three small squares converging — many buyers, one offtake.
+  box(ctx, c.x + 4, c.y + 4, c.w - 8, c.h - 8, null);
+  // Pool glyph: three small squares funnelling into one — many buyers, one
+  // structured offtake.
   ctx.lineWidth = 0.9;
-  box(ctx, HUB.x + 10, HUB.y + 12, 8, 8, frame.palette.land);
-  box(ctx, HUB.x + 24, HUB.y + 16, 8, 8, frame.palette.land);
-  box(ctx, HUB.x + 38, HUB.y + 12, 8, 8, frame.palette.land);
+  box(ctx, c.x + 16, c.y + 14, 10, 10, frame.palette.land);
+  box(ctx, c.x + 16, c.y + 34, 10, 10, frame.palette.land);
+  box(ctx, c.x + 16, c.y + 54, 10, 10, frame.palette.land);
   ctx.beginPath();
-  ctx.moveTo(HUB.x + 52, HUB.y + 16);
-  ctx.lineTo(HUB.x + 60, HUB.y + 16);
-  ctx.moveTo(HUB.x + 56, HUB.y + 12);
-  ctx.lineTo(HUB.x + 56, HUB.y + 20);
+  ctx.moveTo(c.x + 26, c.y + 19);
+  ctx.lineTo(c.x + 96, c.y + 36);
+  ctx.moveTo(c.x + 26, c.y + 39);
+  ctx.lineTo(c.x + 96, c.y + 40);
+  ctx.moveTo(c.x + 26, c.y + 59);
+  ctx.lineTo(c.x + 96, c.y + 44);
   ctx.stroke();
+  ctx.lineWidth = 1.1;
+  box(ctx, c.x + 96, c.y + 32, 16, 16, frame.palette.land);
 }
 
-/**
- * The rail network, always visible — the accounting layer exists even when
- * nothing travels on it. During the commit window the same rails march ink
- * INWARD (owners → hub → corridor): the pooled offtake that finances the
- * voyage. The attribute units later flow OUTWARD in green.
- */
+function drawOwnerCards(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  for (const lane of [0, 1, 2] as const) {
+    const c = OWNER_CARDS[lane];
+    if (!c) continue;
+    const applied = unitStateAt(lane, frame.time) === "applied";
+    ctx.strokeStyle = frame.palette.ink;
+    ctx.lineWidth = 1.3;
+    box(ctx, c.x, c.y, c.w, c.h, frame.palette.land);
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    for (let i = 1; i < 4; i += 1) {
+      ctx.moveTo(c.x + (i * c.w) / 4, c.y);
+      ctx.lineTo(c.x + (i * c.w) / 4, c.y + c.h);
+    }
+    ctx.moveTo(c.x, c.y + c.h / 2);
+    ctx.lineTo(c.x + c.w, c.y + c.h / 2);
+    ctx.stroke();
+    // While its shipment sails decarbonized, the owner's card carries the
+    // green edge — the claim is theirs, even though the diamond rides the ship.
+    if (applied) {
+      ctx.strokeStyle = frame.palette.attr;
+      ctx.lineWidth = 1.4;
+      box(ctx, c.x - 2, c.y - 2, c.w + 4, c.h + 4, null);
+    }
+  }
+}
+
+// ===== Rails ================================================================
 function drawRails(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const p = phaseAt(frame.time);
   const phase = (frame.time % DASH_CYCLE_S) / DASH_CYCLE_S;
@@ -446,43 +360,19 @@ function drawRails(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   for (const rail of HUB_OWNER) {
     ctx.strokeStyle = committing ? frame.palette.ink : frame.palette.inkSoft;
     ctx.lineWidth = committing ? 1.2 : 0.9;
-    // Positive offset marches the dashes BACKWARD along the path — i.e. from
-    // the owner toward the hub, the commitment's direction.
+    // Positive offset marches the dashes backward along the path — from the
+    // owners toward the aggregator: the commitments' direction.
     dashed(ctx, () => polyline(ctx, rail), [3, 3], committing ? phase * 6 : 0);
   }
 
   ctx.strokeStyle = committing ? frame.palette.ink : frame.palette.inkSoft;
   ctx.lineWidth = committing ? 1.2 : 0.9;
-  dashed(ctx, () => polyline(ctx, HUB_CORRIDOR), [3, 3], committing ? -phase * 6 : 0);
-}
-
-// ===== Sea routes ===========================================================
-function drawRoutes(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  const phase = (frame.time % DASH_CYCLE_S) / DASH_CYCLE_S;
-  const offset = -phase * DASH_PERIOD;
-
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.6;
-  dashed(ctx, () => polyline(ctx, ORE_ROUTE), DASH, offset);
-
-  ctx.strokeStyle = frame.palette.inkSoft;
-  ctx.lineWidth = 1.1;
-  dashed(ctx, () => polyline(ctx, ORE_ROUTE_BACK), [3, 5]);
-  dashed(ctx, () => polyline(ctx, JP_CARGO_IN), [3, 5]);
-  dashed(ctx, () => polyline(ctx, AU_CARGO_IN), [3, 5]);
-
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.5;
-  crosshair(ctx, 250, 740, 4);
-  crosshair(ctx, 250, 450, 4);
-  ctx.strokeStyle = frame.palette.inkSoft;
-  ctx.lineWidth = 1.2;
-  chevron(ctx, 620, 640);
-  chevron(ctx, 180, 300);
+  dashed(ctx, () => polyline(ctx, HUB_BUNKER), [3, 3], committing ? -phase * 6 : 0);
 }
 
 // ===== Vessels ==============================================================
-function drawVessel(
+/** The ore bulker, drawn heading along +x before rotation. */
+function drawBulker(
   ctx: CanvasRenderingContext2D,
   frame: Frame<Ink>,
   x: number,
@@ -490,26 +380,23 @@ function drawVessel(
   angle: number,
   laden: boolean,
   marked: boolean,
-  alpha = 1,
 ): void {
-  if (alpha <= 0.02) return;
-  const L = 26;
-  const B = 8;
+  const L = 30;
+  const B = 9;
   const half = B / 2;
   const bow = L * 0.5;
   const stern = -L * 0.5;
 
   ctx.save();
-  ctx.globalAlpha = alpha;
   ctx.translate(x, y);
   ctx.rotate(angle);
 
   const hull = () => {
     ctx.beginPath();
     ctx.moveTo(stern, -half);
-    ctx.lineTo(bow - 6, -half);
+    ctx.lineTo(bow - 7, -half);
     ctx.lineTo(bow, 0);
-    ctx.lineTo(bow - 6, half);
+    ctx.lineTo(bow - 7, half);
     ctx.lineTo(stern, half);
     ctx.closePath();
   };
@@ -530,25 +417,99 @@ function drawVessel(
   ctx.lineWidth = 0.9;
   ctx.beginPath();
   for (let i = 0; i < 4; i += 1) {
-    const hx = stern + 5 + i * 4.6;
-    ctx.rect(hx, -half + 1.2, 3.2, B - 2.4);
+    ctx.rect(stern + 6 + i * 5.4, -half + 1.4, 3.8, B - 2.8);
   }
-  ctx.rect(stern + 1, -half + 1.4, 3, B - 2.8);
+  ctx.rect(stern + 1, -half + 1.6, 3.4, B - 3.2);
   ctx.stroke();
 
-  // The green mark: hull restroked in the attribute colour, certificate
-  // diamond flying off the hull like a flag.
   if (marked) {
     hull();
     ctx.strokeStyle = frame.palette.attr;
     ctx.lineWidth = 1.4;
     ctx.stroke();
-    // LARGE: the ship carries the voyage's entire environmental value — the
-    // thing that later splits into three at the registry.
-    diamond(ctx, 0, -half - 7, 5.4, frame.palette.attr, frame.palette.attr);
+  }
+  ctx.restore();
+
+  // The voyage's ENTIRE value rides as one large diamond beside the hull —
+  // drawn in world space so it does not rotate with the ship.
+  if (marked) {
+    diamond(ctx, x + 18, y, 6.5, frame.palette.attr, frame.palette.attr);
+    eacTag(ctx, frame, x + 28, y + 3);
+  }
+}
+
+/** A car carrier: slab hull with car glyphs on deck, sailing +x only. */
+function drawCarCarrier(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  x: number,
+  y: number,
+  laden: boolean,
+  marked: boolean,
+  alpha: number,
+): void {
+  if (alpha <= 0.02) return;
+  const L = 24;
+  const B = 9;
+  const half = B / 2;
+  const bow = L * 0.5;
+  const stern = -L * 0.5;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+
+  const hull = () => {
+    ctx.beginPath();
+    ctx.moveTo(stern + 2, -half);
+    ctx.lineTo(bow - 4, -half);
+    ctx.lineTo(bow, 0);
+    ctx.lineTo(bow - 4, half);
+    ctx.lineTo(stern + 2, half);
+    ctx.lineTo(stern, half - 1.6);
+    ctx.lineTo(stern, -half + 1.6);
+    ctx.closePath();
+  };
+
+  hull();
+  if (laden) {
+    ctx.fillStyle = frame.palette.ship;
+    ctx.fill();
+  } else {
+    ctx.fillStyle = frame.palette.land;
+    ctx.fill();
+    ctx.strokeStyle = frame.palette.ship;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
   }
 
+  // Cars on deck: the cargo itself, visible.
+  ctx.strokeStyle = laden ? frame.palette.ink : frame.palette.ship;
+  ctx.lineWidth = 0.9;
+  ctx.beginPath();
+  if (laden) {
+    for (let i = 0; i < 3; i += 1) {
+      ctx.rect(stern + 4 + i * 6, -1.6, 4.4, 3.2);
+    }
+  }
+  ctx.rect(bow - 7, -half + 1.4, 3, B - 2.8);
+  ctx.stroke();
+
+  if (marked) {
+    hull();
+    ctx.strokeStyle = frame.palette.attr;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+  }
   ctx.restore();
+
+  // The docked unit rides above the hull: this shipment carries the claim.
+  if (marked) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    diamond(ctx, x, y - half - 6, 4, frame.palette.attr, frame.palette.attr);
+    ctx.restore();
+  }
 }
 
 function diamond(
@@ -595,103 +556,106 @@ function eacTag(
   ctx.restore();
 }
 
-/**
- * The owners' physical cargo, arriving on CONVENTIONAL ships — never green.
- * Each runs in from the east frame edge, works its berth, and leaves; the
- * frame-edge fade reads as trade continuing beyond the map.
- */
-const CARGO_SHIPS = [
-  {
-    inRoute: JP_CARGO_IN,
-    outRoute: JP_CARGO_OUT,
-    berth: JP_BERTH,
-    sailIn: [0.02, 0.18],
-    dwell: [0.18, 0.42],
-    flip: 0.3, // laden → discharged
-    sailOut: [0.42, 0.58],
-  },
-  {
-    inRoute: AU_CARGO_IN,
-    outRoute: AU_CARGO_OUT,
-    berth: AU_BERTH,
-    sailIn: [0.4, 0.56],
-    dwell: [0.56, 0.8],
-    flip: 0.68,
-    sailOut: [0.8, 0.96],
-  },
-] as const;
-
-/** Alpha from x: dissolves over the last stretch before the east frame edge. */
-function edgeFade(x: number): number {
-  return Math.min(1, Math.max(0, (915 - x) / 45));
-}
-
-let cargoInPaths: readonly MeasuredPath[] = [];
-let cargoOutPaths: readonly MeasuredPath[] = [];
-
-function drawCargoShips(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+// ===== Motion ===============================================================
+function drawOreShip(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  if (!orePath) return;
   const p = phaseAt(frame.time);
-  for (let i = 0; i < CARGO_SHIPS.length; i += 1) {
-    const ship = CARGO_SHIPS[i];
-    if (!ship) continue;
-    const inPath = cargoInPaths[i];
-    const outPath = cargoOutPaths[i];
-    if (!inPath || !outPath) continue;
-
-    let x: number;
-    let y: number;
-    let angle: number;
-    let laden: boolean;
-    if (p >= ship.sailIn[0] && p < ship.sailIn[1]) {
-      const u = berthEase((p - ship.sailIn[0]) / (ship.sailIn[1] - ship.sailIn[0]));
-      ({ x, y, angle } = poseAt(inPath, u));
-      laden = true;
-    } else if (p >= ship.dwell[0] && p < ship.dwell[1]) {
-      ({ x, y } = ship.berth);
-      angle = Math.PI; // arrived heading west, lies alongside
-      laden = p < ship.flip;
-    } else if (p >= ship.sailOut[0] && p < ship.sailOut[1]) {
-      const u = berthEase((p - ship.sailOut[0]) / (ship.sailOut[1] - ship.sailOut[0]));
-      ({ x, y, angle } = poseAt(outPath, u));
-      laden = false;
-    } else {
-      continue; // beyond the frame, somewhere in the world's trade
-    }
-    drawVessel(ctx, frame, x, y, angle, laden, false, edgeFade(x));
-  }
-}
-
-// --- the ore carrier's day --------------------------------------------------
-function drawOreCarrier(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  if (!orePath || !oreBackPath) return;
-  const p = phaseAt(frame.time);
-  const ledger = ledgerAt(frame.time);
+  const marked = ledgerAt(frame.time).aboard === UNITS;
 
   let x: number;
   let y: number;
   let angle: number;
+  let laden: boolean;
   if (p < ORE.sailOut[1]) {
     ({ x, y, angle } = poseAt(orePath, berthEase(p / ORE.sailOut[1])));
+    laden = true;
   } else if (p < ORE.depart) {
-    ({ x, y } = BERTH_ORE);
-    angle = 0;
+    x = ORE_LANE_X;
+    y = DISCHARGE_Y;
+    angle = -Math.PI / 2;
+    laden = p < PHASES.detach; // discharged as the value detaches
   } else if (p < ORE.arriveHome) {
-    ({ x, y, angle } = poseAt(
-      oreBackPath,
-      berthEase((p - ORE.depart) / (ORE.arriveHome - ORE.depart)),
-    ));
+    const u = berthEase((p - ORE.depart) / (ORE.arriveHome - ORE.depart));
+    const pose = poseAt(orePath, 1 - u);
+    x = pose.x;
+    y = pose.y;
+    angle = Math.PI / 2; // heading back down
+    laden = false;
   } else {
-    ({ x, y } = BERTH_LOAD);
-    angle = Math.PI;
+    x = ORE_LANE_X;
+    y = LOAD_Y;
+    angle = -Math.PI / 2;
+    laden = p >= ORE.loadFlip;
   }
-
-  const laden = p < ORE.dischargeFlip || p >= ORE.loadFlip;
-  drawVessel(ctx, frame, x, y, angle, laden, ledger.aboard === UNITS);
+  drawBulker(ctx, frame, x, y, angle, laden, marked);
 }
 
-// --- the certificate lifecycle ----------------------------------------------
-/** The verification leg: one EAC-tagged token carrying all three units of
- *  value from the berth to the registry. */
+function drawCarLanes(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  const p = phaseAt(frame.time);
+  for (const lane of [0, 1, 2] as const) {
+    const cy = laneCenter(lane);
+    const { depart, arrive } = carrierWindow(lane);
+    const state = unitStateAt(lane, frame.time);
+
+    // Car stack at the quay: the owner's cargo waiting to ship. Gone while
+    // the carrier is away; back late-cycle for the next voyage.
+    const stackVisible = p < depart || p >= PHASES.bunker;
+    if (stackVisible) {
+      ctx.strokeStyle = frame.palette.ink;
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < 4; i += 1) {
+        box(ctx, 600 + i * 7, cy + 20, 5, 3, frame.palette.land);
+      }
+    }
+
+    // The carrier.
+    if (p < depart) {
+      drawCarCarrier(ctx, frame, BERTH_X, cy, false, state === "applied", 1);
+    } else if (p < arrive) {
+      const u = berthEase((p - depart) / (arrive - depart));
+      const x = BERTH_X + (DELIVER_X - BERTH_X) * u;
+      drawCarCarrier(ctx, frame, x, cy, true, state === "applied", 1);
+    } else if (p < PHASES.bunker) {
+      // Delivered: the carrier dissolves past the lane's end.
+      const k = Math.min(1, (p - arrive) / 0.05);
+      drawCarCarrier(ctx, frame, DELIVER_X + k * 18, cy, false, false, 1 - k);
+    } else {
+      // A fresh carrier fades in for the next cycle.
+      drawCarCarrier(
+        ctx,
+        frame,
+        BERTH_X,
+        cy,
+        false,
+        false,
+        smoothstep((p - PHASES.bunker) / (1 - PHASES.bunker)),
+      );
+    }
+
+    // Retirement ceremony at delivery.
+    if (state === "retired") {
+      const k = (p - PHASES.retire[lane]) / 0.03;
+      if (k < 1) {
+        const alpha = 1 - smoothstep(k);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        diamond(ctx, DELIVER_X, cy - 16, 4 + k * 8, frame.palette.attr, null);
+        ctx.restore();
+        eacTag(ctx, frame, DELIVER_X + 10, cy - 13, alpha);
+      }
+    }
+
+    // Delivery mark at the lane's end.
+    ctx.strokeStyle = frame.palette.ink;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(DELIVER_X + 16, cy - 10);
+    ctx.lineTo(DELIVER_X + 16, cy + 10);
+    ctx.stroke();
+  }
+}
+
+/** The big token: all three units, discharge quay → registry. */
 function drawVerifyingToken(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   if (!tokenPath) return;
   if (ledgerAt(frame.time).verifying !== UNITS) return;
@@ -703,37 +667,17 @@ function drawVerifyingToken(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): v
   eacTag(ctx, frame, x + 12, y + 3);
 }
 
-/** The distribution: three standardized units, registry → hub → owners,
- *  each on its own composite rail, arrivals staggered. */
+/** The three units: registry → aggregator → owner card → the berth. */
 function drawUnits(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   for (const unit of [0, 1, 2] as const) {
-    const state = unitStateAt(unit, frame.time);
-    const anchor = OFFICES[unit].diamond;
-
-    if (state === "in-transit") {
-      const path = unitPaths[unit];
-      if (!path) continue;
-      const p = phaseAt(frame.time);
-      const u = smoothstep((p - PHASES.mint) / (PHASES.arrive[unit] - PHASES.mint));
-      const { x, y } = poseAt(path, u);
-      diamond(ctx, x, y, 5, frame.palette.attr, frame.palette.land);
-      diamond(ctx, x, y, 2.2, frame.palette.attr, frame.palette.attr);
-    } else if (state === "held") {
-      diamond(ctx, anchor[0], anchor[1], 4, frame.palette.attr, frame.palette.attr);
-    } else if (state === "retired") {
-      // Retirement ceremony: the unit expands and fades at its owner — a
-      // Scope 3 claim consumed, not lost.
-      const p = phaseAt(frame.time);
-      const k = (p - PHASES.retire[unit]) / 0.03;
-      if (k < 1) {
-        const alpha = 1 - smoothstep(k);
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        diamond(ctx, anchor[0], anchor[1], 4 + k * 8, frame.palette.attr, null);
-        ctx.restore();
-        eacTag(ctx, frame, anchor[0] + 10, anchor[1] + 3, alpha);
-      }
-    }
+    if (unitStateAt(unit, frame.time) !== "in-transit") continue;
+    const path = unitPaths[unit];
+    if (!path) continue;
+    const p = phaseAt(frame.time);
+    const u = smoothstep((p - PHASES.mint) / (PHASES.dock[unit] - PHASES.mint));
+    const { x, y } = poseAt(path, u);
+    diamond(ctx, x, y, 5, frame.palette.attr, frame.palette.land);
+    diamond(ctx, x, y, 2.2, frame.palette.attr, frame.palette.attr);
   }
 }
 
@@ -741,11 +685,6 @@ function drawUnits(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
 function drawLabels(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const font = frame.font;
   const plate = frame.palette.land;
-  const colors = {
-    leader: frame.palette.inkSoft,
-    plate,
-    text: frame.palette.label,
-  };
   const put = (
     text: string,
     x: number,
@@ -757,36 +696,17 @@ function drawLabels(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     monoLabel(ctx, text, x, y, font, { anchor });
   };
 
-  put("[ PORT HEDLAND · AU ]", 120, 940);
-  put("[ GWANGYANG · KR ]", 330, 60);
-  put("[ JP ]", 800, 60);
-  put("3300 NM", 138, 560);
-
-  put("[ REGISTRY ]", 630, 324);
-  put("[ DEMAND AGGREGATOR ]", 618, 422);
-  put("[ OWNER · KR ]", 571, 187, "end");
-  put("[ OWNER · JP ]", 886, 113, "end");
-  put("[ OWNER · AU ]", 886, 820, "end");
-
-  libCaption(ctx, "[ ORE ]", 410, 858, 402, 890, font, colors);
-  libCaption(ctx, "[ BUNKER ]", 350, 844, 288, 890, font, colors);
-}
-
-function drawCompass(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  ctx.save();
-  ctx.translate(64, 76);
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(-20, 0);
-  ctx.lineTo(20, 0);
-  ctx.moveTo(0, -20);
-  ctx.lineTo(0, 20);
-  ctx.stroke();
-  box(ctx, -6, -6, 12, 12, frame.palette.land);
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "N", 0, -30, frame.font, { size: 13, spacing: 0, anchor: "middle" });
-  ctx.restore();
+  put("[ GREEN CORRIDOR ]", 40, 106);
+  put("[ DISCHARGE ]", 240, 168);
+  put("[ ORE · BUNKER ]", 240, 880);
+  put("[ REGISTRY ]", 380, 232);
+  put("[ DEMAND AGGREGATOR ]", 380, 452);
+  put("[ CARGO OWNER 1 ]", 596, 124);
+  put("[ CARGO OWNER 2 ]", 596, 404);
+  put("[ CARGO OWNER 3 ]", 596, 684);
+  put("[ CARS ]", 600, 296);
+  put("[ CARS ]", 600, 576);
+  put("[ CARS ]", 600, 856);
 }
 
 // ===== The scene ============================================================
@@ -803,41 +723,23 @@ export const decouplingScene: Scene<Ink> = {
   ],
 
   setup() {
-    orePath = measure(ORE_ROUTE);
-    oreBackPath = measure(ORE_ROUTE_BACK);
+    orePath = measure(ORE_SHUTTLE);
     tokenPath = measure(TOKEN_PATH);
-    // Each unit's distribution rail is registry → hub → its owner, measured
-    // as one composite path so the travel fraction is smooth end to end.
-    unitPaths = HUB_OWNER.map((toOwner) => measure([...REG_HUB, ...toOwner]));
-    cargoInPaths = CARGO_SHIPS.map((c) => measure(c.inRoute));
-    cargoOutPaths = CARGO_SHIPS.map((c) => measure(c.outRoute));
+    unitPaths = HUB_OWNER.map((rail) => measure([[450, 460], ...rail]));
   },
 
   draw(ctx, frame) {
-    drawSeaGrid(ctx, frame);
-    drawShores(ctx, frame);
-    drawLandGrid(ctx, frame);
-    drawQuayTicks(ctx, frame);
-
-    drawPortHedland(ctx, frame);
+    drawSheet(ctx, frame);
+    drawCorridorPorts(ctx, frame);
     drawBunkerLine(ctx, frame);
-
     drawRails(ctx, frame);
-    drawRoutes(ctx, frame);
-
     drawRegistry(ctx, frame);
     drawHub(ctx, frame);
-    for (const unit of [0, 1, 2] as const) {
-      const o = OFFICES[unit];
-      drawOffice(ctx, frame, o.x, o.y, o.w, o.h, unitStateAt(unit, frame.time) === "held");
-    }
-
-    drawOreCarrier(ctx, frame);
-    drawCargoShips(ctx, frame);
+    drawOwnerCards(ctx, frame);
+    drawOreShip(ctx, frame);
+    drawCarLanes(ctx, frame);
     drawVerifyingToken(ctx, frame);
     drawUnits(ctx, frame);
-
     drawLabels(ctx, frame);
-    drawCompass(ctx, frame);
   },
 };

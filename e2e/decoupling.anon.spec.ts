@@ -1,78 +1,74 @@
 /**
- * The decoupling scene: book & claim with aggregation. Most tests are pure
- * geometry and timing — no browser — because what can silently break (a
- * route over land, the ledger losing a unit) is exactly what no one notices
- * by watching.
+ * The decoupling scene: book & claim as a diagram. Most tests are pure
+ * timing/geometry — no browser — because what can silently break (the ledger
+ * losing a unit, a shipment desynchronizing from its claim) is exactly what
+ * no one notices by watching.
  */
 
 import { expect, test, type Page } from "@playwright/test";
-import { landfallCount } from "../apps/web/lib/animation/geometry";
 import {
-  AU_CARGO_IN,
-  AU_CARGO_OUT,
-  AUSTRALIA,
-  BERTH_LOAD,
-  BERTH_ORE,
+  carrierWindow,
+  CORRIDOR_STRIP,
   CYCLE_S,
-  JAPAN,
-  KOREA,
+  HUB_CARD,
+  LANE_STRIPS,
   ledgerAt,
-  JP_CARGO_IN,
-  JP_CARGO_OUT,
-  ORE_ROUTE,
-  ORE_ROUTE_BACK,
+  OWNER_CARDS,
   PHASES,
   phaseAt,
   POSTER_OFFSET_S,
+  REGISTRY_CARD,
   UNITS,
   unitStateAt,
+  type Rect,
   type UnitState,
 } from "../apps/web/components/animate/scenes/decoupling";
 
-const LAND = [AUSTRALIA, KOREA, JAPAN];
+test("the stage is sane: strips disjoint, everything in frame", () => {
+  const inFrame = (r: Rect) =>
+    r.x >= 0 && r.y >= 0 && r.x + r.w <= 900 && r.y + r.h <= 1000;
+  const overlaps = (a: Rect, b: Rect) =>
+    a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
-test("the ore routes stay in water, hull included", () => {
-  // TOKEN_PATH and the attribute/commitment rails are exempt by design: they
-  // carry certificates and commitments, not ships.
-  expect(landfallCount(ORE_ROUTE, LAND, 4), "laden ore route crosses land").toBe(0);
-  expect(landfallCount(ORE_ROUTE_BACK, LAND, 4), "ballast return crosses land").toBe(0);
-  // The owners' conventional cargo lanes too — physical trade must not
-  // drive over the coastlines either.
-  expect(landfallCount(JP_CARGO_IN, LAND, 4), "JP cargo lane crosses land").toBe(0);
-  expect(landfallCount(JP_CARGO_OUT, LAND, 4), "JP cargo lane out crosses land").toBe(0);
-  expect(landfallCount(AU_CARGO_IN, LAND, 4), "AU cargo lane crosses land").toBe(0);
-  expect(landfallCount(AU_CARGO_OUT, LAND, 4), "AU cargo lane out crosses land").toBe(0);
+  const rects: Rect[] = [
+    CORRIDOR_STRIP,
+    ...LANE_STRIPS,
+    REGISTRY_CARD,
+    HUB_CARD,
+    ...OWNER_CARDS,
+  ];
+  for (const r of rects) expect(inFrame(r), `rect off-frame: ${JSON.stringify(r)}`).toBe(true);
+
+  // The three car lanes must not touch each other or the corridor.
+  const strips = [CORRIDOR_STRIP, ...LANE_STRIPS];
+  for (let i = 0; i < strips.length; i += 1) {
+    for (let j = i + 1; j < strips.length; j += 1) {
+      expect(overlaps(strips[i]!, strips[j]!), `strips ${i} and ${j} overlap`).toBe(false);
+    }
+  }
 });
 
-test("the ore circuit closes and every approach is alongside", () => {
-  const first = <T,>(a: readonly T[]) => a[0]!;
-  const last = <T,>(a: readonly T[]) => a[a.length - 1]!;
-  const heading = (track: readonly (readonly [number, number])[]) => {
-    const a = track[track.length - 2]!;
-    const b = last(track);
-    return (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
-  };
-  const horizontal = (deg: number) => Math.abs(Math.abs(deg) - 180) < 1 || Math.abs(deg) < 1;
-
-  expect(last(ORE_ROUTE), "laden ends where ballast begins").toEqual(first(ORE_ROUTE_BACK));
-  expect(last(ORE_ROUTE_BACK), "ballast ends where laden begins").toEqual(first(ORE_ROUTE));
-  expect(first(ORE_ROUTE)).toEqual([BERTH_LOAD.x, BERTH_LOAD.y]);
-  expect(last(ORE_ROUTE)).toEqual([BERTH_ORE.x, BERTH_ORE.y]);
-  expect(horizontal(heading(ORE_ROUTE)), "ore arrival not alongside").toBe(true);
-  expect(horizontal(heading(ORE_ROUTE_BACK)), "return arrival not alongside").toBe(true);
+test("each shipment is synchronized with its claim", () => {
+  // The docking/retirement of unit i and the sailing of carrier i derive
+  // from the same constants — assert the relationship, so a retimed lane
+  // cannot silently ship before its claim docks or arrive after it retires.
+  for (const lane of [0, 1, 2] as const) {
+    const { depart, arrive } = carrierWindow(lane);
+    expect(depart, `lane ${lane} departs before its unit docks`).toBeGreaterThan(
+      PHASES.dock[lane],
+    );
+    expect(arrive, `lane ${lane} arrival is not its retirement`).toBe(PHASES.retire[lane]);
+    expect(depart).toBeLessThan(arrive);
+  }
 });
 
 test("the ledger conserves all three units at every moment", () => {
-  // The v3 invariant: not "one holder" but a conserved TOTAL. The voyage
-  // carries three units of environmental value; at every instant the ledger
-  // must sum to three, each unit must move through the five states in story
-  // order, and every handoff must land at its documented (staggered) time.
   const SAMPLES = 4801;
   const ORDER: readonly UnitState[] = [
     "aboard",
     "verifying",
     "in-transit",
-    "held",
+    "applied",
     "retired",
   ];
 
@@ -80,7 +76,7 @@ test("the ledger conserves all three units at every moment", () => {
     const t = (i / SAMPLES) * CYCLE_S;
     const ledger = ledgerAt(t);
     const sum =
-      ledger.aboard + ledger.verifying + ledger["in-transit"] + ledger.held + ledger.retired;
+      ledger.aboard + ledger.verifying + ledger["in-transit"] + ledger.applied + ledger.retired;
     expect(sum, `ledger does not sum to ${UNITS} at t=${t.toFixed(3)}`).toBe(UNITS);
   }
 
@@ -89,7 +85,6 @@ test("the ledger conserves all three units at every moment", () => {
     (((phase * CYCLE_S - POSTER_OFFSET_S) % CYCLE_S) + CYCLE_S) % CYCLE_S;
 
   for (const unit of [0, 1, 2] as const) {
-    // Per-unit sequence and timings.
     const transitions: { at: number; from: UnitState; to: UnitState }[] = [];
     let prev: UnitState | null = null;
     for (let i = 0; i <= SAMPLES; i += 1) {
@@ -105,15 +100,15 @@ test("the ledger conserves all three units at every moment", () => {
     ).toEqual([
       "aboard->verifying",
       "verifying->in-transit",
-      "in-transit->held",
-      "held->retired",
+      "in-transit->applied",
+      "applied->retired",
       "retired->aboard",
     ]);
 
     const expected = [
       boundary(PHASES.detach),
       boundary(PHASES.mint),
-      boundary(PHASES.arrive[unit]),
+      boundary(PHASES.dock[unit]),
       boundary(PHASES.retire[unit]),
       boundary(PHASES.bunker),
     ].sort((a, b) => a - b);
@@ -126,7 +121,7 @@ test("the ledger conserves all three units at every moment", () => {
     }
   }
 
-  // All three retired together before the bunker wrap — the books close.
+  // All three retired together before the wrap — the books close.
   const allRetiredAt = (PHASES.retire[2] + 0.02) * CYCLE_S - POSTER_OFFSET_S;
   expect(ledgerAt(allRetiredAt).retired).toBe(UNITS);
 });
