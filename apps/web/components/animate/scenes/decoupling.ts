@@ -85,17 +85,17 @@ export const ORE_ROUTE_BACK: readonly Point[] = [
   [310, 740], [310, 806], [370, 806],
 ];
 
-/** Verification path: berth → registry. The voyage's reductions travel this
- *  as one EAC-tagged token before the mint. Overland on purpose. */
+/** Verification path: berth → registry (in the side accounting column). The
+ *  voyage's whole value travels this as one LARGE EAC-tagged token. */
 export const TOKEN_PATH: readonly Point[] = [
-  [430, 292], [430, 246], [433, 218], [444, 200],
+  [430, 292], [500, 318], [576, 330], [630, 346],
 ];
 
 // ===== The accounting network ==============================================
-/** The registry (Gwangyang) and the aggregator hub (open sea — it is market
- *  infrastructure, not a place). */
-const REGISTRY_BOX = { x: 436, y: 192, w: 32, h: 16 } as const;
-const HUB = { x: 600, y: 440, w: 68, h: 36 } as const;
+/** The accounting column, set aside on open sea: registry above, aggregator
+ *  below — market infrastructure, not places, so they live off the map. */
+const REGISTRY_BOX = { x: 630, y: 330, w: 64, h: 32 } as const;
+const HUB = { x: 618, y: 430, w: 88, h: 48 } as const;
 
 /** Owner offices — three cargo owners, three regions. */
 const OFFICES = [
@@ -107,24 +107,38 @@ const OFFICES = [
 /** Attribute rails: registry → hub, then hub → each owner. The units travel
  *  these; the commitments march them the other way. */
 const REG_HUB: readonly Point[] = [
-  [468, 200], [560, 240], [634, 340], [634, 440],
+  [662, 362], [662, 430],
 ];
 const HUB_OWNER: readonly (readonly Point[])[] = [
-  [[612, 440], [540, 330], [504, 236]], // → KR
-  [[668, 446], [760, 300], [828, 156]], // → JP
-  [[640, 476], [700, 600], [780, 720], [816, 770]], // → AU
+  [[618, 446], [540, 330], [508, 236]], // → KR
+  [[690, 430], [770, 300], [828, 156]], // → JP
+  [[662, 478], [700, 600], [780, 720], [816, 770]], // → AU
 ];
 /** The pooled offtake, hub → corridor (the Gwangyang berth). */
 const HUB_CORRIDOR: readonly Point[] = [
-  [600, 458], [500, 458], [460, 380], [448, 312],
+  [618, 470], [500, 430], [452, 330], [446, 308],
 ];
+
+// ===== Physical cargo to the owners' countries ==============================
+/**
+ * The owners are shippers: their cargo moves on CONVENTIONAL vessels into
+ * each country — never green-marked. That contrast is the model: physical
+ * trade is everywhere on ordinary ships; only the environmental value routes
+ * through the registry.
+ */
+export const JP_CARGO_IN: readonly Point[] = [[940, 254], [870, 254]];
+export const JP_CARGO_OUT: readonly Point[] = [[870, 266], [940, 266]];
+export const AU_CARGO_IN: readonly Point[] = [[940, 731], [790, 731]];
+export const AU_CARGO_OUT: readonly Point[] = [[790, 717], [940, 717]];
+const JP_BERTH = { x: 870, y: 254 } as const; // Japan south quay y=240
+const AU_BERTH = { x: 790, y: 731 } as const; // eastern AU quay y=745
 
 // ===== The cycle and the ledger =============================================
 export type UnitState = "aboard" | "verifying" | "in-transit" | "held" | "retired";
 export type UnitIndex = 0 | 1 | 2;
 
 export const UNITS = 3;
-export const CYCLE_S = 60;
+export const CYCLE_S = 24;
 /** t=0 — the reduced-motion poster — lands mid-outbound: all three units of
  *  value aboard the green ship, offices neutral, rails idle. */
 export const POSTER_OFFSET_S = 0.1 * CYCLE_S;
@@ -245,6 +259,15 @@ function drawQuayTicks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   for (const x of [420, 445, 460]) {
     ctx.moveTo(x, 285);
     ctx.lineTo(x, 277);
+  }
+  // The owners' own import berths: Japan's south quay, eastern Australia's.
+  for (const x of [852, 872, 892]) {
+    ctx.moveTo(x, 240);
+    ctx.lineTo(x, 248);
+  }
+  for (const x of [764, 788, 812]) {
+    ctx.moveTo(x, 745);
+    ctx.lineTo(x, 753);
   }
   ctx.stroke();
 }
@@ -445,6 +468,8 @@ function drawRoutes(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.inkSoft;
   ctx.lineWidth = 1.1;
   dashed(ctx, () => polyline(ctx, ORE_ROUTE_BACK), [3, 5]);
+  dashed(ctx, () => polyline(ctx, JP_CARGO_IN), [3, 5]);
+  dashed(ctx, () => polyline(ctx, AU_CARGO_IN), [3, 5]);
 
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.5;
@@ -465,7 +490,9 @@ function drawVessel(
   angle: number,
   laden: boolean,
   marked: boolean,
+  alpha = 1,
 ): void {
+  if (alpha <= 0.02) return;
   const L = 26;
   const B = 8;
   const half = B / 2;
@@ -473,6 +500,7 @@ function drawVessel(
   const stern = -L * 0.5;
 
   ctx.save();
+  ctx.globalAlpha = alpha;
   ctx.translate(x, y);
   ctx.rotate(angle);
 
@@ -515,7 +543,9 @@ function drawVessel(
     ctx.strokeStyle = frame.palette.attr;
     ctx.lineWidth = 1.4;
     ctx.stroke();
-    diamond(ctx, 0, -half - 5, 3.2, frame.palette.attr, frame.palette.attr);
+    // LARGE: the ship carries the voyage's entire environmental value — the
+    // thing that later splits into three at the registry.
+    diamond(ctx, 0, -half - 7, 5.4, frame.palette.attr, frame.palette.attr);
   }
 
   ctx.restore();
@@ -565,6 +595,72 @@ function eacTag(
   ctx.restore();
 }
 
+/**
+ * The owners' physical cargo, arriving on CONVENTIONAL ships — never green.
+ * Each runs in from the east frame edge, works its berth, and leaves; the
+ * frame-edge fade reads as trade continuing beyond the map.
+ */
+const CARGO_SHIPS = [
+  {
+    inRoute: JP_CARGO_IN,
+    outRoute: JP_CARGO_OUT,
+    berth: JP_BERTH,
+    sailIn: [0.02, 0.18],
+    dwell: [0.18, 0.42],
+    flip: 0.3, // laden → discharged
+    sailOut: [0.42, 0.58],
+  },
+  {
+    inRoute: AU_CARGO_IN,
+    outRoute: AU_CARGO_OUT,
+    berth: AU_BERTH,
+    sailIn: [0.4, 0.56],
+    dwell: [0.56, 0.8],
+    flip: 0.68,
+    sailOut: [0.8, 0.96],
+  },
+] as const;
+
+/** Alpha from x: dissolves over the last stretch before the east frame edge. */
+function edgeFade(x: number): number {
+  return Math.min(1, Math.max(0, (915 - x) / 45));
+}
+
+let cargoInPaths: readonly MeasuredPath[] = [];
+let cargoOutPaths: readonly MeasuredPath[] = [];
+
+function drawCargoShips(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  const p = phaseAt(frame.time);
+  for (let i = 0; i < CARGO_SHIPS.length; i += 1) {
+    const ship = CARGO_SHIPS[i];
+    if (!ship) continue;
+    const inPath = cargoInPaths[i];
+    const outPath = cargoOutPaths[i];
+    if (!inPath || !outPath) continue;
+
+    let x: number;
+    let y: number;
+    let angle: number;
+    let laden: boolean;
+    if (p >= ship.sailIn[0] && p < ship.sailIn[1]) {
+      const u = berthEase((p - ship.sailIn[0]) / (ship.sailIn[1] - ship.sailIn[0]));
+      ({ x, y, angle } = poseAt(inPath, u));
+      laden = true;
+    } else if (p >= ship.dwell[0] && p < ship.dwell[1]) {
+      ({ x, y } = ship.berth);
+      angle = Math.PI; // arrived heading west, lies alongside
+      laden = p < ship.flip;
+    } else if (p >= ship.sailOut[0] && p < ship.sailOut[1]) {
+      const u = berthEase((p - ship.sailOut[0]) / (ship.sailOut[1] - ship.sailOut[0]));
+      ({ x, y, angle } = poseAt(outPath, u));
+      laden = false;
+    } else {
+      continue; // beyond the frame, somewhere in the world's trade
+    }
+    drawVessel(ctx, frame, x, y, angle, laden, false, edgeFade(x));
+  }
+}
+
 // --- the ore carrier's day --------------------------------------------------
 function drawOreCarrier(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   if (!orePath || !oreBackPath) return;
@@ -602,9 +698,9 @@ function drawVerifyingToken(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): v
   const p = phaseAt(frame.time);
   const u = smoothstep((p - PHASES.detach) / (PHASES.mint - PHASES.detach));
   const { x, y } = poseAt(tokenPath, u);
-  diamond(ctx, x, y, 7, frame.palette.attr, frame.palette.land);
-  diamond(ctx, x, y, 3, frame.palette.attr, frame.palette.attr);
-  eacTag(ctx, frame, x + 10, y + 3);
+  diamond(ctx, x, y, 9, frame.palette.attr, frame.palette.land);
+  diamond(ctx, x, y, 4, frame.palette.attr, frame.palette.attr);
+  eacTag(ctx, frame, x + 12, y + 3);
 }
 
 /** The distribution: three standardized units, registry → hub → owners,
@@ -666,8 +762,8 @@ function drawLabels(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   put("[ JP ]", 800, 60);
   put("3300 NM", 138, 560);
 
-  put("[ REGISTRY ]", 432, 204, "end");
-  put("[ DEMAND AGGREGATOR ]", 600, 432);
+  put("[ REGISTRY ]", 630, 324);
+  put("[ DEMAND AGGREGATOR ]", 618, 422);
   put("[ OWNER · KR ]", 571, 187, "end");
   put("[ OWNER · JP ]", 886, 113, "end");
   put("[ OWNER · AU ]", 886, 820, "end");
@@ -713,6 +809,8 @@ export const decouplingScene: Scene<Ink> = {
     // Each unit's distribution rail is registry → hub → its owner, measured
     // as one composite path so the travel fraction is smooth end to end.
     unitPaths = HUB_OWNER.map((toOwner) => measure([...REG_HUB, ...toOwner]));
+    cargoInPaths = CARGO_SHIPS.map((c) => measure(c.inRoute));
+    cargoOutPaths = CARGO_SHIPS.map((c) => measure(c.outRoute));
   },
 
   draw(ctx, frame) {
@@ -735,6 +833,7 @@ export const decouplingScene: Scene<Ink> = {
     }
 
     drawOreCarrier(ctx, frame);
+    drawCargoShips(ctx, frame);
     drawVerifyingToken(ctx, frame);
     drawUnits(ctx, frame);
 

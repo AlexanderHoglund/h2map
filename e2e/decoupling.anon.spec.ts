@@ -8,6 +8,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { landfallCount } from "../apps/web/lib/animation/geometry";
 import {
+  AU_CARGO_IN,
+  AU_CARGO_OUT,
   AUSTRALIA,
   BERTH_LOAD,
   BERTH_ORE,
@@ -15,6 +17,8 @@ import {
   JAPAN,
   KOREA,
   ledgerAt,
+  JP_CARGO_IN,
+  JP_CARGO_OUT,
   ORE_ROUTE,
   ORE_ROUTE_BACK,
   PHASES,
@@ -32,6 +36,12 @@ test("the ore routes stay in water, hull included", () => {
   // carry certificates and commitments, not ships.
   expect(landfallCount(ORE_ROUTE, LAND, 4), "laden ore route crosses land").toBe(0);
   expect(landfallCount(ORE_ROUTE_BACK, LAND, 4), "ballast return crosses land").toBe(0);
+  // The owners' conventional cargo lanes too — physical trade must not
+  // drive over the coastlines either.
+  expect(landfallCount(JP_CARGO_IN, LAND, 4), "JP cargo lane crosses land").toBe(0);
+  expect(landfallCount(JP_CARGO_OUT, LAND, 4), "JP cargo lane out crosses land").toBe(0);
+  expect(landfallCount(AU_CARGO_IN, LAND, 4), "AU cargo lane crosses land").toBe(0);
+  expect(landfallCount(AU_CARGO_OUT, LAND, 4), "AU cargo lane out crosses land").toBe(0);
 });
 
 test("the ore circuit closes and every approach is alongside", () => {
