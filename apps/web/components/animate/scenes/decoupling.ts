@@ -15,41 +15,40 @@ import { measure, poseAt, type MeasuredPath } from "@/lib/animation/polyline";
 import type { DesignSpace, Frame, Point, Scene } from "@/lib/animation/types";
 
 /** The colours this scene draws with. `attr` is the environmental attribute —
- *  the one green, existing in exactly one place at any moment. */
+ *  the one green; its TOTAL is conserved across the whole diagram. */
 type Ink = "ink" | "inkSoft" | "land" | "ship" | "label" | "attr";
 
 /**
- * Decoupling — book and claim, on a map.
+ * Decoupling — book & claim with AGGREGATION, after the MMMCZCS model.
  *
- * Iron ore sails Port Hedland → Gwangyang on a bulk carrier that PHYSICALLY
- * burns green fuel. At discharge the fuel's environmental attribute detaches
- * as a certificate (an EAC), passes through a registry, and lands with the
- * CARGO OWNER — the key actor: it is the owner of the goods, not the vessel
- * or the plant, who receives the certificate. The owner then applies the
- * claim to its own shipment: a RoRo car carrier that never touched the fuel
- * sails green to Australia, and at delivery the EAC is RETIRED — visibly
- * consumed against the voyage, not merely gone. The ship returns neutral.
+ * One green corridor: iron ore sails Port Hedland → Gwangyang on a bulk
+ * carrier that physically burns green fuel. The voyage's verified emission
+ * reductions are registered and MINTED into standardized units at the
+ * registry — and here the story widens: the units are sold to MANY
+ * geographically dispersed cargo owners (Korea, Japan, Australia) with
+ * Scope 3 commitments, none of whom need cargo on board. A DEMAND
+ * AGGREGATOR pools their scattered purchase commitments and channels the
+ * combined offtake toward the corridor — the counter-flow that makes the
+ * corridor financeable. Each owner retires its unit at its own office: three
+ * separate Scope 3 claims, no buyer vessel anywhere.
  *
- * THE INVARIANT. The green exists in exactly one place at every moment:
- * ore vessel → token → cargo owner → RoRo → retired. One total function,
- * `attributeHolderAt`, partitions the cycle; the draw code is forbidden from
- * having green booleans of its own. A browserless test samples the cycle
- * densely and pins the sequence and every handoff time. Green enters the
- * frame once per cycle (bunkering) and is retired once (delivery): the books
- * balance on screen.
+ * THE INVARIANT. Not "one holder" but a LEDGER: the voyage carries three
+ * units of environmental value, and at every instant
+ * aboard + verifying + in-transit + held + retired === 3. Green enters the
+ * frame once per cycle (bunkering) and leaves only by retirement. The draw
+ * code may not have green booleans of its own — every green reads
+ * `unitStateAt`/`ledgerAt`, and a browserless test pins the ledger at 4801
+ * points plus every unit's transition times.
  *
  * SCALE. The ore carrier is the yardstick: 26 units LOA ≈ a 260 m Capesize,
- * so 1 u ≈ 10 m. Shore furniture at a uniform ~3× exaggeration. Sea distance
- * is symbolic — the bar reads 3300 NM, the real Port Hedland–Gwangyang run.
+ * so 1 u ≈ 10 m; shore furniture at ~3× exaggeration; sea distance symbolic
+ * (the bar reads 3300 NM, the real Port Hedland–Gwangyang run).
  */
 
 const SPACE: DesignSpace = { width: 900, height: 1000, fit: "slice" };
 const GRID_STEP = 50;
 
 // ===== Coastlines ===========================================================
-/** Pilbara coast, stepping up toward the ENE. The notch at x 290–330 is the
- *  Port Hedland harbour inlet; the car-import terminal sits on the eastern
- *  landmass (schematically [ FREMANTLE · AU ]). */
 export const AUSTRALIA: readonly Point[] = [
   [0, 870], [120, 870], [120, 845], [230, 845],
   [230, 820], [290, 820], [290, 835], [330, 835],
@@ -58,8 +57,6 @@ export const AUSTRALIA: readonly Point[] = [
   [900, 1000], [0, 1000],
 ];
 
-/** Korean peninsula; the south quay (y=285, x 410–540) is the Gwangyang
- *  waterfront, widened so both berths and the owner's office fit ashore. */
 export const KOREA: readonly Point[] = [
   [290, 0], [290, 70], [310, 70], [310, 140],
   [335, 140], [335, 210], [365, 210], [365, 265],
@@ -68,82 +65,83 @@ export const KOREA: readonly Point[] = [
   [590, 90], [600, 90], [600, 0],
 ];
 
-/** Japan fragment, top-right — recognisability, and it makes the RoRo's
- *  outbound lane read as the Korea Strait. */
+/** Japan carries one of the three cargo owners — dispersion made visible. */
 export const JAPAN: readonly Point[] = [
   [700, 0], [700, 60], [740, 60], [740, 120],
   [790, 120], [790, 180], [845, 180], [845, 240],
   [900, 240], [900, 0],
 ];
 
-// ===== Berths and tracks ====================================================
+// ===== Berths and the physical corridor =====================================
 export const BERTH_LOAD = { x: 370, y: 806 } as const; // Port Hedland, quay y=820
 export const BERTH_ORE = { x: 438, y: 299 } as const; // Gwangyang discharge, quay y=285
-export const BERTH_RORO = { x: 512, y: 299 } as const; // Gwangyang car terminal
-export const BERTH_AU = { x: 790, y: 731 } as const; // Fremantle car import, quay y=745
 
-/** Laden ore: west past the harbour mouth, north on the x=250 lane, shaping
- *  in to arrive parallel to the quay. */
 export const ORE_ROUTE: readonly Point[] = [
   [370, 806], [300, 806], [250, 740], [250, 450],
   [300, 360], [320, 320], [340, 299], [438, 299],
 ];
-/** Ballast return on the x=310 lane. */
 export const ORE_ROUTE_BACK: readonly Point[] = [
   [438, 299], [380, 299], [330, 340], [310, 420],
   [310, 740], [310, 806], [370, 806],
 ];
-/** The claimed voyage: Gwangyang → Fremantle, cars aboard, green flying. */
-export const RORO_ROUTE: readonly Point[] = [
-  [512, 299], [576, 299], [640, 340], [664, 420], [664, 600],
-  [688, 680], [688, 731], [790, 731],
-];
-/** Home in ballast, neutral — the claim was retired at delivery. The x=848
- *  lane turns at y=400, well clear of Japan's y<240 band. */
-export const RORO_ROUTE_BACK: readonly Point[] = [
-  [790, 731], [848, 731], [848, 400], [800, 330], [640, 318],
-  [576, 299], [512, 299],
-];
 
-/**
- * The certificate's rail: ore berth → REGISTRY → CARGO OWNER. Overland ON
- * PURPOSE — it is a certificate, not a ship; the landfall test exempts it.
- * Vertex 3 (444,200) is the registry, where the token dwells.
- */
+/** Verification path: berth → registry. The voyage's reductions travel this
+ *  as one EAC-tagged token before the mint. Overland on purpose. */
 export const TOKEN_PATH: readonly Point[] = [
   [430, 292], [430, 246], [433, 218], [444, 200],
-  [466, 200], [490, 204],
 ];
 
-/** The claim-link: owner's office → the RoRo berth. Always visible (the
- *  accounting rail), marching green while the claim transfers. */
-const CLAIM_LINK: readonly Point[] = [
-  [524, 204], [532, 204], [532, 285],
+// ===== The accounting network ==============================================
+/** The registry (Gwangyang) and the aggregator hub (open sea — it is market
+ *  infrastructure, not a place). */
+const REGISTRY_BOX = { x: 436, y: 192, w: 32, h: 16 } as const;
+const HUB = { x: 600, y: 440, w: 68, h: 36 } as const;
+
+/** Owner offices — three cargo owners, three regions. */
+const OFFICES = [
+  { x: 484, y: 192, w: 40, h: 40, diamond: [532, 198] }, // KR
+  { x: 812, y: 120, w: 32, h: 32, diamond: [852, 136] }, // JP
+  { x: 800, y: 770, w: 32, h: 32, diamond: [792, 786] }, // AU
+] as const;
+
+/** Attribute rails: registry → hub, then hub → each owner. The units travel
+ *  these; the commitments march them the other way. */
+const REG_HUB: readonly Point[] = [
+  [468, 200], [560, 240], [634, 340], [634, 440],
+];
+const HUB_OWNER: readonly (readonly Point[])[] = [
+  [[612, 440], [540, 330], [504, 236]], // → KR
+  [[668, 446], [760, 300], [828, 156]], // → JP
+  [[640, 476], [700, 600], [780, 720], [816, 770]], // → AU
+];
+/** The pooled offtake, hub → corridor (the Gwangyang berth). */
+const HUB_CORRIDOR: readonly Point[] = [
+  [600, 458], [500, 458], [460, 380], [448, 312],
 ];
 
-// ===== The cycle and the invariant ==========================================
-export type AttributeHolder =
-  | "ore-vessel"
-  | "token"
-  | "cargo-owner"
-  | "roro"
-  | "retired";
+// ===== The cycle and the ledger =============================================
+export type UnitState = "aboard" | "verifying" | "in-transit" | "held" | "retired";
+export type UnitIndex = 0 | 1 | 2;
 
+export const UNITS = 3;
 export const CYCLE_S = 60;
-/** t=0 — the reduced-motion poster — lands mid-outbound: attribute aboard the
- *  ore carrier, token undetached, RoRo waiting at its berth. */
+/** t=0 — the reduced-motion poster — lands mid-outbound: all three units of
+ *  value aboard the green ship, offices neutral, rails idle. */
 export const POSTER_OFFSET_S = 0.1 * CYCLE_S;
-/**
- * Handoff boundaries, fractions of the cycle. The half-open intervals in
- * `attributeHolderAt` PARTITION [0,1): two simultaneous holders is
- * unrepresentable by construction.
- */
+
 export const PHASES = {
-  detach: 0.3, // ore vessel → token (discharge complete)
-  own: 0.4, // token → CARGO OWNER (via the registry)
-  claim: 0.47, // owner → roro (claim applied to the owner's shipment)
-  retire: 0.72, // roro → retired (cars delivered; the EAC is consumed)
-  bunker: 0.9, // retired → ore vessel (green fuel bunkered again)
+  /** Counter-flow window: pooled commitments march owners → hub → corridor. */
+  commit: [0.05, 0.2],
+  /** The voyage attribute lifts off at discharge. */
+  detach: 0.3,
+  /** Registered and SPLIT into three standardized units at the registry. */
+  mint: 0.38,
+  /** Unit i reaches owner i (staggered). */
+  arrive: [0.5, 0.53, 0.56],
+  /** Unit i retired at owner i (staggered Scope 3 claims). */
+  retire: [0.7, 0.74, 0.78],
+  /** Next voyage's value bunkered — the ledger wraps to aboard. */
+  bunker: 0.9,
 } as const;
 
 export function phaseAt(time: number): number {
@@ -151,42 +149,39 @@ export function phaseAt(time: number): number {
   return (s < 0 ? s + CYCLE_S : s) / CYCLE_S;
 }
 
-export function attributeHolderAt(time: number): AttributeHolder {
+/** Total function per unit: half-open intervals partition the cycle. */
+export function unitStateAt(unit: UnitIndex, time: number): UnitState {
   const p = phaseAt(time);
-  if (p < PHASES.detach) return "ore-vessel";
-  if (p < PHASES.own) return "token";
-  if (p < PHASES.claim) return "cargo-owner";
-  if (p < PHASES.retire) return "roro";
+  if (p < PHASES.detach) return "aboard";
+  if (p < PHASES.mint) return "verifying";
+  if (p < PHASES.arrive[unit]) return "in-transit";
+  if (p < PHASES.retire[unit]) return "held";
   if (p < PHASES.bunker) return "retired";
-  return "ore-vessel"; // bunkered for the next voyage
+  return "aboard"; // bunkered for the next voyage
 }
 
-// --- vessel sub-timings (fractions of the cycle) ----------------------------
+/** The ledger, derived by summing — total is UNITS by construction, and the
+ *  test pins it anyway. */
+export function ledgerAt(time: number): Record<UnitState, number> {
+  const out: Record<UnitState, number> = {
+    aboard: 0,
+    verifying: 0,
+    "in-transit": 0,
+    held: 0,
+    retired: 0,
+  };
+  for (const unit of [0, 1, 2] as const) out[unitStateAt(unit, time)] += 1;
+  return out;
+}
+
+// --- vessel sub-timings -----------------------------------------------------
 const ORE = {
   sailOut: [0.0, 0.22],
-  dischargeFlip: 0.25, // hull laden → ballast while alongside
+  dischargeFlip: 0.25,
   depart: 0.32,
   arriveHome: 0.6,
-  loadFlip: 0.85, // next cargo aboard
+  loadFlip: 0.85,
 } as const;
-const RORO = {
-  ladenFlip: 0.53, // cars aboard, hull fills
-  rampUp: 0.56,
-  sailOut: [0.57, 0.71],
-  auDepart: 0.78, // alongside Fremantle 0.71–0.78 (retirement at 0.72)
-  sailBack: [0.78, 0.93],
-} as const;
-
-/** Token easing: eased to the registry, a dwell (the transaction), eased on. */
-const REGISTRY_DWELL = [0.45, 0.6] as const; // of the token's own sub-phase
-function tokenFracAt(u: number, registryFrac: number): number {
-  if (u < REGISTRY_DWELL[0]) return smoothstep(u / REGISTRY_DWELL[0]) * registryFrac;
-  if (u < REGISTRY_DWELL[1]) return registryFrac;
-  return (
-    registryFrac +
-    smoothstep((u - REGISTRY_DWELL[1]) / (1 - REGISTRY_DWELL[1])) * (1 - registryFrac)
-  );
-}
 
 // --- marching-dash idiom ----------------------------------------------------
 const DASH: readonly number[] = [7, 5];
@@ -196,11 +191,9 @@ const DASH_CYCLE_S = 1.6;
 /** Precomputed in setup(). */
 let orePath: MeasuredPath | null = null;
 let oreBackPath: MeasuredPath | null = null;
-let roroPath: MeasuredPath | null = null;
-let roroBackPath: MeasuredPath | null = null;
 let tokenPath: MeasuredPath | null = null;
-/** Fraction of the token rail's arc length at the registry (vertex 3). */
-let registryFrac = 0.55;
+/** Per-unit distribution path: registry → hub → owner i, measured once. */
+let unitPaths: readonly MeasuredPath[] = [];
 
 // ===== Water and land =======================================================
 function drawSeaGrid(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
@@ -245,7 +238,6 @@ function drawQuayTicks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  // All quays run east-west, so berth ticks are short vertical strokes.
   for (const x of [340, 365, 390, 415]) {
     ctx.moveTo(x, 820);
     ctx.lineTo(x, 828);
@@ -253,14 +245,6 @@ function drawQuayTicks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   for (const x of [420, 445, 460]) {
     ctx.moveTo(x, 285);
     ctx.lineTo(x, 277);
-  }
-  for (const x of [492, 512, 532]) {
-    ctx.moveTo(x, 285);
-    ctx.lineTo(x, 277);
-  }
-  for (const x of [756, 780, 804, 828]) {
-    ctx.moveTo(x, 745);
-    ctx.lineTo(x, 753);
   }
   ctx.stroke();
 }
@@ -345,115 +329,108 @@ function drawBunkerLine(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void 
   );
 }
 
-/** The Fremantle car terminal: the receiving yard fills at discharge, and
- *  the cars head inland late in the cycle. */
-function drawFremantle(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  const p = phaseAt(frame.time);
-  const TOTAL = 12;
-  let visible = 0;
-  if (p >= PHASES.retire && p < RORO.auDepart) {
-    visible = Math.floor(((p - PHASES.retire) / (RORO.auDepart - PHASES.retire)) * TOTAL);
-  } else if (p >= RORO.auDepart && p < 0.95) {
-    visible = TOTAL;
-  }
-  ctx.lineWidth = 0.8;
-  ctx.strokeStyle = frame.palette.ink;
-  let drawn = 0;
-  for (let row = 0; row < 2 && drawn < visible; row += 1) {
-    for (let col = 0; col < 6 && drawn < visible; col += 1) {
-      box(ctx, 770 + col * 7.4, 756 + row * 8, 5, 3, frame.palette.land);
-      drawn += 1;
-    }
-  }
-}
-
-// ===== Korea furniture ======================================================
-function drawGwangyang(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  const p = phaseAt(frame.time);
-  const holder = attributeHolderAt(frame.time);
-
-  // The registry: a double-outlined ledger box, the transaction venue.
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.3;
-  box(ctx, 436, 192, 32, 16, frame.palette.land);
-  ctx.lineWidth = 0.8;
-  box(ctx, 439, 195, 26, 10, null);
-
-  // The CARGO OWNER's office — the key actor. It is the owner of the goods
-  // who receives the certificate; the office holds the green while it does.
+// ===== The accounting layer =================================================
+/** A window-grid office block: a cargo owner. Highlighted while it holds. */
+function drawOffice(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  holding: boolean,
+): void {
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.4;
-  box(ctx, 484, 192, 40, 40, frame.palette.land);
+  box(ctx, x, y, w, h, frame.palette.land);
   ctx.lineWidth = 0.7;
   ctx.beginPath();
-  for (let i = 1; i < 4; i += 1) {
-    ctx.moveTo(484, 192 + i * 10);
-    ctx.lineTo(524, 192 + i * 10);
-    ctx.moveTo(484 + i * 10, 192);
-    ctx.lineTo(484 + i * 10, 232);
+  const cols = Math.max(2, Math.round(w / 10));
+  const rows = Math.max(2, Math.round(h / 10));
+  for (let i = 1; i < rows; i += 1) {
+    ctx.moveTo(x, y + (i * h) / rows);
+    ctx.lineTo(x + w, y + (i * h) / rows);
+  }
+  for (let i = 1; i < cols; i += 1) {
+    ctx.moveTo(x + (i * w) / cols, y);
+    ctx.lineTo(x + (i * w) / cols, y + h);
   }
   ctx.stroke();
-  if (holder === "cargo-owner") {
+  if (holding) {
     ctx.strokeStyle = frame.palette.attr;
     ctx.lineWidth = 1.6;
-    box(ctx, 482, 190, 44, 44, null);
-    // The certificate sits at the head of the claim-link, about to flow to
-    // the owner's shipment.
-    diamond(ctx, 532, 198, 3.2, frame.palette.attr, frame.palette.attr);
+    box(ctx, x - 2, y - 2, w + 4, h + 4, null);
   }
-
-  // Car yard: the owner's goods awaiting shipment. Depletes as they load.
-  const TOTAL = 21;
-  let visible = TOTAL;
-  if (p >= PHASES.claim && p < 0.55) {
-    visible = TOTAL - Math.floor(((p - PHASES.claim) / (0.55 - PHASES.claim)) * TOTAL);
-  } else if (p >= 0.55 && p < 0.93) {
-    visible = 0; // at sea (and then delivered)
-  }
-  ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 0.8;
-  let drawn = 0;
-  for (let row = 0; row < 3 && drawn < visible; row += 1) {
-    for (let col = 0; col < 7 && drawn < visible; col += 1) {
-      box(ctx, 476 + col * 6.4, 262 + row * 5.4, 4, 2.5, frame.palette.land);
-      drawn += 1;
-    }
-  }
-
-  // Ore discharge conveyor: berth up to the owner's works, marching while
-  // the carrier discharges.
-  const discharging = p >= ORE.sailOut[1] && p < PHASES.detach;
-  const phase = (frame.time % DASH_CYCLE_S) / DASH_CYCLE_S;
-  ctx.strokeStyle = frame.palette.inkSoft;
-  ctx.lineWidth = 1;
-  dashed(
-    ctx,
-    () => {
-      ctx.beginPath();
-      ctx.moveTo(444, 285);
-      ctx.lineTo(444, 226);
-      ctx.lineTo(484, 226);
-      ctx.stroke();
-    },
-    [3, 3],
-    discharging ? -phase * 6 : 0,
-  );
 }
 
-/** The certificate's rail and the claim-link — the accounting layer, always
- *  visible even when nothing is travelling on it. */
-function drawAccountingRails(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+function drawRegistry(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   const p = phaseAt(frame.time);
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1.3;
+  box(ctx, REGISTRY_BOX.x, REGISTRY_BOX.y, REGISTRY_BOX.w, REGISTRY_BOX.h, frame.palette.land);
+  ctx.lineWidth = 0.8;
+  box(ctx, REGISTRY_BOX.x + 3, REGISTRY_BOX.y + 3, REGISTRY_BOX.w - 6, REGISTRY_BOX.h - 6, null);
+
+  // The mint: the registry acknowledges as the attribute splits into units.
+  if (p >= PHASES.mint - 0.01 && p < PHASES.mint + 0.03) {
+    const k = (p - (PHASES.mint - 0.01)) / 0.04;
+    ctx.save();
+    ctx.globalAlpha = Math.sin(Math.min(Math.max(k, 0), 1) * Math.PI);
+    ctx.strokeStyle = frame.palette.attr;
+    ctx.lineWidth = 1.6;
+    box(ctx, REGISTRY_BOX.x - 2, REGISTRY_BOX.y - 2, REGISTRY_BOX.w + 4, REGISTRY_BOX.h + 4, null);
+    ctx.restore();
+  }
+}
+
+/** The demand aggregator: a floating institution card — double-outlined like
+ *  the registry, because both are market infrastructure, not places. */
+function drawHub(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1.4;
+  box(ctx, HUB.x, HUB.y, HUB.w, HUB.h, frame.palette.land);
+  ctx.lineWidth = 0.8;
+  box(ctx, HUB.x + 4, HUB.y + 4, HUB.w - 8, HUB.h - 8, null);
+  // Pool glyph: three small squares converging — many buyers, one offtake.
+  ctx.lineWidth = 0.9;
+  box(ctx, HUB.x + 10, HUB.y + 12, 8, 8, frame.palette.land);
+  box(ctx, HUB.x + 24, HUB.y + 16, 8, 8, frame.palette.land);
+  box(ctx, HUB.x + 38, HUB.y + 12, 8, 8, frame.palette.land);
+  ctx.beginPath();
+  ctx.moveTo(HUB.x + 52, HUB.y + 16);
+  ctx.lineTo(HUB.x + 60, HUB.y + 16);
+  ctx.moveTo(HUB.x + 56, HUB.y + 12);
+  ctx.lineTo(HUB.x + 56, HUB.y + 20);
+  ctx.stroke();
+}
+
+/**
+ * The rail network, always visible — the accounting layer exists even when
+ * nothing travels on it. During the commit window the same rails march ink
+ * INWARD (owners → hub → corridor): the pooled offtake that finances the
+ * voyage. The attribute units later flow OUTWARD in green.
+ */
+function drawRails(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  const p = phaseAt(frame.time);
+  const phase = (frame.time % DASH_CYCLE_S) / DASH_CYCLE_S;
+  const committing = p >= PHASES.commit[0] && p < PHASES.commit[1];
+
   ctx.strokeStyle = frame.palette.inkSoft;
   ctx.lineWidth = 0.9;
   dashed(ctx, () => polyline(ctx, TOKEN_PATH), [3, 3]);
+  dashed(ctx, () => polyline(ctx, REG_HUB), [3, 3]);
 
-  // Claim-link: marches green while the claim transfers to the shipment.
-  const claiming = p >= 0.44 && p < 0.49;
-  const phase = (frame.time % DASH_CYCLE_S) / DASH_CYCLE_S;
-  ctx.strokeStyle = claiming ? frame.palette.attr : frame.palette.inkSoft;
-  ctx.lineWidth = claiming ? 1.3 : 0.9;
-  dashed(ctx, () => polyline(ctx, CLAIM_LINK), [3, 3], claiming ? -phase * 6 : 0);
+  for (const rail of HUB_OWNER) {
+    ctx.strokeStyle = committing ? frame.palette.ink : frame.palette.inkSoft;
+    ctx.lineWidth = committing ? 1.2 : 0.9;
+    // Positive offset marches the dashes BACKWARD along the path — i.e. from
+    // the owner toward the hub, the commitment's direction.
+    dashed(ctx, () => polyline(ctx, rail), [3, 3], committing ? phase * 6 : 0);
+  }
+
+  ctx.strokeStyle = committing ? frame.palette.ink : frame.palette.inkSoft;
+  ctx.lineWidth = committing ? 1.2 : 0.9;
+  dashed(ctx, () => polyline(ctx, HUB_CORRIDOR), [3, 3], committing ? -phase * 6 : 0);
 }
 
 // ===== Sea routes ===========================================================
@@ -470,73 +447,42 @@ function drawRoutes(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   dashed(ctx, () => polyline(ctx, ORE_ROUTE_BACK), [3, 5]);
 
   ctx.strokeStyle = frame.palette.ink;
-  ctx.lineWidth = 1.3;
-  dashed(ctx, () => polyline(ctx, RORO_ROUTE), DASH, offset);
-
-  ctx.strokeStyle = frame.palette.inkSoft;
-  ctx.lineWidth = 1.1;
-  dashed(ctx, () => polyline(ctx, RORO_ROUTE_BACK), [3, 5]);
-
-  ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.5;
   crosshair(ctx, 250, 740, 4);
   crosshair(ctx, 250, 450, 4);
-  crosshair(ctx, 664, 600, 4);
   ctx.strokeStyle = frame.palette.inkSoft;
   ctx.lineWidth = 1.2;
-  chevron(ctx, 640, 236);
-  chevron(ctx, 600, 500);
+  chevron(ctx, 620, 640);
+  chevron(ctx, 180, 300);
 }
 
 // ===== Vessels ==============================================================
-interface VesselOpts {
-  readonly kind: "bulk" | "roro";
-  readonly laden: boolean;
-  /** Whether this hull currently holds the attribute — derived from
-   *  attributeHolderAt by the caller, never from local state. */
-  readonly marked: boolean;
-  readonly alpha: number;
-  /** Quay y to drop a stern ramp line to (RoRo alongside), or null. */
-  readonly rampToY: number | null;
-}
-
 function drawVessel(
   ctx: CanvasRenderingContext2D,
   frame: Frame<Ink>,
   x: number,
   y: number,
   angle: number,
-  { kind, laden, marked, alpha, rampToY }: VesselOpts,
+  laden: boolean,
+  marked: boolean,
 ): void {
-  if (alpha <= 0.02) return;
-  const L = kind === "bulk" ? 26 : 24;
-  const B = kind === "bulk" ? 8 : 9;
+  const L = 26;
+  const B = 8;
   const half = B / 2;
   const bow = L * 0.5;
   const stern = -L * 0.5;
 
   ctx.save();
-  ctx.globalAlpha = alpha;
   ctx.translate(x, y);
   ctx.rotate(angle);
 
   const hull = () => {
     ctx.beginPath();
-    if (kind === "bulk") {
-      ctx.moveTo(stern, -half);
-      ctx.lineTo(bow - 6, -half);
-      ctx.lineTo(bow, 0);
-      ctx.lineTo(bow - 6, half);
-      ctx.lineTo(stern, half);
-    } else {
-      ctx.moveTo(stern + 3, -half);
-      ctx.lineTo(bow - 4, -half);
-      ctx.lineTo(bow, 0);
-      ctx.lineTo(bow - 4, half);
-      ctx.lineTo(stern + 3, half);
-      ctx.lineTo(stern, half - 1.6);
-      ctx.lineTo(stern, -half + 1.6);
-    }
+    ctx.moveTo(stern, -half);
+    ctx.lineTo(bow - 6, -half);
+    ctx.lineTo(bow, 0);
+    ctx.lineTo(bow - 6, half);
+    ctx.lineTo(stern, half);
     ctx.closePath();
   };
 
@@ -555,22 +501,15 @@ function drawVessel(
   ctx.strokeStyle = laden ? frame.palette.ink : frame.palette.ship;
   ctx.lineWidth = 0.9;
   ctx.beginPath();
-  if (kind === "bulk") {
-    for (let i = 0; i < 4; i += 1) {
-      const hx = stern + 5 + i * 4.6;
-      ctx.rect(hx, -half + 1.2, 3.2, B - 2.4);
-    }
-    ctx.rect(stern + 1, -half + 1.4, 3, B - 2.8);
-  } else {
-    ctx.moveTo(stern + 4, 0);
-    ctx.lineTo(bow - 6, 0);
-    ctx.rect(bow - 8, -half + 1.4, 3.4, B - 2.8); // bridge forward on a RoRo
+  for (let i = 0; i < 4; i += 1) {
+    const hx = stern + 5 + i * 4.6;
+    ctx.rect(hx, -half + 1.2, 3.2, B - 2.4);
   }
+  ctx.rect(stern + 1, -half + 1.4, 3, B - 2.8);
   ctx.stroke();
 
-  // The green mark: hull restroked in the attribute colour, and the
-  // certificate diamond flying off the hull like a flag — amidships it
-  // drowns in the red fill at gallery scale.
+  // The green mark: hull restroked in the attribute colour, certificate
+  // diamond flying off the hull like a flag.
   if (marked) {
     hull();
     ctx.strokeStyle = frame.palette.attr;
@@ -580,15 +519,6 @@ function drawVessel(
   }
 
   ctx.restore();
-
-  if (rampToY !== null && alpha > 0.5) {
-    ctx.strokeStyle = frame.palette.ink;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(x + stern + 4, y - half + 1);
-    ctx.lineTo(x + stern - 2, rampToY);
-    ctx.stroke();
-  }
 }
 
 function diamond(
@@ -639,7 +569,7 @@ function eacTag(
 function drawOreCarrier(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   if (!orePath || !oreBackPath) return;
   const p = phaseAt(frame.time);
-  const holder = attributeHolderAt(frame.time);
+  const ledger = ledgerAt(frame.time);
 
   let x: number;
   let y: number;
@@ -660,115 +590,55 @@ function drawOreCarrier(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void 
   }
 
   const laden = p < ORE.dischargeFlip || p >= ORE.loadFlip;
-  drawVessel(ctx, frame, x, y, angle, {
-    kind: "bulk",
-    laden,
-    marked: holder === "ore-vessel",
-    alpha: 1,
-    rampToY: null,
-  });
+  drawVessel(ctx, frame, x, y, angle, laden, ledger.aboard === UNITS);
 }
 
-// --- the RoRo's round trip --------------------------------------------------
-function drawRoRo(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  if (!roroPath || !roroBackPath) return;
-  const p = phaseAt(frame.time);
-  const holder = attributeHolderAt(frame.time);
-
-  let x: number = BERTH_RORO.x;
-  let y: number = BERTH_RORO.y;
-  let angle = 0;
-  let rampToY: number | null = null;
-
-  if (p >= RORO.sailOut[0] && p < RORO.sailOut[1]) {
-    const u = berthEase((p - RORO.sailOut[0]) / (RORO.sailOut[1] - RORO.sailOut[0]));
-    ({ x, y, angle } = poseAt(roroPath, u));
-  } else if (p >= RORO.sailOut[1] && p < RORO.auDepart) {
-    // Alongside Fremantle: cars off, the EAC retired against the voyage.
-    ({ x, y } = BERTH_AU);
-    angle = 0;
-    rampToY = 745;
-  } else if (p >= RORO.auDepart && p < RORO.sailBack[1]) {
-    const u = berthEase((p - RORO.sailBack[0]) / (RORO.sailBack[1] - RORO.sailBack[0]));
-    ({ x, y, angle } = poseAt(roroBackPath, u));
-  } else {
-    // Alongside Gwangyang. Ramp down while the owner's cars come aboard.
-    if (p >= PHASES.claim && p < RORO.rampUp) rampToY = 285;
-  }
-
-  const laden = p >= RORO.ladenFlip && p < PHASES.retire;
-  drawVessel(ctx, frame, x, y, angle, {
-    kind: "roro",
-    laden,
-    marked: holder === "roro",
-    alpha: 1,
-    rampToY,
-  });
-}
-
-// --- the certificate --------------------------------------------------------
-function drawToken(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+// --- the certificate lifecycle ----------------------------------------------
+/** The verification leg: one EAC-tagged token carrying all three units of
+ *  value from the berth to the registry. */
+function drawVerifyingToken(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   if (!tokenPath) return;
-  if (attributeHolderAt(frame.time) !== "token") return;
+  if (ledgerAt(frame.time).verifying !== UNITS) return;
   const p = phaseAt(frame.time);
-  const u = (p - PHASES.detach) / (PHASES.own - PHASES.detach);
-  const frac = tokenFracAt(u, registryFrac);
-  const { x, y } = poseAt(tokenPath, frac);
-
-  // A short attr-coloured trail behind it — the travelling cue.
-  ctx.save();
-  ctx.globalAlpha = 0.6;
-  ctx.strokeStyle = frame.palette.attr;
-  ctx.lineWidth = 1.2;
-  const TRAIL = 0.12;
-  ctx.beginPath();
-  let first = true;
-  for (let i = 0; i <= 8; i += 1) {
-    const pt = poseAt(tokenPath, Math.max(0, frac - TRAIL + (TRAIL * i) / 8));
-    if (first) {
-      ctx.moveTo(pt.x, pt.y);
-      first = false;
-    } else {
-      ctx.lineTo(pt.x, pt.y);
-    }
-  }
-  ctx.stroke();
-  ctx.restore();
-
-  // The certificate: a tag, not a particle — and named.
+  const u = smoothstep((p - PHASES.detach) / (PHASES.mint - PHASES.detach));
+  const { x, y } = poseAt(tokenPath, u);
   diamond(ctx, x, y, 7, frame.palette.attr, frame.palette.land);
   diamond(ctx, x, y, 3, frame.palette.attr, frame.palette.attr);
   eacTag(ctx, frame, x + 10, y + 3);
-
-  // The registry acknowledges the transaction while the token dwells.
-  if (u >= REGISTRY_DWELL[0] && u < REGISTRY_DWELL[1]) {
-    const k = (u - REGISTRY_DWELL[0]) / (REGISTRY_DWELL[1] - REGISTRY_DWELL[0]);
-    ctx.save();
-    ctx.globalAlpha = Math.sin(k * Math.PI);
-    ctx.strokeStyle = frame.palette.attr;
-    ctx.lineWidth = 1.6;
-    box(ctx, 434, 190, 36, 20, null);
-    ctx.restore();
-  }
 }
 
-/**
- * Retirement: at delivery the EAC is consumed, not lost. For the first
- * moments of the "retired" interval a ghost of the certificate expands and
- * fades over the Fremantle berth — a ceremony, not a holder; the invariant
- * function has already moved on.
- */
-function drawRetirement(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  if (attributeHolderAt(frame.time) !== "retired") return;
-  const p = phaseAt(frame.time);
-  const k = (p - PHASES.retire) / 0.03;
-  if (k >= 1) return;
-  const alpha = 1 - smoothstep(k);
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  diamond(ctx, BERTH_AU.x, BERTH_AU.y - 12, 3.2 + k * 9, frame.palette.attr, null);
-  ctx.restore();
-  eacTag(ctx, frame, BERTH_AU.x + 12, BERTH_AU.y - 9, alpha);
+/** The distribution: three standardized units, registry → hub → owners,
+ *  each on its own composite rail, arrivals staggered. */
+function drawUnits(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  for (const unit of [0, 1, 2] as const) {
+    const state = unitStateAt(unit, frame.time);
+    const anchor = OFFICES[unit].diamond;
+
+    if (state === "in-transit") {
+      const path = unitPaths[unit];
+      if (!path) continue;
+      const p = phaseAt(frame.time);
+      const u = smoothstep((p - PHASES.mint) / (PHASES.arrive[unit] - PHASES.mint));
+      const { x, y } = poseAt(path, u);
+      diamond(ctx, x, y, 5, frame.palette.attr, frame.palette.land);
+      diamond(ctx, x, y, 2.2, frame.palette.attr, frame.palette.attr);
+    } else if (state === "held") {
+      diamond(ctx, anchor[0], anchor[1], 4, frame.palette.attr, frame.palette.attr);
+    } else if (state === "retired") {
+      // Retirement ceremony: the unit expands and fades at its owner — a
+      // Scope 3 claim consumed, not lost.
+      const p = phaseAt(frame.time);
+      const k = (p - PHASES.retire[unit]) / 0.03;
+      if (k < 1) {
+        const alpha = 1 - smoothstep(k);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        diamond(ctx, anchor[0], anchor[1], 4 + k * 8, frame.palette.attr, null);
+        ctx.restore();
+        eacTag(ctx, frame, anchor[0] + 10, anchor[1] + 3, alpha);
+      }
+    }
+  }
 }
 
 // ===== Labels ===============================================================
@@ -780,36 +650,27 @@ function drawLabels(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
     plate,
     text: frame.palette.label,
   };
+  const put = (
+    text: string,
+    x: number,
+    y: number,
+    anchor: "start" | "middle" | "end" = "start",
+  ) => {
+    labelPlate(ctx, text, x, y, font, plate, anchor);
+    ctx.fillStyle = frame.palette.label;
+    monoLabel(ctx, text, x, y, font, { anchor });
+  };
 
-  labelPlate(ctx, "[ PORT HEDLAND · AU ]", 120, 940, font, plate);
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "[ PORT HEDLAND · AU ]", 120, 940, font);
+  put("[ PORT HEDLAND · AU ]", 120, 940);
+  put("[ GWANGYANG · KR ]", 330, 60);
+  put("[ JP ]", 800, 60);
+  put("3300 NM", 138, 560);
 
-  labelPlate(ctx, "[ GWANGYANG · KR ]", 330, 60, font, plate);
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "[ GWANGYANG · KR ]", 330, 60, font);
-
-  labelPlate(ctx, "[ JP ]", 800, 60, font, plate);
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "[ JP ]", 800, 60, font);
-
-  labelPlate(ctx, "[ FREMANTLE · AU ]", 720, 790, font, plate);
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "[ FREMANTLE · AU ]", 720, 790, font);
-
-  labelPlate(ctx, "3300 NM", 138, 560, font, plate);
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "3300 NM", 138, 560, font);
-
-  // The actors. Anchors are load-bearing: the registry label clears the
-  // x=335 coast by 1 unit, the owner label clears the x=575 coast by 1.
-  labelPlate(ctx, "[ REGISTRY ]", 432, 204, font, plate, "end");
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "[ REGISTRY ]", 432, 204, font, { anchor: "end" });
-
-  labelPlate(ctx, "[ CARGO OWNER ]", 571, 187, font, plate, "end");
-  ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "[ CARGO OWNER ]", 571, 187, font, { anchor: "end" });
+  put("[ REGISTRY ]", 432, 204, "end");
+  put("[ DEMAND AGGREGATOR ]", 600, 432);
+  put("[ OWNER · KR ]", 571, 187, "end");
+  put("[ OWNER · JP ]", 886, 113, "end");
+  put("[ OWNER · AU ]", 886, 820, "end");
 
   libCaption(ctx, "[ ORE ]", 410, 858, 402, 890, font, colors);
   libCaption(ctx, "[ BUNKER ]", 350, 844, 288, 890, font, colors);
@@ -848,11 +709,10 @@ export const decouplingScene: Scene<Ink> = {
   setup() {
     orePath = measure(ORE_ROUTE);
     oreBackPath = measure(ORE_ROUTE_BACK);
-    roroPath = measure(RORO_ROUTE);
-    roroBackPath = measure(RORO_ROUTE_BACK);
     tokenPath = measure(TOKEN_PATH);
-    registryFrac =
-      tokenPath.length > 0 ? (tokenPath.cumulative[3] ?? 0) / tokenPath.length : 0.55;
+    // Each unit's distribution rail is registry → hub → its owner, measured
+    // as one composite path so the travel fraction is smooth end to end.
+    unitPaths = HUB_OWNER.map((toOwner) => measure([...REG_HUB, ...toOwner]));
   },
 
   draw(ctx, frame) {
@@ -863,15 +723,20 @@ export const decouplingScene: Scene<Ink> = {
 
     drawPortHedland(ctx, frame);
     drawBunkerLine(ctx, frame);
-    drawFremantle(ctx, frame);
-    drawGwangyang(ctx, frame);
-    drawAccountingRails(ctx, frame);
 
+    drawRails(ctx, frame);
     drawRoutes(ctx, frame);
+
+    drawRegistry(ctx, frame);
+    drawHub(ctx, frame);
+    for (const unit of [0, 1, 2] as const) {
+      const o = OFFICES[unit];
+      drawOffice(ctx, frame, o.x, o.y, o.w, o.h, unitStateAt(unit, frame.time) === "held");
+    }
+
     drawOreCarrier(ctx, frame);
-    drawRoRo(ctx, frame);
-    drawToken(ctx, frame);
-    drawRetirement(ctx, frame);
+    drawVerifyingToken(ctx, frame);
+    drawUnits(ctx, frame);
 
     drawLabels(ctx, frame);
     drawCompass(ctx, frame);

@@ -35,7 +35,7 @@ export const ANIMATIONS: readonly [AnimationEntry, ...AnimationEntry[]] = [
     id: "decoupling",
     title: "Decoupling: book and claim",
     description:
-      "Iron ore sails Port Hedland to Gwangyang on green fuel. The fuel's attribute detaches as an EAC, passes through the registry to the CARGO OWNER — the key actor — whose conventional car carrier claims it for the voyage to Australia, where the certificate is retired at delivery. The green exists in exactly one place at every moment.",
+      "One green corridor, many buyers. The voyage's verified reductions are minted into standardized units at the registry and flow through a demand aggregator to three dispersed cargo owners — none with cargo on board — who each retire their unit as a Scope 3 claim. The pooled commitments flow back to finance the corridor, and the ledger always sums to three.",
     scene: decouplingScene,
   },
 ];
