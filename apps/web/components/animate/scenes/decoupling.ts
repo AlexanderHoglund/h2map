@@ -523,7 +523,7 @@ function drawProduction(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void 
     ctx,
     () => {
       ctx.beginPath();
-      ctx.moveTo(ox + 132, oy + 24);
+      ctx.moveTo(ox + 148, oy + 24);
       ctx.lineTo(PILBARA.x - 6, PILBARA.y - 3);
       ctx.stroke();
     },
@@ -535,7 +535,7 @@ function drawProduction(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void 
   ctx.strokeStyle = frame.palette.inkSoft;
   ctx.lineWidth = 0.8;
   ctx.beginPath();
-  ctx.rect(ox - 8, oy - 22, 140, 86);
+  ctx.rect(ox - 8, oy - 22, 156, 86);
   ctx.fill();
   ctx.stroke();
 
