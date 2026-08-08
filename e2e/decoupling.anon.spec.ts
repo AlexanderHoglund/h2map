@@ -10,10 +10,12 @@ import {
   AGGREGATOR_BOX,
   ATTR_WINDOW,
   CYCLE_S,
+  FILL_WINDOW,
   HANDOFF_WINDOW,
   ORE_ROUTE,
   ORE_SCHEDULE,
   phaseAt,
+  POOL_SLOTS,
   PORTS,
   REGISTRY_BOX,
   SELL_WINDOW,
@@ -76,12 +78,14 @@ test("routes connect the ports they claim to", () => {
   }
 });
 
-test("the attributes are sold only to ports that host a cargo owner", () => {
+test("every cargo owner on the chart receives an attribute", () => {
   for (const name of SOLD_TO) {
     const p = port(name);
     expect(p.owner, `${name} needs an owner glyph to receive an attribute`).toBeTruthy();
   }
-  // And the voyage's own port is not among the buyers — the point of the chart.
+  // All owners buy — SOLD_TO covers exactly the owner-bearing ports.
+  expect(SOLD_TO.length).toBe(PORTS.filter((q) => q.owner).length);
+  // And the producing port has no owner glyph, so it never sells to itself.
   expect(SOLD_TO).not.toContain("Pilbara Ports");
 });
 
@@ -93,14 +97,16 @@ test("the schedules are sane", () => {
   expect(ORE_SCHEDULE.sailHome[1]).toBe(ORE_SCHEDULE.loading[0]);
   expect(ORE_SCHEDULE.loading[1]).toBe(1);
 
-  // Book, hand off, then claim: the attribute reaches the registry while the
-  // vessel is alongside, moves to the aggregator only once booked, and is
-  // sold only after the hand-off.
+  // Book, hand off, pool, then claim: the attribute reaches the registry
+  // while the vessel is alongside, moves to the aggregator only once booked,
+  // fills the pool only after the hand-off, and sells only from a full pool.
   expect(ATTR_WINDOW[0]).toBeGreaterThanOrEqual(ORE_SCHEDULE.alongside[0]);
   expect(ATTR_WINDOW[1]).toBeLessThanOrEqual(ORE_SCHEDULE.alongside[1]);
   expect(HANDOFF_WINDOW[0]).toBeGreaterThanOrEqual(ATTR_WINDOW[1]);
-  expect(SELL_WINDOW[0]).toBeGreaterThanOrEqual(HANDOFF_WINDOW[1]);
+  expect(FILL_WINDOW[0]).toBeGreaterThanOrEqual(HANDOFF_WINDOW[1]);
+  expect(SELL_WINDOW[0]).toBeGreaterThanOrEqual(FILL_WINDOW[1]);
   expect(SELL_WINDOW[1]).toBeLessThanOrEqual(1);
+  expect(POOL_SLOTS).toBeGreaterThan(0);
 
   // Every trade window is a valid sub-interval of the cycle.
   for (const route of TRADE_ROUTES) {

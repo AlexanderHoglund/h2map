@@ -157,10 +157,15 @@ export const ORE_SCHEDULE = {
 export const ATTR_WINDOW = [0.36, 0.46] as const;
 /** …moves to the demand aggregator that pooled the buyers… */
 export const HANDOFF_WINDOW = [0.47, 0.51] as const;
-/** …which sells it on to cargo owners on other trades. */
-export const SELL_WINDOW = [0.53, 0.66] as const;
-/** Owner ports the sold attributes travel to (must have `owner` glyphs). */
-export const SOLD_TO = ["Piraeus", "Long Beach", "Port Kembla"] as const;
+/** …fills the aggregator's pool slot by slot… */
+export const FILL_WINDOW = [0.51, 0.59] as const;
+export const POOL_SLOTS = 4;
+/** …and the pooled units go out to the cargo owners. */
+export const SELL_WINDOW = [0.6, 0.74] as const;
+/** Every cargo owner on the chart receives an attribute from the pool. */
+export const SOLD_TO: readonly string[] = PORTS.filter((p) => p.owner).map(
+  (p) => p.label.split(",")[0] ?? p.label,
+);
 
 export function phaseAt(time: number): number {
   const s = (time + POSTER_OFFSET_S) % CYCLE_S;
@@ -422,15 +427,28 @@ function drawInstitutions(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): voi
     spacing: 2,
     anchor: "middle",
   });
-  // The pool: the buyers it bundles.
-  ctx.strokeStyle = frame.palette.inkSoft;
-  ctx.lineWidth = 0.9;
-  ctx.beginPath();
-  for (let i = -1; i <= 1; i += 1) {
-    ctx.moveTo(acx + i * 9 + 3, AGGREGATOR_BOX.y + 36);
-    ctx.arc(acx + i * 9, AGGREGATOR_BOX.y + 36, 3, 0, Math.PI * 2);
+  // The pool: it fills slot by slot once the attribute has been handed off,
+  // and drains the moment the units go out to the owners.
+  const p = phaseAt(frame.time);
+  let filled = 0;
+  if (p >= FILL_WINDOW[0] && p < SELL_WINDOW[0]) {
+    const k = (p - FILL_WINDOW[0]) / (FILL_WINDOW[1] - FILL_WINDOW[0]);
+    filled = Math.min(POOL_SLOTS, 1 + Math.floor(k * POOL_SLOTS));
   }
-  ctx.stroke();
+  const py = AGGREGATOR_BOX.y + 36;
+  for (let i = 0; i < POOL_SLOTS; i += 1) {
+    const px = acx - ((POOL_SLOTS - 1) * 9) / 2 + i * 9;
+    ctx.beginPath();
+    ctx.arc(px, py, 3, 0, Math.PI * 2);
+    if (i < filled) {
+      ctx.fillStyle = frame.palette.attr;
+      ctx.fill();
+    } else {
+      ctx.strokeStyle = frame.palette.inkSoft;
+      ctx.lineWidth = 0.9;
+      ctx.stroke();
+    }
+  }
 }
 
 /** The attribute detaches from the arrived voyage and books into the
@@ -469,10 +487,16 @@ function drawAttributeFlows(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): v
   }
 
   if (p >= SELL_WINDOW[0] && p < SELL_WINDOW[1]) {
-    const k = smoothstep((p - SELL_WINDOW[0]) / (SELL_WINDOW[1] - SELL_WINDOW[0]));
-    for (const name of SOLD_TO) {
+    // Staggered departures, echoing the pool filling slot by slot.
+    const stagger = 0.012;
+    const dur = SELL_WINDOW[1] - SELL_WINDOW[0] - stagger * (SOLD_TO.length - 1);
+    SOLD_TO.forEach((name, i) => {
       const port = PORTS.find((q) => q.label.startsWith(name));
-      if (!port?.owner) continue;
+      if (!port?.owner) return;
+      const k = smoothstep(
+        Math.min(1, Math.max(0, (p - SELL_WINDOW[0] - i * stagger) / dur)),
+      );
+      if (k <= 0 || k >= 1) return;
       const tx = port.x + port.owner[0] + 6;
       const ty = port.y + port.owner[1] + 4;
       const x = ax + (tx - ax) * k;
@@ -482,99 +506,109 @@ function drawAttributeFlows(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): v
       ctx.globalAlpha = alpha;
       diamond(ctx, x, y, 3.4, frame.palette.attr, frame.palette.attr);
       ctx.restore();
-    }
+    });
   }
 }
 
-/** Wind, solar, electrolysis, NH3 synthesis — where the clean fuel is made. */
+/** Wind, solar, electrolysis, NH3 synthesis — where the clean fuel is made.
+ *  A tight card with its own background, leadered to the Pilbara port. */
 function drawProduction(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  const ox = 172;
-  const oy = 300;
+  const ox = 176;
+  const oy = 302;
+
+  // Leader to the Pilbara port dot — drawn first, so the card sits on top.
   ctx.strokeStyle = frame.palette.inkSoft;
   ctx.lineWidth = 0.8;
-
-  // Leader to the Pilbara port dot.
   dashed(
     ctx,
     () => {
       ctx.beginPath();
-      ctx.moveTo(ox + 128, oy + 26);
+      ctx.moveTo(ox + 132, oy + 24);
       ctx.lineTo(PILBARA.x - 6, PILBARA.y - 3);
       ctx.stroke();
     },
     [2, 3],
   );
 
+  // The card.
+  ctx.fillStyle = frame.palette.page;
+  ctx.strokeStyle = frame.palette.inkSoft;
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.rect(ox - 8, oy - 22, 140, 86);
+  ctx.fill();
+  ctx.stroke();
+
   ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "Clean ammonia, Pilbara", ox, oy - 12, frame.font, { size: 10, spacing: 1 });
+  monoLabel(ctx, "Clean ammonia, Pilbara", ox, oy - 8, frame.font, { size: 9, spacing: 1 });
 
   // Wind: three small turbines, blades turning slowly.
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1;
   for (let i = 0; i < 3; i += 1) {
-    const tx = ox + 6 + i * 16;
-    const ty = oy + 22;
+    const tx = ox + 8 + i * 13;
+    const ty = oy + 18;
     ctx.beginPath();
     ctx.moveTo(tx, ty);
-    ctx.lineTo(tx, ty - 12);
+    ctx.lineTo(tx, ty - 10);
     ctx.stroke();
     const spin = frame.time * 1.4 + i * 1.1;
     for (let b = 0; b < 3; b += 1) {
       const a = spin + (b * Math.PI * 2) / 3;
       ctx.beginPath();
-      ctx.moveTo(tx, ty - 12);
-      ctx.lineTo(tx + Math.cos(a) * 6, ty - 12 + Math.sin(a) * 6);
+      ctx.moveTo(tx, ty - 10);
+      ctx.lineTo(tx + Math.cos(a) * 5, ty - 10 + Math.sin(a) * 5);
       ctx.stroke();
     }
   }
   ctx.fillStyle = frame.palette.inkSoft;
-  monoLabel(ctx, "wind", ox + 8, oy + 32, frame.font, { size: 7, spacing: 1 });
+  monoLabel(ctx, "wind", ox + 6, oy + 27, frame.font, { size: 7, spacing: 1 });
 
   // Solar: a hatched panel.
   ctx.strokeStyle = frame.palette.ink;
   ctx.fillStyle = frame.palette.page;
   ctx.beginPath();
-  ctx.rect(ox + 72, oy + 8, 26, 13);
+  ctx.rect(ox + 58, oy + 6, 24, 12);
   ctx.fill();
   ctx.stroke();
   ctx.lineWidth = 0.7;
   ctx.beginPath();
   for (let i = 1; i < 4; i += 1) {
-    ctx.moveTo(ox + 72 + i * 6.5, oy + 8);
-    ctx.lineTo(ox + 72 + i * 6.5, oy + 21);
+    ctx.moveTo(ox + 58 + i * 6, oy + 6);
+    ctx.lineTo(ox + 58 + i * 6, oy + 18);
   }
-  ctx.moveTo(ox + 72, oy + 14.5);
-  ctx.lineTo(ox + 98, oy + 14.5);
+  ctx.moveTo(ox + 58, oy + 12);
+  ctx.lineTo(ox + 82, oy + 12);
   ctx.stroke();
   ctx.fillStyle = frame.palette.inkSoft;
-  monoLabel(ctx, "solar", ox + 76, oy + 32, frame.font, { size: 7, spacing: 1 });
+  monoLabel(ctx, "solar", ox + 60, oy + 27, frame.font, { size: 7, spacing: 1 });
 
   // Electrolysis: the stack grid.
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 0.9;
   ctx.fillStyle = frame.palette.page;
   ctx.beginPath();
-  ctx.rect(ox + 4, oy + 42, 24, 11);
+  ctx.rect(ox + 6, oy + 36, 22, 10);
   ctx.fill();
   ctx.stroke();
   ctx.beginPath();
   for (let i = 1; i < 4; i += 1) {
-    ctx.moveTo(ox + 4 + i * 6, oy + 42);
-    ctx.lineTo(ox + 4 + i * 6, oy + 53);
+    ctx.moveTo(ox + 6 + i * 5.5, oy + 36);
+    ctx.lineTo(ox + 6 + i * 5.5, oy + 46);
   }
   ctx.stroke();
   ctx.fillStyle = frame.palette.inkSoft;
-  monoLabel(ctx, "electrolysis", ox + 2, oy + 64, frame.font, { size: 7, spacing: 1 });
+  monoLabel(ctx, "electrolysis", ox + 2, oy + 56, frame.font, { size: 7, spacing: 1 });
 
   // NH3 synthesis: the twin drums.
   ctx.strokeStyle = frame.palette.ink;
   ctx.beginPath();
-  ctx.arc(ox + 84, oy + 47, 5, 0, Math.PI * 2);
-  ctx.moveTo(ox + 100, oy + 47);
-  ctx.arc(ox + 95, oy + 47, 5, 0, Math.PI * 2);
+  ctx.arc(ox + 82, oy + 41, 4.5, 0, Math.PI * 2);
+  ctx.moveTo(ox + 96.5, oy + 41);
+  ctx.arc(ox + 92, oy + 41, 4.5, 0, Math.PI * 2);
   ctx.stroke();
   ctx.fillStyle = frame.palette.inkSoft;
-  monoLabel(ctx, "NH3 synthesis", ox + 74, oy + 64, frame.font, { size: 7, spacing: 1 });
+  monoLabel(ctx, "NH3 synthesis", ox + 68, oy + 56, frame.font, { size: 7, spacing: 1 });
 }
 
 function drawLegend(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
