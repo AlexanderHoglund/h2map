@@ -1,135 +1,107 @@
 /**
- * The decoupling scene: book & claim as a diagram. Most tests are pure
- * timing/geometry — no browser — because what can silently break (the ledger
- * losing a unit, a shipment desynchronizing from its claim) is exactly what
- * no one notices by watching.
+ * The decoupling chart: one voyage, many buyers, on the actual world map.
+ * The pure tests pin the chart's factual skeleton — routes connect the ports
+ * they claim to, the registry sells only to ports that host a cargo owner,
+ * schedules are sane — and the browser test proves it paints and animates.
  */
 
 import { expect, test, type Page } from "@playwright/test";
 import {
-  carrierWindow,
-  CORRIDOR_STRIP,
+  ATTR_WINDOW,
   CYCLE_S,
-  HUB_CARD,
-  LANE_STRIPS,
-  ledgerAt,
-  OWNER_CARDS,
-  PHASES,
+  ORE_ROUTE,
+  ORE_SCHEDULE,
   phaseAt,
-  POSTER_OFFSET_S,
-  REGISTRY_CARD,
-  UNITS,
-  unitStateAt,
-  type Rect,
-  type UnitState,
+  PORTS,
+  REGISTRY_BOX,
+  SELL_WINDOW,
+  SOLD_TO,
+  TRADE_ROUTES,
 } from "../apps/web/components/animate/scenes/decoupling";
 
-test("the stage is sane: strips disjoint, everything in frame", () => {
-  const inFrame = (r: Rect) =>
-    r.x >= 0 && r.y >= 0 && r.x + r.w <= 900 && r.y + r.h <= 1000;
-  const overlaps = (a: Rect, b: Rect) =>
-    a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+const near = (a: readonly [number, number], x: number, y: number, tol = 12) =>
+  Math.hypot(a[0] - x, a[1] - y) <= tol;
 
-  const rects: Rect[] = [
-    CORRIDOR_STRIP,
-    ...LANE_STRIPS,
-    REGISTRY_CARD,
-    HUB_CARD,
-    ...OWNER_CARDS,
-  ];
-  for (const r of rects) expect(inFrame(r), `rect off-frame: ${JSON.stringify(r)}`).toBe(true);
+const port = (label: string) => {
+  const p = PORTS.find((q) => q.label.startsWith(label));
+  expect(p, `port ${label} missing`).toBeTruthy();
+  return p!;
+};
+const first = <T,>(a: readonly T[]) => a[0]!;
+const last = <T,>(a: readonly T[]) => a[a.length - 1]!;
 
-  // The three car lanes must not touch each other or the corridor.
-  const strips = [CORRIDOR_STRIP, ...LANE_STRIPS];
-  for (let i = 0; i < strips.length; i += 1) {
-    for (let j = i + 1; j < strips.length; j += 1) {
-      expect(overlaps(strips[i]!, strips[j]!), `strips ${i} and ${j} overlap`).toBe(false);
+test("every port, route point and the registry sit inside the chart frame", () => {
+  for (const p of PORTS) {
+    expect(p.x, `${p.label} x`).toBeGreaterThanOrEqual(0);
+    expect(p.x, `${p.label} x`).toBeLessThanOrEqual(900);
+    expect(p.y, `${p.label} y`).toBeGreaterThanOrEqual(0);
+    expect(p.y, `${p.label} y`).toBeLessThanOrEqual(520);
+  }
+  for (const route of [ORE_ROUTE, ...TRADE_ROUTES.map((r) => r.points)]) {
+    for (const [x, y] of route) {
+      expect(x).toBeGreaterThanOrEqual(0);
+      expect(x).toBeLessThanOrEqual(900);
+      expect(y).toBeGreaterThanOrEqual(0);
+      expect(y).toBeLessThanOrEqual(520);
     }
+  }
+  expect(REGISTRY_BOX.x).toBeGreaterThanOrEqual(0);
+  expect(REGISTRY_BOX.x + REGISTRY_BOX.w).toBeLessThanOrEqual(900);
+  expect(REGISTRY_BOX.y).toBeGreaterThanOrEqual(0);
+  expect(REGISTRY_BOX.y + REGISTRY_BOX.h).toBeLessThanOrEqual(520);
+});
+
+test("routes connect the ports they claim to", () => {
+  const pilbara = port("Pilbara Ports");
+  const ulsan = port("Ulsan");
+  expect(near(first(ORE_ROUTE), pilbara.x, pilbara.y), "ore route starts at Pilbara").toBe(true);
+  expect(near(last(ORE_ROUTE), ulsan.x, ulsan.y), "ore route ends at Ulsan").toBe(true);
+
+  for (const route of TRADE_ROUTES) {
+    const from = port(route.from);
+    const to = port(route.to);
+    expect(near(first(route.points), from.x, from.y), `${route.from}→${route.to} start`).toBe(true);
+    expect(near(last(route.points), to.x, to.y), `${route.from}→${route.to} end`).toBe(true);
   }
 });
 
-test("each shipment is synchronized with its claim", () => {
-  // The docking/retirement of unit i and the sailing of carrier i derive
-  // from the same constants — assert the relationship, so a retimed lane
-  // cannot silently ship before its claim docks or arrive after it retires.
-  for (const lane of [0, 1, 2] as const) {
-    const { depart, arrive } = carrierWindow(lane);
-    expect(depart, `lane ${lane} departs before its unit docks`).toBeGreaterThan(
-      PHASES.dock[lane],
-    );
-    expect(arrive, `lane ${lane} arrival is not its retirement`).toBe(PHASES.retire[lane]);
-    expect(depart).toBeLessThan(arrive);
+test("the attributes are sold only to ports that host a cargo owner", () => {
+  for (const name of SOLD_TO) {
+    const p = port(name);
+    expect(p.owner, `${name} needs an owner glyph to receive an attribute`).toBeTruthy();
+  }
+  // And the voyage's own port is not among the buyers — the point of the chart.
+  expect(SOLD_TO).not.toContain("Pilbara Ports");
+});
+
+test("the schedules are sane", () => {
+  // Ore shuttle covers the whole cycle without gaps.
+  expect(ORE_SCHEDULE.sailOut[0]).toBe(0);
+  expect(ORE_SCHEDULE.sailOut[1]).toBe(ORE_SCHEDULE.alongside[0]);
+  expect(ORE_SCHEDULE.alongside[1]).toBe(ORE_SCHEDULE.sailHome[0]);
+  expect(ORE_SCHEDULE.sailHome[1]).toBe(ORE_SCHEDULE.loading[0]);
+  expect(ORE_SCHEDULE.loading[1]).toBe(1);
+
+  // Book, then claim: the attribute reaches the registry while the vessel is
+  // alongside, and the registry sells strictly after it has been booked.
+  expect(ATTR_WINDOW[0]).toBeGreaterThanOrEqual(ORE_SCHEDULE.alongside[0]);
+  expect(ATTR_WINDOW[1]).toBeLessThanOrEqual(ORE_SCHEDULE.alongside[1]);
+  expect(SELL_WINDOW[0]).toBeGreaterThanOrEqual(ATTR_WINDOW[1]);
+  expect(SELL_WINDOW[1]).toBeLessThanOrEqual(1);
+
+  // Every trade window is a valid sub-interval of the cycle.
+  for (const route of TRADE_ROUTES) {
+    expect(route.window[0]).toBeGreaterThanOrEqual(0);
+    expect(route.window[1]).toBeLessThanOrEqual(1);
+    expect(route.window[0]).toBeLessThan(route.window[1]);
   }
 });
 
-test("the ledger conserves all three units at every moment", () => {
-  const SAMPLES = 4801;
-  const ORDER: readonly UnitState[] = [
-    "aboard",
-    "verifying",
-    "in-transit",
-    "applied",
-    "retired",
-  ];
-
-  for (let i = 0; i <= SAMPLES; i += 1) {
-    const t = (i / SAMPLES) * CYCLE_S;
-    const ledger = ledgerAt(t);
-    const sum =
-      ledger.aboard + ledger.verifying + ledger["in-transit"] + ledger.applied + ledger.retired;
-    expect(sum, `ledger does not sum to ${UNITS} at t=${t.toFixed(3)}`).toBe(UNITS);
-  }
-
-  const step = CYCLE_S / SAMPLES;
-  const boundary = (phase: number) =>
-    (((phase * CYCLE_S - POSTER_OFFSET_S) % CYCLE_S) + CYCLE_S) % CYCLE_S;
-
-  for (const unit of [0, 1, 2] as const) {
-    const transitions: { at: number; from: UnitState; to: UnitState }[] = [];
-    let prev: UnitState | null = null;
-    for (let i = 0; i <= SAMPLES; i += 1) {
-      const t = (i / SAMPLES) * CYCLE_S;
-      const s = unitStateAt(unit, t);
-      expect(ORDER).toContain(s);
-      if (prev !== null && s !== prev) transitions.push({ at: t, from: prev, to: s });
-      prev = s;
-    }
-    expect(
-      transitions.map((tr) => `${tr.from}->${tr.to}`),
-      `unit ${unit} does not follow the story order`,
-    ).toEqual([
-      "aboard->verifying",
-      "verifying->in-transit",
-      "in-transit->applied",
-      "applied->retired",
-      "retired->aboard",
-    ]);
-
-    const expected = [
-      boundary(PHASES.detach),
-      boundary(PHASES.mint),
-      boundary(PHASES.dock[unit]),
-      boundary(PHASES.retire[unit]),
-      boundary(PHASES.bunker),
-    ].sort((a, b) => a - b);
-    const actual = transitions.map((tr) => tr.at).sort((a, b) => a - b);
-    for (let i = 0; i < 5; i += 1) {
-      expect(
-        Math.abs(actual[i]! - expected[i]!),
-        `unit ${unit} handoff ${i} off its documented time`,
-      ).toBeLessThanOrEqual(step * 1.5);
-    }
-  }
-
-  // All three retired together before the wrap — the books close.
-  const allRetiredAt = (PHASES.retire[2] + 0.02) * CYCLE_S - POSTER_OFFSET_S;
-  expect(ledgerAt(allRetiredAt).retired).toBe(UNITS);
-});
-
-test("the reduced-motion poster shows all value aboard", () => {
-  expect(ledgerAt(0).aboard).toBe(UNITS);
-  expect(phaseAt(0)).toBeLessThan(PHASES.detach);
-  expect(phaseAt(0)).toBeGreaterThan(0);
+test("the reduced-motion poster shows the voyage under way", () => {
+  const p = phaseAt(0);
+  expect(p).toBeGreaterThan(ORE_SCHEDULE.sailOut[0]);
+  expect(p).toBeLessThan(ORE_SCHEDULE.sailOut[1]);
+  expect(CYCLE_S).toBeGreaterThan(0);
 });
 
 /** Strided paint digest, as in animate.anon.spec.ts. */
@@ -150,7 +122,7 @@ async function sample(page: Page): Promise<number> {
 test("the gallery lists both animations and the second one plays", async ({ page }) => {
   await page.goto("/animate");
   await expect(page.getByRole("button", { name: /Green corridor/ })).toBeVisible();
-  const entry = page.getByRole("button", { name: /Decoupling/ });
+  const entry = page.getByRole("button", { name: /voyage|Decoupling/i });
   await expect(entry).toBeVisible();
   await entry.click();
 

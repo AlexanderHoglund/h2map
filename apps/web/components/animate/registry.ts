@@ -33,9 +33,9 @@ export const ANIMATIONS: readonly [AnimationEntry, ...AnimationEntry[]] = [
   },
   {
     id: "decoupling",
-    title: "Decoupling: book and claim",
+    title: "One voyage, many buyers",
     description:
-      "Book & claim as a diagram. Left: the green ore corridor, its whole environmental value aboard as one large unit. Centre: the registry splits it into three standardized EACs, pooled by a demand aggregator whose commitments flow back to finance the fuel. Right: each unit docks onto a cargo owner's shipment of cars — the cargo sails visibly decarbonized and the claim retires at delivery. The ledger always sums to three.",
+      "Book & claim on the actual world map. Clean ammonia is made in the Pilbara and bunkers one iron-ore voyage to Korea — the green segment on the solid route. Its environmental attribute books into the registry and is sold on to cargo owners on entirely different trades: Piraeus, Long Beach, Port Kembla. Everything else is dashed — other trades, other ships.",
     scene: decouplingScene,
   },
 ];
