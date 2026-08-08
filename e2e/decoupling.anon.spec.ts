@@ -7,8 +7,10 @@
 
 import { expect, test, type Page } from "@playwright/test";
 import {
+  AGGREGATOR_BOX,
   ATTR_WINDOW,
   CYCLE_S,
+  HANDOFF_WINDOW,
   ORE_ROUTE,
   ORE_SCHEDULE,
   phaseAt,
@@ -45,10 +47,19 @@ test("every port, route point and the registry sit inside the chart frame", () =
       expect(y).toBeLessThanOrEqual(520);
     }
   }
-  expect(REGISTRY_BOX.x).toBeGreaterThanOrEqual(0);
-  expect(REGISTRY_BOX.x + REGISTRY_BOX.w).toBeLessThanOrEqual(900);
-  expect(REGISTRY_BOX.y).toBeGreaterThanOrEqual(0);
-  expect(REGISTRY_BOX.y + REGISTRY_BOX.h).toBeLessThanOrEqual(520);
+  for (const box of [REGISTRY_BOX, AGGREGATOR_BOX]) {
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.w).toBeLessThanOrEqual(900);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.h).toBeLessThanOrEqual(520);
+  }
+  // The two institutions sit beside each other, never on top of each other.
+  const overlap =
+    AGGREGATOR_BOX.x < REGISTRY_BOX.x + REGISTRY_BOX.w &&
+    REGISTRY_BOX.x < AGGREGATOR_BOX.x + AGGREGATOR_BOX.w &&
+    AGGREGATOR_BOX.y < REGISTRY_BOX.y + REGISTRY_BOX.h &&
+    REGISTRY_BOX.y < AGGREGATOR_BOX.y + AGGREGATOR_BOX.h;
+  expect(overlap).toBe(false);
 });
 
 test("routes connect the ports they claim to", () => {
@@ -82,11 +93,13 @@ test("the schedules are sane", () => {
   expect(ORE_SCHEDULE.sailHome[1]).toBe(ORE_SCHEDULE.loading[0]);
   expect(ORE_SCHEDULE.loading[1]).toBe(1);
 
-  // Book, then claim: the attribute reaches the registry while the vessel is
-  // alongside, and the registry sells strictly after it has been booked.
+  // Book, hand off, then claim: the attribute reaches the registry while the
+  // vessel is alongside, moves to the aggregator only once booked, and is
+  // sold only after the hand-off.
   expect(ATTR_WINDOW[0]).toBeGreaterThanOrEqual(ORE_SCHEDULE.alongside[0]);
   expect(ATTR_WINDOW[1]).toBeLessThanOrEqual(ORE_SCHEDULE.alongside[1]);
-  expect(SELL_WINDOW[0]).toBeGreaterThanOrEqual(ATTR_WINDOW[1]);
+  expect(HANDOFF_WINDOW[0]).toBeGreaterThanOrEqual(ATTR_WINDOW[1]);
+  expect(SELL_WINDOW[0]).toBeGreaterThanOrEqual(HANDOFF_WINDOW[1]);
   expect(SELL_WINDOW[1]).toBeLessThanOrEqual(1);
 
   // Every trade window is a valid sub-interval of the cycle.

@@ -12,14 +12,15 @@ type Ink = "ink" | "inkSoft" | "landmass" | "page" | "label" | "attr";
  * One voyage, many buyers — book & claim on the actual world map.
  *
  * The map is real geography (Natural Earth coastlines, Mediterranean to the
- * US West Coast). Iron ore moves Pilbara → Korea on the one solid route; a
- * green segment slides along it — the vessel on clean fuel. Everything else
- * is dashed "other trades": Korean ro-ro exports across the Pacific, the
- * container trunk to Piraeus, Australian coastal legs. The clean ammonia is
- * made in the Pilbara (wind, solar, electrolysis, NH3 synthesis — the small
- * annotation in the Indian Ocean), and the voyage's attribute goes to the
- * REGISTRY box in central Asia, from where it is sold on to cargo owners on
- * entirely different trades.
+ * US West Coast). Iron ore moves Pilbara → Korea on the one solid route; the
+ * green vessel is the one on clean fuel. Everything else is dashed "other
+ * trades": Korean ro-ro exports across the Pacific, the container trunk to
+ * Piraeus, Australian coastal legs. The clean ammonia is made in the Pilbara
+ * (wind, solar, electrolysis, NH3 synthesis — the small annotation in the
+ * Indian Ocean), and the voyage's attribute books into the REGISTRY box in
+ * central Asia, hands off to the DEMAND AGGREGATOR beside it, and is sold on
+ * to cargo owners — inland companies, not berths — on entirely different
+ * trades.
  *
  * Chart conventions, not scene conventions: routes are annotations and may
  * cross the silhouettes exactly as they do in the reference figure. Ports
@@ -43,15 +44,18 @@ export interface Port {
   readonly owner?: readonly [number, number];
 }
 
+// Owner glyphs sit INLAND of their port — the owner is a company in the
+// hinterland, not a berth; keeping them off the coast avoids reading them
+// as more ports.
 export const PORTS: readonly Port[] = [
-  { x: 51, y: 117, label: "Piraeus, GR", anchor: "start", dx: 9, dy: -8, owner: [-8, -26] },
-  { x: 450, y: 126, label: "Ulsan, KR", anchor: "start", dx: 11, dy: -10, owner: [4, -30] },
+  { x: 51, y: 117, label: "Piraeus, GR", anchor: "start", dx: 9, dy: -8, owner: [-4, -42] },
+  { x: 450, y: 126, label: "Ulsan, KR", anchor: "start", dx: 11, dy: -10, owner: [-24, -36] },
   { x: 438, y: 133, label: "Gwangyang, KR", anchor: "end", dx: -10, dy: 10 },
-  { x: 869, y: 135, label: "Long Beach, US", anchor: "end", dx: -10, dy: 4, owner: [-6, -24] },
+  { x: 869, y: 135, label: "Long Beach, US", anchor: "end", dx: -10, dy: 4, owner: [16, -18] },
   { x: 407, y: 370, label: "Pilbara Ports, AU", anchor: "start", dx: 10, dy: 2 },
-  { x: 397, y: 421, label: "Fremantle, AU", anchor: "end", dx: -10, dy: 2, owner: [-58, -22] },
-  { x: 506, y: 446, label: "Melbourne, AU", anchor: "middle", dx: 4, dy: 18, owner: [-42, -18] },
-  { x: 528, y: 431, label: "Port Kembla, AU", anchor: "start", dx: 11, dy: -2, owner: [14, -20] },
+  { x: 397, y: 421, label: "Fremantle, AU", anchor: "end", dx: -10, dy: 2, owner: [26, -12] },
+  { x: 506, y: 446, label: "Melbourne, AU", anchor: "middle", dx: 4, dy: 18, owner: [-14, -30] },
+  { x: 528, y: 431, label: "Port Kembla, AU", anchor: "start", dx: 11, dy: -2, owner: [-18, -40] },
 ];
 const ULSAN = { x: 450, y: 126 } as const;
 const PILBARA = { x: 407, y: 370 } as const;
@@ -122,12 +126,18 @@ export const TRADE_ROUTES: readonly TradeRoute[] = [
   },
 ];
 
-// ===== The registry =========================================================
-/** The book & claim registry, boxed into the empty central-Asia interior. */
+// ===== The institutions =====================================================
+/** The book & claim registry, boxed into the empty central-Asia interior,
+ *  and the demand aggregator that pools the buyers, right beside it. */
 export const REGISTRY_BOX = { x: 284, y: 72, w: 88, h: 46 } as const;
+export const AGGREGATOR_BOX = { x: 180, y: 72, w: 92, h: 46 } as const;
 const REGISTRY_CENTER: Point = [
   REGISTRY_BOX.x + REGISTRY_BOX.w / 2,
   REGISTRY_BOX.y + REGISTRY_BOX.h / 2,
+];
+const AGGREGATOR_CENTER: Point = [
+  AGGREGATOR_BOX.x + AGGREGATOR_BOX.w / 2,
+  AGGREGATOR_BOX.y + AGGREGATOR_BOX.h / 2,
 ];
 
 // ===== The cycle ============================================================
@@ -145,8 +155,10 @@ export const ORE_SCHEDULE = {
 
 /** The attribute rises from the arrived vessel to the registry… */
 export const ATTR_WINDOW = [0.36, 0.46] as const;
-/** …and the registry sells it on to cargo owners on other trades. */
-export const SELL_WINDOW = [0.5, 0.64] as const;
+/** …moves to the demand aggregator that pooled the buyers… */
+export const HANDOFF_WINDOW = [0.47, 0.51] as const;
+/** …which sells it on to cargo owners on other trades. */
+export const SELL_WINDOW = [0.53, 0.66] as const;
 /** Owner ports the sold attributes travel to (must have `owner` glyphs). */
 export const SOLD_TO = ["Piraeus", "Long Beach", "Port Kembla"] as const;
 
@@ -307,54 +319,32 @@ function diamond(
   ctx.stroke();
 }
 
-/** Sample an arc-length slice [u0,u1] of a measured path as a polyline. */
-function pathSlice(path: MeasuredPath, u0: number, u1: number, n = 12): Point[] {
-  const pts: Point[] = [];
-  for (let i = 0; i <= n; i += 1) {
-    const pose = poseAt(path, u0 + ((u1 - u0) * i) / n);
-    pts.push([pose.x, pose.y]);
-  }
-  return pts;
-}
-
-/** The clean-fuel voyage: a green segment sliding up the solid route — the
- *  legend's "Clean fuel". Ballast home as a quiet outline; a growing green
- *  stub while bunkering at Pilbara. */
+/** The clean-fuel voyage: the ship itself is green — no wake, no trail.
+ *  It turns green while bunkering at Pilbara, sails green, and reverts to a
+ *  quiet outline once the attribute has detached at Ulsan. */
 function drawCleanFuel(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   if (!orePath) return;
   const p = phaseAt(frame.time);
   const S = ORE_SCHEDULE;
-  const SEG = 46 / orePath.length; // the green wake astern, as a fraction
-
-  const drawSeg = (u0: number, u1: number, alpha: number) => {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = frame.palette.attr;
-    ctx.lineWidth = 3.4;
-    ctx.lineCap = "round";
-    polyline(ctx, pathSlice(orePath!, Math.max(0, u0), Math.min(1, u1)));
-    ctx.restore();
-  };
 
   if (p < S.sailOut[1]) {
     const u = berthEase(p / S.sailOut[1]);
-    drawSeg(u - SEG, u, 1);
     const pose = poseAt(orePath, u);
     drawShipGlyph(ctx, frame, pose.x, pose.y, pose.angle, "clean", 1, 0.95);
   } else if (p < S.alongside[1]) {
-    // Alongside at Ulsan: the segment fades as the attribute detaches.
-    const k = (p - S.alongside[0]) / (S.alongside[1] - S.alongside[0]);
-    drawSeg(1 - SEG, 1, 1 - smoothstep(k));
+    // Alongside at Ulsan: the green drains out as the attribute detaches.
+    const k = smoothstep((p - S.alongside[0]) / (S.alongside[1] - S.alongside[0]));
     drawShipGlyph(ctx, frame, ULSAN.x + 6, ULSAN.y + 12, -Math.PI / 2, "ballast", 1, 0.95);
+    drawShipGlyph(ctx, frame, ULSAN.x + 6, ULSAN.y + 12, -Math.PI / 2, "clean", 1 - k, 0.95);
   } else if (p < S.sailHome[1]) {
     const u = berthEase((p - S.sailHome[0]) / (S.sailHome[1] - S.sailHome[0]));
     const pose = poseAt(orePath, 1 - u);
     drawShipGlyph(ctx, frame, pose.x, pose.y, pose.angle + Math.PI, "ballast", 1, 0.95);
   } else {
-    // Loading and bunkering: green grows from the Pilbara end of the route.
-    const k = (p - S.loading[0]) / (1 - S.loading[0]);
-    drawSeg(0, smoothstep(k) * SEG, 1);
+    // Bunkering clean ammonia at Pilbara: the ship greens up for the voyage.
+    const k = smoothstep((p - S.loading[0]) / (1 - S.loading[0]));
     drawShipGlyph(ctx, frame, PILBARA.x + 6, PILBARA.y - 8, Math.PI / 2, "ballast", 1, 0.95);
+    drawShipGlyph(ctx, frame, PILBARA.x + 6, PILBARA.y - 8, Math.PI / 2, "clean", k, 0.95);
   }
 }
 
@@ -374,22 +364,37 @@ function drawTradeVessels(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): voi
   }
 }
 
-function drawRegistry(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
-  const { x, y, w, h } = REGISTRY_BOX;
+/** Double-outlined institution card. */
+function institutionBox(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  b: { readonly x: number; readonly y: number; readonly w: number; readonly h: number },
+): void {
   ctx.fillStyle = frame.palette.page;
   ctx.strokeStyle = frame.palette.ink;
   ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.rect(x, y, w, h);
+  ctx.rect(b.x, b.y, b.w, b.h);
   ctx.fill();
   ctx.stroke();
-  // Double outline — the institution, as on the diagram cards.
   ctx.lineWidth = 0.7;
   ctx.beginPath();
-  ctx.rect(x + 3, y + 3, w - 6, h - 6);
+  ctx.rect(b.x + 3, b.y + 3, b.w - 6, b.h - 6);
   ctx.stroke();
+}
+
+function drawInstitutions(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  // The short rail between the two — one market, two functions.
+  ctx.strokeStyle = frame.palette.inkSoft;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(AGGREGATOR_BOX.x + AGGREGATOR_BOX.w, AGGREGATOR_BOX.y + AGGREGATOR_BOX.h / 2);
+  ctx.lineTo(REGISTRY_BOX.x, REGISTRY_BOX.y + REGISTRY_BOX.h / 2);
+  ctx.stroke();
+
+  institutionBox(ctx, frame, REGISTRY_BOX);
   ctx.fillStyle = frame.palette.label;
-  monoLabel(ctx, "REGISTRY", x + w / 2, y + 19, frame.font, {
+  monoLabel(ctx, "REGISTRY", REGISTRY_BOX.x + REGISTRY_BOX.w / 2, REGISTRY_BOX.y + 19, frame.font, {
     size: 10,
     spacing: 2,
     anchor: "middle",
@@ -399,8 +404,31 @@ function drawRegistry(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.lineWidth = 0.8;
   ctx.beginPath();
   for (let i = 0; i < 3; i += 1) {
-    ctx.moveTo(x + 14, y + 27 + i * 5);
-    ctx.lineTo(x + w - 14, y + 27 + i * 5);
+    ctx.moveTo(REGISTRY_BOX.x + 14, REGISTRY_BOX.y + 27 + i * 5);
+    ctx.lineTo(REGISTRY_BOX.x + REGISTRY_BOX.w - 14, REGISTRY_BOX.y + 27 + i * 5);
+  }
+  ctx.stroke();
+
+  institutionBox(ctx, frame, AGGREGATOR_BOX);
+  const acx = AGGREGATOR_BOX.x + AGGREGATOR_BOX.w / 2;
+  ctx.fillStyle = frame.palette.label;
+  monoLabel(ctx, "DEMAND", acx, AGGREGATOR_BOX.y + 16, frame.font, {
+    size: 8,
+    spacing: 2,
+    anchor: "middle",
+  });
+  monoLabel(ctx, "AGGREGATOR", acx, AGGREGATOR_BOX.y + 26, frame.font, {
+    size: 8,
+    spacing: 2,
+    anchor: "middle",
+  });
+  // The pool: the buyers it bundles.
+  ctx.strokeStyle = frame.palette.inkSoft;
+  ctx.lineWidth = 0.9;
+  ctx.beginPath();
+  for (let i = -1; i <= 1; i += 1) {
+    ctx.moveTo(acx + i * 9 + 3, AGGREGATOR_BOX.y + 36);
+    ctx.arc(acx + i * 9, AGGREGATOR_BOX.y + 36, 3, 0, Math.PI * 2);
   }
   ctx.stroke();
 }
@@ -433,6 +461,13 @@ function drawAttributeFlows(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): v
     diamond(ctx, x, y, 4.5, frame.palette.attr, frame.palette.attr);
   }
 
+  // Registry → demand aggregator: the booked attribute meets pooled demand.
+  const [ax, ay] = AGGREGATOR_CENTER;
+  if (p >= HANDOFF_WINDOW[0] && p < HANDOFF_WINDOW[1]) {
+    const k = smoothstep((p - HANDOFF_WINDOW[0]) / (HANDOFF_WINDOW[1] - HANDOFF_WINDOW[0]));
+    diamond(ctx, rx + (ax - rx) * k, ry + (ay - ry) * k, 4.5, frame.palette.attr, frame.palette.attr);
+  }
+
   if (p >= SELL_WINDOW[0] && p < SELL_WINDOW[1]) {
     const k = smoothstep((p - SELL_WINDOW[0]) / (SELL_WINDOW[1] - SELL_WINDOW[0]));
     for (const name of SOLD_TO) {
@@ -440,8 +475,8 @@ function drawAttributeFlows(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): v
       if (!port?.owner) continue;
       const tx = port.x + port.owner[0] + 6;
       const ty = port.y + port.owner[1] + 4;
-      const x = rx + (tx - rx) * k;
-      const y = ry + (ty - ry) * k;
+      const x = ax + (tx - ax) * k;
+      const y = ay + (ty - ay) * k;
       const alpha = Math.min(1, k * 6, (1 - k) * 6 + 0.25);
       ctx.save();
       ctx.globalAlpha = alpha;
@@ -581,15 +616,8 @@ function drawLegend(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.fillStyle = frame.palette.inkSoft;
   monoLabel(ctx, "Other trades", 297, y, frame.font, { size: 9, spacing: 1 });
 
-  // Green: the clean-fuel segment.
-  ctx.strokeStyle = frame.palette.attr;
-  ctx.lineWidth = 3.4;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(392, y - 4);
-  ctx.lineTo(420, y - 4);
-  ctx.stroke();
-  ctx.lineCap = "butt";
+  // Green: the vessel on clean fuel.
+  drawShipGlyph(ctx, frame, 404, y - 4, 0, "clean", 1, 0.8);
   ctx.fillStyle = frame.palette.label;
   monoLabel(ctx, "Clean fuel", 428, y, frame.font, { size: 9, spacing: 1 });
 
@@ -634,7 +662,7 @@ export const decouplingScene: Scene<Ink> = {
     drawMap(ctx, frame);
     drawRoutes(ctx, frame);
     drawProduction(ctx, frame);
-    drawRegistry(ctx, frame);
+    drawInstitutions(ctx, frame);
     drawPorts(ctx, frame);
     drawTradeVessels(ctx, frame);
     drawCleanFuel(ctx, frame);

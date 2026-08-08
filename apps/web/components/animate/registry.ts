@@ -35,7 +35,7 @@ export const ANIMATIONS: readonly [AnimationEntry, ...AnimationEntry[]] = [
     id: "decoupling",
     title: "One voyage, many buyers",
     description:
-      "Book & claim on the actual world map. Clean ammonia is made in the Pilbara and bunkers one iron-ore voyage to Korea — the green segment on the solid route. Its environmental attribute books into the registry and is sold on to cargo owners on entirely different trades: Piraeus, Long Beach, Port Kembla. Everything else is dashed — other trades, other ships.",
+      "Book & claim on the actual world map. Clean ammonia is made in the Pilbara and bunkers one iron-ore voyage to Korea — the green vessel on the solid route. Its environmental attribute books into the registry, meets the demand aggregator's pooled buyers, and is sold on to cargo owners on entirely different trades: Piraeus, Long Beach, Port Kembla. Everything else is dashed — other trades, other ships.",
     scene: decouplingScene,
   },
 ];
