@@ -28,9 +28,6 @@
       "unverified": "unverified benchmark",
       "advanced": "Advanced"
     },
-    "cargoTab": {
-      "pending": "Cargo-identity fields (unit, weight, throughput) move here with the next change."
-    },
     "cargo": {
       "country": "Country",
       "routeType": "Corridor type",
@@ -91,6 +88,7 @@
       "legacyPriceNote": "Legacy accounting: this merchant price is charged ON TOP of the production CAPEX/O&M below."
     },
     "port": {
+      "coordsTitle": "Port A location",
       "green": "Green port",
       "fossil": "Fossil port",
       "storageCapex": "Port storage — CAPEX (year 1)",
@@ -100,6 +98,7 @@
       "fossilNote": "Fossil benchmarks assume existing infrastructure: CAPEX 0, OPEX at 30% of a new green facility."
     },
     "regulation": {
+      "financing": "Financing",
       "ets": "EU ETS (Emissions Trading System)",
       "include": "Include",
       "eua": "EUA price",

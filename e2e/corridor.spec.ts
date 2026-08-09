@@ -158,6 +158,39 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await horizon.selectOption("15");
   await expect(results.getByText(GAP)).toBeVisible();
 
+  // Sprint 2.2: every moved field renders on its MMMCZCS domain tab.
+  // Intro: the model-option basis selects arrived; WACC left for
+  // Regulation & Financing.
+  await expect(page.getByLabel("Emissions basis for CO2 abated")).toBeVisible();
+  await expect(page.getByLabel("Rate basis")).toBeVisible();
+  await expect(page.getByLabel("Discount rate (WACC)")).toHaveCount(0);
+  await expect(page.getByLabel("Annual cargo throughput")).toHaveCount(0);
+
+  // Cargo tab: unit + throughput; weight per unit exists only for TEU.
+  await page.getByRole("button", { name: "04 Cargo" }).click();
+  await expect(page.getByLabel("Cargo unit", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Annual cargo throughput")).toBeVisible();
+  await expect(page.getByLabel("Weight per unit")).toHaveCount(0); // tonne default
+  await page.getByLabel("Cargo unit", { exact: true }).selectOption("teu");
+  const unitWeight = page.getByLabel("Weight per unit");
+  await expect(unitWeight).toBeVisible();
+  await expect(unitWeight).toHaveValue("14"); // the TEU benchmark
+  await page.getByLabel("Cargo unit", { exact: true }).selectOption("tonne");
+  await expect(page.getByLabel("Weight per unit")).toHaveCount(0);
+  await expect(results.getByText(GAP)).toBeVisible(); // tonne weight back to 1
+
+  // Ports: Port A coordinates moved in.
+  await page.getByRole("button", { name: "05 Ports" }).click();
+  await expect(page.getByLabel("Port A latitude")).toBeVisible();
+  await expect(page.getByLabel("Port A longitude")).toBeVisible();
+
+  // Regulation & Financing: WACC (with its unverified badge) + inflation.
+  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  await expect(page.getByLabel("Discount rate (WACC)")).toBeVisible();
+  await expect(page.getByLabel("Inflation rate")).toBeVisible();
+  await expect(page.getByText("unverified benchmark")).toBeVisible();
+  await expect(results.getByText(GAP)).toBeVisible();
+
   // A live-model probe: under v3 the green side (build-plant) has NO
   // merchant price row — probe the production CAPEX the mode is built on
   // (the fossil price now lives in the Advanced fold, rank #19).
@@ -196,4 +229,37 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     .toBeNull();
   await consumption.fill("5700");
   await expect(results.getByText(GAP)).toBeVisible();
+});
+
+test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", async ({ page }) => {
+  // Enter once so the app writes its default draft…
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await expect(page.getByRole("complementary").getByText("$")).toBeTruthy();
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem("corridor-draft-v2") !== null))
+    .toBe(true);
+  // …then plant a tonne scenario carrying a non-1 weight, as an old save might.
+  await page.evaluate(() => {
+    const draft = JSON.parse(localStorage.getItem("corridor-draft-v2")!) as {
+      cargo: { unit?: string; unitWeightTonnes?: number };
+    };
+    draft.cargo.unit = "tonne";
+    draft.cargo.unitWeightTonnes = 2;
+    localStorage.setItem("corridor-draft-v2", JSON.stringify(draft));
+  });
+  await page.reload();
+  await page.getByRole("button", { name: /Resume draft/ }).click();
+  // The weight field hides for tonnes, but the stored value must survive:
+  // no load-time rewrite, even after the debounced autosave runs.
+  await page.getByRole("button", { name: "04 Cargo" }).click();
+  await expect(page.getByLabel("Weight per unit")).toHaveCount(0);
+  await page.waitForTimeout(1200); // let the autosave cycle write back
+  const stored = await page.evaluate(() => {
+    const draft = JSON.parse(localStorage.getItem("corridor-draft-v2")!) as {
+      cargo: { unitWeightTonnes?: number };
+    };
+    return draft.cargo.unitWeightTonnes;
+  });
+  expect(stored).toBe(2);
 });

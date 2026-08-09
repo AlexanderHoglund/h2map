@@ -59,7 +59,8 @@ const CARGO_DEFAULTS = defaultScenario().cargo;
 
 export function CargoStep({ model }: StepProps) {
   const t = useTranslations("corridor.cargo");
-  const { scenario, update, resolved, benchmarks } = model;
+  const tr = useTranslations("corridor.regulation");
+  const { scenario, update } = model;
 
   const fields = splitByManifest([
     {
@@ -100,58 +101,9 @@ export function CargoStep({ model }: StepProps) {
         />
       ),
     },
-    {
-      id: "cargo.unitsPerYear",
-      node: (
-        <NumberInput
-          key="units"
-          label={t("units")}
-          unit="units/yr"
-          value={scenario.cargo.unitsPerYear}
-          onChange={(v) => update((d) => void (d.cargo.unitsPerYear = v))}
-        />
-      ),
-    },
-    {
-      id: "cargo.wacc",
-      node:
-        resolved && benchmarks ? (
-          <ResolvedField
-            key="wacc"
-            label={t("wacc")}
-            unit="fraction"
-            step={0.005}
-            help={t("waccHelp")}
-            override={scenario.cargo.waccOverride}
-            effective={resolved.wacc.value}
-            source={resolved.wacc.source}
-            benchmark={benchmarks.wacc.value}
-            unverified
-            onChange={(v) => update((d) => void (d.cargo.waccOverride = v))}
-          />
-        ) : null,
-    },
-    {
-      id: "cargo.inflation",
-      node: (
-        <NumberInput
-          key="infl"
-          label={t("inflation")}
-          unit="fraction"
-          step={0.005}
-          value={scenario.cargo.inflation}
-          onChange={(v) => update((d) => void (d.cargo.inflation = v))}
-        />
-      ),
-    },
   ]);
 
   const twoPorts = scenario.cargo.routeType === "point-to-point";
-  // Cargo-unit identity: explicit choice, else derived from the vessel
-  // (container → TEU, everything else → tonne). Presentation-only.
-  const cargoUnit =
-    scenario.cargo.unit ??
-    (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
 
   return (
     <div className="space-y-3">
@@ -196,62 +148,38 @@ export function CargoStep({ model }: StepProps) {
             />
           </>
         )}
-        {/* What one cargo unit IS (tonne / TEU) + its weight */}
-        <Select
-          label={t("unit")}
-          value={cargoUnit}
-          options={[
-            { value: "tonne", label: t("unitTonne") },
-            { value: "teu", label: t("unitTeu") },
-          ]}
-          onChange={(v) =>
-            update((d) => {
-              d.cargo.unit = v as "tonne" | "teu";
-              d.cargo.unitWeightTonnes = v === "teu" ? (d.cargo.unitWeightTonnes ?? 14) : 1;
-            })
-          }
-        />
-        <NumberInput
-          label={t("unitWeight")}
-          unit="t"
-          step={0.5}
-          help={t("unitWeightHelp")}
-          value={scenario.cargo.unitWeightTonnes ?? (cargoUnit === "teu" ? 14 : 1)}
-          onChange={(v) => update((d) => void (d.cargo.unitWeightTonnes = Math.max(0.01, v)))}
-        />
         {fields.main}
         {/* Everything standard on this tab — no Advanced fold. */}
         {fields.advanced}
-        <NumberInput
-          label={t("portALat")}
-          unit="°"
-          step={0.01}
-          help={t("portCoordsHelp")}
-          value={scenario.cargo.portACoords?.lat ?? 0}
+        {/* Model options (moved from Regulation — slide 3): the basis the
+            whole comparison is read on belongs with the framing, not the
+            schemes. Keys stay flags.*; i18n stays corridor.regulation. */}
+        <Select
+          label={tr("emissionsBasis")}
+          value={scenario.flags?.emissionsBasis ?? "combustion"}
+          options={[
+            { value: "combustion", label: tr("basisCombustion") },
+            { value: "wellToWake", label: tr("basisWtw") },
+          ]}
           onChange={(v) =>
             update(
               (d) =>
-                void (d.cargo.portACoords = {
-                  lat: Math.min(90, Math.max(-90, v)),
-                  lon: d.cargo.portACoords?.lon ?? 0,
+                void (d.flags = {
+                  ...d.flags,
+                  emissionsBasis: v as "combustion" | "wellToWake",
                 }),
             )
           }
         />
-        <NumberInput
-          label={t("portALon")}
-          unit="°"
-          step={0.01}
-          help={t("portCoordsHelp")}
-          value={scenario.cargo.portACoords?.lon ?? 0}
+        <Select
+          label={tr("rateBasis")}
+          value={scenario.flags?.rateBasis ?? "nominal"}
+          options={[
+            { value: "nominal", label: tr("rateNominal") },
+            { value: "real", label: tr("rateReal") },
+          ]}
           onChange={(v) =>
-            update(
-              (d) =>
-                void (d.cargo.portACoords = {
-                  lat: d.cargo.portACoords?.lat ?? 0,
-                  lon: Math.min(180, Math.max(-180, v)),
-                }),
-            )
+            update((d) => void (d.flags = { ...d.flags, rateBasis: v as "nominal" | "real" }))
           }
         />
       </div>
@@ -263,14 +191,58 @@ export function CargoStep({ model }: StepProps) {
 // Step — Cargo (the MMMCZCS Cargo domain's own tab)
 // ---------------------------------------------------------------------------
 
-export function CargoTabStep(_props: StepProps) {
-  const t = useTranslations("corridor.cargoTab");
+export function CargoTabStep({ model }: StepProps) {
+  const t = useTranslations("corridor.cargo");
   const ts = useTranslations("corridor.steps");
+  const { scenario, update } = model;
+  // Cargo-unit identity: explicit choice, else derived from the vessel
+  // (container → TEU, everything else → tonne). Presentation-only.
+  const cargoUnit =
+    scenario.cargo.unit ??
+    (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
+
+  // The tab is deliberately thin — the Cargo domain's identity fields only.
   return (
     <Section title={ts("cargo")}>
-      <p className="sm:col-span-2 text-xs leading-snug text-neutral-500">
-        {t("pending")}
-      </p>
+      <Select
+        label={t("unit")}
+        value={cargoUnit}
+        options={[
+          { value: "tonne", label: t("unitTonne") },
+          { value: "teu", label: t("unitTeu") },
+        ]}
+        onChange={(v) =>
+          update((d) => {
+            d.cargo.unit = v as "tonne" | "teu";
+            // The user's own switch sets the weight — a visible consequence,
+            // never a load-time rewrite. Tonne pins it to 1 by definition;
+            // TEU reveals the field on its ~14 t benchmark (the previous
+            // value was the tonne pin, meaningless for TEU).
+            d.cargo.unitWeightTonnes = v === "teu" ? 14 : 1;
+          })
+        }
+      />
+      {/* Weight per unit exists only for TEU — for tonnes it is 1 by
+          definition and the field hides. A stored tonne scenario with a
+          different weight still computes with its stored value. */}
+      {cargoUnit === "teu" ? (
+        <NumberInput
+          label={t("unitWeight")}
+          unit="t"
+          step={0.5}
+          help={t("unitWeightHelp")}
+          value={scenario.cargo.unitWeightTonnes ?? 14}
+          onChange={(v) => update((d) => void (d.cargo.unitWeightTonnes = Math.max(0.01, v)))}
+        />
+      ) : (
+        <div />
+      )}
+      <NumberInput
+        label={t("units")}
+        unit="units/yr"
+        value={scenario.cargo.unitsPerYear}
+        onChange={(v) => update((d) => void (d.cargo.unitsPerYear = v))}
+      />
     </Section>
   );
 }
@@ -579,10 +551,50 @@ function PortSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
 }
 
 export function PortStep({ model }: StepProps) {
+  const t = useTranslations("corridor.port");
+  const tc = useTranslations("corridor.cargo");
+  const { scenario, update } = model;
   return (
     <div className="space-y-3">
       <PortSide model={model} side="green" />
       <PortSide model={model} side="fossil" />
+      {/* Port A geography (moved from Intro — slide 5): coordinates are a
+          property of the port, not the corridor framing. Keys stay
+          cargo.portACoords; labels stay corridor.cargo. */}
+      <Section title={t("coordsTitle")}>
+        <NumberInput
+          label={tc("portALat")}
+          unit="°"
+          step={0.01}
+          help={tc("portCoordsHelp")}
+          value={scenario.cargo.portACoords?.lat ?? 0}
+          onChange={(v) =>
+            update(
+              (d) =>
+                void (d.cargo.portACoords = {
+                  lat: Math.min(90, Math.max(-90, v)),
+                  lon: d.cargo.portACoords?.lon ?? 0,
+                }),
+            )
+          }
+        />
+        <NumberInput
+          label={tc("portALon")}
+          unit="°"
+          step={0.01}
+          help={tc("portCoordsHelp")}
+          value={scenario.cargo.portACoords?.lon ?? 0}
+          onChange={(v) =>
+            update(
+              (d) =>
+                void (d.cargo.portACoords = {
+                  lat: d.cargo.portACoords?.lat ?? 0,
+                  lon: Math.min(180, Math.max(-180, v)),
+                }),
+            )
+          }
+        />
+      </Section>
     </div>
   );
 }
@@ -593,11 +605,38 @@ export function PortStep({ model }: StepProps) {
 
 export function RegulationStep({ model }: StepProps) {
   const t = useTranslations("corridor.regulation");
-  const { scenario, update } = model;
+  const tc = useTranslations("corridor.cargo");
+  const { scenario, update, resolved, benchmarks } = model;
   const reg = scenario.regulation;
 
   return (
     <div className="space-y-3">
+      {/* Financing (moved from Intro — slide 5): the tab is Regulation &
+          FINANCING, and WACC/inflation are its financing half. Keys stay
+          cargo.*; labels stay corridor.cargo. */}
+      <Section title={t("financing")}>
+        {resolved && benchmarks ? (
+          <ResolvedField
+            label={tc("wacc")}
+            unit="fraction"
+            step={0.005}
+            help={tc("waccHelp")}
+            override={scenario.cargo.waccOverride}
+            effective={resolved.wacc.value}
+            source={resolved.wacc.source}
+            benchmark={benchmarks.wacc.value}
+            unverified
+            onChange={(v) => update((d) => void (d.cargo.waccOverride = v))}
+          />
+        ) : null}
+        <NumberInput
+          label={tc("inflation")}
+          unit="fraction"
+          step={0.005}
+          value={scenario.cargo.inflation}
+          onChange={(v) => update((d) => void (d.cargo.inflation = v))}
+        />
+      </Section>
       <Section title={t("ets")}>
         <div className="sm:col-span-2">
           <SwitchRow
@@ -848,36 +887,6 @@ export function RegulationStep({ model }: StepProps) {
         )}
       </Section>
 
-      <Section title={t("flags")}>
-        <Select
-          label={t("emissionsBasis")}
-          value={scenario.flags?.emissionsBasis ?? "combustion"}
-          options={[
-            { value: "combustion", label: t("basisCombustion") },
-            { value: "wellToWake", label: t("basisWtw") },
-          ]}
-          onChange={(v) =>
-            update(
-              (d) =>
-                void (d.flags = {
-                  ...d.flags,
-                  emissionsBasis: v as "combustion" | "wellToWake",
-                }),
-            )
-          }
-        />
-        <Select
-          label={t("rateBasis")}
-          value={scenario.flags?.rateBasis ?? "nominal"}
-          options={[
-            { value: "nominal", label: t("rateNominal") },
-            { value: "real", label: t("rateReal") },
-          ]}
-          onChange={(v) =>
-            update((d) => void (d.flags = { ...d.flags, rateBasis: v as "nominal" | "real" }))
-          }
-        />
-      </Section>
     </div>
   );
 }
