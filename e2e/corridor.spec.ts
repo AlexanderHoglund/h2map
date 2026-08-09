@@ -100,7 +100,8 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   {
     const nav = page.getByRole("navigation").first();
     const labels = (await nav.getByRole("button").allInnerTexts()).map((s) =>
-      s.replace(/\s+/g, " ").trim(),
+      // strip the completion glyphs — the order is what this pins
+      s.replace(/[✓▲✕]/g, "").replace(/\s+/g, " ").trim(),
     );
     expect(labels).toEqual([
       "00 Projects",
@@ -290,6 +291,65 @@ test("Simple/Advanced is provably output-neutral", async ({ page }) => {
   await expect(page.getByLabel("Fuel price")).toHaveCount(1);
   // Leave the preference as we found it for other tests.
   await expect(results.getByText("$1,762.21m")).toBeVisible();
+});
+
+test("per-tab completion indicators derive from validation", async ({ page }) => {
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  const results = page.getByRole("complementary");
+  await expect(results.getByText("$1,762.21m")).toBeVisible();
+  const nav = page.getByRole("navigation").first();
+
+  // Reference Chilean scenario: every tab green (the WACC is overridden, so
+  // the unverified benchmark is not in use — no amber).
+  await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(8);
+
+  // Break it: build-here without a site → Energy red, Results blocked, and
+  // the Results message names the tab and links to it.
+  await page.getByRole("button", { name: "02 Energy" }).click();
+  await page.getByLabel("Fuel sourcing").first().selectOption("build-here");
+  await expect(nav.getByRole("img", { name: /Energy: blocks results/ })).toBeVisible();
+  await expect(page.getByText("$1,762.21m")).toHaveCount(0);
+  await page.getByRole("button", { name: "07 Results" }).click();
+  await expect(nav.getByRole("img", { name: /Results: blocks results/ })).toBeVisible();
+  const fix = page.getByRole("button", { name: "Fix on Energy" });
+  await expect(fix).toBeVisible();
+  await fix.click();
+  // Landing on the red tab focuses the offending control.
+  await expect(page.getByRole("button", { name: "02 Energy" })).toHaveAttribute(
+    "aria-current",
+    "step",
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const el = document.activeElement as HTMLElement | null;
+        return el?.closest("[data-field-id]")?.getAttribute("data-field-id") ?? null;
+      }),
+    )
+    .toBe("green.sourcing");
+  await page.getByLabel("Fuel sourcing").first().selectOption("build-plant");
+  await expect(results.getByText("$1,762.21m")).toBeVisible();
+
+  // Amber: clear the WACC override so the UNVERIFIED country benchmark is
+  // actually in use — Regulation & Financing warns without blocking.
+  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  const wacc = page.getByLabel("Discount rate (WACC)");
+  await wacc.fill("");
+  await wacc.blur();
+  await expect(
+    nav.getByRole("img", { name: /Regulation & Financing: running on an unverified benchmark/ }),
+  ).toBeVisible();
+  // NOT blocking: the summary still shows a computed headline (the generic
+  // "other" WACC row may or may not equal the override, so no exact value).
+  await expect(results.getByText(/\$[0-9,.]+m/).first()).toBeVisible();
+  // Restore the override. (The generic benchmark happens to equal 0.08, so
+  // filling the same digits fires no input event — go via a distinct value.)
+  await wacc.fill("0.07");
+  await wacc.fill("0.08");
+  await wacc.blur();
+  await expect(results.getByText("$1,762.21m")).toBeVisible();
+  await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(8);
 });
 
 test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", async ({ page }) => {

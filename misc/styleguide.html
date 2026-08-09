@@ -503,6 +503,15 @@
     the process model, not the calculation dependency (a field needing an
     unset vessel value shows its benchmark with the normal badge). The Cargo
     domain colour joined the strip with this change.</p>
+  <p class="note"><strong>Completion dots.</strong> Each tab carries a status
+    glyph derived from VALIDATION, never from visits: green <code>✓</code>
+    complete · amber <code>▲</code> running on an unverified benchmark
+    (derivable rule: an unverified, top-level-ranked benchmark actually in
+    use — today exactly the country WACC) · red <code>✕</code> blocks
+    results. Shape and colour together — amber and red read without colour
+    vision — with an <code>aria-label</code> naming tab and state. Landing
+    on a red/amber tab focuses the offending control; the Results error
+    strip names the tab and links to it.</p>
   <p class="note"><strong>Simple / Advanced</strong> is a header toggle and a
     view preference (localStorage, never scenario state — two people opening
     one scenario in different modes see the same numbers). Simple hides the

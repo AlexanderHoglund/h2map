@@ -35,11 +35,14 @@ export default function ResultsPanel({
   scenario,
   resolved,
   error,
+  errorNav,
 }: {
   result: ScenarioResult | null;
   scenario: ScenarioInput;
   resolved: ResolvedScenario | null;
   error: string | null;
+  /** Where the blocking fault lives — names the tab and jumps to it. */
+  errorNav?: { label: string; onGo: () => void };
 }) {
   const t = useTranslations("corridor.results");
   const ts = useTranslations("corridor.steps");
@@ -145,6 +148,15 @@ export default function ResultsPanel({
     return (
       <div className="border border-amber-300 bg-amber-500/10 p-3 text-xs leading-snug text-amber-800">
         {t("invalid", { message: error ?? "…" })}
+        {errorNav ? (
+          <button
+            type="button"
+            onClick={errorNav.onGo}
+            className="ml-2 font-medium underline"
+          >
+            {t("invalidGo", { tab: errorNav.label })}
+          </button>
+        ) : null}
       </div>
     );
   }

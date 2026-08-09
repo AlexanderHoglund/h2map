@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -17,6 +17,7 @@ import {
   VesselStep,
 } from "./steps";
 import ResultsPanel from "./ResultsPanel";
+import { firstBlockedTab, tabStatuses } from "./tabStatus";
 import ResultsSummary from "./ResultsSummary";
 import ScenarioBar from "./ScenarioBar";
 import ProjectsPanel from "./ProjectsPanel";
@@ -143,6 +144,28 @@ export default function CorridorClient() {
 
   const gap = model.result?.summary.gapPvUsdM;
 
+  // Per-tab completion state (validation-derived) + focus-the-fault: landing
+  // on a tab whose indicator is red or amber puts focus on the offending
+  // control, so the dot navigates AND points.
+  const statuses = tabStatuses(model);
+  const blockedTab = firstBlockedTab(statuses);
+  useEffect(() => {
+    const status = statuses[view];
+    if (status.state === "green" || !status.targetFieldId) return;
+    const id = requestAnimationFrame(() => {
+      document
+        .querySelector<HTMLElement>(
+          `[data-field-id="${status.targetFieldId}"] select, ` +
+            `[data-field-id="${status.targetFieldId}"] input`,
+        )
+        ?.focus();
+    });
+    return () => cancelAnimationFrame(id);
+    // Only when the user changes tab — statuses recompute every render and
+    // must not steal focus mid-edit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
+
   // The map opens only when it is actually needed: the Energy step with the
   // green fuel sited on the map ("build-here"). Purchase/build-plant are
   // number entry — no map.
@@ -212,8 +235,31 @@ export default function CorridorClient() {
                       : "bg-[rgb(var(--tone)/0.05)] text-neutral-600 hover:bg-[rgb(var(--tone)/0.10)] hover:text-neutral-900"
                 }`}
               >
-                <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-600">
-                  {String(i).padStart(2, "0")}
+                <span className="flex w-full items-center justify-between">
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-600">
+                    {String(i).padStart(2, "0")}
+                  </span>
+                  {/* Completion dot: validation-derived, never visit-derived.
+                      Shape + colour together — ✓/▲/✕ read without colour. */}
+                  {entered && (
+                    <span
+                      role="img"
+                      aria-label={`${label}: ${t(`tabStatus.${statuses[key].state}`)}`}
+                      className={`text-[10px] font-bold leading-none ${
+                        statuses[key].state === "red"
+                          ? "text-danger"
+                          : statuses[key].state === "amber"
+                            ? "text-warning"
+                            : "text-success"
+                      }`}
+                    >
+                      {statuses[key].state === "red"
+                        ? "✕"
+                        : statuses[key].state === "amber"
+                          ? "▲"
+                          : "✓"}
+                    </span>
+                  )}
                 </span>
                 <span className="w-full truncate whitespace-nowrap text-sm font-medium">
                   {label}
@@ -395,6 +441,11 @@ export default function CorridorClient() {
               scenario={model.scenario}
               resolved={model.resolved}
               error={model.error}
+              errorNav={
+                blockedTab
+                  ? { label: t(`steps.${blockedTab}`), onGo: () => goTo(blockedTab) }
+                  : undefined
+              }
             />
           </div>
         </main>

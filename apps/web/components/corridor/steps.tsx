@@ -538,6 +538,7 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
           .map((f) => ({ value: f.id, label: f.label }))}
         onChange={(v) => update((d) => void (d[side].fuelId = v))}
       />
+      <div data-field-id={`${side}.sourcing`}>
       <Select
         label={t("sourcing")}
         value={s.sourcing}
@@ -555,6 +556,7 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
           })
         }
       />
+      </div>
       {plantMode && legacy && (
         <p className="sm:col-span-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
           {t("legacyPriceNote")}
@@ -719,6 +721,7 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
           cargo.*; labels stay corridor.cargo. */}
       <Section title={t("financing")}>
         {resolved && benchmarks ? (
+          <div data-field-id="cargo.wacc">
           <ResolvedField
             label={tc("wacc")}
             unit="fraction"
@@ -731,6 +734,7 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
             unverified
             onChange={(v) => update((d) => void (d.cargo.waccOverride = v))}
           />
+          </div>
         ) : null}
         <NumberInput
           label={tc("inflation")}

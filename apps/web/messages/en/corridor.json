@@ -15,6 +15,11 @@
       "ports": "Ports",
       "regulation": "Regulation & Financing"
     },
+    "tabStatus": {
+      "green": "complete",
+      "amber": "running on an unverified benchmark",
+      "red": "blocks results"
+    },
     "viewMode": {
       "label": "View mode",
       "simple": "Simple",
@@ -171,6 +176,7 @@
       "co2": "CO2 abated over lifetime",
       "cargo": "Cargo units over lifetime",
       "invalid": "The scenario is incomplete: {message}",
+      "invalidGo": "Fix on {tab}",
       "bothBases": "CO2 abated — combustion: {ttw} t · well-to-wake: {wtw} t",
       "gapShort": "Gap (PV)",
       "viewFull": "Full results",
