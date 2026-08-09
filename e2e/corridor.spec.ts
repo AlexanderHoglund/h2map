@@ -158,6 +158,19 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await horizon.selectOption("15");
   await expect(results.getByText(GAP)).toBeVisible();
 
+  // Sprint 2.3: Country precedes Port in DOM (and so keyboard) order at
+  // both ends of the corridor.
+  {
+    const formLabels = (await page.getByRole("main").locator("label").allInnerTexts()).map(
+      (s) => s.trim(),
+    );
+    const order = (name: string) => formLabels.findIndex((l) => l.startsWith(name));
+    expect(order("Country (port A)")).toBeGreaterThanOrEqual(0);
+    expect(order("Country (port A)")).toBeLessThan(order("Port A"));
+    expect(order("Country (port B)")).toBeGreaterThanOrEqual(0);
+    expect(order("Country (port B)")).toBeLessThan(order("Port B"));
+  }
+
   // Sprint 2.2: every moved field renders on its MMMCZCS domain tab.
   // Intro: the model-option basis selects arrived; WACC left for
   // Regulation & Financing.

@@ -120,12 +120,10 @@ export function CargoStep({ model }: StepProps) {
           }
         />
         <div />
-        {/* Port A + its country (the model's anchor: WACC benchmark) */}
-        <TextInput
-          label={twoPorts ? t("portA") : t("singlePort")}
-          value={scenario.cargo.portAName ?? ""}
-          onChange={(v) => update((d) => void (d.cargo.portAName = v || undefined))}
-        />
+        {/* Country BEFORE port, at both ends (slide 3's "swap order") — and
+            the right dependency order on its own merits: the country is the
+            constraining choice, loading the WACC benchmark and the
+            regulatory regime; the port name annotates it. */}
         <Select
           label={twoPorts ? t("countryA") : t("country")}
           help={t("countryHelp")}
@@ -133,18 +131,23 @@ export function CargoStep({ model }: StepProps) {
           options={CORRIDOR_COUNTRIES}
           onChange={(v) => update((d) => void (d.cargo.countryId = v))}
         />
+        <TextInput
+          label={twoPorts ? t("portA") : t("singlePort")}
+          value={scenario.cargo.portAName ?? ""}
+          onChange={(v) => update((d) => void (d.cargo.portAName = v || undefined))}
+        />
         {twoPorts && (
           <>
-            <TextInput
-              label={t("portB")}
-              value={scenario.cargo.portBName ?? ""}
-              onChange={(v) => update((d) => void (d.cargo.portBName = v || undefined))}
-            />
             <Select
               label={t("countryB")}
               value={scenario.cargo.countryBId ?? scenario.cargo.countryId}
               options={CORRIDOR_COUNTRIES}
               onChange={(v) => update((d) => void (d.cargo.countryBId = v))}
+            />
+            <TextInput
+              label={t("portB")}
+              value={scenario.cargo.portBName ?? ""}
+              onChange={(v) => update((d) => void (d.cargo.portBName = v || undefined))}
             />
           </>
         )}
