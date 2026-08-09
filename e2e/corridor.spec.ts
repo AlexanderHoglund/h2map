@@ -96,6 +96,11 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     await expectNoSeriousViolations(page, `step ${label}`);
   }
 
+  // Sprint 1.3: Fleet OPEX states its fuel-inclusion boundary on BOTH
+  // vessel blocks (one label key serves green and fossil).
+  await page.getByRole("button", { name: "02 Vessel" }).click();
+  await expect(page.getByText("Fleet OPEX (excluding fuel)")).toHaveCount(2);
+
   // A live-model probe: under v3 the green side (build-plant) has NO
   // merchant price row — probe the production CAPEX the mode is built on
   // (the fossil price now lives in the Advanced fold, rank #19).
