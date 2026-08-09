@@ -82,6 +82,7 @@
   "fuels": [
     {
       "id": "lsfo",
+      "family": "fossil",
       "label": "LSFO (conventional)",
       "priceUsdPerTonne": 594,
       "combustionEfTco2PerTonne": 3.3,
@@ -99,6 +100,7 @@
     },
     {
       "id": "lng",
+      "family": "fossil",
       "label": "LNG",
       "priceUsdPerTonne": 550,
       "combustionEfTco2PerTonne": 2.75,
@@ -117,6 +119,7 @@
     },
     {
       "id": "e-ammonia",
+      "family": "green",
       "label": "e-Ammonia",
       "priceUsdPerTonne": 900,
       "combustionEfTco2PerTonne": 0.1,
@@ -135,6 +138,7 @@
     },
     {
       "id": "e-methanol",
+      "family": "green",
       "label": "e-Methanol",
       "priceUsdPerTonne": 850,
       "combustionEfTco2PerTonne": 0.2,
@@ -153,6 +157,7 @@
     },
     {
       "id": "biodiesel-hvo",
+      "family": "green",
       "label": "Biodiesel / HVO",
       "priceUsdPerTonne": 1100,
       "combustionEfTco2PerTonne": 0.3,
@@ -171,6 +176,7 @@
     },
     {
       "id": "lh2",
+      "family": "green",
       "label": "Hydrogen (liquid)",
       "priceUsdPerTonne": 1200,
       "combustionEfTco2PerTonne": 0,

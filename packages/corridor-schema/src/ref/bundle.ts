@@ -21,6 +21,15 @@ const vesselTypeSchema = z.object({
 const fuelSchema = z.object({
   id: z.string(),
   label: z.string(),
+  /**
+   * Which side of the comparison this fuel can serve (2026-08-09, additive
+   * per the bundle's additive-extension rule). The model exists to compare a
+   * fossil corridor against a green one; a "fossil" corridor burning
+   * e-ammonia computes happily and silently collapses that comparison, so
+   * the family is reference data, not a UI convention: selectors filter on
+   * it and scenario resolution rejects a cross-family fuelId outright.
+   */
+  family: z.enum(["fossil", "green"]),
   priceUsdPerTonne: z.number(),
   combustionEfTco2PerTonne: z.number(),
   prodCapexUsdM: z.number(),

@@ -132,3 +132,35 @@ describe("toSideInputs", () => {
     expect(fossil.components.map((c) => c.capexUsdM)).toEqual([0, 0, 0, 0]);
   });
 });
+
+describe("fuel family separation", () => {
+  it("every fuel in the reference bundle carries a family", () => {
+    for (const fuel of bundle.fuels) {
+      expect(["fossil", "green"], `${fuel.id} family`).toContain(fuel.family);
+    }
+  });
+
+  it("the two selector lists are disjoint and cover every fuel", () => {
+    // Computed exactly as the UI computes them — from the data, not hardcoded.
+    const fossil = bundle.fuels.filter((f) => f.family === "fossil").map((f) => f.id);
+    const green = bundle.fuels.filter((f) => f.family === "green").map((f) => f.id);
+    expect(fossil.length).toBeGreaterThan(0);
+    expect(green.length).toBeGreaterThan(0);
+    expect(fossil.filter((id) => green.includes(id))).toEqual([]);
+    expect([...fossil, ...green].sort()).toEqual(bundle.fuels.map((f) => f.id).sort());
+  });
+
+  it("rejects a green fuel on the fossil side, naming the field", () => {
+    const input = fixtureInput();
+    input.fossil.fuelId = "e-ammonia";
+    expect(() => resolveScenario(input, bundle)).toThrowError(/fossil\.fuelId "e-ammonia"/);
+  });
+
+  it("rejects a fossil fuel on the green side, naming the field", () => {
+    const input = fixtureInput();
+    input.green.fuelId = "lsfo";
+    // The green side benchmarks production cost from the fuel row; the family
+    // guard must fire before any such arithmetic is attempted.
+    expect(() => resolveScenario(input, bundle)).toThrowError(/green\.fuelId "lsfo"/);
+  });
+});

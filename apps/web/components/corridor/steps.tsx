@@ -458,7 +458,12 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
       <Select
         label={t("type")}
         value={s.fuelId}
-        options={bundle.fuels.map((f) => ({ value: f.id, label: f.label }))}
+        // Each side offers only its own family — a fossil corridor burning
+        // e-ammonia would silently collapse the comparison (resolve.ts
+        // rejects it too, for scenarios arriving by import or share link).
+        options={bundle.fuels
+          .filter((f) => f.family === side)
+          .map((f) => ({ value: f.id, label: f.label }))}
         onChange={(v) => update((d) => void (d[side].fuelId = v))}
       />
       <Select

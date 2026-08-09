@@ -82,3 +82,22 @@ This follows the same additive exception as the IMO rows above: the field is
 the golden scenario never reads it, and the frozen expected file is
 untouched. A bundle whose EXISTING rows change still requires a new bundle
 id.
+
+## 2026-08-09 — fuel family added to bundle fuel rows (additive)
+
+Sprint 1 of the 6 Aug calculator feedback: the fossil-side fuel selector
+offered green fuels, so a "fossil" corridor could burn e-ammonia — the
+engine computes it happily and the comparison the model exists to make
+silently collapses. Each fuel row now carries `family: "fossil" | "green"`
+(`lsfo`, `lng` = fossil; `e-ammonia`, `e-methanol`, `biodiesel-hvo`, `lh2` =
+green). The classification is reference data, not a UI convention: the two
+selectors filter on it, and `resolveScenario` rejects a cross-family
+`fuelId` with an error naming the field (saved and imported scenarios
+included — never silently corrected, which would change a stored result).
+
+Additive per the same exception as the rows above: every pre-existing value
+is byte-identical, the golden scenario's selections (`e-ammonia` green,
+`lsfo` fossil) are both same-family, and the frozen expected file is
+untouched. The field is REQUIRED in the zod schema — unlike the optional
+extensions, a fuel without a family would recreate the bug — so this is
+the schema the bundle id `2026-07-30-excel-v1` now parses under.

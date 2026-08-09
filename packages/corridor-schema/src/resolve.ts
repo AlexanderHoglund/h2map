@@ -454,6 +454,21 @@ export function resolveScenario(
   const vesselType = getVesselType(bundle, input.vessel.typeId);
   const country = getCountry(bundle, input.cargo.countryId);
 
+  // Family guard: a "fossil" corridor burning a green fuel (or vice versa)
+  // computes happily while silently collapsing the comparison the model
+  // exists to make. Reject loudly, naming the field — never silently
+  // correct, which would change a stored result.
+  for (const side of ["green", "fossil"] as const) {
+    const fuel = getFuel(bundle, input[side].fuelId);
+    if (fuel.family !== side) {
+      throw new Error(
+        `${side}.fuelId "${fuel.id}" is a ${fuel.family} fuel — the ` +
+          `${side} side accepts only family: "${side}". Pick a ${side} ` +
+          "fuel or move this selection to the other side.",
+      );
+    }
+  }
+
   const wacc: Resolved<Fraction> = resolve(input.cargo.waccOverride, fraction, () =>
     benchmark(fraction(country.wacc)),
   );
