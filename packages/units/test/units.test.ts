@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fraction, usdM, usdPerTonne } from "../src/index";
+import { formatSig, fraction, usdM, usdPerTonne } from "../src/index";
 
 describe("branded constructors", () => {
   it("pass finite values through unchanged", () => {
@@ -22,5 +22,35 @@ describe("branded constructors", () => {
     // @ts-expect-error UsdM is not assignable to UsdPerTonne
     const p: ReturnType<typeof usdPerTonne> = m;
     expect(p).toBe(1); // runtime identity — the guarantee is purely type-level
+  });
+});
+
+describe("formatSig", () => {
+  it("renders the slide-7 case: 9806.451613 as 9,806", () => {
+    expect(formatSig(9806.451613)).toBe("9,806");
+  });
+
+  it("keeps four significant figures across magnitudes", () => {
+    expect(formatSig(2580.6451612903224)).toBe("2,581");
+    expect(formatSig(98064.51)).toBe("98,060");
+    expect(formatSig(1650000)).toBe("1,650,000");
+    expect(formatSig(92.4)).toBe("92.4");
+    expect(formatSig(1.19402985)).toBe("1.194");
+    expect(formatSig(0.055)).toBe("0.055");
+    expect(formatSig(0.0554321)).toBe("0.05543");
+  });
+
+  it("handles zero, negatives and non-finite values", () => {
+    expect(formatSig(0)).toBe("0");
+    expect(formatSig(-9806.451613)).toBe("-9,806");
+    expect(formatSig(-0.5)).toBe("-0.5");
+    expect(formatSig(Infinity)).toBe("Infinity");
+    expect(formatSig(NaN)).toBe("NaN");
+  });
+
+  it("never invents trailing zeros", () => {
+    expect(formatSig(900)).toBe("900");
+    expect(formatSig(15)).toBe("15");
+    expect(formatSig(2030)).toBe("2,030");
   });
 });

@@ -65,7 +65,10 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await expect(full.getByText(GAP, { exact: true })).toBeVisible();
   // Twice by design: the snapshot strip and the Cargo & Corridor result card.
   await expect(full.getByText("24,750,000")).toHaveCount(2);
-  await expect(full.getByText("1,450,095 t").first()).toBeVisible();
+  // Derived figures render at four significant figures (sprint 1.2): the
+  // engine's 1,450,095 t displays as 1,450,000 t; full precision stays in
+  // the model (the exact GAP above is computed from it).
+  await expect(full.getByText("1,450,000 t").first()).toBeVisible();
   // Fix #4: ETS is disabled here — the carbon-price reference must come
   // from the ACTIVE scheme (self-designed $280), labelled as such.
   await expect(full.getByText("your carbon price $280")).toBeVisible();
@@ -101,5 +104,34 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await prodCapex.fill("2000");
   await expect(page.getByText(GAP)).toHaveCount(0);
   await prodCapex.fill("1100");
+  await expect(results.getByText(GAP)).toBeVisible();
+
+  // Display rounding is display-only (sprint 1.2). The default green
+  // consumption is an OVERRIDE (5700) and renders exactly as typed. Clearing
+  // it falls back to the vessel-table benchmark, which renders grouped
+  // ("2,638") — while the draft carries no override at all, proving nothing
+  // rounded was written back. (The slide-7 case, 9806.451613 → "9,806", is
+  // pinned in the @h2map/units formatSig tests.)
+  const consumption = page.getByLabel("Fuel consumption").first();
+  await expect(consumption).toHaveValue("5700");
+  await consumption.fill("");
+  await consumption.blur();
+  await expect(consumption).toHaveValue("2,638");
+  // The draft autosave is debounced — poll until it reflects the clear.
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const raw = localStorage.getItem("corridor-draft-v2");
+          if (!raw) return "draft-missing";
+          const draft = JSON.parse(raw) as {
+            green?: { overrides?: Record<string, unknown> };
+          };
+          return draft.green?.overrides?.["fuelTonnesPerVesselYear"] ?? null;
+        }),
+      { timeout: 5000 },
+    )
+    .toBeNull();
+  await consumption.fill("5700");
   await expect(results.getByText(GAP)).toBeVisible();
 });

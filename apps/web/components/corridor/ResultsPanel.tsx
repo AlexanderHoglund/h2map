@@ -18,6 +18,7 @@ import type {
   ScenarioInput,
   ScenarioResult,
 } from "@h2map/corridor-schema";
+import { formatSig } from "@h2map/units";
 import { DEFAULT_BUNDLE } from "./state";
 
 /**
@@ -208,7 +209,7 @@ export default function ResultsPanel({
     },
     { label: t("green"), value: fmtUsdM(s.greenTotalPvUsdM) },
     { label: t("fossil"), value: fmtUsdM(s.fossilTotalPvUsdM) },
-    { label: t("co2"), value: `${fmtInt(s.co2AbatedTonnes)} t` },
+    { label: t("co2"), value: `${formatSig(s.co2AbatedTonnes)} t` },
   ];
 
   const decompRows: {
@@ -311,13 +312,13 @@ export default function ResultsPanel({
     [t("snapFossilFuel"), `${fmtId(scenario.fossil.fuelId)} · ${fmtId(scenario.fossil.sourcing)}`],
     [
       t("snapGreenUse"),
-      `${fmtInt(result.intermediates.greenFuelTonnesPerVesselYear)} ${t("unitTPerVesselYr")}`,
+      `${formatSig(result.intermediates.greenFuelTonnesPerVesselYear)} ${t("unitTPerVesselYr")}`,
     ],
     [
       t("snapFossilUse"),
-      `${fmtInt(result.intermediates.fossilFuelTonnesPerVesselYear)} ${t("unitTPerVesselYr")}`,
+      `${formatSig(result.intermediates.fossilFuelTonnesPerVesselYear)} ${t("unitTPerVesselYr")}`,
     ],
-    [t("snapCargoLifetime"), fmtInt(s.cargoUnitsLifetime)],
+    [t("snapCargoLifetime"), formatSig(s.cargoUnitsLifetime)],
   ];
 
   return (
@@ -575,13 +576,13 @@ export default function ResultsPanel({
             <Eyebrow>01 · {ts("cargo")}</Eyebrow>
             <dl className="text-xs">
               <TabRow label={t("tabCargoPerYear")} value={fmtInt(resolved.unitsPerYear)} />
-              <TabRow label={t("snapCargoLifetime")} value={fmtInt(s.cargoUnitsLifetime)} />
+              <TabRow label={t("snapCargoLifetime")} value={formatSig(s.cargoUnitsLifetime)} />
               <TabRow
                 label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")}
                 value={fmtUsd(s.costPerUnitUsd)}
                 sub={`${fmtUsd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`}
               />
-              <TabRow label={t("co2")} value={`${fmtInt(s.co2AbatedTonnes)} t`} />
+              <TabRow label={t("co2")} value={`${formatSig(s.co2AbatedTonnes)} t`} />
             </dl>
           </section>
 
@@ -711,7 +712,7 @@ export default function ResultsPanel({
                     </>
                   }
                   value={`${fmtUsd((s.gapPvUsdM * 1e6) / row.tonnes)}/t`}
-                  sub={`${t("abated")}: ${fmtInt(row.tonnes)} t`}
+                  sub={`${t("abated")}: ${formatSig(row.tonnes)} t`}
                 />
               ))}
             </dl>
@@ -719,7 +720,7 @@ export default function ResultsPanel({
               <p className="mt-2 text-[11px] leading-snug text-neutral-500">
                 {t("imoSurplus")}:{" "}
                 <span className="tabular-nums font-medium text-neutral-700">
-                  {fmtInt(imo.green.surplusTonnesCo2e)} tCO2e
+                  {formatSig(imo.green.surplusTonnesCo2e)} tCO2e
                 </span>
               </p>
             )}
@@ -775,8 +776,10 @@ function TabTable({
   /** Format values as $m (regulation PV); default plain numbers. */
   money?: boolean;
 }) {
-  const fmt = (n: number) =>
-    money ? fmtUsdM(n) : n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  // Non-money values are derived (fuel use, WTW intensity …): four
+  // significant figures — never render precision the number doesn't have.
+  // Money keeps the $X,XXX.XXm convention.
+  const fmt = (n: number) => (money ? fmtUsdM(n) : formatSig(n));
   return (
     <table className="w-full text-xs tabular-nums">
       <thead>

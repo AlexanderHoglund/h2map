@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Source } from "@h2map/corridor-schema";
+import { formatSig } from "@h2map/units";
 import { Help } from "@/components/ui/Help";
 
 /**
@@ -27,7 +28,6 @@ export default function ResolvedField({
   onChange,
   help,
   unverified,
-  step = "any",
   disabled,
   disabledNote,
 }: {
@@ -43,6 +43,7 @@ export default function ResolvedField({
   onChange: (next: number | null) => void;
   help?: string;
   unverified?: boolean;
+  /** Accepted for call-site compatibility; the text input has no stepper. */
   step?: number | "any";
   disabled?: boolean;
   /** Shown instead of the benchmark line when the field is force-disabled. */
@@ -53,7 +54,11 @@ export default function ResolvedField({
   // Free-typing buffer so "1." or "-" doesn't snap back mid-edit.
   const [draft, setDraft] = useState<string | null>(null);
 
-  const shown = draft ?? (override !== null ? String(override) : String(round(effective)));
+  // Display precedence: mid-edit draft raw → override exactly as typed →
+  // derived/benchmark value at four significant figures, grouped. The full
+  // value stays in the scenario — rounding here is display-only, which is
+  // why the input is type="text": "9,806" is not a valid number-input value.
+  const shown = draft ?? (override !== null ? String(override) : formatSig(effective));
   const overridden = override !== null;
 
   const badgeStyles: Record<Source, string> = {
@@ -94,9 +99,8 @@ export default function ResolvedField({
       >
         <input
           id={id}
-          type="number"
+          type="text"
           inputMode="decimal"
-          step={step}
           disabled={disabled}
           value={shown}
           onChange={(e) => {
@@ -106,11 +110,12 @@ export default function ResolvedField({
               onChange(null); // cleared = back to the benchmark
               return;
             }
-            const n = Number(text);
+            // Tolerate the grouped display being edited in place.
+            const n = Number(text.replace(/,/g, ""));
             if (Number.isFinite(n)) onChange(n);
           }}
           onBlur={() => setDraft(null)}
-          className={`min-w-0 flex-1 bg-transparent text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+          className={`min-w-0 flex-1 bg-transparent text-sm tabular-nums outline-none ${
             overridden ? "font-medium text-brand-strong" : ""
           }`}
         />
@@ -124,7 +129,7 @@ export default function ResolvedField({
         ) : overridden ? (
           <>
             <span>
-              {t("benchmarkPrefix")} {formatNumber(benchmark)}
+              {t("benchmarkPrefix")} {formatSig(benchmark)}
               {unit ? ` ${unit}` : ""}
             </span>
             <button
@@ -147,14 +152,4 @@ export default function ResolvedField({
       </div>
     </div>
   );
-}
-
-
-function round(n: number): number {
-  return Math.round(n * 1e6) / 1e6;
-}
-
-function formatNumber(n: number): string {
-  if (Number.isInteger(n)) return n.toLocaleString("en-US");
-  return String(Math.round(n * 1e4) / 1e4);
 }

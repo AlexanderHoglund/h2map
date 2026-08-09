@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { formatSig } from "@h2map/units";
 import { capitalRecoveryFactor, computeBand } from "@h2map/corridor-engine";
 import { ARCHETYPE_FOAK_MULTIPLIER } from "@h2map/corridor-schema";
 import ResolvedField from "./ResolvedField";
@@ -168,10 +169,10 @@ export default function BuildHerePanel({
       {/* Sizing line */}
       <p className="text-[11px] leading-snug text-neutral-600">
         {t("sizingLine", {
-          demand: Math.round(demand).toLocaleString("en-US"),
+          demand: formatSig(demand),
           margin: site.sizing.nameplateMargin,
-          nameplate: Math.round(site.sizing.nameplateTonnesPerYear).toLocaleString("en-US"),
-          surplus: Math.round(site.sizing.surplusTonnesPerYear).toLocaleString("en-US"),
+          nameplate: formatSig(site.sizing.nameplateTonnesPerYear),
+          surplus: formatSig(site.sizing.surplusTonnesPerYear),
         })}
       </p>
 
@@ -215,7 +216,7 @@ export default function BuildHerePanel({
             })}
             {site.firming.emissionsTco2PerYear > 0 &&
               ` · ${t("firmingEmissions", {
-                tco2: Math.round(site.firming.emissionsTco2PerYear).toLocaleString("en-US"),
+                tco2: formatSig(site.firming.emissionsTco2PerYear),
               })}`}
           </p>
         </div>

@@ -96,3 +96,5 @@ export const mjPerTonne = make<MjPerTonne>("MjPerTonne");
 export const gjPerNm = make<GjPerNm>("GjPerNm");
 export const nauticalMiles = make<NauticalMiles>("NauticalMiles");
 export const unitsPerYear = make<UnitsPerYear>("UnitsPerYear");
+
+export { formatSig } from "./format";
