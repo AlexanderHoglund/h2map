@@ -8,9 +8,10 @@ import { TextInput } from "@/components/ui/TextInput";
 import { SwitchRow } from "@/components/ui/Switch";
 import { Section, Advanced } from "@/components/ui/Card";
 import ResolvedField from "./ResolvedField";
+import SelectField from "./SelectField";
 import BuildHerePanel from "./BuildHerePanel";
 import { CORRIDOR_COUNTRIES } from "@/lib/corridor-countries";
-import { isAdvanced, type CorridorModel } from "./state";
+import { defaultScenario, isAdvanced, type CorridorModel } from "./state";
 
 /**
  * The five wizard steps of the corridor model (build-plan 3.1).
@@ -47,6 +48,15 @@ function splitByManifest(
 // Step 1 — Cargo & Corridor
 // ---------------------------------------------------------------------------
 
+/** Bounded year selectors (slide 3's dropdown triangles). The start-year
+ *  range covers realistic corridor planning — the zod schema stays wider
+ *  (2000–2100) and an out-of-range stored value is prepended, never moved.
+ *  The horizon honours the schema's ≤40 cap exactly. */
+const START_YEARS = Array.from({ length: 31 }, (_, i) => 2025 + i); // 2025–2055
+const HORIZON_YEARS = Array.from({ length: 40 }, (_, i) => 1 + i); // 1–40
+/** Reference defaults the selectors' badges compare against ([S] values). */
+const CARGO_DEFAULTS = defaultScenario().cargo;
+
 export function CargoStep({ model }: StepProps) {
   const t = useTranslations("corridor.cargo");
   const { scenario, update, resolved, benchmarks } = model;
@@ -67,26 +77,26 @@ export function CargoStep({ model }: StepProps) {
     {
       id: "cargo.startYear",
       node: (
-        <NumberInput
+        <SelectField
           key="start"
           label={t("startYear")}
-          step={1}
           value={scenario.cargo.startYear}
-          onChange={(v) => update((d) => void (d.cargo.startYear = Math.round(v)))}
+          options={START_YEARS}
+          benchmark={CARGO_DEFAULTS.startYear}
+          onChange={(v) => update((d) => void (d.cargo.startYear = v))}
         />
       ),
     },
     {
       id: "cargo.horizonYears",
       node: (
-        <NumberInput
+        <SelectField
           key="horizon"
           label={t("horizon")}
-          step={1}
           value={scenario.cargo.horizonYears}
-          onChange={(v) =>
-            update((d) => void (d.cargo.horizonYears = Math.max(1, Math.min(40, Math.round(v)))))
-          }
+          options={HORIZON_YEARS}
+          benchmark={CARGO_DEFAULTS.horizonYears}
+          onChange={(v) => update((d) => void (d.cargo.horizonYears = v))}
         />
       ),
     },

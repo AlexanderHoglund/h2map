@@ -101,6 +101,26 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await page.getByRole("button", { name: "02 Vessel" }).click();
   await expect(page.getByText("Fleet OPEX (excluding fuel)")).toHaveCount(2);
 
+  // Sprint 1.7: the year fields are bounded selectors carrying the
+  // resolved-field provenance chrome; defaults select the Chilean values.
+  await page.getByRole("button", { name: "01 Intro" }).click();
+  const startYear = page.getByLabel("Model start year");
+  const horizon = page.getByLabel("Years modelled");
+  await expect(startYear).toHaveValue("2030");
+  await expect(horizon).toHaveValue("15");
+  const startOptions = startYear.locator("option");
+  await expect(startOptions.first()).toHaveText("2025");
+  await expect(startOptions.last()).toHaveText("2055");
+  const horizonOptions = horizon.locator("option");
+  await expect(horizonOptions).toHaveCount(40); // honours the schema's ≤40 cap
+  await expect(horizonOptions.last()).toHaveText("40");
+  // Picking a non-default year flags override + restores cleanly, and the
+  // model reacts (the golden gap belongs to 2030).
+  await horizon.selectOption("20");
+  await expect(page.getByText(GAP)).toHaveCount(0);
+  await horizon.selectOption("15");
+  await expect(results.getByText(GAP)).toBeVisible();
+
   // A live-model probe: under v3 the green side (build-plant) has NO
   // merchant price row — probe the production CAPEX the mode is built on
   // (the fossil price now lives in the Advanced fold, rank #19).
