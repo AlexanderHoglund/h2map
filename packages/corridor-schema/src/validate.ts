@@ -115,6 +115,17 @@ export const scenarioInputSchema = z.object({
       .optional(),
     portBName: z.string().max(120).optional(),
     countryBId: z.string().max(80).optional(),
+    portBCoords: z
+      .object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) })
+      .optional(),
+    // Adopted routed distance + its graph version (provenance; engine-inert).
+    routedDistance: z
+      .object({
+        nm: z.number().positive(),
+        graphVersion: z.string().min(1),
+        via: z.enum(["panama", "suez"]).nullable(),
+      })
+      .optional(),
   }),
   vessel: z.object({
     typeId: z.string().min(1),

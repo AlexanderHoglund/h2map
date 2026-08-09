@@ -63,6 +63,9 @@
       "unitWeight": "Weight per unit",
       "unitWeightHelp": "What one cargo unit weighs. Used to derive cost per tonne of cargo; the model itself counts units.",
       "portALat": "Port A latitude",
+      "portBLat": "Port B latitude",
+      "portBLon": "Port B longitude",
+      "portBCoordsHelp": "With Port A's coordinates, these let the corridor route over the maritime shipping-lane network - the drawing and the routed distance benchmark.",
       "portALon": "Port A longitude",
       "portCoordsHelp": "Functional for build-here: the plant→port logistics leg computes from these coordinates. Leave untouched otherwise."
     },

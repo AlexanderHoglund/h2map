@@ -83,6 +83,7 @@ export function defaultScenario(): ScenarioInput {
     portAName: "Mejillones",
     portACoords: { lat: -23.1, lon: -70.45 }, // [S]
     portBName: "Japan (Asia)", // [S] study does not name the discharge port
+    portBCoords: { lat: 35.45, lon: 139.65 }, // [D] Yokohama proxy (Pub. 151)
     routeType: "point-to-point", // [S]
     oneWayDistanceNm: 9500, // [D] great-circle 9,072 nm + 5% routing
     startYear: 2030, // [S]

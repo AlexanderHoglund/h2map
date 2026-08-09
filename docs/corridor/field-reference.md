@@ -25,6 +25,11 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `cargo.portACoords.lon` | number | yes | — | — | — |
 | `cargo.portBName` | string | no | — | — | — |
 | `cargo.countryBId` | string | no | — | — | — |
+| `cargo.portBCoords.lat` | number | yes | — | — | — |
+| `cargo.portBCoords.lon` | number | yes | — | — | — |
+| `cargo.routedDistance.nm` | number | yes | — | — | — |
+| `cargo.routedDistance.graphVersion` | string | yes | — | — | — |
+| `cargo.routedDistance.via` | string, null | yes | — | — | — |
 | `vessel.typeId` | string | yes | — | — | — |
 | `vessel.consumptionMode` | "distance", "vessel-benchmark" | yes | — | — | — |
 | `vessel.green.capexUsdM` | number, null | yes | #2 | 56.9% | top-level |

@@ -648,9 +648,10 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
     <div className="space-y-3">
       <PortSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="green" />
       <PortSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="fossil" />
-      {/* Port A geography (moved from Intro — slide 5): coordinates are a
+      {/* Port geography (moved from Intro — slide 5): coordinates are a
           property of the port, not the corridor framing. Keys stay
-          cargo.portACoords; labels stay corridor.cargo. */}
+          cargo.port*Coords; labels stay corridor.cargo. Port B's pair is
+          what lets the corridor route over the maritime network. */}
       <Section title={t("coordsTitle")}>
         <NumberInput
           label={tc("portALat")}
@@ -684,6 +685,42 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
             )
           }
         />
+        {scenario.cargo.routeType === "point-to-point" && (
+          <>
+            <NumberInput
+              label={tc("portBLat")}
+              unit="°"
+              step={0.01}
+              help={tc("portBCoordsHelp")}
+              value={scenario.cargo.portBCoords?.lat ?? 0}
+              onChange={(v) =>
+                update(
+                  (d) =>
+                    void (d.cargo.portBCoords = {
+                      lat: Math.min(90, Math.max(-90, v)),
+                      lon: d.cargo.portBCoords?.lon ?? 0,
+                    }),
+                )
+              }
+            />
+            <NumberInput
+              label={tc("portBLon")}
+              unit="°"
+              step={0.01}
+              help={tc("portBCoordsHelp")}
+              value={scenario.cargo.portBCoords?.lon ?? 0}
+              onChange={(v) =>
+                update(
+                  (d) =>
+                    void (d.cargo.portBCoords = {
+                      lat: d.cargo.portBCoords?.lat ?? 0,
+                      lon: Math.min(180, Math.max(-180, v)),
+                    }),
+                )
+              }
+            />
+          </>
+        )}
       </Section>
     </div>
   );

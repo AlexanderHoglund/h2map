@@ -117,6 +117,24 @@ export interface CargoInput {
   portBName?: string;
   /** Port B's country — descriptive; point-to-point only. */
   countryBId?: string;
+  /**
+   * Port B coordinates — with portACoords, they let the corridor route
+   * over the maritime network (drawing + routed-distance benchmark).
+   * Optional; absent = no route is computed and the typed distance stands.
+   * The engine never reads these.
+   */
+  portBCoords?: { lat: number; lon: number };
+  /**
+   * The routed distance the user ADOPTED into oneWayDistanceNm, with the
+   * graph version that produced it — provenance, written only by the
+   * user's explicit "use this" action, never on load. The engine never
+   * reads it; oneWayDistanceNm remains the single number the model uses.
+   */
+  routedDistance?: {
+    nm: number;
+    graphVersion: string;
+    via: "panama" | "suez" | null;
+  };
 }
 
 export interface VesselSideInput {
