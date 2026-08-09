@@ -8,11 +8,11 @@
       "resume": "Resume draft"
     },
     "steps": {
-      "cargo": "Cargo & Corridor",
+      "cargo": "Intro",
       "vessel": "Vessel",
       "fuel": "Fuel",
       "port": "Port",
-      "regulation": "Regulation"
+      "regulation": "Regulation & Financing"
     },
     "nav": {
       "back": "Back",

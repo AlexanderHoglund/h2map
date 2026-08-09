@@ -16,7 +16,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const STEPS = ["Cargo & Corridor", "Vessel", "Fuel", "Port", "Regulation"];
+const STEPS = ["Intro", "Vessel", "Fuel", "Port", "Regulation & Financing"];
 const GAP = "$1,762.21m";
 
 async function expectNoSeriousViolations(page: Page, context: string) {

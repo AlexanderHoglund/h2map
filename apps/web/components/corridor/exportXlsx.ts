@@ -247,7 +247,7 @@ export async function downloadResultsXlsx(
     );
   };
 
-  section("01 · Cargo & Corridor", [
+  section("01 · Intro", [
     ["Route type", scenario.cargo.routeType, "—", "—"],
     ["Port A", [scenario.cargo.portAName, scenario.cargo.countryId].filter(Boolean).join(", "), "—", "—"],
     ...(scenario.cargo.routeType === "point-to-point"
@@ -298,7 +298,7 @@ export async function downloadResultsXlsx(
   section("04 · Port — fossil", portRows(rf));
 
   const reg = scenario.regulation;
-  section("05 · Regulation", [
+  section("05 · Regulation & Financing", [
     ["EU ETS", reg.ets.enabled ? "enabled" : "off", "—", "—"],
     ["EUA price", reg.ets.euaEurPerTonne, "€/t CO2", "—"],
     ["EUR/USD", reg.eurUsd, "—", "—"],
