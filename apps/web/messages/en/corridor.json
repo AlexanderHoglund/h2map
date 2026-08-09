@@ -15,6 +15,14 @@
       "ports": "Ports",
       "regulation": "Regulation & Financing"
     },
+    "viewMode": {
+      "label": "View mode",
+      "simple": "Simple",
+      "advanced": "Advanced",
+      "hiddenNote": "Advanced options hidden in Simple view - benchmarks apply.",
+      "hiddenActive": "{count, plural, one {# advanced setting} other {# advanced settings}} in effect but hidden in Simple view.",
+      "switchToAdvanced": "Switch to Advanced"
+    },
     "nav": {
       "back": "Back",
       "next": "Next"

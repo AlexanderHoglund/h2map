@@ -22,6 +22,10 @@ import { defaultScenario, isAdvanced, type CorridorModel } from "./state";
 
 interface StepProps {
   model: CorridorModel;
+  /** Simple hides the sensitivity-ranked advanced set; Advanced shows all. */
+  viewMode: "simple" | "advanced";
+  /** "Switch to Advanced" from a hidden-settings strip. */
+  revealAdvanced: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -34,14 +38,55 @@ function AdvancedFold({ children }: { children: React.ReactNode }) {
   return <Advanced label={t("advanced")}>{children}</Advanced>;
 }
 
-/** Places a field in the main grid or collects it for the Advanced fold. */
+/**
+ * What stands in for hidden advanced content in Simple mode. With no
+ * user-set values among the hidden fields, a muted one-liner says the tab
+ * has more under Advanced. With N of them set, the strip turns emphatic:
+ * hidden inputs that silently shape the result are exactly the class of
+ * problem this tool tries not to have, so they are counted, named as in
+ * effect, and one click away from review.
+ */
+function AdvancedHiddenStrip({
+  count,
+  onReveal,
+}: {
+  count: number;
+  onReveal: () => void;
+}) {
+  const t = useTranslations("corridor.viewMode");
+  if (count === 0) {
+    return (
+      <p className="sm:col-span-2 text-[11px] text-neutral-500">{t("hiddenNote")}</p>
+    );
+  }
+  return (
+    <p className="sm:col-span-2 flex items-center gap-2 bg-brand-tint px-2.5 py-1.5 text-[11px] text-brand-deep">
+      <span>{t("hiddenActive", { count })}</span>
+      <button type="button" onClick={onReveal} className="font-medium underline">
+        {t("switchToAdvanced")}
+      </button>
+    </p>
+  );
+}
+
+/** Places a field in the main grid or collects it for the Advanced fold.
+ *  `overridden` marks entries whose value the user has set — Simple mode
+ *  reports how many of those it is hiding. */
 function splitByManifest(
-  entries: { id: string; node: React.ReactNode }[],
-): { main: React.ReactNode[]; advanced: React.ReactNode[] } {
+  entries: { id: string; node: React.ReactNode; overridden?: boolean }[],
+): { main: React.ReactNode[]; advanced: React.ReactNode[]; advancedOverrides: number } {
   const main: React.ReactNode[] = [];
   const advanced: React.ReactNode[] = [];
-  for (const e of entries) (isAdvanced(e.id) ? advanced : main).push(e.node);
-  return { main, advanced };
+  let advancedOverrides = 0;
+  for (const e of entries) {
+    if (isAdvanced(e.id)) {
+      advanced.push(e.node);
+      if (e.overridden) advancedOverrides += 1;
+    } else {
+      main.push(e.node);
+    }
+  }
+  return { main, advanced, advancedOverrides };
 }
 
 // ---------------------------------------------------------------------------
@@ -56,8 +101,10 @@ const START_YEARS = Array.from({ length: 31 }, (_, i) => 2025 + i); // 2025–20
 const HORIZON_YEARS = Array.from({ length: 40 }, (_, i) => 1 + i); // 1–40
 /** Reference defaults the selectors' badges compare against ([S] values). */
 const CARGO_DEFAULTS = defaultScenario().cargo;
+/** Regulation reference defaults — Simple mode counts hidden departures. */
+const REG_DEFAULTS = defaultScenario().regulation;
 
-export function CargoStep({ model }: StepProps) {
+export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
   const t = useTranslations("corridor.cargo");
   const tr = useTranslations("corridor.regulation");
   const { scenario, update } = model;
@@ -153,7 +200,11 @@ export function CargoStep({ model }: StepProps) {
         )}
         {fields.main}
         {/* Everything standard on this tab — no Advanced fold. */}
-        {fields.advanced}
+        {viewMode === "advanced" ? (
+          fields.advanced
+        ) : fields.advanced.length > 0 ? (
+          <AdvancedHiddenStrip count={fields.advancedOverrides} onReveal={revealAdvanced} />
+        ) : null}
         {/* Model options (moved from Regulation — slide 3): the basis the
             whole comparison is read on belongs with the framing, not the
             schemes. Keys stay flags.*; i18n stays corridor.regulation. */}
@@ -194,7 +245,7 @@ export function CargoStep({ model }: StepProps) {
 // Step — Cargo (the MMMCZCS Cargo domain's own tab)
 // ---------------------------------------------------------------------------
 
-export function CargoTabStep({ model }: StepProps) {
+export function CargoTabStep({ model, viewMode, revealAdvanced }: StepProps) {
   const t = useTranslations("corridor.cargo");
   const ts = useTranslations("corridor.steps");
   const { scenario, update } = model;
@@ -203,6 +254,24 @@ export function CargoTabStep({ model }: StepProps) {
   const cargoUnit =
     scenario.cargo.unit ??
     (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
+
+  // Throughput moved here from Intro's Advanced fold, but its sensitivity
+  // rank still governs Simple mode — the manifest stays the source of truth.
+  const fields = splitByManifest([
+    {
+      id: "cargo.unitsPerYear",
+      overridden: scenario.cargo.unitsPerYear !== CARGO_DEFAULTS.unitsPerYear,
+      node: (
+        <NumberInput
+          key="units"
+          label={t("units")}
+          unit="units/yr"
+          value={scenario.cargo.unitsPerYear}
+          onChange={(v) => update((d) => void (d.cargo.unitsPerYear = v))}
+        />
+      ),
+    },
+  ]);
 
   // The tab is deliberately thin — the Cargo domain's identity fields only.
   return (
@@ -240,12 +309,12 @@ export function CargoTabStep({ model }: StepProps) {
       ) : (
         <div />
       )}
-      <NumberInput
-        label={t("units")}
-        unit="units/yr"
-        value={scenario.cargo.unitsPerYear}
-        onChange={(v) => update((d) => void (d.cargo.unitsPerYear = v))}
-      />
+      {fields.main}
+      {viewMode === "advanced" ? (
+        fields.advanced
+      ) : fields.advanced.length > 0 ? (
+        <AdvancedHiddenStrip count={fields.advancedOverrides} onReveal={revealAdvanced} />
+      ) : null}
     </Section>
   );
 }
@@ -341,7 +410,7 @@ export function VesselStep({ model }: StepProps) {
 // Step 3 — Fuel
 // ---------------------------------------------------------------------------
 
-function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
+function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side: "green" | "fossil" }) {
   const t = useTranslations("corridor.fuel");
   const { scenario, update, resolved, benchmarks, bundle } = model;
   if (!resolved || !benchmarks) return null;
@@ -396,6 +465,7 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
       ? [
           {
             id: `${side}.priceUsdPerTonne`,
+            overridden: s.overrides.priceUsdPerTonne !== null,
             node: overrideField("priceUsdPerTonne", "priceUsdPerTonne", t("price"), "$/t"),
           },
         ]
@@ -425,6 +495,7 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
     },
     {
       id: `${side}.wtwGco2PerMj`,
+      overridden: s.overrides.wtwGco2PerMj !== null,
       node: overrideField("wtwGco2PerMj", "wtw", t("wtw"), "gCO2e/MJ", {
         help: t("wtwHelp"),
       }),
@@ -492,16 +563,20 @@ function FuelSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
       {s.sourcing === "build-here" && <BuildHerePanel model={model} side={side} />}
       {/* Everything standard on this tab — no Advanced fold. */}
       {entries.main}
-      {entries.advanced}
+      {viewMode === "advanced" ? (
+        entries.advanced
+      ) : entries.advanced.length > 0 ? (
+        <AdvancedHiddenStrip count={entries.advancedOverrides} onReveal={revealAdvanced} />
+      ) : null}
     </Section>
   );
 }
 
-export function FuelStep({ model }: StepProps) {
+export function FuelStep({ model, viewMode, revealAdvanced }: StepProps) {
   return (
     <div className="space-y-3">
-      <FuelSide model={model} side="green" />
-      <FuelSide model={model} side="fossil" />
+      <FuelSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="green" />
+      <FuelSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="fossil" />
     </div>
   );
 }
@@ -510,7 +585,7 @@ export function FuelStep({ model }: StepProps) {
 // Step 4 — Port
 // ---------------------------------------------------------------------------
 
-function PortSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
+function PortSide({ model, viewMode, revealAdvanced, side }: StepProps & { side: "green" | "fossil" }) {
   const t = useTranslations("corridor.port");
   const { scenario, update, resolved, benchmarks } = model;
   if (!resolved || !benchmarks) return null;
@@ -547,20 +622,30 @@ function PortSide({ model, side }: StepProps & { side: "green" | "fossil" }) {
       )}
       {field("portStorageCapexUsdM", t("storageCapex"), "$m")}
       {field("portStorageOpexUsdMPerYear", t("storageOpex"), "$m/yr")}
-      {field("bargeCapexUsdM", t("bargeCapex"), "$m")}
+      {/* Barge CAPEX is advanced-ranked in the sensitivity manifest —
+          Simple hides it wherever it renders, fold or not. */}
+      {viewMode === "advanced" || !isAdvanced("port.bargeCapexUsdM")
+        ? field("bargeCapexUsdM", t("bargeCapex"), "$m")
+        : null}
       {field("bargeOpexUsdMPerYear", t("bargeOpex"), "$m/yr")}
+      {viewMode === "simple" && isAdvanced("port.bargeCapexUsdM") ? (
+        <AdvancedHiddenStrip
+          count={scenario[side].overrides.bargeCapexUsdM !== null ? 1 : 0}
+          onReveal={revealAdvanced}
+        />
+      ) : null}
     </Section>
   );
 }
 
-export function PortStep({ model }: StepProps) {
+export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
   const t = useTranslations("corridor.port");
   const tc = useTranslations("corridor.cargo");
   const { scenario, update } = model;
   return (
     <div className="space-y-3">
-      <PortSide model={model} side="green" />
-      <PortSide model={model} side="fossil" />
+      <PortSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="green" />
+      <PortSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="fossil" />
       {/* Port A geography (moved from Intro — slide 5): coordinates are a
           property of the port, not the corridor framing. Keys stay
           cargo.portACoords; labels stay corridor.cargo. */}
@@ -606,11 +691,26 @@ export function PortStep({ model }: StepProps) {
 // Step 5 — Regulation
 // ---------------------------------------------------------------------------
 
-export function RegulationStep({ model }: StepProps) {
+export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
   const t = useTranslations("corridor.regulation");
   const tc = useTranslations("corridor.cargo");
   const { scenario, update, resolved, benchmarks } = model;
   const reg = scenario.regulation;
+  const simple = viewMode === "simple";
+  // What Simple is hiding per scheme, counted only while the scheme is
+  // enabled (a hidden value on a disabled scheme is inert).
+  const etsHidden =
+    (reg.ets.euaEurPerTonne !== REG_DEFAULTS.ets.euaEurPerTonne ? 1 : 0) +
+    (reg.eurUsd !== REG_DEFAULTS.eurUsd ? 1 : 0) +
+    (reg.ets.scope !== REG_DEFAULTS.ets.scope ? 1 : 0) +
+    (reg.ets.euaEscalation != null ? 1 : 0);
+  const fuelEuHidden =
+    (reg.fuelEu.penaltyEurPerTonne !== REG_DEFAULTS.fuelEu.penaltyEurPerTonne ? 1 : 0) +
+    (reg.fuelEu.scope !== REG_DEFAULTS.fuelEu.scope ? 1 : 0);
+  const imoHidden =
+    (reg.imoNetZero?.rewardUsdPerTonneCo2e != null ? 1 : 0) +
+    (reg.imoNetZero?.priceEscalation != null ? 1 : 0);
+  const selfHidden = reg.selfDesigned.co2PriceEscalation != null ? 1 : 0;
 
   return (
     <div className="space-y-3">
@@ -650,26 +750,33 @@ export function RegulationStep({ model }: StepProps) {
         </div>
         {reg.ets.enabled && (
           <>
-            <NumberInput
-              label={t("eua")}
-              unit="€/t CO2"
-              value={reg.ets.euaEurPerTonne}
-              onChange={(v) => update((d) => void (d.regulation.ets.euaEurPerTonne = v))}
-            />
-            <NumberInput
-              label={t("eurUsd")}
-              step={0.01}
-              value={reg.eurUsd}
-              onChange={(v) => update((d) => void (d.regulation.eurUsd = v))}
-            />
-            <NumberInput
-              label={t("etsScope")}
-              unit="0–1"
-              step={0.05}
-              value={reg.ets.scope}
-              onChange={(v) => update((d) => void (d.regulation.ets.scope = v))}
-            />
+            {!simple && (
+              <>
+                <NumberInput
+                  label={t("eua")}
+                  unit="€/t CO2"
+                  value={reg.ets.euaEurPerTonne}
+                  onChange={(v) => update((d) => void (d.regulation.ets.euaEurPerTonne = v))}
+                />
+                <NumberInput
+                  label={t("eurUsd")}
+                  step={0.01}
+                  value={reg.eurUsd}
+                  onChange={(v) => update((d) => void (d.regulation.eurUsd = v))}
+                />
+                <NumberInput
+                  label={t("etsScope")}
+                  unit="0–1"
+                  step={0.05}
+                  value={reg.ets.scope}
+                  onChange={(v) => update((d) => void (d.regulation.ets.scope = v))}
+                />
+              </>
+            )}
             <p className="sm:col-span-2 text-[11px] text-neutral-500">{t("phaseNote")}</p>
+            {simple ? (
+              <AdvancedHiddenStrip count={etsHidden} onReveal={revealAdvanced} />
+            ) : (
             <div className="sm:col-span-2">
               <AdvancedFold>
                 <NumberInput
@@ -684,6 +791,7 @@ export function RegulationStep({ model }: StepProps) {
                 />
               </AdvancedFold>
             </div>
+            )}
           </>
         )}
       </Section>
@@ -698,19 +806,26 @@ export function RegulationStep({ model }: StepProps) {
         </div>
         {reg.fuelEu.enabled && (
           <>
-            <NumberInput
-              label={t("penalty")}
-              unit="€/t VLSFO-eq"
-              value={reg.fuelEu.penaltyEurPerTonne}
-              onChange={(v) => update((d) => void (d.regulation.fuelEu.penaltyEurPerTonne = v))}
-            />
-            <NumberInput
-              label={t("fuelEuScope")}
-              unit="0–1"
-              step={0.05}
-              value={reg.fuelEu.scope}
-              onChange={(v) => update((d) => void (d.regulation.fuelEu.scope = v))}
-            />
+            {!simple && (
+              <>
+                <NumberInput
+                  label={t("penalty")}
+                  unit="€/t VLSFO-eq"
+                  value={reg.fuelEu.penaltyEurPerTonne}
+                  onChange={(v) =>
+                    update((d) => void (d.regulation.fuelEu.penaltyEurPerTonne = v))
+                  }
+                />
+                <NumberInput
+                  label={t("fuelEuScope")}
+                  unit="0–1"
+                  step={0.05}
+                  value={reg.fuelEu.scope}
+                  onChange={(v) => update((d) => void (d.regulation.fuelEu.scope = v))}
+                />
+              </>
+            )}
+            {simple && <AdvancedHiddenStrip count={fuelEuHidden} onReveal={revealAdvanced} />}
             <NumberInput
               label={t("vlsfo")}
               unit="MJ/t"
@@ -791,6 +906,9 @@ export function RegulationStep({ model }: StepProps) {
             <p className="sm:col-span-2 text-[11px] leading-snug text-neutral-500">
               {t("imoNote")}
             </p>
+            {simple ? (
+              <AdvancedHiddenStrip count={imoHidden} onReveal={revealAdvanced} />
+            ) : (
             <div className="sm:col-span-2">
               <AdvancedFold>
                 <NumberInput
@@ -820,6 +938,7 @@ export function RegulationStep({ model }: StepProps) {
                 />
               </AdvancedFold>
             </div>
+            )}
           </>
         )}
       </Section>
@@ -869,6 +988,9 @@ export function RegulationStep({ model }: StepProps) {
               value={reg.selfDesigned.otherUsdM}
               onChange={(v) => update((d) => void (d.regulation.selfDesigned.otherUsdM = v))}
             />
+            {simple ? (
+              <AdvancedHiddenStrip count={selfHidden} onReveal={revealAdvanced} />
+            ) : (
             <div className="sm:col-span-2">
               <AdvancedFold>
                 <NumberInput
@@ -886,6 +1008,7 @@ export function RegulationStep({ model }: StepProps) {
                 />
               </AdvancedFold>
             </div>
+            )}
           </>
         )}
       </Section>

@@ -244,6 +244,54 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await expect(results.getByText(GAP)).toBeVisible();
 });
 
+test("Simple/Advanced is provably output-neutral", async ({ page }) => {
+  // Written BEFORE the feature (sprint 2.4 working rule): if a single
+  // number moves when the view mode toggles, the mode has become a model
+  // variant and is out of scope.
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  const results = page.getByRole("complementary");
+  await expect(results.getByText("$1,762.21m")).toBeVisible();
+  const header = page.getByRole("banner");
+
+  const summaryBefore = await results.innerText();
+  // Let the debounced autosave write the draft before taking the baseline.
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem("corridor-draft-v2") !== null))
+    .toBe(true);
+  const draftBefore = await page.evaluate(() =>
+    localStorage.getItem("corridor-draft-v2"),
+  );
+  for (let i = 0; i < 3; i += 1) {
+    await header.getByRole("button", { name: "Simple" }).click();
+    await expect(results.getByText("$1,762.21m")).toBeVisible();
+    expect(await results.innerText()).toBe(summaryBefore);
+    await header.getByRole("button", { name: "Advanced" }).click();
+    await expect(results.getByText("$1,762.21m")).toBeVisible();
+    expect(await results.innerText()).toBe(summaryBefore);
+  }
+  // The mode never touches the scenario: the draft is byte-identical and
+  // carries no view-mode key (two people opening the same scenario in
+  // different modes see the same numbers).
+  const draftAfter = await page.evaluate(() =>
+    localStorage.getItem("corridor-draft-v2"),
+  );
+  expect(draftAfter).toBe(draftBefore);
+  expect(draftAfter).not.toContain("viewMode");
+  expect(draftAfter).not.toContain("simple");
+
+  // Simple hides the manifest-advanced fields and locks the folds; the
+  // hidden set stays on its benchmarks.
+  await header.getByRole("button", { name: "Simple" }).click();
+  await page.getByRole("button", { name: "02 Energy" }).click();
+  // fossil fuel price is advanced-ranked: hidden in Simple.
+  await expect(page.getByLabel("Fuel price")).toHaveCount(0);
+  await header.getByRole("button", { name: "Advanced" }).click();
+  await expect(page.getByLabel("Fuel price")).toHaveCount(1);
+  // Leave the preference as we found it for other tests.
+  await expect(results.getByText("$1,762.21m")).toBeVisible();
+});
+
 test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", async ({ page }) => {
   // Enter once so the app writes its default draft…
   await page.goto("/corridor");

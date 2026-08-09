@@ -79,6 +79,17 @@ const TONES: Record<View, string> = {
   results: "33 113 181", // no domain, brand tone
 };
 
+/**
+ * Simple/Advanced is a VIEW preference, not scenario state: it lives in
+ * localStorage (per user, like the draft), never in the scenario object,
+ * exported JSON or a share link — two people opening the same scenario in
+ * different modes must see the same numbers. Simple shows fewer inputs,
+ * not different ones: the sensitivity-derived advanced set stays hidden on
+ * its benchmarks and the folds lock shut.
+ */
+const VIEWMODE_KEY = "corridor-viewmode-v1";
+type ViewMode = "simple" | "advanced";
+
 /** Same hues darkened to ≥4.5:1 on white — for section headers, never washes. */
 const TONE_TEXT: Record<View, string> = {
   projects: "#52514e",
@@ -101,6 +112,21 @@ export default function CorridorClient() {
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [legacyDismissed, setLegacyDismissed] = useState(false);
   const [view, setView] = useState<View>("intro");
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    try {
+      return localStorage.getItem(VIEWMODE_KEY) === "simple" ? "simple" : "advanced";
+    } catch {
+      return "advanced";
+    }
+  });
+  const pickViewMode = (m: ViewMode) => {
+    setViewMode(m);
+    try {
+      localStorage.setItem(VIEWMODE_KEY, m);
+    } catch {
+      /* best-effort preference */
+    }
+  };
   // Step position for Back/Next + the visited shading. Projects (tab 00) is
   // not part of the walk: it reports -1.
   const stepIndex =
@@ -123,13 +149,18 @@ export default function CorridorClient() {
   const mapOpen =
     view === "energy" && model.scenario.green.sourcing === "build-here";
 
+  const stepProps = {
+    model,
+    viewMode,
+    revealAdvanced: () => pickViewMode("advanced"),
+  };
   const stepBody: Record<StepKey, React.ReactNode> = {
-    intro: <CargoStep model={model} />,
-    energy: <FuelStep model={model} />,
-    vessels: <VesselStep model={model} />,
-    cargo: <CargoTabStep model={model} />,
-    ports: <PortStep model={model} />,
-    regulation: <RegulationStep model={model} />,
+    intro: <CargoStep {...stepProps} />,
+    energy: <FuelStep {...stepProps} />,
+    vessels: <VesselStep {...stepProps} />,
+    cargo: <CargoTabStep {...stepProps} />,
+    ports: <PortStep {...stepProps} />,
+    regulation: <RegulationStep {...stepProps} />,
   };
 
   const tabs: { key: View; label: string }[] = [
@@ -193,6 +224,29 @@ export default function CorridorClient() {
         </nav>
 
         <div className="ml-auto flex shrink-0 items-stretch">
+          {entered && (
+            <div
+              role="group"
+              aria-label={t("viewMode.label")}
+              className="hidden items-center gap-1 px-3 md:flex"
+            >
+              {(["simple", "advanced"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  aria-pressed={viewMode === m}
+                  onClick={() => pickViewMode(m)}
+                  className={`px-2 py-1 text-[11px] font-medium uppercase tracking-wide transition-colors ${
+                    viewMode === m
+                      ? "bg-neutral-800 text-white"
+                      : "bg-neutral-500/10 text-neutral-600 hover:bg-neutral-500/20 hover:text-neutral-900"
+                  }`}
+                >
+                  {t(`viewMode.${m}`)}
+                </button>
+              ))}
+            </div>
+          )}
           {entered && gap != null && (
             <span className="hidden items-center gap-2 px-4 font-mono text-xs tabular-nums md:flex">
               <span className="uppercase tracking-widest text-neutral-500">
