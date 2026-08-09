@@ -79,6 +79,25 @@
   --anim-ink-soft: #9b9a90; /* secondary: dashed pipes, sea marks */
   --anim-land: #f2f2ed; /* landmass fill */
   --anim-ship: #b2182b; /* fleet marks */
+
+  /* MMMCZCS process-model domain palette (sampled from the reference slide's
+     Phase II shape fills). Deliberately NOT --viz-*: these identify the five
+     work domains — Energy, Vessels, Cargo, Ports, Regulation & Funding — in
+     the workspace nav and section headers; they carry no data-legibility
+     contract. Space-separated RGB channels so they compose with alpha as
+     rgb(var(--domain-x) / 0.12). The -text variants are the same hues
+     darkened to ≥4.5:1 on white for use AS text (base energy/vessels/ports
+     measure ~3.05:1 — fine as a wash or accent bar, not as a heading). */
+  --domain-energy: 78 167 46; /* #4EA72E */
+  --domain-vessels: 15 158 213; /* #0F9ED5 */
+  --domain-cargo: 21 96 130; /* #156082 */
+  --domain-ports: 233 113 50; /* #E97132 */
+  --domain-regulation: 160 43 147; /* #A02B93 */
+  --domain-energy-text: #3d8324; /* 4.70:1 on white */
+  --domain-vessels-text: #0c7eaa; /* 4.58:1 */
+  --domain-cargo-text: #156082; /* base passes: 6.94:1 */
+  --domain-ports-text: #c45115; /* 4.63:1 */
+  --domain-regulation-text: #a02b93; /* base passes: 6.44:1 */
 }
 
 body {

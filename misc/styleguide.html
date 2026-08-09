@@ -46,6 +46,19 @@
     --viz-delta-up: #d03b3b;
     --viz-delta-down: #2171b5;
     --viz-total: #52514e;
+
+    /* MMMCZCS process-model domains (RGB channels for rgb(… / α) washes;
+       the -text variants are the same hues darkened to ≥4.5:1 on white) */
+    --domain-energy: 78 167 46;
+    --domain-vessels: 15 158 213;
+    --domain-cargo: 21 96 130;
+    --domain-ports: 233 113 50;
+    --domain-regulation: 160 43 147;
+    --domain-energy-text: #3d8324;
+    --domain-vessels-text: #0c7eaa;
+    --domain-cargo-text: #156082;
+    --domain-ports-text: #c45115;
+    --domain-regulation-text: #a02b93;
   }
 
   * { box-sizing: border-box; }
@@ -467,23 +480,42 @@
 
   <!-- 11 -->
   <h2 id="tabs">11. Workspace tabs</h2>
-  <p>The corridor workspace has one nav bar. Each tab carries a very slight
-    tone swept along the logo’s own blue→red diverging wave, held as
-    <code>--tone</code> RGB channels and used at low alpha. The active tab is
-    marked by a solid 2px inset bar, not by a loud fill.</p>
+  <p>The corridor workspace has one nav bar. Each tab with a work domain
+    carries that domain's colour from the MMMCZCS process model (the
+    <code>--domain-*</code> tokens): Vessels light blue, Fuel = Energy green,
+    Port orange, Regulation &amp; Financing magenta. Intro and Results have no
+    domain and stay neutral on the brand tone; Projects sits outside the walk
+    in grey. Held as <code>--tone</code> RGB channels and used at low alpha —
+    the active tab is marked by a solid 2px inset bar, not by a loud fill.</p>
   <div class="tabs">
     <div class="tab tab-active" style="--tone:82 81 78"><span class="tab-num mono">00</span><span class="tab-label">Projects</span></div>
-    <div class="tab" style="--tone:8 48 107"><span class="tab-num mono">01</span><span class="tab-label">Cargo</span></div>
-    <div class="tab" style="--tone:33 113 181"><span class="tab-num mono">02</span><span class="tab-label">Vessel</span></div>
-    <div class="tab" style="--tone:107 174 214"><span class="tab-num mono">03</span><span class="tab-label">Fuel</span></div>
-    <div class="tab" style="--tone:244 165 130"><span class="tab-num mono">04</span><span class="tab-label">Port</span></div>
-    <div class="tab" style="--tone:214 96 77"><span class="tab-num mono">05</span><span class="tab-label">Regulation</span></div>
-    <div class="tab" style="--tone:178 24 43"><span class="tab-num mono">06</span><span class="tab-label">Results</span></div>
+    <div class="tab" style="--tone:33 113 181"><span class="tab-num mono">01</span><span class="tab-label">Intro</span></div>
+    <div class="tab" style="--tone:15 158 213"><span class="tab-num mono">02</span><span class="tab-label">Vessel</span></div>
+    <div class="tab" style="--tone:78 167 46"><span class="tab-num mono">03</span><span class="tab-label">Fuel</span></div>
+    <div class="tab" style="--tone:233 113 50"><span class="tab-num mono">04</span><span class="tab-label">Port</span></div>
+    <div class="tab" style="--tone:160 43 147"><span class="tab-num mono">05</span><span class="tab-label">Regulation &amp; Financing</span></div>
+    <div class="tab" style="--tone:33 113 181"><span class="tab-num mono">06</span><span class="tab-label">Results</span></div>
+  </div>
+  <div class="grid cols-3" style="margin-top:12px">
+    <div class="sw"><div class="sw-chip" style="background:#4EA72E"></div>
+      <div class="sw-meta"><div class="sw-name">domain-energy</div><div class="sw-val mono">#4EA72E · text #3D8324</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:#0F9ED5"></div>
+      <div class="sw-meta"><div class="sw-name">domain-vessels</div><div class="sw-val mono">#0F9ED5 · text #0C7EAA</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:#156082"></div>
+      <div class="sw-meta"><div class="sw-name">domain-cargo</div><div class="sw-val mono">#156082 · text = base</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:#E97132"></div>
+      <div class="sw-meta"><div class="sw-name">domain-ports</div><div class="sw-val mono">#E97132 · text #C45115</div></div></div>
+    <div class="sw"><div class="sw-chip" style="background:#A02B93"></div>
+      <div class="sw-meta"><div class="sw-name">domain-regulation</div><div class="sw-val mono">#A02B93 · text = base</div></div></div>
   </div>
   <p class="note">Active 12% · visited 6% · idle 5% alpha, plus a 3% wash of the
     active tone on the workspace background. Eyebrow numerals and idle labels
-    are <code>neutral-600</code> — <code>neutral-500</code> fails AA on the warm
-    active tint (measured 3.91:1).</p>
+    are <code>neutral-600</code>, which clears AA on every domain's 12% active
+    tint (measured 6.1–6.6:1; the old warm sweep failed <code>neutral-500</code>
+    at 3.91:1). Section headers inside a tab take <code>--tone-text</code> — the
+    domain hue darkened to ≥4.5:1 on white (energy 4.70, vessels 4.58, ports
+    4.63; cargo 6.94 and regulation 6.44 pass at base). The base colour is a
+    wash or accent bar, never text.</p>
 
   <!-- 12 -->
   <h2 id="viz">12. Data visualisation</h2>

@@ -44,20 +44,34 @@ type StepKey = (typeof STEPS)[number];
 type View = "projects" | StepKey | "results";
 
 /**
- * A very slight per-tab tone, swept along the logo's own blue→red diverging
- * wave (#08306B → #2171B5 → #6BAED6 → #F4A582 → #D6604D → #B2182B). Held as
- * space-separated RGB channels so it drops straight into an rgb(… / α) with a
- * low alpha — the tint is decorative, never loud. Set as `--tone` on each tab
- * (its own colour) and on the workspace (the active tab's colour).
+ * Per-tab tone from the MMMCZCS process model's domain palette (globals.css
+ * --domain-*): Vessels light blue, Fuel = Energy green, Port orange,
+ * Regulation & Financing magenta. Intro and Results carry no domain — they
+ * stay neutral on the brand tone; Projects sits outside the walk in grey.
+ * Held as space-separated RGB channels so the value drops straight into an
+ * rgb(… / α) at low alpha — the tint is decorative, never loud. Set as
+ * `--tone` on each tab (its own colour) and on the workspace (the active
+ * tab's colour); `--tone-text` is the AA-darkened variant for text.
  */
 const TONES: Record<View, string> = {
   projects: "82 81 78",
-  cargo: "8 48 107",
-  vessel: "33 113 181",
-  fuel: "107 174 214",
-  port: "244 165 130",
-  regulation: "214 96 77",
-  results: "178 24 43",
+  cargo: "33 113 181", // Intro — no domain, brand tone
+  vessel: "15 158 213", // Vessels
+  fuel: "78 167 46", // Energy
+  port: "233 113 50", // Ports
+  regulation: "160 43 147", // Regulation & Funding
+  results: "33 113 181", // no domain, brand tone
+};
+
+/** Same hues darkened to ≥4.5:1 on white — for section headers, never washes. */
+const TONE_TEXT: Record<View, string> = {
+  projects: "#52514e",
+  cargo: "var(--color-brand-strong)",
+  vessel: "var(--domain-vessels-text)",
+  fuel: "var(--domain-energy-text)",
+  port: "var(--domain-ports-text)",
+  regulation: "var(--domain-regulation-text)",
+  results: "var(--color-brand-strong)",
 };
 
 export default function CorridorClient() {
@@ -109,7 +123,9 @@ export default function CorridorClient() {
   return (
     <div
       className="flex h-dvh flex-col"
-      style={{ "--tone": TONES[view] } as React.CSSProperties}
+      style={
+        { "--tone": TONES[view], "--tone-text": TONE_TEXT[view] } as React.CSSProperties
+      }
     >
       {/* ===== The one nav bar: brand | 5 steps + Results | gap + docs ===== */}
       <header className="relative flex shrink-0 items-stretch border-b border-neutral-300 bg-white">

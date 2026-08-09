@@ -32,7 +32,12 @@ export function Section({
 }) {
   return (
     <section className="rounded-lg border border-neutral-300 bg-white p-3">
-      <h3 className="mb-3 text-sm font-semibold">{title}</h3>
+      {/* Inside the corridor workspace the cascade sets --tone-text to the
+          active tab's AA-darkened domain colour; everywhere else the
+          fallback keeps the heading neutral ink. */}
+      <h3 className="mb-3 text-sm font-semibold text-(--tone-text,#171717)">
+        {title}
+      </h3>
       <div className="grid gap-3 sm:grid-cols-2">{children}</div>
     </section>
   );
