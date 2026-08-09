@@ -8,7 +8,14 @@ import { Button } from "@/components/ui/Button";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { useCorridorModel } from "./state";
 import { downloadResultsXlsx } from "./exportXlsx";
-import { CargoStep, FuelStep, PortStep, RegulationStep, VesselStep } from "./steps";
+import {
+  CargoStep,
+  CargoTabStep,
+  FuelStep,
+  PortStep,
+  RegulationStep,
+  VesselStep,
+} from "./steps";
 import ResultsPanel from "./ResultsPanel";
 import ResultsSummary from "./ResultsSummary";
 import ScenarioBar from "./ScenarioBar";
@@ -38,27 +45,36 @@ const ExplorerWorkspace = dynamic(
   },
 );
 
-const STEPS = ["cargo", "vessel", "fuel", "port", "regulation"] as const;
+/**
+ * The MMMCZCS Phase II domain sequence: Energy · Vessels · Cargo · Ports,
+ * with Regulation & Funding beneath. Intro fronts the walk (route, ports,
+ * timeline, model options). The keys are semantic and PURELY client state —
+ * never in a URL or stored anywhere — so they name the domain, not the
+ * scenario group a tab happens to render (the Cargo tab shows `cargo.*`
+ * cargo-identity fields, but so does Intro's timeline: storage and
+ * presentation are deliberately decoupled).
+ */
+const STEPS = ["intro", "energy", "vessels", "cargo", "ports", "regulation"] as const;
 type StepKey = (typeof STEPS)[number];
-/** Tab 00 (projects) sits before the five input steps; results closes. */
+/** Tab 00 (projects) sits before the six input steps; results closes. */
 type View = "projects" | StepKey | "results";
 
 /**
  * Per-tab tone from the MMMCZCS process model's domain palette (globals.css
- * --domain-*): Vessels light blue, Fuel = Energy green, Port orange,
- * Regulation & Financing magenta. Intro and Results carry no domain — they
- * stay neutral on the brand tone; Projects sits outside the walk in grey.
- * Held as space-separated RGB channels so the value drops straight into an
+ * --domain-*). Intro and Results carry no domain — they stay neutral on the
+ * brand tone; Projects sits outside the walk in grey. Held as
+ * space-separated RGB channels so the value drops straight into an
  * rgb(… / α) at low alpha — the tint is decorative, never loud. Set as
  * `--tone` on each tab (its own colour) and on the workspace (the active
  * tab's colour); `--tone-text` is the AA-darkened variant for text.
  */
 const TONES: Record<View, string> = {
   projects: "82 81 78",
-  cargo: "33 113 181", // Intro — no domain, brand tone
-  vessel: "15 158 213", // Vessels
-  fuel: "78 167 46", // Energy
-  port: "233 113 50", // Ports
+  intro: "33 113 181", // no domain, brand tone
+  energy: "78 167 46", // Energy
+  vessels: "15 158 213", // Vessels
+  cargo: "21 96 130", // Cargo
+  ports: "233 113 50", // Ports
   regulation: "160 43 147", // Regulation & Funding
   results: "33 113 181", // no domain, brand tone
 };
@@ -66,10 +82,11 @@ const TONES: Record<View, string> = {
 /** Same hues darkened to ≥4.5:1 on white — for section headers, never washes. */
 const TONE_TEXT: Record<View, string> = {
   projects: "#52514e",
-  cargo: "var(--color-brand-strong)",
-  vessel: "var(--domain-vessels-text)",
-  fuel: "var(--domain-energy-text)",
-  port: "var(--domain-ports-text)",
+  intro: "var(--color-brand-strong)",
+  energy: "var(--domain-energy-text)",
+  vessels: "var(--domain-vessels-text)",
+  cargo: "var(--domain-cargo-text)",
+  ports: "var(--domain-ports-text)",
   regulation: "var(--domain-regulation-text)",
   results: "var(--color-brand-strong)",
 };
@@ -83,7 +100,7 @@ export default function CorridorClient() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [legacyDismissed, setLegacyDismissed] = useState(false);
-  const [view, setView] = useState<View>("cargo");
+  const [view, setView] = useState<View>("intro");
   // Step position for Back/Next + the visited shading. Projects (tab 00) is
   // not part of the walk: it reports -1.
   const stepIndex =
@@ -100,17 +117,18 @@ export default function CorridorClient() {
 
   const gap = model.result?.summary.gapPvUsdM;
 
-  // The map opens only when it is actually needed: the fuel step with the
+  // The map opens only when it is actually needed: the Energy step with the
   // green fuel sited on the map ("build-here"). Purchase/build-plant are
   // number entry — no map.
   const mapOpen =
-    view === "fuel" && model.scenario.green.sourcing === "build-here";
+    view === "energy" && model.scenario.green.sourcing === "build-here";
 
   const stepBody: Record<StepKey, React.ReactNode> = {
-    cargo: <CargoStep model={model} />,
-    vessel: <VesselStep model={model} />,
-    fuel: <FuelStep model={model} />,
-    port: <PortStep model={model} />,
+    intro: <CargoStep model={model} />,
+    energy: <FuelStep model={model} />,
+    vessels: <VesselStep model={model} />,
+    cargo: <CargoTabStep model={model} />,
+    ports: <PortStep model={model} />,
     regulation: <RegulationStep model={model} />,
   };
 

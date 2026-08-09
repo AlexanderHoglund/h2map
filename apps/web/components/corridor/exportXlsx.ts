@@ -265,15 +265,6 @@ export async function downloadResultsXlsx(
     ["Discount rate (WACC)", resolved.wacc.value, "fraction", resolved.wacc.source],
   ]);
 
-  section("02 · Vessel", [
-    ["Vessel type", scenario.vessel.typeId, "—", "—"],
-    ["Consumption mode", scenario.vessel.consumptionMode, "—", "—"],
-    ["Green fleet CAPEX (year 1)", rg.vesselCapexUsdM.value, "$m", rg.vesselCapexUsdM.source],
-    ["Green fleet OPEX", rg.vesselOpexUsdMPerYear.value, "$m/yr", rg.vesselOpexUsdMPerYear.source],
-    ["Fossil fleet CAPEX (year 1)", rf.vesselCapexUsdM.value, "$m", rf.vesselCapexUsdM.source],
-    ["Fossil fleet OPEX", rf.vesselOpexUsdMPerYear.value, "$m/yr", rf.vesselOpexUsdMPerYear.source],
-  ]);
-
   const fuelRows = (side: typeof rg, input: typeof scenario.green): InputRow[] => [
     ["Fuel", input.fuelId, "—", "—"],
     ["Sourcing", input.sourcing, "—", "—"],
@@ -285,8 +276,17 @@ export async function downloadResultsXlsx(
     ["Production CAPEX (year 1)", side.prodCapexUsdM.value, "$m", side.prodCapexUsdM.source],
     ["Production O&M", side.prodOpexUsdMPerYear.value, "$m/yr", side.prodOpexUsdMPerYear.source],
   ];
-  section("03 · Fuel — green", fuelRows(rg, scenario.green));
-  section("03 · Fuel — fossil", fuelRows(rf, scenario.fossil));
+  section("02 · Energy — green", fuelRows(rg, scenario.green));
+  section("02 · Energy — fossil", fuelRows(rf, scenario.fossil));
+
+  section("03 · Vessels", [
+    ["Vessel type", scenario.vessel.typeId, "—", "—"],
+    ["Consumption mode", scenario.vessel.consumptionMode, "—", "—"],
+    ["Green fleet CAPEX (year 1)", rg.vesselCapexUsdM.value, "$m", rg.vesselCapexUsdM.source],
+    ["Green fleet OPEX", rg.vesselOpexUsdMPerYear.value, "$m/yr", rg.vesselOpexUsdMPerYear.source],
+    ["Fossil fleet CAPEX (year 1)", rf.vesselCapexUsdM.value, "$m", rf.vesselCapexUsdM.source],
+    ["Fossil fleet OPEX", rf.vesselOpexUsdMPerYear.value, "$m/yr", rf.vesselOpexUsdMPerYear.source],
+  ]);
 
   const portRows = (side: typeof rg): InputRow[] => [
     ["Port storage CAPEX (year 1)", side.portStorageCapexUsdM.value, "$m", side.portStorageCapexUsdM.source],
@@ -294,11 +294,11 @@ export async function downloadResultsXlsx(
     ["Barge CAPEX (year 1)", side.bargeCapexUsdM.value, "$m", side.bargeCapexUsdM.source],
     ["Barge OPEX", side.bargeOpexUsdMPerYear.value, "$m/yr", side.bargeOpexUsdMPerYear.source],
   ];
-  section("04 · Port — green", portRows(rg));
-  section("04 · Port — fossil", portRows(rf));
+  section("05 · Ports — green", portRows(rg));
+  section("05 · Ports — fossil", portRows(rf));
 
   const reg = scenario.regulation;
-  section("05 · Regulation & Financing", [
+  section("06 · Regulation & Financing", [
     ["EU ETS", reg.ets.enabled ? "enabled" : "off", "—", "—"],
     ["EUA price", reg.ets.euaEurPerTonne, "€/t CO2", "—"],
     ["EUR/USD", reg.eurUsd, "—", "—"],

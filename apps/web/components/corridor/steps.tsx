@@ -260,6 +260,22 @@ export function CargoStep({ model }: StepProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Step — Cargo (the MMMCZCS Cargo domain's own tab)
+// ---------------------------------------------------------------------------
+
+export function CargoTabStep(_props: StepProps) {
+  const t = useTranslations("corridor.cargoTab");
+  const ts = useTranslations("corridor.steps");
+  return (
+    <Section title={ts("cargo")}>
+      <p className="sm:col-span-2 text-xs leading-snug text-neutral-500">
+        {t("pending")}
+      </p>
+    </Section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Step 2 — Vessel
 // ---------------------------------------------------------------------------
 

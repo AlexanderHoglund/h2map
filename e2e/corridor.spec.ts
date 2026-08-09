@@ -16,7 +16,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const STEPS = ["Intro", "Vessel", "Fuel", "Port", "Regulation & Financing"];
+const STEPS = ["Intro", "Energy", "Vessels", "Cargo", "Ports", "Regulation & Financing"];
 const GAP = "$1,762.21m";
 
 async function expectNoSeriousViolations(page: Page, context: string) {
@@ -60,7 +60,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
 
   // The FULL panel lives in its own Results tab (06): lifetime cargo and
   // the study-exact CO2 abatement render there.
-  await page.getByRole("button", { name: "06 Results" }).click();
+  await page.getByRole("button", { name: "07 Results" }).click();
   const full = page.getByRole("main");
   await expect(full.getByText(GAP, { exact: true })).toBeVisible();
   // Twice by design: the snapshot strip and the Cargo & Corridor result card.
@@ -89,16 +89,53 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   }
   await expectNoSeriousViolations(page, "results tab");
 
-  // Walk all five steps; the compact summary stays docked; axe on each.
+  // Walk all six steps; the compact summary stays docked; axe on each.
   for (const [i, label] of STEPS.entries()) {
     await page.getByRole("button", { name: `0${i + 1} ${label}` }).click();
     await expect(results.getByText(GAP)).toBeVisible();
     await expectNoSeriousViolations(page, `step ${label}`);
   }
 
+  // Sprint 2.1: the tab bar is the MMMCZCS domain order, exactly.
+  {
+    const nav = page.getByRole("navigation").first();
+    const labels = (await nav.getByRole("button").allInnerTexts()).map((s) =>
+      s.replace(/\s+/g, " ").trim(),
+    );
+    expect(labels).toEqual([
+      "00 Projects",
+      "01 Intro",
+      "02 Energy",
+      "03 Vessels",
+      "04 Cargo",
+      "05 Ports",
+      "06 Regulation & Financing",
+      "07 Results",
+    ]);
+  }
+
+  // Back is disabled on Intro; Next traverses every tab once, in order,
+  // and the last step's forward button reads Results and lands there.
+  {
+    const main = page.getByRole("main");
+    await page.getByRole("button", { name: "01 Intro" }).click();
+    await expect(main.getByRole("button", { name: "Back" })).toBeDisabled();
+    for (const [i, label] of STEPS.slice(1).entries()) {
+      await main.getByRole("button", { name: "Next" }).click();
+      await expect(
+        page.getByRole("button", { name: `0${i + 2} ${label}` }),
+      ).toHaveAttribute("aria-current", "step");
+    }
+    await main.getByRole("button", { name: "Results", exact: true }).click();
+    await expect(page.getByRole("button", { name: "07 Results" })).toHaveAttribute(
+      "aria-current",
+      "step",
+    );
+  }
+
   // Sprint 1.3: Fleet OPEX states its fuel-inclusion boundary on BOTH
   // vessel blocks (one label key serves green and fossil).
-  await page.getByRole("button", { name: "02 Vessel" }).click();
+  await page.getByRole("button", { name: "03 Vessels" }).click();
   await expect(page.getByText("Fleet OPEX (excluding fuel)")).toHaveCount(2);
 
   // Sprint 1.7: the year fields are bounded selectors carrying the
@@ -124,7 +161,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   // A live-model probe: under v3 the green side (build-plant) has NO
   // merchant price row — probe the production CAPEX the mode is built on
   // (the fossil price now lives in the Advanced fold, rank #19).
-  await page.getByRole("button", { name: "03 Fuel" }).click();
+  await page.getByRole("button", { name: "02 Energy" }).click();
   const prodCapex = page.getByLabel("Fuel production CAPEX (year 1)").first();
   await prodCapex.fill("2000");
   await expect(page.getByText(GAP)).toHaveCount(0);

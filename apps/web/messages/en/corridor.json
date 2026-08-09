@@ -8,10 +8,11 @@
       "resume": "Resume draft"
     },
     "steps": {
-      "cargo": "Intro",
-      "vessel": "Vessel",
-      "fuel": "Fuel",
-      "port": "Port",
+      "intro": "Intro",
+      "energy": "Energy",
+      "vessels": "Vessels",
+      "cargo": "Cargo",
+      "ports": "Ports",
       "regulation": "Regulation & Financing"
     },
     "nav": {
@@ -26,6 +27,9 @@
       "benchmarkPrefix": "benchmark:",
       "unverified": "unverified benchmark",
       "advanced": "Advanced"
+    },
+    "cargoTab": {
+      "pending": "Cargo-identity fields (unit, weight, throughput) move here with the next change."
     },
     "cargo": {
       "country": "Country",

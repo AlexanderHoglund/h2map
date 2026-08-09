@@ -571,45 +571,9 @@ export default function ResultsPanel({
       {/* ===== Results by tab: one section per input step, equal frames ===== */}
       {resolved && (
         <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:col-span-12 lg:grid-cols-3 xl:grid-cols-5">
-          {/* 01 Cargo & Corridor */}
+          {/* 02 Energy */}
           <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>01 · {ts("cargo")}</Eyebrow>
-            <dl className="text-xs">
-              <TabRow label={t("tabCargoPerYear")} value={fmtInt(resolved.unitsPerYear)} />
-              <TabRow label={t("snapCargoLifetime")} value={formatSig(s.cargoUnitsLifetime)} />
-              <TabRow
-                label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")}
-                value={fmtUsd(s.costPerUnitUsd)}
-                sub={`${fmtUsd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`}
-              />
-              <TabRow label={t("co2")} value={`${formatSig(s.co2AbatedTonnes)} t`} />
-            </dl>
-          </section>
-
-          {/* 02 Vessel */}
-          <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>02 · {ts("vessel")}</Eyebrow>
-            <TabTable
-              green={t("sideGreen")}
-              fossil={t("sideFossil")}
-              rows={[
-                [
-                  t("tabFleetCapex"),
-                  resolved.green.vesselCapexUsdM.value,
-                  resolved.fossil.vesselCapexUsdM.value,
-                ],
-                [
-                  t("tabFleetOpex"),
-                  resolved.green.vesselOpexUsdMPerYear.value,
-                  resolved.fossil.vesselOpexUsdMPerYear.value,
-                ],
-              ]}
-            />
-          </section>
-
-          {/* 03 Fuel */}
-          <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>03 · {ts("fuel")}</Eyebrow>
+            <Eyebrow>02 · {ts("energy")}</Eyebrow>
             <TabTable
               green={t("sideGreen")}
               fossil={t("sideFossil")}
@@ -639,9 +603,45 @@ export default function ResultsPanel({
             />
           </section>
 
-          {/* 04 Port */}
+          {/* 03 Vessels */}
           <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>04 · {ts("port")}</Eyebrow>
+            <Eyebrow>03 · {ts("vessels")}</Eyebrow>
+            <TabTable
+              green={t("sideGreen")}
+              fossil={t("sideFossil")}
+              rows={[
+                [
+                  t("tabFleetCapex"),
+                  resolved.green.vesselCapexUsdM.value,
+                  resolved.fossil.vesselCapexUsdM.value,
+                ],
+                [
+                  t("tabFleetOpex"),
+                  resolved.green.vesselOpexUsdMPerYear.value,
+                  resolved.fossil.vesselOpexUsdMPerYear.value,
+                ],
+              ]}
+            />
+          </section>
+
+          {/* 04 Cargo */}
+          <section className="border border-neutral-300 bg-white p-3">
+            <Eyebrow>04 · {ts("cargo")}</Eyebrow>
+            <dl className="text-xs">
+              <TabRow label={t("tabCargoPerYear")} value={fmtInt(resolved.unitsPerYear)} />
+              <TabRow label={t("snapCargoLifetime")} value={formatSig(s.cargoUnitsLifetime)} />
+              <TabRow
+                label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")}
+                value={fmtUsd(s.costPerUnitUsd)}
+                sub={`${fmtUsd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`}
+              />
+              <TabRow label={t("co2")} value={`${formatSig(s.co2AbatedTonnes)} t`} />
+            </dl>
+          </section>
+
+          {/* 05 Ports */}
+          <section className="border border-neutral-300 bg-white p-3">
+            <Eyebrow>05 · {ts("ports")}</Eyebrow>
             <TabTable
               green={t("sideGreen")}
               fossil={t("sideFossil")}
@@ -670,9 +670,9 @@ export default function ResultsPanel({
             />
           </section>
 
-          {/* 05 Regulation */}
+          {/* 06 Regulation & Financing */}
           <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>05 · {ts("regulation")}</Eyebrow>
+            <Eyebrow>06 · {ts("regulation")}</Eyebrow>
             <TabTable
               green={t("sideGreen")}
               fossil={t("sideFossil")}
