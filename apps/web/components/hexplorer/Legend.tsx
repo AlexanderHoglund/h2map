@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { domainLabels, lcohGradientCss } from "./scale";
+import { domainLabels, lcohGradientCss, RAMP_STOPS } from "./scale";
 import type { LayerBasis, LayerKey } from "./types";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
   maxDetail: boolean;
 }
 
-/** Always-visible legend (bottom-left): benefit ramp over the layer's domain. */
+/** Always-visible legend (bottom-left): the reference ramp over 0–10 USD/kg. */
 export default function Legend({ layerKey, basis, maxDetail }: Props) {
   const t = useTranslations("explorer");
   // The basis (WACC / best-achievable) only re-expresses the "best" layer.
@@ -18,19 +18,32 @@ export default function Legend({ layerKey, basis, maxDetail }: Props) {
     layerKey === "best" && basis !== "default"
       ? t(`controls.bases.${basis}`)
       : t("legend.financing");
-  const [lo, mid, hi] = domainLabels(layerKey);
+  const labels = domainLabels(layerKey);
   return (
-    <div className="pointer-events-none absolute bottom-8 left-4 z-10 w-52 rounded-lg border border-neutral-300 bg-white/95 px-3 py-2 text-xs shadow-md backdrop-blur">
+    <div className="pointer-events-none absolute bottom-8 left-4 z-10 w-72 rounded-lg border border-neutral-300 bg-white/95 px-3 py-2 text-xs shadow-md backdrop-blur">
       <div
         className="h-2.5 w-full rounded-sm"
         style={{ background: lcohGradientCss() }}
         role="img"
         aria-label={t("legend.caption")}
       />
-      <div className="mt-1 flex justify-between tabular-nums text-neutral-600">
-        <span>{lo}</span>
-        <span>{mid}</span>
-        <span>{hi}</span>
+      {/* Ticks sit at their value's position under the gradient (the stop
+          values are not evenly spaced), ends anchored to the bar's edges. */}
+      <div className="relative mt-1 h-3.5 text-[10px] tabular-nums text-neutral-600">
+        {labels.map((label, i) => {
+          const pct = (RAMP_STOPS[i]![0] / 10) * 100;
+          const style =
+            i === 0
+              ? { left: 0 }
+              : i === labels.length - 1
+                ? { right: 0 }
+                : { left: `${pct}%`, transform: "translateX(-50%)" };
+          return (
+            <span key={label} className="absolute top-0" style={style}>
+              {label}
+            </span>
+          );
+        })}
       </div>
       <p className="mt-0.5 text-neutral-500">
         {t("legend.caption")} ·{" "}

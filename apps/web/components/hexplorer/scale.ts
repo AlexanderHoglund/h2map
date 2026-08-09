@@ -1,52 +1,60 @@
 import type { LayerKey } from "./types";
 
 /**
- * "Benefit" color ramp (green = cheap/best → red = expensive), applied over a
- * PER-LAYER fixed domain. The layers measure different things once each cell's
- * electricity is CAPEX-priced from its own capacity factor: solar-only is
- * inherently costlier than the best solar+wind mix, and wind-only has a long
- * poor-resource tail. One shared domain would paint solar all-red and waste
- * the wind range, so each layer gets a domain fit to its own distribution
- * (~p5→p95 of the seeded world). Colors are still globally fixed within a
- * layer — never rescaled to the viewport — so a color means the same LCOH
- * everywhere on that layer; switching layers switches the reference frame
- * (the legend shows each layer's bounds).
+ * LCOH colour scale matched to the Chilean reference tool (the national H2
+ * platform's LCOH map): domain 0–10 USD/kg, eight stops at the reference's
+ * own tick values, red = cheap → green → blue = expensive. Stop colours are
+ * sampled from the reference legend itself.
+ *
+ * Two invariants, regardless of ramp:
+ *  - The domain is fixed per layer and never rescales to the viewport — a
+ *    colour means the same LCOH in Chile as in Chad. (All three layers share
+ *    the reference domain, so it also means the same LCOH across layers.)
+ *  - Out-of-range values keep a distinct treatment at both ends: at or past
+ *    an end the colour pins to that end's own reserved stop, which no
+ *    in-range value below/above the adjacent stop can reach by
+ *    interpolation. Previously a $25/kg cell rendered identically to a
+ *    mid-ramp $11/kg cell.
+ *
+ * NOTE: red→green→blue departs from the CVD-safe guidance in style-guide
+ * §12/§13. That is a deliberate, feedback-requested match to the reference
+ * tool; the legend's numeric ticks stay the non-colour encoding.
  */
 
-/**
- * Domain [cheap, expensive] in USD/kg per layer. All floor at 2.5 so the
- * cheapest cells — especially the projected 2050 maps that dip below 3 —
- * land in the blue "exceptional" band; the per-layer ceilings keep each
- * layer's spread readable (solar-only runs dearer than the best mix).
- */
+/** Domain [cheap, expensive] in USD/kg — the reference tool's 0–10 axis. */
 export const LAYER_DOMAIN: Record<LayerKey, readonly [number, number]> = {
-  best: [2.5, 8.5],
-  wind: [2.5, 10],
-  solar: [2.5, 11],
+  best: [0, 10],
+  wind: [0, 10],
+  solar: [0, 10],
 };
 
-/**
- * Benefit ramp as positioned stops (0 = cheapest, 1 = dearest):
- * blue → green → light-green → yellow → orange → red. Blue occupies only
- * the bottom ~10 % so it flags the exceptional cheapest cells (≈ ≤3 USD/kg —
- * mostly the projected later years); the rest is the normal green→red body.
- */
-const RAMP: readonly [number, readonly [number, number, number]][] = [
-  [0.05, [37, 99, 235]], // #2563eb blue — exceptional (most extreme cheap)
-  [0.1, [26, 152, 80]], // #1a9850 green — best / cheap
-  [0.50, [166, 217, 106]], // #a6d96a light green
-  [0.65, [245, 205, 30]], // #f5cd1e yellow — mid
-  [0.8, [245, 155, 45]], // #f59b2d orange
-  [1.0, [215, 48, 39]], // #d73027 red — most expensive
+/** The reference legend's stops: [value USD/kg, RGB sampled off the slide]. */
+export const RAMP_STOPS: readonly [number, readonly [number, number, number]][] = [
+  [0.0, [237, 19, 19]], // #ED1313 red — cheapest
+  [1.8, [183, 222, 31]], // #B7DE1F yellow-green
+  [3.0, [77, 194, 56]], // #4DC238 green
+  [4.5, [20, 218, 181]], // #14DAB5 teal
+  [5.5, [21, 215, 237]], // #15D7ED cyan
+  [6.8, [27, 149, 237]], // #1B95ED sky blue
+  [8.0, [31, 106, 237]], // #1F6AED blue
+  [10.0, [40, 19, 237]], // #2813ED deep blue — ≥10, the top's own bucket
 ];
 
-function rampAt(t: number): [number, number, number] {
-  const x = Math.min(1, Math.max(0, t));
-  for (let i = 0; i < RAMP.length - 1; i += 1) {
-    const [p0, a] = RAMP[i]!;
-    const [p1, b] = RAMP[i + 1]!;
-    if (x <= p1) {
-      const f = p1 === p0 ? 0 : (x - p0) / (p1 - p0);
+const DOMAIN_MAX = RAMP_STOPS[RAMP_STOPS.length - 1]![0];
+
+function rampAt(value: number): [number, number, number] {
+  // Distinct end treatment: at or beyond an end, pin to that end's own stop
+  // — never extrapolate (the old ramp's first stop sat at position 0.05 and
+  // sub-domain values extrapolated PAST it, overflowing the blue channel).
+  const first = RAMP_STOPS[0]!;
+  const last = RAMP_STOPS[RAMP_STOPS.length - 1]!;
+  if (value <= first[0]) return [first[1][0], first[1][1], first[1][2]];
+  if (value >= last[0]) return [last[1][0], last[1][1], last[1][2]];
+  for (let i = 0; i < RAMP_STOPS.length - 1; i += 1) {
+    const [v0, a] = RAMP_STOPS[i]!;
+    const [v1, b] = RAMP_STOPS[i + 1]!;
+    if (value <= v1) {
+      const f = v1 === v0 ? 0 : (value - v0) / (v1 - v0);
       return [
         Math.round(a[0] + (b[0] - a[0]) * f),
         Math.round(a[1] + (b[1] - a[1]) * f),
@@ -54,27 +62,30 @@ function rampAt(t: number): [number, number, number] {
       ];
     }
   }
-  const last = RAMP[RAMP.length - 1]![1];
-  return [last[0], last[1], last[2]];
+  return [last[1][0], last[1][1], last[1][2]];
 }
 
 /** LCOH value (USD/kg) on a given layer → RGB, clamped to the layer's domain. */
 export function lcohColor(value: number, layer: LayerKey): [number, number, number] {
   const [lo, hi] = LAYER_DOMAIN[layer];
-  return rampAt((value - lo) / (hi - lo));
+  // All layers currently share the reference 0–10 domain (making this an
+  // identity), but the per-layer normalisation keeps any future
+  // layer-specific domain a one-line change here.
+  return rampAt(((value - lo) / (hi - lo)) * DOMAIN_MAX);
 }
 
-/** CSS gradient of the ramp (blue/green left → red right); domain-independent. */
+/** CSS gradient of the ramp (red left → deep blue right), value-positioned. */
 export function lcohGradientCss(): string {
-  const stops = RAMP.map(
-    ([pos, [r, g, b]]) => `rgb(${r} ${g} ${b}) ${(pos * 100).toFixed(1)}%`,
+  const stops = RAMP_STOPS.map(
+    ([v, [r, g, b]]) => `rgb(${r} ${g} ${b}) ${((v / DOMAIN_MAX) * 100).toFixed(1)}%`,
   );
   return `linear-gradient(to right, ${stops.join(", ")})`;
 }
 
-/** Legend tick labels for a layer: [low, mid, high] of its domain, USD/kg. */
-export function domainLabels(layer: LayerKey): [string, string, string] {
-  const [lo, hi] = LAYER_DOMAIN[layer];
-  const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
-  return [`≤${fmt(lo)}`, fmt((lo + hi) / 2), `${fmt(hi)}+`];
+/** Legend tick labels: every reference stop, "≥" on the open top bucket. */
+export function domainLabels(layer: LayerKey): string[] {
+  const [, hi] = LAYER_DOMAIN[layer];
+  return RAMP_STOPS.map(([v]) =>
+    v >= hi ? `≥${v.toFixed(1)}` : v.toFixed(1),
+  );
 }

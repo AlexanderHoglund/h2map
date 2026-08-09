@@ -545,7 +545,13 @@
     <li>No log axis for money in a non-technical panel; no broken axis on a
       primary series.</li>
     <li>Fixed colour domains on the map — a colour means the same LCOH
-      everywhere on that layer, never rescaled to the viewport.</li>
+      everywhere on that layer, never rescaled to the viewport. The LCOH ramp
+      matches the Chilean reference tool: 0–10 USD/kg, eight stops
+      (0.0 · 1.8 · 3.0 · 4.5 · 5.5 · 6.8 · 8.0 · ≥10.0), red = cheap →
+      green → blue = expensive, with each end pinned to its own reserved
+      stop so out-of-range values stay distinct. This is a deliberate,
+      requested departure from the CVD-safe ramp guidance — the numeric
+      ticks remain the non-colour encoding.</li>
   </ul>
 
   <!-- 13 -->

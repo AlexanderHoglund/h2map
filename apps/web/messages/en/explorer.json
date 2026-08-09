@@ -39,9 +39,6 @@
       "loading": "Loading calculator…"
     },
     "legend": {
-      "min": "≤2.5",
-      "mid": "5.3",
-      "max": "8+",
       "caption": "USD/kg H₂",
       "maxDetail": "Max detail — finest available resolution",
       "financing": "Resource-driven · uniform 8% financing"
