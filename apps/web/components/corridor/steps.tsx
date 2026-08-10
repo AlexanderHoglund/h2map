@@ -110,6 +110,7 @@ const REG_DEFAULTS = defaultScenario().regulation;
 export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
   const t = useTranslations("corridor.cargo");
   const tr = useTranslations("corridor.regulation");
+  const tp = useTranslations("corridor.provenance");
   const { scenario, update } = model;
 
   const twoPorts = scenario.cargo.routeType === "point-to-point";
@@ -155,6 +156,7 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
           value={scenario.cargo.startYear}
           options={START_YEARS}
           benchmark={CARGO_DEFAULTS.startYear}
+          citation={tp("yearsDefault")}
           onChange={(v) => update((d) => void (d.cargo.startYear = v))}
         />
       ),
@@ -168,6 +170,7 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
           value={scenario.cargo.horizonYears}
           options={HORIZON_YEARS}
           benchmark={CARGO_DEFAULTS.horizonYears}
+          citation={tp("yearsDefault")}
           onChange={(v) => update((d) => void (d.cargo.horizonYears = v))}
         />
       ),
@@ -440,8 +443,14 @@ export function CargoTabStep({ model, viewMode, revealAdvanced }: StepProps) {
 
 export function VesselStep({ model }: StepProps) {
   const t = useTranslations("corridor.vessel");
+  const tp = useTranslations("corridor.provenance");
   const { scenario, update, resolved, benchmarks, bundle } = model;
   if (!resolved || !benchmarks) return null;
+
+  const vesselRow = bundle.vesselTypes.find((v) => v.id === scenario.vessel.typeId);
+  const vesselCite = vesselRow
+    ? { citation: `${bundle.bundleId} \u2014 ${vesselRow.sourceNote}`, verified: vesselRow.verified }
+    : undefined;
 
   const vesselField = (
     side: "green" | "fossil",
@@ -462,6 +471,14 @@ export function VesselStep({ model }: StepProps) {
               : t("capexFossilHelp")
             : undefined
         }
+          provenance={{
+          ...vesselCite,
+          derivation: isCapex
+            ? side === "green"
+              ? tp("vesselCapexGreen")
+              : tp("vesselFossil")
+            : undefined,
+        }}
         override={scenario.vessel[side][isCapex ? "capexUsdM" : "opexUsdMPerYear"]}
         effective={isCapex ? r.vesselCapexUsdM.value : r.vesselOpexUsdMPerYear.value}
         source={isCapex ? r.vesselCapexUsdM.source : r.vesselOpexUsdMPerYear.source}
@@ -527,9 +544,18 @@ export function VesselStep({ model }: StepProps) {
 
 function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side: "green" | "fossil" }) {
   const t = useTranslations("corridor.fuel");
+  const tp = useTranslations("corridor.provenance");
   const { scenario, update, resolved, benchmarks, bundle } = model;
   if (!resolved || !benchmarks) return null;
   const s = scenario[side];
+  const fuelRow = bundle.fuels.find((f) => f.id === s.fuelId);
+  const fuelCite = fuelRow
+    ? { citation: `${bundle.bundleId} \u2014 ${fuelRow.sourceNote}`, verified: fuelRow.verified }
+    : undefined;
+  const vesselRow = bundle.vesselTypes.find((v) => v.id === scenario.vessel.typeId);
+  const vesselCite = vesselRow
+    ? { citation: `${bundle.bundleId} \u2014 ${vesselRow.sourceNote}`, verified: vesselRow.verified }
+    : undefined;
   const r = resolved[side];
   const b = benchmarks[side];
   const plantMode = s.sourcing === "build-plant" || s.sourcing === "build-here";
@@ -558,7 +584,12 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
       | "prodOpexUsdMPerYear",
     label: string,
     unit: string,
-    opts: { help?: string; disabled?: boolean; disabledNote?: string } = {},
+    opts: {
+      help?: string;
+      disabled?: boolean;
+      disabledNote?: string;
+      provenance?: { citation?: string; verified?: boolean; derivation?: string };
+    } = {},
   ) => (
     <ResolvedField
       key={`${side}-${key}`}
@@ -567,6 +598,7 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
       help={opts.help}
       disabled={opts.disabled}
       disabledNote={opts.disabledNote}
+      provenance={opts.provenance ?? fuelCite}
       override={s.overrides[key]}
       effective={r[resolvedKey].value}
       source={r[resolvedKey].source}
@@ -581,7 +613,9 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
           {
             id: `${side}.priceUsdPerTonne`,
             overridden: s.overrides.priceUsdPerTonne !== null,
-            node: overrideField("priceUsdPerTonne", "priceUsdPerTonne", t("price"), "$/t"),
+            node: overrideField("priceUsdPerTonne", "priceUsdPerTonne", t("price"), "$/t", {
+              provenance: { ...fuelCite, derivation: plantMode ? tp("priceZero") : undefined },
+            }),
           },
         ]
       : []),
@@ -592,7 +626,10 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
         "tonnesPerVesselYear",
         t("consumption"),
         "t/vessel/yr",
-        { help: t("consumptionHelp") },
+        {
+          help: t("consumptionHelp"),
+          provenance: { ...vesselCite, derivation: tp("consumption") },
+        },
       ),
     },
     {
@@ -704,8 +741,15 @@ export function FuelStep({ model, viewMode, revealAdvanced }: StepProps) {
 
 function PortSide({ model, viewMode, revealAdvanced, side }: StepProps & { side: "green" | "fossil" }) {
   const t = useTranslations("corridor.port");
-  const { scenario, update, resolved, benchmarks } = model;
+  const tp = useTranslations("corridor.provenance");
+  const { scenario, update, resolved, benchmarks, bundle } = model;
   if (!resolved || !benchmarks) return null;
+  const fuelRow = bundle.fuels.find((f) => f.id === scenario[side].fuelId);
+  const portProvenance = {
+    citation: fuelRow ? `${bundle.bundleId} \u2014 ${fuelRow.sourceNote}` : undefined,
+    verified: fuelRow?.verified,
+    derivation: side === "fossil" ? tp("portFossil") : undefined,
+  };
   const r = resolved[side];
   const b = benchmarks[side];
 
@@ -726,6 +770,7 @@ function PortSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
       effective={r[key].value}
       source={r[key].source}
       benchmark={b[key].value}
+      provenance={portProvenance}
       onChange={(v) => update((d) => void (d[side].overrides[key] = v))}
     />
   );
@@ -771,7 +816,10 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
 export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
   const t = useTranslations("corridor.regulation");
   const tc = useTranslations("corridor.cargo");
-  const { scenario, update, resolved, benchmarks } = model;
+  const { scenario, update, resolved, benchmarks, bundle } = model;
+  const countryRow =
+    bundle.countries.find((c) => c.id === scenario.cargo.countryId) ??
+    bundle.countries.find((c) => c.id === "other");
   const reg = scenario.regulation;
   const simple = viewMode === "simple";
   // What Simple is hiding per scheme, counted only while the scheme is
@@ -807,6 +855,14 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
             source={resolved.wacc.source}
             benchmark={benchmarks.wacc.value}
             unverified
+            provenance={
+              countryRow
+                ? {
+                    citation: `${bundle.bundleId} \u2014 ${countryRow.sourceNote}`,
+                    verified: countryRow.verified,
+                  }
+                : undefined
+            }
             onChange={(v) => update((d) => void (d.cargo.waccOverride = v))}
           />
           </div>

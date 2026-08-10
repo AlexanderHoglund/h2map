@@ -512,6 +512,13 @@
     vision — with an <code>aria-label</code> naming tab and state. Landing
     on a red/amber tab focuses the offending control; the Results error
     strip names the tab and links to it.</p>
+  <p class="note"><strong>Provenance badges.</strong> Every source badge
+    (override / derived / benchmark) is a hover-and-focus tooltip answering
+    "where does this number come from": benchmarks cite their reference row
+    (bundle id + workbook cell, with an unverified marker), derived values
+    state their formula, overrides name the benchmark they replace. Same
+    popover pattern as the ? help affordance; keyboard-focusable,
+    role=tooltip, Escape dismisses.</p>
   <p class="note"><strong>Corridor route map.</strong> Intro draws the route
     the ship actually sails — routed over the bundled marnet shipping-lane
     network, canal transits marked, ports in the Ports domain colour, the

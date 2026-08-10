@@ -48,7 +48,11 @@
       "restore": "restore",
       "benchmarkPrefix": "benchmark:",
       "unverified": "unverified benchmark",
-      "advanced": "Advanced"
+      "advanced": "Advanced",
+      "provBenchmark": "Reference benchmark:",
+      "provDerived": "Derived:",
+      "provOverride": "Your value - replaces the benchmark {benchmark}",
+      "provUnverified": "unverified"
     },
     "cargo": {
       "country": "Country",
@@ -404,6 +408,14 @@
       "deleteYes": "Delete",
       "cancel": "Cancel",
       "footnote": "Deleting a project is permanent. Share links are read-only and can be revoked at any time."
+    },
+    "provenance": {
+      "yearsDefault": "MMMCZCS Chilean copper study default [S]",
+      "consumption": "distance x 2 x roundtrips x vessel GJ/nm / fuel LHV (distance mode); vessel-table benchmark otherwise",
+      "vesselCapexGreen": "vessel-type CAPEX x (1 + the fuel's vessel CAPEX premium)",
+      "vesselFossil": "existing-fleet rule: fossil vessel CAPEX 0",
+      "portFossil": "existing-infrastructure rule: CAPEX 0, OPEX at 30% of a new green facility",
+      "priceZero": "no merchant price under build sourcing - production cost is CAPEX + O&M"
     }
   }
 }

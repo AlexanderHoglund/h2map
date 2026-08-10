@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { Source } from "@h2map/corridor-schema";
 import { formatSig } from "@h2map/units";
 import { Help } from "@/components/ui/Help";
+import { ProvenanceBadge } from "./ProvenanceBadge";
 
 /**
  * THE input component (build-plan 3.2): one component for every corridor
@@ -30,6 +31,7 @@ export default function ResolvedField({
   unverified,
   disabled,
   disabledNote,
+  provenance,
 }: {
   label: string;
   unit?: string;
@@ -48,6 +50,13 @@ export default function ResolvedField({
   disabled?: boolean;
   /** Shown instead of the benchmark line when the field is force-disabled. */
   disabledNote?: string;
+  /**
+   * Provenance for the source badge's tooltip (sprint 3, task 2):
+   * `citation` names the reference row (bundle id + sourceNote cell);
+   * `derivation` is the short formula behind a derived value. The badge
+   * assembles the right sentence for its source.
+   */
+  provenance?: { citation?: string; verified?: boolean; derivation?: string };
 }) {
   const t = useTranslations("corridor.field");
   const id = useId();
@@ -67,6 +76,26 @@ export default function ResolvedField({
     benchmark: "bg-neutral-500/15 text-neutral-600",
   };
 
+  // "Where does this number come from?" — the badge's hover/focus answer.
+  const provenanceText = (() => {
+    if (!provenance) return undefined;
+    const cite = provenance.citation;
+    const unv = provenance.verified === false ? ` \u00b7 ${t("provUnverified")}` : "";
+    if (source === "derived") {
+      return provenance.derivation
+        ? `${t("provDerived")} ${provenance.derivation}${cite ? ` (${cite})` : ""}`
+        : cite
+          ? `${t("provDerived")} ${cite}${unv}`
+          : undefined;
+    }
+    if (source === "benchmark") {
+      return cite ? `${t("provBenchmark")} ${cite}${unv}` : undefined;
+    }
+    return `${t("provOverride", { benchmark: formatSig(benchmark) })}${
+      cite ? ` (${cite})` : ""
+    }`;
+  })();
+
   // Disabled state: grey the input SURFACE, never opacity-dim the whole block
   // — dimmed labels/notes fail WCAG contrast (axe), and the note must stay
   // readable ("forced to 0 under this sourcing" is information, not chrome).
@@ -80,11 +109,11 @@ export default function ResolvedField({
           {label}
           {help ? <Help text={help} /> : null}
         </label>
-        <span
-          className={`px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${badgeStyles[source]}`}
-        >
-          {t(source)}
-        </span>
+        <ProvenanceBadge
+          label={t(source)}
+          className={badgeStyles[source]}
+          provenance={provenanceText}
+        />
       </div>
       <div
         className={`mt-1 flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 transition-colors focus-within:ring-2 ${

@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { useTranslations } from "next-intl";
+import { ProvenanceBadge } from "./ProvenanceBadge";
 
 /**
  * A bounded numeric selector with ResolvedField's provenance chrome: source
@@ -22,6 +23,7 @@ export default function SelectField({
   benchmark,
   onChange,
   help,
+  citation,
 }: {
   label: string;
   value: number;
@@ -31,6 +33,8 @@ export default function SelectField({
   benchmark: number;
   onChange: (next: number) => void;
   help?: string;
+  /** Names the reference default the badge compares against. */
+  citation?: string;
 }) {
   const t = useTranslations("corridor.field");
   const id = useId();
@@ -43,15 +47,21 @@ export default function SelectField({
         <label htmlFor={id} className="text-xs font-medium text-neutral-600">
           {label}
         </label>
-        <span
-          className={`px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+        <ProvenanceBadge
+          label={t(overridden ? "override" : "benchmark")}
+          className={
             overridden
               ? "bg-brand-tint text-brand-deep"
               : "bg-neutral-500/15 text-neutral-600"
-          }`}
-        >
-          {t(overridden ? "override" : "benchmark")}
-        </span>
+          }
+          provenance={
+            citation
+              ? overridden
+                ? `${t("provOverride", { benchmark: String(benchmark) })} (${citation})`
+                : `${t("provBenchmark")} ${citation}`
+              : undefined
+          }
+        />
       </div>
       <select
         id={id}

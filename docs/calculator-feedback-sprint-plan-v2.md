@@ -12,7 +12,7 @@ the original plan document was never committed.)
 |---|---|---|
 | 1 — correctness, labels, colour | Fuel family separation; 4-sig-fig display; Fleet OPEX labels; MMMCZCS domain palette; Chilean-reference map legend; tab renames; year selectors | **Done** (commits `75f8a99`…`6b850d9`) |
 | 2 — information architecture, Simple mode | Tab reorder to the MMMCZCS domain sequence + Cargo tab; nine field moves; country-before-port; Simple/Advanced view modes; per-tab completion indicators | **Done** (commits `7630e24`…`150d96c`) |
-| 3 — Task 3 (amended): the sailing route | Bundled marnet routing engine; the Intro route drawing; routed distance as the distance field's derived benchmark | **Done** (commits `d468212`…) — Tasks 1 (domain waterfall) and 2 (provenance tooltips) pending their spec |
+| 3 — the sailing route, waterfall, provenance | Task 3 (amended): marnet routing engine, Intro route drawing, routed distance as derived benchmark (`d468212`…`4e80d38` + follow-ups). Task 1: MMMCZCS cost-breakdown waterfall (`7b8b814`). Task 2: provenance tooltips on every source badge, inferred scope — the original spec never reached this machine and may amend it later. | **Done — Sprint 3 closed** |
 | 4 | — | Not yet specified here |
 | 5 | Port lookup, automatic roundtrips, consumption-basis default | Scope adjusted, below |
 

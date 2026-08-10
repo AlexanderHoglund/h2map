@@ -456,6 +456,45 @@ test("routed distance follows override > derived(routed), adoption-only", async 
   await expect(results.getByText(GAP)).toBeVisible();
 });
 
+test("provenance badges answer where a number comes from", async ({ page }) => {
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  const results = page.getByRole("complementary");
+  await expect(results.getByText(GAP)).toBeVisible();
+
+  // Year selector: the benchmark badge cites the study default.
+  await expect(
+    page.getByRole("button", { name: /MMMCZCS Chilean copper study default/ }).first(),
+  ).toBeVisible();
+
+  // WACC (overridden by default): the badge names what the value replaces
+  // and which reference row it came from.
+  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  const overrideBadge = page.getByRole("button", {
+    name: /replaces the benchmark 0\.08.*2026-07-30-excel-v1/,
+  });
+  await expect(overrideBadge).toBeVisible();
+
+  // Cleared to the benchmark: the badge cites the bundle row and carries
+  // the unverified marker; keyboard focus opens the tooltip.
+  const wacc = page.getByLabel("Discount rate (WACC)");
+  await wacc.fill("");
+  await wacc.blur();
+  const benchmarkBadge = page.getByRole("button", {
+    name: /Reference benchmark: 2026-07-30-excel-v1.*unverified/,
+  });
+  await expect(benchmarkBadge).toBeVisible();
+  await benchmarkBadge.focus();
+  await expect(page.getByRole("tooltip")).toBeVisible();
+  await expectNoSeriousViolations(page, "provenance tooltip open");
+
+  // Restore the reference override (benchmark equals it, so via 0.07).
+  await wacc.fill("0.07");
+  await wacc.fill("0.08");
+  await wacc.blur();
+  await expect(results.getByText(GAP)).toBeVisible();
+});
+
 test("numeric inputs tolerate clearing, signs and partial input", async ({ page }) => {
   // Regression: the controlled number inputs used to commit Number("") = 0
   // the moment a field was cleared — coordinates slammed to 0 and typing a
