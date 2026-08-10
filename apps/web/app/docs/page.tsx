@@ -904,6 +904,16 @@ export default async function DocsPage() {
           regulatory benefit. The four support terms subsidize only the green
           side. Use it to find the CO2 price or subsidy that closes the gap.
         </p>
+        <p className="mt-2 text-neutral-600">
+          <strong>Decision of record (sprint 4):</strong>{" "}the CAPEX/OPEX
+          support instruments STAY inside self-designed regulation rather
+          than moving to the Financing section. One scheme, one toggle:
+          splitting its four support fields across two tabs would cost more
+          comprehension than the taxonomy gains, and the schemes they
+          approximate (contracts-for-difference, capital grants) are
+          policy instruments, not loan terms. Revisit if the IMO module's
+          reward mechanism matures into a real support channel.
+        </p>
 
         <H3>IMO Net-Zero Framework (provisional)</H3>
         <F>
