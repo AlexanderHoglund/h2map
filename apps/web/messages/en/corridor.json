@@ -13,7 +13,8 @@
       "vessels": "Vessels",
       "cargo": "Cargo",
       "ports": "Ports",
-      "regulation": "Regulation & Financing"
+      "financing": "Financing",
+      "regulation": "Regulation"
     },
     "tabStatus": {
       "green": "complete",

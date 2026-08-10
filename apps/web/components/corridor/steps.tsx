@@ -813,7 +813,7 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
 // Step 5 — Regulation
 // ---------------------------------------------------------------------------
 
-export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
+export function FinancingStep({ model, viewMode, revealAdvanced }: StepProps) {
   const t = useTranslations("corridor.regulation");
   const tc = useTranslations("corridor.cargo");
   const tRes = useTranslations("corridor.results");
@@ -821,22 +821,9 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
   const countryRow =
     bundle.countries.find((c) => c.id === scenario.cargo.countryId) ??
     bundle.countries.find((c) => c.id === "other");
-  const reg = scenario.regulation;
   const simple = viewMode === "simple";
-  // What Simple is hiding per scheme, counted only while the scheme is
-  // enabled (a hidden value on a disabled scheme is inert).
-  const etsHidden =
-    (reg.ets.euaEurPerTonne !== REG_DEFAULTS.ets.euaEurPerTonne ? 1 : 0) +
-    (reg.eurUsd !== REG_DEFAULTS.eurUsd ? 1 : 0) +
-    (reg.ets.scope !== REG_DEFAULTS.ets.scope ? 1 : 0) +
-    (reg.ets.euaEscalation != null ? 1 : 0);
-  const fuelEuHidden =
-    (reg.fuelEu.penaltyEurPerTonne !== REG_DEFAULTS.fuelEu.penaltyEurPerTonne ? 1 : 0) +
-    (reg.fuelEu.scope !== REG_DEFAULTS.fuelEu.scope ? 1 : 0);
-  const imoHidden =
-    (reg.imoNetZero?.rewardUsdPerTonneCo2e != null ? 1 : 0) +
-    (reg.imoNetZero?.priceEscalation != null ? 1 : 0);
-  const selfHidden = reg.selfDesigned.co2PriceEscalation != null ? 1 : 0;
+  // What Simple is hiding per module, counted only while it is enabled (a
+  // hidden value on a disabled module is inert).
   const fin = scenario.financing;
   const finHidden = fin?.enabled
     ? (fin.greenRate !== 0.06 ? 1 : 0) +
@@ -857,9 +844,9 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
 
   return (
     <div className="space-y-3">
-      {/* Financing (moved from Intro — slide 5): the tab is Regulation &
-          FINANCING, and WACC/inflation are its financing half. Keys stay
-          cargo.*; labels stay corridor.cargo. */}
+      {/* Its own tab since sprint 4's amendment: WACC/inflation (keys
+          stay cargo.*), differentiated green financing, and the capital
+          deployment schedule. Regulation schemes live on the next tab. */}
       <Section title={t("financing")}>
         {resolved && benchmarks ? (
           <div data-field-id="cargo.wacc">
@@ -1120,6 +1107,32 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
           </>
         )}
       </Section>
+    </div>
+  );
+}
+
+export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
+  const t = useTranslations("corridor.regulation");
+  const { scenario, update } = model;
+  const reg = scenario.regulation;
+  const simple = viewMode === "simple";
+  // What Simple is hiding per scheme, counted only while the scheme is
+  // enabled (a hidden value on a disabled scheme is inert).
+  const etsHidden =
+    (reg.ets.euaEurPerTonne !== REG_DEFAULTS.ets.euaEurPerTonne ? 1 : 0) +
+    (reg.eurUsd !== REG_DEFAULTS.eurUsd ? 1 : 0) +
+    (reg.ets.scope !== REG_DEFAULTS.ets.scope ? 1 : 0) +
+    (reg.ets.euaEscalation != null ? 1 : 0);
+  const fuelEuHidden =
+    (reg.fuelEu.penaltyEurPerTonne !== REG_DEFAULTS.fuelEu.penaltyEurPerTonne ? 1 : 0) +
+    (reg.fuelEu.scope !== REG_DEFAULTS.fuelEu.scope ? 1 : 0);
+  const imoHidden =
+    (reg.imoNetZero?.rewardUsdPerTonneCo2e != null ? 1 : 0) +
+    (reg.imoNetZero?.priceEscalation != null ? 1 : 0);
+  const selfHidden = reg.selfDesigned.co2PriceEscalation != null ? 1 : 0;
+
+  return (
+    <div className="space-y-3">
       <Section title={t("ets")}>
         <div className="sm:col-span-2">
           <SwitchRow

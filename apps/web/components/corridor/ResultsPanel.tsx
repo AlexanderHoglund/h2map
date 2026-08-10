@@ -47,6 +47,8 @@ export default function ResultsPanel({
 }) {
   const t = useTranslations("corridor.results");
   const ts = useTranslations("corridor.steps");
+  const tc = useTranslations("corridor.cargo");
+  const tReg = useTranslations("corridor.regulation");
 
   const waterfall = useMemo(() => {
     if (!result) return { pv: [], perTonne: [] };
@@ -722,9 +724,46 @@ export default function ResultsPanel({
             />
           </section>
 
-          {/* 06 Regulation & Financing */}
+          {/* 06 Financing — its own tab since sprint 4's amendment */}
           <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>06 · {ts("regulation")}</Eyebrow>
+            <Eyebrow>06 · {ts("financing")}</Eyebrow>
+            <dl className="text-xs">
+              <TabRow
+                label={tc("wacc")}
+                value={`${(resolved.wacc.value * 100).toFixed(1)}%`}
+              />
+              <TabRow
+                label={tc("inflation")}
+                value={`${(scenario.cargo.inflation * 100).toFixed(1)}%`}
+              />
+              {s.financingGreenPvUsdM !== undefined && (
+                <TabRow
+                  label={t("regFinancing")}
+                  value={fmtSigned(s.financingGreenPvUsdM)}
+                />
+              )}
+              {scenario.capitalPhasing?.enabled && (
+                <TabRow
+                  label={tReg("phasingToggle")}
+                  value={scenario.capitalPhasing.green.weights
+                    .map((w) => Math.round(w * 100))
+                    .join("/")}
+                  sub={
+                    scenario.capitalPhasing.fossil.weights.join() !==
+                    scenario.capitalPhasing.green.weights.join()
+                      ? `${t("sideFossil")}: ${scenario.capitalPhasing.fossil.weights
+                          .map((w) => Math.round(w * 100))
+                          .join("/")}`
+                      : undefined
+                  }
+                />
+              )}
+            </dl>
+          </section>
+
+          {/* 07 Regulation */}
+          <section className="border border-neutral-300 bg-white p-3">
+            <Eyebrow>07 · {ts("regulation")}</Eyebrow>
             <TabTable
               green={t("sideGreen")}
               fossil={t("sideFossil")}
@@ -734,13 +773,6 @@ export default function ResultsPanel({
                 [t("regFuelEu"), s.fuelEuGreenPvUsdM, s.fuelEuFossilPvUsdM],
                 [t("regIra"), s.ira45zGreenPvUsdM, null],
                 [t("regSelf"), s.selfDesignedGreenPvUsdM, s.selfDesignedFossilPvUsdM],
-                ...(s.financingGreenPvUsdM !== undefined
-                  ? ([[t("regFinancing"), s.financingGreenPvUsdM, null]] as [
-                      string,
-                      number,
-                      number | null,
-                    ][])
-                  : []),
                 ...(imo
                   ? ([[t("regImo"), imo.green.pvUsdM, imo.fossil.pvUsdM]] as [
                       string,
@@ -750,10 +782,15 @@ export default function ResultsPanel({
                   : []),
               ]}
             />
+            {/* Regulation-only net: the financing line reports on its own
+                card, so it is excluded here (netReg carries both). */}
             <div className="mt-1.5 flex items-baseline justify-between border-t border-neutral-300 pt-1.5 text-xs font-semibold">
               <span>{t("netReg")}</span>
-              <span className="tabular-nums" style={deltaStyle(netReg)}>
-                {fmtSigned(netReg)}
+              <span
+                className="tabular-nums"
+                style={deltaStyle(netReg - (s.financingGreenPvUsdM ?? 0))}
+              >
+                {fmtSigned(netReg - (s.financingGreenPvUsdM ?? 0))}
               </span>
             </div>
             <dl className="mt-2 border-t border-neutral-100 pt-2 text-xs">

@@ -13,6 +13,7 @@ import {
   CargoTabStep,
   FuelStep,
   PortStep,
+  FinancingStep,
   RegulationStep,
   VesselStep,
 } from "./steps";
@@ -26,7 +27,7 @@ import CorridorArtwork from "./CorridorArtwork";
 
 /**
  * The integrated workspace: ONE model, one screen. The top bar is the only
- * nav — brand + the five input steps + the Results tab. The input steps show
+ * nav — brand + the seven input steps + the Results tab. The input steps show
  * the form with a COMPACT live summary docked right; the Results tab shows
  * the full panel (waterfall, regulatory table, per-year chart) at full
  * width. On the FUEL step, while the green fuel is constructed / built at a
@@ -55,9 +56,9 @@ const ExplorerWorkspace = dynamic(
  * cargo-identity fields, but so does Intro's timeline: storage and
  * presentation are deliberately decoupled).
  */
-const STEPS = ["intro", "energy", "vessels", "cargo", "ports", "regulation"] as const;
+const STEPS = ["intro", "energy", "vessels", "cargo", "ports", "financing", "regulation"] as const;
 type StepKey = (typeof STEPS)[number];
-/** Tab 00 (projects) sits before the six input steps; results closes. */
+/** Tab 00 (projects) sits before the seven input steps; results closes. */
 type View = "projects" | StepKey | "results";
 
 /**
@@ -76,6 +77,7 @@ const TONES: Record<View, string> = {
   vessels: "15 158 213", // Vessels
   cargo: "21 96 130", // Cargo
   ports: "233 113 50", // Ports
+  financing: "160 43 147", // same domain family as Regulation ("Regulation & Funding")
   regulation: "160 43 147", // Regulation & Funding
   results: "33 113 181", // no domain, brand tone
 };
@@ -99,6 +101,7 @@ const TONE_TEXT: Record<View, string> = {
   vessels: "var(--domain-vessels-text)",
   cargo: "var(--domain-cargo-text)",
   ports: "var(--domain-ports-text)",
+  financing: "var(--domain-regulation-text)",
   regulation: "var(--domain-regulation-text)",
   results: "var(--color-brand-strong)",
 };
@@ -183,6 +186,7 @@ export default function CorridorClient() {
     vessels: <VesselStep {...stepProps} />,
     cargo: <CargoTabStep {...stepProps} />,
     ports: <PortStep {...stepProps} />,
+    financing: <FinancingStep {...stepProps} />,
     regulation: <RegulationStep {...stepProps} />,
   };
 

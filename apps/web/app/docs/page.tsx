@@ -73,33 +73,34 @@ const TOC: [string, string][] = [
   ["tab-vessel", "4. Tab 02 — Vessel"],
   ["tab-fuel", "5. Tab 03 — Fuel"],
   ["tab-port", "6. Tab 04 — Port"],
-  ["tab-regulation", "7. Tab 05 — Regulation"],
-  ["tab-results", "8. Tab 06 — Results"],
-  ["engine", "9. The engine: formulas"],
-  ["reference-data", "10. Reference data"],
-  ["sensitivity", "11. What moves the result"],
-  ["provenance", "12. Provenance, versions & limits"],
-  ["inputs", "13. Complete input inventory"],
+  ["tab-financing", "7. Tab 05 — Financing"],
+  ["tab-regulation", "8. Tab 06 — Regulation"],
+  ["tab-results", "9. Tab 07 — Results"],
+  ["engine", "10. The engine: formulas"],
+  ["reference-data", "11. Reference data"],
+  ["sensitivity", "12. What moves the result"],
+  ["provenance", "13. Provenance, versions & limits"],
+  ["inputs", "14. Complete input inventory"],
 ];
 
 /** Part 2 — the LCOH methodology (the engine that prices a build-here site). */
 const TOC_METHOD: [string, string][] = [
-  ["m-overview", "14. Overview & system boundary"],
-  ["m-hydrogen", "15. Hydrogen from electricity"],
-  ["m-profiles", "16. Resource profiles (capacity factors)"],
-  ["m-dispatch", "17. Hourly dispatch"],
-  ["m-degradation", "18. Degradation & stack replacement"],
-  ["m-lcoh", "19. The LCOH formula"],
-  ["m-lcoe", "20. Electricity pricing (LCOE)"],
-  ["m-emissions", "21. Emissions ledger"],
-  ["m-constants", "22. Constants & reference defaults"],
-  ["m-map", "23. The map's configuration"],
-  ["m-costyears", "24. Cost-year projections"],
-  ["m-defaults", "25. Country defaults"],
-  ["m-verification", "26. Verification"],
-  ["m-validation", "27. Validation"],
-  ["m-limitations", "28. Limitations"],
-  ["m-sources", "29. Sources"],
+  ["m-overview", "15. Overview & system boundary"],
+  ["m-hydrogen", "16. Hydrogen from electricity"],
+  ["m-profiles", "17. Resource profiles (capacity factors)"],
+  ["m-dispatch", "18. Hourly dispatch"],
+  ["m-degradation", "19. Degradation & stack replacement"],
+  ["m-lcoh", "20. The LCOH formula"],
+  ["m-lcoe", "21. Electricity pricing (LCOE)"],
+  ["m-emissions", "22. Emissions ledger"],
+  ["m-constants", "23. Constants & reference defaults"],
+  ["m-map", "24. The map's configuration"],
+  ["m-costyears", "25. Cost-year projections"],
+  ["m-defaults", "26. Country defaults"],
+  ["m-verification", "27. Verification"],
+  ["m-validation", "28. Validation"],
+  ["m-limitations", "29. Limitations"],
+  ["m-sources", "30. Sources"],
 ];
 
 /**
@@ -235,7 +236,7 @@ export default async function DocsPage() {
           <strong>Chilean copper-concentrate green corridor</strong>{" "}
           (MMMCZCS, Sep 2025 — Sumitomo, Interacid, NYK, Codelco, MMMCZCS):
           Mejillones → Japan, 25 Mt of concentrate over 15 years on ten
-          ammonia dual-fuel Handymax bulkers (§12).
+          ammonia dual-fuel Handymax bulkers (§13).
         </p>
 
         <nav className="mt-6 border border-neutral-300 bg-white p-4">
@@ -328,7 +329,7 @@ export default async function DocsPage() {
           Fields are split between the main grid and an{" "}
           <strong>Advanced</strong>{" "}fold per tab. Placement is not editorial:
           an input renders top-level when a one-at-a-time sensitivity sweep
-          moves the headline gap by ≥5% across its plausible range (§11).
+          moves the headline gap by ≥5% across its plausible range (§12).
         </p>
 
         {/* 2 ---------------------------------------------------------- */}
@@ -382,9 +383,9 @@ export default async function DocsPage() {
             defaults (with confirmation).
           </li>
           <li>
-            <strong>Navigation</strong>{" "}— the six tabs in the top bar are free
+            <strong>Navigation</strong>{" "}— the seven tabs in the top bar are free
             navigation; Back/Next at the bottom of each form walks them in
-            order. The Results tab (§8) holds the full report; a compact live
+            order. The Results tab (§9) holds the full report; a compact live
             summary stays docked on every input tab.
           </li>
         </ul>
@@ -437,13 +438,13 @@ export default async function DocsPage() {
               "Corridor length, one-way",
               "nm",
               "9,500 (default)",
-              "One-way distance. Drives distance-mode fuel consumption (×2 per roundtrip). The single most sensitive input in the model (§11).",
+              "One-way distance. Drives distance-mode fuel consumption (×2 per roundtrip). The single most sensitive input in the model (§12).",
             ],
             [
               "Model start year",
               "year",
               "2030 (default)",
-              "Calendar year of year 1. Matters for the regulation schedules: the ETS phase-in and the FuelEU target ladder are calendar-anchored (§7).",
+              "Calendar year of year 1. Matters for the regulation schedules: the ETS phase-in and the FuelEU target ladder are calendar-anchored (§8).",
             ],
             [
               "Years modelled",
@@ -488,7 +489,7 @@ export default async function DocsPage() {
               "Vessel type",
               "—",
               "Handymax bulk (58k dwt), default",
-              "Sets the benchmark CAPEX/OPEX, the benchmark annual fuel burn, and the energy-per-mile figure used by distance-mode consumption. Six types from tanker to 15k-TEU container ship (§10).",
+              "Sets the benchmark CAPEX/OPEX, the benchmark annual fuel burn, and the energy-per-mile figure used by distance-mode consumption. Six types from tanker to 15k-TEU container ship (§11).",
             ],
             [
               "Consumption basis",
@@ -739,7 +740,7 @@ export default async function DocsPage() {
               "Fuel type",
               "—",
               "green: e-Ammonia · fossil: LSFO",
-              "Selects the fuel's benchmark bundle: price, emission factors, energy density, production/storage/barge costs, vessel premium (§10).",
+              "Selects the fuel's benchmark bundle: price, emission factors, energy density, production/storage/barge costs, vessel premium (§11).",
             ],
             [
               "Fuel price",
@@ -825,7 +826,50 @@ export default async function DocsPage() {
         />
 
         {/* 7 ---------------------------------------------------------- */}
-        <H id="tab-regulation">7. Tab 05 — Regulation</H>
+        <H id="tab-financing">7. Tab 05 — Financing</H>
+        <p className="mt-2">
+          Separated from Regulation into its own tab (sprint 4 amendment):
+          everything about the cost of money. The corridor discount rate
+          (WACC, with its unverified-benchmark badge — the amber tab dot
+          lives here) and the inflation rate (scenario keys stay{" "}
+          <code>cargo.*</code>), then the two flag-gated sprint-4 modules
+          below. Both are off by default and both leave the golden default
+          untouched.
+        </p>
+        <H3>Differentiated green financing</H3>
+        <F>
+          financing<sub>t</sub>{" "}= −outstanding<sub>t</sub>{" "}× (baseRate −
+          greenRate) &nbsp; (green side only)
+        </F>
+        <p className="mt-2">
+          Off by default. The toggle initialises concrete values: base rate =
+          the corridor&apos;s current discount rate, green rate 6%, full debt,
+          tenor min(15, horizon), amortizing. The five parameters (green
+          rate, base rate, debt share, tenor, amortizing/bullet structure)
+          sit behind the Advanced view; the green rate is a negotiation
+          outcome, not a market observable — concessional structures
+          typically land 0.5–2.5pp below the commercial base rate. The line
+          is an explicit interest saving on debt-financed green capital,
+          shown as its own float in the cost bridge and its own row in the
+          decomposition — deliberately NOT a per-side discount rate, which
+          would invert the benefit (§10). A negative spread (green premium)
+          is allowed and shows as a cost.
+        </p>
+
+        <H3>Capital deployment schedule</H3>
+        <p className="mt-2">
+          Off by default (all CAPEX in year 1). The toggle initialises
+          both sides at 100% in year 1; the Advanced view exposes a
+          deployment-years selector (1–5), per-side share rows and a
+          30/40/30 preset matching the reference study&apos;s build
+          profile. Shares must sum to 1 per side — the form shows a live
+          amber warning and the model refuses to compute rather than
+          silently rescaling. The green financing drawdown follows the
+          same schedule (§10).
+        </p>
+
+
+        <H id="tab-regulation">8. Tab 06 — Regulation</H>
         <p className="mt-2">
           Four schemes, each with its own toggle. All monetary terms use the
           EUR/USD rate (default 1.08) where the scheme is euro-denominated,
@@ -907,12 +951,12 @@ export default async function DocsPage() {
         <p className="mt-2 text-neutral-600">
           <strong>Decision of record (sprint 4):</strong>{" "}the CAPEX/OPEX
           support instruments STAY inside self-designed regulation rather
-          than moving to the Financing section. One scheme, one toggle:
+          than moving to the Financing tab. One scheme, one toggle:
           splitting its four support fields across two tabs would cost more
           comprehension than the taxonomy gains, and the schemes they
           approximate (contracts-for-difference, capital grants) are
-          policy instruments, not loan terms. Revisit if the IMO module's
-          reward mechanism matures into a real support channel.
+          policy instruments, not loan terms. Revisit if the IMO
+          module&apos;s reward mechanism matures into a real support channel.
         </p>
 
         <H3>IMO Net-Zero Framework (provisional)</H3>
@@ -941,38 +985,6 @@ export default async function DocsPage() {
           default everywhere.
         </p>
 
-        <H3>Green financing (Financing section)</H3>
-        <F>
-          financing<sub>t</sub>{" "}= −outstanding<sub>t</sub>{" "}× (baseRate −
-          greenRate) &nbsp; (green side only)
-        </F>
-        <p className="mt-2">
-          Off by default. The toggle initialises concrete values: base rate =
-          the corridor&apos;s current discount rate, green rate 6%, full debt,
-          tenor min(15, horizon), amortizing. The five parameters (green
-          rate, base rate, debt share, tenor, amortizing/bullet structure)
-          sit behind the Advanced view; the green rate is a negotiation
-          outcome, not a market observable — concessional structures
-          typically land 0.5–2.5pp below the commercial base rate. The line
-          is an explicit interest saving on debt-financed green capital,
-          shown as its own float in the cost bridge and its own row in the
-          decomposition — deliberately NOT a per-side discount rate, which
-          would invert the benefit (§9). A negative spread (green premium)
-          is allowed and shows as a cost.
-        </p>
-
-        <H3>Capital deployment schedule (Financing section)</H3>
-        <p className="mt-2">
-          Off by default (all CAPEX in year 1). The toggle initialises
-          both sides at 100% in year 1; the Advanced view exposes a
-          deployment-years selector (1–5), per-side share rows and a
-          30/40/30 preset matching the reference study&apos;s build
-          profile. Shares must sum to 1 per side — the form shows a live
-          amber warning and the model refuses to compute rather than
-          silently rescaling. The green financing drawdown follows the
-          same schedule (§9).
-        </p>
-
         <H3>Model options</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
@@ -980,7 +992,7 @@ export default async function DocsPage() {
             (and $/tCO2) counts: combustion (tank-to-wake, the reference
             convention) or well-to-wake (lifecycle, the app&apos;s default for
             new scenarios). Both tonnages are always reported side by side in
-            the results (§8).
+            the results (§9).
           </li>
           <li>
             <strong>Rate basis</strong>{" "}— nominal (inflation
@@ -990,7 +1002,7 @@ export default async function DocsPage() {
         </ul>
 
         {/* 8 ---------------------------------------------------------- */}
-        <H id="tab-results">8. Tab 06 — Results</H>
+        <H id="tab-results">9. Tab 07 — Results</H>
         <p className="mt-2">
           The full report. Every element recomputes on every keystroke; a
           compact summary of the same numbers stays docked on the input tabs.
@@ -1106,7 +1118,7 @@ export default async function DocsPage() {
         </ul>
 
         {/* 9 ---------------------------------------------------------- */}
-        <H id="engine">9. The engine: formulas</H>
+        <H id="engine">10. The engine: formulas</H>
         <p className="mt-2">
           One pure function evaluates a side; the green/fossil asymmetries are
           data, not code branches. Per modelled year t (idx 1…horizon, cal =
@@ -1187,9 +1199,9 @@ export default async function DocsPage() {
           The line is an explicit interest saving (or, with a negative Δr, a
           premium — never clamped) on debt-financed green capital, discounted
           at the corridor rate like every other line. It sits OUTSIDE the
-          pre-regulation subtotal and inside the Regulation &amp; Financing
-          band of the waterfall — where the MMMCZCS study&apos;s own waterfall
-          places it. Calibration against that study is BOUNDS, not a target:
+          pre-regulation subtotal and inside the net-effect band of the
+          waterfall, as its own float — where the MMMCZCS study&apos;s own
+          waterfall places it. Calibration against that study is BOUNDS, not a target:
           with green CAPEX $1,690m, Δr = 2pp, full debt, tenor 15, the
           amortizing structure yields $196.0m and bullet $312.5m; the
           study&apos;s ≈$250m lies between them, consistent with partial
@@ -1223,7 +1235,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 10 --------------------------------------------------------- */}
-        <H id="reference-data">10. Reference data</H>
+        <H id="reference-data">11. Reference data</H>
         <H3>Vessel types (CAPEX $m · OPEX $m/yr · fuel t/yr · GJ/nm)</H3>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
@@ -1309,7 +1321,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 11 --------------------------------------------------------- */}
-        <H id="sensitivity">11. What moves the result</H>
+        <H id="sensitivity">12. What moves the result</H>
         <p className="mt-2">
           A one-at-a-time sweep from the default baseline, each input across
           its plausible range, ranked by maximum movement of the headline gap.
@@ -1357,7 +1369,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 12 --------------------------------------------------------- */}
-        <H id="provenance">12. Provenance, versions &amp; limits</H>
+        <H id="provenance">13. Provenance, versions &amp; limits</H>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Regression pinning</strong>{" "}— a frozen golden fixture
@@ -1468,11 +1480,11 @@ export default async function DocsPage() {
         </p>
 
         {/* 13 --------------------------------------------------------- */}
-        <H id="inputs">13. Complete input inventory</H>
+        <H id="inputs">14. Complete input inventory</H>
         <p className="mt-2">
           Every field a scenario carries — the machine-complete list,
           generated from the validation schema and joined with the
-          sensitivity sweep (§11). <em>Required&nbsp;=&nbsp;no</em>{" "}
+          sensitivity sweep (§12). <em>Required&nbsp;=&nbsp;no</em>{" "}
           marks optional additions that older scenarios may omit;{" "}
           <em>nullable</em>{" "}
           override fields use <code>null</code>{" "}
@@ -1547,7 +1559,7 @@ export default async function DocsPage() {
         </div>
 
         {/* 14 */}
-        <H id="m-overview">14. Overview &amp; system boundary</H>
+        <H id="m-overview">15. Overview &amp; system boundary</H>
         <p className="mt-2">
           LCOH is the constant price per kilogram of hydrogen that exactly pays
           off every discounted cost of the project over its life. The system
@@ -1564,7 +1576,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 15 */}
-        <H id="m-hydrogen">15. Hydrogen from electricity</H>
+        <H id="m-hydrogen">16. Hydrogen from electricity</H>
         <p className="mt-2">
           Hydrogen output is electricity consumed by the electrolyzer times its
           efficiency, divided by the lower heating value (LHV) of hydrogen:
@@ -1576,11 +1588,11 @@ export default async function DocsPage() {
           η<sub>LHV</sub>{" "}is the system efficiency on an LHV basis (default
           60%), so producing 1 kg needs ≈ 33.33 / 0.60 ≈ 55.6 kWh. Water use is
           9 litres per kg of H₂. The electricity for water desalination and
-          pumping is tracked for emissions only, never for cost (§21).
+          pumping is tracked for emissions only, never for cost (§22).
         </p>
 
         {/* 16 */}
-        <H id="m-profiles">16. Resource profiles (capacity factors)</H>
+        <H id="m-profiles">17. Resource profiles (capacity factors)</H>
         <p className="mt-2">
           Each location gets an 8760-hour <strong>capacity-factor</strong>{" "}
           profile (kWh generated per kW installed, per hour, 0–1) for solar and
@@ -1677,7 +1689,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 17 */}
-        <H id="m-dispatch">17. Hourly dispatch</H>
+        <H id="m-dispatch">18. Hourly dispatch</H>
         <p className="mt-2">
           Each hour, renewables serve the electrolyzer first; the grid/PPA (if
           configured) tops up the shortfall up to its hourly cap and the
@@ -1700,7 +1712,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 18 */}
-        <H id="m-degradation">18. Degradation &amp; stack replacement</H>
+        <H id="m-degradation">19. Degradation &amp; stack replacement</H>
         <p className="mt-2">
           Electrolyzer efficiency degrades geometrically each year (reference
           mode; d = degradation rate, default 1%/yr):
@@ -1716,7 +1728,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 19 */}
-        <H id="m-lcoh">19. The LCOH formula</H>
+        <H id="m-lcoh">20. The LCOH formula</H>
         <p className="mt-2">
           All cashflows are discounted with the project discount rate r
           (default 8%). Investment occurs at year 0 (undiscounted); production
@@ -1791,7 +1803,7 @@ export default async function DocsPage() {
         </div>
 
         {/* 20 */}
-        <H id="m-lcoe">20. Electricity pricing (LCOE)</H>
+        <H id="m-lcoe">21. Electricity pricing (LCOE)</H>
         <p className="mt-2">
           Renewable electricity is priced one of two ways per source. In{" "}
           <strong>LCOE mode</strong>{" "}a flat price per MWh is charged on{" "}
@@ -1814,7 +1826,7 @@ export default async function DocsPage() {
         </F>
         <p className="mt-2">
           The interactive Calculator lets you choose either mode. The world map
-          uses CAPEX mode so that resource quality drives the map (§23).
+          uses CAPEX mode so that resource quality drives the map (§24).
         </p>
         <p className="mt-2">
           In CAPEX mode the electricity component charges the full plant CAPEX
@@ -1828,7 +1840,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 21 */}
-        <H id="m-emissions">21. Emissions ledger</H>
+        <H id="m-emissions">22. Emissions ledger</H>
         <p className="mt-2">
           Emissions are tracked separately from cost. Grid electricity consumed
           by the electrolyzer, plus the electricity attributable to water
@@ -1859,7 +1871,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 22 */}
-        <H id="m-constants">22. Constants &amp; reference defaults</H>
+        <H id="m-constants">23. Constants &amp; reference defaults</H>
         <div className="mt-2 grid gap-4 sm:grid-cols-2">
           <div>
             <p className="font-medium">Physical constants</p>
@@ -1885,7 +1897,7 @@ export default async function DocsPage() {
         </div>
 
         {/* 23 */}
-        <H id="m-map">23. The map&apos;s configuration</H>
+        <H id="m-map">24. The map&apos;s configuration</H>
         <p className="mt-2">
           Every hexagon on the Explorer is computed with a fixed reference
           configuration so cells are comparable: a 100 MW electrolyzer at the
@@ -1914,7 +1926,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 24 */}
-        <H id="m-costyears">24. Cost-year projections (2030 / 2040 / 2050)</H>
+        <H id="m-costyears">25. Cost-year projections (2030 / 2040 / 2050)</H>
         <p className="mt-2">
           The cost-year buttons re-price each cell with future technology costs.
           The <strong>resource is held constant</strong>{" "}— same capacity factors
@@ -1977,7 +1989,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 25 */}
-        <H id="m-defaults">25. Country defaults</H>
+        <H id="m-defaults">26. Country defaults</H>
         <p className="mt-2">
           The Calculator&apos;s country selector fills a grid emission factor
           and a WACC suggestion for every country. Grid emission factors come
@@ -1990,7 +2002,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 26 */}
-        <H id="m-verification">26. Verification</H>
+        <H id="m-verification">27. Verification</H>
         <p className="mt-2">
           Verification shows the code computes what the method specifies — it is
           not empirical grounding. Analytical cases reproduce hand-derived LCOH
@@ -2002,7 +2014,7 @@ export default async function DocsPage() {
         </p>
 
         {/* 27 */}
-        <H id="m-validation">27. Validation</H>
+        <H id="m-validation">28. Validation</H>
         <p className="mt-2">
           <strong>Chilean 47-project parity</strong>{" "}(Tabla 3-1, Motor de Cálculo
           LCOH, April 2024) is the one empirical comparison, and n = 32 with
@@ -2055,7 +2067,7 @@ export default async function DocsPage() {
         </ul>
 
         {/* 28 */}
-        <H id="m-limitations">28. Limitations</H>
+        <H id="m-limitations">29. Limitations</H>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             No compression, storage, transport, or downstream conversion — the
@@ -2081,7 +2093,7 @@ export default async function DocsPage() {
         </ul>
 
         {/* 29 */}
-        <H id="m-sources">29. Sources</H>
+        <H id="m-sources">30. Sources</H>
         <ul className="mt-2 space-y-2">
           <li>
             <strong>Methodology:</strong>{" "}«Motor de Cálculo LCOH — Principales

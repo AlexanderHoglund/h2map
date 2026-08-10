@@ -16,7 +16,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const STEPS = ["Intro", "Energy", "Vessels", "Cargo", "Ports", "Regulation & Financing"];
+const STEPS = ["Intro", "Energy", "Vessels", "Cargo", "Ports", "Financing", "Regulation"];
 const GAP = "$1,762.21m";
 
 async function expectNoSeriousViolations(page: Page, context: string) {
@@ -60,7 +60,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
 
   // The FULL panel lives in its own Results tab (06): lifetime cargo and
   // the study-exact CO2 abatement render there.
-  await page.getByRole("button", { name: "07 Results" }).click();
+  await page.getByRole("button", { name: "08 Results" }).click();
   const full = page.getByRole("main");
   await expect(full.getByText(GAP, { exact: true })).toBeVisible();
   // Twice by design: the snapshot strip and the Cargo & Corridor result card.
@@ -142,8 +142,9 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
       "03 Vessels",
       "04 Cargo",
       "05 Ports",
-      "06 Regulation & Financing",
-      "07 Results",
+      "06 Financing",
+      "07 Regulation",
+      "08 Results",
     ]);
   }
 
@@ -160,7 +161,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
       ).toHaveAttribute("aria-current", "step");
     }
     await main.getByRole("button", { name: "Results", exact: true }).click();
-    await expect(page.getByRole("button", { name: "07 Results" })).toHaveAttribute(
+    await expect(page.getByRole("button", { name: "08 Results" })).toHaveAttribute(
       "aria-current",
       "step",
     );
@@ -221,7 +222,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
 
   // Sprint 2.2: every moved field renders on its MMMCZCS domain tab.
   // Intro: the model-option basis selects arrived; WACC left for
-  // Regulation & Financing.
+  // the Financing tab.
   await expect(page.getByLabel("Emissions basis for CO2 abated")).toBeVisible();
   await expect(page.getByLabel("Rate basis")).toBeVisible();
   await expect(page.getByLabel("Discount rate (WACC)")).toHaveCount(0);
@@ -247,8 +248,8 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await page.getByRole("button", { name: "05 Ports" }).click();
   await expect(page.getByText("Port storage — CAPEX (year 1)").first()).toBeVisible();
 
-  // Regulation & Financing: WACC (with its unverified badge) + inflation.
-  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  // Financing: WACC (with its unverified badge) + inflation.
+  await page.getByRole("button", { name: "06 Financing" }).click();
   await expect(page.getByLabel("Discount rate (WACC)")).toBeVisible();
   await expect(page.getByLabel("Inflation rate")).toBeVisible();
   await expect(page.getByText("unverified benchmark")).toBeVisible();
@@ -351,7 +352,7 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
 
   // Reference Chilean scenario: every tab green (the WACC is overridden, so
   // the unverified benchmark is not in use — no amber).
-  await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(8);
+  await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(9);
 
   // Break it: build-here without a site → Energy red, Results blocked, and
   // the Results message names the tab and links to it.
@@ -359,7 +360,7 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   await page.getByLabel("Fuel sourcing").first().selectOption("build-here");
   await expect(nav.getByRole("img", { name: /Energy: blocks results/ })).toBeVisible();
   await expect(page.getByText("$1,762.21m")).toHaveCount(0);
-  await page.getByRole("button", { name: "07 Results" }).click();
+  await page.getByRole("button", { name: "08 Results" }).click();
   await expect(nav.getByRole("img", { name: /Results: blocks results/ })).toBeVisible();
   const fix = page.getByRole("button", { name: "Fix on Energy" });
   await expect(fix).toBeVisible();
@@ -381,13 +382,13 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   await expect(results.getByText("$1,762.21m")).toBeVisible();
 
   // Amber: clear the WACC override so the UNVERIFIED country benchmark is
-  // actually in use — Regulation & Financing warns without blocking.
-  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  // actually in use — the Financing tab warns without blocking.
+  await page.getByRole("button", { name: "06 Financing" }).click();
   const wacc = page.getByLabel("Discount rate (WACC)");
   await wacc.fill("");
   await wacc.blur();
   await expect(
-    nav.getByRole("img", { name: /Regulation & Financing: running on an unverified benchmark/ }),
+    nav.getByRole("img", { name: /Financing: running on an unverified benchmark/ }),
   ).toBeVisible();
   // NOT blocking: the summary still shows a computed headline (the generic
   // "other" WACC row may or may not equal the override, so no exact value).
@@ -398,7 +399,7 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   await wacc.fill("0.08");
   await wacc.blur();
   await expect(results.getByText("$1,762.21m")).toBeVisible();
-  await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(8);
+  await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(9);
 });
 
 test("routed distance follows override > derived(routed), adoption-only", async ({ page }) => {
@@ -481,7 +482,7 @@ test("provenance badges answer where a number comes from", async ({ page }) => {
 
   // WACC (overridden by default): the badge names what the value replaces
   // and which reference row it came from.
-  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  await page.getByRole("button", { name: "06 Financing" }).click();
   const overrideBadge = page.getByRole("button", {
     name: /replaces the benchmark 0\.08.*2026-07-30-excel-v1/,
   });
@@ -578,10 +579,10 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
 
-  // Toggle on from Regulation & Financing. Toggle-on initialises concrete
+  // Toggle on from the Financing tab. Toggle-on initialises concrete
   // values (base rate = the corridor rate 8%, green 6%, tenor 15,
   // amortizing) — the gap must move immediately.
-  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  await page.getByRole("button", { name: "06 Financing" }).click();
   const toggle = page.getByRole("switch", { name: "Differentiated green financing" });
   await expect(toggle).toBeVisible();
   await toggle.click();
@@ -590,7 +591,7 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
 
   // Results: the waterfall gains the financing float between the gross
   // incremental bar and the regulation bar, with the sign in the label.
-  await page.getByRole("button", { name: "07 Results" }).click();
+  await page.getByRole("button", { name: "08 Results" }).click();
   {
     const chart = page
       .locator("section", { hasText: "Breakdown of total cost of the green corridor" })
@@ -606,7 +607,7 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
   await expect(page.getByText("Green financing effect").first()).toBeVisible();
 
   // Toggle off → the golden default is byte-identical again.
-  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  await page.getByRole("button", { name: "06 Financing" }).click();
   await toggle.click();
   await expect(results.getByText(GAP)).toBeVisible();
   await expect(page.getByText("Green financing effect")).toHaveCount(0);
@@ -621,7 +622,7 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
 
-  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  await page.getByRole("button", { name: "06 Financing" }).click();
   await page.getByRole("switch", { name: "Capital deployment schedule" }).click();
   // Toggle-on initialises 100% in year 1 — output-neutral by construction.
   await expect(results.getByText(GAP)).toBeVisible();
@@ -632,14 +633,14 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
   // The annual chart's caption recomputes (year-1 capital 0.3 × $1,690m)
   // and switches to the phased wording — "charged in full up front" would
   // now be false.
-  await page.getByRole("button", { name: "07 Results" }).click();
+  await page.getByRole("button", { name: "08 Results" }).click();
   await expect(
     page.getByText(/Year 1 carries \$507m of green capital under the deployment schedule/),
   ).toBeVisible();
 
   // Bad sums are refused BY NAME, never silently rescaled: zeroing year 3
   // shows the live amber warning and the results panel carries the error.
-  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  await page.getByRole("button", { name: "06 Financing" }).click();
   const y3 = page.getByLabel("Green share, year 3");
   await y3.fill("0");
   await expect(page.getByText(/Green shares must sum to 1 \(currently 0\.70\)/)).toBeVisible();

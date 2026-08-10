@@ -286,8 +286,6 @@ export async function downloadResultsXlsx(
     ["Years modelled", scenario.cargo.horizonYears, "yr", "—"],
     ["Vessels", resolved.vessels, "—", "—"],
     ["Roundtrips per year", scenario.cargo.roundtripsPerYear, "/yr", "—"],
-    ["Inflation", resolved.inflation, "fraction", "—"],
-    ["Discount rate (WACC)", resolved.wacc.value, "fraction", resolved.wacc.source],
   ]);
 
   const fuelRows = (side: typeof rg, input: typeof scenario.green): InputRow[] => [
@@ -323,22 +321,9 @@ export async function downloadResultsXlsx(
   section("05 · Ports — fossil", portRows(rf));
 
   const reg = scenario.regulation;
-  section("06 · Regulation & Financing", [
-    ["EU ETS", reg.ets.enabled ? "enabled" : "off", "—", "—"],
-    ["EUA price", reg.ets.euaEurPerTonne, "€/t CO2", "—"],
-    ["EUR/USD", reg.eurUsd, "—", "—"],
-    ["ETS scope", reg.ets.scope, "fraction", "—"],
-    ["FuelEU Maritime", reg.fuelEu.enabled ? "enabled" : "off", "—", "—"],
-    ["FuelEU penalty", reg.fuelEu.penaltyEurPerTonne, "€/t VLSFO-eq", "—"],
-    ["FuelEU scope", reg.fuelEu.scope, "fraction", "—"],
-    ["IRA 45Z", reg.ira45z.enabled ? "enabled" : "off", "—", "—"],
-    ["45Z credit", reg.ira45z.creditUsdPerGallon, "$/gal", "—"],
-    ["Self-designed scheme", reg.selfDesigned.enabled ? "enabled" : "off", "—", "—"],
-    ["Self-designed CO2 price", reg.selfDesigned.co2PriceUsdPerTonne, "$/t CO2", "—"],
-    ["H2-based fuel support", reg.selfDesigned.supportUsdPerKg, "$/kg", "—"],
-    ["CAPEX support", reg.selfDesigned.capexSupport, "fraction", "—"],
-    ["OPEX support", reg.selfDesigned.opexSupport, "fraction", "—"],
-    ["IMO Net-Zero Framework", reg.imoNetZero?.enabled ? "enabled" : "off", "—", "—"],
+  section("06 · Financing", [
+    ["Discount rate (WACC)", resolved.wacc.value, "fraction", resolved.wacc.source],
+    ["Inflation", resolved.inflation, "fraction", "—"],
     ["Green financing", scenario.financing?.enabled ? "enabled" : "off", "—", "—"],
     ...(scenario.financing?.enabled
       ? ([
@@ -371,6 +356,24 @@ export async function downloadResultsXlsx(
           ],
         ] as InputRow[])
       : []),
+  ]);
+
+  section("07 · Regulation", [
+    ["EU ETS", reg.ets.enabled ? "enabled" : "off", "—", "—"],
+    ["EUA price", reg.ets.euaEurPerTonne, "€/t CO2", "—"],
+    ["EUR/USD", reg.eurUsd, "—", "—"],
+    ["ETS scope", reg.ets.scope, "fraction", "—"],
+    ["FuelEU Maritime", reg.fuelEu.enabled ? "enabled" : "off", "—", "—"],
+    ["FuelEU penalty", reg.fuelEu.penaltyEurPerTonne, "€/t VLSFO-eq", "—"],
+    ["FuelEU scope", reg.fuelEu.scope, "fraction", "—"],
+    ["IRA 45Z", reg.ira45z.enabled ? "enabled" : "off", "—", "—"],
+    ["45Z credit", reg.ira45z.creditUsdPerGallon, "$/gal", "—"],
+    ["Self-designed scheme", reg.selfDesigned.enabled ? "enabled" : "off", "—", "—"],
+    ["Self-designed CO2 price", reg.selfDesigned.co2PriceUsdPerTonne, "$/t CO2", "—"],
+    ["H2-based fuel support", reg.selfDesigned.supportUsdPerKg, "$/kg", "—"],
+    ["CAPEX support", reg.selfDesigned.capexSupport, "fraction", "—"],
+    ["OPEX support", reg.selfDesigned.opexSupport, "fraction", "—"],
+    ["IMO Net-Zero Framework", reg.imoNetZero?.enabled ? "enabled" : "off", "—", "—"],
     ["Emissions basis", basis, "—", "—"],
     ["Rate basis", scenario.flags?.rateBasis ?? "nominal", "—", "—"],
   ]);

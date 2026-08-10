@@ -13,7 +13,7 @@ import type { CorridorModel } from "./state";
  *           UNVERIFIED reference benchmark, has top-level sensitivity rank,
  *           and is actually running on that benchmark (no override). Today
  *           that set is exactly cargo.wacc — the unverified country WACC
- *           table — which renders on Regulation & Financing.
+ *           table — which renders on the Financing tab.
  *  - green: complete.
  */
 export type TabState = "green" | "amber" | "red";
@@ -24,7 +24,7 @@ export interface TabStatus {
   targetFieldId?: string;
 }
 
-type InputTab = "intro" | "energy" | "vessels" | "cargo" | "ports" | "regulation";
+type InputTab = "intro" | "energy" | "vessels" | "cargo" | "ports" | "financing" | "regulation";
 
 /** Ordered error→tab attribution; the first match wins. Every resolve/
  *  evaluate throw today names its subject (build-here, fuelId, the
@@ -35,8 +35,8 @@ const ERROR_MATCHERS: readonly [RegExp, InputTab, string | undefined][] = [
   [/vessel/i, "vessels", undefined],
   [/port/i, "ports", undefined],
   // Sprint 4 — financing + phasing errors (e.g. the weights sum-to-1
-  // throw) belong to the Regulation & Financing tab.
-  [/financing|capitalPhasing/i, "regulation", undefined],
+  // throw) belong to the Financing tab.
+  [/financing|capitalPhasing/i, "financing", undefined],
   [/regulation/i, "regulation", undefined],
 ];
 
@@ -50,6 +50,7 @@ export function tabStatuses(
     vessels: { state: "green" },
     cargo: { state: "green" },
     ports: { state: "green" },
+    financing: { state: "green" },
     regulation: { state: "green" },
     results: { state: "green" },
   };
@@ -66,12 +67,12 @@ export function tabStatuses(
   // the whole set today; every country WACC row is verified: false, and ids
   // outside the workbook's seven fall back to the generic "other" row
   // (mirroring getCountry's fallback).
-  if (statuses.regulation.state === "green" && model.resolved) {
+  if (statuses.financing.state === "green" && model.resolved) {
     const country =
       model.bundle.countries.find((c) => c.id === model.scenario.cargo.countryId) ??
       model.bundle.countries.find((c) => c.id === "other");
     if (model.resolved.wacc.source === "benchmark" && country?.verified === false) {
-      statuses.regulation = { state: "amber", targetFieldId: "cargo.wacc" };
+      statuses.financing = { state: "amber", targetFieldId: "cargo.wacc" };
     }
   }
 
@@ -82,6 +83,8 @@ export function tabStatuses(
 export function firstBlockedTab(
   statuses: ReturnType<typeof tabStatuses>,
 ): InputTab | null {
-  const tabs: InputTab[] = ["intro", "energy", "vessels", "cargo", "ports", "regulation"];
+  const tabs: InputTab[] = [
+    "intro", "energy", "vessels", "cargo", "ports", "financing", "regulation",
+  ];
   return tabs.find((k) => statuses[k].state === "red") ?? null;
 }
