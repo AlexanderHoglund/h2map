@@ -32,11 +32,11 @@
     },
     "viewMode": {
       "label": "View mode",
-      "simple": "Simple",
-      "advanced": "Advanced",
-      "hiddenNote": "Advanced options hidden in Simple view - benchmarks apply.",
-      "hiddenActive": "{count, plural, one {# advanced setting} other {# advanced settings}} in effect but hidden in Simple view.",
-      "switchToAdvanced": "Switch to Advanced"
+      "simplified": "Simplified",
+      "standard": "Standard",
+      "hiddenNote": "Detailed settings hidden in Simplified view - defaults apply.",
+      "hiddenActive": "{count, plural, one {# detailed setting} other {# detailed settings}} in effect but hidden in Simplified view.",
+      "switchToStandard": "Switch to Standard"
     },
     "nav": {
       "back": "Back",

@@ -83,15 +83,15 @@ const TONES: Record<View, string> = {
 };
 
 /**
- * Simple/Advanced is a VIEW preference, not scenario state: it lives in
+ * Simplified/Standard is a VIEW preference, not scenario state: it lives in
  * localStorage (per user, like the draft), never in the scenario object,
  * exported JSON or a share link — two people opening the same scenario in
- * different modes must see the same numbers. Simple shows fewer inputs,
- * not different ones: the sensitivity-derived advanced set stays hidden on
+ * different modes must see the same numbers. Simplified shows fewer inputs,
+ * not different ones: everything below the sensitivity top-level stays on
  * its benchmarks and the folds lock shut.
  */
 const VIEWMODE_KEY = "corridor-viewmode-v1";
-type ViewMode = "simple" | "advanced";
+type ViewMode = "simplified" | "standard";
 
 /** Same hues darkened to ≥4.5:1 on white — for section headers, never washes. */
 const TONE_TEXT: Record<View, string> = {
@@ -117,10 +117,15 @@ export default function CorridorClient() {
   const [legacyDismissed, setLegacyDismissed] = useState(false);
   const [view, setView] = useState<View>("intro");
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    // Simplified is the default; stored preferences (including the legacy
+    // "simple"/"advanced" values) are honored.
     try {
-      return localStorage.getItem(VIEWMODE_KEY) === "simple" ? "simple" : "advanced";
+      const stored = localStorage.getItem(VIEWMODE_KEY);
+      return stored === "standard" || stored === "advanced"
+        ? "standard"
+        : "simplified";
     } catch {
-      return "advanced";
+      return "simplified";
     }
   });
   const pickViewMode = (m: ViewMode) => {
@@ -178,7 +183,7 @@ export default function CorridorClient() {
   const stepProps = {
     model,
     viewMode,
-    revealAdvanced: () => pickViewMode("advanced"),
+    revealStandard: () => pickViewMode("standard"),
   };
   const stepBody: Record<StepKey, React.ReactNode> = {
     intro: <CargoStep {...stepProps} />,
@@ -280,7 +285,7 @@ export default function CorridorClient() {
               aria-label={t("viewMode.label")}
               className="hidden items-center gap-1 px-3 md:flex"
             >
-              {(["simple", "advanced"] as const).map((m) => (
+              {(["simplified", "standard"] as const).map((m) => (
                 <button
                   key={m}
                   type="button"

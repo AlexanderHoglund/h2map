@@ -25,10 +25,11 @@ import { defaultScenario, isAdvanced, type CorridorModel } from "./state";
 
 interface StepProps {
   model: CorridorModel;
-  /** Simple hides the sensitivity-ranked advanced set; Advanced shows all. */
-  viewMode: "simple" | "advanced";
-  /** "Switch to Advanced" from a hidden-settings strip. */
-  revealAdvanced: () => void;
+  /** Simplified shows structural inputs + the sensitivity top-level set;
+   *  Standard shows everything. */
+  viewMode: "simplified" | "standard";
+  /** "Switch to Standard" from a hidden-settings strip. */
+  revealStandard: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -66,23 +67,25 @@ function AdvancedHiddenStrip({
     <p className="sm:col-span-2 flex items-center gap-2 bg-brand-tint px-2.5 py-1.5 text-[11px] text-brand-deep">
       <span>{t("hiddenActive", { count })}</span>
       <button type="button" onClick={onReveal} className="font-medium underline">
-        {t("switchToAdvanced")}
+        {t("switchToStandard")}
       </button>
     </p>
   );
 }
 
-/** Places a field in the main grid or collects it for the Advanced fold.
- *  `overridden` marks entries whose value the user has set — Simple mode
+/** Places a field in the main grid or collects it for the hidden set.
+ *  Hidden = sensitivity-ranked advanced (ui-manifest) OR explicitly marked
+ *  `hidden` (fields the sweep never ranked but that are not essential).
+ *  `overridden` marks entries whose value the user has set — Simplified mode
  *  reports how many of those it is hiding. */
 function splitByManifest(
-  entries: { id: string; node: React.ReactNode; overridden?: boolean }[],
+  entries: { id: string; node: React.ReactNode; overridden?: boolean; hidden?: boolean }[],
 ): { main: React.ReactNode[]; advanced: React.ReactNode[]; advancedOverrides: number } {
   const main: React.ReactNode[] = [];
   const advanced: React.ReactNode[] = [];
   let advancedOverrides = 0;
   for (const e of entries) {
-    if (isAdvanced(e.id)) {
+    if (e.hidden || isAdvanced(e.id)) {
       advanced.push(e.node);
       if (e.overridden) advancedOverrides += 1;
     } else {
@@ -104,10 +107,14 @@ const START_YEARS = Array.from({ length: 31 }, (_, i) => 2025 + i); // 2025–20
 const HORIZON_YEARS = Array.from({ length: 40 }, (_, i) => 1 + i); // 1–40
 /** Reference defaults the selectors' badges compare against ([S] values). */
 const CARGO_DEFAULTS = defaultScenario().cargo;
-/** Regulation reference defaults — Simple mode counts hidden departures. */
+/** Regulation reference defaults — Simplified mode counts hidden departures. */
 const REG_DEFAULTS = defaultScenario().regulation;
+/** Model-option defaults (emissions/rate basis) for the Intro strip count. */
+const FLAGS_DEFAULTS = defaultScenario().flags;
+/** Vessel defaults (consumption mode) for the Vessels strip count. */
+const VESSEL_DEFAULTS = defaultScenario().vessel;
 
-export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
+export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
   const t = useTranslations("corridor.cargo");
   const tr = useTranslations("corridor.regulation");
   const tp = useTranslations("corridor.provenance");
@@ -172,6 +179,57 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
           benchmark={CARGO_DEFAULTS.horizonYears}
           citation={tp("yearsDefault")}
           onChange={(v) => update((d) => void (d.cargo.horizonYears = v))}
+        />
+      ),
+    },
+    // Model options (moved from Regulation — slide 3): defaultable framing
+    // choices, hidden in Simplified. Keys stay flags.*; i18n stays
+    // corridor.regulation.
+    {
+      id: "flags.emissionsBasis",
+      hidden: true,
+      overridden:
+        (scenario.flags?.emissionsBasis ?? "combustion") !==
+        (FLAGS_DEFAULTS?.emissionsBasis ?? "combustion"),
+      node: (
+        <Select
+          key="emissionsBasis"
+          label={tr("emissionsBasis")}
+          value={scenario.flags?.emissionsBasis ?? "combustion"}
+          options={[
+            { value: "combustion", label: tr("basisCombustion") },
+            { value: "wellToWake", label: tr("basisWtw") },
+          ]}
+          onChange={(v) =>
+            update(
+              (d) =>
+                void (d.flags = {
+                  ...d.flags,
+                  emissionsBasis: v as "combustion" | "wellToWake",
+                }),
+            )
+          }
+        />
+      ),
+    },
+    {
+      id: "flags.rateBasis",
+      hidden: true,
+      overridden:
+        (scenario.flags?.rateBasis ?? "nominal") !==
+        (FLAGS_DEFAULTS?.rateBasis ?? "nominal"),
+      node: (
+        <Select
+          key="rateBasis"
+          label={tr("rateBasis")}
+          value={scenario.flags?.rateBasis ?? "nominal"}
+          options={[
+            { value: "nominal", label: tr("rateNominal") },
+            { value: "real", label: tr("rateReal") },
+          ]}
+          onChange={(v) =>
+            update((d) => void (d.flags = { ...d.flags, rateBasis: v as "nominal" | "real" }))
+          }
         />
       ),
     },
@@ -317,43 +375,11 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
           }
         />
         {fields.main}
-        {/* Everything standard on this tab — no Advanced fold. */}
-        {viewMode === "advanced" ? (
+        {viewMode === "standard" ? (
           fields.advanced
-        ) : fields.advanced.length > 0 ? (
-          <AdvancedHiddenStrip count={fields.advancedOverrides} onReveal={revealAdvanced} />
-        ) : null}
-        {/* Model options (moved from Regulation — slide 3): the basis the
-            whole comparison is read on belongs with the framing, not the
-            schemes. Keys stay flags.*; i18n stays corridor.regulation. */}
-        <Select
-          label={tr("emissionsBasis")}
-          value={scenario.flags?.emissionsBasis ?? "combustion"}
-          options={[
-            { value: "combustion", label: tr("basisCombustion") },
-            { value: "wellToWake", label: tr("basisWtw") },
-          ]}
-          onChange={(v) =>
-            update(
-              (d) =>
-                void (d.flags = {
-                  ...d.flags,
-                  emissionsBasis: v as "combustion" | "wellToWake",
-                }),
-            )
-          }
-        />
-        <Select
-          label={tr("rateBasis")}
-          value={scenario.flags?.rateBasis ?? "nominal"}
-          options={[
-            { value: "nominal", label: tr("rateNominal") },
-            { value: "real", label: tr("rateReal") },
-          ]}
-          onChange={(v) =>
-            update((d) => void (d.flags = { ...d.flags, rateBasis: v as "nominal" | "real" }))
-          }
-        />
+        ) : (
+          <AdvancedHiddenStrip count={fields.advancedOverrides} onReveal={revealStandard} />
+        )}
       </div>
     </div>
   );
@@ -363,7 +389,7 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
 // Step — Cargo (the MMMCZCS Cargo domain's own tab)
 // ---------------------------------------------------------------------------
 
-export function CargoTabStep({ model, viewMode, revealAdvanced }: StepProps) {
+export function CargoTabStep({ model, viewMode, revealStandard }: StepProps) {
   const t = useTranslations("corridor.cargo");
   const ts = useTranslations("corridor.steps");
   const { scenario, update } = model;
@@ -428,10 +454,10 @@ export function CargoTabStep({ model, viewMode, revealAdvanced }: StepProps) {
         <div />
       )}
       {fields.main}
-      {viewMode === "advanced" ? (
+      {viewMode === "standard" ? (
         fields.advanced
       ) : fields.advanced.length > 0 ? (
-        <AdvancedHiddenStrip count={fields.advancedOverrides} onReveal={revealAdvanced} />
+        <AdvancedHiddenStrip count={fields.advancedOverrides} onReveal={revealStandard} />
       ) : null}
     </Section>
   );
@@ -441,7 +467,7 @@ export function CargoTabStep({ model, viewMode, revealAdvanced }: StepProps) {
 // Step 2 — Vessel
 // ---------------------------------------------------------------------------
 
-export function VesselStep({ model }: StepProps) {
+export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
   const t = useTranslations("corridor.vessel");
   const tp = useTranslations("corridor.provenance");
   const { scenario, update, resolved, benchmarks, bundle } = model;
@@ -499,20 +525,22 @@ export function VesselStep({ model }: StepProps) {
           options={bundle.vesselTypes.map((v) => ({ value: v.id, label: v.label }))}
           onChange={(v) => update((d) => void (d.vessel.typeId = v))}
         />
-        <Select
-          label={t("consumptionMode")}
-          value={scenario.vessel.consumptionMode}
-          options={[
-            { value: "distance", label: t("modeDistance") },
-            { value: "vessel-benchmark", label: t("modeBenchmark") },
-          ]}
-          onChange={(v) =>
-            update(
-              (d) =>
-                void (d.vessel.consumptionMode = v as ScenarioInput["vessel"]["consumptionMode"]),
-            )
-          }
-        />
+        {viewMode === "standard" && (
+          <Select
+            label={t("consumptionMode")}
+            value={scenario.vessel.consumptionMode}
+            options={[
+              { value: "distance", label: t("modeDistance") },
+              { value: "vessel-benchmark", label: t("modeBenchmark") },
+            ]}
+            onChange={(v) =>
+              update(
+                (d) =>
+                  void (d.vessel.consumptionMode = v as ScenarioInput["vessel"]["consumptionMode"]),
+              )
+            }
+          />
+        )}
         <NumberInput
           label={t("vessels")}
           step={1}
@@ -530,10 +558,28 @@ export function VesselStep({ model }: StepProps) {
         {vesselField("green", "capex")}
         {vesselField("green", "opex")}
       </Section>
-      <Section title={t("fossil")}>
-        {vesselField("fossil", "capex")}
-        {vesselField("fossil", "opex")}
-      </Section>
+      {/* Fossil fleet costs are benchmarked and rank below the sensitivity
+          threshold — Simplified runs them on their defaults. */}
+      {viewMode === "standard" ? (
+        <Section title={t("fossil")}>
+          {vesselField("fossil", "capex")}
+          {vesselField("fossil", "opex")}
+        </Section>
+      ) : (
+        <Section title={t("fossil")}>
+          <AdvancedHiddenStrip
+            count={
+              (scenario.vessel.consumptionMode !==
+              VESSEL_DEFAULTS.consumptionMode
+                ? 1
+                : 0) +
+              (scenario.vessel.fossil.capexUsdM != null ? 1 : 0) +
+              (scenario.vessel.fossil.opexUsdMPerYear != null ? 1 : 0)
+            }
+            onReveal={revealStandard}
+          />
+        </Section>
+      )}
     </div>
   );
 }
@@ -542,7 +588,7 @@ export function VesselStep({ model }: StepProps) {
 // Step 3 — Fuel
 // ---------------------------------------------------------------------------
 
-function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side: "green" | "fossil" }) {
+function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side: "green" | "fossil" }) {
   const t = useTranslations("corridor.fuel");
   const tp = useTranslations("corridor.provenance");
   const { scenario, update, resolved, benchmarks, bundle } = model;
@@ -621,6 +667,8 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
       : []),
     {
       id: `${side}.fuelTonnesPerVesselYear`,
+      hidden: side === "fossil",
+      overridden: s.overrides.fuelTonnesPerVesselYear !== null,
       node: overrideField(
         "fuelTonnesPerVesselYear",
         "tonnesPerVesselYear",
@@ -632,8 +680,12 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
         },
       ),
     },
+    // Fuel-property fields are benchmarked physical constants — Simplified
+    // runs them on their reference values.
     {
       id: `${side}.combustionEf`,
+      hidden: true,
+      overridden: s.overrides.combustionEfTco2PerTonne !== null,
       node: overrideField(
         "combustionEfTco2PerTonne",
         "combustionEf",
@@ -643,6 +695,8 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
     },
     {
       id: `${side}.lhv`,
+      hidden: true,
+      overridden: s.overrides.lhvMjPerTonne !== null,
       node: overrideField("lhvMjPerTonne", "lhv", t("lhv"), "MJ/t"),
     },
     {
@@ -659,6 +713,8 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
       : [
           {
             id: `${side}.prodCapexUsdM`,
+            hidden: side === "fossil",
+            overridden: s.overrides.prodCapexUsdM !== null,
             node: overrideField("prodCapexUsdM", "prodCapexUsdM", t("prodCapex"), "$m", {
               disabled: prodZeroed,
               disabledNote: t("prodZeroNote"),
@@ -666,6 +722,8 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
           },
           {
             id: `${side}.prodOpexUsdMPerYear`,
+            hidden: side === "fossil",
+            overridden: s.overrides.prodOpexUsdMPerYear !== null,
             node: overrideField(
               "prodOpexUsdMPerYear",
               "prodOpexUsdMPerYear",
@@ -715,22 +773,21 @@ function FuelSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
         </p>
       )}
       {s.sourcing === "build-here" && <BuildHerePanel model={model} side={side} />}
-      {/* Everything standard on this tab — no Advanced fold. */}
       {entries.main}
-      {viewMode === "advanced" ? (
+      {viewMode === "standard" ? (
         entries.advanced
-      ) : entries.advanced.length > 0 ? (
-        <AdvancedHiddenStrip count={entries.advancedOverrides} onReveal={revealAdvanced} />
-      ) : null}
+      ) : (
+        <AdvancedHiddenStrip count={entries.advancedOverrides} onReveal={revealStandard} />
+      )}
     </Section>
   );
 }
 
-export function FuelStep({ model, viewMode, revealAdvanced }: StepProps) {
+export function FuelStep({ model, viewMode, revealStandard }: StepProps) {
   return (
     <div className="space-y-3">
-      <FuelSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="green" />
-      <FuelSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="fossil" />
+      <FuelSide model={model} viewMode={viewMode} revealStandard={revealStandard} side="green" />
+      <FuelSide model={model} viewMode={viewMode} revealStandard={revealStandard} side="fossil" />
     </div>
   );
 }
@@ -739,7 +796,7 @@ export function FuelStep({ model, viewMode, revealAdvanced }: StepProps) {
 // Step 4 — Port
 // ---------------------------------------------------------------------------
 
-function PortSide({ model, viewMode, revealAdvanced, side }: StepProps & { side: "green" | "fossil" }) {
+function PortSide({ model, viewMode, revealStandard, side }: StepProps & { side: "green" | "fossil" }) {
   const t = useTranslations("corridor.port");
   const tp = useTranslations("corridor.provenance");
   const { scenario, update, resolved, benchmarks, bundle } = model;
@@ -784,27 +841,31 @@ function PortSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
       )}
       {field("portStorageCapexUsdM", t("storageCapex"), "$m")}
       {field("portStorageOpexUsdMPerYear", t("storageOpex"), "$m/yr")}
-      {/* Barge CAPEX is advanced-ranked in the sensitivity manifest —
-          Simple hides it wherever it renders, fold or not. */}
-      {viewMode === "advanced" || !isAdvanced("port.bargeCapexUsdM")
-        ? field("bargeCapexUsdM", t("bargeCapex"), "$m")
-        : null}
-      {field("bargeOpexUsdMPerYear", t("bargeOpex"), "$m/yr")}
-      {viewMode === "simple" && isAdvanced("port.bargeCapexUsdM") ? (
+      {/* The barge pair sits below the sensitivity threshold — Simplified
+          runs it on the benchmarks. */}
+      {viewMode === "standard" ? (
+        <>
+          {field("bargeCapexUsdM", t("bargeCapex"), "$m")}
+          {field("bargeOpexUsdMPerYear", t("bargeOpex"), "$m/yr")}
+        </>
+      ) : (
         <AdvancedHiddenStrip
-          count={scenario[side].overrides.bargeCapexUsdM !== null ? 1 : 0}
-          onReveal={revealAdvanced}
+          count={
+            (scenario[side].overrides.bargeCapexUsdM !== null ? 1 : 0) +
+            (scenario[side].overrides.bargeOpexUsdMPerYear !== null ? 1 : 0)
+          }
+          onReveal={revealStandard}
         />
-      ) : null}
+      )}
     </Section>
   );
 }
 
-export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
+export function PortStep({ model, viewMode, revealStandard }: StepProps) {
   return (
     <div className="space-y-3">
-      <PortSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="green" />
-      <PortSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="fossil" />
+      <PortSide model={model} viewMode={viewMode} revealStandard={revealStandard} side="green" />
+      <PortSide model={model} viewMode={viewMode} revealStandard={revealStandard} side="fossil" />
     </div>
   );
 }
@@ -813,7 +874,7 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
 // Step 5 — Regulation
 // ---------------------------------------------------------------------------
 
-export function FinancingStep({ model, viewMode, revealAdvanced }: StepProps) {
+export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
   const t = useTranslations("corridor.regulation");
   const tc = useTranslations("corridor.cargo");
   const tRes = useTranslations("corridor.results");
@@ -821,13 +882,17 @@ export function FinancingStep({ model, viewMode, revealAdvanced }: StepProps) {
   const countryRow =
     bundle.countries.find((c) => c.id === scenario.cargo.countryId) ??
     bundle.countries.find((c) => c.id === "other");
-  const simple = viewMode === "simple";
-  // What Simple is hiding per module, counted only while it is enabled (a
-  // hidden value on a disabled module is inert).
+  const simple = viewMode === "simplified";
+  // What Simplified is hiding per module, counted only while it is enabled
+  // (a hidden value on a disabled module is inert). The green rate is
+  // sensitivity top-level, so it stays VISIBLE and is not counted; the
+  // others compare against their toggle-on init values.
   const fin = scenario.financing;
+  const finInitBaseRate = Math.round((resolved?.wacc.value ?? 0.08) * 1000) / 1000;
   const finHidden = fin?.enabled
-    ? (fin.greenRate !== 0.06 ? 1 : 0) +
+    ? (fin.baseRate !== finInitBaseRate ? 1 : 0) +
       (fin.debtShare !== 1 ? 1 : 0) +
+      (fin.tenorYears !== Math.min(15, scenario.cargo.horizonYears) ? 1 : 0) +
       (fin.structure !== "amortizing" ? 1 : 0)
     : 0;
   const phasing = scenario.capitalPhasing;
@@ -909,18 +974,18 @@ export function FinancingStep({ model, viewMode, revealAdvanced }: StepProps) {
         </div>
         {scenario.financing?.enabled && (
           <>
+            <NumberInput
+              label={t("finGreenRate")}
+              unit="fraction"
+              step={0.005}
+              help={t("finGreenRateHelp")}
+              value={scenario.financing.greenRate}
+              onChange={(v) =>
+                update((d) => void (d.financing && (d.financing.greenRate = v)))
+              }
+            />
             {!simple && (
               <>
-                <NumberInput
-                  label={t("finGreenRate")}
-                  unit="fraction"
-                  step={0.005}
-                  help={t("finGreenRateHelp")}
-                  value={scenario.financing.greenRate}
-                  onChange={(v) =>
-                    update((d) => void (d.financing && (d.financing.greenRate = v)))
-                  }
-                />
                 <NumberInput
                   label={t("finBaseRate")}
                   unit="fraction"
@@ -984,7 +1049,7 @@ export function FinancingStep({ model, viewMode, revealAdvanced }: StepProps) {
               {t("finNote")}
             </p>
             {simple && (
-              <AdvancedHiddenStrip count={finHidden} onReveal={revealAdvanced} />
+              <AdvancedHiddenStrip count={finHidden} onReveal={revealStandard} />
             )}
           </>
         )}
@@ -1102,7 +1167,7 @@ export function FinancingStep({ model, viewMode, revealAdvanced }: StepProps) {
               {t("phasingNote")}
             </p>
             {simple && (
-              <AdvancedHiddenStrip count={phasingHidden} onReveal={revealAdvanced} />
+              <AdvancedHiddenStrip count={phasingHidden} onReveal={revealStandard} />
             )}
           </>
         )}
@@ -1111,11 +1176,11 @@ export function FinancingStep({ model, viewMode, revealAdvanced }: StepProps) {
   );
 }
 
-export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
+export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
   const t = useTranslations("corridor.regulation");
   const { scenario, update } = model;
   const reg = scenario.regulation;
-  const simple = viewMode === "simple";
+  const simple = viewMode === "simplified";
   // What Simple is hiding per scheme, counted only while the scheme is
   // enabled (a hidden value on a disabled scheme is inert).
   const etsHidden =
@@ -1125,11 +1190,24 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
     (reg.ets.euaEscalation != null ? 1 : 0);
   const fuelEuHidden =
     (reg.fuelEu.penaltyEurPerTonne !== REG_DEFAULTS.fuelEu.penaltyEurPerTonne ? 1 : 0) +
-    (reg.fuelEu.scope !== REG_DEFAULTS.fuelEu.scope ? 1 : 0);
+    (reg.fuelEu.scope !== REG_DEFAULTS.fuelEu.scope ? 1 : 0) +
+    (reg.fuelEu.vlsfoMjPerTonne !== REG_DEFAULTS.fuelEu.vlsfoMjPerTonne ? 1 : 0) +
+    (reg.fuelEu.baselineGco2PerMj !== REG_DEFAULTS.fuelEu.baselineGco2PerMj ? 1 : 0);
+  const iraHidden =
+    reg.ira45z.creditUsdPerGallon !== REG_DEFAULTS.ira45z.creditUsdPerGallon ? 1 : 0;
   const imoHidden =
+    ((reg.imoNetZero?.scope ?? 1) !== 1 ? 1 : 0) +
     (reg.imoNetZero?.rewardUsdPerTonneCo2e != null ? 1 : 0) +
     (reg.imoNetZero?.priceEscalation != null ? 1 : 0);
-  const selfHidden = reg.selfDesigned.co2PriceEscalation != null ? 1 : 0;
+  const selfHidden =
+    (reg.selfDesigned.co2PriceUsdPerTonne !== REG_DEFAULTS.selfDesigned.co2PriceUsdPerTonne
+      ? 1
+      : 0) +
+    (reg.selfDesigned.supportUsdPerKg !== REG_DEFAULTS.selfDesigned.supportUsdPerKg ? 1 : 0) +
+    (reg.selfDesigned.capexSupport !== REG_DEFAULTS.selfDesigned.capexSupport ? 1 : 0) +
+    (reg.selfDesigned.opexSupport !== REG_DEFAULTS.selfDesigned.opexSupport ? 1 : 0) +
+    (reg.selfDesigned.otherUsdM !== REG_DEFAULTS.selfDesigned.otherUsdM ? 1 : 0) +
+    (reg.selfDesigned.co2PriceEscalation != null ? 1 : 0);
 
   return (
     <div className="space-y-3">
@@ -1168,7 +1246,7 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
             )}
             <p className="sm:col-span-2 text-[11px] text-neutral-500">{t("phaseNote")}</p>
             {simple ? (
-              <AdvancedHiddenStrip count={etsHidden} onReveal={revealAdvanced} />
+              <AdvancedHiddenStrip count={etsHidden} onReveal={revealStandard} />
             ) : (
             <div className="sm:col-span-2">
               <AdvancedFold>
@@ -1218,20 +1296,26 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
                 />
               </>
             )}
-            {simple && <AdvancedHiddenStrip count={fuelEuHidden} onReveal={revealAdvanced} />}
-            <NumberInput
-              label={t("vlsfo")}
-              unit="MJ/t"
-              value={reg.fuelEu.vlsfoMjPerTonne}
-              onChange={(v) => update((d) => void (d.regulation.fuelEu.vlsfoMjPerTonne = v))}
-            />
-            <NumberInput
-              label={t("baseline")}
-              unit="gCO2e/MJ"
-              step={0.01}
-              value={reg.fuelEu.baselineGco2PerMj}
-              onChange={(v) => update((d) => void (d.regulation.fuelEu.baselineGco2PerMj = v))}
-            />
+            {!simple && (
+              <>
+                <NumberInput
+                  label={t("vlsfo")}
+                  unit="MJ/t"
+                  value={reg.fuelEu.vlsfoMjPerTonne}
+                  onChange={(v) => update((d) => void (d.regulation.fuelEu.vlsfoMjPerTonne = v))}
+                />
+                <NumberInput
+                  label={t("baseline")}
+                  unit="gCO2e/MJ"
+                  step={0.01}
+                  value={reg.fuelEu.baselineGco2PerMj}
+                  onChange={(v) =>
+                    update((d) => void (d.regulation.fuelEu.baselineGco2PerMj = v))
+                  }
+                />
+              </>
+            )}
+            {simple && <AdvancedHiddenStrip count={fuelEuHidden} onReveal={revealStandard} />}
             <p className="sm:col-span-2 text-[11px] text-neutral-500">{t("targetNote")}</p>
           </>
         )}
@@ -1254,13 +1338,18 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
                 onChange={(v) => update((d) => void (d.regulation.ira45z.usProduced = v))}
               />
             </div>
-            <NumberInput
-              label={t("rate")}
-              unit="$/gal-eq"
-              step={0.05}
-              value={reg.ira45z.creditUsdPerGallon}
-              onChange={(v) => update((d) => void (d.regulation.ira45z.creditUsdPerGallon = v))}
-            />
+            {!simple && (
+              <NumberInput
+                label={t("rate")}
+                unit="$/gal-eq"
+                step={0.05}
+                value={reg.ira45z.creditUsdPerGallon}
+                onChange={(v) =>
+                  update((d) => void (d.regulation.ira45z.creditUsdPerGallon = v))
+                }
+              />
+            )}
+            {simple && <AdvancedHiddenStrip count={iraHidden} onReveal={revealStandard} />}
           </>
         )}
       </Section>
@@ -1286,21 +1375,28 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
         </div>
         {reg.imoNetZero?.enabled && (
           <>
-            <NumberInput
-              label={t("imoScope")}
-              unit="0–1"
-              step={0.05}
-              value={reg.imoNetZero.scope}
-              onChange={(v) =>
-                update((d) => void (d.regulation.imoNetZero!.scope = Math.min(1, Math.max(0, v))))
-              }
-            />
-            <div />
+            {!simple && (
+              <>
+                <NumberInput
+                  label={t("imoScope")}
+                  unit="0–1"
+                  step={0.05}
+                  value={reg.imoNetZero.scope}
+                  onChange={(v) =>
+                    update(
+                      (d) =>
+                        void (d.regulation.imoNetZero!.scope = Math.min(1, Math.max(0, v))),
+                    )
+                  }
+                />
+                <div />
+              </>
+            )}
             <p className="sm:col-span-2 text-[11px] leading-snug text-neutral-500">
               {t("imoNote")}
             </p>
             {simple ? (
-              <AdvancedHiddenStrip count={imoHidden} onReveal={revealAdvanced} />
+              <AdvancedHiddenStrip count={imoHidden} onReveal={revealStandard} />
             ) : (
             <div className="sm:col-span-2">
               <AdvancedFold>
@@ -1346,43 +1442,53 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
         </div>
         {reg.selfDesigned.enabled && (
           <>
-            <NumberInput
-              label={t("co2Price")}
-              unit="$/t CO2"
-              value={reg.selfDesigned.co2PriceUsdPerTonne}
-              onChange={(v) =>
-                update((d) => void (d.regulation.selfDesigned.co2PriceUsdPerTonne = v))
-              }
-            />
-            <NumberInput
-              label={t("support")}
-              unit="$/kg"
-              step={0.05}
-              value={reg.selfDesigned.supportUsdPerKg}
-              onChange={(v) => update((d) => void (d.regulation.selfDesigned.supportUsdPerKg = v))}
-            />
-            <NumberInput
-              label={t("capexSupport")}
-              unit="0–1"
-              step={0.05}
-              value={reg.selfDesigned.capexSupport}
-              onChange={(v) => update((d) => void (d.regulation.selfDesigned.capexSupport = v))}
-            />
-            <NumberInput
-              label={t("opexSupport")}
-              unit="0–1"
-              step={0.05}
-              value={reg.selfDesigned.opexSupport}
-              onChange={(v) => update((d) => void (d.regulation.selfDesigned.opexSupport = v))}
-            />
-            <NumberInput
-              label={t("other")}
-              unit="$m/yr"
-              value={reg.selfDesigned.otherUsdM}
-              onChange={(v) => update((d) => void (d.regulation.selfDesigned.otherUsdM = v))}
-            />
+            {!simple && (
+              <>
+                <NumberInput
+                  label={t("co2Price")}
+                  unit="$/t CO2"
+                  value={reg.selfDesigned.co2PriceUsdPerTonne}
+                  onChange={(v) =>
+                    update((d) => void (d.regulation.selfDesigned.co2PriceUsdPerTonne = v))
+                  }
+                />
+                <NumberInput
+                  label={t("support")}
+                  unit="$/kg"
+                  step={0.05}
+                  value={reg.selfDesigned.supportUsdPerKg}
+                  onChange={(v) =>
+                    update((d) => void (d.regulation.selfDesigned.supportUsdPerKg = v))
+                  }
+                />
+                <NumberInput
+                  label={t("capexSupport")}
+                  unit="0–1"
+                  step={0.05}
+                  value={reg.selfDesigned.capexSupport}
+                  onChange={(v) =>
+                    update((d) => void (d.regulation.selfDesigned.capexSupport = v))
+                  }
+                />
+                <NumberInput
+                  label={t("opexSupport")}
+                  unit="0–1"
+                  step={0.05}
+                  value={reg.selfDesigned.opexSupport}
+                  onChange={(v) =>
+                    update((d) => void (d.regulation.selfDesigned.opexSupport = v))
+                  }
+                />
+                <NumberInput
+                  label={t("other")}
+                  unit="$m/yr"
+                  value={reg.selfDesigned.otherUsdM}
+                  onChange={(v) => update((d) => void (d.regulation.selfDesigned.otherUsdM = v))}
+                />
+              </>
+            )}
             {simple ? (
-              <AdvancedHiddenStrip count={selfHidden} onReveal={revealAdvanced} />
+              <AdvancedHiddenStrip count={selfHidden} onReveal={revealStandard} />
             ) : (
             <div className="sm:col-span-2">
               <AdvancedFold>

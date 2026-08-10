@@ -48,3 +48,14 @@ Sprint 5 retains:
   Mejillones→Yokohama **9,146 nm**, no canal (band 8,550–10,450);
   Mejillones→Rotterdam **6,942 nm** via Panama (band 6,400–7,800);
   Singapore→Rotterdam **8,439 nm** via Suez (published 8,440).
+
+## Simplified-mode overhaul (2026-08-10, post-sprint-4 amendment)
+
+View modes renamed **Simplified / Standard** ("Advanced" removed from the
+UI); Simplified is the default for new users. Simplified shows only the
+structural inputs + the sensitivity top-level set (≥5% headline movement);
+the other ~45 fields run on their defaults/benchmarks behind the counted
+hidden-settings strip (the regulation-tab pattern, now on every tab).
+Departure counting completed everywhere (fuel properties, fossil side,
+barge pair, model options, all scheme parameters, financing baseRate/tenor).
+Output-neutrality invariant unchanged and still e2e-proven.

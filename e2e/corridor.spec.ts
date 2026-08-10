@@ -30,6 +30,12 @@ async function expectNoSeriousViolations(page: Page, context: string) {
   ).toEqual([]);
 }
 
+/** Simplified is the default view; tests that drive the full field set
+ *  switch to Standard first (the header toggle). */
+async function useStandard(page: Page) {
+  await page.getByRole("banner").getByRole("button", { name: "Standard" }).click();
+}
+
 test("default scenario reproduces the Chilean corridor numbers", async ({ page }) => {
   await page.goto("/corridor");
   // Freeze CSS transitions/animations so axe never samples a mid-transition
@@ -42,6 +48,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await expect(page.getByRole("heading", { name: "Green Corridor cost model" })).toBeVisible();
   await expectNoSeriousViolations(page, "entry screen");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await useStandard(page);
 
   // Headline numbers, straight from the untouched default form. The gap
   // shows twice by design (top-bar chip + summary headline) — scope the
@@ -295,7 +302,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await expect(results.getByText(GAP)).toBeVisible();
 });
 
-test("Simple/Advanced is provably output-neutral", async ({ page }) => {
+test("Simplified/Standard is provably output-neutral", async ({ page }) => {
   // Written BEFORE the feature (sprint 2.4 working rule): if a single
   // number moves when the view mode toggles, the mode has become a model
   // variant and is out of scope.
@@ -314,10 +321,10 @@ test("Simple/Advanced is provably output-neutral", async ({ page }) => {
     localStorage.getItem("corridor-draft-v2"),
   );
   for (let i = 0; i < 3; i += 1) {
-    await header.getByRole("button", { name: "Simple" }).click();
+    await header.getByRole("button", { name: "Simplified" }).click();
     await expect(results.getByText("$1,762.21m")).toBeVisible();
     expect(await results.innerText()).toBe(summaryBefore);
-    await header.getByRole("button", { name: "Advanced" }).click();
+    await header.getByRole("button", { name: "Standard" }).click();
     await expect(results.getByText("$1,762.21m")).toBeVisible();
     expect(await results.innerText()).toBe(summaryBefore);
   }
@@ -331,13 +338,13 @@ test("Simple/Advanced is provably output-neutral", async ({ page }) => {
   expect(draftAfter).not.toContain("viewMode");
   expect(draftAfter).not.toContain("simple");
 
-  // Simple hides the manifest-advanced fields and locks the folds; the
-  // hidden set stays on its benchmarks.
-  await header.getByRole("button", { name: "Simple" }).click();
+  // Simplified hides the non-essential fields; the hidden set stays on its
+  // benchmarks.
+  await header.getByRole("button", { name: "Simplified" }).click();
   await page.getByRole("button", { name: "02 Energy" }).click();
-  // fossil fuel price is advanced-ranked: hidden in Simple.
+  // fossil fuel price is advanced-ranked: hidden in Simplified.
   await expect(page.getByLabel("Fuel price")).toHaveCount(0);
-  await header.getByRole("button", { name: "Advanced" }).click();
+  await header.getByRole("button", { name: "Standard" }).click();
   await expect(page.getByLabel("Fuel price")).toHaveCount(1);
   // Leave the preference as we found it for other tests.
   await expect(results.getByText("$1,762.21m")).toBeVisible();
@@ -472,6 +479,7 @@ test("routed distance follows override > derived(routed), adoption-only", async 
 test("provenance badges answer where a number comes from", async ({ page }) => {
   await page.goto("/corridor");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await useStandard(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
 
@@ -619,6 +627,7 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
   // capital bars and the recomputed year-1 figure need no chart changes.
   await page.goto("/corridor");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await useStandard(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
 
@@ -650,5 +659,52 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
 
   // Off again → the golden default returns.
   await page.getByRole("switch", { name: "Capital deployment schedule" }).click();
+  await expect(results.getByText(GAP)).toBeVisible();
+});
+
+test("Simplified shows only essential inputs, defaults carry the rest", async ({ page }) => {
+  // No stored preference -> the app lands in Simplified (the default).
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  const results = page.getByRole("complementary");
+  await expect(results.getByText(GAP)).toBeVisible();
+  const header = page.getByRole("banner");
+  await expect(header.getByRole("button", { name: "Simplified" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  // Energy: fuel-property constants and every fossil numeric are hidden;
+  // the sensitivity top-level set stays.
+  await page.getByRole("button", { name: "02 Energy" }).click();
+  await expect(page.getByLabel("Energy density, LHV")).toHaveCount(0);
+  await expect(page.getByLabel(/combustion/i)).toHaveCount(0);
+  await expect(page.getByLabel("Fuel price")).toHaveCount(0); // fossil purchase
+  await expect(page.getByLabel("Fuel production CAPEX (year 1)")).toHaveCount(1); // green only
+  await expect(page.getByLabel("Fuel consumption")).toHaveCount(1); // green only
+
+  // Vessels: fossil fleet pair runs on benchmarks behind the strip.
+  await page.getByRole("button", { name: "03 Vessels" }).click();
+  await expect(page.getByLabel("Fleet CAPEX (year 1)")).toHaveCount(1);
+
+  // Regulation: toggles only - the active self-designed scheme's numbers
+  // are defaulted and hidden.
+  await page.getByRole("button", { name: "07 Regulation" }).click();
+  await expect(page.getByLabel("CO2 price", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("switch").first()).toBeVisible();
+
+  // A hidden value in effect is COUNTED: set the self-designed CO2 price in
+  // Standard, return to Simplified, and the scheme's strip turns emphatic.
+  await useStandard(page);
+  const co2 = page.getByLabel("CO2 price", { exact: true });
+  await co2.fill("300");
+  await expect(results.getByText(GAP)).toHaveCount(0); // price moved the model
+  await header.getByRole("button", { name: "Simplified" }).click();
+  await expect(page.getByText(/1 detailed setting in effect but hidden/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Switch to Standard" }).first()).toBeVisible();
+
+  // Restore the default; the golden gap returns.
+  await useStandard(page);
+  await co2.fill("280");
   await expect(results.getByText(GAP)).toBeVisible();
 });

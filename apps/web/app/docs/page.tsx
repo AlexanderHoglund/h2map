@@ -326,10 +326,17 @@ export default async function DocsPage() {
           </li>
         </ul>
         <p className="mt-2">
-          Fields are split between the main grid and an{" "}
-          <strong>Advanced</strong>{" "}fold per tab. Placement is not editorial:
-          an input renders top-level when a one-at-a-time sensitivity sweep
-          moves the headline gap by ≥5% across its plausible range (§12).
+          Two view modes:{" "}
+          <strong>Simplified</strong>{" "}(the default) shows only the inputs
+          essential to describing a corridor — the structural choices (route,
+          countries and ports, fuels, vessel type, cargo, horizon, module
+          toggles) plus the fields whose sensitivity sweep moves the headline
+          gap by ≥5% (§12).{" "}
+          <strong>Standard</strong>{" "}shows everything. Every hidden field
+          keeps its default or benchmark value — the mode never changes a
+          number — and each section shows a counted strip naming how many
+          hidden settings are in effect, one click from review. Placement is
+          not editorial: the sweep decides it.
         </p>
 
         {/* 2 ---------------------------------------------------------- */}
@@ -846,7 +853,8 @@ export default async function DocsPage() {
           the corridor&apos;s current discount rate, green rate 6%, full debt,
           tenor min(15, horizon), amortizing. The five parameters (green
           rate, base rate, debt share, tenor, amortizing/bullet structure)
-          sit behind the Advanced view; the green rate is a negotiation
+          sit behind the Standard view; the green rate stays visible — it is
+          sensitivity top-level — and is a negotiation
           outcome, not a market observable — concessional structures
           typically land 0.5–2.5pp below the commercial base rate. The line
           is an explicit interest saving on debt-financed green capital,
@@ -859,7 +867,7 @@ export default async function DocsPage() {
         <H3>Capital deployment schedule</H3>
         <p className="mt-2">
           Off by default (all CAPEX in year 1). The toggle initialises
-          both sides at 100% in year 1; the Advanced view exposes a
+          both sides at 100% in year 1; the Standard view exposes a
           deployment-years selector (1–5), per-side share rows and a
           30/40/30 preset matching the reference study&apos;s build
           profile. Shares must sum to 1 per side — the form shows a live
@@ -1325,8 +1333,8 @@ export default async function DocsPage() {
         <p className="mt-2">
           A one-at-a-time sweep from the default baseline, each input across
           its plausible range, ranked by maximum movement of the headline gap.
-          This ranking decides which fields render top-level vs in the
-          Advanced fold:
+          This ranking decides which fields render top-level vs behind the
+          Standard view:
         </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
@@ -1492,7 +1500,7 @@ export default async function DocsPage() {
           <em>top-level</em>{" "}
           = the field moved the headline gap ≥5% and renders prominently;{" "}
           <em>advanced</em>{" "}
-          = it lives in the tab&apos;s Advanced fold; &ldquo;—&rdquo; = not
+          = it renders only in the Standard view; &ldquo;—&rdquo; = not
           swept (selectors, toggles, descriptive fields) or rendered by its
           own dedicated control.
         </p>
