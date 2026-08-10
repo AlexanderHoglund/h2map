@@ -101,6 +101,18 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     await expect(chart.getByText(/before regulatory instruments/)).toBeVisible();
   }
 
+  // The same breakdown per tonne of CO2 abated: every step divided by the
+  // lifetime abatement, so gross reads the pre-regulation abatement cost
+  // and incremental the headline $1,215/t.
+  {
+    const chart = page
+      .locator("section", { hasText: "Breakdown of abatement cost per tonne" })
+      .last();
+    await expect(chart.getByText("well-to-wake", { exact: false }).first()).toBeVisible();
+    await expect(chart.getByText("$1,388", { exact: true })).toBeVisible(); // gross /t
+    await expect(chart.getByText("$1,215", { exact: true })).toBeVisible(); // incremental /t
+  }
+
   // The emissions & abatement diagram: pre/post bars per basis.
   {
     const chart = page.locator("section", { hasText: "Emissions & abatement" }).last();

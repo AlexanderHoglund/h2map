@@ -49,7 +49,7 @@ export default function ResultsPanel({
   const ts = useTranslations("corridor.steps");
 
   const waterfall = useMemo(() => {
-    if (!result) return [];
+    if (!result) return { pv: [], perTonne: [] };
     const s = result.summary;
     const rep2 = result.reporting;
     // The MMMCZCS stylized breakdown, restricted to the segments the model
@@ -63,47 +63,56 @@ export default function ResultsPanel({
     const post = s.gapPvUsdM; // === gross + net (reporting invariant)
 
     const anchored = (v: number) => ({ base: Math.min(0, v), span: Math.abs(v) });
-    const steps = [
+    const mk = (scale: number, fmt: (n: number) => string) => [
       {
         key: "wfGreenTotal",
-        ...anchored(greenSub),
+        ...anchored(greenSub * scale),
         kind: "greenTotal" as const,
-        labelText: fmtUsdMShort(greenSub),
-        exitLevel: greenSub,
+        labelText: fmt(greenSub * scale),
+        exitLevel: greenSub * scale,
       },
       {
         key: "wfFossilTotal",
         // Hangs from the green total's top down to the gross level.
-        base: greenSub - fossilSub,
-        span: fossilSub,
+        base: (greenSub - fossilSub) * scale,
+        span: fossilSub * scale,
         kind: "fossilTotal" as const,
-        labelText: fmtUsdMShort(fossilSub),
-        exitLevel: gross,
+        labelText: fmt(fossilSub * scale),
+        exitLevel: gross * scale,
       },
       {
         key: "wfGross",
-        ...anchored(gross),
+        ...anchored(gross * scale),
         kind: "incremental" as const,
-        labelText: fmtUsdMShort(gross),
-        exitLevel: gross,
+        labelText: fmt(gross * scale),
+        exitLevel: gross * scale,
       },
       {
         key: "wfRegs",
-        base: Math.min(gross, post),
-        span: Math.abs(net),
+        base: Math.min(gross, post) * scale,
+        span: Math.abs(net) * scale,
         kind: "reduction" as const,
-        labelText: `${net > 0 ? "+" : net < 0 ? "\u2212" : ""}${fmtUsdMShort(Math.abs(net))}`,
-        exitLevel: post,
+        labelText: `${net > 0 ? "+" : net < 0 ? "\u2212" : ""}${fmt(Math.abs(net) * scale)}`,
+        exitLevel: post * scale,
       },
       {
         key: "wfIncremental",
-        ...anchored(post),
+        ...anchored(post * scale),
         kind: "incremental" as const,
-        labelText: fmtUsdMShort(post),
-        exitLevel: post,
+        labelText: fmt(post * scale),
+        exitLevel: post * scale,
       },
-    ];
-    return steps.map((s2) => ({ ...s2, label: t(s2.key) }));
+    ].map((s2) => ({ ...s2, label: t(s2.key) }));
+
+    // Same five steps in two denominations: PV \u0024m, and abatement cost
+    // per tonne of CO2 (every step over the same lifetime abatement, so
+    // the waterfall identities carry over unchanged).
+    const abated = s.co2AbatedTonnes;
+    return {
+      pv: mk(1, fmtUsdMShort),
+      perTonne:
+        abated > 0 ? mk(1e6 / abated, (n) => fmtUsd(n)) : [],
+    };
   }, [result, t]);
 
   // Per-year rows: each side's annual cost SPLIT BY NATURE (CAPEX / operating
@@ -182,17 +191,6 @@ export default function ResultsPanel({
   const basis = scenario.flags?.emissionsBasis ?? "combustion";
   const div = result.divergences?.emissionsBasis;
   const netReg = result.reporting.netRegulatoryEffectUsdM;
-
-  // Viz tokens (globals.css): the corridor identities — series green for
-  // the green total, neutral for fossil, brand blue for the incremental
-  // bars, the light baseline neutral for the regulation float (its sign is
-  // carried by position, the signed label and the tooltip).
-  const COLORS = {
-    greenTotal: "var(--viz-series-green)",
-    fossilTotal: "var(--viz-total)",
-    incremental: "var(--viz-series-1)",
-    reduction: "var(--viz-baseline)",
-  };
 
   // Cargo-unit identity (presentation): explicit, else vessel-derived.
   const cargoUnit =
@@ -403,39 +401,7 @@ export default function ResultsPanel({
       {/* ===== Breakdown of total cost (the MMMCZCS waterfall) ===== */}
       <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
         <Eyebrow>{t("waterfall")}</Eyebrow>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={waterfall} margin={{ top: 16, right: 4, bottom: 0, left: 0 }}>
-              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey="label"
-                tick={<WrappedTick />}
-                stroke="var(--viz-baseline)"
-                interval={0}
-                height={34}
-              />
-              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} unit="" />
-              <Tooltip
-                formatter={(v, name) =>
-                  name === "span" && typeof v === "number" ? [fmtUsdM(v), ""] : null
-                }
-                labelStyle={{ fontSize: 11 }}
-                contentStyle={{ fontSize: 11 }}
-              />
-              <Bar dataKey="base" stackId="w" fill="transparent" isAnimationActive={false} />
-              <Bar dataKey="span" stackId="w" isAnimationActive={false}>
-                {waterfall.map((step) => (
-                  <Cell key={step.key} fill={COLORS[step.kind]} />
-                ))}
-                <LabelList
-                  dataKey="labelText"
-                  position="top"
-                  style={{ fontSize: 10, fill: "var(--viz-ink-secondary)" }}
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <WaterfallChart data={waterfall.pv} fmt={fmtUsdM} />
         <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
       </section>
 
@@ -502,6 +468,20 @@ export default function ResultsPanel({
           </tfoot>
         </table>
       </section>
+
+      {/* ===== The same breakdown per tonne of CO2 abated ===== */}
+      {waterfall.perTonne.length > 0 && (
+        <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
+          <Eyebrow>
+            {t("waterfallPerTonne")}{" "}
+            <span className="bg-neutral-500/10 px-1 py-px text-[10px] normal-case tracking-normal text-neutral-700">
+              {t(`basisLabel.${basis}`)}
+            </span>
+          </Eyebrow>
+          <WaterfallChart data={waterfall.perTonne} fmt={fmtUsd} />
+          <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
+        </section>
+      )}
 
       {/* ===== Annual cost — stacked by nature, green vs fossil ===== */}
       <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
@@ -850,6 +830,72 @@ function TabTable({
         ))}
       </tbody>
     </table>
+  );
+}
+
+// Viz tokens (globals.css): the corridor identities — series green for the
+// green total, neutral for fossil, brand blue for the incremental bars, the
+// light baseline neutral for the regulation float (its sign is carried by
+// position, the signed label and the tooltip).
+const WF_COLORS = {
+  greenTotal: "var(--viz-series-green)",
+  fossilTotal: "var(--viz-total)",
+  incremental: "var(--viz-series-1)",
+  reduction: "var(--viz-baseline)",
+} as const;
+
+interface WfStep {
+  key: string;
+  label: string;
+  base: number;
+  span: number;
+  kind: keyof typeof WF_COLORS;
+  labelText: string;
+  exitLevel: number;
+}
+
+/** The MMMCZCS float-bar waterfall, denomination-agnostic: the same chart
+ *  draws PV \u0024m and \u0024/t CO2 abated. */
+function WaterfallChart({ data, fmt }: { data: WfStep[]; fmt: (n: number) => string }) {
+  return (
+    <div className="h-72">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 16, right: 4, bottom: 0, left: 0 }}>
+          <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+          <XAxis
+            dataKey="label"
+            tick={<WrappedTick />}
+            stroke="var(--viz-baseline)"
+            interval={0}
+            height={34}
+          />
+          <YAxis
+            tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }}
+            stroke="var(--viz-baseline)"
+            width={44}
+            unit=""
+          />
+          <Tooltip
+            formatter={(v, name) =>
+              name === "span" && typeof v === "number" ? [fmt(v), ""] : null
+            }
+            labelStyle={{ fontSize: 11 }}
+            contentStyle={{ fontSize: 11 }}
+          />
+          <Bar dataKey="base" stackId="w" fill="transparent" isAnimationActive={false} />
+          <Bar dataKey="span" stackId="w" isAnimationActive={false}>
+            {data.map((step) => (
+              <Cell key={step.key} fill={WF_COLORS[step.kind]} />
+            ))}
+            <LabelList
+              dataKey="labelText"
+              position="top"
+              style={{ fontSize: 10, fill: "var(--viz-ink-secondary)" }}
+            />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
