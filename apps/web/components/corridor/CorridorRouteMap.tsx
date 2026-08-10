@@ -45,9 +45,17 @@ interface Props {
 
 const W = 720;
 const H = 300;
-/** The animations' label styling: mono, letter-spaced, on a page-tone
- *  plate so the grid of coastlines never strikes through a name. */
+/**
+ * The decoupling chart's exact drawing language: hairline ink linework,
+ * small ink port dots, mono letter-spaced labels in the soft secondary ink
+ * on measured page-tone plates, green reserved for the clean-fuel /
+ * production identity. Two inks and one green - nothing louder.
+ */
 const MONO_FONT = "var(--font-mono, ui-monospace, monospace)";
+const INK = "var(--anim-ink)";
+const INK_SOFT = "var(--anim-ink-soft)";
+const LABEL = "var(--viz-ink-secondary)";
+const GREEN = "var(--viz-series-green)";
 const plateWidth = (text: string, size: number) => text.length * (size * 0.62) + 10;
 
 /** Canal marker positions (lon, lat). */
@@ -160,7 +168,13 @@ export default function CorridorRouteMap({
       >
         <rect width={W} height={H} fill="var(--color-page)" />
         {landPaths(proj).map((d, i) => (
-          <path key={i} d={d} fill="var(--viz-grid)" stroke="none" />
+          <path
+            key={i}
+            d={d}
+            fill="var(--viz-grid)"
+            stroke="var(--viz-grid)"
+            strokeWidth={0.5}
+          />
         ))}
 
         {/* The track */}
@@ -169,9 +183,9 @@ export default function CorridorRouteMap({
             key={`t${i}`}
             d={toPath(part)}
             fill="none"
-            stroke="var(--anim-ink)"
-            strokeWidth={1.8}
-            strokeDasharray={routed ? undefined : "5 4"}
+            stroke={routed ? INK : INK_SOFT}
+            strokeWidth={1.5}
+            strokeDasharray={routed ? undefined : "5 5"}
             strokeLinecap="round"
           />
         ))}
@@ -184,24 +198,24 @@ export default function CorridorRouteMap({
               y1={proj.y(site.lat)}
               x2={px(a.lon)}
               y2={proj.y(a.lat)}
-              stroke="var(--domain-energy-text)"
-              strokeWidth={1.2}
-              strokeDasharray="3 3"
+              stroke={GREEN}
+              strokeWidth={1}
+              strokeDasharray="2 3"
             />
             <rect
-              x={px(site.lon) - 4}
-              y={proj.y(site.lat) - 4}
-              width={8}
-              height={8}
-              fill="var(--domain-energy-text)"
+              x={px(site.lon) - 3}
+              y={proj.y(site.lat) - 3}
+              width={6}
+              height={6}
+              fill={GREEN}
             />
             <text
-              x={px(site.lon) + 8}
-              y={proj.y(site.lat) + 4}
-              fontSize={10}
+              x={px(site.lon) + 7}
+              y={proj.y(site.lat) + 3}
+              fontSize={9}
               fontFamily={MONO_FONT}
               letterSpacing={1}
-              fill="var(--domain-energy-text)"
+              fill={GREEN}
             >
               {t("site")}
             </text>
@@ -212,18 +226,18 @@ export default function CorridorRouteMap({
         {canal && (
           <g>
             <path
-              d={`M${px(canal.at[0])} ${proj.y(canal.at[1]) - 6} l6 6 l-6 6 l-6 -6 Z`}
+              d={`M${px(canal.at[0])} ${proj.y(canal.at[1]) - 5} l5 5 l-5 5 l-5 -5 Z`}
               fill="var(--color-page)"
-              stroke="var(--anim-ink)"
-              strokeWidth={1.4}
+              stroke={INK}
+              strokeWidth={1.3}
             />
             <text
-              x={px(canal.at[0]) + 10}
-              y={proj.y(canal.at[1]) + 4}
-              fontSize={10}
+              x={px(canal.at[0]) + 9}
+              y={proj.y(canal.at[1]) + 3}
+              fontSize={9}
               fontFamily={MONO_FONT}
               letterSpacing={1}
-              fill="var(--viz-ink-secondary)"
+              fill={LABEL}
             >
               {canal.label}
             </text>
@@ -236,12 +250,7 @@ export default function CorridorRouteMap({
           ...(hasB ? [{ p: b, name: portB?.name, anchor: "start" as const }] : []),
         ].map(({ p, name }, i) => (
           <g key={`p${i}`}>
-            <circle
-              cx={px(p.lon)}
-              cy={proj.y(p.lat)}
-              r={4}
-              fill="var(--domain-ports-text)"
-            />
+            <circle cx={px(p.lon)} cy={proj.y(p.lat)} r={2.6} fill={INK} />
             {name ? (
               <g>
                 <rect
@@ -255,10 +264,10 @@ export default function CorridorRouteMap({
                 <text
                   x={px(p.lon) + 10}
                   y={proj.y(p.lat) - 7}
-                  fontSize={11}
+                  fontSize={10}
                   fontFamily={MONO_FONT}
                   letterSpacing={1}
-                  fill="var(--domain-ports-text)"
+                  fill={LABEL}
                 >
                   {name}
                 </text>
@@ -281,21 +290,33 @@ export default function CorridorRouteMap({
             <text
               x={px(mid[0])}
               y={proj.y(mid[1]) - 10}
-              fontSize={11}
+              fontSize={10}
               fontFamily={MONO_FONT}
               letterSpacing={1}
               textAnchor="middle"
-              fill="var(--anim-ink)"
+              fill={LABEL}
             >
               {formatSig(distanceNm)} nm
             </text>
           </g>
         )}
+        <text
+          x={10}
+          y={H - 9}
+          fontSize={9}
+          fontFamily={MONO_FONT}
+          letterSpacing={1}
+          fill={INK_SOFT}
+        >
+          {route.status === "loading"
+            ? t("loading")
+            : routed
+              ? t("indicative")
+              : hasB
+                ? t("schematic")
+                : t("portOnly")}
+        </text>
       </svg>
-      <figcaption className="mt-1 flex items-center justify-between px-1 font-mono text-[10px] tracking-wide text-neutral-500">
-        <span>{routed ? t("indicative") : hasB ? t("schematic") : t("portOnly")}</span>
-        {route.status === "loading" ? <span>{t("loading")}</span> : null}
-      </figcaption>
     </figure>
   );
 }
