@@ -120,7 +120,6 @@
       "legacyPriceNote": "Legacy accounting: this merchant price is charged ON TOP of the production CAPEX/O&M below."
     },
     "port": {
-      "coordsTitle": "Port A location",
       "green": "Green port",
       "fossil": "Fossil port",
       "storageCapex": "Port storage — CAPEX (year 1)",

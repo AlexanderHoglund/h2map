@@ -45,6 +45,10 @@ interface Props {
 
 const W = 720;
 const H = 300;
+/** The animations' label styling: mono, letter-spaced, on a page-tone
+ *  plate so the grid of coastlines never strikes through a name. */
+const MONO_FONT = "var(--font-mono, ui-monospace, monospace)";
+const plateWidth = (text: string, size: number) => text.length * (size * 0.62) + 10;
 
 /** Canal marker positions (lon, lat). */
 const CANALS: Record<string, { at: LonLat; label: "Panama" | "Suez" }> = {
@@ -194,7 +198,9 @@ export default function CorridorRouteMap({
             <text
               x={px(site.lon) + 8}
               y={proj.y(site.lat) + 4}
-              fontSize={11}
+              fontSize={10}
+              fontFamily={MONO_FONT}
+              letterSpacing={1}
               fill="var(--domain-energy-text)"
             >
               {t("site")}
@@ -214,8 +220,9 @@ export default function CorridorRouteMap({
             <text
               x={px(canal.at[0]) + 10}
               y={proj.y(canal.at[1]) + 4}
-              fontSize={11}
-              fontWeight={600}
+              fontSize={10}
+              fontFamily={MONO_FONT}
+              letterSpacing={1}
               fill="var(--viz-ink-secondary)"
             >
               {canal.label}
@@ -236,15 +243,26 @@ export default function CorridorRouteMap({
               fill="var(--domain-ports-text)"
             />
             {name ? (
-              <text
-                x={px(p.lon) + 8}
-                y={proj.y(p.lat) - 6}
-                fontSize={12}
-                fontWeight={600}
-                fill="var(--domain-ports-text)"
-              >
-                {name}
-              </text>
+              <g>
+                <rect
+                  x={px(p.lon) + 6}
+                  y={proj.y(p.lat) - 18}
+                  width={plateWidth(name, 11)}
+                  height={15}
+                  fill="var(--color-page)"
+                  opacity={0.9}
+                />
+                <text
+                  x={px(p.lon) + 10}
+                  y={proj.y(p.lat) - 7}
+                  fontSize={11}
+                  fontFamily={MONO_FONT}
+                  letterSpacing={1}
+                  fill="var(--domain-ports-text)"
+                >
+                  {name}
+                </text>
+              </g>
             ) : null}
           </g>
         ))}
@@ -263,8 +281,9 @@ export default function CorridorRouteMap({
             <text
               x={px(mid[0])}
               y={proj.y(mid[1]) - 10}
-              fontSize={12}
-              fontWeight={600}
+              fontSize={11}
+              fontFamily={MONO_FONT}
+              letterSpacing={1}
               textAnchor="middle"
               fill="var(--anim-ink)"
             >
@@ -273,7 +292,7 @@ export default function CorridorRouteMap({
           </g>
         )}
       </svg>
-      <figcaption className="mt-1 flex items-center justify-between px-1 text-[10px] text-neutral-500">
+      <figcaption className="mt-1 flex items-center justify-between px-1 font-mono text-[10px] tracking-wide text-neutral-500">
         <span>{routed ? t("indicative") : hasB ? t("schematic") : t("portOnly")}</span>
         {route.status === "loading" ? <span>{t("loading")}</span> : null}
       </figcaption>

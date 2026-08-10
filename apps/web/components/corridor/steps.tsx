@@ -189,37 +189,115 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
           }
         />
         <div />
-        {/* Country BEFORE port, at both ends (slide 3's "swap order") — and
-            the right dependency order on its own merits: the country is the
-            constraining choice, loading the WACC benchmark and the
-            regulatory regime; the port name annotates it. */}
-        <Select
-          label={twoPorts ? t("countryA") : t("country")}
-          help={t("countryHelp")}
-          value={scenario.cargo.countryId}
-          options={CORRIDOR_COUNTRIES}
-          onChange={(v) => update((d) => void (d.cargo.countryId = v))}
-        />
-        <TextInput
-          label={twoPorts ? t("portA") : t("singlePort")}
-          value={scenario.cargo.portAName ?? ""}
-          onChange={(v) => update((d) => void (d.cargo.portAName = v || undefined))}
-        />
-        {twoPorts && (
-          <>
+        {/* Each end of the corridor is its own discrete box — country first
+            (the constraining choice: WACC benchmark, regulatory regime),
+            then the port name, then the coordinates that drive the map
+            below. Side by side, A left, B right. */}
+        <div className="sm:col-span-2 grid gap-3 sm:grid-cols-2">
+          <div className="space-y-3 rounded-lg border border-neutral-200 p-3">
+            <p className="text-[10px] font-medium uppercase tracking-widest text-neutral-500">
+              {twoPorts ? t("portA") : t("singlePort")}
+            </p>
             <Select
-              label={t("countryB")}
-              value={scenario.cargo.countryBId ?? scenario.cargo.countryId}
+              label={twoPorts ? t("countryA") : t("country")}
+              help={t("countryHelp")}
+              value={scenario.cargo.countryId}
               options={CORRIDOR_COUNTRIES}
-              onChange={(v) => update((d) => void (d.cargo.countryBId = v))}
+              onChange={(v) => update((d) => void (d.cargo.countryId = v))}
             />
             <TextInput
-              label={t("portB")}
-              value={scenario.cargo.portBName ?? ""}
-              onChange={(v) => update((d) => void (d.cargo.portBName = v || undefined))}
+              label={twoPorts ? t("portA") : t("singlePort")}
+              value={scenario.cargo.portAName ?? ""}
+              onChange={(v) => update((d) => void (d.cargo.portAName = v || undefined))}
             />
-          </>
-        )}
+            <div className="grid grid-cols-2 gap-3">
+              <NumberInput
+                label={t("portALat")}
+                unit="°"
+                step={0.01}
+                help={t("portCoordsHelp")}
+                value={scenario.cargo.portACoords?.lat ?? null}
+                onChange={(v) =>
+                  update(
+                    (d) =>
+                      void (d.cargo.portACoords = {
+                        lat: Math.min(90, Math.max(-90, v)),
+                        lon: d.cargo.portACoords?.lon ?? 0,
+                      }),
+                  )
+                }
+              />
+              <NumberInput
+                label={t("portALon")}
+                unit="°"
+                step={0.01}
+                help={t("portCoordsHelp")}
+                value={scenario.cargo.portACoords?.lon ?? null}
+                onChange={(v) =>
+                  update(
+                    (d) =>
+                      void (d.cargo.portACoords = {
+                        lat: d.cargo.portACoords?.lat ?? 0,
+                        lon: Math.min(180, Math.max(-180, v)),
+                      }),
+                  )
+                }
+              />
+            </div>
+          </div>
+          {twoPorts && (
+            <div className="space-y-3 rounded-lg border border-neutral-200 p-3">
+              <p className="text-[10px] font-medium uppercase tracking-widest text-neutral-500">
+                {t("portB")}
+              </p>
+              <Select
+                label={t("countryB")}
+                value={scenario.cargo.countryBId ?? scenario.cargo.countryId}
+                options={CORRIDOR_COUNTRIES}
+                onChange={(v) => update((d) => void (d.cargo.countryBId = v))}
+              />
+              <TextInput
+                label={t("portB")}
+                value={scenario.cargo.portBName ?? ""}
+                onChange={(v) => update((d) => void (d.cargo.portBName = v || undefined))}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <NumberInput
+                  label={t("portBLat")}
+                  unit="°"
+                  step={0.01}
+                  help={t("portBCoordsHelp")}
+                  value={scenario.cargo.portBCoords?.lat ?? null}
+                  onChange={(v) =>
+                    update(
+                      (d) =>
+                        void (d.cargo.portBCoords = {
+                          lat: Math.min(90, Math.max(-90, v)),
+                          lon: d.cargo.portBCoords?.lon ?? 0,
+                        }),
+                    )
+                  }
+                />
+                <NumberInput
+                  label={t("portBLon")}
+                  unit="°"
+                  step={0.01}
+                  help={t("portBCoordsHelp")}
+                  value={scenario.cargo.portBCoords?.lon ?? null}
+                  onChange={(v) =>
+                    update(
+                      (d) =>
+                        void (d.cargo.portBCoords = {
+                          lat: d.cargo.portBCoords?.lat ?? 0,
+                          lon: Math.min(180, Math.max(-180, v)),
+                        }),
+                    )
+                  }
+                />
+              </div>
+            </div>
+          )}
+        </div>
         {/* The corridor as the ship actually sails it (slide 3's reserved
             block): routed over the maritime network, canal transits marked,
             degrading to a great-circle schematic when routing cannot. */}
@@ -678,87 +756,10 @@ function PortSide({ model, viewMode, revealAdvanced, side }: StepProps & { side:
 }
 
 export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
-  const t = useTranslations("corridor.port");
-  const tc = useTranslations("corridor.cargo");
-  const { scenario, update } = model;
   return (
     <div className="space-y-3">
       <PortSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="green" />
       <PortSide model={model} viewMode={viewMode} revealAdvanced={revealAdvanced} side="fossil" />
-      {/* Port geography (moved from Intro — slide 5): coordinates are a
-          property of the port, not the corridor framing. Keys stay
-          cargo.port*Coords; labels stay corridor.cargo. Port B's pair is
-          what lets the corridor route over the maritime network. */}
-      <Section title={t("coordsTitle")}>
-        <NumberInput
-          label={tc("portALat")}
-          unit="°"
-          step={0.01}
-          help={tc("portCoordsHelp")}
-          value={scenario.cargo.portACoords?.lat ?? null}
-          onChange={(v) =>
-            update(
-              (d) =>
-                void (d.cargo.portACoords = {
-                  lat: Math.min(90, Math.max(-90, v)),
-                  lon: d.cargo.portACoords?.lon ?? 0,
-                }),
-            )
-          }
-        />
-        <NumberInput
-          label={tc("portALon")}
-          unit="°"
-          step={0.01}
-          help={tc("portCoordsHelp")}
-          value={scenario.cargo.portACoords?.lon ?? null}
-          onChange={(v) =>
-            update(
-              (d) =>
-                void (d.cargo.portACoords = {
-                  lat: d.cargo.portACoords?.lat ?? 0,
-                  lon: Math.min(180, Math.max(-180, v)),
-                }),
-            )
-          }
-        />
-        {scenario.cargo.routeType === "point-to-point" && (
-          <>
-            <NumberInput
-              label={tc("portBLat")}
-              unit="°"
-              step={0.01}
-              help={tc("portBCoordsHelp")}
-              value={scenario.cargo.portBCoords?.lat ?? null}
-              onChange={(v) =>
-                update(
-                  (d) =>
-                    void (d.cargo.portBCoords = {
-                      lat: Math.min(90, Math.max(-90, v)),
-                      lon: d.cargo.portBCoords?.lon ?? 0,
-                    }),
-                )
-              }
-            />
-            <NumberInput
-              label={tc("portBLon")}
-              unit="°"
-              step={0.01}
-              help={tc("portBCoordsHelp")}
-              value={scenario.cargo.portBCoords?.lon ?? null}
-              onChange={(v) =>
-                update(
-                  (d) =>
-                    void (d.cargo.portBCoords = {
-                      lat: d.cargo.portBCoords?.lat ?? 0,
-                      lon: Math.min(180, Math.max(-180, v)),
-                    }),
-                )
-              }
-            />
-          </>
-        )}
-      </Section>
     </div>
   );
 }

@@ -208,10 +208,12 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await expect(page.getByLabel("Weight per unit")).toHaveCount(0);
   await expect(results.getByText(GAP)).toBeVisible(); // tonne weight back to 1
 
-  // Ports: Port A coordinates moved in.
-  await page.getByRole("button", { name: "05 Ports" }).click();
+  // Coordinates live on Intro, beside the map they drive.
+  await page.getByRole("button", { name: "01 Intro" }).click();
   await expect(page.getByLabel("Port A latitude")).toBeVisible();
   await expect(page.getByLabel("Port A longitude")).toBeVisible();
+  await page.getByRole("button", { name: "05 Ports" }).click();
+  await expect(page.getByText("Port storage — CAPEX (year 1)").first()).toBeVisible();
 
   // Regulation & Financing: WACC (with its unverified badge) + inflation.
   await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
@@ -419,20 +421,16 @@ test("routed distance follows override > derived(routed), adoption-only", async 
 
   // Divergence notice: reroute to Rotterdam (via Panama, 6,942 nm) while
   // the typed figure stays 9,500 — a 37% miss, ABOVE the threshold.
-  await page.getByRole("button", { name: "05 Ports" }).click();
   await page.getByLabel("Port B latitude").fill("51.9");
   await page.getByLabel("Port B longitude").fill("4.47");
-  await page.getByRole("button", { name: "01 Intro" }).click();
   await expect(page.getByText(/Typed distance differs/)).toBeVisible({ timeout: 20000 });
   await expect(page.getByText(/via the Panama Canal/)).toBeVisible();
   // Non-blocking throughout: the model still shows its result.
   await expect(results.getByText(GAP)).toBeVisible();
 
   // Restore Yokohama; the notice clears.
-  await page.getByRole("button", { name: "05 Ports" }).click();
   await page.getByLabel("Port B latitude").fill("35.45");
   await page.getByLabel("Port B longitude").fill("139.65");
-  await page.getByRole("button", { name: "01 Intro" }).click();
   await expect(page.getByText("routed: 9,146 nm")).toBeVisible({ timeout: 20000 });
   await expect(page.getByText(/Typed distance differs/)).toHaveCount(0);
   await expect(results.getByText(GAP)).toBeVisible();
@@ -444,7 +442,6 @@ test("numeric inputs tolerate clearing, signs and partial input", async ({ page 
   // leading "-" was impossible.
   await page.goto("/corridor");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
-  await page.getByRole("button", { name: "05 Ports" }).click();
   const lat = page.getByLabel("Port A latitude");
   await expect(lat).toHaveValue("-23.1");
   // Clearing leaves the field EMPTY while editing — no snap to 0…
