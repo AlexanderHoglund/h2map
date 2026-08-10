@@ -8,7 +8,9 @@ import { coordKey, type SeaRouteResponse, type SeaRouteResult } from "@/lib/seaR
  * handler whenever both port coordinates exist. Failure is a STATE, not an
  * error — consumers degrade to the schematic drawing and the typed
  * distance. A module-scope cache keeps tab switches and re-mounts from
- * refetching a deterministic result.
+ * refetching a deterministic result; idle/cached/loading are derived at
+ * render (no synchronous setState in the effect), and setState fires only
+ * from the fetch callbacks.
  */
 
 export interface SeaRouteState {
@@ -31,22 +33,14 @@ export function useSeaRoute(
       ? `${coordKey(aLat, aLon)}|${coordKey(bLat, bLon)}`
       : null;
 
-  const [state, setState] = useState<SeaRouteState>(
-    () => (key ? clientCache.get(key) : undefined) ?? { status: "idle" },
+  // Only ASYNC outcomes live in state, tagged with the key they answer.
+  const [fetched, setFetched] = useState<{ key: string; state: SeaRouteState } | null>(
+    null,
   );
 
   useEffect(() => {
-    if (!key) {
-      setState({ status: "idle" });
-      return;
-    }
-    const cached = clientCache.get(key);
-    if (cached) {
-      setState(cached);
-      return;
-    }
+    if (!key || clientCache.has(key)) return;
     let cancelled = false;
-    setState({ status: "loading" });
     // Debounce: coordinate typing produces a burst of intermediate pairs.
     const timer = setTimeout(() => {
       fetch(`/api/v1/corridor/searoute?from=${aLat},${aLon}&to=${bLat},${bLon}`)
@@ -57,12 +51,12 @@ export function useSeaRoute(
               ? { status: "ok", data: body.route }
               : { status: "failed" };
           clientCache.set(key, next);
-          if (!cancelled) setState(next);
+          if (!cancelled) setFetched({ key, state: next });
         })
         .catch(() => {
           // Transport failure: degrade quietly, but do NOT cache it — a
           // navigation later may succeed.
-          if (!cancelled) setState({ status: "failed" });
+          if (!cancelled) setFetched({ key, state: { status: "failed" } });
         });
     }, 400);
     return () => {
@@ -71,5 +65,9 @@ export function useSeaRoute(
     };
   }, [key, aLat, aLon, bLat, bLon]);
 
-  return state;
+  if (!key) return { status: "idle" };
+  const cached = clientCache.get(key);
+  if (cached) return cached;
+  if (fetched && fetched.key === key) return fetched.state;
+  return { status: "loading" };
 }
