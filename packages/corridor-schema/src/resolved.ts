@@ -185,6 +185,19 @@ export interface SideRegulations {
   readonly imoNetZero?: ImoNetZeroParams;
 }
 
+/**
+ * Differentiated financing on THIS side's debt-financed capital (sprint 4).
+ * Attached per-side by resolution (the green side, like 45Z) — the
+ * evaluator never branches on the label. Absent = no financing line.
+ */
+export interface FinancingParams {
+  readonly greenRate: Fraction;
+  readonly baseRate: Fraction;
+  readonly debtShare: Fraction;
+  readonly tenorYears: number;
+  readonly structure: "amortizing" | "bullet";
+}
+
 export interface SideInputs {
   /** Reporting key only — the evaluator must never branch on it. */
   readonly label: "green" | "fossil";
@@ -192,6 +205,8 @@ export interface SideInputs {
   readonly fuel: FuelParams;
   readonly components: readonly CostComponent[];
   readonly regulations: SideRegulations;
+  /** Present only where resolution attached it (green side, enabled). */
+  readonly financing?: FinancingParams;
 }
 
 // ---------------------------------------------------------------------------
@@ -235,6 +250,8 @@ export interface ResolvedScenario {
    * parameterised" rather than silently computing zero.
    */
   readonly imoNotParameterised?: true;
+  /** Green-financing params, present only when the module is enabled. */
+  readonly financing?: FinancingParams;
   /** Divergence flags with defaults applied (absent input → Excel behaviour). */
   readonly flags: {
     readonly emissionsBasis: "combustion" | "wellToWake";

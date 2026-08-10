@@ -10,6 +10,7 @@
   "green.prodOpexUsdMPerYear",
   "green.fuelTonnesPerVesselYear",
   "cargo.horizonYears",
+  "financing.greenRate",
   "cargo.wacc",
   "cargo.inflation",
   "green.priceUsdPerTonne",

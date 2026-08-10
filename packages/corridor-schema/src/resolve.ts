@@ -50,6 +50,7 @@ import type {
   ResolvedScenario,
   ScheduleStep,
   SideInputs,
+  FinancingParams,
   SideRegulations,
 } from "./resolved";
 import type { RefBundle, RefFuel, RefVesselType } from "./ref/bundle";
@@ -496,6 +497,19 @@ export function resolveScenario(
     bundle,
   );
 
+  // Sprint 4 — green financing: shaped only when enabled; concrete values
+  // are stored by the UI, so resolution is a pass-through with branding.
+  const financing: FinancingParams | undefined =
+    input.financing?.enabled === true
+      ? {
+          greenRate: fraction(input.financing.greenRate),
+          baseRate: fraction(input.financing.baseRate),
+          debtShare: fraction(input.financing.debtShare),
+          tenorYears: input.financing.tenorYears,
+          structure: input.financing.structure,
+        }
+      : undefined;
+
   return {
     refBundleId: input.refBundleId,
     startYear: calendarYear(input.cargo.startYear),
@@ -507,6 +521,7 @@ export function resolveScenario(
     green,
     fossil,
     regulations: resolveRegulations(input.regulation, bundle),
+    ...(financing ? { financing } : {}),
     ...(input.regulation.imoNetZero?.enabled &&
     !(
       bundle.schedules.imoBaseTargets &&
@@ -561,5 +576,10 @@ export function toSideInputs(
       },
     ],
     regulations: resolved.regulations[label],
+    // Financing attaches to the green side's inputs — as data, exactly like
+    // the green-only 45Z params; the evaluator stays label-blind.
+    ...(label === "green" && resolved.financing
+      ? { financing: resolved.financing }
+      : {}),
   };
 }

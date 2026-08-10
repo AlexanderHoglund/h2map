@@ -116,11 +116,11 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["cargo.oneWayDistanceNm", "number", "yes", "#1", "74.1%", "top-level"],
   ["cargo.startYear", "integer", "yes", "—", "—", "—"],
   ["cargo.horizonYears", "integer", "yes", "#8", "17.6%", "top-level"],
-  ["cargo.unitsPerYear", "number", "yes", "#24", "0.0%", "advanced"],
-  ["cargo.inflation", "number", "yes", "#10", "14.0%", "top-level"],
+  ["cargo.unitsPerYear", "number", "yes", "#25", "0.0%", "advanced"],
+  ["cargo.inflation", "number", "yes", "#11", "14.0%", "top-level"],
   ["cargo.vessels", "integer", "yes", "#5", "32.9%", "top-level"],
-  ["cargo.roundtripsPerYear", "number", "yes", "#14", "8.2%", "top-level"],
-  ["cargo.waccOverride", "number | null", "yes", "#9", "14.6%", "top-level"],
+  ["cargo.roundtripsPerYear", "number", "yes", "#15", "8.2%", "top-level"],
+  ["cargo.waccOverride", "number | null", "yes", "#10", "14.6%", "top-level"],
   ["cargo.unit", '"tonne" | "teu"', "no", "—", "—", "—"],
   ["cargo.unitWeightTonnes", "number", "no", "—", "—", "—"],
   ["cargo.portAName", "string", "no", "—", "—", "—"],
@@ -136,24 +136,24 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["green.fuelId", "string", "yes", "—", "—", "—"],
   ["green.sourcing", '"purchase" | "build-plant" | "build-here"', "yes", "—", "—", "—"],
   ["green.buildHere", "object | null", "no", "—", "—", "—"],
-  ["green.overrides.priceUsdPerTonne", "number | null", "yes", "#11", "13.7%", "top-level"],
+  ["green.overrides.priceUsdPerTonne", "number | null", "yes", "#12", "13.7%", "top-level"],
   ["green.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
   ["green.overrides.lhvMjPerTonne", "number | null", "yes", "—", "—", "—"],
-  ["green.overrides.wtwGco2PerMj", "number | null", "yes", "#23", "0.2%", "advanced"],
+  ["green.overrides.wtwGco2PerMj", "number | null", "yes", "#24", "0.2%", "advanced"],
   ["green.overrides.fuelTonnesPerVesselYear", "number | null", "yes", "#7", "21.1%", "top-level"],
   ["green.overrides.prodCapexUsdM", "number | null", "yes", "#4", "32.9%", "top-level"],
   ["green.overrides.prodOpexUsdMPerYear", "number | null", "yes", "#6", "26.6%", "top-level"],
-  ["green.overrides.portStorageCapexUsdM", "number | null", "yes", "#12", "10.8%", "top-level"],
-  ["green.overrides.portStorageOpexUsdMPerYear", "number | null", "yes", "#13", "8.9%", "top-level"],
-  ["green.overrides.bargeCapexUsdM", "number | null", "yes", "#15", "4.2%", "advanced"],
+  ["green.overrides.portStorageCapexUsdM", "number | null", "yes", "#13", "10.8%", "top-level"],
+  ["green.overrides.portStorageOpexUsdMPerYear", "number | null", "yes", "#14", "8.9%", "top-level"],
+  ["green.overrides.bargeCapexUsdM", "number | null", "yes", "#16", "4.2%", "advanced"],
   ["green.overrides.bargeOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
   ["fossil.fuelId", "string", "yes", "—", "—", "—"],
   ["fossil.sourcing", '"purchase" | "build-plant" | "build-here"', "yes", "—", "—", "—"],
   ["fossil.buildHere", "object | null", "no", "—", "—", "—"],
-  ["fossil.overrides.priceUsdPerTonne", "number | null", "yes", "#19", "3.2%", "advanced"],
+  ["fossil.overrides.priceUsdPerTonne", "number | null", "yes", "#20", "3.2%", "advanced"],
   ["fossil.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.lhvMjPerTonne", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.wtwGco2PerMj", "number | null", "yes", "#21", "1.9%", "advanced"],
+  ["fossil.overrides.wtwGco2PerMj", "number | null", "yes", "#22", "1.9%", "advanced"],
   ["fossil.overrides.fuelTonnesPerVesselYear", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.prodCapexUsdM", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.prodOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
@@ -161,11 +161,11 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["fossil.overrides.portStorageOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.bargeCapexUsdM", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.bargeOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
-  ["regulation.eurUsd", "number", "yes", "#22", "1.2%", "advanced"],
+  ["regulation.eurUsd", "number", "yes", "#23", "1.2%", "advanced"],
   ["regulation.ets.enabled", "boolean", "yes", "—", "—", "—"],
-  ["regulation.ets.euaEurPerTonne", "number", "yes", "#18", "3.6%", "advanced"],
-  ["regulation.ets.euaEscalation", "number", "no", "—", "—", "advanced"],
-  ["regulation.ets.scope", "number 0–1", "yes", "#20", "2.4%", "advanced"],
+  ["regulation.ets.euaEurPerTonne", "number", "yes", "#19", "3.6%", "advanced"],
+  ["regulation.ets.euaEscalation", "number", "no", "—", "—", "—"],
+  ["regulation.ets.scope", "number 0–1", "yes", "#21", "2.4%", "advanced"],
   ["regulation.ets.gasCoverage.enabled", "boolean", "yes", "—", "—", "—"],
   ["regulation.ets.gasCoverage.fromCalendarYear", "integer", "yes", "—", "—", "—"],
   ["regulation.ets.gasCoverage.gwpCh4", "number", "yes", "—", "—", "—"],
@@ -175,10 +175,10 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["regulation.ets.gasCoverage.fossil.ch4TPerTonne", "number", "yes", "—", "—", "—"],
   ["regulation.ets.gasCoverage.fossil.n2oTPerTonne", "number", "yes", "—", "—", "—"],
   ["regulation.fuelEu.enabled", "boolean", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.penaltyEurPerTonne", "number", "yes", "#17", "3.7%", "advanced"],
+  ["regulation.fuelEu.penaltyEurPerTonne", "number", "yes", "#18", "3.7%", "advanced"],
   ["regulation.fuelEu.vlsfoMjPerTonne", "number", "yes", "—", "—", "—"],
   ["regulation.fuelEu.baselineGco2PerMj", "number", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.scope", "number 0–1", "yes", "#16", "3.7%", "advanced"],
+  ["regulation.fuelEu.scope", "number 0–1", "yes", "#17", "3.7%", "advanced"],
   ["regulation.fuelEu.credit.enabled", "boolean", "yes", "—", "—", "—"],
   ["regulation.fuelEu.credit.surplusValueEurPerTonneVlsfoEq", "number", "yes", "—", "—", "—"],
   ["regulation.fuelEu.credit.rfnbo", "boolean", "yes", "—", "—", "—"],
@@ -195,10 +195,16 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["regulation.selfDesigned.capexSupport", "number 0–1", "yes", "—", "—", "—"],
   ["regulation.selfDesigned.opexSupport", "number 0–1", "yes", "—", "—", "—"],
   ["regulation.selfDesigned.otherUsdM", "number", "yes", "—", "—", "—"],
-  ["regulation.imoNetZero.enabled", "boolean", "no", "—", "—", "—"],
-  ["regulation.imoNetZero.scope", "number 0–1", "no", "—", "—", "—"],
-  ["regulation.imoNetZero.rewardUsdPerTonneCo2e", "number", "no", "—", "—", "advanced"],
-  ["regulation.imoNetZero.priceEscalation", "number", "no", "—", "—", "advanced"],
+  ["regulation.imoNetZero.enabled", "boolean", "yes", "—", "—", "—"],
+  ["regulation.imoNetZero.scope", "number 0–1", "yes", "—", "—", "—"],
+  ["regulation.imoNetZero.rewardUsdPerTonneCo2e", "number", "no", "—", "—", "—"],
+  ["regulation.imoNetZero.priceEscalation", "number", "no", "—", "—", "—"],
+  ["financing.enabled", "boolean", "yes", "—", "—", "—"],
+  ["financing.greenRate", "number 0–1", "yes", "#9", "14.7%", "top-level"],
+  ["financing.baseRate", "number 0–1", "yes", "—", "—", "—"],
+  ["financing.debtShare", "number 0–1", "yes", "—", "—", "—"],
+  ["financing.tenorYears", "integer 1–40", "yes", "—", "—", "—"],
+  ["financing.structure", '"amortizing" | "bullet"', "yes", "—", "—", "—"],
   ["flags.legacyExcelConstruct", "boolean", "no", "—", "—", "—"],
   ['flags.emissionsBasis', '"combustion" | "wellToWake"', "no", "—", "—", "—"],
   ['flags.rateBasis', '"nominal" | "real"', "no", "—", "—", "—"],
@@ -922,6 +928,26 @@ export default async function DocsPage() {
           default everywhere.
         </p>
 
+        <H3>Green financing (Financing section)</H3>
+        <F>
+          financing<sub>t</sub>{" "}= −outstanding<sub>t</sub>{" "}× (baseRate −
+          greenRate) &nbsp; (green side only)
+        </F>
+        <p className="mt-2">
+          Off by default. The toggle initialises concrete values: base rate =
+          the corridor&apos;s current discount rate, green rate 6%, full debt,
+          tenor min(15, horizon), amortizing. The five parameters (green
+          rate, base rate, debt share, tenor, amortizing/bullet structure)
+          sit behind the Advanced view; the green rate is a negotiation
+          outcome, not a market observable — concessional structures
+          typically land 0.5–2.5pp below the commercial base rate. The line
+          is an explicit interest saving on debt-financed green capital,
+          shown as its own float in the cost bridge and its own row in the
+          decomposition — deliberately NOT a per-side discount rate, which
+          would invert the benefit (§9). A negative spread (green premium)
+          is allowed and shows as a cost.
+        </p>
+
         <H3>Model options</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
@@ -1072,7 +1098,7 @@ export default async function DocsPage() {
           <br />
           total<sub>t</sub>{" "}= CAPEX<sub>t</sub>{" "}+ OPEX<sub>t</sub>{" "}+ ETS
           <sub>t</sub>{" "}+ FuelEU<sub>t</sub>{" "}+ 45Z<sub>t</sub>{" "}+ self
-          <sub>t</sub>
+          <sub>t</sub>{" "}[+ IMO<sub>t</sub>][+ financing<sub>t</sub>]
           <br />
           PV<sub>t</sub>{" "}= total<sub>t</sub>{" "}× df<sub>t</sub>, &nbsp;df
           <sub>t</sub>{" "}= 1/(1+WACC)^(t−1) &nbsp;(df₁ = 1 exactly)
@@ -1097,10 +1123,52 @@ export default async function DocsPage() {
           production lines to zero with precedence over overrides.
         </p>
         <p className="mt-2">
-          The costs decompose exactly: the six per-year lines sum to the total
+          The costs decompose exactly: the per-year lines sum to the total
           by construction, the waterfall&apos;s Δ terms are differences of the
           decomposition lines, and the decomposition&apos;s total row equals
           the headline gap to the last digit.
+        </p>
+        <H3>Differentiated green financing (flag-gated, default off)</H3>
+        <p className="mt-2">
+          <strong>
+            The obvious implementation — a lower discount rate on the green
+            side — is wrong, and wrong in the interesting direction.
+          </strong>{" "}
+          This is a cost model: the discount rate expresses time preference
+          over costs, so lowering it makes future costs LARGER in present
+          value. On the reference corridor, green operating cost of $112.01m/yr
+          inflated at 2% discounts to $1,160.7m at 8% but $1,301.6m at 6% —
+          &quot;cheap green financing&quot; implemented as a rate swap makes
+          the green corridor $141m WORSE, the exact inversion of the benefit
+          it is meant to represent. No per-side discount rate exists anywhere
+          in this code, and none should be added.
+        </p>
+        <F>
+          cumdraw<sub>t</sub>{" "}= Σ<sub>k≤t</sub>{" "}CAPEX<sub>k</sub>{" "}×
+          debtShare
+          <br />
+          outstanding<sub>t</sub>{" "}(amortizing) = min(cumdraw<sub>t</sub>, P ×
+          (T − t + 1) / T), &nbsp;P = Σ CAPEX × debtShare
+          <br />
+          outstanding<sub>t</sub>{" "}(bullet) = cumdraw<sub>t</sub>{" "}(t ≤ T,
+          else 0)
+          <br />
+          financing<sub>t</sub>{" "}= −outstanding<sub>t</sub>{" "}× (baseRate −
+          greenRate)
+        </F>
+        <p className="mt-2">
+          The line is an explicit interest saving (or, with a negative Δr, a
+          premium — never clamped) on debt-financed green capital, discounted
+          at the corridor rate like every other line. It sits OUTSIDE the
+          pre-regulation subtotal and inside the Regulation &amp; Financing
+          band of the waterfall — where the MMMCZCS study&apos;s own waterfall
+          places it. Calibration against that study is BOUNDS, not a target:
+          with green CAPEX $1,690m, Δr = 2pp, full debt, tenor 15, the
+          amortizing structure yields $196.0m and bullet $312.5m; the
+          study&apos;s ≈$250m lies between them, consistent with partial
+          amortization or a grace period whose structure the study does not
+          state. Nothing is tuned to force $250m — a forced match would
+          fabricate precision the source does not provide.
         </p>
 
         {/* 10 --------------------------------------------------------- */}

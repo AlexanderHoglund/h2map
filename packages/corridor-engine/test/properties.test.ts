@@ -65,6 +65,12 @@ const arbSide: fc.Arbitrary<SideInputs> = fc
     withFuelEu: fc.boolean(),
     with45z: fc.boolean(),
     withSelf: fc.boolean(),
+    withFinancing: fc.boolean(),
+    finGreenRate: fc.double({ min: 0, max: 0.2, noNaN: true }),
+    finBaseRate: fc.double({ min: 0, max: 0.2, noNaN: true }),
+    finDebtShare: fc.double({ min: 0, max: 1, noNaN: true }),
+    finTenor: fc.integer({ min: 1, max: 20 }),
+    finBullet: fc.boolean(),
   })
   .map((r) => ({
     label: "green" as const,
@@ -83,6 +89,18 @@ const arbSide: fc.Arbitrary<SideInputs> = fc
         opexUsdMPerYear: usdM(r.opexes[i]!),
       }),
     ),
+    // Sprint 4 — the financing line joins the decomposition invariants.
+    ...(r.withFinancing
+      ? {
+          financing: {
+            greenRate: fraction(r.finGreenRate),
+            baseRate: fraction(r.finBaseRate),
+            debtShare: fraction(r.finDebtShare),
+            tenorYears: r.finTenor,
+            structure: (r.finBullet ? "bullet" : "amortizing") as const,
+          },
+        }
+      : {}),
     regulations: {
       ...(r.withEts
         ? {
@@ -160,7 +178,7 @@ describe("evaluateSide — exhaustive decomposition", () => {
           const sum =
             p.totalCapexUsdM[i]! + p.totalOpexUsdM[i]! + p.etsUsdM[i]! +
             p.fuelEuUsdM[i]! + p.ira45zUsdM[i]! + p.selfDesignedUsdM[i]! +
-            (p.imoNetZeroUsdM?.[i] ?? 0);
+            (p.imoNetZeroUsdM?.[i] ?? 0) + (p.financingUsdM?.[i] ?? 0);
           if (!relClose(p.totalUsdM[i]!, sum)) return false;
           if (!relClose(p.pvUsdM[i]!, p.totalUsdM[i]! * p.discountFactor[i]!)) return false;
         }
@@ -175,7 +193,8 @@ describe("evaluateSide — exhaustive decomposition", () => {
         const r = evaluateSide(side, ctx);
         const partsPv =
           r.capexPvUsdM + r.opexPvUsdM + r.etsPvUsdM + r.fuelEuPvUsdM +
-          r.ira45zPvUsdM + r.selfDesignedPvUsdM + (r.imoNetZero?.pvUsdM ?? 0);
+          r.ira45zPvUsdM + r.selfDesignedPvUsdM + (r.imoNetZero?.pvUsdM ?? 0) +
+          (r.financingPvUsdM ?? 0);
         return relClose(r.totalPvUsdM, partsPv, 1e-9);
       }),
     );
@@ -190,6 +209,16 @@ describe("evaluateSide — exhaustive decomposition", () => {
         if (!side.regulations.fuelEu && r.perYear.fuelEuUsdM.some((v) => v !== 0)) return false;
         if (!side.regulations.ira45z && r.perYear.ira45zUsdM.some((v) => v !== 0)) return false;
         if (!side.regulations.imoNetZero && r.perYear.imoNetZeroUsdM !== undefined) return false;
+        // Sprint 4 — financing: absent without params; with them, the sign
+        // of every year's value opposes the sign of Δr = base − green.
+        if (!side.financing && r.perYear.financingUsdM !== undefined) return false;
+        if (side.financing && r.perYear.financingUsdM) {
+          const deltaR = side.financing.baseRate - side.financing.greenRate;
+          for (const v of r.perYear.financingUsdM) {
+            if (deltaR > 0 && v > 1e-12) return false; // saving: ≤ 0
+            if (deltaR < 0 && v < -1e-12) return false; // premium: ≥ 0
+          }
+        }
         if (r.perYear.ira45zUsdM.some((v) => v > 0)) return false;
         if (r.perYear.fuelEuUsdM.some((v) => v < 0)) return false;
         return true;
@@ -270,12 +299,14 @@ describe("evaluateScenario — gap identity over randomized overrides", () => {
             return false;
           if (r.fossilPreRegulationPvUsdM !== s.fossilCapexPvUsdM + s.fossilOpexPvUsdM)
             return false;
-          // Net regulatory effect equals the sum of the per-scheme PV lines.
+          // Net effect equals the sum of the per-scheme PV lines plus the
+          // financing line (sprint 4 — it sits outside the pre-reg subtotal).
           const netFromLines =
             s.etsGreenPvUsdM +
             s.fuelEuGreenPvUsdM +
             s.ira45zGreenPvUsdM +
-            s.selfDesignedGreenPvUsdM -
+            s.selfDesignedGreenPvUsdM +
+            (s.financingGreenPvUsdM ?? 0) -
             (s.etsFossilPvUsdM + s.fuelEuFossilPvUsdM + s.selfDesignedFossilPvUsdM);
           if (
             Math.abs(r.netRegulatoryEffectUsdM - netFromLines) >

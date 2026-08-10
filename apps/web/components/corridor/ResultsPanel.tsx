@@ -59,8 +59,12 @@ export default function ResultsPanel({
     const greenSub = s.greenCapexPvUsdM + s.greenOpexPvUsdM;
     const fossilSub = s.fossilCapexPvUsdM + s.fossilOpexPvUsdM;
     const gross = rep2.gapPvPreRegulationUsdM; // === greenSub - fossilSub
-    const net = rep2.netRegulatoryEffectUsdM;
-    const post = s.gapPvUsdM; // === gross + net (reporting invariant)
+    // Sprint 4 — the financing line sits in the image's "A" slot as its own
+    // float; the regulation bar then carries the REGULATION-only remainder.
+    const financing = s.financingGreenPvUsdM ?? 0;
+    const net = rep2.netRegulatoryEffectUsdM - financing;
+    const afterFin = gross + financing;
+    const post = s.gapPvUsdM; // === gross + financing + net (invariant)
 
     const anchored = (v: number) => ({ base: Math.min(0, v), span: Math.abs(v) });
     const mk = (scale: number, fmt: (n: number) => string) => [
@@ -87,9 +91,21 @@ export default function ResultsPanel({
         labelText: fmt(gross * scale),
         exitLevel: gross * scale,
       },
+      ...(s.financingGreenPvUsdM !== undefined
+        ? [
+            {
+              key: "wfFinancing",
+              base: Math.min(gross, afterFin) * scale,
+              span: Math.abs(financing) * scale,
+              kind: "reduction" as const,
+              labelText: `${financing > 0 ? "+" : financing < 0 ? "\u2212" : ""}${fmt(Math.abs(financing) * scale)}`,
+              exitLevel: afterFin * scale,
+            },
+          ]
+        : []),
       {
         key: "wfRegs",
-        base: Math.min(gross, post) * scale,
+        base: Math.min(afterFin, post) * scale,
         span: Math.abs(net) * scale,
         kind: "reduction" as const,
         labelText: `${net > 0 ? "+" : net < 0 ? "\u2212" : ""}${fmt(Math.abs(net) * scale)}`,
@@ -129,7 +145,8 @@ export default function ResultsPanel({
       (side.fuelEuUsdM[i] ?? 0) +
       (side.ira45zUsdM[i] ?? 0) +
       (side.selfDesignedUsdM[i] ?? 0) +
-      (side.imoNetZeroUsdM?.[i] ?? 0);
+      (side.imoNetZeroUsdM?.[i] ?? 0) +
+      (side.financingUsdM?.[i] ?? 0);
     return g.totalUsdM.map((gt, i) => ({
       year: start + i,
       gCapex: round2(g.totalCapexUsdM[i] ?? 0),
@@ -258,6 +275,11 @@ export default function ResultsPanel({
     { label: t("regFuelEu"), green: s.fuelEuGreenPvUsdM, fossil: s.fuelEuFossilPvUsdM },
     { label: t("regIra"), green: s.ira45zGreenPvUsdM, fossil: null },
     { label: t("regSelf"), green: s.selfDesignedGreenPvUsdM, fossil: s.selfDesignedFossilPvUsdM },
+    // Sprint 4 — the financing effect: green-only, post-subtotal (it is
+    // excluded from the pre-regulation cut by design).
+    ...(s.financingGreenPvUsdM !== undefined
+      ? [{ label: t("regFinancing"), green: s.financingGreenPvUsdM, fossil: null }]
+      : []),
     ...(imo
       ? [{ label: t("regImo"), green: imo.green.pvUsdM, fossil: imo.fossil.pvUsdM }]
       : []),
@@ -705,6 +727,13 @@ export default function ResultsPanel({
                 [t("regFuelEu"), s.fuelEuGreenPvUsdM, s.fuelEuFossilPvUsdM],
                 [t("regIra"), s.ira45zGreenPvUsdM, null],
                 [t("regSelf"), s.selfDesignedGreenPvUsdM, s.selfDesignedFossilPvUsdM],
+                ...(s.financingGreenPvUsdM !== undefined
+                  ? ([[t("regFinancing"), s.financingGreenPvUsdM, null]] as [
+                      string,
+                      number,
+                      number | null,
+                    ][])
+                  : []),
                 ...(imo
                   ? ([[t("regImo"), imo.green.pvUsdM, imo.fossil.pvUsdM]] as [
                       string,

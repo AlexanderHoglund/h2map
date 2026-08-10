@@ -78,6 +78,10 @@ const PARAMS: Param[] = [
   { id: "regulation.fuelEuPenalty", label: "FuelEU penalty (€/t VLSFO-eq)", step: 5, low: 1200, high: 4800, set: (s, v) => { s.regulation.fuelEu.penaltyEurPerTonne = v; } },
   { id: "regulation.etsScope", label: "ETS scope (%)", step: 5, low: 0, high: 1, set: (s, v) => { s.regulation.ets.scope = v; } },
   { id: "regulation.fuelEuScope", label: "FuelEU scope (%)", step: 5, low: 0, high: 1, set: (s, v) => { s.regulation.fuelEu.scope = v; } },
+  // Sprint 4 — green financing: the sweep enables the module with the
+  // reference structure (amortizing, full debt, tenor 15) and moves the
+  // green cost of debt around the 8% base rate.
+  { id: "financing.greenRate", label: "Green cost of debt (fraction)", step: 5, low: 0.04, high: 0.1, set: (s, v) => { s.financing = { enabled: true, greenRate: v, baseRate: 0.08, debtShare: 1, tenorYears: 15, structure: "amortizing" }; } },
 ];
 
 function gapFor(mutate?: (s: ScenarioInput) => void): number {

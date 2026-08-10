@@ -109,6 +109,19 @@
    "relHeadlineMovement": 0.17613131900277793
   },
   {
+   "id": "financing.greenRate",
+   "label": "Green cost of debt (fraction)",
+   "step": 5,
+   "range": [
+    0.04,
+    0.1
+   ],
+   "gapAtLow": 142.32857159390045,
+   "gapAtHigh": 179.2616009866174,
+   "maxAbsDeltaUsdM": 24.622019595144593,
+   "relHeadlineMovement": 0.14748087694558723
+  },
+  {
    "id": "cargo.wacc",
    "label": "Discount rate (WACC)",
    "step": 1,

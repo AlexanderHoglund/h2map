@@ -84,6 +84,7 @@ function fieldReference(): string {
   // Sensitivity ids don't share every path spelling with the schema; map the
   // known aliases (see scripts/corridor/sensitivity.ts PARAMS).
   const ALIAS: Record<string, string> = {
+  "financing.greenRate": "financing.greenRate",
     "cargo.waccOverride": "cargo.wacc",
     "green.overrides.priceUsdPerTonne": "green.priceUsdPerTonne",
     "green.overrides.fuelTonnesPerVesselYear": "green.fuelTonnesPerVesselYear",

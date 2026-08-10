@@ -12,6 +12,9 @@ export interface SidePerYear {
    * side, so the frozen golden per-year key set is untouched.
    */
   readonly imoNetZeroUsdM?: readonly number[];
+  /** Sprint 4 — present ONLY when the financing module is attached to the
+   *  side (green, enabled); negative = interest saving. */
+  readonly financingUsdM?: readonly number[];
   readonly totalOpexUsdM: readonly number[];
   readonly etsUsdM: readonly number[];
   readonly fuelEuUsdM: readonly number[];
@@ -31,6 +34,8 @@ export interface SideResult {
   readonly fuelEuPvUsdM: number;
   readonly ira45zPvUsdM: number;
   readonly selfDesignedPvUsdM: number;
+  /** Sprint 4 — present only when financing is attached to the side. */
+  readonly financingPvUsdM?: number;
   /** Fix #6 — present only when the IMO module is active on the side. */
   readonly imoNetZero?: SideImoNetZero;
 }
@@ -56,6 +61,8 @@ export interface ScenarioSummary {
   readonly etsFossilPvUsdM: number;
   readonly fuelEuFossilPvUsdM: number;
   readonly selfDesignedFossilPvUsdM: number;
+  /** Sprint 4 — present only when the financing module is enabled. */
+  readonly financingGreenPvUsdM?: number;
   readonly cargoUnitsLifetime: number;
   readonly co2AbatedTonnes: number;
   readonly greenCapexPvUsdM: number;

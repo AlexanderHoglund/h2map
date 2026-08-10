@@ -169,7 +169,21 @@
       "imoReward": "ZNZ reward rate",
       "imoRewardHelp": "The reward for zero/near-zero fuel surplus below the direct-compliance target. Genuinely undetermined at source — default 0; the surplus balance is reported in tonnes regardless.",
       "imoNote": "Draft MEPC 83 structure (approved Apr 2025; adoption targeted MEPC 85, Oct 2026 — provisional): attained WTW fuel intensity vs two reduction ladders against the 93.3 gCO2eq/MJ 2008 reference; deficits priced $100/t (tier 1, direct→base band) and $380/t (tier 2, beyond base). Ladders agreed 2028–2035 and held flat beyond; tier prices established 2028–2030.",
-      "imoNotParam": "Not parameterised: the pinned reference bundle has no IMO Net-Zero rows — the module reports nothing rather than silently computing zero."
+      "imoNotParam": "Not parameterised: the pinned reference bundle has no IMO Net-Zero rows — the module reports nothing rather than silently computing zero.",
+      "finToggle": "Differentiated green financing",
+      "finGreenRate": "Green cost of debt",
+      "finGreenRateHelp": "Concessional green rates are a negotiation outcome, not a market observable - there is no benchmark to defer to. Green/transition loan margins typically land 0.5-2.5pp below a comparable conventional facility; type the rate your deal reflects.",
+      "finBaseRate": "Base cost of debt",
+      "finBaseRateHelp": "What the green capital would pay without the green label. Initialised to the corridor discount rate; the SAVING is outstanding debt x (base - green).",
+      "finDebtShare": "Debt share of green CAPEX",
+      "finDebtShareHelp": "Share of the green capital program that is debt-financed. The interest effect applies only to this share.",
+      "finTenor": "Loan tenor",
+      "finTenorHelp": "Years over which the debt runs. Amortizing repays principal straight-line over the tenor; bullet carries the full balance to maturity.",
+      "finStructure": "Repayment structure",
+      "finStructureHelp": "Planning-level loan shapes, not term sheets: amortizing = straight-line principal; bullet = full balance to maturity. The MMMCZCS study's ~$250m benefit sits between the two on the reference corridor ($196m amortizing, $313m bullet).",
+      "finAmortizing": "Amortizing (straight-line)",
+      "finBullet": "Bullet (balance to maturity)",
+      "finNote": "An explicit interest line on debt-financed green capital - a saving when the green rate is lower, a premium when higher. Deliberately NOT a lower discount rate, which would make future costs LARGER in present value."
     },
     "results": {
       "heading": "Results",
@@ -267,7 +281,9 @@
       "wfRegs": "Regulations",
       "wfIncremental": "Incremental\ncost",
       "wfFootnote": "* before regulatory instruments - the regulation step carries their full net effect",
-      "waterfallPerTonne": "Breakdown of abatement cost per tonne of CO2"
+      "waterfallPerTonne": "Breakdown of abatement cost per tonne of CO2",
+      "wfFinancing": "Green\nfinancing",
+      "regFinancing": "Green financing effect"
     },
     "buildHere": {
       "chip": "cell {cell} · LCOH ${lcoh}/kg ({rate}%) · synthesis {nameplate} kt/yr, scale ×{scale} · {km} km to port",

@@ -109,6 +109,11 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
       etsFossilPvUsdM: fossil.etsPvUsdM,
       fuelEuFossilPvUsdM: fossil.fuelEuPvUsdM,
       selfDesignedFossilPvUsdM: fossil.selfDesignedPvUsdM,
+      // Sprint 4 — only when the financing module produced a line, so the
+      // frozen golden summary key set is untouched.
+      ...(green.financingPvUsdM !== undefined
+        ? { financingGreenPvUsdM: green.financingPvUsdM }
+        : {}),
       cargoUnitsLifetime,
       co2AbatedTonnes,
       greenCapexPvUsdM: green.capexPvUsdM,

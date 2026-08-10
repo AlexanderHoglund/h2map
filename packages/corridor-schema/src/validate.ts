@@ -189,7 +189,28 @@ export const scenarioInputSchema = z.object({
       opexSupport: z.number().min(0).max(1),
       otherUsdM: z.number().finite(),
     }),
+    // Was typed but MISSING here — z.object strips unknown keys, so an API
+    // save silently dropped the module. Additive fix (sprint 4).
+    imoNetZero: z
+      .object({
+        enabled: z.boolean(),
+        scope: z.number().min(0).max(1),
+        rewardUsdPerTonneCo2e: z.number().nonnegative().optional(),
+        priceEscalation: z.number().gt(-1).lt(1).optional(),
+      })
+      .optional(),
   }),
+  // Green-financing effect line (sprint 4, task 1). Absent = off.
+  financing: z
+    .object({
+      enabled: z.boolean(),
+      greenRate: z.number().min(0).max(1),
+      baseRate: z.number().min(0).max(1),
+      debtShare: z.number().min(0).max(1),
+      tenorYears: z.number().int().min(1).max(40),
+      structure: z.enum(["amortizing", "bullet"]),
+    })
+    .optional(),
   flags: z
     .object({
       emissionsBasis: z.enum(["combustion", "wellToWake"]).optional(),

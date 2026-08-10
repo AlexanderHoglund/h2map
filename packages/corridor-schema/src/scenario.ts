@@ -348,6 +348,31 @@ export interface RegulationInput {
   imoNetZero?: ImoNetZeroInput;
 }
 
+/**
+ * Differentiated green financing (sprint 4, task 1): the interest saving
+ * (or premium) on the green side's debt-financed capital relative to the
+ * corridor's base rate, as an EXPLICIT per-year line.
+ *
+ * Deliberately NOT a per-side discount rate: in a cost model a lower green
+ * discount rate makes future costs LARGER in present value — the exact
+ * inversion of the benefit (see the methodology's worked $141m example).
+ * Absent = module off (legacy scenarios load unchanged).
+ */
+export interface FinancingInput {
+  enabled: boolean;
+  /** Cost of debt for green assets, fraction (a negotiation outcome). */
+  greenRate: number;
+  /** The rate the green capital would otherwise pay. UI initialises it to
+   *  the corridor discount rate at toggle-on; stored concretely. */
+  baseRate: number;
+  /** Share of green CAPEX that is debt-financed. */
+  debtShare: number;
+  /** Loan tenor in model years. UI initialises min(15, horizon). */
+  tenorYears: number;
+  /** Straight-line principal vs full balance to maturity. */
+  structure: "amortizing" | "bullet";
+}
+
 export interface ScenarioInput {
   schemaVersion: typeof SCHEMA_VERSION;
   refBundleId: string;
@@ -356,6 +381,8 @@ export interface ScenarioInput {
   green: FuelSideInput;
   fossil: FuelSideInput;
   regulation: RegulationInput;
+  /** Green-financing effect line. Absent = off (legacy scenarios). */
+  financing?: FinancingInput;
   /** Divergence flags (D1/D6). Absent = pure Excel behaviour. */
   flags?: DivergenceFlags;
 }

@@ -34,6 +34,7 @@ export type {
   SelfDesignedParams,
   SideInputs,
   ImoNetZeroParams,
+  FinancingParams,
   SideRegulations,
   Source,
   Timeline,

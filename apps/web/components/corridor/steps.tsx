@@ -836,6 +836,12 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
     (reg.imoNetZero?.rewardUsdPerTonneCo2e != null ? 1 : 0) +
     (reg.imoNetZero?.priceEscalation != null ? 1 : 0);
   const selfHidden = reg.selfDesigned.co2PriceEscalation != null ? 1 : 0;
+  const fin = scenario.financing;
+  const finHidden = fin?.enabled
+    ? (fin.greenRate !== 0.06 ? 1 : 0) +
+      (fin.debtShare !== 1 ? 1 : 0) +
+      (fin.structure !== "amortizing" ? 1 : 0)
+    : 0;
 
   return (
     <div className="space-y-3">
@@ -874,6 +880,115 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
           value={scenario.cargo.inflation}
           onChange={(v) => update((d) => void (d.cargo.inflation = v))}
         />
+        {/* Sprint 4 — differentiated green financing: an explicit interest
+            saving/premium line, NEVER a per-side discount rate (which
+            inverts the benefit in a cost model — see the methodology). */}
+        <div className="sm:col-span-2 border-t border-neutral-200 pt-3">
+          <SwitchRow
+            label={t("finToggle")}
+            checked={scenario.financing?.enabled ?? false}
+            onChange={(v) =>
+              update((d) => {
+                if (d.financing) {
+                  d.financing.enabled = v;
+                } else if (v) {
+                  // Toggle-on initialises CONCRETE values: base rate = the
+                  // corridor's current discount rate, tenor min(15, horizon).
+                  d.financing = {
+                    enabled: true,
+                    greenRate: 0.06,
+                    baseRate:
+                      Math.round((resolved?.wacc.value ?? 0.08) * 1000) / 1000,
+                    debtShare: 1,
+                    tenorYears: Math.min(15, d.cargo.horizonYears),
+                    structure: "amortizing",
+                  };
+                }
+              })
+            }
+          />
+        </div>
+        {scenario.financing?.enabled && (
+          <>
+            {!simple && (
+              <>
+                <NumberInput
+                  label={t("finGreenRate")}
+                  unit="fraction"
+                  step={0.005}
+                  help={t("finGreenRateHelp")}
+                  value={scenario.financing.greenRate}
+                  onChange={(v) =>
+                    update((d) => void (d.financing && (d.financing.greenRate = v)))
+                  }
+                />
+                <NumberInput
+                  label={t("finBaseRate")}
+                  unit="fraction"
+                  step={0.005}
+                  help={t("finBaseRateHelp")}
+                  value={scenario.financing.baseRate}
+                  onChange={(v) =>
+                    update((d) => void (d.financing && (d.financing.baseRate = v)))
+                  }
+                />
+                <NumberInput
+                  label={t("finDebtShare")}
+                  unit="0–1"
+                  step={0.05}
+                  help={t("finDebtShareHelp")}
+                  value={scenario.financing.debtShare}
+                  onChange={(v) =>
+                    update(
+                      (d) =>
+                        void (d.financing &&
+                          (d.financing.debtShare = Math.min(1, Math.max(0, v)))),
+                    )
+                  }
+                />
+                <NumberInput
+                  label={t("finTenor")}
+                  unit="yr"
+                  step={1}
+                  help={t("finTenorHelp")}
+                  value={scenario.financing.tenorYears}
+                  onChange={(v) =>
+                    update(
+                      (d) =>
+                        void (d.financing &&
+                          (d.financing.tenorYears = Math.min(
+                            40,
+                            Math.max(1, Math.round(v)),
+                          ))),
+                    )
+                  }
+                />
+                <Select
+                  label={t("finStructure")}
+                  help={t("finStructureHelp")}
+                  value={scenario.financing.structure}
+                  options={[
+                    { value: "amortizing", label: t("finAmortizing") },
+                    { value: "bullet", label: t("finBullet") },
+                  ]}
+                  onChange={(v) =>
+                    update(
+                      (d) =>
+                        void (d.financing &&
+                          (d.financing.structure = v as "amortizing" | "bullet")),
+                    )
+                  }
+                />
+              </>
+            )}
+            <p className="sm:col-span-2 text-[11px] leading-snug text-neutral-500">
+              {t("finNote")}
+            </p>
+            {simple && (
+              <AdvancedHiddenStrip count={finHidden} onReveal={revealAdvanced} />
+            )}
+          </>
+        )}
       </Section>
       <Section title={t("ets")}>
         <div className="sm:col-span-2">

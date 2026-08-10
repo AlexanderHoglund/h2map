@@ -29,6 +29,23 @@ Uncertainty band (realism pass, Task 5) — report a range, not a point.
 
 estimate is: five assumptions swing it 2.4×. This module varies the four
 
+### `@h2map/corridor-engine/financing.ts`
+
+**Purpose**
+
+Differentiated green financing (sprint 4, task 1): the interest saving —
+or premium — on the side's debt-financed capital, relative to financing
+it at the corridor's base rate, as an EXPLICIT per-year line.
+
+**Boundary (imports)**: `@h2map/corridor-schema`
+
+**Exports (inputs/outputs)**: `financingLineUsdM`
+
+**Assumptions**
+
+so the benchmark divergence is the whole effect.
+Unphased capital reduces this to the planning-level benchmark shapes:
+
 ### `@h2map/corridor-engine/firming.ts`
 
 **Purpose**
@@ -215,7 +232,7 @@ not survive as two code paths. Everything that differs between the sides
 arrives as data on `SideInputs`; this function never branches on
 `side.label`.
 
-**Boundary (imports)**: `@h2map/corridor-schema`, `./rates`, `./regulation/ets`, `./regulation/fuelEu`, `./regulation/ira45z`, `./regulation/selfDesigned`, `./regulation/imoNetZero`
+**Boundary (imports)**: `@h2map/corridor-schema`, `./rates`, `./financing`, `./regulation/ets`, `./regulation/fuelEu`, `./regulation/ira45z`, `./regulation/selfDesigned`, `./regulation/imoNetZero`
 
 **Exports (inputs/outputs)**: `evaluateSide`
 
@@ -363,7 +380,7 @@ Resolved value types and the fully-resolved inputs the engine consumes.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `Source`, `Resolved`, `TimelineYear`, `Timeline`, `Discounting`, `EvalContext`, `ComponentId`, `CostComponent`, `FuelParams`, `ScheduleStep`, `EtsParams`, `FuelEuParams`, `Ira45zParams`, `SelfDesignedParams`, `ImoNetZeroParams`, `SideRegulations`, `SideInputs`, `ResolvedFuelSide`, `ResolvedScenario`
+**Exports (inputs/outputs)**: `Source`, `Resolved`, `TimelineYear`, `Timeline`, `Discounting`, `EvalContext`, `ComponentId`, `CostComponent`, `FuelParams`, `ScheduleStep`, `EtsParams`, `FuelEuParams`, `Ira45zParams`, `SelfDesignedParams`, `ImoNetZeroParams`, `SideRegulations`, `FinancingParams`, `SideInputs`, `ResolvedFuelSide`, `ResolvedScenario`
 
 **Assumptions**
 
@@ -400,7 +417,7 @@ them into branded `Resolved<T>` values against a reference bundle.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `ConsumptionMode`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `RegulationInput`, `ScenarioInput`
+**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `ConsumptionMode`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `RegulationInput`, `FinancingInput`, `ScenarioInput`
 
 **Assumptions**
 

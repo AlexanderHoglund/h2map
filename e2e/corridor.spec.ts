@@ -566,3 +566,48 @@ test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", asy
   });
   expect(stored).toBe(2);
 });
+
+test("green financing: explicit line, sign-readable, defaults untouched", async ({ page }) => {
+  // Sprint 4.1. The financing effect is an explicit interest-saving line —
+  // NEVER a per-side discount rate. On the default corridor the amortizing
+  // structure at Δr = 2pp reproduces the $196.0m calibration bound, so the
+  // waterfall float must read −$196m (the sign carried in TEXT, readable
+  // without colour, per the sprint 3 rule).
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  const results = page.getByRole("complementary");
+  await expect(results.getByText(GAP)).toBeVisible();
+
+  // Toggle on from Regulation & Financing. Toggle-on initialises concrete
+  // values (base rate = the corridor rate 8%, green 6%, tenor 15,
+  // amortizing) — the gap must move immediately.
+  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  const toggle = page.getByRole("switch", { name: "Differentiated green financing" });
+  await expect(toggle).toBeVisible();
+  await toggle.click();
+  await expect(results.getByText(GAP)).toHaveCount(0);
+  await expect(results.getByText("$1,566.29m")).toBeVisible(); // 1,762.21 − 195.92
+
+  // Results: the waterfall gains the financing float between the gross
+  // incremental bar and the regulation bar, with the sign in the label.
+  await page.getByRole("button", { name: "07 Results" }).click();
+  {
+    const chart = page
+      .locator("section", { hasText: "Breakdown of total cost of the green corridor" })
+      .last();
+    // The wrapped axis label's tspans concatenate without a space, like the
+    // existing "Total cost ofgreen corridor*" labels.
+    await expect(chart.getByText("Greenfinancing", { exact: false }).first()).toBeVisible();
+    await expect(chart.getByText("\u2212$196m", { exact: true })).toBeVisible();
+    await expect(chart.getByText("$2,012m", { exact: true })).toBeVisible(); // gross unchanged
+    await expect(chart.getByText("$1,566m", { exact: true })).toBeVisible(); // incremental after
+  }
+  // The decomposition table gains a green-only "Green financing effect" row.
+  await expect(page.getByText("Green financing effect").first()).toBeVisible();
+
+  // Toggle off → the golden default is byte-identical again.
+  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  await toggle.click();
+  await expect(results.getByText(GAP)).toBeVisible();
+  await expect(page.getByText("Green financing effect")).toHaveCount(0);
+});

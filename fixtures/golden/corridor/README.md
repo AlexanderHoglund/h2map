@@ -101,3 +101,19 @@ is byte-identical, the golden scenario's selections (`e-ammonia` green,
 untouched. The field is REQUIRED in the zod schema — unlike the optional
 extensions, a fuel without a family would recreate the bug — so this is
 the schema the bundle id `2026-07-30-excel-v1` now parses under.
+
+## 2026-08-10 — differentiated green financing (flag-gated, additive)
+
+Sprint 4, task 1: an explicit interest-saving line on debt-financed green
+capital (`scenario.financing`, default absent = off) — deliberately NOT a
+per-side discount rate, which inverts the benefit in a cost model (see the
+methodology's worked example). Output fields (`financingUsdM`,
+`financingPvUsdM`, `financingGreenPvUsdM`) are emitted via conditional
+spread only when the module is enabled.
+
+Additive per the established exception: the block is `.optional()` in the
+zod schema, the golden scenario never enables it, absent output keys leave
+the frozen expected file's exact key sets untouched, and defaults produce
+byte-identical results (asserted). Also fixed in the same change:
+`regulation.imoNetZero` was typed but missing from the zod schema, so
+`parseScenarioInput` silently stripped it on API saves — added, additively.

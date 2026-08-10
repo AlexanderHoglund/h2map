@@ -17,6 +17,7 @@
 
 import type { EvalContext, SideInputs, SidePerYear, SideResult } from "@h2map/corridor-schema";
 import { discountFactor, inflationFactor } from "./rates";
+import { financingLineUsdM } from "./financing";
 import { etsCostUsdM } from "./regulation/ets";
 import { fuelEuCostUsdM } from "./regulation/fuelEu";
 import { ira45zCreditUsdM } from "./regulation/ira45z";
@@ -27,10 +28,24 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
   const { fuel, regulations, vessels, components } = side;
   const wacc = ctx.discounting.wacc;
 
+  // Rows 13/16/19/22 + 25: CAPEX in year 1 only, summed in component order.
+  // Precomputed as an array so the financing line (whose outstanding
+  // balance follows the drawdown) reads the same numbers the rows charge.
+  const capexByYear = ctx.timeline.years.map(({ idx }) => {
+    let total = 0;
+    for (const c of components) total += idx === 1 ? c.capexUsdM : 0;
+    return total;
+  });
+
+  // Sprint 4 — the financing effect line, present only when the side
+  // carries the params (resolution attaches them; the golden scenario
+  // never does, so the frozen shape is untouched).
+  const financingByYear = side.financing
+    ? financingLineUsdM(side.financing, capexByYear)
+    : null;
+
   const rows = ctx.timeline.years.map(({ idx, calendarYear }) => {
-    // Rows 13/16/19/22 + 25: CAPEX in year 1 only, summed in component order.
-    let totalCapex = 0;
-    for (const c of components) totalCapex += idx === 1 ? c.capexUsdM : 0;
+    const totalCapex = capexByYear[idx - 1]!;
 
     // Row 14 (fuel purchase + production O&M) + rows 17/20/23 → row 26.
     // D6 — real basis deflates the inflation growth (nominal = Excel).
@@ -66,9 +81,18 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
       ? imoNetZeroYear(regulations.imoNetZero, fuel, vessels, calendarYear, idx)
       : null;
 
+    const financing = financingByYear?.[idx - 1] ?? 0;
+
     // Row 33 — the exhaustive-decomposition identity (property-tested).
     const total =
-      totalCapex + totalOpex + ets + fuelEu + ira45z + selfDesigned + (imo?.costUsdM ?? 0);
+      totalCapex +
+      totalOpex +
+      ets +
+      fuelEu +
+      ira45z +
+      selfDesigned +
+      (imo?.costUsdM ?? 0) +
+      financing;
     const df = discountFactor(wacc, idx);
     return {
       totalCapex,
@@ -78,6 +102,7 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
       ira45z,
       selfDesigned,
       imo,
+      financing,
       total,
       df,
       pv: total * df,
@@ -90,6 +115,8 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
     ...(regulations.imoNetZero
       ? { imoNetZeroUsdM: rows.map((r) => r.imo?.costUsdM ?? 0) }
       : {}),
+    // Sprint 4 — emitted only when financing is attached (same rule).
+    ...(side.financing ? { financingUsdM: rows.map((r) => r.financing) } : {}),
     totalCapexUsdM: rows.map((r) => r.totalCapex),
     totalOpexUsdM: rows.map((r) => r.totalOpex),
     etsUsdM: rows.map((r) => r.ets),
@@ -114,6 +141,9 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
     fuelEuPvUsdM: sumProduct(rows.map((r) => r.fuelEu)),
     ira45zPvUsdM: sumProduct(rows.map((r) => r.ira45z)),
     selfDesignedPvUsdM: sumProduct(rows.map((r) => r.selfDesigned)),
+    ...(side.financing
+      ? { financingPvUsdM: sumProduct(rows.map((r) => r.financing)) }
+      : {}),
     ...(regulations.imoNetZero
       ? {
           imoNetZero: {

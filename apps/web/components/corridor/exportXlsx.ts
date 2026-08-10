@@ -166,6 +166,13 @@ export async function downloadResultsXlsx(
     ["FuelEU Maritime", s.fuelEuGreenPvUsdM, s.fuelEuFossilPvUsdM],
     ["IRA 45Z credit", s.ira45zGreenPvUsdM, null],
     ["Self-designed scheme", s.selfDesignedGreenPvUsdM, s.selfDesignedFossilPvUsdM],
+    ...(s.financingGreenPvUsdM !== undefined
+      ? ([["Green financing effect", s.financingGreenPvUsdM, null]] as [
+          string,
+          number,
+          number | null,
+        ][])
+      : []),
     ...(imo
       ? ([["IMO Net-Zero Framework", imoGreen, imoFossil]] as [string, number, number | null][])
       : []),
@@ -200,7 +207,8 @@ export async function downloadResultsXlsx(
     (side.fuelEuUsdM[i] ?? 0) +
     (side.ira45zUsdM[i] ?? 0) +
     (side.selfDesignedUsdM[i] ?? 0) +
-    (side.imoNetZeroUsdM?.[i] ?? 0);
+    (side.imoNetZeroUsdM?.[i] ?? 0) +
+    (side.financingUsdM?.[i] ?? 0);
   const perYearFmt: Record<number, string> = {
     2: M2, 3: M2, 4: M2, 5: M2, 6: M2, 7: M2, 8: M2, 9: M2, 10: FACTOR, 11: M2,
   };
@@ -331,6 +339,16 @@ export async function downloadResultsXlsx(
     ["CAPEX support", reg.selfDesigned.capexSupport, "fraction", "—"],
     ["OPEX support", reg.selfDesigned.opexSupport, "fraction", "—"],
     ["IMO Net-Zero Framework", reg.imoNetZero?.enabled ? "enabled" : "off", "—", "—"],
+    ["Green financing", scenario.financing?.enabled ? "enabled" : "off", "—", "—"],
+    ...(scenario.financing?.enabled
+      ? ([
+          ["Green cost of debt", scenario.financing.greenRate, "fraction", "—"],
+          ["Base cost of debt", scenario.financing.baseRate, "fraction", "—"],
+          ["Debt share of green CAPEX", scenario.financing.debtShare, "fraction", "—"],
+          ["Loan tenor", scenario.financing.tenorYears, "yr", "—"],
+          ["Repayment structure", scenario.financing.structure, "—", "—"],
+        ] as InputRow[])
+      : []),
     ["Emissions basis", basis, "—", "—"],
     ["Rate basis", scenario.flags?.rateBasis ?? "nominal", "—", "—"],
   ]);
