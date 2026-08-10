@@ -20,6 +20,15 @@
       "amber": "running on an unverified benchmark",
       "red": "blocks results"
     },
+    "routeMap": {
+      "aria": "Corridor route map",
+      "indicative": "indicative route - maritime network, screening grade",
+      "schematic": "schematic - routing unavailable",
+      "portOnly": "single-point corridor",
+      "loading": "routing...",
+      "placeholder": "Set port coordinates on the Ports tab to draw the sailing route.",
+      "site": "production site"
+    },
     "viewMode": {
       "label": "View mode",
       "simple": "Simple",

@@ -9,6 +9,8 @@ import { SwitchRow } from "@/components/ui/Switch";
 import { Section, Advanced } from "@/components/ui/Card";
 import ResolvedField from "./ResolvedField";
 import SelectField from "./SelectField";
+import CorridorRouteMap from "./CorridorRouteMap";
+import { useSeaRoute } from "./useSeaRoute";
 import BuildHerePanel from "./BuildHerePanel";
 import { CORRIDOR_COUNTRIES } from "@/lib/corridor-countries";
 import { defaultScenario, isAdvanced, type CorridorModel } from "./state";
@@ -151,6 +153,10 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
   ]);
 
   const twoPorts = scenario.cargo.routeType === "point-to-point";
+  const route = useSeaRoute(
+    scenario.cargo.portACoords,
+    twoPorts ? scenario.cargo.portBCoords : undefined,
+  );
 
   return (
     <div className="space-y-3">
@@ -198,6 +204,21 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
             />
           </>
         )}
+        {/* The corridor as the ship actually sails it (slide 3's reserved
+            block): routed over the maritime network, canal transits marked,
+            degrading to a great-circle schematic when routing cannot. */}
+        <CorridorRouteMap
+          routeType={scenario.cargo.routeType}
+          portA={{ name: scenario.cargo.portAName, coords: scenario.cargo.portACoords }}
+          portB={{ name: scenario.cargo.portBName, coords: scenario.cargo.portBCoords }}
+          route={route}
+          typedDistanceNm={scenario.cargo.oneWayDistanceNm}
+          site={
+            scenario.green.sourcing === "build-here" && scenario.green.buildHere
+              ? { lat: scenario.green.buildHere.lat, lon: scenario.green.buildHere.lon }
+              : null
+          }
+        />
         {fields.main}
         {/* Everything standard on this tab — no Advanced fold. */}
         {viewMode === "advanced" ? (

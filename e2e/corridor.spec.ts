@@ -159,6 +159,21 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await horizon.selectOption("15");
   await expect(results.getByText(GAP)).toBeVisible();
 
+  // Sprint 3.3b: the Intro tab draws the route the ship actually sails —
+  // the reference corridor crosses the Pacific with its routed distance and
+  // NO canal marker, labelled indicative. (Routing is local and cached;
+  // the generous timeout only covers the first cold evaluation.)
+  {
+    const map = page.getByRole("img", { name: "Corridor route map" });
+    await expect(map).toBeVisible();
+    await expect(page.getByText(/indicative route/)).toBeVisible({ timeout: 20000 });
+    await expect(map.getByText("9,146 nm")).toBeVisible();
+    await expect(map.getByText("Mejillones")).toBeVisible();
+    await expect(map.getByText("Japan (Asia)")).toBeVisible();
+    await expect(map.getByText("Panama")).toHaveCount(0);
+    await expect(map.getByText("Suez")).toHaveCount(0);
+  }
+
   // Sprint 2.3: Country precedes Port in DOM (and so keyboard) order at
   // both ends of the corridor.
   {
