@@ -28,12 +28,14 @@ export function evaluateSide(side: SideInputs, ctx: EvalContext): SideResult {
   const { fuel, regulations, vessels, components } = side;
   const wacc = ctx.discounting.wacc;
 
-  // Rows 13/16/19/22 + 25: CAPEX in year 1 only, summed in component order.
+  // Rows 13/16/19/22 + 25: CAPEX charged by the side's deployment weights
+  // (sprint 4, task 2) — absent weights mean the legacy year-1-only charge.
   // Precomputed as an array so the financing line (whose outstanding
   // balance follows the drawdown) reads the same numbers the rows charge.
   const capexByYear = ctx.timeline.years.map(({ idx }) => {
+    const w = side.capexWeights ? (side.capexWeights[idx - 1] ?? 0) : idx === 1 ? 1 : 0;
     let total = 0;
-    for (const c of components) total += idx === 1 ? c.capexUsdM : 0;
+    for (const c of components) total += c.capexUsdM * w;
     return total;
   });
 

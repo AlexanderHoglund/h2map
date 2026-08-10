@@ -117,3 +117,13 @@ the frozen expected file's exact key sets untouched, and defaults produce
 byte-identical results (asserted). Also fixed in the same change:
 `regulation.imoNetZero` was typed but missing from the zod schema, so
 `parseScenarioInput` silently stripped it on API saves — added, additively.
+
+## 2026-08-10 — capital deployment schedule (flag-gated, no shape change)
+
+Sprint 4, task 2: `scenario.capitalPhasing` (default absent = all CAPEX
+in year 1, the workbook convention) spreads each side's capital over the
+first N years by explicit sum-to-1 weights; the financing drawdown
+follows the same schedule. No new output fields — phasing re-times the
+existing `totalCapexUsdM` line, so the frozen expected file's key sets
+are untouched by construction, and absent/disabled/[1] weights are
+byte-identical (asserted).

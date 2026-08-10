@@ -816,6 +816,7 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
 export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
   const t = useTranslations("corridor.regulation");
   const tc = useTranslations("corridor.cargo");
+  const tRes = useTranslations("corridor.results");
   const { scenario, update, resolved, benchmarks, bundle } = model;
   const countryRow =
     bundle.countries.find((c) => c.id === scenario.cargo.countryId) ??
@@ -842,6 +843,17 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
       (fin.debtShare !== 1 ? 1 : 0) +
       (fin.structure !== "amortizing" ? 1 : 0)
     : 0;
+  const phasing = scenario.capitalPhasing;
+  const isUnphased = (w: number[]) => w.length === 1 && w[0] === 1;
+  const phasingHidden = phasing?.enabled
+    ? (isUnphased(phasing.green.weights) ? 0 : 1) +
+      (isUnphased(phasing.fossil.weights) ? 0 : 1)
+    : 0;
+  const phasingYears = phasing
+    ? Math.max(phasing.green.weights.length, phasing.fossil.weights.length)
+    : 1;
+  const resizeWeights = (w: number[], n: number): number[] =>
+    Array.from({ length: n }, (_, i) => w[i] ?? 0);
 
   return (
     <div className="space-y-3">
@@ -986,6 +998,124 @@ export function RegulationStep({ model, viewMode, revealAdvanced }: StepProps) {
             </p>
             {simple && (
               <AdvancedHiddenStrip count={finHidden} onReveal={revealAdvanced} />
+            )}
+          </>
+        )}
+        {/* Sprint 4 — capital deployment schedule: CAPEX over the first N
+            years by explicit shares. Sum-to-1 is enforced by validation —
+            the amber line below mirrors it live, nothing is normalised. */}
+        <div className="sm:col-span-2 border-t border-neutral-200 pt-3">
+          <SwitchRow
+            label={t("phasingToggle")}
+            checked={phasing?.enabled ?? false}
+            onChange={(v) =>
+              update((d) => {
+                if (d.capitalPhasing) {
+                  d.capitalPhasing.enabled = v;
+                } else if (v) {
+                  d.capitalPhasing = {
+                    enabled: true,
+                    green: { weights: [1] },
+                    fossil: { weights: [1] },
+                  };
+                }
+              })
+            }
+          />
+        </div>
+        {phasing?.enabled && (
+          <>
+            {!simple && (
+              <>
+                <div className="flex items-end gap-2">
+                  <Select
+                    label={t("phasingYears")}
+                    help={t("phasingYearsHelp")}
+                    value={String(phasingYears)}
+                    options={[1, 2, 3, 4, 5].map((n) => ({
+                      value: String(n),
+                      label: String(n),
+                    }))}
+                    onChange={(v) =>
+                      update((d) => {
+                        const n = Number(v);
+                        if (!d.capitalPhasing) return;
+                        d.capitalPhasing.green.weights = resizeWeights(
+                          d.capitalPhasing.green.weights,
+                          n,
+                        );
+                        d.capitalPhasing.fossil.weights = resizeWeights(
+                          d.capitalPhasing.fossil.weights,
+                          n,
+                        );
+                      })
+                    }
+                  />
+                </div>
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    className="border border-neutral-300 px-2 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+                    onClick={() =>
+                      update((d) => {
+                        if (!d.capitalPhasing) return;
+                        d.capitalPhasing.green.weights = [0.3, 0.4, 0.3];
+                        d.capitalPhasing.fossil.weights = [0.3, 0.4, 0.3];
+                      })
+                    }
+                  >
+                    {t("phasingPreset")}
+                  </button>
+                </div>
+                {(["green", "fossil"] as const).map((sideKey) => {
+                  const weights = phasing[sideKey].weights;
+                  const sum = weights.reduce((a, b) => a + b, 0);
+                  const bad = Math.abs(sum - 1) > 1e-6;
+                  return (
+                    <div key={sideKey} className="sm:col-span-2">
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                        {weights.map((w, i) => (
+                          <NumberInput
+                            key={`${sideKey}-${i}`}
+                            label={t(
+                              sideKey === "green"
+                                ? "phasingGreenYear"
+                                : "phasingFossilYear",
+                              { n: i + 1 },
+                            )}
+                            unit="0–1"
+                            step={0.05}
+                            value={w}
+                            onChange={(v) =>
+                              update((d) => {
+                                if (!d.capitalPhasing) return;
+                                d.capitalPhasing[sideKey].weights[i] = Math.min(
+                                  1,
+                                  Math.max(0, v),
+                                );
+                              })
+                            }
+                          />
+                        ))}
+                      </div>
+                      {bad && (
+                        <p className="mt-1 text-[11px] font-medium text-amber-700">
+                          {t("phasingSumBad", {
+                            side: tRes(sideKey === "green" ? "sideGreen" : "sideFossil"),
+                            sum: sum.toFixed(2),
+                          })}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
+            <p className="sm:col-span-2 text-[11px] leading-snug text-neutral-500">
+              {t("phasingNote")}
+            </p>
+            {simple && (
+              <AdvancedHiddenStrip count={phasingHidden} onReveal={revealAdvanced} />
             )}
           </>
         )}

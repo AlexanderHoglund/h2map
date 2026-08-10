@@ -13,7 +13,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `cargo.oneWayDistanceNm` | number | yes | #1 | 74.1% | top-level |
 | `cargo.startYear` | integer | yes | — | — | — |
 | `cargo.horizonYears` | integer | yes | #8 | 17.6% | top-level |
-| `cargo.unitsPerYear` | number | yes | #25 | 0.0% | advanced |
+| `cargo.unitsPerYear` | number | yes | #26 | 0.0% | advanced |
 | `cargo.inflation` | number | yes | #11 | 14.0% | top-level |
 | `cargo.vessels` | integer | yes | #5 | 32.9% | top-level |
 | `cargo.roundtripsPerYear` | number | yes | #15 | 8.2% | top-level |
@@ -42,7 +42,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `green.overrides.priceUsdPerTonne` | number, null | yes | #12 | 13.7% | top-level |
 | `green.overrides.combustionEfTco2PerTonne` | number, null | yes | — | — | — |
 | `green.overrides.lhvMjPerTonne` | number, null | yes | — | — | — |
-| `green.overrides.wtwGco2PerMj` | number, null | yes | #24 | 0.2% | advanced |
+| `green.overrides.wtwGco2PerMj` | number, null | yes | #25 | 0.2% | advanced |
 | `green.overrides.fuelTonnesPerVesselYear` | number, null | yes | #7 | 21.1% | top-level |
 | `green.overrides.prodCapexUsdM` | number, null | yes | #4 | 32.9% | top-level |
 | `green.overrides.prodOpexUsdMPerYear` | number, null | yes | #6 | 26.6% | top-level |
@@ -56,7 +56,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `fossil.overrides.priceUsdPerTonne` | number, null | yes | #20 | 3.2% | advanced |
 | `fossil.overrides.combustionEfTco2PerTonne` | number, null | yes | — | — | — |
 | `fossil.overrides.lhvMjPerTonne` | number, null | yes | — | — | — |
-| `fossil.overrides.wtwGco2PerMj` | number, null | yes | #22 | 1.9% | advanced |
+| `fossil.overrides.wtwGco2PerMj` | number, null | yes | #23 | 1.9% | advanced |
 | `fossil.overrides.fuelTonnesPerVesselYear` | number, null | yes | — | — | — |
 | `fossil.overrides.prodCapexUsdM` | number, null | yes | — | — | — |
 | `fossil.overrides.prodOpexUsdMPerYear` | number, null | yes | — | — | — |
@@ -64,11 +64,11 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `fossil.overrides.portStorageOpexUsdMPerYear` | number, null | yes | — | — | — |
 | `fossil.overrides.bargeCapexUsdM` | number, null | yes | — | — | — |
 | `fossil.overrides.bargeOpexUsdMPerYear` | number, null | yes | — | — | — |
-| `regulation.eurUsd` | number | yes | #23 | 1.2% | advanced |
+| `regulation.eurUsd` | number | yes | #24 | 1.2% | advanced |
 | `regulation.ets.enabled` | boolean | yes | — | — | — |
 | `regulation.ets.euaEurPerTonne` | number | yes | #19 | 3.6% | advanced |
 | `regulation.ets.euaEscalation` | number | no | — | — | — |
-| `regulation.ets.scope` | number | yes | #21 | 2.4% | advanced |
+| `regulation.ets.scope` | number | yes | #22 | 2.4% | advanced |
 | `regulation.ets.gasCoverage.enabled` | boolean | yes | — | — | — |
 | `regulation.ets.gasCoverage.fromCalendarYear` | integer | yes | — | — | — |
 | `regulation.ets.gasCoverage.gwpCh4` | number | yes | — | — | — |
@@ -107,6 +107,9 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `financing.debtShare` | number | yes | — | — | — |
 | `financing.tenorYears` | integer | yes | — | — | — |
 | `financing.structure` | "amortizing", "bullet" | yes | — | — | — |
+| `capitalPhasing.enabled` | boolean | yes | — | — | — |
+| `capitalPhasing.green.weights` | array | yes | #21 | 3.0% | advanced |
+| `capitalPhasing.fossil.weights` | array | yes | — | — | — |
 | `flags.emissionsBasis` | "combustion", "wellToWake" | no | — | — | — |
 | `flags.rateBasis` | "nominal", "real" | no | — | — | — |
 | `flags.legacyExcelConstruct` | boolean | no | — | — | — |

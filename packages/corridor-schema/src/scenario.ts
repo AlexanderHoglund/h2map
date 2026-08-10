@@ -373,6 +373,24 @@ export interface FinancingInput {
   structure: "amortizing" | "bullet";
 }
 
+/**
+ * Capital deployment schedule (sprint 4, task 2): CAPEX charged over the
+ * first N years by explicit weights instead of landing entirely in year 1
+ * at a discount factor of exactly 1.0. Weights MUST sum to 1 per side —
+ * validation rejects anything else by name; nothing is silently
+ * normalised. Absent = legacy behaviour (all capital in year 1).
+ */
+export interface CapitalPhasingSide {
+  /** Year-1..N shares of the side's CAPEX. Sum must equal 1. */
+  weights: number[];
+}
+
+export interface CapitalPhasingInput {
+  enabled: boolean;
+  green: CapitalPhasingSide;
+  fossil: CapitalPhasingSide;
+}
+
 export interface ScenarioInput {
   schemaVersion: typeof SCHEMA_VERSION;
   refBundleId: string;
@@ -383,6 +401,8 @@ export interface ScenarioInput {
   regulation: RegulationInput;
   /** Green-financing effect line. Absent = off (legacy scenarios). */
   financing?: FinancingInput;
+  /** Capital deployment schedule. Absent = all CAPEX in year 1. */
+  capitalPhasing?: CapitalPhasingInput;
   /** Divergence flags (D1/D6). Absent = pure Excel behaviour. */
   flags?: DivergenceFlags;
 }

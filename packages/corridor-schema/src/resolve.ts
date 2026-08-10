@@ -510,6 +510,27 @@ export function resolveScenario(
         }
       : undefined;
 
+  // Sprint 4 — capital phasing: the sum-to-1 rule is re-checked here so a
+  // scenario that bypassed zod still fails loudly, by field name.
+  const capitalPhasing =
+    input.capitalPhasing?.enabled === true
+      ? (() => {
+          for (const sideLabel of ["green", "fossil"] as const) {
+            const w = input.capitalPhasing![sideLabel].weights;
+            const sum = w.reduce((a, b) => a + b, 0);
+            if (Math.abs(sum - 1) > 1e-6) {
+              throw new Error(
+                `capitalPhasing.${sideLabel}.weights must sum to 1 (got ${sum})`,
+              );
+            }
+          }
+          return {
+            green: [...input.capitalPhasing!.green.weights],
+            fossil: [...input.capitalPhasing!.fossil.weights],
+          };
+        })()
+      : undefined;
+
   return {
     refBundleId: input.refBundleId,
     startYear: calendarYear(input.cargo.startYear),
@@ -522,6 +543,7 @@ export function resolveScenario(
     fossil,
     regulations: resolveRegulations(input.regulation, bundle),
     ...(financing ? { financing } : {}),
+    ...(capitalPhasing ? { capitalPhasing } : {}),
     ...(input.regulation.imoNetZero?.enabled &&
     !(
       bundle.schedules.imoBaseTargets &&
@@ -580,6 +602,11 @@ export function toSideInputs(
     // the green-only 45Z params; the evaluator stays label-blind.
     ...(label === "green" && resolved.financing
       ? { financing: resolved.financing }
+      : {}),
+    // Phasing weights attach to BOTH sides as data; the default (all
+    // capital in year 1) stays encoded as absence.
+    ...(resolved.capitalPhasing
+      ? { capexWeights: resolved.capitalPhasing[label] }
       : {}),
   };
 }

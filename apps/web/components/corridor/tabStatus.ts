@@ -34,6 +34,9 @@ const ERROR_MATCHERS: readonly [RegExp, InputTab, string | undefined][] = [
   [/fuelId|fuel price|double-count/i, "energy", "green.sourcing"],
   [/vessel/i, "vessels", undefined],
   [/port/i, "ports", undefined],
+  // Sprint 4 — financing + phasing errors (e.g. the weights sum-to-1
+  // throw) belong to the Regulation & Financing tab.
+  [/financing|capitalPhasing/i, "regulation", undefined],
   [/regulation/i, "regulation", undefined],
 ];
 

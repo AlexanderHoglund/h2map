@@ -82,6 +82,9 @@ const PARAMS: Param[] = [
   // reference structure (amortizing, full debt, tenor 15) and moves the
   // green cost of debt around the 8% base rate.
   { id: "financing.greenRate", label: "Green cost of debt (fraction)", step: 5, low: 0.04, high: 0.1, set: (s, v) => { s.financing = { enabled: true, greenRate: v, baseRate: 0.08, debtShare: 1, tenorYears: 15, structure: "amortizing" }; } },
+  // Sprint 4 — capital phasing: swept over deployment years with fixed
+  // profiles (1 → up-front, 2 → 50/50, 3 → 30/40/30) on BOTH sides.
+  { id: "capitalPhasing.years", label: "Capital deployment years (30/40/30 at 3)", step: 3, low: 1, high: 3, set: (s, v) => { const w = [[1], [0.5, 0.5], [0.3, 0.4, 0.3]][Math.round(v) - 1]!; s.capitalPhasing = { enabled: true, green: { weights: w }, fossil: { weights: w } }; } },
 ];
 
 function gapFor(mutate?: (s: ScenarioInput) => void): number {

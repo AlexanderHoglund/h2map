@@ -349,6 +349,28 @@ export async function downloadResultsXlsx(
           ["Repayment structure", scenario.financing.structure, "—", "—"],
         ] as InputRow[])
       : []),
+    [
+      "Capital deployment schedule",
+      scenario.capitalPhasing?.enabled ? "enabled" : "off",
+      "—",
+      "—",
+    ],
+    ...(scenario.capitalPhasing?.enabled
+      ? ([
+          [
+            "Green CAPEX shares (year 1..N)",
+            scenario.capitalPhasing.green.weights.join(" / "),
+            "0–1",
+            "—",
+          ],
+          [
+            "Fossil CAPEX shares (year 1..N)",
+            scenario.capitalPhasing.fossil.weights.join(" / "),
+            "0–1",
+            "—",
+          ],
+        ] as InputRow[])
+      : []),
     ["Emissions basis", basis, "—", "—"],
     ["Rate basis", scenario.flags?.rateBasis ?? "nominal", "—", "—"],
   ]);

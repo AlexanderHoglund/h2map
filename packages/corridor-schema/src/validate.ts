@@ -211,6 +211,32 @@ export const scenarioInputSchema = z.object({
       structure: z.enum(["amortizing", "bullet"]),
     })
     .optional(),
+  // Capital deployment schedule (sprint 4, task 2). The sum-to-1 rule is
+  // enforced BY NAME when enabled — weights are never silently normalised.
+  capitalPhasing: z
+    .object({
+      enabled: z.boolean(),
+      green: z.object({
+        weights: z.array(z.number().nonnegative()).min(1).max(10),
+      }),
+      fossil: z.object({
+        weights: z.array(z.number().nonnegative()).min(1).max(10),
+      }),
+    })
+    .superRefine((val, ctx) => {
+      if (!val.enabled) return;
+      for (const side of ["green", "fossil"] as const) {
+        const sum = val[side].weights.reduce((a, b) => a + b, 0);
+        if (Math.abs(sum - 1) > 1e-6) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [side, "weights"],
+            message: `capitalPhasing.${side}.weights must sum to 1 (got ${sum})`,
+          });
+        }
+      }
+    })
+    .optional(),
   flags: z
     .object({
       emissionsBasis: z.enum(["combustion", "wellToWake"]).optional(),

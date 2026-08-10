@@ -183,7 +183,15 @@
       "finStructureHelp": "Planning-level loan shapes, not term sheets: amortizing = straight-line principal; bullet = full balance to maturity. The MMMCZCS study's ~$250m benefit sits between the two on the reference corridor ($196m amortizing, $313m bullet).",
       "finAmortizing": "Amortizing (straight-line)",
       "finBullet": "Bullet (balance to maturity)",
-      "finNote": "An explicit interest line on debt-financed green capital - a saving when the green rate is lower, a premium when higher. Deliberately NOT a lower discount rate, which would make future costs LARGER in present value."
+      "finNote": "An explicit interest line on debt-financed green capital - a saving when the green rate is lower, a premium when higher. Deliberately NOT a lower discount rate, which would make future costs LARGER in present value.",
+      "phasingToggle": "Capital deployment schedule",
+      "phasingYears": "Deployment years",
+      "phasingYearsHelp": "Years over which each side's CAPEX is drawn down. One year reproduces the up-front charge exactly; later capital discounts more, so its present value falls.",
+      "phasingPreset": "30/40/30 preset",
+      "phasingGreenYear": "Green share, year {n}",
+      "phasingFossilYear": "Fossil share, year {n}",
+      "phasingSumBad": "{side} shares must sum to 1 (currently {sum})",
+      "phasingNote": "Spreads each side's CAPEX over the first N years by explicit shares. Shares must sum to 1 - nothing is silently normalised. The green financing drawdown follows the same schedule."
     },
     "results": {
       "heading": "Results",
@@ -254,6 +262,7 @@
       "natureOperating": "Operating",
       "natureRegulation": "Regulation",
       "annualYear1Caption": "Year 1 carries {capital} of green capital, charged in full up front — year 1 alone is {share}% of the lifetime gap.",
+      "annualPhasedCaption": "Year 1 carries {capital} of green capital under the deployment schedule — year 1 alone is {share}% of the lifetime gap.",
       "snapPortA": "Port A",
       "snapPortB": "Port B",
       "sideGreen": "Green",

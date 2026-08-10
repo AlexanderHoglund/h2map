@@ -417,7 +417,7 @@ them into branded `Resolved<T>` values against a reference bundle.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `ConsumptionMode`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `RegulationInput`, `FinancingInput`, `ScenarioInput`
+**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `ConsumptionMode`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `RegulationInput`, `FinancingInput`, `CapitalPhasingSide`, `CapitalPhasingInput`, `ScenarioInput`
 
 **Assumptions**
 

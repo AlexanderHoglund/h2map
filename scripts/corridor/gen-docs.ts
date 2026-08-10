@@ -85,6 +85,7 @@ function fieldReference(): string {
   // known aliases (see scripts/corridor/sensitivity.ts PARAMS).
   const ALIAS: Record<string, string> = {
   "financing.greenRate": "financing.greenRate",
+  "capitalPhasing.green.weights": "capitalPhasing.years",
     "cargo.waccOverride": "cargo.wacc",
     "green.overrides.priceUsdPerTonne": "green.priceUsdPerTonne",
     "green.overrides.fuelTonnesPerVesselYear": "green.fuelTonnesPerVesselYear",

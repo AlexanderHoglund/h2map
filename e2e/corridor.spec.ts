@@ -611,3 +611,43 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
   await expect(results.getByText(GAP)).toBeVisible();
   await expect(page.getByText("Green financing effect")).toHaveCount(0);
 });
+
+test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ page }) => {
+  // Sprint 4.2. Phasing spreads CAPEX over the first N years by explicit
+  // shares; the annual chart and its caption are data-driven, so three
+  // capital bars and the recomputed year-1 figure need no chart changes.
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  const results = page.getByRole("complementary");
+  await expect(results.getByText(GAP)).toBeVisible();
+
+  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  await page.getByRole("switch", { name: "Capital deployment schedule" }).click();
+  // Toggle-on initialises 100% in year 1 — output-neutral by construction.
+  await expect(results.getByText(GAP)).toBeVisible();
+
+  await page.getByRole("button", { name: "30/40/30 preset" }).click();
+  await expect(results.getByText("$1,665.88m")).toBeVisible();
+
+  // The annual chart's caption recomputes (year-1 capital 0.3 × $1,690m)
+  // and switches to the phased wording — "charged in full up front" would
+  // now be false.
+  await page.getByRole("button", { name: "07 Results" }).click();
+  await expect(
+    page.getByText(/Year 1 carries \$507m of green capital under the deployment schedule/),
+  ).toBeVisible();
+
+  // Bad sums are refused BY NAME, never silently rescaled: zeroing year 3
+  // shows the live amber warning and the results panel carries the error.
+  await page.getByRole("button", { name: "06 Regulation & Financing" }).click();
+  const y3 = page.getByLabel("Green share, year 3");
+  await y3.fill("0");
+  await expect(page.getByText(/Green shares must sum to 1 \(currently 0\.70\)/)).toBeVisible();
+  await expect(page.getByText(/capitalPhasing\.green\.weights must sum to 1/)).toBeVisible();
+  await y3.fill("0.3");
+  await expect(results.getByText("$1,665.88m")).toBeVisible();
+
+  // Off again → the golden default returns.
+  await page.getByRole("switch", { name: "Capital deployment schedule" }).click();
+  await expect(results.getByText(GAP)).toBeVisible();
+});

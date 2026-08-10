@@ -66,6 +66,11 @@ const arbSide: fc.Arbitrary<SideInputs> = fc
     with45z: fc.boolean(),
     withSelf: fc.boolean(),
     withFinancing: fc.boolean(),
+    withPhasing: fc.boolean(),
+    phasingWeights: fc.array(fc.double({ min: 0, max: 1, noNaN: true }), {
+      minLength: 1,
+      maxLength: 4,
+    }),
     finGreenRate: fc.double({ min: 0, max: 0.2, noNaN: true }),
     finBaseRate: fc.double({ min: 0, max: 0.2, noNaN: true }),
     finDebtShare: fc.double({ min: 0, max: 1, noNaN: true }),
@@ -89,6 +94,10 @@ const arbSide: fc.Arbitrary<SideInputs> = fc
         opexUsdMPerYear: usdM(r.opexes[i]!),
       }),
     ),
+    // Sprint 4 — arbitrary (un-normalised) deployment weights: the engine's
+    // decomposition invariants must hold for ANY profile; the sum-to-1 rule
+    // is validation's job, not the evaluator's.
+    ...(r.withPhasing ? { capexWeights: r.phasingWeights } : {}),
     // Sprint 4 — the financing line joins the decomposition invariants.
     ...(r.withFinancing
       ? {
@@ -97,7 +106,7 @@ const arbSide: fc.Arbitrary<SideInputs> = fc
             baseRate: fraction(r.finBaseRate),
             debtShare: fraction(r.finDebtShare),
             tenorYears: r.finTenor,
-            structure: (r.finBullet ? "bullet" : "amortizing") as const,
+            structure: r.finBullet ? ("bullet" as const) : ("amortizing" as const),
           },
         }
       : {}),
@@ -221,6 +230,21 @@ describe("evaluateSide — exhaustive decomposition", () => {
         }
         if (r.perYear.ira45zUsdM.some((v) => v > 0)) return false;
         if (r.perYear.fuelEuUsdM.some((v) => v < 0)) return false;
+        // Sprint 4 — phasing re-times capital, never creates or destroys it:
+        // undiscounted Σ capex = Σ component capex × Σ weights-in-horizon
+        // (absent weights = the year-1-only charge, weight sum 1).
+        const totalComponentCapex = side.components.reduce(
+          (acc, c) => acc + c.capexUsdM,
+          0,
+        );
+        const weightSum = side.capexWeights
+          ? side.capexWeights
+              .slice(0, ctx.timeline.horizonYears)
+              .reduce((a, b) => a + b, 0)
+          : 1;
+        const chargedCapex = r.perYear.totalCapexUsdM.reduce((a, b) => a + b, 0);
+        if (!relClose(chargedCapex, totalComponentCapex * weightSum, 1e-9))
+          return false;
         return true;
       }),
     );

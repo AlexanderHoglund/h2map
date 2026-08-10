@@ -24,6 +24,7 @@
   "regulation.fuelEuPenalty",
   "regulation.euaEurPerTonne",
   "fossil.priceUsdPerTonne",
+  "capitalPhasing.years",
   "regulation.etsScope",
   "fossil.wtwGco2PerMj",
   "regulation.eurUsd",

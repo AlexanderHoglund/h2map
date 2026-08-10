@@ -550,10 +550,17 @@ export default function ResultsPanel({
         </div>
         {chartMeta && (
           <p className="mt-1 text-[11px] leading-snug text-neutral-500">
-            {t("annualYear1Caption", {
-              capital: fmtUsdMShort(chartMeta.y1Capital),
-              share: chartMeta.y1Share,
-            })}
+            {/* "charged in full up front" is only true without a deployment
+                schedule (sprint 4) — the phased variant drops the claim. */}
+            {t(
+              scenario.capitalPhasing?.enabled
+                ? "annualPhasedCaption"
+                : "annualYear1Caption",
+              {
+                capital: fmtUsdMShort(chartMeta.y1Capital),
+                share: chartMeta.y1Share,
+              },
+            )}
           </p>
         )}
       </section>

@@ -2,6 +2,8 @@ export { ARCHETYPE_FOAK_MULTIPLIER, SCHEMA_VERSION } from "./scenario";
 export type {
   BuildHereComponent,
   BuildHereSite,
+  CapitalPhasingInput,
+  CapitalPhasingSide,
   CargoInput,
   ConsumptionMode,
   EtsInput,
@@ -10,6 +12,8 @@ export type {
   FuelSideOverrides,
   FuelSourcing,
   ProjectArchetype,
+  FinancingInput,
+  ImoNetZeroInput,
   Ira45zInput,
   RegulationInput,
   RouteType,

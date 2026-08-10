@@ -265,6 +265,19 @@
    "relHeadlineMovement": 0.032371982137900816
   },
   {
+   "id": "capitalPhasing.years",
+   "label": "Capital deployment years (30/40/30 at 3)",
+   "step": 3,
+   "range": [
+    1,
+    3
+   ],
+   "gapAtLow": 166.95059118904504,
+   "gapAtHigh": 161.9728076711546,
+   "maxAbsDeltaUsdM": 4.97778351789043,
+   "relHeadlineMovement": 0.029815908302198702
+  },
+  {
    "id": "regulation.etsScope",
    "label": "ETS scope (%)",
    "step": 5,

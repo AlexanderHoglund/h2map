@@ -116,7 +116,7 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["cargo.oneWayDistanceNm", "number", "yes", "#1", "74.1%", "top-level"],
   ["cargo.startYear", "integer", "yes", "—", "—", "—"],
   ["cargo.horizonYears", "integer", "yes", "#8", "17.6%", "top-level"],
-  ["cargo.unitsPerYear", "number", "yes", "#25", "0.0%", "advanced"],
+  ["cargo.unitsPerYear", "number", "yes", "#26", "0.0%", "advanced"],
   ["cargo.inflation", "number", "yes", "#11", "14.0%", "top-level"],
   ["cargo.vessels", "integer", "yes", "#5", "32.9%", "top-level"],
   ["cargo.roundtripsPerYear", "number", "yes", "#15", "8.2%", "top-level"],
@@ -139,7 +139,7 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["green.overrides.priceUsdPerTonne", "number | null", "yes", "#12", "13.7%", "top-level"],
   ["green.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
   ["green.overrides.lhvMjPerTonne", "number | null", "yes", "—", "—", "—"],
-  ["green.overrides.wtwGco2PerMj", "number | null", "yes", "#24", "0.2%", "advanced"],
+  ["green.overrides.wtwGco2PerMj", "number | null", "yes", "#25", "0.2%", "advanced"],
   ["green.overrides.fuelTonnesPerVesselYear", "number | null", "yes", "#7", "21.1%", "top-level"],
   ["green.overrides.prodCapexUsdM", "number | null", "yes", "#4", "32.9%", "top-level"],
   ["green.overrides.prodOpexUsdMPerYear", "number | null", "yes", "#6", "26.6%", "top-level"],
@@ -153,7 +153,7 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["fossil.overrides.priceUsdPerTonne", "number | null", "yes", "#20", "3.2%", "advanced"],
   ["fossil.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.lhvMjPerTonne", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.wtwGco2PerMj", "number | null", "yes", "#22", "1.9%", "advanced"],
+  ["fossil.overrides.wtwGco2PerMj", "number | null", "yes", "#23", "1.9%", "advanced"],
   ["fossil.overrides.fuelTonnesPerVesselYear", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.prodCapexUsdM", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.prodOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
@@ -161,11 +161,11 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["fossil.overrides.portStorageOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.bargeCapexUsdM", "number | null", "yes", "—", "—", "—"],
   ["fossil.overrides.bargeOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
-  ["regulation.eurUsd", "number", "yes", "#23", "1.2%", "advanced"],
+  ["regulation.eurUsd", "number", "yes", "#24", "1.2%", "advanced"],
   ["regulation.ets.enabled", "boolean", "yes", "—", "—", "—"],
   ["regulation.ets.euaEurPerTonne", "number", "yes", "#19", "3.6%", "advanced"],
   ["regulation.ets.euaEscalation", "number", "no", "—", "—", "—"],
-  ["regulation.ets.scope", "number 0–1", "yes", "#21", "2.4%", "advanced"],
+  ["regulation.ets.scope", "number 0–1", "yes", "#22", "2.4%", "advanced"],
   ["regulation.ets.gasCoverage.enabled", "boolean", "yes", "—", "—", "—"],
   ["regulation.ets.gasCoverage.fromCalendarYear", "integer", "yes", "—", "—", "—"],
   ["regulation.ets.gasCoverage.gwpCh4", "number", "yes", "—", "—", "—"],
@@ -205,6 +205,9 @@ const ALL_INPUTS: [string, string, string, string, string, string][] = [
   ["financing.debtShare", "number 0–1", "yes", "—", "—", "—"],
   ["financing.tenorYears", "integer 1–40", "yes", "—", "—", "—"],
   ["financing.structure", '"amortizing" | "bullet"', "yes", "—", "—", "—"],
+  ["capitalPhasing.enabled", "boolean", "yes", "—", "—", "—"],
+  ["capitalPhasing.green.weights", "number[] (sum = 1)", "yes", "#21", "3.0%", "advanced"],
+  ["capitalPhasing.fossil.weights", "number[] (sum = 1)", "yes", "—", "—", "—"],
   ["flags.legacyExcelConstruct", "boolean", "no", "—", "—", "—"],
   ['flags.emissionsBasis', '"combustion" | "wellToWake"', "no", "—", "—", "—"],
   ['flags.rateBasis', '"nominal" | "real"', "no", "—", "—", "—"],
@@ -948,6 +951,18 @@ export default async function DocsPage() {
           is allowed and shows as a cost.
         </p>
 
+        <H3>Capital deployment schedule (Financing section)</H3>
+        <p className="mt-2">
+          Off by default (all CAPEX in year 1). The toggle initialises
+          both sides at 100% in year 1; the Advanced view exposes a
+          deployment-years selector (1–5), per-side share rows and a
+          30/40/30 preset matching the reference study&apos;s build
+          profile. Shares must sum to 1 per side — the form shows a live
+          amber warning and the model refuses to compute rather than
+          silently rescaling. The green financing drawdown follows the
+          same schedule (§9).
+        </p>
+
         <H3>Model options</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
@@ -1088,7 +1103,9 @@ export default async function DocsPage() {
           start year + t − 1, infl = (1+inflation)^(t−1)):
         </p>
         <F>
-          CAPEX<sub>t</sub>{" "}= (t = 1) ? fuelProd + storage + barge + vessel : 0
+          CAPEX<sub>t</sub>{" "}= (fuelProd + storage + barge + vessel) ×
+          w<sub>t</sub>, &nbsp;w = deployment weights (default w₁ = 1: all
+          capital in year 1)
           <br />
           OPEX<sub>t</sub>{" "}= fuel purchase + prod O&amp;M + storage O&amp;M +
           barge O&amp;M + vessel O&amp;M &nbsp;(each × infl)
@@ -1169,6 +1186,30 @@ export default async function DocsPage() {
           amortization or a grace period whose structure the study does not
           state. Nothing is tuned to force $250m — a forced match would
           fabricate precision the source does not provide.
+        </p>
+        <H3>Capital deployment schedule (flag-gated, default off)</H3>
+        <F>
+          CAPEX<sub>t</sub>{" "}= Σ component CAPEX × w<sub>t</sub>, &nbsp;Σ w
+          = 1 per side (validated by name, never normalised)
+          <br />
+          cumdraw<sub>t</sub>{" "}follows the same weights — the financing
+          line&apos;s outstanding balance tracks the phased drawdown
+        </F>
+        <p className="mt-2">
+          By default every capital dollar lands in year 1 at a discount
+          factor of exactly 1.0 — the reference workbook&apos;s convention,
+          and the most conservative PV treatment. Phasing spreads each
+          side&apos;s CAPEX over the first N years by explicit shares:
+          later capital discounts more, so its present value falls and
+          never rises (r ≥ 0; property-tested). At 30/40/30 on both sides
+          of the reference corridor (PV factor 0.92757) the green CAPEX PV
+          is $1,567.6m, fossil $333.9m, the pre-regulation gap $1,916.1m
+          and the headline gap $1,665.9m; phasing the green side alone
+          moves the gap by −$122.4m. Weights that do not sum to 1 are
+          rejected naming the exact field — a schedule that silently
+          rescaled would misstate the capital program. No new output
+          fields: phasing re-times existing lines, so the frozen golden
+          shape is untouched by construction.
         </p>
 
         {/* 10 --------------------------------------------------------- */}

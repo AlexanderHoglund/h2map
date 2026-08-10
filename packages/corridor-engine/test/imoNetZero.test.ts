@@ -10,7 +10,6 @@
 import { describe, expect, it } from "vitest";
 import {
   calendarYear,
-  count,
   fraction,
   gCo2ePerMj,
   mjPerTonne,

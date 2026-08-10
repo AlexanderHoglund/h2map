@@ -207,6 +207,12 @@ export interface SideInputs {
   readonly regulations: SideRegulations;
   /** Present only where resolution attached it (green side, enabled). */
   readonly financing?: FinancingParams;
+  /**
+   * Capital deployment weights (sprint 4, task 2), year 1..N shares of
+   * this side's CAPEX. Absent = all capital in year 1 (legacy). The
+   * financing line's drawdown follows the same weights by construction.
+   */
+  readonly capexWeights?: readonly number[];
 }
 
 // ---------------------------------------------------------------------------
@@ -252,6 +258,11 @@ export interface ResolvedScenario {
   readonly imoNotParameterised?: true;
   /** Green-financing params, present only when the module is enabled. */
   readonly financing?: FinancingParams;
+  /** Capital deployment weights per side, present only when enabled. */
+  readonly capitalPhasing?: {
+    readonly green: readonly number[];
+    readonly fossil: readonly number[];
+  };
   /** Divergence flags with defaults applied (absent input → Excel behaviour). */
   readonly flags: {
     readonly emissionsBasis: "combustion" | "wellToWake";
