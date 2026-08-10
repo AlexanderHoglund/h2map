@@ -81,6 +81,26 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     await expect(chart.getByText("2030", { exact: true })).toBeVisible();
     await expect(chart.getByText("2044", { exact: true })).toBeVisible();
   }
+  // The MMMCZCS waterfall: five steps, labels wrapped on the axis, the
+  // footnote stating the totals' regulatory boundary. Gross and incremental
+  // read the golden quantities.
+  {
+    const chart = page
+      .locator("section", { hasText: "Breakdown of total cost of the green corridor" })
+      .last();
+    for (const label of [
+      "green corridor*",
+      "fossil corridor*",
+      "incremental cost",
+      "Regulations",
+    ]) {
+      await expect(chart.getByText(label, { exact: false }).first()).toBeVisible();
+    }
+    await expect(chart.getByText("$2,012m", { exact: true })).toBeVisible(); // gross
+    await expect(chart.getByText("$1,762m", { exact: true })).toBeVisible(); // incremental
+    await expect(chart.getByText(/before regulatory instruments/)).toBeVisible();
+  }
+
   // The emissions & abatement diagram: pre/post bars per basis.
   {
     const chart = page.locator("section", { hasText: "Emissions & abatement" }).last();

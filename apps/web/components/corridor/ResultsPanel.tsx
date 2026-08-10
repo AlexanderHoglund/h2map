@@ -7,6 +7,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  LabelList,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -50,40 +51,56 @@ export default function ResultsPanel({
   const waterfall = useMemo(() => {
     if (!result) return [];
     const s = result.summary;
-    const dCapex = s.greenCapexPvUsdM - s.fossilCapexPvUsdM;
-    const dOpex = s.greenOpexPvUsdM - s.fossilOpexPvUsdM;
-    const greenReg =
-      s.etsGreenPvUsdM + s.fuelEuGreenPvUsdM + s.ira45zGreenPvUsdM + s.selfDesignedGreenPvUsdM;
-    const fossilReg = s.etsFossilPvUsdM + s.fuelEuFossilPvUsdM + s.selfDesignedFossilPvUsdM;
-    const dReg = greenReg - fossilReg;
+    const rep2 = result.reporting;
+    // The MMMCZCS stylized breakdown, restricted to the segments the model
+    // carries data for. Excluded until they exist (append as further
+    // floats): optimized financing, the cargo/customer green premium,
+    // value-chain cost management, public funding.
+    const greenSub = s.greenCapexPvUsdM + s.greenOpexPvUsdM;
+    const fossilSub = s.fossilCapexPvUsdM + s.fossilOpexPvUsdM;
+    const gross = rep2.gapPvPreRegulationUsdM; // === greenSub - fossilSub
+    const net = rep2.netRegulatoryEffectUsdM;
+    const post = s.gapPvUsdM; // === gross + net (reporting invariant)
 
-    // Float bars: [base, span] per step, endpoints anchored at zero
-    // (Output!F35:H42's hidden-base construction).
-    let run = s.fossilTotalPvUsdM;
+    const anchored = (v: number) => ({ base: Math.min(0, v), span: Math.abs(v) });
     const steps = [
-      { key: "wfFossil", base: 0, span: s.fossilTotalPvUsdM, kind: "total" as const },
-      ...[
-        { key: "wfCapex", delta: dCapex },
-        { key: "wfOpex", delta: dOpex },
-        { key: "wfReg", delta: dReg },
-      ].map(({ key, delta }) => {
-        const start = run;
-        run += delta;
-        return {
-          key,
-          base: Math.min(start, run),
-          span: Math.abs(delta),
-          kind: delta >= 0 ? ("up" as const) : ("down" as const),
-        };
-      }),
-      { key: "wfGreen", base: 0, span: s.greenTotalPvUsdM, kind: "total" as const },
-      // The green premium (the gap itself) as its OWN bar, visually distinct
-      // from the anchored totals: it spans fossil total -> green total.
       {
-        key: "wfGap",
-        base: Math.min(s.fossilTotalPvUsdM, s.greenTotalPvUsdM),
-        span: Math.abs(s.gapPvUsdM),
-        kind: "gap" as const,
+        key: "wfGreenTotal",
+        ...anchored(greenSub),
+        kind: "greenTotal" as const,
+        labelText: fmtUsdMShort(greenSub),
+        exitLevel: greenSub,
+      },
+      {
+        key: "wfFossilTotal",
+        // Hangs from the green total's top down to the gross level.
+        base: greenSub - fossilSub,
+        span: fossilSub,
+        kind: "fossilTotal" as const,
+        labelText: fmtUsdMShort(fossilSub),
+        exitLevel: gross,
+      },
+      {
+        key: "wfGross",
+        ...anchored(gross),
+        kind: "incremental" as const,
+        labelText: fmtUsdMShort(gross),
+        exitLevel: gross,
+      },
+      {
+        key: "wfRegs",
+        base: Math.min(gross, post),
+        span: Math.abs(net),
+        kind: "reduction" as const,
+        labelText: `${net > 0 ? "+" : net < 0 ? "\u2212" : ""}${fmtUsdMShort(Math.abs(net))}`,
+        exitLevel: post,
+      },
+      {
+        key: "wfIncremental",
+        ...anchored(post),
+        kind: "incremental" as const,
+        labelText: fmtUsdMShort(post),
+        exitLevel: post,
       },
     ];
     return steps.map((s2) => ({ ...s2, label: t(s2.key) }));
@@ -166,13 +183,15 @@ export default function ResultsPanel({
   const div = result.divergences?.emissionsBasis;
   const netReg = result.reporting.netRegulatoryEffectUsdM;
 
-  // Viz tokens (globals.css): CVD-safe blue-red diverging pair for the deltas,
-  // neutral anchored totals (baseline + x-label are the secondary encoding).
+  // Viz tokens (globals.css): the corridor identities — series green for
+  // the green total, neutral for fossil, brand blue for the incremental
+  // bars, the light baseline neutral for the regulation float (its sign is
+  // carried by position, the signed label and the tooltip).
   const COLORS = {
-    total: "var(--viz-total)",
-    up: "var(--viz-delta-up)",
-    down: "var(--viz-delta-down)",
-    gap: "var(--color-brand-deep)",
+    greenTotal: "var(--viz-series-green)",
+    fossilTotal: "var(--viz-total)",
+    incremental: "var(--viz-series-1)",
+    reduction: "var(--viz-baseline)",
   };
 
   // Cargo-unit identity (presentation): explicit, else vessel-derived.
@@ -381,14 +400,20 @@ export default function ResultsPanel({
         </dl>
       </section>
 
-      {/* ===== Cost bridge ===== */}
+      {/* ===== Breakdown of total cost (the MMMCZCS waterfall) ===== */}
       <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
         <Eyebrow>{t("waterfall")}</Eyebrow>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={waterfall} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+            <BarChart data={waterfall} margin={{ top: 16, right: 4, bottom: 0, left: 0 }}>
               <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} />
+              <XAxis
+                dataKey="label"
+                tick={<WrappedTick />}
+                stroke="var(--viz-baseline)"
+                interval={0}
+                height={34}
+              />
               <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} unit="" />
               <Tooltip
                 formatter={(v, name) =>
@@ -402,10 +427,16 @@ export default function ResultsPanel({
                 {waterfall.map((step) => (
                   <Cell key={step.key} fill={COLORS[step.kind]} />
                 ))}
+                <LabelList
+                  dataKey="labelText"
+                  position="top"
+                  style={{ fontSize: 10, fill: "var(--viz-ink-secondary)" }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
+        <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
       </section>
 
       {/* ===== Decomposition: green | fossil | Δ ===== */}
@@ -819,6 +850,21 @@ function TabTable({
         ))}
       </tbody>
     </table>
+  );
+}
+
+/** Two-line x-axis tick: label strings carry an explicit \n. */
+function WrappedTick(props: { x?: number; y?: number; payload?: { value?: string } }) {
+  const { x = 0, y = 0, payload } = props;
+  const lines = String(payload?.value ?? "").split("\n");
+  return (
+    <text x={x} y={y + 10} textAnchor="middle" fontSize={10} fill="var(--viz-ink-muted)">
+      {lines.map((line, i) => (
+        <tspan key={i} x={x} dy={i === 0 ? 0 : 11}>
+          {line}
+        </tspan>
+      ))}
+    </text>
   );
 }
 
