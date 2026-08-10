@@ -10,6 +10,7 @@ import { Section, Advanced } from "@/components/ui/Card";
 import ResolvedField from "./ResolvedField";
 import SelectField from "./SelectField";
 import CorridorRouteMap from "./CorridorRouteMap";
+import RoutedDistanceField from "./RoutedDistanceField";
 import { useSeaRoute } from "./useSeaRoute";
 import BuildHerePanel from "./BuildHerePanel";
 import { CORRIDOR_COUNTRIES } from "@/lib/corridor-countries";
@@ -111,16 +112,37 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
   const tr = useTranslations("corridor.regulation");
   const { scenario, update } = model;
 
+  const twoPorts = scenario.cargo.routeType === "point-to-point";
+  const route = useSeaRoute(
+    scenario.cargo.portACoords,
+    twoPorts ? scenario.cargo.portBCoords : undefined,
+  );
+
   const fields = splitByManifest([
     {
       id: "cargo.oneWayDistanceNm",
       node: (
-        <NumberInput
+        <RoutedDistanceField
           key="dist"
           label={t("distance")}
-          unit="nm"
           value={scenario.cargo.oneWayDistanceNm}
-          onChange={(v) => update((d) => void (d.cargo.oneWayDistanceNm = v))}
+          route={route}
+          onChange={(v) =>
+            update((d) => {
+              d.cargo.oneWayDistanceNm = v;
+              // A typed value is the user's own figure — the adopted-route
+              // provenance no longer describes it.
+              if (d.cargo.routedDistance && d.cargo.routedDistance.nm !== v) {
+                delete d.cargo.routedDistance;
+              }
+            })
+          }
+          onAdopt={(nm, graphVersion, via) =>
+            update((d) => {
+              d.cargo.oneWayDistanceNm = nm;
+              d.cargo.routedDistance = { nm, graphVersion, via };
+            })
+          }
         />
       ),
     },
@@ -151,12 +173,6 @@ export function CargoStep({ model, viewMode, revealAdvanced }: StepProps) {
       ),
     },
   ]);
-
-  const twoPorts = scenario.cargo.routeType === "point-to-point";
-  const route = useSeaRoute(
-    scenario.cargo.portACoords,
-    twoPorts ? scenario.cargo.portBCoords : undefined,
-  );
 
   return (
     <div className="space-y-3">

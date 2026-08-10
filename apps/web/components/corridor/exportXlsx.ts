@@ -120,7 +120,7 @@ export async function downloadResultsXlsx(
     `${routeLine} · ${scenario.cargo.routeType} · ${scenario.cargo.oneWayDistanceNm.toLocaleString("en-US")} nm · ${scenario.cargo.vessels} vessels · ${span}`,
   ]).font = { size: 10, color: { argb: SUBTLE } };
   ws.addRow([
-    `Generated ${new Date().toISOString().slice(0, 10)} · engine ${CORRIDOR_ENGINE_VERSION} · reference bundle ${DEFAULT_BUNDLE.bundleId} · emissions basis: ${basisLabel}`,
+    `Generated ${new Date().toISOString().slice(0, 10)} · engine ${CORRIDOR_ENGINE_VERSION} · reference bundle ${DEFAULT_BUNDLE.bundleId} · emissions basis: ${basisLabel}${scenario.cargo.routedDistance ? ` · route graph ${scenario.cargo.routedDistance.graphVersion}` : ""}`,
   ]).font = { size: 10, color: { argb: SUBTLE } };
 
   // ---- Headline ----
@@ -255,7 +255,24 @@ export async function downloadResultsXlsx(
       : []),
     ["Cargo unit", scenario.cargo.unit ?? "tonne", "—", "—"],
     ["Weight per unit", scenario.cargo.unitWeightTonnes ?? 1, "t", "—"],
-    ["One-way distance", scenario.cargo.oneWayDistanceNm, "nm", "—"],
+    [
+      "One-way distance",
+      scenario.cargo.oneWayDistanceNm,
+      "nm",
+      scenario.cargo.routedDistance?.nm === scenario.cargo.oneWayDistanceNm
+        ? "derived"
+        : "override",
+    ],
+    ...(scenario.cargo.routedDistance
+      ? ([
+          [
+            "Routed distance (adopted)",
+            scenario.cargo.routedDistance.nm,
+            "nm",
+            scenario.cargo.routedDistance.graphVersion,
+          ],
+        ] as InputRow[])
+      : []),
     ["Cargo per year", resolved.unitsPerYear, "units/yr", "—"],
     ["Start year", scenario.cargo.startYear, "—", "—"],
     ["Years modelled", scenario.cargo.horizonYears, "yr", "—"],

@@ -367,6 +367,77 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(8);
 });
 
+test("routed distance follows override > derived(routed), adoption-only", async ({ page }) => {
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  const results = page.getByRole("complementary");
+  await expect(results.getByText(GAP)).toBeVisible();
+
+  // The stored typed distance is an override: untouched on load, exact
+  // golden gap — and the routed figure waits beside it as a benchmark.
+  const distance = page.getByLabel("Corridor length, one-way");
+  await expect(distance).toHaveValue("9500");
+  await expect(page.getByText("routed: 9,146 nm")).toBeVisible({ timeout: 20000 });
+  // 9,500 vs 9,146 is a 3.9% divergence — BELOW the 15% threshold: silent.
+  await expect(page.getByText(/Typed distance differs/)).toHaveCount(0);
+
+  // Adoption is an ordinary, user-initiated action: the field flips to the
+  // routed figure and the draft records the value WITH its graph-version
+  // provenance. (In this scenario fuel consumption is overridden, so the
+  // gap itself is insensitive to distance — the point pinned here is that
+  // nothing but the click writes the value.)
+  await page.getByRole("button", { name: "use this" }).click();
+  await expect(distance).toHaveValue("9,146");
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const raw = localStorage.getItem("corridor-draft-v2");
+        if (!raw) return null;
+        const draft = JSON.parse(raw) as {
+          cargo: { oneWayDistanceNm: number; routedDistance?: { graphVersion: string } };
+        };
+        return `${draft.cargo.oneWayDistanceNm}|${draft.cargo.routedDistance?.graphVersion ?? ""}`;
+      }),
+    )
+    .toBe("9146|searoute-ts@2.2.0/marnet-plus-100km");
+  // Typing a value back makes it an override again and clears the adopted
+  // provenance (it no longer describes the typed figure).
+  await distance.fill("9500");
+  await expect(results.getByText(GAP)).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const raw = localStorage.getItem("corridor-draft-v2");
+        if (!raw) return null;
+        const draft = JSON.parse(raw) as {
+          cargo: { oneWayDistanceNm: number; routedDistance?: unknown };
+        };
+        return `${draft.cargo.oneWayDistanceNm}|${draft.cargo.routedDistance === undefined}`;
+      }),
+    )
+    .toBe("9500|true");
+
+  // Divergence notice: reroute to Rotterdam (via Panama, 6,942 nm) while
+  // the typed figure stays 9,500 — a 37% miss, ABOVE the threshold.
+  await page.getByRole("button", { name: "05 Ports" }).click();
+  await page.getByLabel("Port B latitude").fill("51.9");
+  await page.getByLabel("Port B longitude").fill("4.47");
+  await page.getByRole("button", { name: "01 Intro" }).click();
+  await expect(page.getByText(/Typed distance differs/)).toBeVisible({ timeout: 20000 });
+  await expect(page.getByText(/via the Panama Canal/)).toBeVisible();
+  // Non-blocking throughout: the model still shows its result.
+  await expect(results.getByText(GAP)).toBeVisible();
+
+  // Restore Yokohama; the notice clears.
+  await page.getByRole("button", { name: "05 Ports" }).click();
+  await page.getByLabel("Port B latitude").fill("35.45");
+  await page.getByLabel("Port B longitude").fill("139.65");
+  await page.getByRole("button", { name: "01 Intro" }).click();
+  await expect(page.getByText("routed: 9,146 nm")).toBeVisible({ timeout: 20000 });
+  await expect(page.getByText(/Typed distance differs/)).toHaveCount(0);
+  await expect(results.getByText(GAP)).toBeVisible();
+});
+
 test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", async ({ page }) => {
   // Enter once so the app writes its default draft…
   await page.goto("/corridor");
