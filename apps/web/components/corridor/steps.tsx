@@ -695,7 +695,7 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
           unit="°"
           step={0.01}
           help={tc("portCoordsHelp")}
-          value={scenario.cargo.portACoords?.lat ?? 0}
+          value={scenario.cargo.portACoords?.lat ?? null}
           onChange={(v) =>
             update(
               (d) =>
@@ -711,7 +711,7 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
           unit="°"
           step={0.01}
           help={tc("portCoordsHelp")}
-          value={scenario.cargo.portACoords?.lon ?? 0}
+          value={scenario.cargo.portACoords?.lon ?? null}
           onChange={(v) =>
             update(
               (d) =>
@@ -729,7 +729,7 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
               unit="°"
               step={0.01}
               help={tc("portBCoordsHelp")}
-              value={scenario.cargo.portBCoords?.lat ?? 0}
+              value={scenario.cargo.portBCoords?.lat ?? null}
               onChange={(v) =>
                 update(
                   (d) =>
@@ -745,7 +745,7 @@ export function PortStep({ model, viewMode, revealAdvanced }: StepProps) {
               unit="°"
               step={0.01}
               help={tc("portBCoordsHelp")}
-              value={scenario.cargo.portBCoords?.lon ?? 0}
+              value={scenario.cargo.portBCoords?.lon ?? null}
               onChange={(v) =>
                 update(
                   (d) =>

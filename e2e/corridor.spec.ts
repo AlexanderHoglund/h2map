@@ -438,6 +438,34 @@ test("routed distance follows override > derived(routed), adoption-only", async 
   await expect(results.getByText(GAP)).toBeVisible();
 });
 
+test("numeric inputs tolerate clearing, signs and partial input", async ({ page }) => {
+  // Regression: the controlled number inputs used to commit Number("") = 0
+  // the moment a field was cleared — coordinates slammed to 0 and typing a
+  // leading "-" was impossible.
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await page.getByRole("button", { name: "05 Ports" }).click();
+  const lat = page.getByLabel("Port A latitude");
+  await expect(lat).toHaveValue("-23.1");
+  // Clearing leaves the field EMPTY while editing — no snap to 0…
+  await lat.fill("");
+  await expect(lat).toHaveValue("");
+  // …and a signed decimal types cleanly, keystroke by keystroke.
+  await lat.pressSequentially("-33.03");
+  await expect(lat).toHaveValue("-33.03");
+  await lat.blur();
+  await expect(lat).toHaveValue("-33.03");
+  // A dangling partial edit ("-") never commits: blur restores the stored value.
+  await lat.fill("");
+  await lat.pressSequentially("-");
+  await lat.blur();
+  await expect(lat).toHaveValue("-33.03");
+  // Restore the reference coordinate.
+  await lat.fill("-23.1");
+  await lat.blur();
+  await expect(lat).toHaveValue("-23.1");
+});
+
 test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", async ({ page }) => {
   // Enter once so the app writes its default draft…
   await page.goto("/corridor");
