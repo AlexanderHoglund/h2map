@@ -774,6 +774,10 @@ test("projects-first: tabs lock until a project is chosen; create picks the mode
   await expect(
     page.getByRole("banner").getByRole("button", { name: "Standard" }),
   ).toHaveAttribute("aria-pressed", "true");
+  // The project chip pins the open project's name to the header's left side.
+  await expect(
+    page.getByRole("banner").getByRole("button", { name: /Project Gating test corridor/ }),
+  ).toBeVisible();
   await expect(page.getByRole("button", { name: "08 Results" })).toBeEnabled();
   await expect(page.getByRole("complementary").getByText(GAP)).toHaveCount(0);
 

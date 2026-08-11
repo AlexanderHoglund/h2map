@@ -405,6 +405,8 @@
       "saveCurrent": "Save changes",
       "saveDraft": "Save as project",
       "newProject": "New project",
+      "chipLabel": "Project",
+      "chipUnsaved": "(unsaved)",
       "createProject": "Create",
       "newProjectDefaultName": "My corridor",
       "newProjectMode": "Start in",
