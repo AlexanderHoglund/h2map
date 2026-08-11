@@ -48,8 +48,10 @@ test("save → reload via ?s= → rename → delete from the Projects tab", asyn
   const renamedRow = page.locator("table tr", { hasText: renamed });
   await expect(renamedRow).toBeVisible({ timeout: 15_000 });
 
-  // Delete (confirm step included).
+  // Delete (confirm step included) — wait for the confirm affordance so the
+  // second click cannot land on the pre-confirm button.
   await renamedRow.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(renamedRow.getByText("Delete permanently?")).toBeVisible();
   await renamedRow.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(page.locator("table tr", { hasText: renamed })).toHaveCount(0, {
     timeout: 15_000,

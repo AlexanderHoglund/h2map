@@ -212,27 +212,6 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
         />
       ),
     },
-    {
-      id: "flags.rateBasis",
-      hidden: true,
-      overridden:
-        (scenario.flags?.rateBasis ?? "nominal") !==
-        (FLAGS_DEFAULTS?.rateBasis ?? "nominal"),
-      node: (
-        <Select
-          key="rateBasis"
-          label={tr("rateBasis")}
-          value={scenario.flags?.rateBasis ?? "nominal"}
-          options={[
-            { value: "nominal", label: tr("rateNominal") },
-            { value: "real", label: tr("rateReal") },
-          ]}
-          onChange={(v) =>
-            update((d) => void (d.flags = { ...d.flags, rateBasis: v as "nominal" | "real" }))
-          }
-        />
-      ),
-    },
   ]);
 
   return (
@@ -944,6 +923,34 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
           value={scenario.cargo.inflation}
           onChange={(v) => update((d) => void (d.cargo.inflation = v))}
         />
+        {/* Rate basis lives with the cost of money it governs (moved from
+            Intro's model options): nominal discounts inflated costs, real
+            deflates the escalation. Key stays flags.rateBasis. */}
+        {!simple ? (
+          <Select
+            label={t("rateBasis")}
+            value={scenario.flags?.rateBasis ?? "nominal"}
+            options={[
+              { value: "nominal", label: t("rateNominal") },
+              { value: "real", label: t("rateReal") },
+            ]}
+            onChange={(v) =>
+              update(
+                (d) => void (d.flags = { ...d.flags, rateBasis: v as "nominal" | "real" }),
+              )
+            }
+          />
+        ) : (
+          <AdvancedHiddenStrip
+            count={
+              (scenario.flags?.rateBasis ?? "nominal") !==
+              (FLAGS_DEFAULTS?.rateBasis ?? "nominal")
+                ? 1
+                : 0
+            }
+            onReveal={revealStandard}
+          />
+        )}
         {/* Sprint 4 — differentiated green financing: an explicit interest
             saving/premium line, NEVER a per-side discount rate (which
             inverts the benefit in a cost model — see the methodology). */}

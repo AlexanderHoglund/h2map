@@ -854,8 +854,11 @@ export default async function DocsPage() {
           Separated from Regulation into its own tab (sprint 4 amendment):
           everything about the cost of money. The corridor discount rate
           (WACC, with its unverified-benchmark badge — the amber tab dot
-          lives here) and the inflation rate (scenario keys stay{" "}
-          <code>cargo.*</code>), then the two flag-gated sprint-4 modules
+          lives here), the inflation rate (scenario keys stay{" "}
+          <code>cargo.*</code>) and the{" "}
+          <strong>rate basis</strong>{" "}— nominal (inflation escalates
+          costs, the nominal WACC discounts them) or real (deflates the OPEX
+          escalation) — then the two flag-gated sprint-4 modules
           below. Both are off by default and both leave the golden default
           untouched.
         </p>
@@ -1018,11 +1021,7 @@ export default async function DocsPage() {
             new scenarios). Both tonnages are always reported side by side in
             the results (§9).
           </li>
-          <li>
-            <strong>Rate basis</strong>{" "}— nominal (inflation
-            escalates costs, the nominal WACC discounts them) or real
-            (deflates the OPEX escalation).
-          </li>
+
         </ul>
 
         {/* 8 ---------------------------------------------------------- */}

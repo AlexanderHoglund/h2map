@@ -261,7 +261,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   // Intro: the model-option basis selects arrived; WACC left for
   // the Financing tab.
   await expect(page.getByLabel("Emissions basis for CO2 abated")).toBeVisible();
-  await expect(page.getByLabel("Rate basis")).toBeVisible();
+  await expect(page.getByLabel("Rate basis")).toHaveCount(0); // moved to Financing
   await expect(page.getByLabel("Discount rate (WACC)")).toHaveCount(0);
   await expect(page.getByLabel("Annual cargo throughput")).toHaveCount(0);
 
@@ -285,10 +285,11 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await page.getByRole("button", { name: "05 Ports" }).click();
   await expect(page.getByText("Port storage — CAPEX (year 1)").first()).toBeVisible();
 
-  // Financing: WACC (with its unverified badge) + inflation.
+  // Financing: WACC (with its unverified badge) + inflation + rate basis.
   await page.getByRole("button", { name: "06 Financing" }).click();
   await expect(page.getByLabel("Discount rate (WACC)")).toBeVisible();
   await expect(page.getByLabel("Inflation rate")).toBeVisible();
+  await expect(page.getByLabel("Rate basis")).toBeVisible();
   await expect(page.getByText("unverified benchmark")).toBeVisible();
   await expect(results.getByText(GAP)).toBeVisible();
 
@@ -795,6 +796,9 @@ test("projects-first: tabs lock until a project is chosen; create picks the mode
   await page.getByRole("button", { name: "00 Projects" }).click();
   const created = page.getByRole("row", { name: /Gating test corridor/ }).first();
   await created.getByRole("button", { name: "Delete", exact: true }).click();
+  // Wait for the confirm step to render — a second click that lands before
+  // the re-render hits the ORIGINAL button and never confirms (flake).
+  await expect(created.getByText("Delete permanently?")).toBeVisible();
   await created.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(page.getByRole("row", { name: /Gating test corridor/ })).toHaveCount(0, {
     timeout: 15000,
