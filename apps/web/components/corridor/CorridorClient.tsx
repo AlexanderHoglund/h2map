@@ -250,30 +250,6 @@ export default function CorridorClient() {
           </span>
         </Link>
 
-        {/* The project being edited — pinned to the LEFT on every tab so it
-            is always clear whose numbers the workspace shows. Clicking it
-            returns to the Projects tab. */}
-        {entered && chosen && (
-          <button
-            type="button"
-            onClick={() => goTo("projects")}
-            title={projects.name}
-            className="flex w-44 shrink-0 flex-col items-start justify-center gap-0.5 border-r border-neutral-300 bg-brand-tint/40 px-3 py-2 text-left transition-colors hover:bg-brand-tint"
-          >
-            <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-600">
-              {t("projects.chipLabel")}
-              {!projects.currentId && (
-                <span className="ml-1 normal-case tracking-normal text-amber-800">
-                  {t("projects.chipUnsaved")}
-                </span>
-              )}
-            </span>
-            <span className="w-full truncate whitespace-nowrap text-sm font-medium text-brand-deep">
-              {projects.name}
-            </span>
-          </button>
-        )}
-
         <nav
           aria-label={t("title")}
           className="flex min-w-0 flex-1 items-stretch overflow-x-auto"

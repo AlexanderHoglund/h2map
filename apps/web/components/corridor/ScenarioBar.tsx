@@ -54,6 +54,11 @@ export default function ScenarioBar({
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs">
+      {/* The project identity leads the bar on every working tab — compact,
+          no navbar real estate. */}
+      <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+        {t("projectEyebrow")}
+      </span>
       <input
         value={projects.name}
         onChange={(e) => projects.setName(e.target.value)}
