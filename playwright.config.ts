@@ -39,5 +39,8 @@ export default defineConfig({
     url: "http://127.0.0.1:3100",
     reuseExistingServer: false,
     timeout: 120_000,
+    // All workers share one IP — widen the per-IP buckets so parallel spec
+    // files don't turn into intermittent 429s (production is untouched).
+    env: { ...process.env, RATE_LIMIT_SCALE: "10" },
   },
 });
