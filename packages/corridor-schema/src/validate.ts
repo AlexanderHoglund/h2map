@@ -184,6 +184,9 @@ export const scenarioInputSchema = z.object({
     selfDesigned: z.object({
       enabled: z.boolean(),
       co2PriceUsdPerTonne: z.number().finite(),
+      // Was typed but MISSING here — the round-trip completeness test
+      // caught the strip (same class as the imoNetZero gap below).
+      co2PriceEscalation: z.number().gt(-1).lt(1).optional(),
       supportUsdPerKg: z.number().finite(),
       capexSupport: z.number().min(0).max(1),
       opexSupport: z.number().min(0).max(1),
