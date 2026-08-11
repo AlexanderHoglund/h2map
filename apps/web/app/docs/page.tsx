@@ -349,11 +349,27 @@ export default async function DocsPage() {
           with a contact screen, your saved scenarios are kept, and an
           extension restores everything exactly as it was.
         </p>
+        <p className="mt-2">
+          <strong>Projects first.</strong>{" "}The platform always opens on the
+          Projects tab; the input tabs unlock once a project is selected or
+          created. Every account starts with two projects, created once and
+          never re-created: the{" "}
+          <em>Chilean copper corridor example</em>{" "}(the published reference
+          case, opening in Standard) and{" "}
+          <em>My first corridor</em>{" "}(a blank starter — generic route,
+          benchmark costs, every scheme off — opening in Simplified).
+          Creating a new project asks for a name and whether it starts in
+          Simplified or Standard; the choice is stored on the project and any
+          project can switch between the two at any time from the header —
+          the mode is remembered per project, across devices.
+        </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Draft autosave</strong>{" "}— every change is saved locally in
-            your browser; returning to the app offers to resume the draft.
-            Drafts are per-browser and work independently of account saves.
+            your browser as the working copy of the current project;
+            returning to the app offers to continue it from the Projects
+            tab. Opening another project replaces the working copy — the app
+            asks before discarding unsaved changes.
           </li>
           <li>
             <strong>Save / Duplicate</strong>{" "}— the scenario bar stores the

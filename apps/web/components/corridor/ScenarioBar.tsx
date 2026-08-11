@@ -94,7 +94,7 @@ export default function ScenarioBar({
         {t("reset")}
       </Button>
       <span className="flex-1" />
-      {projects.notice && <span className="text-emerald-600">{projects.notice}</span>}
+      {projects.notice && <span className="text-emerald-800">{projects.notice}</span>}
       <span className="text-neutral-500">{t("draftNote")}</span>
     </div>
   );

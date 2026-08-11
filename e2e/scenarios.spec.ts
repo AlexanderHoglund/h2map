@@ -9,6 +9,8 @@ import { expect, test } from "@playwright/test";
 test("save → reload via ?s= → rename → delete from the Projects tab", async ({ page }) => {
   await page.goto("/corridor");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  // Projects-first: continue the local draft to reach the input tabs.
+  await page.getByRole("button", { name: "Continue editing" }).click();
 
   // Name + save the project from the scenario bar.
   const name = `e2e round-trip ${Date.now().toString(36)}`;
@@ -22,6 +24,8 @@ test("save → reload via ?s= → rename → delete from the Projects tab", asyn
   await page.goto(url);
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
   await expect(page.getByText("Loaded", { exact: true })).toBeVisible({ timeout: 15_000 });
+  // The deep link chose the project — the walk is unlocked; go to the form.
+  await page.getByRole("button", { name: "01 Intro" }).click();
   await expect(page.getByLabel("Scenario name")).toHaveValue(name);
 
   // Tab 00 lists it, marked as the project being edited.
@@ -31,8 +35,12 @@ test("save → reload via ?s= → rename → delete from the Projects tab", asyn
   await expect(row.getByText("(editing)")).toBeVisible();
 
   // Rename in place. Edit mode swaps the name text for an input, so the
-  // hasText locator would stop matching — pin the row by position first.
-  const editRow = page.locator("table tbody tr").first();
+  // hasText locator would stop matching — pin the editing row by its input
+  // (positional locators broke when the seeded starters joined the list).
+  const editRow = page
+    .locator("table tbody tr")
+    .filter({ has: page.locator("input") })
+    .first();
   const renamed = `${name} renamed`;
   await row.getByRole("button", { name: "Rename" }).click();
   await editRow.locator("input").fill(renamed);

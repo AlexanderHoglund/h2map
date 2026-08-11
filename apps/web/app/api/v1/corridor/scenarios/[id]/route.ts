@@ -13,7 +13,8 @@ import type { TablesUpdate } from "@/lib/supabase/database.types";
  * simply matches no row, so cross-owner reads 404 rather than 403-leak).
  *
  * GET /api/v1/corridor/scenarios/:id
- * PUT /api/v1/corridor/scenarios/:id  { name?, payload?, share? }
+ * PUT /api/v1/corridor/scenarios/:id  { name?, payload?, share?, view_mode? }
+ *   - view_mode alone is a cheap mode flip: no results recompute.
  *   - payload: re-validated server-side; results + version pins recomputed.
  *   - share: true generates an unguessable token (once); false revokes it.
  */
@@ -70,7 +71,7 @@ export async function PUT(
   }
 
 
-  let body: { name?: unknown; payload?: unknown; share?: unknown };
+  let body: { name?: unknown; payload?: unknown; share?: unknown; view_mode?: unknown };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -95,6 +96,13 @@ export async function PUT(
       patch.engine_version = CORRIDOR_ENGINE_VERSION;
       patch.ref_bundle_version = payload.refBundleId;
     }
+    if (body.view_mode !== undefined) {
+      if (body.view_mode !== "simplified" && body.view_mode !== "standard") {
+        return jsonError(400, "invalid_view_mode", "view_mode must be simplified|standard");
+      }
+      // Cast: generated types predate the 20260811 migration (view_mode).
+      (patch as Record<string, unknown>).view_mode = body.view_mode;
+    }
     if (body.share === true) {
       // 24 random bytes, base64url — unguessable; share links carry ONLY this.
       const bytes = new Uint8Array(24);
@@ -114,13 +122,33 @@ export async function PUT(
     return jsonError(400, "empty_patch", "Nothing to update");
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("scenarios")
     .update(patch)
     .eq("id", id)
     .eq("kind", "corridor")
     .select()
     .maybeSingle();
+  if (error && /view_mode/.test(error.message)) {
+    // Migration 20260811 not applied — drop the mode flip, keep the rest.
+    delete (patch as Record<string, unknown>).view_mode;
+    if (Object.keys(patch).length === 0) {
+      ({ data, error } = await supabase
+        .from("scenarios")
+        .select()
+        .eq("id", id)
+        .eq("kind", "corridor")
+        .maybeSingle());
+    } else {
+      ({ data, error } = await supabase
+        .from("scenarios")
+        .update(patch)
+        .eq("id", id)
+        .eq("kind", "corridor")
+        .select()
+        .maybeSingle());
+    }
+  }
   if (error) {
     console.error("[api/corridor/scenarios/:id PUT]", error);
     return jsonError(500, "db_error", "Could not update the scenario");

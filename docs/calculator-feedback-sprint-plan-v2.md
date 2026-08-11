@@ -59,3 +59,14 @@ hidden-settings strip (the regulation-tab pattern, now on every tab).
 Departure counting completed everywhere (fuel properties, fossil side,
 barge pair, model options, all scheme parameters, financing baseRate/tenor).
 Output-neutrality invariant unchanged and still e2e-proven.
+
+## Projects-first entry (2026-08-11)
+
+The platform lands on the Projects tab until a project is selected or
+created; input tabs render disabled until then. New-project creation asks
+name + starting view (Simplified/Standard); the mode is stored per project
+(scenarios.view_mode, migration 20260811000001) and the header toggle
+persists flips to the open project. Every user is seeded ONCE (ever) with
+the Chilean example (Standard) + an empty Simplified starter
+(profiles.projects_seeded_at, race-safe seed route). Unsaved-changes
+confirm before switching projects; Open lands on Intro (was Cargo).

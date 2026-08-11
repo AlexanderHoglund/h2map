@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { CORRIDOR_ENGINE_VERSION } from "@h2map/corridor-engine";
 import { Button } from "@/components/ui/Button";
-import type { ProjectsApi, ProjectRow } from "./useProjects";
+import type { ProjectsApi, ProjectRow, ProjectViewMode } from "./useProjects";
 
 /**
  * Tab 00 — Projects: the home of saved work. Everything scenario management
@@ -20,13 +20,21 @@ export default function ProjectsPanel({
   onOpen,
 }: {
   projects: ProjectsApi;
-  /** Called after a project loads (the workspace jumps to the first step). */
+  /** Called after a project loads (the workspace jumps to the Intro step). */
   onOpen: () => void;
 }) {
   const t = useTranslations("corridor.projects");
+  const tv = useTranslations("corridor.viewMode");
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newMode, setNewMode] = useState<ProjectViewMode>("simplified");
+
+  /** One draft slot: switching projects overwrites it. Ask first. */
+  const confirmDiscard = () =>
+    !projects.isDirty() || window.confirm(t("discardConfirm", { name: projects.name }));
 
   const fmtDate = (iso: string) =>
     new Date(iso).toLocaleString("en-GB", {
@@ -41,8 +49,22 @@ export default function ProjectsPanel({
     p.engine_version !== null && p.engine_version !== CORRIDOR_ENGINE_VERSION;
 
   const openProject = async (id: string) => {
+    if (!confirmDiscard()) return;
     await projects.load(id);
     onOpen();
+  };
+
+  const create = async () => {
+    if (!confirmDiscard()) return;
+    const ok = await projects.createProject({
+      name: newName.trim() || t("newProjectDefaultName"),
+      viewMode: newMode,
+    });
+    if (ok) {
+      setCreating(false);
+      setNewName("");
+      onOpen();
+    }
   };
 
   return (
@@ -61,11 +83,71 @@ export default function ProjectsPanel({
           >
             {projects.currentId ? t("saveCurrent") : t("saveDraft")}
           </Button>
-          <Button size="md" disabled={projects.busy} onClick={projects.startNew}>
+          <Button
+            size="md"
+            disabled={projects.busy || !projects.session}
+            onClick={() => setCreating((v) => !v)}
+          >
             {t("newProject")}
           </Button>
         </div>
       </div>
+
+      {/* New project: name + the view the project starts in (it can switch
+          between Simplified and Standard at any time from the header). */}
+      {creating && (
+        <div className="mb-4 border border-brand/40 bg-brand-tint/30 p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-600">
+            {t("newProject")}
+          </p>
+          <div className="mt-2 flex flex-wrap items-end gap-3">
+            <label className="flex flex-col gap-1 text-xs font-medium text-neutral-700">
+              {t("nameLabel")}
+              <input
+                value={newName}
+                autoFocus
+                placeholder={t("newProjectDefaultName")}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") void create();
+                  if (e.key === "Escape") setCreating(false);
+                }}
+                className="min-w-64 border border-neutral-300 bg-white px-2.5 py-1.5 text-sm font-normal outline-none focus:border-brand focus:ring-2 focus:ring-brand/40"
+              />
+            </label>
+            <fieldset className="flex items-center gap-3">
+              <legend className="mb-1 text-xs font-medium text-neutral-700">
+                {t("newProjectMode")}
+              </legend>
+              {(["simplified", "standard"] as const).map((m) => (
+                <label key={m} className="flex items-center gap-1.5 text-xs">
+                  <input
+                    type="radio"
+                    name="new-project-mode"
+                    checked={newMode === m}
+                    onChange={() => setNewMode(m)}
+                  />
+                  {tv(m)}
+                </label>
+              ))}
+            </fieldset>
+            <Button
+              variant="primary"
+              size="md"
+              disabled={projects.busy}
+              onClick={() => void create()}
+            >
+              {t("createProject")}
+            </Button>
+            <Button size="md" onClick={() => setCreating(false)}>
+              {t("cancel")}
+            </Button>
+          </div>
+          <p className="mt-2 text-[11px] leading-snug text-neutral-600">
+            {t("newProjectNote")}
+          </p>
+        </div>
+      )}
 
       {/* The project the input tabs are editing right now */}
       <div className="mb-4 border border-neutral-300 bg-white p-3">
@@ -95,6 +177,11 @@ export default function ProjectsPanel({
         <p className="mt-1.5 text-[11px] leading-snug text-neutral-500">
           {projects.currentId ? t("currentSavedNote") : t("currentDraftNote")}
         </p>
+        <div className="mt-2">
+          <Button variant="primary" size="md" onClick={onOpen}>
+            {t("continueEditing")} →
+          </Button>
+        </div>
       </div>
 
       {projects.notice && (
@@ -174,6 +261,11 @@ export default function ProjectsPanel({
                       ) : (
                         <span>
                           <span className="font-medium text-neutral-900">{p.name}</span>
+                          {p.view_mode && (
+                            <span className="ml-1.5 bg-neutral-500/10 px-1 py-px text-[10px] font-medium uppercase tracking-wide text-neutral-600">
+                              {tv(p.view_mode)}
+                            </span>
+                          )}
                           {isCurrent && (
                             <span className="ml-1.5 text-[10px] font-medium text-brand-deep">
                               {t("currentBadge")}

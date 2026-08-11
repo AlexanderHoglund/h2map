@@ -23,8 +23,16 @@ import {
 import { ENGINE_VERSION as LCOH_ENGINE_VERSION } from "@h2map/lcoh-engine";
 import type { ScenarioResult } from "@h2map/corridor-schema";
 import bundleJson from "../../../../data/corridor-ref/2026-07-30-excel-v1.json";
-import fixtureDefaults from "../../../../fixtures/golden/corridor/excel-baseline.input.json";
 import uiManifest from "../../../../data/corridor-sensitivity/ui-manifest.json";
+import {
+  clearOverrides,
+  defaultScenario,
+  emptyScenario,
+  workbookScenario,
+} from "@/lib/corridor/scenarioDefaults";
+
+// Re-exported so existing consumers keep importing from "./state".
+export { defaultScenario, emptyScenario, workbookScenario };
 
 /**
  * Corridor model state. The engine is pure and fast (a 20-year scenario is
@@ -41,152 +49,6 @@ export const DEFAULT_BUNDLE: RefBundle = parseRefBundle(bundleJson);
 const ADVANCED = new Set<string>((uiManifest as { advanced: string[] }).advanced);
 export function isAdvanced(paramId: string): boolean {
   return ADVANCED.has(paramId);
-}
-
-/** The workbook-default scenario (the frozen golden fixture, migrated). */
-export function workbookScenario(): ScenarioInput {
-  return migrateScenarioInput(JSON.parse(JSON.stringify(fixtureDefaults))).input;
-}
-
-/**
- * APP DEFAULT: the Chilean copper-concentrate green corridor — populated
- * from "Chilean Green Corridors — Copper Concentrate Export" (MMMCZCS,
- * 11 Sep 2025; consortium: Sumitomo, Interacid, NYK, Codelco, MMMCZCS).
- * Mejillones → Japan/South Korea, 25 Mt concentrate over 15 years, 10
- * ammonia dual-fuel Handymax bulkers, 60 kt/yr green ammonia from 2030.
- *
- * Provenance per field: stated [S], derived [D], fitted to the study's
- * published totals [F], or assumption [A] — see the documentation's
- * default-scenario section. Key modelling choices:
- * - vessel-benchmark consumption with per-side tonnage overrides (the
- *   study's tonnages; distance-derived GJ/nm would encode an unstated
- *   slow-steaming assumption)
- * - green merchant price OVERRIDDEN TO 0: the study costs the plant as
- *   CAPEX/OPEX with no merchant fuel price (the corrected construct
- *   accounting — no workbook double count)
- * - EU ETS / FuelEU / 45Z all OFF (no EEA leg; Chilean production);
- *   self-designed regulation proxies the IMO Net-Zero Framework at
- *   $280/tCO2 (study's $250m regulatory benefit, TTW-priced here)
- * - emissions basis well-to-wake (the study's implied treatment: green
- *   NH3 at 0, LSFO at 91.16 gCO2e/MJ reproduces its 1.45 Mt exactly)
- *
- * The workbook-default scenario remains available via workbookScenario()
- * and the frozen golden fixture keeps pinning the engine.
- */
-export function defaultScenario(): ScenarioInput {
-  const input = workbookScenario();
-
-  input.cargo = {
-    ...input.cargo,
-    countryId: "chile", // [S]
-    countryBId: "japan", // [S]
-    portAName: "Mejillones",
-    portACoords: { lat: -23.1, lon: -70.45 }, // [S]
-    portBName: "Japan (Asia)", // [S] study does not name the discharge port
-    portBCoords: { lat: 35.45, lon: 139.65 }, // [D] Yokohama proxy (Pub. 151)
-    routeType: "point-to-point", // [S]
-    oneWayDistanceNm: 9500, // [D] great-circle 9,072 nm + 5% routing
-    startYear: 2030, // [S]
-    horizonYears: 15, // [S]
-    unit: "tonne", // [S]
-    unitWeightTonnes: 1,
-    unitsPerYear: 1_650_000, // [S] 1.65 Mt/yr × 15 ≈ 25 Mt
-    vessels: 10, // [S]
-    roundtripsPerYear: 3, // [S] 165 kt/vessel/yr ÷ 55 kt/voyage
-    inflation: 0.02, // [A]
-    waccOverride: 0.08, // [F] base rate implied by the financing benefit
-  };
-
-  input.vessel = {
-    typeId: "handymax-bulk-58k", // [S]
-    consumptionMode: "vessel-benchmark", // tonnages entered directly (§6)
-    // FLEET totals — the workbook's vessel capex/opex cells are per-fleet
-    // (the vessel count multiplies fuel & regulation only): 10 × $44m,
-    // 10 × $3.2m/yr ([F], ~25% NH3 dual-fuel premium on a $35m Handymax).
-    green: { capexUsdM: 440, opexUsdMPerYear: 32 },
-    // [F] NOT zero — the study costs a fossil NEWBUILD fleet, unlike the
-    // workbook's retrofit-an-existing-fleet default. 10 × $35m, 10 × $2.8m.
-    fossil: { capexUsdM: 350, opexUsdMPerYear: 28 },
-  };
-
-  input.green = {
-    ...input.green,
-    fuelId: "e-ammonia", // [S]
-    // v3: build-plant — production CAPEX + OPEX, no merchant price (the
-    // mode the study actually uses; no price-0 workaround needed).
-    sourcing: "build-plant", // [S] purpose-built plant
-    overrides: {
-      ...input.green.overrides,
-      priceUsdPerTonne: null,
-      fuelTonnesPerVesselYear: 5700, // [D] 57,015 t/yr fleet ÷ 10 (pins 1.45 Mt)
-      lhvMjPerTonne: 18600,
-      combustionEfTco2PerTonne: 0, // [S]
-      wtwGco2PerMj: 0, // [D] the study's implied treatment (real RFNBO: 5–15)
-      prodCapexUsdM: 1100, // [F] 60 kt/yr plant, no economies of scale
-      prodOpexUsdMPerYear: 72, // [F] incl. PPA electricity for 24/7 Haber-Bosch
-      portStorageCapexUsdM: 150, // [F] tanks, refrigeration, pumping, jetty
-      portStorageOpexUsdMPerYear: 8, // [F]
-      bargeCapexUsdM: 0, // [S] jetty-side bunkering at 500 t/h — no barge
-      bargeOpexUsdMPerYear: 0, // [S]
-    },
-  };
-
-  input.fossil = {
-    ...input.fossil,
-    fuelId: "lsfo", // [S]
-    sourcing: "purchase",
-    overrides: {
-      ...input.fossil.overrides,
-      priceUsdPerTonne: 650, // [F]
-      fuelTonnesPerVesselYear: 2638, // [D] energy-matched to the NH3 fleet
-      lhvMjPerTonne: 40200,
-      combustionEfTco2PerTonne: 3.114, // [A]
-      wtwGco2PerMj: 91.16, // [D] reproduces the study's 1.45 Mt exactly
-      prodCapexUsdM: null, // purchase forces 0
-      prodOpexUsdMPerYear: null,
-      portStorageCapexUsdM: 10, // [F] existing bunkering infrastructure
-      portStorageOpexUsdMPerYear: 1, // [F]
-      bargeCapexUsdM: 0,
-      bargeOpexUsdMPerYear: 0,
-    },
-  };
-
-  // Chile → Japan touches no EEA port: ETS, FuelEU and 45Z are all inert.
-  // Self-designed proxies the IMO Net-Zero Framework (the one scheme that
-  // WOULD apply; a first-class module is the known regulatory gap).
-  input.regulation.ets.enabled = false;
-  input.regulation.fuelEu.enabled = false;
-  input.regulation.ira45z.enabled = false;
-  input.regulation.ira45z.usProduced = false;
-  input.regulation.selfDesigned = {
-    ...input.regulation.selfDesigned,
-    enabled: true,
-    co2PriceUsdPerTonne: 280, // [F] calibrated to the study's ~$250m benefit
-    supportUsdPerKg: 0,
-    capexSupport: 0,
-    opexSupport: 0,
-    otherUsdM: 0,
-  };
-
-  // WTW is required to reproduce the study (§6 of its write-up): combustion
-  // basis lands 15% low. The engine's flag-absent default stays combustion
-  // (= Excel), which keeps the frozen golden fixture exact.
-  input.flags = { emissionsBasis: "wellToWake", rateBasis: "nominal" };
-  return input;
-}
-
-/** Null every override so the resolution yields pure benchmark values. */
-function clearOverrides(s: ScenarioInput): ScenarioInput {
-  const c = JSON.parse(JSON.stringify(s)) as ScenarioInput;
-  c.cargo.waccOverride = null;
-  c.vessel.green = { capexUsdM: null, opexUsdMPerYear: null };
-  c.vessel.fossil = { capexUsdM: null, opexUsdMPerYear: null };
-  for (const side of [c.green, c.fossil]) {
-    for (const k of Object.keys(side.overrides) as (keyof typeof side.overrides)[]) {
-      side.overrides[k] = null;
-    }
-  }
-  return c;
 }
 
 // v2: the default scenario changed to the Chilean copper corridor — old

@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Session } from "@supabase/supabase-js";
 import { migrateScenarioInput } from "@h2map/corridor-schema";
 import { CORRIDOR_ENGINE_VERSION } from "@h2map/corridor-engine";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
+import { defaultScenario, emptyScenario } from "@/lib/corridor/scenarioDefaults";
 import type { CorridorModel } from "./state";
 
 /**
@@ -18,6 +19,8 @@ import type { CorridorModel } from "./state";
  * autosaving underneath, so an unsaved draft is never lost by navigating.
  */
 
+export type ProjectViewMode = "simplified" | "standard";
+
 export interface ProjectRow {
   id: string;
   name: string;
@@ -26,6 +29,8 @@ export interface ProjectRow {
   updated_at: string;
   engine_version: string | null;
   ref_bundle_version: string | null;
+  /** Per-project Simplified/Standard state; null = legacy row (browser pref). */
+  view_mode?: ProjectViewMode | null;
 }
 
 export interface ProjectsApi {
@@ -48,12 +53,36 @@ export interface ProjectsApi {
   revoke: (id: string) => Promise<void>;
   /** Clear the workspace to the reference defaults as a NEW unsaved project. */
   startNew: () => void;
+  /** Create a real project row (empty starter payload) with a chosen mode. */
+  createProject: (opts: { name: string; viewMode: ProjectViewMode }) => Promise<boolean>;
+  /** Persist a mode flip on the current project (fire-and-forget). */
+  setProjectViewMode: (mode: ProjectViewMode) => void;
+  /** Unsaved work in the draft slot (vs the loaded row / the app default). */
+  isDirty: () => boolean;
+}
+
+export interface UseProjectsOptions {
+  /** Current view mode, for stamping new/duplicated rows. */
+  getViewMode?: () => ProjectViewMode;
+  /** Apply a loaded project's stored mode (null = keep the browser pref). */
+  onViewMode?: (mode: ProjectViewMode | null) => void;
 }
 
 export const DEFAULT_PROJECT_NAME = "Mejillones–Japan copper corridor";
 
-export function useProjects(model: CorridorModel): ProjectsApi {
+/** Canonical JSON for dirty-comparison: migration-normalized key order. */
+function normalizeScenarioJson(scenario: unknown): string {
+  return JSON.stringify(
+    migrateScenarioInput(JSON.parse(JSON.stringify(scenario))).input,
+  );
+}
+
+export function useProjects(
+  model: CorridorModel,
+  opts: UseProjectsOptions = {},
+): ProjectsApi {
   const t = useTranslations("corridor.scenarioBar");
+  const { getViewMode, onViewMode } = opts;
   const supabase = useMemo(() => getBrowserSupabase(), []);
   const [session, setSession] = useState<Session | null>(null);
   const [list, setList] = useState<ProjectRow[]>([]);
@@ -62,6 +91,14 @@ export function useProjects(model: CorridorModel): ProjectsApi {
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [name, setName] = useState(DEFAULT_PROJECT_NAME);
   const [notice, setNotice] = useState<string | null>(null);
+  // The last saved/loaded scenario JSON — the app default until a project is
+  // opened. isDirty compares the live draft against it, so the unsaved-
+  // changes guard also catches a draft carried over from a previous session.
+  // BOTH sides are normalized through the migration registry: the model
+  // normalizes on load but not on fresh init, and zod re-orders keys — a
+  // raw-vs-normalized comparison would read as spuriously dirty.
+  const savedSnapshotRef = useRef<string>(normalizeScenarioJson(defaultScenario()));
+  const seedRequestedRef = useRef(false);
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -98,6 +135,14 @@ export function useProjects(model: CorridorModel): ProjectsApi {
 
   const refresh = useCallback(async () => {
     if (!session) return;
+    // Starter seeding: once per user, EVER (server-enforced; cheap 204 after
+    // the first time). Requested once per page load, before the first list.
+    if (!seedRequestedRef.current) {
+      seedRequestedRef.current = true;
+      await authedFetch("/api/v1/corridor/scenarios/seed", { method: "POST" }).catch(
+        () => {},
+      );
+    }
     const res = await authedFetch("/api/v1/corridor/scenarios");
     if (res.ok) {
       const body = (await res.json()) as { scenarios: ProjectRow[] };
@@ -127,12 +172,14 @@ export function useProjects(model: CorridorModel): ProjectsApi {
             body: JSON.stringify({
               name: duplicate ? `${name} (copy)` : name,
               payload: model.scenario,
+              ...(getViewMode ? { view_mode: getViewMode() } : {}),
             }),
           },
         );
         if (guardExpired(res)) return;
         if (!res.ok) throw new Error((await res.text()).slice(0, 200));
         const row = (await res.json()) as { id: string; name: string };
+        savedSnapshotRef.current = normalizeScenarioJson(model.scenario);
         setCurrentId(row.id);
         if (duplicate) setName(row.name);
         window.history.replaceState(null, "", `/corridor?s=${row.id}`);
@@ -159,9 +206,12 @@ export function useProjects(model: CorridorModel): ProjectsApi {
           name: string;
           inputs: unknown;
           engine_version: string | null;
+          view_mode?: ProjectViewMode | null;
         };
         const migrated = migrateScenarioInput(row.inputs);
         model.load(migrated.input);
+        savedSnapshotRef.current = normalizeScenarioJson(migrated.input);
+        onViewMode?.(row.view_mode ?? null);
         setCurrentId(row.id);
         setName(row.name);
         window.history.replaceState(null, "", `/corridor?s=${row.id}`);
@@ -183,7 +233,7 @@ export function useProjects(model: CorridorModel): ProjectsApi {
         setBusy(false);
       }
     },
-    [authedFetch, flash, model, t],
+    [authedFetch, flash, model, onViewMode, t],
   );
 
   // The URL carries the project id: auto-load ?s= once the session is known.
@@ -283,11 +333,63 @@ export function useProjects(model: CorridorModel): ProjectsApi {
 
   const startNew = useCallback(() => {
     model.reset();
+    savedSnapshotRef.current = normalizeScenarioJson(defaultScenario());
     setCurrentId(null);
     setName(DEFAULT_PROJECT_NAME);
     window.history.replaceState(null, "", "/corridor");
     flash(t("newStarted"));
   }, [flash, model, t]);
+
+  const createProject = useCallback(
+    async ({ name: newName, viewMode }: { name: string; viewMode: ProjectViewMode }) => {
+      if (!session) return false;
+      setBusy(true);
+      try {
+        const payload = emptyScenario();
+        const res = await authedFetch("/api/v1/corridor/scenarios", {
+          method: "POST",
+          body: JSON.stringify({ name: newName, payload, view_mode: viewMode }),
+        });
+        if (guardExpired(res)) return false;
+        if (!res.ok) throw new Error((await res.text()).slice(0, 200));
+        const row = (await res.json()) as { id: string; name: string };
+        model.load(payload);
+        savedSnapshotRef.current = normalizeScenarioJson(payload);
+        // The new project opens in the mode chosen at creation.
+        onViewMode?.(viewMode);
+        setCurrentId(row.id);
+        setName(row.name);
+        window.history.replaceState(null, "", `/corridor?s=${row.id}`);
+        await refresh();
+        flash(t("saved"));
+        return true;
+      } catch (err) {
+        flash(`${t("saveFailed")}: ${String(err).slice(0, 120)}`);
+        return false;
+      } finally {
+        setBusy(false);
+      }
+    },
+    [authedFetch, flash, model, onViewMode, refresh, session, t],
+  );
+
+  const setProjectViewMode = useCallback(
+    (mode: ProjectViewMode) => {
+      if (!currentId || !session) return;
+      // Fire-and-forget: a mode flip is a cheap column write (no results
+      // recompute server-side); failures only cost mode persistence.
+      void authedFetch(`/api/v1/corridor/scenarios/${currentId}`, {
+        method: "PUT",
+        body: JSON.stringify({ view_mode: mode }),
+      }).catch(() => {});
+    },
+    [authedFetch, currentId, session],
+  );
+
+  const isDirty = useCallback(
+    () => normalizeScenarioJson(model.scenario) !== savedSnapshotRef.current,
+    [model.scenario],
+  );
 
   return {
     session,
@@ -307,5 +409,8 @@ export function useProjects(model: CorridorModel): ProjectsApi {
     share,
     revoke,
     startNew,
+    createProject,
+    setProjectViewMode,
+    isDirty,
   };
 }

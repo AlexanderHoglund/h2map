@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -110,12 +110,14 @@ export default function CorridorClient() {
   const t = useTranslations("corridor");
   const tc = useTranslations();
   const model = useCorridorModel();
-  const projects = useProjects(model);
   const [entered, setEntered] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [legacyDismissed, setLegacyDismissed] = useState(false);
-  const [view, setView] = useState<View>("intro");
+  // Projects-first: the platform lands on tab 00 until a project is
+  // selected or created (the input tabs stay disabled until then).
+  const [view, setView] = useState<View>("projects");
+  const [projectChosen, setProjectChosen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     // Simplified is the default; stored preferences (including the legacy
     // "simple"/"advanced" values) are honored.
@@ -128,13 +130,33 @@ export default function CorridorClient() {
       return "simplified";
     }
   });
-  const pickViewMode = (m: ViewMode) => {
+  const viewModeRef = useRef(viewMode);
+  useEffect(() => {
+    viewModeRef.current = viewMode;
+  }, [viewMode]);
+  /** Apply a mode locally (state + browser pref) — no server write. */
+  const applyViewMode = useCallback((m: ViewMode) => {
     setViewMode(m);
     try {
       localStorage.setItem(VIEWMODE_KEY, m);
     } catch {
       /* best-effort preference */
     }
+  }, []);
+  const projects = useProjects(model, {
+    getViewMode: useCallback(() => viewModeRef.current, []),
+    // A loaded project reopens in whatever mode it was last in.
+    onViewMode: useCallback(
+      (m: ViewMode | null) => {
+        if (m) applyViewMode(m);
+      },
+      [applyViewMode],
+    ),
+  });
+  /** The header toggle IS the project's mode: apply + persist to the row. */
+  const pickViewMode = (m: ViewMode) => {
+    applyViewMode(m);
+    projects.setProjectViewMode(m);
   };
   // Step position for Back/Next + the visited shading. Projects (tab 00) is
   // not part of the walk: it reports -1.
@@ -145,7 +167,13 @@ export default function CorridorClient() {
         ? -1
         : STEPS.indexOf(view);
 
+  // A project is "chosen" once any saved row is open (load / create / save /
+  // the ?s= deep link) or the user explicitly continues the local draft.
+  const chosen = projectChosen || projects.currentId !== null;
+
   const goTo = (key: View) => {
+    // The input tabs unlock only once a project is selected or created.
+    if (!chosen && key !== "projects") return;
     setEntered(true);
     setView(key);
   };
@@ -229,15 +257,20 @@ export default function CorridorClient() {
           {tabs.map(({ key, label }, i) => {
             const active = entered && key === view;
             const visited = entered && i <= stepIndex + 1;
+            const locked = !chosen && key !== "projects";
             return (
               <button
                 key={key}
                 type="button"
                 onClick={() => goTo(key)}
+                disabled={locked}
+                aria-disabled={locked || undefined}
                 aria-current={active ? "step" : undefined}
                 style={{ "--tone": TONES[key] } as React.CSSProperties}
                 className={`flex w-40 shrink-0 flex-col items-start justify-center gap-0.5 border-r border-neutral-300 px-4 py-2 text-left transition-colors ${
-                  active
+                  locked
+                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400"
+                    : active
                     ? "bg-[rgb(var(--tone)/0.12)] text-neutral-900 shadow-[inset_0_-2px_0_0_rgb(var(--tone))]"
                     : visited
                       ? "bg-[rgb(var(--tone)/0.06)] text-neutral-900 hover:bg-[rgb(var(--tone)/0.11)]"
@@ -250,7 +283,7 @@ export default function CorridorClient() {
                   </span>
                   {/* Completion dot: validation-derived, never visit-derived.
                       Shape + colour together — ✓/▲/✕ read without colour. */}
-                  {entered && (
+                  {entered && !locked && (
                     <span
                       role="img"
                       aria-label={`${label}: ${t(`tabStatus.${statuses[key].state}`)}`}
@@ -406,7 +439,13 @@ export default function CorridorClient() {
               </p>
               <button
                 type="button"
-                onClick={() => setEntered(true)}
+                onClick={() => {
+                  setEntered(true);
+                  // A ?s= deep link has already chosen the project — go
+                  // straight to the form; otherwise the walk starts at
+                  // Projects (select or create first).
+                  setView(chosen ? "intro" : "projects");
+                }}
                 className="mt-8 inline-flex items-center gap-2 bg-brand-tint px-5 py-2.5 text-sm font-medium text-brand-deep transition-colors hover:bg-brand hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
               >
                 {model.hadDraft ? t("intro.resume") : t("intro.start")} →
@@ -421,7 +460,13 @@ export default function CorridorClient() {
       ) : view === "projects" ? (
         /* ===== Tab 00 — Projects: saved work, managed ===== */
         <main className="min-h-0 flex-1 overflow-y-auto bg-[rgb(var(--tone)/0.03)] p-4">
-          <ProjectsPanel projects={projects} onOpen={() => setView("cargo")} />
+          <ProjectsPanel
+            projects={projects}
+            onOpen={() => {
+              setProjectChosen(true);
+              setView("intro");
+            }}
+          />
         </main>
       ) : view === "results" ? (
         /* ===== Results tab: the full panel, full width ===== */

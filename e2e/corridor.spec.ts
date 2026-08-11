@@ -36,6 +36,36 @@ async function useStandard(page: Page) {
   await page.getByRole("banner").getByRole("button", { name: "Standard" }).click();
 }
 
+/**
+ * Projects-first entry: Start lands on tab 00, and the walk unlocks only
+ * once a project is open. Tests open the seeded Chilean example (same
+ * numbers as the old default draft). The first entry of a run triggers the
+ * once-per-user seeding server-side; if a parallel worker won the race but
+ * its inserts landed after our list fetch, one reload picks them up.
+ */
+async function openExample(page: Page) {
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  // Pre-migration double-seeding can duplicate starters — .first() is
+  // strict-mode-safe either way.
+  const row = page
+    .getByRole("row", { name: /Example \u2014 Chilean copper corridor/ })
+    .first();
+  try {
+    await row.waitFor({ timeout: 5000 });
+  } catch {
+    await page.reload();
+    await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+    await row.waitFor({ timeout: 15000 });
+  }
+  await row.getByRole("button", { name: "Open", exact: true }).click();
+  await expect(page.getByRole("button", { name: "01 Intro" })).toHaveAttribute(
+    "aria-current",
+    "step",
+    { timeout: 15000 },
+  );
+}
+
 test("default scenario reproduces the Chilean corridor numbers", async ({ page }) => {
   await page.goto("/corridor");
   // Freeze CSS transitions/animations so axe never samples a mid-transition
@@ -47,7 +77,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   // Entry screen (the Cover tab's how-to) — start fresh.
   await expect(page.getByRole("heading", { name: "Green Corridor cost model" })).toBeVisible();
   await expectNoSeriousViolations(page, "entry screen");
-  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await openExample(page);
   await useStandard(page);
 
   // Headline numbers, straight from the untouched default form. The gap
@@ -305,17 +335,24 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
 test("Simplified/Standard is provably output-neutral", async ({ page }) => {
   // Written BEFORE the feature (sprint 2.4 working rule): if a single
   // number moves when the view mode toggles, the mode has become a model
-  // variant and is out of scope.
-  await page.goto("/corridor");
-  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  // variant and is out of scope. (Opening the example applies its STORED
+  // mode — the loop below then toggles both ways regardless.)
+  await openExample(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText("$1,762.21m")).toBeVisible();
   const header = page.getByRole("banner");
 
   const summaryBefore = await results.innerText();
-  // Let the debounced autosave write the draft before taking the baseline.
+  // Let the post-load autosave settle before taking the baseline: opening
+  // the example rewrites the draft (migration normalizes key order), so the
+  // baseline is captured only once the draft has stopped changing.
   await expect
-    .poll(() => page.evaluate(() => localStorage.getItem("corridor-draft-v2") !== null))
+    .poll(async () => {
+      const a = await page.evaluate(() => localStorage.getItem("corridor-draft-v2"));
+      await page.waitForTimeout(600);
+      const b = await page.evaluate(() => localStorage.getItem("corridor-draft-v2"));
+      return a !== null && a === b;
+    })
     .toBe(true);
   const draftBefore = await page.evaluate(() =>
     localStorage.getItem("corridor-draft-v2"),
@@ -351,8 +388,7 @@ test("Simplified/Standard is provably output-neutral", async ({ page }) => {
 });
 
 test("per-tab completion indicators derive from validation", async ({ page }) => {
-  await page.goto("/corridor");
-  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await openExample(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText("$1,762.21m")).toBeVisible();
   const nav = page.getByRole("navigation").first();
@@ -410,8 +446,7 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
 });
 
 test("routed distance follows override > derived(routed), adoption-only", async ({ page }) => {
-  await page.goto("/corridor");
-  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await openExample(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
 
@@ -477,8 +512,7 @@ test("routed distance follows override > derived(routed), adoption-only", async 
 });
 
 test("provenance badges answer where a number comes from", async ({ page }) => {
-  await page.goto("/corridor");
-  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await openExample(page);
   await useStandard(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
@@ -520,8 +554,7 @@ test("numeric inputs tolerate clearing, signs and partial input", async ({ page 
   // Regression: the controlled number inputs used to commit Number("") = 0
   // the moment a field was cleared — coordinates slammed to 0 and typing a
   // leading "-" was impossible.
-  await page.goto("/corridor");
-  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await openExample(page);
   const lat = page.getByLabel("Port A latitude");
   await expect(lat).toHaveValue("-23.1");
   // Clearing leaves the field EMPTY while editing — no snap to 0…
@@ -544,10 +577,10 @@ test("numeric inputs tolerate clearing, signs and partial input", async ({ page 
 });
 
 test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", async ({ page }) => {
-  // Enter once so the app writes its default draft…
+  // Enter once so the app writes its default draft… (the model autosaves
+  // from mount — no project needs to be open for the draft slot to exist).
   await page.goto("/corridor");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
-  await expect(page.getByRole("complementary").getByText("$")).toBeTruthy();
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem("corridor-draft-v2") !== null))
     .toBe(true);
@@ -562,6 +595,8 @@ test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", asy
   });
   await page.reload();
   await page.getByRole("button", { name: /Resume draft/ }).click();
+  // Projects-first: the unsaved draft resumes via the editing card.
+  await page.getByRole("button", { name: "Continue editing" }).click();
   // The weight field hides for tonnes, but the stored value must survive:
   // no load-time rewrite, even after the debounced autosave runs.
   await page.getByRole("button", { name: "04 Cargo" }).click();
@@ -582,8 +617,7 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
   // structure at Δr = 2pp reproduces the $196.0m calibration bound, so the
   // waterfall float must read −$196m (the sign carried in TEXT, readable
   // without colour, per the sprint 3 rule).
-  await page.goto("/corridor");
-  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await openExample(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
 
@@ -625,8 +659,7 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
   // Sprint 4.2. Phasing spreads CAPEX over the first N years by explicit
   // shares; the annual chart and its caption are data-driven, so three
   // capital bars and the recomputed year-1 figure need no chart changes.
-  await page.goto("/corridor");
-  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await openExample(page);
   await useStandard(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
@@ -663,12 +696,13 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
 });
 
 test("Simplified shows only essential inputs, defaults carry the rest", async ({ page }) => {
-  // No stored preference -> the app lands in Simplified (the default).
-  await page.goto("/corridor");
-  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  // The example opens in its stored Standard mode — switch to Simplified
+  // (any project can jump between the two at any time).
+  await openExample(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
   const header = page.getByRole("banner");
+  await header.getByRole("button", { name: "Simplified" }).click();
   await expect(header.getByRole("button", { name: "Simplified" })).toHaveAttribute(
     "aria-pressed",
     "true",
@@ -707,4 +741,60 @@ test("Simplified shows only essential inputs, defaults carry the rest", async ({
   await useStandard(page);
   await co2.fill("280");
   await expect(results.getByText(GAP)).toBeVisible();
+});
+
+test("projects-first: tabs lock until a project is chosen; create picks the mode", async ({ page }) => {
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  // Landed on tab 00 with the walk locked.
+  await expect(page.getByRole("button", { name: "00 Projects" })).toHaveAttribute(
+    "aria-current",
+    "step",
+  );
+  await expect(page.getByRole("button", { name: "01 Intro" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "08 Results" })).toBeDisabled();
+
+  // The two once-per-user starters are there, with their mode chips.
+  await expect(
+    page.getByRole("row", { name: /Example \u2014 Chilean copper corridor/ }).first(),
+  ).toBeVisible({ timeout: 15000 });
+  await expect(page.getByRole("row", { name: /My first corridor/ }).first()).toBeVisible();
+
+  // Create a new project in Standard: it opens on Intro, unlocked, in
+  // Standard, computing from the blank starter (benchmarks, schemes off).
+  await page.getByRole("button", { name: "New project" }).click();
+  await page.getByPlaceholder("My corridor").fill("Gating test corridor");
+  await page.getByRole("radio", { name: "Standard" }).check();
+  await page.getByRole("button", { name: "Create", exact: true }).click();
+  await expect(page.getByRole("button", { name: "01 Intro" })).toHaveAttribute(
+    "aria-current",
+    "step",
+    { timeout: 15000 },
+  );
+  await expect(
+    page.getByRole("banner").getByRole("button", { name: "Standard" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "08 Results" })).toBeEnabled();
+  await expect(page.getByRole("complementary").getByText(GAP)).toHaveCount(0);
+
+  // Reopen the example: golden numbers return and the walk stays unlocked.
+  await page.getByRole("button", { name: "00 Projects" }).click();
+  await page
+    .getByRole("row", { name: /Example \u2014 Chilean copper corridor/ })
+    .first()
+    .getByRole("button", { name: "Open", exact: true })
+    .click();
+  await expect(page.getByRole("complementary").getByText(GAP)).toBeVisible({
+    timeout: 15000,
+  });
+
+  // Clean up the created project so reruns against a persistent user stay
+  // deterministic (the e2e users are minted per run anyway).
+  await page.getByRole("button", { name: "00 Projects" }).click();
+  const created = page.getByRole("row", { name: /Gating test corridor/ }).first();
+  await created.getByRole("button", { name: "Delete", exact: true }).click();
+  await created.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(page.getByRole("row", { name: /Gating test corridor/ })).toHaveCount(0, {
+    timeout: 15000,
+  });
 });
