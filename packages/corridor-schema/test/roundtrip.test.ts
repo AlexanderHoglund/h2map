@@ -13,7 +13,13 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { migrateScenarioInput, parseScenarioInput } from "../src";
+import {
+  SCENARIO_TEMPLATE,
+  fromCompleteScenarioJson,
+  migrateScenarioInput,
+  parseScenarioInput,
+  toCompleteScenarioJson,
+} from "../src";
 import type { ScenarioInput } from "../src";
 
 type DeepRequired<T> = T extends (infer U)[]
@@ -232,6 +238,119 @@ describe("scenario JSON round-trip is lossless", () => {
       '"buildHere"',
     ]) {
       expect(text).toContain(needle);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Complete-form export/import: the file always carries EVERY field.
+// ---------------------------------------------------------------------------
+
+/** A sparse scenario: no coords, no optional blocks — the complaint case. */
+const MINIMAL: ScenarioInput = {
+  schemaVersion: 5,
+  refBundleId: "2026-07-30-excel-v1",
+  cargo: {
+    countryId: "australia",
+    routeType: "point-to-point",
+    oneWayDistanceNm: 3840,
+    startYear: 2030,
+    horizonYears: 15,
+    unitsPerYear: 1_000_000,
+    inflation: 0.02,
+    vessels: 2,
+    roundtripsPerYear: 9,
+    waccOverride: null,
+  },
+  vessel: {
+    typeId: "handymax-bulk-58k",
+    consumptionMode: "distance",
+    green: { capexUsdM: null, opexUsdMPerYear: null },
+    fossil: { capexUsdM: 70, opexUsdMPerYear: null },
+  },
+  green: {
+    fuelId: "e-ammonia",
+    sourcing: "purchase",
+    overrides: { ...MAXIMAL.green.overrides, priceUsdPerTonne: 900 },
+  },
+  fossil: {
+    fuelId: "lsfo",
+    sourcing: "purchase",
+    overrides: JSON.parse(JSON.stringify(MAXIMAL.fossil.overrides)) as never,
+  },
+  regulation: JSON.parse(
+    JSON.stringify({
+      ...MAXIMAL.regulation,
+      ets: { enabled: false, euaEurPerTonne: 80, scope: 1 },
+      fuelEu: {
+        enabled: false,
+        penaltyEurPerTonne: 2400,
+        vlsfoMjPerTonne: 41000,
+        baselineGco2PerMj: 91.16,
+        scope: 1,
+      },
+      ira45z: { enabled: false, usProduced: false, creditUsdPerGallon: 1 },
+      selfDesigned: {
+        enabled: true,
+        co2PriceUsdPerTonne: 280,
+        supportUsdPerKg: 0,
+        capexSupport: 0,
+        opexSupport: 0,
+        otherUsdM: 0,
+      },
+    }),
+  ) as never,
+};
+delete (MINIMAL.regulation as { imoNetZero?: unknown }).imoNetZero;
+
+/** Recursive key-path set (arrays treated as leaves). */
+function keyPaths(value: unknown, prefix = ""): string[] {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return [prefix];
+  }
+  return Object.entries(value).flatMap(([k, v]) =>
+    keyPaths(v, prefix ? `${prefix}.${k}` : k),
+  );
+}
+
+describe("complete-form export/import — every field always present", () => {
+  it("the export of a sparse scenario carries the TEMPLATE's full key set", () => {
+    const complete = toCompleteScenarioJson(MINIMAL);
+    expect(new Set(keyPaths(complete))).toEqual(new Set(keyPaths(SCENARIO_TEMPLATE)));
+    // The complaint case, verbatim: coordinates visible even when unset.
+    const c = complete.cargo as { portACoords: unknown; countryBId: unknown };
+    expect(c.portACoords).toEqual({ lat: null, lon: null });
+    expect(c.countryBId).toBeNull();
+  });
+
+  it("a maximal scenario round-trips through the complete form losslessly", () => {
+    const back = fromCompleteScenarioJson(toCompleteScenarioJson(MAXIMAL));
+    // buildHere: null and absent are the same meaning — the complete form
+    // canonicalizes the explicit null to absent.
+    const expected = JSON.parse(JSON.stringify(MAXIMAL)) as {
+      fossil: { buildHere?: unknown };
+    };
+    delete expected.fossil.buildHere;
+    expect(back).toEqual(expected);
+    expect(() => parseScenarioInput(back)).not.toThrow();
+  });
+
+  it("a sparse scenario round-trips: skeletons vanish, meaningful nulls stay", () => {
+    const back = fromCompleteScenarioJson(toCompleteScenarioJson(MINIMAL)) as ScenarioInput;
+    expect(back).toEqual(MINIMAL);
+    expect(back.cargo.waccOverride).toBeNull(); // benchmark marker survives
+    expect("portACoords" in back.cargo).toBe(false); // skeleton pruned
+    expect(() => parseScenarioInput(back)).not.toThrow();
+  });
+
+  it("the import path accepts complete files AND legacy partial exports", () => {
+    for (const file of [
+      toCompleteScenarioJson(MINIMAL),
+      JSON.parse(JSON.stringify(MINIMAL)),
+      toCompleteScenarioJson(MAXIMAL),
+    ]) {
+      const migrated = migrateScenarioInput(fromCompleteScenarioJson(file));
+      expect(migrated.migratedFrom).toBeNull();
     }
   });
 });

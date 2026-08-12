@@ -54,6 +54,12 @@ export type {
   SideResult,
 } from "./result";
 export { parseScenarioInput, scenarioInputSchema } from "./validate";
+export {
+  SCENARIO_TEMPLATE,
+  fromCompleteScenarioJson,
+  toCompleteScenarioJson,
+} from "./complete";
+export type { CompleteScenarioJson } from "./complete";
 export { migrateScenarioInput } from "./migrate";
 export type { MigratedScenario } from "./migrate";
 export { parseRefBundle, refBundleSchema } from "./ref/bundle";

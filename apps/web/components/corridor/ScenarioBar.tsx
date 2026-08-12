@@ -1,6 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import {
+  fromCompleteScenarioJson,
+  toCompleteScenarioJson,
+} from "@h2map/corridor-schema";
 import { Button } from "@/components/ui/Button";
 import type { CorridorModel } from "./state";
 import type { ProjectsApi } from "./useProjects";
@@ -24,9 +28,12 @@ export default function ScenarioBar({
   const t = useTranslations("corridor.scenarioBar");
 
   const exportJson = () => {
-    const blob = new Blob([JSON.stringify(model.scenario, null, 2)], {
-      type: "application/json",
-    });
+    // The COMPLETE form: every schema field present in canonical order,
+    // unset fields explicit null - the file documents the whole form.
+    const blob = new Blob(
+      [JSON.stringify(toCompleteScenarioJson(model.scenario), null, 2)],
+      { type: "application/json" },
+    );
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `${projects.name.replace(/[^a-z0-9-_]+/gi, "-").toLowerCase() || "corridor"}.json`;
@@ -42,7 +49,7 @@ export default function ScenarioBar({
       const file = input.files?.[0];
       if (!file) return;
       try {
-        model.load(JSON.parse(await file.text()));
+        model.load(fromCompleteScenarioJson(JSON.parse(await file.text())));
         projects.setName(file.name.replace(/\.json$/i, ""));
         projects.flash(t("imported"));
       } catch {

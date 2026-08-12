@@ -780,6 +780,37 @@ test("projects-first: tabs lock until a project is chosen; create picks the mode
   await expect(page.getByRole("button", { name: "08 Results" })).toBeEnabled();
   await expect(page.getByRole("complementary").getByText(GAP)).toHaveCount(0);
 
+  // Export the blank project: the COMPLETE form carries EVERY field —
+  // including the never-touched coordinates — as explicit nulls; importing
+  // the same file back is lossless (results unchanged).
+  {
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Export JSON", exact: true }).click();
+    const download = await downloadPromise;
+    const fs = await import("node:fs/promises");
+    const path = await download.path();
+    const text = await fs.readFile(path, "utf8");
+    const file = JSON.parse(text) as {
+      cargo: Record<string, unknown>;
+      financing: unknown;
+      capitalPhasing: unknown;
+    };
+    expect(file.cargo.portACoords).toEqual({ lat: null, lon: null });
+    expect(file.cargo.portBCoords).toEqual({ lat: null, lon: null });
+    expect(file.cargo).toHaveProperty("countryBId");
+    expect(file.cargo).toHaveProperty("routedDistance");
+    expect(file).toHaveProperty("financing");
+    expect(file).toHaveProperty("capitalPhasing");
+    const before = await page.getByRole("complementary").innerText();
+    const chooser = page.waitForEvent("filechooser");
+    await page.getByRole("button", { name: "Import JSON", exact: true }).click();
+    await (await chooser).setFiles(path);
+    await expect(page.getByText("Scenario imported")).toBeVisible();
+    await expect
+      .poll(() => page.getByRole("complementary").innerText())
+      .toBe(before);
+  }
+
   // Reopen the example: golden numbers return and the walk stays unlocked.
   await page.getByRole("button", { name: "00 Projects" }).click();
   await page

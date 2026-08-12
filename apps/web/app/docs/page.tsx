@@ -398,8 +398,13 @@ export default async function DocsPage() {
           </li>
           <li>
             <strong>Export / Import JSON</strong>{" "}— the scenario bar downloads
-            the full scenario as a versioned JSON file and can load one back.
-            Files carry a schema version; older files are migrated on load.
+            the scenario as a versioned JSON file in the COMPLETE form: every
+            field of the form is always present, in a fixed order — fields
+            you have not set are explicit{" "}<code>null</code>{" "}(port
+            coordinates, country B, the financing and phasing blocks…), so
+            the file documents the entire input surface. Import accepts the
+            same complete form and older partial exports alike; files carry a
+            schema version and older files are migrated on load.
           </li>
           <li>
             <strong>Reset</strong>{" "}— returns every field to the reference
