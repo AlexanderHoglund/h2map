@@ -104,18 +104,7 @@ export default function FuelEmissionsPanel() {
           {t("chooserPrompt")}
         </p>
         <div className="mt-2 grid gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => setDirection("candidate")}
-            className="border border-neutral-300 bg-white p-5 text-left transition-colors hover:border-brand-deep hover:bg-brand-tint/30"
-          >
-            <span className="block text-base font-semibold text-brand-deep">
-              {t("directionForward")}
-            </span>
-            <span className="mt-1 block text-xs leading-relaxed text-neutral-600">
-              {t("chooserForwardDesc")}
-            </span>
-          </button>
+          {/* Fossil-first: "I have fossil" is the common starting point. */}
           <button
             type="button"
             onClick={() => setDirection("baseline")}
@@ -126,6 +115,18 @@ export default function FuelEmissionsPanel() {
             </span>
             <span className="mt-1 block text-xs leading-relaxed text-neutral-600">
               {t("chooserReverseDesc")}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setDirection("candidate")}
+            className="border border-neutral-300 bg-white p-5 text-left transition-colors hover:border-brand-deep hover:bg-brand-tint/30"
+          >
+            <span className="block text-base font-semibold text-brand-deep">
+              {t("directionForward")}
+            </span>
+            <span className="mt-1 block text-xs leading-relaxed text-neutral-600">
+              {t("chooserForwardDesc")}
             </span>
           </button>
         </div>

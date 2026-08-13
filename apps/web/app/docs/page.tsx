@@ -2381,8 +2381,8 @@ export default async function DocsPage() {
         </F>
         <p className="mt-2">
           The tool runs BOTH directions, and the UI asks for the direction
-          FIRST — a two-card chooser (&ldquo;I have green fuel&rdquo; /
-          &ldquo;Replace fossil fuel&rdquo;) precedes the form, which is
+          FIRST — a two-card chooser (&ldquo;From fossil to ZNZ&rdquo; /
+          &ldquo;From ZNZ to fossil&rdquo;) precedes the form, which is
           then ordered so the fuel you start from comes first. In reverse,
           the quantity is the baseline mass;
           the engine derives E<sub>base</sub>{" "}= quantity × LCV

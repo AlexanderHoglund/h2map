@@ -28,10 +28,10 @@ test("direction chooser, energy equivalence, refusal paths and the N2O range", a
   ).toBeVisible();
 
   // Direction-first: no form until you decide what you're doing.
-  await expect(page.getByText("What do you want to do?")).toBeVisible();
+  await expect(page.getByText("Pick a direction")).toBeVisible();
   await expect(page.getByLabel("Candidate fuel")).toHaveCount(0);
   await axeClean(page, "direction chooser");
-  await page.getByRole("button", { name: /I have green fuel/ }).click();
+  await page.getByRole("button", { name: /From ZNZ to fossil/ }).click();
 
   // Defaults: 1,000 t e-ammonia @ WtW 15 vs VLSFO with the documented 5%
   // pilot — the equivalence line shows the TOTAL energy in baseline mass.
@@ -84,8 +84,8 @@ test("direction chooser, energy equivalence, refusal paths and the N2O range", a
   // flips to the required candidate mass: 41.0e6 MJ ÷ 18,600 MJ/t =
   // 2,204.3 t (pilot still 0, state survives the direction change).
   await page.getByRole("button", { name: "Change direction" }).click();
-  await expect(page.getByText("What do you want to do?")).toBeVisible();
-  await page.getByRole("button", { name: /Replace fossil fuel/ }).click();
+  await expect(page.getByText("Pick a direction")).toBeVisible();
+  await page.getByRole("button", { name: /From fossil to ZNZ/ }).click();
   await expect(page.getByLabel(/Quantity of Very low sulphur/)).toBeVisible();
   await expect(page.getByText(/Replacing 1,000\.0 t .* needs 2,204\.3 t/)).toBeVisible();
   // Same reduction either way — intensities are per-MJ (82.2% here: the
