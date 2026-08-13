@@ -280,8 +280,8 @@ export default function FuelEmissionsPanel() {
                 <span
                   className={`px-1.5 py-0.5 font-medium ${
                     ok.znz.compliantTo2034
-                      ? "bg-success/10 text-success"
-                      : "bg-danger/10 text-danger"
+                      ? "bg-emerald-500/10 text-emerald-800"
+                      : "bg-red-500/10 text-red-800"
                   }`}
                 >
                   {t("znzTo2034")}: {ok.znz.compliantTo2034 ? t("compliant") : t("notCompliant")}{" "}
@@ -290,8 +290,8 @@ export default function FuelEmissionsPanel() {
                 <span
                   className={`px-1.5 py-0.5 font-medium ${
                     ok.znz.compliantFrom2035
-                      ? "bg-success/10 text-success"
-                      : "bg-danger/10 text-danger"
+                      ? "bg-emerald-500/10 text-emerald-800"
+                      : "bg-red-500/10 text-red-800"
                   }`}
                 >
                   {t("znzFrom2035")}:{" "}

@@ -50,7 +50,7 @@ it at the corridor's base rate, as an EXPLICIT per-year line.
 Deliberately NOT a per-side discount rate. In a cost model the discount
 rate expresses time preference over costs, so a LOWER green rate makes
 future costs LARGER in present value — the exact inversion of the benefit
-(the methodology carries the worked $141m example). Cheap financing is a
+(the methodology carries the worked $140.6m example). Cheap financing is a
 reduction in interest actually paid; the model charges no interest line,
 so the benchmark divergence is the whole effect.
 
@@ -518,6 +518,53 @@ Deeper numeric invariants live where they are used (resolution/engine).
 **Boundary (imports)**: `zod`, `./scenario`
 
 **Exports (inputs/outputs)**: `scenarioInputSchema`, `parseScenarioInput`
+
+**Assumptions**
+
+Documented inline (see source).
+
+### `@h2map/fuel-emissions/engine.ts`
+
+**Purpose**
+
+Pure fuel-emissions evaluator. The functional unit is ENERGY DELIVERED
+ON BOARD (MJ): a tonne of green fuel does not replace a tonne of fossil
+fuel (e-ammonia at 18,600 MJ/t replaces ~453.7 t of VLSFO per 1,000 t,
+not 1,000 t — golden fixture F1 exists to catch the tonne-for-tonne
+trap, which overstates avoided emissions 2.2×).
+
+**Boundary (imports)**: `./ref`, `./ref`
+
+**Exports (inputs/outputs)**: `FUELEU_BASELINE_GCO2E_PER_MJ`, `FuelEmissionsInput`, `EmissionParts`, `SideResult`, `BasisResult`, `NotParameterised`, `FuelEmissionsResult`, `evaluateFuelEmissions`, `fuelIntensity`
+
+**Assumptions**
+
+Documented inline (see source).
+
+### `@h2map/fuel-emissions/index.ts`
+
+**Purpose**
+
+_(no header docblock)_
+
+**Boundary (imports)**: none — leaf module
+
+**Exports (inputs/outputs)**: —
+
+**Assumptions**
+
+Documented inline (see source).
+
+### `@h2map/fuel-emissions/ref.ts`
+
+**Purpose**
+
+Reference dataset for the fuel-emissions calculator: fuels, GWP sets,
+frameworks, methane slip per engine, pilot-fuel and N2O-slip evidence.
+
+**Boundary (imports)**: `zod`
+
+**Exports (inputs/outputs)**: `refDatasetSchema`, `FuelEmissionsRefDataset`, `RefFuel`, `GwpSetId`, `parseRefDataset`, `getFuel`, `getGwpSet`, `getFramework`, `missingParameters`
 
 **Assumptions**
 

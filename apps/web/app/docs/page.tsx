@@ -143,6 +143,17 @@ const TOC_METHOD: [string, string][] = [
   ["m-sources", "31. Sources"],
 ];
 
+/** Part 3 — the fuel-emissions calculator's methodology. */
+const TOC_FE: [string, string][] = [
+  ["fe-overview", "32. Purpose & the functional unit"],
+  ["fe-frameworks", "33. Accounting frameworks"],
+  ["fe-calculation", "34. The calculation"],
+  ["fe-corrections", "35. Combustion-side corrections"],
+  ["fe-validation", "36. Validation & regression"],
+  ["fe-limitations", "37. Limitations & open items"],
+  ["fe-sources", "38. Source references"],
+];
+
 
 export default async function DocsPage() {
   await requireAccess("/docs");
@@ -193,6 +204,21 @@ export default async function DocsPage() {
           </p>
           <ol className="mt-1 grid gap-x-6 gap-y-1 sm:grid-cols-2">
             {TOC_METHOD.map(([id, label]) => (
+              <li key={id}>
+                <a
+                  href={`#${id}`}
+                  className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand"
+                >
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+            Part 3 · Fuel emissions calculator
+          </p>
+          <ol className="mt-1 grid gap-x-6 gap-y-1 sm:grid-cols-2">
+            {TOC_FE.map(([id, label]) => (
               <li key={id}>
                 <a
                   href={`#${id}`}
@@ -2246,6 +2272,229 @@ export default async function DocsPage() {
         <p className="mt-6 text-xs text-neutral-500">
           Non-commercial use. Provider attributions are also shown inline with
           each resource-profile result.
+        </p>
+
+        {/* ================= PART 3 — FUEL EMISSIONS ================= */}
+        <div className="mt-16 border-t-2 border-neutral-300 pt-8">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-deep">
+            Part 3
+          </p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">
+            Fuel Emissions Calculator
+          </h2>
+          <p className="mt-2 text-neutral-600">
+            The methodology behind{" "}
+            <a href="/fuelemissionscalculator" className="text-brand underline">
+              /fuelemissionscalculator
+            </a>
+            : avoided emissions of a candidate marine fuel against a fossil
+            baseline. Small tool, four load-bearing methodological decisions
+            — the functional unit, the accounting framework, the
+            combustion-side corrections, and the refusal to default what has
+            no defensible default.
+          </p>
+        </div>
+
+        <H id="fe-overview">32. Purpose &amp; the functional unit</H>
+        <p className="mt-2">
+          <strong>A tonne of green fuel does not replace a tonne of fossil
+          fuel.</strong>{" "}e-Ammonia carries 18,600 MJ/t against
+          VLSFO&apos;s 41,000, so 1,000 t of e-ammonia replaces about 453.7 t
+          of VLSFO — not 1,000 t. A calculator comparing tonne-for-tonne
+          overstates avoided emissions by more than 2× for ammonia (3,095
+          vs the correct 1,404 tCO2e on the reference case). The functional
+          unit is therefore{" "}
+          <strong>energy delivered on board (MJ)</strong>{" "}and every
+          comparison runs through it — golden fixture F1 pins exactly this
+          trap and fails any implementation that reintroduces it.
+        </p>
+
+        <H id="fe-frameworks">33. Accounting frameworks</H>
+        <p className="mt-2">
+          The same fuel has different official values under different
+          frameworks, so &ldquo;the&rdquo; emission factor does not exist —
+          only <em>a framework&apos;s</em>{" "}emission factor. Two are
+          supported, clearly labelled, never blended:
+        </p>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            <strong>FuelEU Maritime, Annex II</strong>{" "}(Regulation (EU)
+            2023/1805) — legally fixed default values: LCVs, WtT factors,
+            TtW CO2/CH4/N2O per fuel. GWP set{" "}
+            <strong>AR4</strong>{" "}(CH4 25, N2O 298) as currently drafted;
+            EMSA has flagged a move to AR5. RFNBO pathway values come from
+            RED Delegated Regulation (EU) 2023/1185 under the Article 28(5)
+            ceiling of 28.2 gCO2eq/MJ.
+          </li>
+          <li>
+            <strong>IMO LCA Guidelines</strong>{" "}(MEPC.391(81), revising
+            MEPC.376(79)) — the framework the Net-Zero Framework&apos;s GFI
+            runs on. GWP set{" "}<strong>AR5</strong>{" "}(CH4 28, N2O 265);
+            2008 reference GFI 93.3 gCO2eq/MJ; ZNZ threshold at most 19.0
+            gCO2eq/MJ to end-2034 and 14.0 from 2035 (MEPC 83 approved
+            text; adoption targeted MEPC 85, October 2026 — marked
+            provisional). Defaults are not yet published for all fuels.
+          </li>
+        </ul>
+        <p className="mt-2">
+          The engine takes ONE framework id and reads every factor — and
+          the GWP set — from it. Averaging frameworks, or mixing one
+          framework&apos;s WtT with another&apos;s TtW, is structurally
+          impossible. A (fuel, framework) combination missing a needed
+          factor reports{" "}<em>not parameterised</em>{" "}with the
+          dataset&apos;s own review note — it never falls back to a
+          neighbouring value and never defaults to zero: LNG currently
+          refuses (the IMO guidelines lack a default upstream factor; the
+          real range 18.5–28 gCO2e/MJ is 20–30% of HFO&apos;s whole
+          lifecycle intensity, so a missing term flatters LNG
+          substantially), and e-ammonia requires a CERTIFIED pathway
+          E-value — a zero-WtW ammonia is an assumption, not a certifiable
+          value.
+        </p>
+
+        <H id="fe-calculation">34. The calculation</H>
+        <F>
+          E<sub>cand</sub>{" "}= quantity × LCV<sub>cand</sub>{" "}&nbsp;[MJ]
+          &nbsp;·&nbsp; E<sub>total</sub>{" "}= E<sub>cand</sub>{" "}/ (1 −
+          pilotShare) &nbsp;·&nbsp; E<sub>pilot</sub>{" "}= E<sub>total</sub>{" "}
+          − E<sub>cand</sub>
+          <br />
+          E<sub>base</sub>{" "}= E<sub>total</sub>{" "}× efficiencyRatio
+          &nbsp;·&nbsp; baselineMass = E<sub>base</sub>{" "}/ LCV
+          <sub>base</sub>
+          <br />
+          intensity = WtT + (ttwCO2 + ttwCH4×GWP<sub>CH4</sub>{" "}+
+          ttwN2O×GWP<sub>N2O</sub>) / LCV &nbsp;[gCO2e/MJ]
+          <br />
+          candidate adds: n2oSlip × GWP<sub>N2O</sub>{" "}/ LCV &nbsp;·&nbsp;
+          pilot priced at its FULL intensity
+          <br />
+          avoided = E<sub>base</sub>×intensity<sub>base</sub>{" "}−
+          (E<sub>cand</sub>×intensity<sub>cand</sub>{" "}+
+          E<sub>pilot</sub>×intensity<sub>pilot</sub>) &nbsp;[tCO2e]
+        </F>
+        <p className="mt-2">
+          Both bases are always computed (well-to-wake and tank-to-wake,
+          shown side by side), and each side decomposes exhaustively into
+          WtT + TtW(CO2, CH4·GWP, N2O·GWP) + pilot + N2O slip, summing
+          exactly to the side total — property-tested at 10⁻⁹. The blend
+          intensity (candidate emissions over TOTAL delivered energy) is
+          compared against the ZNZ thresholds — threshold proximity is a
+          headline output, not a footnote: the default 5% pilot takes a
+          15-gCO2e/MJ e-ammonia to 18.79, just under the 19.0 line and
+          comfortably above the 14.0 line applying from 2035.
+        </p>
+
+        <H id="fe-corrections">35. Combustion-side corrections</H>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            <strong>Pilot fuel</strong>{" "}— ammonia and methanol dual-fuel
+            engines burn ~3–8% fossil pilot by energy (default 5%, MGO;
+            MAN ES: ammonia-mode operation uses around 95% ammonia on an
+            energy basis). It moves the avoided tonnes barely (pilot energy
+            displaces baseline energy at almost the same intensity) but
+            lifts the blend intensity from 15.00 to 18.79 — the floor pure
+            fuel-intensity arithmetic misses.
+          </li>
+          <li>
+            <strong>N2O slip</strong>{" "}— THE dominant uncertainty:
+            published values span ×37 (6.81×10⁻⁵ to 2.5×10⁻³ g N2O/g
+            NH3). Between best and worst, avoided emissions fall ~48% and
+            the fuel stops qualifying as ZNZ (51.69 gCO2e/MJ at the highest
+            observed value). Neither framework fixes an ammonia N2O
+            default, so the parameter carries the unverified badge, ships
+            as three cited scenarios, and the UI always shows the range —
+            never a bare point.
+          </li>
+          <li>
+            <strong>Engine efficiency ratio</strong>{" "}— equal fuel energy
+            is only equal transport work if the converters match. MAN
+            full-engine testing indicates similar thermal efficiency in
+            diesel and ammonia mode for two-stroke dual-fuel engines, so
+            1.0 is the evidenced default (exposed as an advanced
+            parameter), not an omission.
+          </li>
+        </ul>
+
+        <H id="fe-validation">36. Validation &amp; regression</H>
+        <p className="mt-2">
+          The golden fixtures were computed BY HAND from the reference
+          dataset before the engine existed, so they are independent of the
+          implementation — if the engine disagrees, the engine is wrong,
+          and there is deliberately no regenerate-from-code path. F2
+          reproduces BetterSea&apos;s published FuelEU worked example (7,000
+          t HFO → 78.244 TtW / 91.744 WtW gCO2e/MJ under AR4) to three
+          decimals, exercising the exact Annex II arithmetic. Property
+          tests pin the exhaustive decomposition, linearity in quantity,
+          GWP-set isolation (a set switch moves only CH4/N2O-bearing
+          terms), the identity avoided(X&nbsp;vs&nbsp;X)&nbsp;=&nbsp;0 for
+          every parameterised fuel, and every refusal path. Reproducing
+          GCMD&apos;s published GFI calculator as an independent cross-check
+          remains an open item.
+        </p>
+
+        <H id="fe-limitations">37. Limitations &amp; open items</H>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            VLSFO&apos;s WtT of 13.2 gCO2e/MJ is carried from a secondary
+            source pending verification against the Annex II VLSFO row —
+            fixtures F1 and F3 depend on it. The MGO row is likewise
+            unverified.
+          </li>
+          <li>
+            No LNG evaluation until the upstream-factor gap is resolved,
+            and no e-methanol until the two CO2-source pathway rows (DAC vs
+            point-source, RED Delegated Regulation 2023/1185) are added —
+            both refuse rather than approximate.
+          </li>
+          <li>
+            Out of scope by design: cost (the corridor model prices),
+            fleets and voyages (quantity is the unit), FuelEU/IMO
+            compliance-balance arithmetic (pooling, banking, penalties),
+            blue/grey ammonia and the bio-fuel pathways (research rows
+            pending), non-marine fuels.
+          </li>
+        </ul>
+
+        <H id="fe-sources">38. Source references</H>
+        <div className="my-3 overflow-x-auto">
+          <table className="w-full border border-neutral-300 text-xs">
+            <thead>
+              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 font-medium">Source</th>
+                <th className="px-3 py-2 font-medium">What it anchors</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(
+                [
+                  ["Regulation (EU) 2023/1805, Annex II (FuelEU Maritime)", "Default LCVs, WtT factors, TtW CO2/CH4/N2O per fuel; the AR4 GWP basis; the VLSFO reference energy content; the missing-value rule (Article 10)."],
+                  ["RED II Article 28(5) + Delegated Regulation (EU) 2023/1185", "The RFNBO ceiling of 28.2 gCO2eq/MJ (≥70% saving vs the fossil comparator) and certified pathway E-values for e-fuels."],
+                  ["IMO: 2024 LCA Guidelines, MEPC.391(81) rev. MEPC.376(79)", "The global framework's default-value structure, the AR5 GWP basis, and the 93.3 gCO2eq/MJ 2008 reference GFI."],
+                  ["MEPC 83 approved Net-Zero Framework text (April 2025)", "ZNZ thresholds: at most 19.0 gCO2eq/MJ to end-2034, 14.0 from 1 January 2035. Adoption targeted MEPC 85 (October 2026) — provisional."],
+                  ["MEPC 83/7/23 — Pacific Environment / Clean Shipping Coalition", "The ammonia N2O literature range (6.81×10⁻⁵ to 2.5×10⁻³ g N2O/g NH3) and the optimised-injection reduction figure behind the default scenario."],
+                  ["BetterSea, 'How to Calculate GHG Intensity under FuelEU Maritime'", "The published worked example (7,000 t HFO containership, 91.744 gCO2e/MJ under AR4) reproduced by golden fixture F2 to three decimals."],
+                  ["Sustainable Ships, 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero' (July 2025)", "Per-engine methane-slip values under both frameworks (Otto MS/SS, Diesel SS, LBSI, steam) and the biofuel reference E-value note."],
+                  ["Ammonia Energy Association (September 2025), citing MAN ES Research Centre Copenhagen and WinGD", "The ~95/5 ammonia/pilot energy split, tested two-stroke N2O emission levels, and the efficiency-ratio 1.0 evidence."],
+                  ["ICCT (April 2025)", "The missing IMO default upstream factor for fossil LNG and the real 18.5–28 gCO2e/MJ range — the reason LNG refuses to evaluate."],
+                  ["GCMD GFI calculator (post-MEPC 83)", "Planned independent cross-check (e-ammonia case) — open item, not yet reproduced."],
+                ] as const
+              ).map(([src, anchors]) => (
+                <tr key={src} className="border-b border-neutral-200 align-top last:border-0">
+                  <td className="px-3 py-1.5 font-medium">{src}</td>
+                  <td className="px-3 py-1.5 text-neutral-600">{anchors}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-neutral-600">
+          The reference dataset (
+          <code>data/fuel-emissions-ref/2026-08-13-seed-1.json</code>) carries
+          these citations row by row — every factor in the calculator&apos;s
+          decomposition table surfaces its own source and derivation in a
+          tooltip, and rows pending primary-source verification render with
+          the unverified badge.
         </p>
       </main>
       <Footer />

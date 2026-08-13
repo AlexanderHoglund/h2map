@@ -291,6 +291,7 @@ function modulesDoc(): string {
   for (const [pkg, rel] of [
     ["@h2map/corridor-engine", "packages/corridor-engine/src"],
     ["@h2map/corridor-schema", "packages/corridor-schema/src"],
+    ["@h2map/fuel-emissions", "packages/fuel-emissions/src"],
   ] as const) {
     const dir = new URL(`${rel}/`, ROOT).pathname.replace(/^\/([A-Za-z]:)/, "$1");
     const files = readdirSync(dir, { recursive: true }) as string[];
