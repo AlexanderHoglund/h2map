@@ -52,6 +52,7 @@
     "detailIntensity": "GHG intensity — {fuel}",
     "blendLabel": "Blend intensity (ZNZ fuel + pilot)",
     "blendHelp": "The candidate side's emissions over TOTAL delivered energy — fuel plus its fossil pilot — in gCO2e/MJ. This is the number the IMO ZNZ thresholds are compared against; the pilot is why it sits above the fuel's own intensity.",
+    "reset": "Reset",
     "period": "ZNZ period",
     "periodTo": "Until end-2034",
     "periodFrom": "From 2035",

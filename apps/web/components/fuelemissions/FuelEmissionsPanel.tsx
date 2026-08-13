@@ -33,6 +33,18 @@ const fmt1 = (n: number) =>
 const fmt2 = (n: number) =>
   n.toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
+/**
+ * Contextual default for the certified pathway intensity: 15 gCO2e/MJ is
+ * the reference certified e-ammonia pathway; from 2035 the IMO ZNZ
+ * threshold steps down to 14.0, which 15 can never clear, so the default
+ * follows the period to 8 — a better (still typical, range 5–15)
+ * certified pathway that clears 14.0 with the default pilot and slip.
+ * Switching back restores 15. A hand-typed value is replaced on the next
+ * framework/period switch — the default is contextual, not sticky.
+ */
+const certifiedDefaultFor = (fw: string, p: "to2034" | "from2035") =>
+  fw === "imo" && p === "from2035" ? 8 : 15;
+
 const FRAMEWORK_LABELS: Record<string, string> = {
   fueleu: "FuelEU Maritime (AR4)",
   imo: "IMO Net-Zero (AR5 · provisional)",
@@ -101,6 +113,22 @@ export default function FuelEmissionsPanel() {
       efficiencyRatio,
     ],
   );
+  /** Everything back to the page's initial state. */
+  const resetAll = () => {
+    setFrameworkId("fueleu");
+    setBasis("wellToWake");
+    setPeriod("to2034");
+    setDirection("baseline");
+    setCandidateFuelId("e-ammonia");
+    setQuantityTonnes(1000);
+    setCandidateWtw(certifiedDefaultFor("fueleu", "to2034"));
+    setBaselineFuelId("vlsfo");
+    setPilotShare(ds.pilotFuel.defaultShareOfEnergy);
+    setPilotFuelId(ds.pilotFuel.defaultPilotFuelId);
+    setN2oScenarioId("optimised-injection");
+    setEfficiencyRatio(ds.engineEfficiencyRatio.default);
+  };
+
   const refused = "notParameterised" in result && result.notParameterised;
   const ok = refused ? null : (result as FuelEmissionsResult);
   const active = ok ? (basis === "wellToWake" ? ok.wellToWake : ok.tankToWake) : null;
@@ -182,16 +210,25 @@ export default function FuelEmissionsPanel() {
       {/* ===================== Inputs (one card) ===================== */}
       <Section title={t("compare")}>
         {/* Direction leads: pick what you're doing, the form re-orders. */}
-        <div className="sm:col-span-2">
-          <Select
-            label={t("direction")}
-            value={direction}
-            options={[
-              { value: "baseline", label: t("directionReverse") },
-              { value: "candidate", label: t("directionForward") },
-            ]}
-            onChange={(v) => setDirection(v as "candidate" | "baseline")}
-          />
+        <div className="sm:col-span-2 flex items-end gap-2">
+          <div className="min-w-0 flex-1">
+            <Select
+              label={t("direction")}
+              value={direction}
+              options={[
+                { value: "baseline", label: t("directionReverse") },
+                { value: "candidate", label: t("directionForward") },
+              ]}
+              onChange={(v) => setDirection(v as "candidate" | "baseline")}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={resetAll}
+            className="shrink-0 border border-neutral-300 px-2.5 py-1.5 text-xs font-medium text-neutral-500 transition-colors hover:border-neutral-400 hover:text-neutral-900"
+          >
+            {t("reset")}
+          </button>
         </div>
         <Select
           label={t("framework")}
@@ -201,7 +238,10 @@ export default function FuelEmissionsPanel() {
             value: id,
             label: FRAMEWORK_LABELS[id] ?? id,
           }))}
-          onChange={setFrameworkId}
+          onChange={(v) => {
+            setFrameworkId(v);
+            setCandidateWtw(certifiedDefaultFor(v, period));
+          }}
         />
         <Select
           label={t("basis")}
@@ -223,7 +263,11 @@ export default function FuelEmissionsPanel() {
               { value: "to2034", label: t("periodTo") },
               { value: "from2035", label: t("periodFrom") },
             ]}
-            onChange={(v) => setPeriod(v as "to2034" | "from2035")}
+            onChange={(v) => {
+              const p = v as "to2034" | "from2035";
+              setPeriod(p);
+              setCandidateWtw(certifiedDefaultFor(frameworkId, p));
+            }}
           />
         )}
         {direction === "candidate" ? (

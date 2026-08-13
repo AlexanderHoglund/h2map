@@ -75,17 +75,25 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     .selectOption({ label: "MAN / WinGD tested two-stroke engines" });
 
   // ZNZ is the IMO's concept — no status row under FuelEU. Under the IMO
-  // framework the user picks the period; the threshold steps 19.0 → 14.0.
+  // framework the user picks the period; the threshold steps 19.0 → 14.0
+  // and the certified-intensity DEFAULT follows it (15 → 8, since 15 can
+  // never clear 14.0), so the reference case stays a compliant pathway.
   await expect(page.getByTestId("znz")).toHaveCount(0);
   await page
     .getByLabel("Accounting framework")
     .selectOption({ label: "IMO Net-Zero (AR5 · provisional)" });
   await expect(page.getByTestId("znz")).toHaveText("Yes");
   await page.getByLabel("ZNZ period").selectOption({ label: "From 2035" });
-  await expect(page.getByTestId("znz")).toHaveText("No");
+  const certified = page.getByRole("textbox", {
+    name: /Certified pathway intensity/,
+  });
+  await expect(certified).toHaveValue(/^8/);
+  await expect(page.getByTestId("znz")).toHaveText("Yes");
+  // Back to FuelEU: the certified default returns to 15 with the switch.
   await page
     .getByLabel("Accounting framework")
     .selectOption({ label: "FuelEU Maritime (AR4)" });
+  await expect(certified).toHaveValue(/^15/);
 
   // LNG refuses: missing upstream factor + per-engine slip — the dataset's
   // own review note renders, and no headline number is produced.
@@ -117,6 +125,12 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   // Same reduction either way — intensities are per-MJ (82.2% here: the
   // tested-two-stroke slip is still selected, adding ~1.1 gCO2e/MJ).
   await expect(page.getByText(/82\.2%/)).toBeVisible();
+
+  // Reset restores every default in one click — the documented 5% pilot
+  // returns, so 1,000 t of VLSFO needs 2,094.1 t again.
+  await page.getByRole("button", { name: "Reset" }).click();
+  await expect(page.getByLabel("Direction")).toHaveValue("baseline");
+  await expect(page.getByText(/needs 2,094\.1 t/)).toBeVisible();
 
   await axeClean(page, "fuel emissions calculator");
 });
