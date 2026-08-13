@@ -58,11 +58,9 @@ function AdvancedHiddenStrip({
   onReveal: () => void;
 }) {
   const t = useTranslations("corridor.viewMode");
-  if (count === 0) {
-    return (
-      <p className="sm:col-span-2 text-[11px] text-neutral-500">{t("hiddenNote")}</p>
-    );
-  }
+  // Nothing set among the hidden fields -> nothing to say: the note-less
+  // form IS the Simplified promise (2026-08-13 cleanup).
+  if (count === 0) return null;
   return (
     <p className="sm:col-span-2 flex items-center gap-2 bg-brand-tint px-2.5 py-1.5 text-[11px] text-brand-deep">
       <span>{t("hiddenActive", { count })}</span>
@@ -687,7 +685,9 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
     },
     // Under build-here the production lines are component sums shown in the
     // panel — the aggregate fields would fight the per-component overrides.
-    ...(s.sourcing === "build-here"
+    // In Simplified a disabled field is noise: purchase zeroes production
+    // costs, so the greyed pair renders only in Standard.
+    ...(s.sourcing === "build-here" || (viewMode === "simplified" && prodZeroed)
       ? []
       : [
           {
@@ -1240,7 +1240,11 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
 
   return (
     <div className="space-y-3">
-      {simple && (
+      {/* Silent-active safety net ONLY: the section appears when a scheme
+          the Simplified view cannot show is switched on in the scenario
+          (import/upgrade history) — otherwise Simplified has no trace of
+          the EU/IMO/US modules at all. */}
+      {simple && otherSchemesHidden > 0 && (
         <Section title={t("otherSchemes")}>
           <AdvancedHiddenStrip count={otherSchemesHidden} onReveal={revealStandard} />
         </Section>

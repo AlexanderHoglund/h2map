@@ -7,19 +7,23 @@ import { insertScenarioRow } from "@/lib/server/corridorScenarios";
 import { defaultScenario, emptyScenario } from "@/lib/corridor/scenarioDefaults";
 
 /**
- * Starter-project seeding (projects-first UX, 2026-08-11): every user gets
- * the Chilean example plus an empty Simplified starter — ONCE per user,
- * ever (user decision: deleted starters never come back).
+ * Starter-project seeding (projects-first UX, 2026-08-11; template rework
+ * 2026-08-13): every user gets the STANDARD Chilean example (once per
+ * user, ever — deleted, it never comes back) plus the SIMPLIFIED template
+ * "Simple corridor (template)", which is ENSURED BY NAME on every seed
+ * call — existing users gain it on their next visit, and deleting it just
+ * brings the template back (it is a template, not a document).
  *
  * POST /api/v1/corridor/scenarios/seed → 201 { seeded: true, scenarios }
- *                                       | 204 (already seeded)
+ *                                       | 204 (nothing to do)
  *
- * Once-ever is enforced race-safely: the service client stamps
- * profiles.projects_seeded_at with a conditional update (… where
+ * The example's once-ever is enforced race-safely: the service client
+ * stamps profiles.projects_seeded_at with a conditional update (… where
  * projects_seeded_at is null) BEFORE inserting; a concurrent call matches
- * zero rows and returns 204. profiles keeps no authenticated write policy —
- * the flag is server-set only. If the 20260811 migration is not applied yet
- * (no flag column), seeding is SKIPPED (never un-gated), fail-soft 204.
+ * zero rows. profiles keeps no authenticated write policy — the flag is
+ * server-set only. Without the 20260811 migration (no flag column) the
+ * example falls back to the seed-when-list-empty rule; the template's
+ * ensure-by-name works either way.
  */
 export async function POST(request: NextRequest): Promise<Response> {
   const limit = checkRateLimit(`corridor-seed:${clientIp(request)}`, GENERAL_POLICY);
@@ -34,6 +38,9 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
   const caller = access.caller;
 
+  const SIMPLE_TEMPLATE_NAME = "Simple corridor (template)";
+  const created: unknown[] = [];
+
   const service = getServerSupabase();
   // Cast: generated types predate the 20260811 migration (projects_seeded_at).
   const { data: stamped, error: stampError } = await service
@@ -42,11 +49,12 @@ export async function POST(request: NextRequest): Promise<Response> {
     .eq("id", caller.id)
     .is("projects_seeded_at" as never, null)
     .select("id");
+  let seedExample: boolean;
   if (stampError) {
     // Migration 20260811 not applied (or service key absent): fall back to
-    // the weaker "seed when the project list is empty" rule — starters can
-    // reappear after a full wipe until the flag column exists, then the
-    // once-ever guarantee takes over.
+    // the weaker "seed when the project list is empty" rule for the
+    // example — checked BEFORE the template insert below so a brand-new
+    // user still gets it.
     console.warn(
       "[api/corridor/scenarios/seed] no seed flag, falling back to empty-list rule:",
       stampError.message,
@@ -55,38 +63,50 @@ export async function POST(request: NextRequest): Promise<Response> {
       .from("scenarios")
       .select("id", { count: "exact", head: true })
       .eq("kind", "corridor");
-    if (countError || (count ?? 0) > 0) {
-      return new Response(null, { status: 204 });
-    }
-  } else if (!stamped || stamped.length === 0) {
-    return new Response(null, { status: 204 }); // already seeded
+    seedExample = !countError && (count ?? 0) === 0;
+  } else {
+    seedExample = (stamped?.length ?? 0) > 0;
   }
 
   // Inserts run under the CALLER's JWT (RLS-scoped, owner = caller), exactly
   // like a manual save.
-  const example = await insertScenarioRow(
-    supabase,
-    caller.id,
-    "Example — Chilean copper corridor",
-    defaultScenario(),
-    "standard",
-  );
-  const starter = await insertScenarioRow(
-    supabase,
-    caller.id,
-    "My first corridor",
-    emptyScenario(),
-    "simplified",
-  );
-  if (example.error || starter.error) {
-    console.error(
-      "[api/corridor/scenarios/seed]",
-      example.error ?? starter.error,
+  if (seedExample) {
+    const example = await insertScenarioRow(
+      supabase,
+      caller.id,
+      "Example — Chilean copper corridor",
+      defaultScenario(),
+      "standard",
     );
-    return jsonError(500, "db_error", "Could not create the starter projects");
+    if (example.error) {
+      console.error("[api/corridor/scenarios/seed]", example.error);
+      return jsonError(500, "db_error", "Could not create the starter projects");
+    }
+    created.push(example.data);
   }
-  return Response.json(
-    { seeded: true, scenarios: [example.data, starter.data] },
-    { status: 201 },
-  );
+
+  // The Simplified template is ensured for EVERY user, by name.
+  const { data: tmpl, error: tmplLookupError } = await supabase
+    .from("scenarios")
+    .select("id")
+    .eq("kind", "corridor")
+    .eq("name", SIMPLE_TEMPLATE_NAME)
+    .limit(1);
+  if (!tmplLookupError && (tmpl?.length ?? 0) === 0) {
+    const template = await insertScenarioRow(
+      supabase,
+      caller.id,
+      SIMPLE_TEMPLATE_NAME,
+      emptyScenario(),
+      "simplified",
+    );
+    if (template.error) {
+      console.error("[api/corridor/scenarios/seed]", template.error);
+      return jsonError(500, "db_error", "Could not create the starter projects");
+    }
+    created.push(template.data);
+  }
+
+  if (created.length === 0) return new Response(null, { status: 204 });
+  return Response.json({ seeded: true, scenarios: created }, { status: 201 });
 }

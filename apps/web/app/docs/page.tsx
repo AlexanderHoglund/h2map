@@ -281,9 +281,12 @@ export default async function DocsPage() {
           created. Every account starts with two projects, created once and
           never re-created: the{" "}
           <em>Chilean copper corridor example</em>{" "}(the published reference
-          case, opening in Standard) and{" "}
-          <em>My first corridor</em>{" "}(a blank starter — generic route,
-          benchmark costs, every scheme off — opening in Simplified).
+          case, a Standard project, created once — deleted, it stays gone)
+          and{" "}
+          <em>Simple corridor (template)</em>{" "}(a blank purchase-sourced
+          Simplified template — generic route, benchmark costs, every scheme
+          off — kept available for every account: deleting it brings the
+          template back on the next visit).
           Creating a new project asks for a name and its level —{" "}
           <strong>Simplified or Standard</strong>. The level is stored on the
           project and is a ONE-WAY ladder: a Simplified project can be

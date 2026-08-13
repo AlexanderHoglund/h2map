@@ -34,7 +34,6 @@
       "label": "View mode",
       "simplified": "Simplified",
       "standard": "Standard",
-      "hiddenNote": "Detailed settings hidden in Simplified view - defaults apply.",
       "hiddenActive": "{count, plural, one {# detailed setting} other {# detailed settings}} in effect but hidden in Simplified view.",
       "switchToStandard": "Switch to Standard",
       "upgrade": "Upgrade to Standard",

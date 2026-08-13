@@ -46,11 +46,11 @@ async function useStandard(page: Page) {
   await expect(banner.getByText("Standard", { exact: true })).toBeVisible();
 }
 
-/** Open the seeded Simplified starter ("My first corridor"). */
+/** Open the seeded Simplified template. */
 async function openStarter(page: Page) {
   await page.goto("/corridor");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
-  const row = page.getByRole("row", { name: /My first corridor/ }).first();
+  const row = page.getByRole("row", { name: /Simple corridor \(template\)/ }).first();
   await row.waitFor({ timeout: 15000 });
   await row.getByRole("button", { name: "Open", exact: true }).click();
   await expect(page.getByRole("button", { name: "01 Intro" })).toHaveAttribute(
@@ -745,6 +745,9 @@ test("Simplified shows only essential inputs, defaults carry the rest", async ({
   await expect(page.getByLabel(/combustion/i)).toHaveCount(0);
   await expect(page.getByLabel("Fuel price")).toHaveCount(1); // green purchase
   await expect(page.getByLabel("Fuel consumption")).toHaveCount(1); // green only
+  // Disabled inputs are noise in Simplified: purchase zeroes production
+  // costs, so the greyed CAPEX/O&M pair is gone entirely.
+  await expect(page.getByLabel("Fuel production CAPEX (year 1)")).toHaveCount(0);
 
   // Vessels: fossil fleet pair runs on benchmarks behind the strip.
   await page.getByRole("button", { name: "03 Vessels" }).click();
@@ -754,7 +757,10 @@ test("Simplified shows only essential inputs, defaults carry the rest", async ({
   // other four schemes sit behind the reporting strip.
   await page.getByRole("button", { name: "07 Regulation" }).click();
   await expect(page.getByRole("switch")).toHaveCount(1);
-  await expect(page.getByText("EU / IMO / US schemes")).toBeVisible();
+  // No trace of the EU/IMO/US modules while none is active, and no muted
+  // "settings hidden" note anywhere - the clean form IS the promise.
+  await expect(page.getByText("EU / IMO / US schemes")).toHaveCount(0);
+  await expect(page.getByText(/hidden in Simplified view/)).toHaveCount(0);
   // The starter ships with the scheme off — no CO2 price until enabled.
   await expect(page.getByLabel("CO2 price", { exact: true })).toHaveCount(0);
   await page.getByRole("switch").click();
@@ -784,7 +790,9 @@ test("projects-first: tabs lock until a project is chosen; create picks the mode
   await expect(
     page.getByRole("row", { name: /Example \u2014 Chilean copper corridor/ }).first(),
   ).toBeVisible({ timeout: 15000 });
-  await expect(page.getByRole("row", { name: /My first corridor/ }).first()).toBeVisible();
+  await expect(
+    page.getByRole("row", { name: /Simple corridor \(template\)/ }).first(),
+  ).toBeVisible();
 
   // Create a new project in Standard: it opens on Intro, unlocked, in
   // Standard, computing from the blank starter (benchmarks, schemes off).
