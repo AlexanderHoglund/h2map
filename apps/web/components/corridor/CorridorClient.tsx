@@ -153,10 +153,18 @@ export default function CorridorClient() {
       [applyViewMode],
     ),
   });
-  /** The header toggle IS the project's mode: apply + persist to the row. */
-  const pickViewMode = (m: ViewMode) => {
-    applyViewMode(m);
-    projects.setProjectViewMode(m);
+  /**
+   * Simplified is a project LEVEL, not a preference: a simple project can be
+   * upgraded to Standard, never back (2026-08-13 decision; eventually the
+   * two entry points to Standard — this upgrade and the create form's radio
+   * — will be gated by account access level through canUseStandard()).
+   */
+  const canUseStandard = () => true; // access-level seam
+  const upgradeToStandard = () => {
+    if (!canUseStandard() || viewMode === "standard") return;
+    if (!window.confirm(t("viewMode.upgradeConfirm"))) return;
+    applyViewMode("standard");
+    projects.setProjectViewMode("standard");
   };
   // Step position for Back/Next + the visited shading. Projects (tab 00) is
   // not part of the walk: it reports -1.
@@ -206,12 +214,14 @@ export default function CorridorClient() {
   // green fuel sited on the map ("build-here"). Purchase/build-plant are
   // number entry — no map.
   const mapOpen =
-    view === "energy" && model.scenario.green.sourcing === "build-here";
+    view === "energy" &&
+    viewMode === "standard" &&
+    model.scenario.green.sourcing === "build-here";
 
   const stepProps = {
     model,
     viewMode,
-    revealStandard: () => pickViewMode("standard"),
+    revealStandard: upgradeToStandard,
   };
   const stepBody: Record<StepKey, React.ReactNode> = {
     intro: <CargoStep {...stepProps} />,
@@ -318,21 +328,18 @@ export default function CorridorClient() {
               aria-label={t("viewMode.label")}
               className="hidden items-center gap-1 px-3 md:flex"
             >
-              {(["simplified", "standard"] as const).map((m) => (
+              <span className="bg-neutral-800 px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-white">
+                {t(`viewMode.${viewMode}`)}
+              </span>
+              {viewMode === "simplified" && (
                 <button
-                  key={m}
                   type="button"
-                  aria-pressed={viewMode === m}
-                  onClick={() => pickViewMode(m)}
-                  className={`px-2 py-1 text-[11px] font-medium uppercase tracking-wide transition-colors ${
-                    viewMode === m
-                      ? "bg-neutral-800 text-white"
-                      : "bg-neutral-500/10 text-neutral-600 hover:bg-neutral-500/20 hover:text-neutral-900"
-                  }`}
+                  onClick={upgradeToStandard}
+                  className="px-2 py-1 text-[11px] font-medium uppercase tracking-wide bg-neutral-500/10 text-neutral-600 transition-colors hover:bg-neutral-500/20 hover:text-neutral-900"
                 >
-                  {t(`viewMode.${m}`)}
+                  {t("viewMode.upgrade")}
                 </button>
-              ))}
+              )}
             </div>
           )}
           {entered && gap != null && (

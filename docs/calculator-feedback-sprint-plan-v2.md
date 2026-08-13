@@ -70,3 +70,14 @@ persists flips to the open project. Every user is seeded ONCE (ever) with
 the Chilean example (Standard) + an empty Simplified starter
 (profiles.projects_seeded_at, race-safe seed route). Unsaved-changes
 confirm before switching projects; Open lands on Intro (was Cargo).
+
+## Simplified as a one-way project level (2026-08-13)
+
+Simplified/Standard is a project LEVEL, not a switchable view: simple ->
+standard is a permanent upgrade (header button + strips, confirmed);
+standard never goes back. Future: the two Standard entry points (upgrade +
+create radio) gate on account access level via canUseStandard(). Within
+Simplified: Energy is purchase-only (sourcing selector + build flows are
+Standard capabilities; non-purchase imports keep computing with a note) and
+Regulation is self-designed only (toggle + CO2 price; the other four
+schemes render in Standard, with a counted strip reporting any active).

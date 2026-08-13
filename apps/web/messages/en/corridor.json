@@ -36,7 +36,9 @@
       "standard": "Standard",
       "hiddenNote": "Detailed settings hidden in Simplified view - defaults apply.",
       "hiddenActive": "{count, plural, one {# detailed setting} other {# detailed settings}} in effect but hidden in Simplified view.",
-      "switchToStandard": "Switch to Standard"
+      "switchToStandard": "Switch to Standard",
+      "upgrade": "Upgrade to Standard",
+      "upgradeConfirm": "Switching this project to Standard is permanent - it unlocks every field and cannot be undone. Continue?"
     },
     "nav": {
       "back": "Back",
@@ -109,6 +111,7 @@
       "fossil": "Fossil fuel",
       "type": "Fuel type",
       "sourcing": "Fuel sourcing",
+      "sourcingSimplifiedNote": "This project sources fuel from a built plant - a Standard capability. Upgrade to Standard to change the sourcing mode; the numbers keep computing exactly as saved.",
       "sourcingPurchase": "Purchase fuel",
       "sourcingBuildHere": "Build here (pick a site on the map)",
       "price": "Fuel price",
@@ -171,6 +174,7 @@
       "imoRewardHelp": "The reward for zero/near-zero fuel surplus below the direct-compliance target. Genuinely undetermined at source — default 0; the surplus balance is reported in tonnes regardless.",
       "imoNote": "Draft MEPC 83 structure (approved Apr 2025; adoption targeted MEPC 85, Oct 2026 — provisional): attained WTW fuel intensity vs two reduction ladders against the 93.3 gCO2eq/MJ 2008 reference; deficits priced $100/t (tier 1, direct→base band) and $380/t (tier 2, beyond base). Ladders agreed 2028–2035 and held flat beyond; tier prices established 2028–2030.",
       "imoNotParam": "Not parameterised: the pinned reference bundle has no IMO Net-Zero rows — the module reports nothing rather than silently computing zero.",
+      "otherSchemes": "EU / IMO / US schemes",
       "finToggle": "Differentiated green financing",
       "finGreenRate": "Green cost of debt",
       "finGreenRateHelp": "Concessional green rates are a negotiation outcome, not a market observable - there is no benchmark to defer to. Green/transition loan margins typically land 0.5-2.5pp below a comparable conventional facility; type the rate your deal reflects.",
@@ -409,7 +413,7 @@
       "createProject": "Create",
       "newProjectDefaultName": "My corridor",
       "newProjectMode": "Start in",
-      "newProjectNote": "A new project starts from a blank corridor - generic route, benchmark costs, every scheme off. You can switch between Simplified and Standard at any time.",
+      "newProjectNote": "A new project starts from a blank corridor - generic route, benchmark costs, every scheme off. Simplified can be upgraded to Standard later; the upgrade is permanent.",
       "continueEditing": "Continue editing",
       "discardConfirm": "Discard unsaved changes to \"{name}\"? Opening another project replaces the working copy.",
       "currentLabel": "Currently editing",

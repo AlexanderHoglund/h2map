@@ -161,6 +161,9 @@ export function clearOverrides(s: ScenarioInput): ScenarioInput {
  */
 export function emptyScenario(): ScenarioInput {
   const input = clearOverrides(defaultScenario());
+  // Simplified projects are purchase-only (the sourcing selector is a
+  // Standard capability) — the starter must be expressible in Simplified.
+  input.green.sourcing = "purchase";
   input.cargo = {
     ...input.cargo,
     countryId: "other",

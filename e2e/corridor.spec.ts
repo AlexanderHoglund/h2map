@@ -30,10 +30,34 @@ async function expectNoSeriousViolations(page: Page, context: string) {
   ).toEqual([]);
 }
 
-/** Simplified is the default view; tests that drive the full field set
- *  switch to Standard first (the header toggle). */
+/**
+ * The mode is a one-way project level: ensure Standard by upgrading when
+ * the header still offers it (pre-migration the stored mode may not load,
+ * so the example can open Simplified). Accepts the permanent-upgrade
+ * confirm. No-op when the badge already reads Standard.
+ */
 async function useStandard(page: Page) {
-  await page.getByRole("banner").getByRole("button", { name: "Standard" }).click();
+  const banner = page.getByRole("banner");
+  const upgrade = banner.getByRole("button", { name: "Upgrade to Standard" });
+  if (await upgrade.isVisible().catch(() => false)) {
+    page.once("dialog", (d) => void d.accept());
+    await upgrade.click();
+  }
+  await expect(banner.getByText("Standard", { exact: true })).toBeVisible();
+}
+
+/** Open the seeded Simplified starter ("My first corridor"). */
+async function openStarter(page: Page) {
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  const row = page.getByRole("row", { name: /My first corridor/ }).first();
+  await row.waitFor({ timeout: 15000 });
+  await row.getByRole("button", { name: "Open", exact: true }).click();
+  await expect(page.getByRole("button", { name: "01 Intro" })).toHaveAttribute(
+    "aria-current",
+    "step",
+    { timeout: 15000 },
+  );
 }
 
 /**
@@ -333,20 +357,19 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await expect(results.getByText(GAP)).toBeVisible();
 });
 
-test("Simplified/Standard is provably output-neutral", async ({ page }) => {
-  // Written BEFORE the feature (sprint 2.4 working rule): if a single
-  // number moves when the view mode toggles, the mode has become a model
-  // variant and is out of scope. (Opening the example applies its STORED
-  // mode — the loop below then toggles both ways regardless.)
-  await openExample(page);
+test("the Standard upgrade is one-way and output-neutral", async ({ page }) => {
+  // Written BEFORE the mode became a level (sprint 2.4 working rule): if a
+  // single number moves when the level changes, the mode has become a model
+  // variant and is out of scope. The Simplified starter upgrades to
+  // Standard; the results and the draft must be byte-identical, and no path
+  // back to Simplified may exist afterwards.
+  await openStarter(page);
   const results = page.getByRole("complementary");
-  await expect(results.getByText("$1,762.21m")).toBeVisible();
-  const header = page.getByRole("banner");
+  await expect(results.getByText("$110.87m").first()).toBeVisible();
+  const banner = page.getByRole("banner");
 
   const summaryBefore = await results.innerText();
-  // Let the post-load autosave settle before taking the baseline: opening
-  // the example rewrites the draft (migration normalizes key order), so the
-  // baseline is captured only once the draft has stopped changing.
+  // Let the post-load autosave settle before taking the baseline.
   await expect
     .poll(async () => {
       const a = await page.evaluate(() => localStorage.getItem("corridor-draft-v2"));
@@ -358,17 +381,23 @@ test("Simplified/Standard is provably output-neutral", async ({ page }) => {
   const draftBefore = await page.evaluate(() =>
     localStorage.getItem("corridor-draft-v2"),
   );
-  for (let i = 0; i < 3; i += 1) {
-    await header.getByRole("button", { name: "Simplified" }).click();
-    await expect(results.getByText("$1,762.21m")).toBeVisible();
-    expect(await results.innerText()).toBe(summaryBefore);
-    await header.getByRole("button", { name: "Standard" }).click();
-    await expect(results.getByText("$1,762.21m")).toBeVisible();
-    expect(await results.innerText()).toBe(summaryBefore);
-  }
-  // The mode never touches the scenario: the draft is byte-identical and
-  // carries no view-mode key (two people opening the same scenario in
-  // different modes see the same numbers).
+
+  // Declining the confirm leaves the project Simplified.
+  page.once("dialog", (d) => void d.dismiss());
+  await banner.getByRole("button", { name: "Upgrade to Standard" }).click();
+  await expect(banner.getByText("Simplified", { exact: true })).toBeVisible();
+
+  // Accepting upgrades — permanently: the badge flips and NO control offers
+  // Simplified anywhere.
+  page.once("dialog", (d) => void d.accept());
+  await banner.getByRole("button", { name: "Upgrade to Standard" }).click();
+  await expect(banner.getByText("Standard", { exact: true })).toBeVisible();
+  await expect(banner.getByRole("button", { name: "Upgrade to Standard" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Simplified/ })).toHaveCount(0);
+
+  // Output-neutral: same results text, byte-identical draft, no mode key.
+  await expect(results.getByText("$110.87m").first()).toBeVisible();
+  expect(await results.innerText()).toBe(summaryBefore);
   const draftAfter = await page.evaluate(() =>
     localStorage.getItem("corridor-draft-v2"),
   );
@@ -376,20 +405,21 @@ test("Simplified/Standard is provably output-neutral", async ({ page }) => {
   expect(draftAfter).not.toContain("viewMode");
   expect(draftAfter).not.toContain("simple");
 
-  // Simplified hides the non-essential fields; the hidden set stays on its
-  // benchmarks.
-  await header.getByRole("button", { name: "Simplified" }).click();
+  // The full field set is open now (fossil fuel price renders in Standard).
   await page.getByRole("button", { name: "02 Energy" }).click();
-  // fossil fuel price is advanced-ranked: hidden in Simplified.
-  await expect(page.getByLabel("Fuel price")).toHaveCount(0);
-  await header.getByRole("button", { name: "Standard" }).click();
-  await expect(page.getByLabel("Fuel price")).toHaveCount(1);
-  // Leave the preference as we found it for other tests.
-  await expect(results.getByText("$1,762.21m")).toBeVisible();
+  await expect(page.getByLabel("Fuel price")).toHaveCount(2); // both sides, purchase
+  // Reloading keeps the upgraded level (persisted; locally at minimum).
+  await page.reload();
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await expect(banner.getByText("Standard", { exact: true })).toBeVisible({
+    timeout: 15000,
+  });
 });
 
 test("per-tab completion indicators derive from validation", async ({ page }) => {
   await openExample(page);
+  // The sourcing selector this test drives is a Standard capability.
+  await useStandard(page);
   const results = page.getByRole("complementary");
   await expect(results.getByText("$1,762.21m")).toBeVisible();
   const nav = page.getByRole("navigation").first();
@@ -697,51 +727,46 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
 });
 
 test("Simplified shows only essential inputs, defaults carry the rest", async ({ page }) => {
-  // The example opens in its stored Standard mode — switch to Simplified
-  // (any project can jump between the two at any time).
-  await openExample(page);
+  // The Simplified starter IS a simple project: purchase-only Energy,
+  // self-designed-only Regulation, everything else on benchmarks behind
+  // counted strips.
+  await openStarter(page);
   const results = page.getByRole("complementary");
-  await expect(results.getByText(GAP)).toBeVisible();
-  const header = page.getByRole("banner");
-  await header.getByRole("button", { name: "Simplified" }).click();
-  await expect(header.getByRole("button", { name: "Simplified" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  await expect(results.getByText("$110.87m").first()).toBeVisible();
+  const banner = page.getByRole("banner");
+  await expect(banner.getByText("Simplified", { exact: true })).toBeVisible();
 
-  // Energy: fuel-property constants and every fossil numeric are hidden;
-  // the sensitivity top-level set stays.
+  // Energy: NO sourcing selector (purchase is the only Simplified mode);
+  // fuel-property constants and every fossil numeric hidden; the green
+  // purchase price + consumption stay.
   await page.getByRole("button", { name: "02 Energy" }).click();
+  await expect(page.getByLabel("Fuel sourcing")).toHaveCount(0);
   await expect(page.getByLabel("Energy density, LHV")).toHaveCount(0);
   await expect(page.getByLabel(/combustion/i)).toHaveCount(0);
-  await expect(page.getByLabel("Fuel price")).toHaveCount(0); // fossil purchase
-  await expect(page.getByLabel("Fuel production CAPEX (year 1)")).toHaveCount(1); // green only
+  await expect(page.getByLabel("Fuel price")).toHaveCount(1); // green purchase
   await expect(page.getByLabel("Fuel consumption")).toHaveCount(1); // green only
 
   // Vessels: fossil fleet pair runs on benchmarks behind the strip.
   await page.getByRole("button", { name: "03 Vessels" }).click();
   await expect(page.getByLabel("Fleet CAPEX (year 1)")).toHaveCount(1);
 
-  // Regulation: toggles only - the active self-designed scheme's numbers
-  // are defaulted and hidden.
+  // Regulation: ONLY the self-designed scheme renders — one switch, and the
+  // other four schemes sit behind the reporting strip.
   await page.getByRole("button", { name: "07 Regulation" }).click();
+  await expect(page.getByRole("switch")).toHaveCount(1);
+  await expect(page.getByText("EU / IMO / US schemes")).toBeVisible();
+  // The starter ships with the scheme off — no CO2 price until enabled.
   await expect(page.getByLabel("CO2 price", { exact: true })).toHaveCount(0);
-  await expect(page.getByRole("switch").first()).toBeVisible();
-
-  // A hidden value in effect is COUNTED: set the self-designed CO2 price in
-  // Standard, return to Simplified, and the scheme's strip turns emphatic.
-  await useStandard(page);
-  const co2 = page.getByLabel("CO2 price", { exact: true });
-  await co2.fill("300");
-  await expect(results.getByText(GAP)).toHaveCount(0); // price moved the model
-  await header.getByRole("button", { name: "Simplified" }).click();
-  await expect(page.getByText(/1 detailed setting in effect but hidden/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Switch to Standard" }).first()).toBeVisible();
-
-  // Restore the default; the golden gap returns.
-  await useStandard(page);
-  await co2.fill("280");
-  await expect(results.getByText(GAP)).toBeVisible();
+  await page.getByRole("switch").click();
+  // Enabled: the one headline lever is visible IN Simplified, at its $280
+  // default; the support fields stay behind the strip.
+  await expect(page.getByLabel("CO2 price", { exact: true })).toHaveCount(1);
+  await expect(page.getByLabel("CAPEX support")).toHaveCount(0);
+  // The scheme moved the HEADLINE; the pre-regulation secondary line keeps
+  // showing the unchanged $110.87m — so exactly one match remains.
+  await expect(results.getByText("$110.87m")).toHaveCount(1);
+  await page.getByRole("switch").click();
+  await expect(results.getByText("$110.87m").first()).toBeVisible(); // restored
 });
 
 test("projects-first: tabs lock until a project is chosen; create picks the mode", async ({ page }) => {
@@ -773,8 +798,11 @@ test("projects-first: tabs lock until a project is chosen; create picks the mode
     { timeout: 15000 },
   );
   await expect(
-    page.getByRole("banner").getByRole("button", { name: "Standard" }),
-  ).toHaveAttribute("aria-pressed", "true");
+    page.getByRole("banner").getByText("Standard", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("banner").getByRole("button", { name: "Upgrade to Standard" }),
+  ).toHaveCount(0);
   // The scenario bar leads with the project identity on every working tab.
   await expect(page.getByLabel("Scenario name")).toHaveValue("Gating test corridor");
   await expect(page.getByRole("button", { name: "08 Results" })).toBeEnabled();

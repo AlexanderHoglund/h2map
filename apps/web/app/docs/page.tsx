@@ -257,7 +257,12 @@ export default async function DocsPage() {
           keeps its default or benchmark value — the mode never changes a
           number — and each section shows a counted strip naming how many
           hidden settings are in effect, one click from review. Placement is
-          not editorial: the sweep decides it.
+          not editorial: the sweep decides it. Simplified additionally fixes
+          the STRUCTURE: fuel is purchase-sourced (the sourcing selector and
+          the map-sited build flow are Standard capabilities) and regulation
+          is the self-designed scheme alone (toggle + CO2 price; the
+          EU/IMO/US modules render only in Standard, with a strip reporting
+          any that a scenario carries active).
         </p>
 
         {/* 2 ---------------------------------------------------------- */}
@@ -279,10 +284,14 @@ export default async function DocsPage() {
           case, opening in Standard) and{" "}
           <em>My first corridor</em>{" "}(a blank starter — generic route,
           benchmark costs, every scheme off — opening in Simplified).
-          Creating a new project asks for a name and whether it starts in
-          Simplified or Standard; the choice is stored on the project and any
-          project can switch between the two at any time from the header —
-          the mode is remembered per project, across devices.
+          Creating a new project asks for a name and its level —{" "}
+          <strong>Simplified or Standard</strong>. The level is stored on the
+          project and is a ONE-WAY ladder: a Simplified project can be
+          upgraded to Standard from the header (permanent — it unlocks
+          every field), a Standard project never becomes Simplified. A
+          Simplified project works purchase-sourced fuel against the
+          self-designed scheme only; Standard opens plant construction,
+          map-sited production and the EU/IMO/US regulation modules.
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>

@@ -727,31 +727,43 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
           .map((f) => ({ value: f.id, label: f.label }))}
         onChange={(v) => update((d) => void (d[side].fuelId = v))}
       />
-      <div data-field-id={`${side}.sourcing`}>
-      <Select
-        label={t("sourcing")}
-        value={s.sourcing}
-        options={[
-          { value: "purchase", label: t("sourcingPurchase") },
-          { value: "build-plant", label: t("sourcingBuildPlant") },
-          // build-here (map-derived plant inputs) — green-side only.
-          ...(side === "green"
-            ? [{ value: "build-here", label: t("sourcingBuildHere") }]
-            : []),
-        ]}
-        onChange={(v) =>
-          update((d) => {
-            d[side].sourcing = v as ScenarioInput["green"]["sourcing"];
-          })
-        }
-      />
-      </div>
+      {/* Simplified projects are purchase-only: the sourcing selector is a
+          Standard capability (one-way upgrade). Values are never rewritten —
+          a non-purchase scenario arriving by import keeps computing and the
+          note says where the control lives. */}
+      {viewMode === "standard" ? (
+        <div data-field-id={`${side}.sourcing`}>
+          <Select
+            label={t("sourcing")}
+            value={s.sourcing}
+            options={[
+              { value: "purchase", label: t("sourcingPurchase") },
+              { value: "build-plant", label: t("sourcingBuildPlant") },
+              // build-here (map-derived plant inputs) — green-side only.
+              ...(side === "green"
+                ? [{ value: "build-here", label: t("sourcingBuildHere") }]
+                : []),
+            ]}
+            onChange={(v) =>
+              update((d) => {
+                d[side].sourcing = v as ScenarioInput["green"]["sourcing"];
+              })
+            }
+          />
+        </div>
+      ) : s.sourcing !== "purchase" ? (
+        <p className="sm:col-span-2 bg-neutral-500/5 px-2.5 py-1.5 text-[11px] leading-snug text-neutral-600">
+          {t("sourcingSimplifiedNote")}
+        </p>
+      ) : null}
       {plantMode && legacy && (
         <p className="sm:col-span-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
           {t("legacyPriceNote")}
         </p>
       )}
-      {s.sourcing === "build-here" && <BuildHerePanel model={model} side={side} />}
+      {viewMode === "standard" && s.sourcing === "build-here" && (
+        <BuildHerePanel model={model} side={side} />
+      )}
       {entries.main}
       {viewMode === "standard" ? (
         entries.advanced
@@ -1206,18 +1218,35 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
     ((reg.imoNetZero?.scope ?? 1) !== 1 ? 1 : 0) +
     (reg.imoNetZero?.rewardUsdPerTonneCo2e != null ? 1 : 0) +
     (reg.imoNetZero?.priceEscalation != null ? 1 : 0);
+  // co2Price is NOT counted: it stays visible in Simplified (the scheme's
+  // one headline lever).
   const selfHidden =
-    (reg.selfDesigned.co2PriceUsdPerTonne !== REG_DEFAULTS.selfDesigned.co2PriceUsdPerTonne
-      ? 1
-      : 0) +
     (reg.selfDesigned.supportUsdPerKg !== REG_DEFAULTS.selfDesigned.supportUsdPerKg ? 1 : 0) +
     (reg.selfDesigned.capexSupport !== REG_DEFAULTS.selfDesigned.capexSupport ? 1 : 0) +
     (reg.selfDesigned.opexSupport !== REG_DEFAULTS.selfDesigned.opexSupport ? 1 : 0) +
     (reg.selfDesigned.otherUsdM !== REG_DEFAULTS.selfDesigned.otherUsdM ? 1 : 0) +
     (reg.selfDesigned.co2PriceEscalation != null ? 1 : 0);
 
+  // Simplified shows ONLY the self-designed scheme. The other four sections
+  // do not render at all; this counter reports any of them that a scenario
+  // carries ENABLED (import/upgrade-history safety net) so nothing shapes
+  // the result invisibly: each active scheme counts 1 + its parameter
+  // departures.
+  const otherSchemesHidden =
+    (reg.ets.enabled ? 1 + etsHidden : 0) +
+    (reg.fuelEu.enabled ? 1 + fuelEuHidden : 0) +
+    (reg.ira45z.enabled ? 1 + iraHidden : 0) +
+    (reg.imoNetZero?.enabled ? 1 + imoHidden : 0);
+
   return (
     <div className="space-y-3">
+      {simple && (
+        <Section title={t("otherSchemes")}>
+          <AdvancedHiddenStrip count={otherSchemesHidden} onReveal={revealStandard} />
+        </Section>
+      )}
+      {!simple && (
+        <>
       <Section title={t("ets")}>
         <div className="sm:col-span-2">
           <SwitchRow
@@ -1439,6 +1468,8 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
         )}
       </Section>
 
+        </>
+      )}
       <Section title={t("selfDesigned")}>
         <div className="sm:col-span-2">
           <SwitchRow
@@ -1449,16 +1480,16 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
         </div>
         {reg.selfDesigned.enabled && (
           <>
+            <NumberInput
+              label={t("co2Price")}
+              unit="$/t CO2"
+              value={reg.selfDesigned.co2PriceUsdPerTonne}
+              onChange={(v) =>
+                update((d) => void (d.regulation.selfDesigned.co2PriceUsdPerTonne = v))
+              }
+            />
             {!simple && (
               <>
-                <NumberInput
-                  label={t("co2Price")}
-                  unit="$/t CO2"
-                  value={reg.selfDesigned.co2PriceUsdPerTonne}
-                  onChange={(v) =>
-                    update((d) => void (d.regulation.selfDesigned.co2PriceUsdPerTonne = v))
-                  }
-                />
                 <NumberInput
                   label={t("support")}
                   unit="$/kg"
