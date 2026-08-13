@@ -6,11 +6,12 @@ import { getRequestConfig } from "next-intl/server";
  * per surface and merged here.
  */
 export default getRequestConfig(async () => {
-  const [common, explorer, calculator, corridor] = await Promise.all([
+  const [common, explorer, calculator, corridor, fuelEmissions] = await Promise.all([
     import("../messages/en/common.json"),
     import("../messages/en/explorer.json"),
     import("../messages/en/calculator.json"),
     import("../messages/en/corridor.json"),
+    import("../messages/en/fuelemissions.json"),
   ]);
   return {
     locale: "en",
@@ -19,6 +20,7 @@ export default getRequestConfig(async () => {
       ...explorer.default,
       ...calculator.default,
       ...corridor.default,
+      ...fuelEmissions.default,
     },
   };
 });
