@@ -1,0 +1,22 @@
+{
+  "name": "@h2map/fuel-emissions",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure fuel-emissions evaluator: avoided tCO2e of a candidate marine fuel vs a fossil baseline on the energy-delivered functional unit, under FuelEU Maritime (Annex II, AR4) or the IMO LCA Guidelines (AR5). Golden-fixture gated against hand-computed values.",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@h2map/units": "*",
+    "zod": "^4.1.5"
+  }
+}

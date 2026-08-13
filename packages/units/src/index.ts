@@ -60,6 +60,12 @@ export type GjPerNm = Brand<number, "GjPerNm">;
 export type NauticalMiles = Brand<number, "NauticalMiles">;
 /** Cargo throughput, units per year. */
 export type UnitsPerYear = Brand<number, "UnitsPerYear">;
+/** Absolute energy, megajoules (fuel-emissions calculator). */
+export type Mj = Brand<number, "Mj">;
+/** Absolute mass of CO2-equivalent, tonnes (fuel-emissions calculator). */
+export type TonnesCo2e = Brand<number, "TonnesCo2e">;
+/** Lower calorific value, MJ per gram (the FuelEU Annex II unit). */
+export type MjPerG = Brand<number, "MjPerG">;
 
 // ---------------------------------------------------------------------------
 // Constructors
@@ -96,5 +102,8 @@ export const mjPerTonne = make<MjPerTonne>("MjPerTonne");
 export const gjPerNm = make<GjPerNm>("GjPerNm");
 export const nauticalMiles = make<NauticalMiles>("NauticalMiles");
 export const unitsPerYear = make<UnitsPerYear>("UnitsPerYear");
+export const mj = make<Mj>("Mj");
+export const tonnesCo2e = make<TonnesCo2e>("TonnesCo2e");
+export const mjPerG = make<MjPerG>("MjPerG");
 
 export { formatSig } from "./format";

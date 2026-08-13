@@ -1,0 +1,137 @@
+{
+  "$comment": "GOLDEN FIXTURES — authoritative. Computed by hand from ref_fuel_emissions.seed.json BEFORE the engine exists, so they are independent of the implementation. If the engine disagrees with a fixture, the ENGINE is wrong. Never regenerate these from code output.",
+  "datasetVersion": "2026-08-13-seed-1",
+  "gwpSet": "AR4",
+
+  "fixtures": [
+    {
+      "id": "F1-energy-equivalence",
+      "purpose": "The core trap. A tonne of green fuel does not replace a tonne of fossil fuel.",
+      "input": {
+        "candidateFuelId": "e-ammonia",
+        "quantityTonnes": 1000,
+        "candidateWtwGco2ePerMj": 15.0,
+        "baselineFuelId": "vlsfo",
+        "baselineWtwGco2ePerMj": 90.49,
+        "pilotShare": 0,
+        "n2oSlip": 0,
+        "efficiencyRatio": 1.0
+      },
+      "expected": {
+        "candidateEnergyMj": 18600000,
+        "equivalentBaselineMassTonnes": 453.7,
+        "candidateEmissionsTco2e": 279.0,
+        "baselineEmissionsTco2e": 1683.1,
+        "avoidedTco2e": 1404.1,
+        "reductionPercent": 83.4
+      },
+      "failureMode": "A tonne-for-tonne implementation returns 3,095.1 tCO2e — 2.20× the correct answer. This fixture exists to catch exactly that."
+    },
+
+    {
+      "id": "F2-bettersea-reproduction",
+      "purpose": "Independent validation of the FuelEU Annex II arithmetic against a published worked example.",
+      "input": {
+        "fuelId": "hfo",
+        "quantityTonnes": 7000,
+        "gwpSet": "AR4"
+      },
+      "expected": {
+        "ttwGco2ePerMj": 78.244,
+        "wtwGco2ePerMj": 91.744
+      },
+      "derivation": "(3.114 + 0.00005×25 + 0.00018×298) / 0.0405 = 78.244; + 13.5 WtT = 91.744",
+      "source": "BetterSea, 'Guide: How to Calculate GHG Intensity under FuelEU Maritime'",
+      "tolerance": 0.001
+    },
+
+    {
+      "id": "F3-pilot-fuel",
+      "purpose": "Pilot fuel changes the intensity far more than it changes the avoided tonnes. Both behaviours must be reproduced.",
+      "input": {
+        "candidateFuelId": "e-ammonia",
+        "quantityTonnes": 1000,
+        "candidateWtwGco2ePerMj": 15.0,
+        "baselineFuelId": "vlsfo",
+        "baselineWtwGco2ePerMj": 90.49,
+        "pilotShare": 0.05,
+        "pilotFuelId": "mgo",
+        "pilotWtwGco2ePerMj": 90.8,
+        "n2oSlip": 0,
+        "efficiencyRatio": 1.0
+      },
+      "expected": {
+        "totalEnergyMj": 19578947,
+        "pilotEnergyMj": 978947,
+        "equivalentBaselineMassTonnes": 477.5,
+        "avoidedTco2e": 1403.8,
+        "blendIntensityGco2ePerMj": 18.79
+      },
+      "note": "Avoided emissions move only 0.3 t — because pilot energy displaces baseline energy at almost the same intensity. But the blend intensity rises from 15.00 to 18.79, which sits just under the IMO ZNZ threshold of 19.0 and comfortably ABOVE the 14.0 threshold applying from 2035. That threshold proximity is a headline output, not a footnote."
+    },
+
+    {
+      "id": "F4-n2o-sensitivity",
+      "purpose": "The dominant uncertainty. Published N2O values span a factor of 37 and the worst case destroys the case entirely.",
+      "input": {
+        "candidateFuelId": "e-ammonia",
+        "quantityTonnes": 1000,
+        "candidateWtwGco2ePerMj": 15.0,
+        "baselineWtwGco2ePerMj": 90.49,
+        "gwpN2o": 273
+      },
+      "expectedByScenario": [
+        {
+          "scenario": "tested-two-stroke",
+          "gN2oPerGNh3": 0.0000681,
+          "addsGco2ePerMj": 1.0,
+          "totalIntensityGco2ePerMj": 16.0,
+          "avoidedTco2e": 1385.5,
+          "znzCompliant": true
+        },
+        {
+          "scenario": "optimised-injection",
+          "gN2oPerGNh3": 0.00022,
+          "addsGco2ePerMj": 3.23,
+          "totalIntensityGco2ePerMj": 18.23,
+          "avoidedTco2e": 1344.0,
+          "znzCompliant": true
+        },
+        {
+          "scenario": "highest-observed",
+          "gN2oPerGNh3": 0.0025,
+          "addsGco2ePerMj": 36.69,
+          "totalIntensityGco2ePerMj": 51.69,
+          "avoidedTco2e": 721.7,
+          "znzCompliant": false
+        }
+      ],
+      "note": "Between best and worst published N2O, avoided emissions fall by 48% and the fuel stops qualifying as ZNZ. No point estimate is defensible here — the UI must show the range."
+    },
+
+    {
+      "id": "F5-gwp-set-switch",
+      "purpose": "Switching GWP set must move CH4- and N2O-bearing results and leave pure-CO2 results untouched.",
+      "input": { "fuelId": "hfo", "quantityTonnes": 1000 },
+      "expected": {
+        "AR4": { "ttwGco2ePerMj": 78.244, "wtwGco2ePerMj": 91.744 },
+        "AR5": { "ttwGco2ePerMj": 78.101, "wtwGco2ePerMj": 91.601 }
+      },
+      "note": "HFO moves only 0.14 gCO2e/MJ because its CH4 and N2O terms are tiny. Run the same test on LNG, where the CH4 term dominates and the AR4→AR5 shift is material."
+    },
+
+    {
+      "id": "F6-identity",
+      "purpose": "Property test, not a fixture value.",
+      "assertion": "avoided(X vs X) === 0 exactly, for every fuel X in the reference bundle, under every GWP set and both bases."
+    }
+  ],
+
+  "openItems": [
+    "VLSFO WtT of 13.2 gCO2e/MJ is carried from a secondary source and must be checked against the Annex II VLSFO row. F1 and F3 depend on it — if it changes, both fixtures change.",
+    "MGO row unverified; F3's pilot value depends on it.",
+    "No LNG fixture yet: the IMO LCA Guidelines lack a default upstream factor for fossil LNG (real range 18.5–28 gCO2e/MJ), so an LNG fixture cannot be computed honestly until that is resolved.",
+    "No e-methanol fixture: needs the two CO2-source pathway rows from RED Delegated Regulation 2023/1185.",
+    "GCMD's published GFI calculator should be reproduced as an independent cross-check once the engine exists."
+  ]
+}

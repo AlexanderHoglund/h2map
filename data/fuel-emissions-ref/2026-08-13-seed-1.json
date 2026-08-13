@@ -1,0 +1,196 @@
+{
+  "$schema": "ref_fuel_emissions.schema.json",
+  "datasetVersion": "2026-08-13-seed-1",
+  "retrievedDate": "2026-08-13",
+  "status": "SEED — human review required before use. Rows marked verified:false must not drive a headline number without the unverified badge.",
+  "gwpSets": {
+    "AR4": {
+      "co2": 1, "ch4": 25, "n2o": 298,
+      "source": "IPCC AR4 100-yr. The GWP set fixed in FuelEU Maritime Regulation (EU) 2023/1805 Annex II as currently drafted.",
+      "note": "EMSA has indicated FuelEU will move to AR5. Both sets are provided; the engine must never mix them."
+    },
+    "AR5": {
+      "co2": 1, "ch4": 28, "n2o": 265,
+      "source": "IPCC AR5 100-yr. Basis of the IMO LCA Guidelines (MEPC.391(81)) and the expected FuelEU update."
+    },
+    "AR6": {
+      "co2": 1, "ch4": 29.8, "n2o": 273,
+      "source": "IPCC AR6 100-yr. Not used by either framework; provided for sensitivity only.",
+      "verified": false
+    }
+  },
+
+  "frameworks": {
+    "fueleu": {
+      "name": "FuelEU Maritime",
+      "legalBasis": "Regulation (EU) 2023/1805, Annex II",
+      "basis": "wellToWake",
+      "defaultGwpSet": "AR4",
+      "rfnboCeilingGco2ePerMj": 28.2,
+      "rfnboCeilingSource": "RED Article 28(5): ≥70% GHG saving vs the fossil comparator, giving a maximum WtW of 28.2 gCO2eq/MJ.",
+      "biofuelReferenceEValue": 18.0,
+      "biofuelReferenceNote": "Sustainable Ships uses 18 gCO2eq/MJ as a standard E-value for compliant high-grade biofuels; near-zero compliance cost to 2050 requires below ~18.53. Actual E-values vary by feedstock and pathway — RED II Annex V/VI.",
+      "missingValueRule": "Annex II cells marked TBM or N/A must be established under Article 10. Absent that, the highest default value in the fuel class and column applies; if the whole column is TBM/N-A, the least favourable fossil pathway applies. Column 9 (Cslip) is excluded from this rule and requires certification under Article 10(5)."
+    },
+    "imo": {
+      "name": "IMO Net-Zero Framework",
+      "legalBasis": "2024 Guidelines on Life Cycle GHG Intensity of Marine Fuels, MEPC.391(81), revising MEPC.376(79)",
+      "basis": "wellToWake",
+      "defaultGwpSet": "AR5",
+      "referenceGfi2008": 93.3,
+      "znzThresholdGco2ePerMj": { "to2034": 19.0, "from2035": 14.0 },
+      "znzSource": "MEPC 83 approved text: ZNZ threshold at most 19.0 gCO2eq/MJ until end-2034, no greater than 14.0 gCO2eq/MJ from 1 January 2035.",
+      "status": "Approved at MEPC 83 April 2025; formal adoption targeted MEPC 85 October 2026. Defaults not yet published for all fuels.",
+      "verified": false
+    }
+  },
+
+  "fuels": [
+    {
+      "id": "hfo",
+      "name": "Heavy fuel oil",
+      "family": "fossil",
+      "lcvMjPerG": 0.0405,
+      "ttw": { "co2GPerG": 3.114, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
+      "wttGco2ePerMj": 13.5,
+      "framework": "fueleu",
+      "verified": true,
+      "derivation": "FuelEU Annex II default values. TtW under AR4 = (3.114 + 0.00005×25 + 0.00018×298) / 0.0405 = 78.244 gCO2e/MJ; adding WtT 13.5 gives 91.744 gCO2e/MJ.",
+      "validation": "Reproduces BetterSea's published worked example (7,000 t HFO containership, 91.744 gCO2e/MJ, AR4) to three decimals.",
+      "source": "Regulation (EU) 2023/1805 Annex II, via BetterSea 'How to Calculate GHG Intensity under FuelEU Maritime'"
+    },
+    {
+      "id": "vlsfo",
+      "name": "Very low sulphur fuel oil",
+      "family": "fossil",
+      "lcvMjPerG": 0.041,
+      "ttw": { "co2GPerG": 3.114, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
+      "wttGco2ePerMj": 13.2,
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "TtW factor family shared with HFO; LCV 0.041 MJ/g is the FuelEU VLSFO reference energy content, also used as the VLSFO-equivalent denominator in the penalty formula. Gives WtW 90.49 gCO2e/MJ under AR4.",
+      "reviewNote": "LCV confirmed; the WtT value of 13.2 is carried from secondary sources and MUST be checked against the Annex II VLSFO row before this fuel drives a published figure.",
+      "source": "Regulation (EU) 2023/1805 Annex II — row to be verified"
+    },
+    {
+      "id": "mgo",
+      "name": "Marine gas oil / marine diesel oil",
+      "family": "fossil",
+      "lcvMjPerG": 0.0427,
+      "ttw": { "co2GPerG": 3.206, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
+      "wttGco2ePerMj": 14.4,
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "Distillate row. Used as the default pilot fuel for dual-fuel engines. WtW ≈ 90.8 gCO2e/MJ under AR4.",
+      "reviewNote": "Verify LCV, CO2 factor and WtT against the Annex II MDO/MGO row.",
+      "source": "Regulation (EU) 2023/1805 Annex II — row to be verified"
+    },
+    {
+      "id": "lng",
+      "name": "Liquefied natural gas (fossil)",
+      "family": "fossil",
+      "lcvMjPerG": 0.0491,
+      "ttw": { "co2GPerG": 2.750, "ch4GPerG": null, "n2oGPerG": null },
+      "wttGco2ePerMj": null,
+      "framework": "fueleu",
+      "verified": false,
+      "requiresEngineType": true,
+      "derivation": "CO2 factor and LCV are engine-independent. Methane slip is NOT — it is set per engine technology at 50% load and is the dominant term in LNG's WtW result.",
+      "reviewNote": "WtT missing. Note the ICCT finding that the IMO LCA Guidelines lack a default upstream factor for fossil LNG, where the real range is 18.5–28 gCO2e/MJ — 20–30% of HFO's whole lifecycle intensity. Do not ship an LNG row without resolving this; a missing upstream term flatters LNG substantially.",
+      "source": "LCV and CO2 factor via agriportance FuelEU worked example; WtT gap per ICCT, April 2025"
+    },
+    {
+      "id": "e-ammonia",
+      "name": "e-Ammonia (RFNBO)",
+      "family": "green",
+      "lcvMjPerG": 0.0186,
+      "ttw": { "co2GPerG": 0.0, "ch4GPerG": 0.0, "n2oGPerG": "SEE n2oSlip" },
+      "wttGco2ePerMj": null,
+      "wttRangeGco2ePerMj": [5, 28.2],
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "Ammonia contains no carbon, so TtW CO2 is zero by chemistry. The WtT term is entirely determined by the electricity pathway and must come from a certified E-value — there is no single default. The RED ceiling for an RFNBO is 28.2 gCO2eq/MJ; certified renewable pathways typically land 5–15.",
+      "reviewNote": "NEVER default this to zero. A zero WtW ammonia is an assumption, not a certifiable value, and the tool must not offer it.",
+      "source": "RED Article 28(5) ceiling; pathway values from RED Delegated Regulation 2023/1185"
+    },
+    {
+      "id": "e-methanol",
+      "name": "e-Methanol (RFNBO)",
+      "family": "green",
+      "lcvMjPerG": 0.0199,
+      "ttw": { "co2GPerG": 1.375, "ch4GPerG": null, "n2oGPerG": null },
+      "wttGco2ePerMj": null,
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "TtW CO2 is non-zero — methanol is a carbon molecule. Whether that carbon counts depends on the CO2 source (DAC vs point-source capture), which is a WtT accounting question, not a TtW one.",
+      "reviewNote": "Two pathway rows needed: DAC-sourced and point-source-captured CO2. Values to be taken from RED Delegated Regulation 2023/1185.",
+      "source": "To be completed"
+    }
+  ],
+
+  "methaneSlip": {
+    "note": "Cslip is the fraction of methane escaping combustion, defined at 50% engine load. Both frameworks specify values per engine technology and they differ — engine type must be an explicit input for any LNG calculation.",
+    "source": "Sustainable Ships, 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero', July 2025",
+    "verified": true,
+    "byEngine": [
+      { "engine": "lng-otto-df-medium-speed", "fueleu": 0.031, "imo": 0.035 },
+      { "engine": "lng-otto-df-slow-speed", "fueleu": 0.017, "imo": 0.017 },
+      { "engine": "lng-diesel-df-slow-speed", "fueleu": 0.0020, "imo": 0.0015 },
+      { "engine": "lng-lbsi", "fueleu": 0.026, "imo": 0.026 },
+      { "engine": "steam-turbine-boiler", "fueleu": 0.0001, "imo": 0.0001 }
+    ]
+  },
+
+  "pilotFuel": {
+    "note": "Ammonia and methanol dual-fuel engines require a fossil pilot for ignition. This puts a floor under the achievable reduction that pure fuel-intensity arithmetic misses.",
+    "verified": true,
+    "defaultShareOfEnergy": 0.05,
+    "range": [0.03, 0.08],
+    "defaultPilotFuelId": "mgo",
+    "derivation": "MAN Energy Solutions: ammonia-mode operation uses around 95% ammonia on an energy basis with 5% pilot fuel (diesel or heavy fuel oil), the same order as methanol- and LPG-fuelled engines. Full engine testing shows similar thermal efficiency in diesel mode and ammonia mode.",
+    "source": "Ammonia Energy Association, 'Emission performance of ammonia-fueled, two-stroke marine engines', citing MAN ES Research Centre Copenhagen and WinGD full-engine testing"
+  },
+
+  "n2oSlip": {
+    "note": "THE DOMINANT UNCERTAINTY IN AMMONIA'S EMISSIONS PROFILE. Published values span a factor of 37. This must be presented as a range with a sensitivity control, never as a point estimate.",
+    "verified": false,
+    "unit": "gN2O per g NH3",
+    "defaultValue": 0.00022,
+    "range": [0.0000681, 0.0025],
+    "scenarios": [
+      {
+        "id": "tested-two-stroke",
+        "value": 0.0000681,
+        "addsGco2ePerMj": 1.0,
+        "label": "MAN / WinGD tested two-stroke engines",
+        "derivation": "MAN reports N2O below 5 ppm, WinGD below 3 ppm — described as under 2% of the CO2-equivalent of a fuel-oil engine, and under 1% at full load, i.e. less than 1 gCO2e/MJ.",
+        "source": "Ammonia Energy Association, September 2025, citing MAN ES and WinGD full-engine testing"
+      },
+      {
+        "id": "optimised-injection",
+        "value": 0.00022,
+        "addsGco2ePerMj": 3.23,
+        "label": "Optimised injection strategy (default)",
+        "derivation": "Literature reviewed for MEPC reports 91.2% N2O reduction at 3% diesel energetic ratio with optimised injection, applied to the highest observed value.",
+        "source": "MEPC 83/7/23, Pacific Environment / Clean Shipping Coalition literature review"
+      },
+      {
+        "id": "highest-observed",
+        "value": 0.0025,
+        "addsGco2ePerMj": 36.69,
+        "label": "Highest observed in the literature",
+        "derivation": "Two independent studies reported 0.0025 g N2O/g NH3 as the highest observed emissions. At AR6 GWP 273 over an LCV of 0.0186 MJ/g this adds 36.69 gCO2e/MJ — taking a 15 gCO2e/MJ e-ammonia to 51.69 and failing the ZNZ threshold outright.",
+        "source": "MEPC 83/7/23, Pacific Environment / Clean Shipping Coalition literature review"
+      }
+    ],
+    "reviewNote": "Neither FuelEU Annex II nor the IMO LCA Guidelines currently fixes an ammonia N2O default. Until one exists this parameter carries the unverified badge and the UI must show the range."
+  },
+
+  "engineEfficiencyRatio": {
+    "note": "Ratio of alternative-fuel engine efficiency to the baseline engine's. Determines whether equal fuel energy delivers equal transport work.",
+    "default": 1.0,
+    "verified": true,
+    "derivation": "MAN full engine testing indicates similar thermal efficiency in diesel mode and ammonia mode for two-stroke dual-fuel engines, so a ratio of 1.0 is the evidenced default rather than an omission.",
+    "source": "Ammonia Energy Association, September 2025, citing MAN ES Research Centre Copenhagen"
+  }
+}
