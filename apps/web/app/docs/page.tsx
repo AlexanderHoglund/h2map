@@ -2347,9 +2347,15 @@ export default async function DocsPage() {
           refuses (the IMO guidelines lack a default upstream factor; the
           real range 18.5–28 gCO2e/MJ is 20–30% of HFO&apos;s whole
           lifecycle intensity, so a missing term flatters LNG
-          substantially), and e-ammonia requires a CERTIFIED pathway
-          E-value — a zero-WtW ammonia is an assumption, not a certifiable
-          value.
+          substantially), and the pathway fuels — e-ammonia and
+          e-methanol — require a CERTIFIED pathway E-value: a zero-WtW
+          RFNBO is an assumption, not a certifiable value. For e-methanol
+          the certificate also resolves whether the combustion carbon
+          counts (DAC-sourced vs point-source-captured CO2, RED Delegated
+          Regulation 2023/1185); on the tank-to-wake basis the chemical
+          stack CO2 (1.375 g/g ÷ 0.0199 MJ/g = 69.1 gCO2/MJ) is always
+          reported — methanol is a carbon molecule regardless of
+          accounting.
         </p>
 
         <H id="fe-calculation">34. The calculation</H>
@@ -2374,9 +2380,11 @@ export default async function DocsPage() {
           E<sub>pilot</sub>×intensity<sub>pilot</sub>) &nbsp;[tCO2e]
         </F>
         <p className="mt-2">
-          The tool runs BOTH directions: forward (&ldquo;I have X t of green
-          fuel&rdquo;) and reverse (&ldquo;how much green fuel replaces X t
-          of fossil?&rdquo;). In reverse, the quantity is the baseline mass;
+          The tool runs BOTH directions, and the UI asks for the direction
+          FIRST — a two-card chooser (&ldquo;I have green fuel&rdquo; /
+          &ldquo;Replace fossil fuel&rdquo;) precedes the form, which is
+          then ordered so the fuel you start from comes first. In reverse,
+          the quantity is the baseline mass;
           the engine derives E<sub>base</sub>{" "}= quantity × LCV
           <sub>base</sub>, then E<sub>cand</sub>{" "}= E<sub>base</sub>{" "}/
           efficiencyRatio × (1 − pilotShare) and the required candidate
@@ -2453,10 +2461,13 @@ export default async function DocsPage() {
             unverified.
           </li>
           <li>
-            No LNG evaluation until the upstream-factor gap is resolved,
-            and no e-methanol until the two CO2-source pathway rows (DAC vs
-            point-source, RED Delegated Regulation 2023/1185) are added —
-            both refuse rather than approximate.
+            No LNG evaluation until the upstream-factor gap is resolved —
+            it refuses rather than approximates. e-Methanol evaluates as a
+            certified-pathway fuel (the user supplies the E-value per
+            project, range 1–28.2 gCO2e/MJ), but the dedicated DAC-sourced
+            and point-source-captured pathway rows from RED Delegated
+            Regulation 2023/1185 remain to be added, and its combustion
+            CH4/N2O are carried as nil pending an Annex II methanol row.
           </li>
           <li>
             Out of scope by design: cost (the corridor model prices),

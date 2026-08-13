@@ -17,11 +17,11 @@ import seedJson from "../../../../data/fuel-emissions-ref/2026-08-13-seed-1.json
 
 /**
  * Fuel Emissions Calculator (client-side, recomputes on keystroke).
- * Deliberately spare: one input card, one result card. The direction
- * toggle runs the comparison both ways — "I have green fuel" or "how much
- * green fuel replaces X t of fossil?" — and the equivalence line under
- * the quantity is the pedagogical payload in both. Detail lives in Help
- * tooltips, not on the page.
+ * Direction-first: the page opens on a two-card chooser — "I have green
+ * fuel" or "Replace fossil fuel" — and only then shows the form, ordered
+ * for that direction (the fuel you START from comes first). The
+ * equivalence line under the quantity is the pedagogical payload both
+ * ways. Detail lives in Help tooltips, not on the page.
  */
 
 const ds = parseRefDataset(seedJson);
@@ -40,7 +40,7 @@ export default function FuelEmissionsPanel() {
   const t = useTranslations("fuelEmissions");
   const [frameworkId, setFrameworkId] = useState("fueleu");
   const [basis, setBasis] = useState<"wellToWake" | "tankToWake">("wellToWake");
-  const [direction, setDirection] = useState<"candidate" | "baseline">("candidate");
+  const [direction, setDirection] = useState<"candidate" | "baseline" | null>(null);
   const [candidateFuelId, setCandidateFuelId] = useState("e-ammonia");
   const [quantityTonnes, setQuantityTonnes] = useState(1000);
   const [candidateWtw, setCandidateWtw] = useState(15);
@@ -55,6 +55,9 @@ export default function FuelEmissionsPanel() {
   const rfnboCeiling = ds.frameworks["fueleu"]?.rfnboCeilingGco2ePerMj ?? 28.2;
   const n2oScenario = ds.n2oSlip.scenarios.find((s) => s.id === n2oScenarioId)!;
   const isAmmonia = candidateFuelId === "e-ammonia";
+  // A pathway fuel carries a certified-value RANGE instead of a fixed WtT
+  // (e-ammonia AND e-methanol) — the certified input renders for these.
+  const certifiedRange = candidateRow.wttRangeGco2ePerMj ?? null;
 
   const result = useMemo(
     () =>
@@ -62,7 +65,7 @@ export default function FuelEmissionsPanel() {
         {
           candidateFuelId,
           quantityTonnes,
-          quantityBasis: direction,
+          quantityBasis: direction ?? "candidate",
           baselineFuelId,
           frameworkId,
           candidateWtwGco2ePerMj: Math.min(candidateWtw, rfnboCeiling),
@@ -93,10 +96,130 @@ export default function FuelEmissionsPanel() {
   const active = ok ? (basis === "wellToWake" ? ok.wellToWake : ok.tankToWake) : null;
   const other = ok ? (basis === "wellToWake" ? ok.tankToWake : ok.wellToWake) : null;
 
+  /* ============ Direction chooser: decide first, then the form ========= */
+  if (!direction) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
+          {t("chooserPrompt")}
+        </p>
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setDirection("candidate")}
+            className="border border-neutral-300 bg-white p-5 text-left transition-colors hover:border-brand-deep hover:bg-brand-tint/30"
+          >
+            <span className="block text-base font-semibold text-brand-deep">
+              {t("directionForward")}
+            </span>
+            <span className="mt-1 block text-xs leading-relaxed text-neutral-600">
+              {t("chooserForwardDesc")}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setDirection("baseline")}
+            className="border border-neutral-300 bg-white p-5 text-left transition-colors hover:border-brand-deep hover:bg-brand-tint/30"
+          >
+            <span className="block text-base font-semibold text-brand-deep">
+              {t("directionReverse")}
+            </span>
+            <span className="mt-1 block text-xs leading-relaxed text-neutral-600">
+              {t("chooserReverseDesc")}
+            </span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* Form blocks, composed in direction order (start fuel first). */
+  const candidateSelect = (
+    <Select
+      label={t("candidate")}
+      value={candidateFuelId}
+      options={ds.fuels
+        .filter((f) => f.family === "green" || f.id === "lng")
+        .map((f) => ({ value: f.id, label: f.name }))}
+      onChange={setCandidateFuelId}
+    />
+  );
+  const baselineSelect = (
+    <Select
+      label={t("baseline")}
+      help={t("baselineHelp")}
+      value={baselineFuelId}
+      options={ds.fuels
+        .filter((f) => f.family === "fossil" && f.id !== "lng")
+        .map((f) => ({
+          value: f.id,
+          label: `${f.name}${f.verified ? "" : " *"}`,
+        }))}
+      onChange={setBaselineFuelId}
+    />
+  );
+  const quantityInput = (
+    <NumberInput
+      label={t("quantityOf", {
+        fuel: direction === "candidate" ? candidateRow.name : baselineRow.name,
+      })}
+      unit="t"
+      step={100}
+      value={quantityTonnes}
+      onChange={(v) => setQuantityTonnes(Math.max(0, v))}
+    />
+  );
+  const certifiedInput = certifiedRange ? (
+    <NumberInput
+      label={t("candidateWtw")}
+      unit="gCO2e/MJ"
+      step={0.5}
+      help={`${t("candidateWtwHelp")} ${t("certifiedRange", {
+        fuel: candidateRow.name,
+        low: String(certifiedRange[0]),
+        high: String(certifiedRange[1]),
+      })}`}
+      value={candidateWtw}
+      onChange={(v) =>
+        setCandidateWtw(Math.min(rfnboCeiling, Math.max(certifiedRange[0], v)))
+      }
+    />
+  ) : null;
+  const equivalenceLine = ok ? (
+    <p className="sm:col-span-2 bg-brand-tint/50 px-2.5 py-1.5 text-xs font-medium text-brand-deep">
+      {direction === "candidate"
+        ? t("equivalent", {
+            candidateQty: fmt1(ok.candidateMassTonnes),
+            candidate: candidateRow.name,
+            baselineQty: fmt1(ok.equivalentBaselineMassTonnes),
+            baseline: baselineRow.name,
+          })
+        : t("equivalentReverse", {
+            baselineQty: fmt1(ok.equivalentBaselineMassTonnes),
+            baseline: baselineRow.name,
+            candidateQty: fmt1(ok.candidateMassTonnes),
+            candidate: candidateRow.name,
+          })}
+      <Help text={t("equivalentHelp")} />
+    </p>
+  ) : null;
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {/* ===================== Inputs (one card) ===================== */}
       <Section title={t("compare")}>
+        <div className="sm:col-span-2 flex items-center justify-between bg-neutral-500/10 px-2.5 py-1.5">
+          <span className="text-xs font-medium text-neutral-700">
+            {direction === "candidate" ? t("directionForward") : t("directionReverse")}
+          </span>
+          <button
+            type="button"
+            onClick={() => setDirection(null)}
+            className="text-xs font-medium text-brand-deep underline"
+          >
+            {t("changeDirection")}
+          </button>
+        </div>
         <Select
           label={t("framework")}
           help={t("frameworkHelp")}
@@ -116,90 +239,23 @@ export default function FuelEmissionsPanel() {
           ]}
           onChange={(v) => setBasis(v as "wellToWake" | "tankToWake")}
         />
-        {/* Direction: the one added element — the tool runs both ways. */}
-        <div
-          role="group"
-          aria-label={t("direction")}
-          className="sm:col-span-2 flex gap-1"
-        >
-          {(
-            [
-              ["candidate", t("directionForward")],
-              ["baseline", t("directionReverse")],
-            ] as const
-          ).map(([d, label]) => (
-            <button
-              key={d}
-              type="button"
-              aria-pressed={direction === d}
-              onClick={() => setDirection(d)}
-              className={`flex-1 px-2 py-1.5 text-xs font-medium transition-colors ${
-                direction === d
-                  ? "bg-neutral-800 text-white"
-                  : "bg-neutral-500/10 text-neutral-600 hover:bg-neutral-500/20"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <Select
-          label={t("candidate")}
-          value={candidateFuelId}
-          options={ds.fuels
-            .filter((f) => f.family === "green" || f.id === "lng")
-            .map((f) => ({ value: f.id, label: f.name }))}
-          onChange={setCandidateFuelId}
-        />
-        <NumberInput
-          label={t("quantityOf", {
-            fuel: direction === "candidate" ? candidateRow.name : baselineRow.name,
-          })}
-          unit="t"
-          step={100}
-          value={quantityTonnes}
-          onChange={(v) => setQuantityTonnes(Math.max(0, v))}
-        />
-        {ok && (
-          <p className="sm:col-span-2 bg-brand-tint/50 px-2.5 py-1.5 text-xs font-medium text-brand-deep">
-            {direction === "candidate"
-              ? t("equivalent", {
-                  candidateQty: fmt1(ok.candidateMassTonnes),
-                  candidate: candidateRow.name,
-                  baselineQty: fmt1(ok.equivalentBaselineMassTonnes),
-                  baseline: baselineRow.name,
-                })
-              : t("equivalentReverse", {
-                  baselineQty: fmt1(ok.equivalentBaselineMassTonnes),
-                  baseline: baselineRow.name,
-                  candidateQty: fmt1(ok.candidateMassTonnes),
-                  candidate: candidateRow.name,
-                })}
-            <Help text={t("equivalentHelp")} />
-          </p>
+        {direction === "candidate" ? (
+          <>
+            {candidateSelect}
+            {quantityInput}
+            {equivalenceLine}
+            {certifiedInput}
+            {baselineSelect}
+          </>
+        ) : (
+          <>
+            {baselineSelect}
+            {quantityInput}
+            {candidateSelect}
+            {certifiedInput}
+            {equivalenceLine}
+          </>
         )}
-        {isAmmonia && (
-          <NumberInput
-            label={t("candidateWtw")}
-            unit="gCO2e/MJ"
-            step={0.5}
-            help={t("candidateWtwHelp")}
-            value={candidateWtw}
-            onChange={(v) => setCandidateWtw(Math.min(rfnboCeiling, Math.max(0.1, v)))}
-          />
-        )}
-        <Select
-          label={t("baseline")}
-          help={t("baselineHelp")}
-          value={baselineFuelId}
-          options={ds.fuels
-            .filter((f) => f.family === "fossil" && f.id !== "lng")
-            .map((f) => ({
-              value: f.id,
-              label: `${f.name}${f.verified ? "" : " *"}`,
-            }))}
-          onChange={setBaselineFuelId}
-        />
         <Advanced label={t("advanced")}>
           <NumberInput
             label={t("pilotShare")}

@@ -156,8 +156,8 @@ describe("fuel-emissions properties", () => {
     expect(r.reviewNote).toMatch(/ICCT/);
   });
 
-  it("e-methanol refuses: pathway rows pending", () => {
-    const r = evaluateFuelEmissions(
+  it("e-methanol refuses without a certified value; computes with one", () => {
+    const refused = evaluateFuelEmissions(
       {
         candidateFuelId: "e-methanol",
         quantityTonnes: 1000,
@@ -166,7 +166,39 @@ describe("fuel-emissions properties", () => {
       },
       ds,
     );
-    expect("notParameterised" in r && r.notParameterised).toBe(true);
+    expect("notParameterised" in refused && refused.notParameterised).toBe(true);
+    if (!("notParameterised" in refused) || !refused.notParameterised)
+      throw new Error("unreachable");
+    expect(refused.missing[0]).toMatch(/certified pathway/);
+
+    // With a certified E-value it is a pathway fuel like e-ammonia:
+    // 1,000 t @ 19,900 MJ/t = 19.9e6 MJ replaces 485.4 t VLSFO; avoided
+    // WtW = 19.9e6 x (90.49 - 10) x 1e-6 = 1,601.75 tCO2e. The TtW basis
+    // stays chemical: methanol is a carbon molecule, so the candidate's
+    // tank-to-wake intensity is 1.375 / 0.0199 = 69.10 gCO2/MJ even
+    // though the certified WtW is 10.
+    const r = evaluateFuelEmissions(
+      {
+        candidateFuelId: "e-methanol",
+        quantityTonnes: 1000,
+        baselineFuelId: "vlsfo",
+        frameworkId: "fueleu",
+        candidateWtwGco2ePerMj: 10,
+        pilotShare: 0,
+      },
+      ds,
+    );
+    if ("notParameterised" in r && r.notParameterised) throw new Error("refused");
+    const ok = r as FuelEmissionsResult;
+    expect(ok.equivalentBaselineMassTonnes).toBeCloseTo(485.37, 1);
+    expect(ok.wellToWake.avoidedTco2e).toBeCloseTo(1601.75, 1);
+    expect(ok.wellToWake.candidate.intensityGco2ePerMj).toBeCloseTo(10, 9);
+    expect(ok.tankToWake.candidate.intensityGco2ePerMj).toBeCloseTo(69.095, 2);
+    // Chemical TtW decomposition parts carry the combustion CO2.
+    expect(ok.tankToWake.candidate.parts.ttwCo2Tco2e).toBeCloseTo(
+      (19.9e6 * (1.375 / 0.0199)) / 1e6,
+      6,
+    );
   });
 
   it("a pathway fuel without a certified value refuses — zero is not a default", () => {

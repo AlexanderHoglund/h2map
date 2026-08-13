@@ -118,13 +118,14 @@
       "name": "e-Methanol (RFNBO)",
       "family": "green",
       "lcvMjPerG": 0.0199,
-      "ttw": { "co2GPerG": 1.375, "ch4GPerG": null, "n2oGPerG": null },
+      "ttw": { "co2GPerG": 1.375, "ch4GPerG": 0.0, "n2oGPerG": 0.0 },
       "wttGco2ePerMj": null,
+      "wttRangeGco2ePerMj": [1, 28.2],
       "framework": "fueleu",
       "verified": false,
-      "derivation": "TtW CO2 is non-zero — methanol is a carbon molecule. Whether that carbon counts depends on the CO2 source (DAC vs point-source capture), which is a WtT accounting question, not a TtW one.",
-      "reviewNote": "Two pathway rows needed: DAC-sourced and point-source-captured CO2. Values to be taken from RED Delegated Regulation 2023/1185.",
-      "source": "To be completed"
+      "derivation": "A certified-pathway fuel like e-ammonia: the user supplies the certified E-value (full WtW under RED accounting — whether the combustion carbon counts depends on the CO2 source, DAC vs point-source capture, which the certificate resolves). The RFNBO ceiling is 28.2 gCO2eq/MJ. On the tank-to-wake basis the chemical stack CO2 (1.375 g/g over LCV 0.0199 = 69.1 gCO2/MJ) is reported — methanol is a carbon molecule regardless of accounting. Combustion CH4/N2O are not fixed by either framework for methanol engines and are far below the CO2 term; carried as nil pending an Annex II methanol row.",
+      "reviewNote": "Dedicated pathway rows (DAC-sourced vs point-source-captured CO2, RED Delegated Regulation 2023/1185) remain to be added; until then the certified E-value must be supplied per project.",
+      "source": "RED Article 28(5) ceiling; pathway values per certificate (RED Delegated Regulation 2023/1185)"
     }
   ],
 

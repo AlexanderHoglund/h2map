@@ -222,17 +222,21 @@ export function evaluateFuelEmissions(
 
   // --- intensities under the ONE selected GWP set ------------------------
   const baseInt = rowIntensity(baseline, gwp);
+  // Pathway fuels (certified E-value): the WtW basis uses the certified
+  // value as the WHOLE pathway intensity — for e-methanol the certificate
+  // resolves whether the combustion carbon counts (DAC vs point-source).
+  // The TANK-TO-WAKE basis stays chemical: the row's stack factors (zero
+  // for e-ammonia by chemistry, 69.1 gCO2/MJ for e-methanol — a carbon
+  // molecule regardless of accounting).
+  const candChemical = rowIntensity(candidate, gwp);
   const candInt: Intensity = pathwayFuel
     ? {
-        // The certified value is the fuel's whole WtW pathway intensity
-        // (combustion CO2/CH4 are zero by chemistry for e-ammonia); the
-        // combustion N2O slip is a separate engine-behaviour term below.
         wtt: input.candidateWtwGco2ePerMj!,
         ttwCo2: 0,
         ttwCh4: 0,
         ttwN2o: 0,
       }
-    : rowIntensity(candidate, gwp);
+    : candChemical;
   const slipGwp = input.n2oSlipGwpOverride ?? gwp.n2o;
   const slipPerMj = ((input.n2oSlipGPerG ?? 0) * slipGwp) / candidate.lcvMjPerG;
   const pilotInt = pilot ? rowIntensity(pilot, gwp) : null;
@@ -252,11 +256,14 @@ export function evaluateFuelEmissions(
       n2oSlipTco2e: 0,
       pilotTco2e: 0,
     };
+    // Per-basis candidate intensity: certified pathway value on WtW,
+    // chemical stack factors on TtW (identical for fixed-row fuels).
+    const cInt = pathwayFuel && !wtw ? candChemical : candInt;
     const candidateParts: EmissionParts = {
-      wttTco2e: (wtw ? candInt.wtt : 0) * candidateEnergyMj * g2t,
-      ttwCo2Tco2e: candInt.ttwCo2 * candidateEnergyMj * g2t,
-      ttwCh4Tco2e: candInt.ttwCh4 * candidateEnergyMj * g2t,
-      ttwN2oTco2e: candInt.ttwN2o * candidateEnergyMj * g2t,
+      wttTco2e: (wtw ? cInt.wtt : 0) * candidateEnergyMj * g2t,
+      ttwCo2Tco2e: cInt.ttwCo2 * candidateEnergyMj * g2t,
+      ttwCh4Tco2e: cInt.ttwCh4 * candidateEnergyMj * g2t,
+      ttwN2oTco2e: cInt.ttwN2o * candidateEnergyMj * g2t,
       n2oSlipTco2e: slipPerMj * candidateEnergyMj * g2t,
       pilotTco2e: pilotInt ? intensityOf(pilotInt) * pilotEnergyMj * g2t : 0,
     };
@@ -275,7 +282,8 @@ export function evaluateFuelEmissions(
       },
       candidate: {
         energyMj: candidateEnergyMj,
-        intensityGco2ePerMj: intensityOf(candInt) + slipPerMj,
+        intensityGco2ePerMj:
+          intensityOf(pathwayFuel && !wtw ? candChemical : candInt) + slipPerMj,
         emissionsTco2e: candidateEmissions,
         parts: candidateParts,
       },
