@@ -39,32 +39,43 @@ test("energy equivalence, refusal paths and the N2O range", async ({ page }) => 
   // scenario moves the avoided result.
   await expect(page.getByText("unverified").first()).toBeVisible();
   await expect(page.getByText(/Published range/)).toBeVisible();
-  const avoided = page.locator("p.text-2xl").first();
+  const avoided = page.locator("p.text-3xl").first();
   const before = await avoided.innerText();
   await page
     .getByLabel("Ammonia N2O slip scenario")
     .selectOption({ label: "Highest observed in the literature" });
   await expect(avoided).not.toHaveText(before);
   // The worst published slip destroys ZNZ qualification outright.
-  await expect(page.getByText(/ZNZ to 2034.*exceeds/)).toBeVisible();
+  await expect(page.getByText(/exceeds \u226419\.0/)).toBeVisible();
   await page
     .getByLabel("Ammonia N2O slip scenario")
     .selectOption({ label: "MAN / WinGD tested two-stroke engines" });
-  await expect(page.getByText(/ZNZ to 2034.*meets/)).toBeVisible();
+  await expect(page.getByText(/meets \u226419\.0/)).toBeVisible();
 
   // LNG refuses: missing upstream factor + per-engine slip — the dataset's
   // own review note renders, and no headline number is produced.
   await page.getByLabel("Candidate fuel").selectOption({ label: "Liquefied natural gas (fossil)" });
   await expect(page.getByText(/Not parameterised/)).toBeVisible();
   await expect(page.getByText(/ICCT/)).toBeVisible();
-  await expect(page.locator("p.text-2xl")).toHaveCount(0);
+  await expect(page.locator("p.text-3xl")).toHaveCount(0);
 
   // e-Methanol likewise (pathway rows pending).
   await page.getByLabel("Candidate fuel").selectOption({ label: "e-Methanol (RFNBO)" });
   await expect(page.getByText(/Not parameterised/)).toBeVisible();
 
-  // Back to a computable state; axe on the full page.
+  // Back to a computable state.
   await page.getByLabel("Candidate fuel").selectOption({ label: "e-Ammonia (RFNBO)" });
   await expect(page.getByText(/replaces/)).toBeVisible();
+
+  // REVERSE direction: "I want to replace 1,000 t of fossil fuel" — the
+  // quantity relabels to the baseline and the line flips to the required
+  // candidate mass: 41.0e6 MJ ÷ 18,600 MJ/t = 2,204.3 t (pilot still 0).
+  await page.getByRole("button", { name: "Replace fossil fuel" }).click();
+  await expect(page.getByLabel(/Quantity of Very low sulphur/)).toBeVisible();
+  await expect(page.getByText(/Replacing 1,000\.0 t .* needs 2,204\.3 t/)).toBeVisible();
+  // Same reduction either way — intensities are per-MJ (82.2% here: the
+  // tested-two-stroke slip is still selected, adding ~1.1 gCO2e/MJ).
+  await expect(page.getByText(/82\.2%/)).toBeVisible();
+
   await axeClean(page, "fuel emissions calculator");
 });

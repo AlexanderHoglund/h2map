@@ -2374,8 +2374,19 @@ export default async function DocsPage() {
           E<sub>pilot</sub>×intensity<sub>pilot</sub>) &nbsp;[tCO2e]
         </F>
         <p className="mt-2">
+          The tool runs BOTH directions: forward (&ldquo;I have X t of green
+          fuel&rdquo;) and reverse (&ldquo;how much green fuel replaces X t
+          of fossil?&rdquo;). In reverse, the quantity is the baseline mass;
+          the engine derives E<sub>base</sub>{" "}= quantity × LCV
+          <sub>base</sub>, then E<sub>cand</sub>{" "}= E<sub>base</sub>{" "}/
+          efficiencyRatio × (1 − pilotShare) and the required candidate
+          mass — replacing 1,000 t of VLSFO needs 2,204.3 t of e-ammonia
+          (41.0×10⁶ MJ ÷ 18,600 MJ/t). Every downstream quantity is the
+          same computation, so the round trip is exact (property-tested).
+        </p>
+        <p className="mt-2">
           Both bases are always computed (well-to-wake and tank-to-wake,
-          shown side by side), and each side decomposes exhaustively into
+          shown together), and each side decomposes exhaustively into
           WtT + TtW(CO2, CH4·GWP, N2O·GWP) + pilot + N2O slip, summing
           exactly to the side total — property-tested at 10⁻⁹. The blend
           intensity (candidate emissions over TOTAL delivered energy) is

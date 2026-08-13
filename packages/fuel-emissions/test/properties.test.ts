@@ -115,6 +115,35 @@ describe("fuel-emissions properties", () => {
     );
   });
 
+  it("round trip: reverse(forward's baseline mass) reproduces the candidate mass", () => {
+    fc.assert(
+      fc.property(arbInput, (a) => {
+        const fwd = run(a);
+        const rev = evaluateFuelEmissions(
+          {
+            candidateFuelId: "e-ammonia",
+            quantityTonnes: fwd.equivalentBaselineMassTonnes,
+            quantityBasis: "baseline",
+            candidateWtwGco2ePerMj: a.candidateWtw,
+            baselineFuelId: a.baseline,
+            frameworkId: "fueleu",
+            gwpSetOverride: a.gwpSet,
+            pilotShare: a.pilotShare,
+            n2oSlipGPerG: a.n2oSlip,
+            efficiencyRatio: a.efficiencyRatio,
+          },
+          ds,
+        );
+        if ("notParameterised" in rev && rev.notParameterised) return false;
+        const r = rev as FuelEmissionsResult;
+        return (
+          relClose(r.candidateMassTonnes, a.quantityTonnes, 1e-9) &&
+          relClose(r.wellToWake.avoidedTco2e, fwd.wellToWake.avoidedTco2e, 1e-9)
+        );
+      }),
+    );
+  });
+
   it("LNG refuses: missing WtT + per-engine slip requirement, never zeroed", () => {
     const r = evaluateFuelEmissions(
       { candidateFuelId: "lng", quantityTonnes: 1000, baselineFuelId: "vlsfo", frameworkId: "fueleu" },

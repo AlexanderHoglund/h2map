@@ -28,8 +28,13 @@ export const FUELEU_BASELINE_GCO2E_PER_MJ = 91.16;
 
 export interface FuelEmissionsInput {
   candidateFuelId: string;
-  /** Tonnes of CANDIDATE fuel. */
+  /**
+   * Tonnes of the fuel named by `quantityBasis` (default: the candidate).
+   * With `"baseline"` the tool runs BACKWARDS: quantity is the fossil
+   * mass to replace, and the engine derives the candidate mass needed.
+   */
   quantityTonnes: number;
+  quantityBasis?: "candidate" | "baseline";
   baselineFuelId: string;
   /** Framework id ("fueleu" | "imo"); selects factors AND the GWP set. */
   frameworkId: string;
@@ -100,6 +105,8 @@ export interface FuelEmissionsResult {
   frameworkId: string;
   gwpSetId: string;
   candidateEnergyMj: number;
+  /** Candidate mass, both directions (forward: the input quantity). */
+  candidateMassTonnes: number;
   pilotEnergyMj: number;
   totalEnergyMj: number;
   baselineEnergyMj: number;
@@ -181,9 +188,19 @@ export function evaluateFuelEmissions(
   }
 
   // --- energy bookkeeping (the functional unit) --------------------------
+  // Both directions normalize onto candidate mass: forward takes it from
+  // the input; reverse ("how much green fuel replaces X t of fossil?")
+  // derives it from the baseline energy. Everything downstream is shared.
   const pilotShare = input.pilotShare ?? 0;
   const efficiencyRatio = input.efficiencyRatio ?? ds.engineEfficiencyRatio.default;
-  const candidateEnergyMj = input.quantityTonnes * 1e6 * candidate.lcvMjPerG;
+  let candidateEnergyMj: number;
+  if (input.quantityBasis === "baseline") {
+    const baselineEnergyIn = input.quantityTonnes * 1e6 * baseline.lcvMjPerG;
+    candidateEnergyMj = (baselineEnergyIn / efficiencyRatio) * (1 - pilotShare);
+  } else {
+    candidateEnergyMj = input.quantityTonnes * 1e6 * candidate.lcvMjPerG;
+  }
+  const candidateMassTonnes = candidateEnergyMj / (candidate.lcvMjPerG * 1e6);
   const totalEnergyMj = candidateEnergyMj / (1 - pilotShare);
   const pilotEnergyMj = totalEnergyMj - candidateEnergyMj;
   const baselineEnergyMj = totalEnergyMj * efficiencyRatio;
@@ -282,6 +299,7 @@ export function evaluateFuelEmissions(
     frameworkId: input.frameworkId,
     gwpSetId,
     candidateEnergyMj,
+    candidateMassTonnes,
     pilotEnergyMj,
     totalEnergyMj,
     baselineEnergyMj,

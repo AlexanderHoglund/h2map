@@ -158,6 +158,31 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
     expect(delta).toBeCloseTo(expected, 9);
   });
 
+  it("reverse direction: replacing 1,000 t VLSFO needs 2,204.3 t e-ammonia", () => {
+    // Hand-computed: 1,000 t VLSFO × 41,000 MJ/t = 41.0e6 MJ; at pilot 0
+    // and ratio 1.0 that is 41.0e6 / 18,600 = 2,204.3 t of e-ammonia —
+    // with the SAME 83.4% reduction as F1 (intensities are per-MJ).
+    const r = ok(
+      evaluateFuelEmissions(
+        {
+          candidateFuelId: "e-ammonia",
+          quantityTonnes: 1000,
+          quantityBasis: "baseline",
+          candidateWtwGco2ePerMj: 15.0,
+          baselineFuelId: "vlsfo",
+          frameworkId: "fueleu",
+          pilotShare: 0,
+          n2oSlipGPerG: 0,
+          efficiencyRatio: 1.0,
+        },
+        ds,
+      ),
+    );
+    expect(r.candidateMassTonnes).toBeCloseTo(2204.3, 1);
+    expect(r.equivalentBaselineMassTonnes).toBeCloseTo(1000, 9);
+    expect(r.wellToWake.reductionPercent).toBeCloseTo(83.4, 1);
+  });
+
   it("F6 — identity: avoided(X vs X) === 0 for every parameterised fuel", () => {
     for (const fuel of ds.fuels) {
       for (const gwpSetId of Object.keys(ds.gwpSets)) {
