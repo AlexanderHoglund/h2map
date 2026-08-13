@@ -2401,8 +2401,10 @@ export default async function DocsPage() {
           WtT + TtW(CO2, CH4·GWP, N2O·GWP) + pilot + N2O slip, summing
           exactly to the side total — property-tested at 10⁻⁹. The blend
           intensity (candidate emissions over TOTAL delivered energy) is
-          compared against the ZNZ thresholds — threshold proximity is a
-          headline output, not a footnote: the default 5% pilot takes a
+          compared against the ZNZ thresholds — shown in the UI under the
+          IMO framework only, for a user-selected period, since the
+          threshold steps from 19.0 to 14.0 in 2035. Threshold proximity
+          matters: the default 5% pilot takes a
           15-gCO2e/MJ e-ammonia to 18.79, just under the 19.0 line and
           comfortably above the 14.0 line applying from 2035.
         </p>

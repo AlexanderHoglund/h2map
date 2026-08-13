@@ -52,8 +52,16 @@ export function Advanced({
   children: React.ReactNode;
 }) {
   return (
-    <details className="rounded-lg border border-dashed border-neutral-300 bg-white p-3">
-      <summary className="cursor-pointer select-none text-xs font-medium uppercase tracking-wide text-neutral-500">
+    <details className="group rounded-lg border border-dashed border-neutral-300 bg-white p-3">
+      <summary className="flex cursor-pointer select-none items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-neutral-500 transition-colors hover:text-neutral-700 [&::-webkit-details-marker]:hidden [&::marker]:content-['']">
+        <svg
+          viewBox="0 0 16 16"
+          aria-hidden="true"
+          className="h-3 w-3 shrink-0 transition-transform group-open:rotate-90"
+          fill="currentColor"
+        >
+          <path d="M6 3.5 11 8l-5 4.5v-9Z" />
+        </svg>
         {label}
       </summary>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">{children}</div>

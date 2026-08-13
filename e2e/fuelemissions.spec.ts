@@ -27,6 +27,10 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   await expect(
     page.getByRole("heading", { name: "Fuel Emissions Calculator" }),
   ).toBeVisible();
+  // Reachable from the top menu (and gated by requireAccess server-side).
+  await expect(
+    page.getByRole("link", { name: "Fuel Emissions Calculator" }),
+  ).toBeVisible();
 
   // Default direction: from fossil to ZNZ. 1,000 t of VLSFO (41.0e6 MJ)
   // with the documented 5% pilot needs 41.0e6 × 0.95 ÷ 18,600 =
@@ -34,10 +38,11 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   await expect(page.getByLabel("Direction")).toHaveValue("baseline");
   await expect(page.getByLabel(/Quantity of Very low sulphur/)).toBeVisible();
   await expect(page.getByText("ZNZ fuel needed")).toBeVisible();
+  await expect(page.getByTestId("mass-hero")).toContainText("2,094.1");
   await expect(page.getByText(/needs 2,094\.1 t/)).toBeVisible();
 
-  // The one-sentence method line is present and citation-ready.
-  await expect(page.getByText(/Method: required e-Ammonia/)).toBeVisible();
+  // The one-line method reference is present and citation-ready.
+  await expect(page.getByText(/Method: energy-delivered/)).toBeVisible();
   await expect(page.getByText(/2023\/1805/)).toBeVisible();
 
   // Switch to the ZNZ-first direction: the quantity relabels to the
@@ -59,18 +64,28 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   // scenario moves the avoided result.
   await expect(page.getByText("unverified").first()).toBeVisible();
   await expect(page.getByText(/Published range/)).toBeVisible();
-  const avoided = page.locator("p.text-3xl").first();
+  const avoided = page.getByTestId("avoided");
   const before = await avoided.innerText();
   await page
     .getByLabel("Ammonia N2O slip scenario")
     .selectOption({ label: "Highest observed in the literature" });
   await expect(avoided).not.toHaveText(before);
-  // The worst published slip destroys ZNZ qualification outright.
-  await expect(page.getByText(/exceeds ≤19\.0/)).toBeVisible();
   await page
     .getByLabel("Ammonia N2O slip scenario")
     .selectOption({ label: "MAN / WinGD tested two-stroke engines" });
-  await expect(page.getByText(/meets ≤19\.0/)).toBeVisible();
+
+  // ZNZ is the IMO's concept — no status row under FuelEU. Under the IMO
+  // framework the user picks the period; the threshold steps 19.0 → 14.0.
+  await expect(page.getByTestId("znz")).toHaveCount(0);
+  await page
+    .getByLabel("Accounting framework")
+    .selectOption({ label: "IMO Net-Zero (AR5 · provisional)" });
+  await expect(page.getByTestId("znz")).toHaveText("Yes");
+  await page.getByLabel("ZNZ period").selectOption({ label: "From 2035" });
+  await expect(page.getByTestId("znz")).toHaveText("No");
+  await page
+    .getByLabel("Accounting framework")
+    .selectOption({ label: "FuelEU Maritime (AR4)" });
 
   // LNG refuses: missing upstream factor + per-engine slip — the dataset's
   // own review note renders, and no headline number is produced.
@@ -84,7 +99,7 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   // 19.9e6 MJ replaces 485.4 t VLSFO (pilot still 0).
   await page.getByLabel("Candidate fuel").selectOption({ label: "e-Methanol (RFNBO)" });
   await expect(page.getByText(/replaces 485\.4 t/)).toBeVisible();
-  await expect(page.locator("p.text-3xl")).toHaveCount(1);
+  await expect(page.getByTestId("avoided")).toBeVisible();
 
   // Back to the ammonia anchor state.
   await page.getByLabel("Candidate fuel").selectOption({ label: "e-Ammonia (RFNBO)" });

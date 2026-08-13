@@ -13,6 +13,7 @@ import { getBrowserSupabase } from "@/lib/supabase/browser";
  */
 const LINKS = [
   { href: "/corridor", key: "corridor" },
+  { href: "/fuelemissionscalculator", key: "fuelEmissions" },
   { href: "/docs", key: "documentation" },
 ] as const;
 

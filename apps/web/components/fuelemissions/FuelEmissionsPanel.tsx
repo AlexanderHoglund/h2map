@@ -48,6 +48,8 @@ export default function FuelEmissionsPanel() {
   const t = useTranslations("fuelEmissions");
   const [frameworkId, setFrameworkId] = useState("fueleu");
   const [basis, setBasis] = useState<"wellToWake" | "tankToWake">("wellToWake");
+  /** IMO ZNZ compliance period — the threshold steps down in 2035. */
+  const [period, setPeriod] = useState<"to2034" | "from2035">("to2034");
   const [direction, setDirection] = useState<"candidate" | "baseline">("baseline");
   const [candidateFuelId, setCandidateFuelId] = useState("e-ammonia");
   const [quantityTonnes, setQuantityTonnes] = useState(1000);
@@ -210,6 +212,20 @@ export default function FuelEmissionsPanel() {
           ]}
           onChange={(v) => setBasis(v as "wellToWake" | "tankToWake")}
         />
+        {/* The ZNZ threshold steps from 19.0 to 14.0 in 2035 — under the
+            IMO framework the user picks which period they're asking about. */}
+        {frameworkId === "imo" && (
+          <Select
+            label={t("period")}
+            help={t("znzHelp")}
+            value={period}
+            options={[
+              { value: "to2034", label: t("periodTo") },
+              { value: "from2035", label: t("periodFrom") },
+            ]}
+            onChange={(v) => setPeriod(v as "to2034" | "from2035")}
+          />
+        )}
         {direction === "candidate" ? (
           <>
             {candidateSelect}
@@ -227,6 +243,7 @@ export default function FuelEmissionsPanel() {
             {equivalenceLine}
           </>
         )}
+        <div className="sm:col-span-2">
         <Advanced label={t("advanced")}>
           <NumberInput
             label={t("pilotShare")}
@@ -276,6 +293,7 @@ export default function FuelEmissionsPanel() {
             onChange={(v) => setEfficiencyRatio(Math.min(2, Math.max(0.5, v)))}
           />
         </Advanced>
+        </div>
       </Section>
 
       {/* ===================== Results (one card) ===================== */}
@@ -302,72 +320,128 @@ export default function FuelEmissionsPanel() {
           </div>
         ) : ok && active && other ? (
           <div className="border border-neutral-300 bg-white p-4">
-            {/* From fossil: the fuel you'd need is THE answer — it leads. */}
-            {direction === "baseline" && (
-              <div className="mb-3 border-b border-neutral-200 pb-3">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
-                  {t("fuelNeeded")}
-                </p>
-                <p className="mt-1 text-3xl font-semibold tabular-nums text-brand-deep">
-                  {fmt1(ok.candidateMassTonnes)}{" "}
-                  <span className="text-sm font-normal text-neutral-500">
-                    t {candidateRow.name}
-                  </span>
-                </p>
+            {/* The two sides of the exchange — start fuel first, the
+                derived mass is the hero. */}
+            <div className="grid grid-cols-2 gap-3">
+              {(direction === "baseline"
+                ? ([
+                    [t("massFossil"), ok.equivalentBaselineMassTonnes, baselineRow.name, false],
+                    [t("fuelNeeded"), ok.candidateMassTonnes, candidateRow.name, true],
+                  ] as const)
+                : ([
+                    [t("massZnz"), ok.candidateMassTonnes, candidateRow.name, false],
+                    [t("fossilReplaced"), ok.equivalentBaselineMassTonnes, baselineRow.name, true],
+                  ] as const)
+              ).map(([label, qty, fuel, hero]) => (
+                <div key={label}>
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
+                    {label}
+                  </p>
+                  <p
+                    data-testid={hero ? "mass-hero" : undefined}
+                    className={`mt-1 tabular-nums ${
+                      hero
+                        ? "text-3xl font-semibold text-brand-deep"
+                        : "text-xl font-medium text-neutral-800"
+                    }`}
+                  >
+                    {fmt1(qty)}{" "}
+                    <span className="text-sm font-normal text-neutral-500">t {fuel}</span>
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* One headline number; everything else is a labelled row. */}
+            <div className="mt-3 border-t border-neutral-200 pt-3">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
+                {t("avoided")}
+              </p>
+              <p
+                data-testid="avoided"
+                className="mt-1 text-3xl font-semibold tabular-nums text-brand-deep"
+              >
+                {fmt1(active.avoidedTco2e)}{" "}
+                <span className="text-sm font-normal text-neutral-500">
+                  tCO2e · {basis === "wellToWake" ? t("avoidedWtw") : t("avoidedTtw")} ·{" "}
+                  {t("reductionInline", { pct: fmt1(active.reductionPercent) })}
+                </span>
+              </p>
+            </div>
+
+            <dl className="mt-3 space-y-1.5 border-t border-neutral-200 pt-2.5 text-xs">
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-neutral-500">
+                  {t("detailAvoidedOther", {
+                    basis: basis === "wellToWake" ? t("avoidedTtw") : t("avoidedWtw"),
+                  })}
+                </dt>
+                <dd className="font-medium tabular-nums text-neutral-800">
+                  {fmt1(other.avoidedTco2e)} tCO2e
+                </dd>
               </div>
-            )}
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
-              {t("avoided")}
-            </p>
-            <p className="mt-1 text-3xl font-semibold tabular-nums text-brand-deep">
-              {fmt1(active.avoidedTco2e)}{" "}
-              <span className="text-sm font-normal text-neutral-500">
-                tCO2e · {basis === "wellToWake" ? t("avoidedWtw") : t("avoidedTtw")}
-              </span>
-            </p>
-            <p className="mt-0.5 text-xs text-neutral-500">
-              {fmt1(other.avoidedTco2e)} tCO2e{" "}
-              {basis === "wellToWake" ? t("avoidedTtw") : t("avoidedWtw")} ·{" "}
-              {t("reduction")}{" "}
-              <span className="font-medium tabular-nums">
-                {fmt1(active.reductionPercent)}%
-              </span>
-            </p>
-            <p className="mt-2 text-xs text-neutral-600">
-              {fmt2(active.candidate.intensityGco2ePerMj)} vs{" "}
-              {fmt2(active.baseline.intensityGco2ePerMj)} gCO2e/MJ
-              <Help
-                text={t("intensityHelp", {
-                  gfi: String(ok.references.imoGfi2008),
-                  feu: String(ok.references.fuelEuBaseline),
-                })}
-              />
-            </p>
-            <p className="mt-1 text-xs">
-              ZNZ:{" "}
-              <span
-                className={
-                  ok.znz.compliantTo2034
-                    ? "font-medium text-emerald-800"
-                    : "font-medium text-red-800"
-                }
-              >
-                {ok.znz.compliantTo2034 ? t("compliant") : t("notCompliant")} ≤19.0 (to
-                2034)
-              </span>
-              ,{" "}
-              <span
-                className={
-                  ok.znz.compliantFrom2035
-                    ? "font-medium text-emerald-800"
-                    : "font-medium text-red-800"
-                }
-              >
-                {ok.znz.compliantFrom2035 ? t("compliant") : t("notCompliant")} ≤14.0
-                (from 2035)
-              </span>{" "}
-              — {t("blend")} {fmt2(ok.znz.blendWtwGco2ePerMj)}
-            </p>
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-neutral-500">
+                  {t("detailIntensity", { fuel: candidateRow.name })}
+                  <Help
+                    text={t("intensityHelp", {
+                      gfi: String(ok.references.imoGfi2008),
+                      feu: String(ok.references.fuelEuBaseline),
+                    })}
+                  />
+                </dt>
+                <dd className="font-medium tabular-nums text-neutral-800">
+                  {fmt2(active.candidate.intensityGco2ePerMj)} gCO2e/MJ
+                </dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-neutral-500">
+                  {t("detailIntensity", { fuel: baselineRow.name })}
+                </dt>
+                <dd className="font-medium tabular-nums text-neutral-800">
+                  {fmt2(active.baseline.intensityGco2ePerMj)} gCO2e/MJ
+                </dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-neutral-500">
+                  {t("blendLabel")}
+                  <Help text={t("blendHelp")} />
+                </dt>
+                <dd className="font-medium tabular-nums text-neutral-800">
+                  {fmt2(ok.znz.blendWtwGco2ePerMj)} gCO2e/MJ
+                </dd>
+              </div>
+              {/* ZNZ is the IMO's concept: one row, for the period the
+                  user picked in the inputs. */}
+              {frameworkId === "imo" &&
+                (() => {
+                  const to2034 = period === "to2034";
+                  const compliant = to2034
+                    ? ok.znz.compliantTo2034
+                    : ok.znz.compliantFrom2035;
+                  const threshold = to2034
+                    ? ok.znz.thresholdTo2034
+                    : ok.znz.thresholdFrom2035;
+                  return (
+                    <div className="flex items-baseline justify-between gap-2">
+                      <dt className="text-neutral-500">
+                        {t(to2034 ? "znzTo2034" : "znzFrom2035", {
+                          threshold: fmt1(threshold),
+                        })}
+                        <Help text={t("znzHelp")} />
+                      </dt>
+                      <dd
+                        data-testid="znz"
+                        className={`font-semibold ${
+                          compliant ? "text-emerald-800" : "text-red-800"
+                        }`}
+                      >
+                        {compliant ? t("yes") : t("no")}
+                      </dd>
+                    </div>
+                  );
+                })()}
+            </dl>
 
             <table className="mt-3 w-full text-xs tabular-nums">
               <thead>
@@ -413,34 +487,11 @@ export default function FuelEmissionsPanel() {
                 </tr>
               </tbody>
             </table>
-            {/* One-sentence method line, written to be quotable. */}
+            {/* One-line method reference, kept as short as possible. */}
             <p className="mt-3 border-t border-neutral-200 pt-2 text-[11px] leading-relaxed text-neutral-600">
               {t("citation", {
-                directionPhrase:
-                  direction === "baseline"
-                    ? t("citationReverse", { candidate: candidateRow.name })
-                    : t("citationForward", {
-                        candidate: candidateRow.name,
-                        baseline: baselineRow.name,
-                      }),
-                basisLabel: basis === "wellToWake" ? t("avoidedWtw") : t("avoidedTtw"),
                 gwp: ok.gwpSetId,
                 framework: FRAMEWORK_CITATIONS[frameworkId] ?? frameworkId,
-                certifiedPhrase: certifiedRange
-                  ? t("citationCertified", {
-                      candidate: candidateRow.name,
-                      value: fmt1(Math.min(candidateWtw, rfnboCeiling)),
-                    })
-                  : "",
-                pilotPhrase:
-                  pilotShare > 0
-                    ? t("citationPilot", {
-                        share: fmt1(pilotShare * 100),
-                        pilot:
-                          ds.fuels.find((f) => f.id === pilotFuelId)?.name ??
-                          pilotFuelId,
-                      })
-                    : "",
                 version: ds.datasetVersion,
               })}
             </p>
