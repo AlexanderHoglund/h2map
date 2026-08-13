@@ -32,8 +32,9 @@ export interface SynthesisBenchmark {
   /**
    * Plant CAPEX per tonne-per-annum of capacity (USD/tpa) AT the reference
    * scale below. Corridor plants are small/dedicated/FOAK — apply the
-   * six-tenths correction via `synthesizePlant`; a 60 kt/yr plant against a
-   * 500 kt reference carries ~2.34× the specific capital.
+   * six-tenths correction via `synthesizePlant`; a 60 kt/yr plant against
+   * the e-ammonia benchmark's 1.2 Mt NEOM reference carries ~3.31× the
+   * specific capital (e-methanol/LH2 still reference 500 kt).
    */
   plantCapexUsdPerTpa: number;
   /** Scale at which plantCapexUsdPerTpa holds (world-scale merchant plant). */

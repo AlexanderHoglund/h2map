@@ -27,7 +27,11 @@ Uncertainty band (realism pass, Task 5) — report a range, not a point.
 
 **Assumptions**
 
+"$1,422/t" with a lineage chip reads far more precise than a screening
 estimate is: five assumptions swing it 2.4×. This module varies the four
+SOURCED drivers across their published ranges and reports low / central /
+high, plus which driver contributes most of the spread — so the reader can
+see both the uncertainty and where it comes from.
 
 ### `@h2map/corridor-engine/financing.ts`
 
@@ -43,8 +47,24 @@ it at the corridor's base rate, as an EXPLICIT per-year line.
 
 **Assumptions**
 
+Deliberately NOT a per-side discount rate. In a cost model the discount
+rate expresses time preference over costs, so a LOWER green rate makes
+future costs LARGER in present value — the exact inversion of the benefit
+(the methodology carries the worked $141m example). Cheap financing is a
+reduction in interest actually paid; the model charges no interest line,
 so the benchmark divergence is the whole effect.
+
+Outstanding balance ("define it once, keep it simple"): principal accrues
+with the capital drawdown — so capital phasing flows through when enabled
+— then amortizes per structure. With P = Σ capex × debtShare and tenor T:
+  cumdraw_t = Σ_{k ≤ t} capex_k × debtShare
+  amortizing: outstanding_t = min(cumdraw_t, P × (T − t + 1) / T)
+  bullet:     outstanding_t = cumdraw_t                   (t ≤ T, else 0)
+  line_t = −outstanding_t × (baseRate − greenRate)
 Unphased capital reduces this to the planning-level benchmark shapes:
+straight-line principal or full balance to maturity — a simplification,
+not a term sheet. Negative Δr (a green premium) is allowed and never
+clamped: the line then carries a positive cost.
 
 ### `@h2map/corridor-engine/firming.ts`
 
@@ -139,7 +159,12 @@ FuelEU Maritime cost, $m (Calculation r29/r55, transcription §7):
 
 **Assumptions**
 
+The MAX(0,·) clamps the DEFICIT INTENSITY before the energy/penalty
+multiplication — a compliant fuel (green e-ammonia, WTW 15 vs baseline
+91.16) yields exactly 0 (over-compliance is worth nothing in the workbook;
 credit trading is Phase-1 divergence D2). The division by the fuel's own
+WTW converts compliance energy into notional fuel mass — preserved exactly
+per the transcription mandate.
 
 ### `@h2map/corridor-engine/regulation\imoNetZero.ts`
 
@@ -171,6 +196,8 @@ transcription §7). A CREDIT — always ≤ 0:
 
 **Assumptions**
 
+Present only on a side whose resolution attached it (green, enabled AND
+US-produced). The workbook has no calendar sunset — reproduced as-is;
 `effectiveUntil` parameterization is Phase-1 divergence D5.
 
 ### `@h2map/corridor-engine/regulation\selfDesigned.ts`
@@ -219,6 +246,10 @@ Steps are assumed sorted ascending (bundle order).
 
 **Assumptions**
 
+Regulatory step functions (transcription §7): the Excel IF-ladders
+(`IF(cal<2024, 0, IF(cal<2025, 0.4, …))`) as data. Value = the last step
+with fromCalendarYear ≤ cal, else 0 — boundary semantics identical to the
+ladders (2024→0.4, 2025→0.7, ≥2026→1.0; FuelEU 2025/2030/…/2050).
 Steps are assumed sorted ascending (bundle order).
 
 ### `@h2map/corridor-engine/side.ts`
@@ -255,8 +286,14 @@ evaluator).
 
 **Assumptions**
 
+H2 → carrier synthesis at plant gate (build-plan 1.5). Pure:
 `(lcoh, benchmark, config) → USD/tonne` with an exhaustive breakdown that
+sums exactly to the total (same decomposition contract as the corridor
+evaluator).
+
 D7 lives here: `config.productionWacc` is the production country's cost of
+capital — deliberately a separate number from the corridor NPV's discount
+rate.
 
 ### `@h2map/corridor-engine/timeline.ts`
 
@@ -279,7 +316,11 @@ Documented inline (see source).
 
 **Purpose**
 
-_(no header docblock)_
+The COMPLETE-form scenario JSON — the interchange format of the Export /
+Import buttons. The exported file always contains EVERY field of the
+scenario form, populated or not: unset fields are explicit `null`, and
+optional blocks (port coordinates, financing, phasing, build-here…)
+expand to full skeletons so the file documents every field that exists.
 
 **Boundary (imports)**: `./scenario`, `./scenario`
 
@@ -363,10 +404,24 @@ H2→carrier synthesis + logistics planning benchmarks (build-plan 1.5/1.6).
 **Assumptions**
 
 H2→carrier synthesis + logistics planning benchmarks (build-plan 1.5/1.6).
+
 These are PLANNING-LEVEL defaults with explicit provenance, kept in the
+schema layer (data, not physics) so the engine stays pure and a future
+reference-bundle version can supersede them (ref_fuels extension columns —
+the DB home is prepared, values live here until a verified dataset lands).
+Every value is overridable through SynthesisConfig.
+
+Sources / rationale:
+- Stoichiometry: NH3 3H2+N2→2NH3 ⇒ 0.1785 t H2/t NH3 (build-plan: 0.178,
+  + ASU N2 electricity); MeOH CO2+3H2→CH3OH+H2O ⇒ 0.189 t H2/t (+1.374 t
+  CO2 feedstock); LH2 is hydrogen (1.0) + liquefaction 6–10 kWh/kg (build
+  plan) — 8 kWh/kg used as the midpoint.
 - Plant CAPEX/OPEX: planning-level synthesis-loop+ASU (NH3) and
+  MeOH-synthesis magnitudes consistent with the workbook's own $55m/small
+  corridor plant and the cross-check band (LCOH $4.1/kg → delivered
   e-ammonia $800–950/t, Excel benchmark $900).
 - Shipping $/t·km: planning-level deep-sea bulk/gas-carrier freight
+  magnitudes; LH2 markedly higher (boil-off, cryo tonnage scarcity).
 
 ### `@h2map/corridor-schema/resolve.ts`
 
@@ -383,8 +438,15 @@ The resolution layer — the workbook's `E = IF(D="", F, D)` made explicit.
 Precedence: override > (derived | benchmark). "Derived" marks computed
 benchmarks (distance-mode consumption, vessel premium, the fossil ×0.3 / =0
 rules, Purchase-zeroing); in Excel those computations ARE the F benchmark
+cells, so the precedence is identical — the tag only records HOW the
 benchmark was produced, for provenance display.
+
 Two deliberate subtleties, both verbatim from the workbook:
+- Purchase sourcing zeroes production capex/O&M BEFORE the override check
+  (`E16 = IF(D9="Purchase", 0, IF(D16="", F16, D16))`) — an override cannot
+  resurrect production cost on a purchased fuel.
+- Distance-mode consumption divides by the side's RESOLVED LHV (`Fuel!E13`,
+  which is itself overridable), not the table LHV.
 
 ### `@h2map/corridor-schema/resolved.ts`
 
@@ -398,9 +460,13 @@ Resolved value types and the fully-resolved inputs the engine consumes.
 
 **Assumptions**
 
+`Resolved<T>` implements the workbook's `E = IF(D="", F, D)` convention plus
 provenance: `override` (user D cell) > `derived` (computed benchmark — in
+Excel these ARE the F formula cells, so precedence is identical) >
 `benchmark` (plain table lookup). Phase 1 extends this with the map-derived
 tier and the always-present `benchmark`/`provenance` fields; the engine
+never sees `Resolved<>` at all — `toSideInputs`/`toEvalContext` strip to
+bare branded scalars.
 
 ### `@h2map/corridor-schema/result.ts`
 
@@ -435,7 +501,11 @@ them into branded `Resolved<T>` values against a reference bundle.
 
 **Assumptions**
 
+Raw scenario input — what the user (or a fixture file) provides. Every
 benchmarkable field is a nullable override: `null` = "use the benchmark",
+mirroring the workbook's blank-D-cell convention (`E = IF(D="", F, D)`).
+Numbers here are plain (unvalidated, unbranded); `resolveScenario` turns
+them into branded `Resolved<T>` values against a reference bundle.
 
 ### `@h2map/corridor-schema/validate.ts`
 

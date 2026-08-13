@@ -6,7 +6,7 @@
  * Deliberately NOT a per-side discount rate. In a cost model the discount
  * rate expresses time preference over costs, so a LOWER green rate makes
  * future costs LARGER in present value — the exact inversion of the benefit
- * (the methodology carries the worked $141m example). Cheap financing is a
+ * (the methodology carries the worked $140.6m example). Cheap financing is a
  * reduction in interest actually paid; the model charges no interest line,
  * so the benchmark divergence is the whole effect.
  *

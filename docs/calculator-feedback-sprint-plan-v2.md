@@ -66,9 +66,11 @@ The platform lands on the Projects tab until a project is selected or
 created; input tabs render disabled until then. New-project creation asks
 name + starting view (Simplified/Standard); the mode is stored per project
 (scenarios.view_mode, migration 20260811000001) and the header toggle
-persists flips to the open project. Every user is seeded ONCE (ever) with
-the Chilean example (Standard) + an empty Simplified starter
-(profiles.projects_seeded_at, race-safe seed route). Unsaved-changes
+persists flips to the open project. The Chilean example (Standard) is seeded
+once per user, ever (profiles.projects_seeded_at, race-safe seed route);
+the Simplified starter became "Simple corridor (template)" and is ensured
+BY NAME on every seed call — existing users gain it on their next visit
+and deleting it brings the template back (cbb13db). Unsaved-changes
 confirm before switching projects; Open lands on Intro (was Cargo).
 
 ## Simplified as a one-way project level (2026-08-13)

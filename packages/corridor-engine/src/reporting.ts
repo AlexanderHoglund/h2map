@@ -7,8 +7,9 @@
  * further on and not directly comparable. This module derives both from
  * the already-computed side aggregates; no new arithmetic paths.
  *
- * Pre-regulation = CAPEX PV + operating-cost PV only (all four regulation
- * modules excluded). `netRegulatoryEffectUsdM` is post − pre computed from
+ * Pre-regulation = CAPEX PV + operating-cost PV only (every regulation
+ * module AND the green-financing line excluded — so the net effect field
+ * carries both). `netRegulatoryEffectUsdM` is post − pre computed from
  * the same expressions, so `post === pre + net` holds exactly (same
  * floating-point operations, deterministic).
  */

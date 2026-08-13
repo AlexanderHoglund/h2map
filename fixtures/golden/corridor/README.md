@@ -127,3 +127,17 @@ follows the same schedule. No new output fields — phasing re-times the
 existing `totalCapexUsdM` line, so the frozen expected file's key sets
 are untouched by construction, and absent/disabled/[1] weights are
 byte-identical (asserted).
+
+## 2026-08-12 — complete-form export/import + round-trip guarantee
+
+The Export/Import JSON buttons speak a COMPLETE interchange form (every
+schema field present, unset = explicit null; packages/corridor-schema/
+src/complete.ts). Internal canonical storage stays absent-style — these
+fixtures deliberately never carry null-filled keys, and the import path
+canonicalises them away before the strict parse. A round-trip test with a
+compile-guarded maximally-populated fixture (test/roundtrip.test.ts)
+proves parseScenarioInput preserves every declared field; it caught and
+fixed a silent strip of regulation.selfDesigned.co2PriceEscalation (the
+imoNetZero bug class). Schema v5 (project archetype on build-here sizing)
+predates this entry; the golden input remains v1 and loads through the
+migration registry unchanged.

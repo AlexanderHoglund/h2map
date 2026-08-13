@@ -167,6 +167,23 @@ gating work, but trial expiry is not enforced and `/admin` cannot load
 (`lib/server/access.ts` and `getCallerWithAccess` log a warning and allow —
 deliberately, so a missing migration or DB outage never bricks every page).
 
+## Migration `20260811000001_project_starters.sql`
+
+Adds the projects-first layer: `scenarios.view_mode` (the project's
+Simplified/Standard level, checked enum, nullable) and
+`profiles.projects_seeded_at` (the once-per-user seed flag for the Chilean
+example project; server-set only — profiles keeps no authenticated write
+policy). After applying, regenerate `apps/web/lib/supabase/database.types.ts`.
+
+Until applied the app DEGRADES rather than breaking, with only a server-log
+warning: the level falls back to the per-browser preference (not synced
+across devices), the example's once-ever rule falls back to
+seed-when-the-list-is-empty, and the seed route logs
+`no seed flag, falling back to empty-list rule`. The
+"Simple corridor (template)" project is ensured by NAME on every visit and
+works with or without the migration. The seed route also needs
+`SUPABASE_SECRET_KEY` (the service client stamps the profiles flag).
+
 ### First admin
 
 Admin rights are held in `public.profiles.is_admin`, which no user can

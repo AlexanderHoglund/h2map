@@ -221,7 +221,12 @@ function fieldReference(): string {
 // ---------------------------------------------------------------------------
 
 function headerDocblock(src: string): string {
-  const m = /^(?:"use client";\s*)?\/\*\*([\s\S]*?)\*\//.exec(src.trimStart());
+  // The header docblock may sit after "use client" and/or the import
+  // block (complete.ts does) — accept the first /** ... */ above any
+  // executable statement rather than requiring it at byte zero.
+  const m = /^(?:"use client";\s*)?(?:import[^;]*;\s*)*\/\*\*([\s\S]*?)\*\//.exec(
+    src.trimStart(),
+  );
   if (!m) return "_(no header docblock)_";
   return m[1]!
     .split("\n")
@@ -237,12 +242,14 @@ function moduleSection(pkg: string, dir: string, file: string): string {
     ...src.matchAll(/^export (?:async )?(?:function|const|interface|type|class) ([A-Za-z0-9_]+)/gm),
   ].map((m) => m[1]!);
   const doc = headerDocblock(src);
+  // Whole PARAGRAPHS, not single lines — line-level filtering produced
+  // mid-sentence fragments in the generated pages.
   const assumptions =
     doc
-      .split("\n")
-      .filter((l) => /assum|benchmark|planning-level|verbatim|divergence|D[1-7]\b/i.test(l))
-      .slice(0, 6)
-      .join("\n") || "Documented inline (see source).";
+      .split(/\n\s*\n/)
+      .filter((par) => /assum|benchmark|planning-level|verbatim|divergence|D[1-7]\b/i.test(par))
+      .slice(0, 3)
+      .join("\n\n") || "Documented inline (see source).";
   return [
     `### \`${pkg}/${file}\``,
     "",

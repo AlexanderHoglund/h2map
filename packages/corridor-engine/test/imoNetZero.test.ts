@@ -136,6 +136,10 @@ describe("IMO module in scenarios", () => {
     expect(imo.fossil.pvUsdM).toBeGreaterThan(0);
     expect(imo.green.pvUsdM).toBeLessThanOrEqual(0);
     expect(imo.green.surplusTonnesCo2e).toBeGreaterThan(0);
+    // Pin the published finding loosely (the docs quote ≈$86m / ≈0.9 Mt):
+    // a drift past these bands means the documented numbers went stale.
+    expect(Math.abs(netImo - 85.69)).toBeLessThan(1);
+    expect(Math.abs(imo.green.surplusTonnesCo2e - 911_022)).toBeLessThan(5_000);
     // Exhaustiveness: the 7th row is emitted and sums into totals.
     expect(res.perYear.fossil.imoNetZeroUsdM).toHaveLength(15);
     // Net regulatory effect now comes from the IMO module alone:

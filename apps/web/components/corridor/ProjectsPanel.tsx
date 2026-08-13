@@ -93,8 +93,8 @@ export default function ProjectsPanel({
         </div>
       </div>
 
-      {/* New project: name + the view the project starts in (it can switch
-          between Simplified and Standard at any time from the header). */}
+      {/* New project: name + the LEVEL it starts at (Simplified can be
+          upgraded to Standard later — one-way; Standard is permanent). */}
       {creating && (
         <div className="mb-4 border border-brand/40 bg-brand-tint/30 p-3">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-600">

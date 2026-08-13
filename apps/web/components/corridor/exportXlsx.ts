@@ -261,8 +261,6 @@ export async function downloadResultsXlsx(
     ...(scenario.cargo.routeType === "point-to-point"
       ? ([["Port B", [scenario.cargo.portBName, scenario.cargo.countryBId].filter(Boolean).join(", "), "—", "—"]] as InputRow[])
       : []),
-    ["Cargo unit", scenario.cargo.unit ?? "tonne", "—", "—"],
-    ["Weight per unit", scenario.cargo.unitWeightTonnes ?? 1, "t", "—"],
     [
       "One-way distance",
       scenario.cargo.oneWayDistanceNm,
@@ -281,7 +279,6 @@ export async function downloadResultsXlsx(
           ],
         ] as InputRow[])
       : []),
-    ["Cargo per year", resolved.unitsPerYear, "units/yr", "—"],
     ["Start year", scenario.cargo.startYear, "—", "—"],
     ["Years modelled", scenario.cargo.horizonYears, "yr", "—"],
     ["Vessels", resolved.vessels, "—", "—"],
@@ -317,6 +314,12 @@ export async function downloadResultsXlsx(
     ["Barge CAPEX (year 1)", side.bargeCapexUsdM.value, "$m", side.bargeCapexUsdM.source],
     ["Barge OPEX", side.bargeOpexUsdMPerYear.value, "$m/yr", side.bargeOpexUsdMPerYear.source],
   ];
+  section("04 · Cargo", [
+    ["Cargo unit", scenario.cargo.unit ?? "tonne", "—", "—"],
+    ["Weight per unit", scenario.cargo.unitWeightTonnes ?? 1, "t", "—"],
+    ["Cargo per year", resolved.unitsPerYear, "units/yr", "—"],
+  ]);
+
   section("05 · Ports — green", portRows(rg));
   section("05 · Ports — fossil", portRows(rf));
 
