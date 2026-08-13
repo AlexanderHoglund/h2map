@@ -1471,6 +1471,7 @@ export default async function DocsPage() {
           <table className="w-full border border-neutral-300 text-xs">
             <thead>
               <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 text-right font-medium">#</th>
                 <th className="px-3 py-2 font-medium">Field</th>
                 <th className="px-3 py-2 font-medium">Type</th>
                 <th className="px-3 py-2 font-medium">Req.</th>
@@ -1480,8 +1481,11 @@ export default async function DocsPage() {
               </tr>
             </thead>
             <tbody>
-              {FIELD_ROWS.map((row) => (
+              {FIELD_ROWS.map((row, i) => (
                 <tr key={row.path} className="border-b border-neutral-200 last:border-0">
+                  <td className="px-3 py-1.5 text-right tabular-nums text-neutral-400">
+                    {i + 1}
+                  </td>
                   <td className="whitespace-nowrap px-3 py-1.5 font-mono">{row.path}</td>
                   <td className="px-3 py-1.5 font-mono text-neutral-600">
                     {TYPE_OVERLAY[row.path] ?? row.type}
