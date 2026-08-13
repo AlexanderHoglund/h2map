@@ -1,11 +1,12 @@
 /**
- * Fuel Emissions Calculator: direction-first chooser, the F1
- * energy-equivalence anchor through the real UI, the not-parameterised
- * refusal, e-methanol as a certified-pathway fuel, the N2O range behavior
- * and an axe pass. The UI deliberately offers no zero N2O slip
- * (documented defaults, never zero), so the fixture-exact F1 state is
- * reached by zeroing the pilot share while the equivalence line — which
- * is slip-independent — pins the 453.7 t anchor.
+ * Fuel Emissions Calculator: the direction dropdown (default: from
+ * fossil to ZNZ fuel), the F1 energy-equivalence anchor through the real
+ * UI, the not-parameterised refusal, e-methanol as a certified-pathway
+ * fuel, the N2O range behavior, the citation method line and an axe
+ * pass. The UI deliberately offers no zero N2O slip (documented
+ * defaults, never zero), so the fixture-exact F1 state is reached by
+ * zeroing the pilot share while the equivalence line — which is
+ * slip-independent — pins the 453.7 t anchor.
  */
 
 import AxeBuilder from "@axe-core/playwright";
@@ -19,7 +20,7 @@ async function axeClean(page: Page, context: string) {
   expect(serious, `${context}: ${serious.map((v) => v.id).join(", ")}`).toEqual([]);
 }
 
-test("direction chooser, energy equivalence, refusal paths and the N2O range", async ({
+test("direction dropdown, energy equivalence, refusal paths and the N2O range", async ({
   page,
 }) => {
   await page.goto("/fuelemissionscalculator");
@@ -27,14 +28,24 @@ test("direction chooser, energy equivalence, refusal paths and the N2O range", a
     page.getByRole("heading", { name: "Fuel Emissions Calculator" }),
   ).toBeVisible();
 
-  // Direction-first: no form until you decide what you're doing.
-  await expect(page.getByText("Pick a direction")).toBeVisible();
-  await expect(page.getByLabel("Candidate fuel")).toHaveCount(0);
-  await axeClean(page, "direction chooser");
-  await page.getByRole("button", { name: /From ZNZ to fossil/ }).click();
+  // Default direction: from fossil to ZNZ. 1,000 t of VLSFO (41.0e6 MJ)
+  // with the documented 5% pilot needs 41.0e6 × 0.95 ÷ 18,600 =
+  // 2,094.1 t of e-ammonia — the fuel-needed stat leads the results.
+  await expect(page.getByLabel("Direction")).toHaveValue("baseline");
+  await expect(page.getByLabel(/Quantity of Very low sulphur/)).toBeVisible();
+  await expect(page.getByText("ZNZ fuel needed")).toBeVisible();
+  await expect(page.getByText(/needs 2,094\.1 t/)).toBeVisible();
 
-  // Defaults: 1,000 t e-ammonia @ WtW 15 vs VLSFO with the documented 5%
-  // pilot — the equivalence line shows the TOTAL energy in baseline mass.
+  // The one-sentence method line is present and citation-ready.
+  await expect(page.getByText(/Method: required e-Ammonia/)).toBeVisible();
+  await expect(page.getByText(/2023\/1805/)).toBeVisible();
+
+  // Switch to the ZNZ-first direction: the quantity relabels to the
+  // candidate and the classic forward equivalence shows (5% pilot).
+  await page
+    .getByLabel("Direction")
+    .selectOption({ label: "From ZNZ fuel to fossil" });
+  await expect(page.getByLabel(/Quantity of e-Ammonia/)).toBeVisible();
   await expect(page.getByText(/replaces 477\.5 t/)).toBeVisible();
 
   // Zero the pilot (fixture F1's state): the pedagogical anchor appears —
@@ -79,15 +90,15 @@ test("direction chooser, energy equivalence, refusal paths and the N2O range", a
   await page.getByLabel("Candidate fuel").selectOption({ label: "e-Ammonia (RFNBO)" });
   await expect(page.getByText(/replaces 453\.7 t/)).toBeVisible();
 
-  // REVERSE direction via the chooser: "I want to replace 1,000 t of
-  // fossil fuel" — the quantity relabels to the baseline and the line
-  // flips to the required candidate mass: 41.0e6 MJ ÷ 18,600 MJ/t =
-  // 2,204.3 t (pilot still 0, state survives the direction change).
-  await page.getByRole("button", { name: "Change direction" }).click();
-  await expect(page.getByText("Pick a direction")).toBeVisible();
-  await page.getByRole("button", { name: /From fossil to ZNZ/ }).click();
+  // Back to fossil-first: "I want to replace 1,000 t of fossil fuel" —
+  // the required candidate mass is 41.0e6 MJ ÷ 18,600 MJ/t = 2,204.3 t
+  // (pilot still 0, state survives the direction change).
+  await page
+    .getByLabel("Direction")
+    .selectOption({ label: "From fossil to zero / near-zero (ZNZ) fuel" });
   await expect(page.getByLabel(/Quantity of Very low sulphur/)).toBeVisible();
   await expect(page.getByText(/Replacing 1,000\.0 t .* needs 2,204\.3 t/)).toBeVisible();
+  await expect(page.getByText("ZNZ fuel needed")).toBeVisible();
   // Same reduction either way — intensities are per-MJ (82.2% here: the
   // tested-two-stroke slip is still selected, adding ~1.1 gCO2e/MJ).
   await expect(page.getByText(/82\.2%/)).toBeVisible();

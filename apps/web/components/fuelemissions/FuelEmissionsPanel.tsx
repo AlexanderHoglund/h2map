@@ -17,11 +17,13 @@ import seedJson from "../../../../data/fuel-emissions-ref/2026-08-13-seed-1.json
 
 /**
  * Fuel Emissions Calculator (client-side, recomputes on keystroke).
- * Direction-first: the page opens on a two-card chooser — "I have green
- * fuel" or "Replace fossil fuel" — and only then shows the form, ordered
- * for that direction (the fuel you START from comes first). The
- * equivalence line under the quantity is the pedagogical payload both
- * ways. Detail lives in Help tooltips, not on the page.
+ * Direction-first: a dropdown at the top of the always-visible form picks
+ * the direction (default: from fossil to ZNZ fuel — the common starting
+ * point), and the form is ordered so the fuel you START from comes
+ * first. The equivalence line under the quantity and the fuel-needed
+ * stat in the results are the pedagogical payload; a one-sentence method
+ * line at the end is written for citation. Detail lives in Help
+ * tooltips, not on the page.
  */
 
 const ds = parseRefDataset(seedJson);
@@ -36,11 +38,17 @@ const FRAMEWORK_LABELS: Record<string, string> = {
   imo: "IMO Net-Zero (AR5 · provisional)",
 };
 
+/** Full legal citations for the method sentence. */
+const FRAMEWORK_CITATIONS: Record<string, string> = {
+  fueleu: "FuelEU Maritime (Regulation (EU) 2023/1805, Annex II)",
+  imo: "the IMO LCA Guidelines (MEPC.391(81), provisional)",
+};
+
 export default function FuelEmissionsPanel() {
   const t = useTranslations("fuelEmissions");
   const [frameworkId, setFrameworkId] = useState("fueleu");
   const [basis, setBasis] = useState<"wellToWake" | "tankToWake">("wellToWake");
-  const [direction, setDirection] = useState<"candidate" | "baseline" | null>(null);
+  const [direction, setDirection] = useState<"candidate" | "baseline">("baseline");
   const [candidateFuelId, setCandidateFuelId] = useState("e-ammonia");
   const [quantityTonnes, setQuantityTonnes] = useState(1000);
   const [candidateWtw, setCandidateWtw] = useState(15);
@@ -65,7 +73,7 @@ export default function FuelEmissionsPanel() {
         {
           candidateFuelId,
           quantityTonnes,
-          quantityBasis: direction ?? "candidate",
+          quantityBasis: direction,
           baselineFuelId,
           frameworkId,
           candidateWtwGco2ePerMj: Math.min(candidateWtw, rfnboCeiling),
@@ -95,44 +103,6 @@ export default function FuelEmissionsPanel() {
   const ok = refused ? null : (result as FuelEmissionsResult);
   const active = ok ? (basis === "wellToWake" ? ok.wellToWake : ok.tankToWake) : null;
   const other = ok ? (basis === "wellToWake" ? ok.tankToWake : ok.wellToWake) : null;
-
-  /* ============ Direction chooser: decide first, then the form ========= */
-  if (!direction) {
-    return (
-      <div className="mx-auto max-w-2xl">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
-          {t("chooserPrompt")}
-        </p>
-        <div className="mt-2 grid gap-3 sm:grid-cols-2">
-          {/* Fossil-first: "I have fossil" is the common starting point. */}
-          <button
-            type="button"
-            onClick={() => setDirection("baseline")}
-            className="border border-neutral-300 bg-white p-5 text-left transition-colors hover:border-brand-deep hover:bg-brand-tint/30"
-          >
-            <span className="block text-base font-semibold text-brand-deep">
-              {t("directionReverse")}
-            </span>
-            <span className="mt-1 block text-xs leading-relaxed text-neutral-600">
-              {t("chooserReverseDesc")}
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setDirection("candidate")}
-            className="border border-neutral-300 bg-white p-5 text-left transition-colors hover:border-brand-deep hover:bg-brand-tint/30"
-          >
-            <span className="block text-base font-semibold text-brand-deep">
-              {t("directionForward")}
-            </span>
-            <span className="mt-1 block text-xs leading-relaxed text-neutral-600">
-              {t("chooserForwardDesc")}
-            </span>
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   /* Form blocks, composed in direction order (start fuel first). */
   const candidateSelect = (
@@ -209,17 +179,17 @@ export default function FuelEmissionsPanel() {
     <div className="grid gap-4 lg:grid-cols-2">
       {/* ===================== Inputs (one card) ===================== */}
       <Section title={t("compare")}>
-        <div className="sm:col-span-2 flex items-center justify-between bg-neutral-500/10 px-2.5 py-1.5">
-          <span className="text-xs font-medium text-neutral-700">
-            {direction === "candidate" ? t("directionForward") : t("directionReverse")}
-          </span>
-          <button
-            type="button"
-            onClick={() => setDirection(null)}
-            className="text-xs font-medium text-brand-deep underline"
-          >
-            {t("changeDirection")}
-          </button>
+        {/* Direction leads: pick what you're doing, the form re-orders. */}
+        <div className="sm:col-span-2">
+          <Select
+            label={t("direction")}
+            value={direction}
+            options={[
+              { value: "baseline", label: t("directionReverse") },
+              { value: "candidate", label: t("directionForward") },
+            ]}
+            onChange={(v) => setDirection(v as "candidate" | "baseline")}
+          />
         </div>
         <Select
           label={t("framework")}
@@ -332,6 +302,20 @@ export default function FuelEmissionsPanel() {
           </div>
         ) : ok && active && other ? (
           <div className="border border-neutral-300 bg-white p-4">
+            {/* From fossil: the fuel you'd need is THE answer — it leads. */}
+            {direction === "baseline" && (
+              <div className="mb-3 border-b border-neutral-200 pb-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
+                  {t("fuelNeeded")}
+                </p>
+                <p className="mt-1 text-3xl font-semibold tabular-nums text-brand-deep">
+                  {fmt1(ok.candidateMassTonnes)}{" "}
+                  <span className="text-sm font-normal text-neutral-500">
+                    t {candidateRow.name}
+                  </span>
+                </p>
+              </div>
+            )}
             <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
               {t("avoided")}
             </p>
@@ -429,6 +413,37 @@ export default function FuelEmissionsPanel() {
                 </tr>
               </tbody>
             </table>
+            {/* One-sentence method line, written to be quotable. */}
+            <p className="mt-3 border-t border-neutral-200 pt-2 text-[11px] leading-relaxed text-neutral-600">
+              {t("citation", {
+                directionPhrase:
+                  direction === "baseline"
+                    ? t("citationReverse", { candidate: candidateRow.name })
+                    : t("citationForward", {
+                        candidate: candidateRow.name,
+                        baseline: baselineRow.name,
+                      }),
+                basisLabel: basis === "wellToWake" ? t("avoidedWtw") : t("avoidedTtw"),
+                gwp: ok.gwpSetId,
+                framework: FRAMEWORK_CITATIONS[frameworkId] ?? frameworkId,
+                certifiedPhrase: certifiedRange
+                  ? t("citationCertified", {
+                      candidate: candidateRow.name,
+                      value: fmt1(Math.min(candidateWtw, rfnboCeiling)),
+                    })
+                  : "",
+                pilotPhrase:
+                  pilotShare > 0
+                    ? t("citationPilot", {
+                        share: fmt1(pilotShare * 100),
+                        pilot:
+                          ds.fuels.find((f) => f.id === pilotFuelId)?.name ??
+                          pilotFuelId,
+                      })
+                    : "",
+                version: ds.datasetVersion,
+              })}
+            </p>
             <p className="mt-2 text-[11px] text-neutral-500">
               {t("footer", { version: ds.datasetVersion })}{" "}
               <a href="/docs#fe-overview" className="underline">

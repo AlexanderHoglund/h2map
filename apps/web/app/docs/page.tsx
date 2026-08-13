@@ -2380,10 +2380,13 @@ export default async function DocsPage() {
           E<sub>pilot</sub>×intensity<sub>pilot</sub>) &nbsp;[tCO2e]
         </F>
         <p className="mt-2">
-          The tool runs BOTH directions, and the UI asks for the direction
-          FIRST — a two-card chooser (&ldquo;From fossil to ZNZ&rdquo; /
-          &ldquo;From ZNZ to fossil&rdquo;) precedes the form, which is
-          then ordered so the fuel you start from comes first. In reverse,
+          The tool runs BOTH directions: a direction dropdown leads the
+          form (default &ldquo;From fossil to zero / near-zero (ZNZ)
+          fuel&rdquo;), which is ordered so the fuel you start from comes
+          first; in that default direction the required ZNZ mass leads the
+          results, and a one-sentence method line (functional unit,
+          framework citation, GWP set, certified value, pilot, dataset
+          version) closes them for citation. In reverse,
           the quantity is the baseline mass;
           the engine derives E<sub>base</sub>{" "}= quantity × LCV
           <sub>base</sub>, then E<sub>cand</sub>{" "}= E<sub>base</sub>{" "}/
