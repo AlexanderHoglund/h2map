@@ -1,6 +1,7 @@
 import Footer from "@/components/shell/Footer";
 import { requireAccess } from "@/lib/server/access";
 import TopBar from "@/components/shell/TopBar";
+import fieldReference from "../../../../data/corridor-sensitivity/field-reference.json";
 
 export const metadata = {
   title: "Documentation — Thaduberg",
@@ -66,6 +67,36 @@ function Fields({
   );
 }
 
+/**
+ * §14 renders the GENERATED field reference (gen-docs writes the JSON next
+ * to the markdown twin; CI fails on drift) — the table cannot desync from
+ * the schema or the sweep. TYPE_OVERLAY adds display-only richer type
+ * labels; unknown paths fall through to the generated type string.
+ */
+const TYPE_OVERLAY: Record<string, string> = {
+  "regulation.ets.scope": "number 0–1",
+  "regulation.fuelEu.scope": "number 0–1",
+  "regulation.selfDesigned.capexSupport": "number 0–1",
+  "regulation.selfDesigned.opexSupport": "number 0–1",
+  "regulation.imoNetZero.scope": "number 0–1",
+  "financing.greenRate": "number 0–1",
+  "financing.baseRate": "number 0–1",
+  "financing.debtShare": "number 0–1",
+  "financing.tenorYears": "integer 1–40",
+  "capitalPhasing.green.weights": "number[] (sum = 1)",
+  "capitalPhasing.fossil.weights": "number[] (sum = 1)",
+};
+
+interface FieldRow {
+  path: string;
+  type: string;
+  required: boolean;
+  rank: number | null;
+  movementPct: number | null;
+  placement: string;
+}
+const FIELD_ROWS: FieldRow[] = (fieldReference as { rows: FieldRow[] }).rows;
+
 const TOC: [string, string][] = [
   ["overview", "1. Overview & how the model works"],
   ["workflow", "2. Working with scenarios"],
@@ -103,116 +134,6 @@ const TOC_METHOD: [string, string][] = [
   ["m-sources", "30. Sources"],
 ];
 
-/**
- * Every scenario input, verbatim from the generated schema reference
- * (docs/corridor/field-reference.md — zod schema joined with the
- * sensitivity artifact; CI fails on drift). Columns: path, type,
- * required, sensitivity rank, max headline movement, UI placement.
- */
-const ALL_INPUTS: [string, string, string, string, string, string][] = [
-  ["schemaVersion", "= 5", "yes", "—", "—", "—"],
-  ["refBundleId", "string", "yes", "—", "—", "—"],
-  ["cargo.countryId", "string", "yes", "—", "—", "—"],
-  ["cargo.routeType", '"point-to-point" | "single-point"', "yes", "—", "—", "—"],
-  ["cargo.oneWayDistanceNm", "number", "yes", "#1", "74.1%", "top-level"],
-  ["cargo.startYear", "integer", "yes", "—", "—", "—"],
-  ["cargo.horizonYears", "integer", "yes", "#8", "17.6%", "top-level"],
-  ["cargo.unitsPerYear", "number", "yes", "#26", "0.0%", "advanced"],
-  ["cargo.inflation", "number", "yes", "#11", "14.0%", "top-level"],
-  ["cargo.vessels", "integer", "yes", "#5", "32.9%", "top-level"],
-  ["cargo.roundtripsPerYear", "number", "yes", "#15", "8.2%", "top-level"],
-  ["cargo.waccOverride", "number | null", "yes", "#10", "14.6%", "top-level"],
-  ["cargo.unit", '"tonne" | "teu"', "no", "—", "—", "—"],
-  ["cargo.unitWeightTonnes", "number", "no", "—", "—", "—"],
-  ["cargo.portAName", "string", "no", "—", "—", "—"],
-  ["cargo.portACoords", "{ lat, lon }", "no", "—", "—", "advanced"],
-  ["cargo.portBName", "string", "no", "—", "—", "—"],
-  ["cargo.countryBId", "string", "no", "—", "—", "—"],
-  ["vessel.typeId", "string", "yes", "—", "—", "—"],
-  ["vessel.consumptionMode", '"distance" | "vessel-benchmark"', "yes", "—", "—", "—"],
-  ["vessel.green.capexUsdM", "number | null", "yes", "#2", "56.9%", "top-level"],
-  ["vessel.green.opexUsdMPerYear", "number | null", "yes", "#3", "42.5%", "top-level"],
-  ["vessel.fossil.capexUsdM", "number | null", "yes", "—", "—", "—"],
-  ["vessel.fossil.opexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
-  ["green.fuelId", "string", "yes", "—", "—", "—"],
-  ["green.sourcing", '"purchase" | "build-plant" | "build-here"', "yes", "—", "—", "—"],
-  ["green.buildHere", "object | null", "no", "—", "—", "—"],
-  ["green.overrides.priceUsdPerTonne", "number | null", "yes", "#12", "13.7%", "top-level"],
-  ["green.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
-  ["green.overrides.lhvMjPerTonne", "number | null", "yes", "—", "—", "—"],
-  ["green.overrides.wtwGco2PerMj", "number | null", "yes", "#25", "0.2%", "advanced"],
-  ["green.overrides.fuelTonnesPerVesselYear", "number | null", "yes", "#7", "21.1%", "top-level"],
-  ["green.overrides.prodCapexUsdM", "number | null", "yes", "#4", "32.9%", "top-level"],
-  ["green.overrides.prodOpexUsdMPerYear", "number | null", "yes", "#6", "26.6%", "top-level"],
-  ["green.overrides.portStorageCapexUsdM", "number | null", "yes", "#13", "10.8%", "top-level"],
-  ["green.overrides.portStorageOpexUsdMPerYear", "number | null", "yes", "#14", "8.9%", "top-level"],
-  ["green.overrides.bargeCapexUsdM", "number | null", "yes", "#16", "4.2%", "advanced"],
-  ["green.overrides.bargeOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
-  ["fossil.fuelId", "string", "yes", "—", "—", "—"],
-  ["fossil.sourcing", '"purchase" | "build-plant" | "build-here"', "yes", "—", "—", "—"],
-  ["fossil.buildHere", "object | null", "no", "—", "—", "—"],
-  ["fossil.overrides.priceUsdPerTonne", "number | null", "yes", "#20", "3.2%", "advanced"],
-  ["fossil.overrides.combustionEfTco2PerTonne", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.lhvMjPerTonne", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.wtwGco2PerMj", "number | null", "yes", "#23", "1.9%", "advanced"],
-  ["fossil.overrides.fuelTonnesPerVesselYear", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.prodCapexUsdM", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.prodOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.portStorageCapexUsdM", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.portStorageOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.bargeCapexUsdM", "number | null", "yes", "—", "—", "—"],
-  ["fossil.overrides.bargeOpexUsdMPerYear", "number | null", "yes", "—", "—", "—"],
-  ["regulation.eurUsd", "number", "yes", "#24", "1.2%", "advanced"],
-  ["regulation.ets.enabled", "boolean", "yes", "—", "—", "—"],
-  ["regulation.ets.euaEurPerTonne", "number", "yes", "#19", "3.6%", "advanced"],
-  ["regulation.ets.euaEscalation", "number", "no", "—", "—", "—"],
-  ["regulation.ets.scope", "number 0–1", "yes", "#22", "2.4%", "advanced"],
-  ["regulation.ets.gasCoverage.enabled", "boolean", "yes", "—", "—", "—"],
-  ["regulation.ets.gasCoverage.fromCalendarYear", "integer", "yes", "—", "—", "—"],
-  ["regulation.ets.gasCoverage.gwpCh4", "number", "yes", "—", "—", "—"],
-  ["regulation.ets.gasCoverage.gwpN2o", "number", "yes", "—", "—", "—"],
-  ["regulation.ets.gasCoverage.green.ch4TPerTonne", "number", "yes", "—", "—", "—"],
-  ["regulation.ets.gasCoverage.green.n2oTPerTonne", "number", "yes", "—", "—", "—"],
-  ["regulation.ets.gasCoverage.fossil.ch4TPerTonne", "number", "yes", "—", "—", "—"],
-  ["regulation.ets.gasCoverage.fossil.n2oTPerTonne", "number", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.enabled", "boolean", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.penaltyEurPerTonne", "number", "yes", "#18", "3.7%", "advanced"],
-  ["regulation.fuelEu.vlsfoMjPerTonne", "number", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.baselineGco2PerMj", "number", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.scope", "number 0–1", "yes", "#17", "3.7%", "advanced"],
-  ["regulation.fuelEu.credit.enabled", "boolean", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.credit.surplusValueEurPerTonneVlsfoEq", "number", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.credit.rfnbo", "boolean", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.credit.rfnboMultiplier", "number", "yes", "—", "—", "—"],
-  ["regulation.fuelEu.credit.rfnboUntil", "integer", "yes", "—", "—", "—"],
-  ["regulation.ira45z.enabled", "boolean", "yes", "—", "—", "—"],
-  ["regulation.ira45z.usProduced", "boolean", "yes", "—", "—", "—"],
-  ["regulation.ira45z.creditUsdPerGallon", "number", "yes", "—", "—", "—"],
-  ["regulation.ira45z.effectiveUntil", "integer | null", "no", "—", "—", "—"],
-  ["regulation.selfDesigned.enabled", "boolean", "yes", "—", "—", "—"],
-  ["regulation.selfDesigned.co2PriceUsdPerTonne", "number", "yes", "—", "—", "—"],
-  ["regulation.selfDesigned.co2PriceEscalation", "number", "no", "—", "—", "advanced"],
-  ["regulation.selfDesigned.supportUsdPerKg", "number", "yes", "—", "—", "—"],
-  ["regulation.selfDesigned.capexSupport", "number 0–1", "yes", "—", "—", "—"],
-  ["regulation.selfDesigned.opexSupport", "number 0–1", "yes", "—", "—", "—"],
-  ["regulation.selfDesigned.otherUsdM", "number", "yes", "—", "—", "—"],
-  ["regulation.imoNetZero.enabled", "boolean", "yes", "—", "—", "—"],
-  ["regulation.imoNetZero.scope", "number 0–1", "yes", "—", "—", "—"],
-  ["regulation.imoNetZero.rewardUsdPerTonneCo2e", "number", "no", "—", "—", "—"],
-  ["regulation.imoNetZero.priceEscalation", "number", "no", "—", "—", "—"],
-  ["financing.enabled", "boolean", "yes", "—", "—", "—"],
-  ["financing.greenRate", "number 0–1", "yes", "#9", "14.7%", "top-level"],
-  ["financing.baseRate", "number 0–1", "yes", "—", "—", "—"],
-  ["financing.debtShare", "number 0–1", "yes", "—", "—", "—"],
-  ["financing.tenorYears", "integer 1–40", "yes", "—", "—", "—"],
-  ["financing.structure", '"amortizing" | "bullet"', "yes", "—", "—", "—"],
-  ["capitalPhasing.enabled", "boolean", "yes", "—", "—", "—"],
-  ["capitalPhasing.green.weights", "number[] (sum = 1)", "yes", "#21", "3.0%", "advanced"],
-  ["capitalPhasing.fossil.weights", "number[] (sum = 1)", "yes", "—", "—", "—"],
-  ["flags.legacyExcelConstruct", "boolean", "no", "—", "—", "—"],
-  ['flags.emissionsBasis', '"combustion" | "wellToWake"', "no", "—", "—", "—"],
-  ['flags.rateBasis', '"nominal" | "real"', "no", "—", "—", "—"],
-];
 
 export default async function DocsPage() {
   await requireAccess("/docs");
@@ -1510,19 +1431,41 @@ export default async function DocsPage() {
         {/* 13 --------------------------------------------------------- */}
         <H id="inputs">14. Complete input inventory</H>
         <p className="mt-2">
-          Every field a scenario carries — the machine-complete list,
-          generated from the validation schema and joined with the
-          sensitivity sweep (§12). <em>Required&nbsp;=&nbsp;no</em>{" "}
-          marks optional additions that older scenarios may omit;{" "}
-          <em>nullable</em>{" "}
-          override fields use <code>null</code>{" "}
-          to mean &ldquo;use the benchmark&rdquo;. Placement{" "}
-          <em>top-level</em>{" "}
-          = the field moved the headline gap ≥5% and renders prominently;{" "}
-          <em>advanced</em>{" "}
-          = it renders only in the Standard view; &ldquo;—&rdquo; = not
-          swept (selectors, toggles, descriptive fields) or rendered by its
-          own dedicated control.
+          Every field a scenario carries — rendered directly from the
+          GENERATED field reference (the zod validation schema joined with
+          the sensitivity sweep, §12; CI regenerates and fails on drift, so
+          this table cannot desync from the model).{" "}
+          <em>Required&nbsp;=&nbsp;no</em>{" "}marks optional additions that
+          older scenarios may omit; <em>nullable</em>{" "}override fields use{" "}
+          <code>null</code>{" "}to mean &ldquo;use the benchmark&rdquo;.
+        </p>
+        <p className="mt-2">
+          <strong>Rank / Max gap movement</strong>{" "}come from the
+          one-at-a-time sweep: each input is moved to the ends of its
+          plausible range on the workbook baseline and the largest headline
+          gap movement is recorded. Inputs whose module is off in the
+          baseline (self-designed regulation, IMO NZF, 45Z, the FuelEU
+          credit, financing) are swept{" "}
+          <em>with the module switched on</em>, so their figures read as
+          &ldquo;the module enabled at the range ends&rdquo; — e.g. the
+          self-designed &ldquo;other support&rdquo; tops the table because
+          $0–50m/yr over a 20-year horizon IS that large. Fields still
+          showing &ldquo;—&rdquo; are selectors, toggles, descriptive
+          fields, mode-dependent values the sweep cannot move (fossil
+          production costs are zeroed under purchase sourcing), or the
+          build-here surface with its dedicated evaluate flow;{" "}
+          <code>cargo.unitsPerYear</code>{" "}is swept and measures exactly
+          0.0% — the engine counts vessels and roundtrips, not units.
+        </p>
+        <p className="mt-2">
+          <strong>Placement</strong>{" "}is the UI prominence contract and is
+          deliberately narrower than the ranking:{" "}<em>top-level</em>{" "}
+          renders prominently (≥5% movers among the interface&apos;s
+          prominence-swept set), <em>advanced</em>{" "}renders behind the
+          Standard view, and &ldquo;—&rdquo; means the field&apos;s
+          visibility is decided by its section&apos;s own controls — a field
+          can be a large documented mover while living behind a module
+          toggle or a dedicated control.
         </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-xs">
@@ -1537,14 +1480,20 @@ export default async function DocsPage() {
               </tr>
             </thead>
             <tbody>
-              {ALL_INPUTS.map(([field, type, req, rank, move, place]) => (
-                <tr key={field} className="border-b border-neutral-200 last:border-0">
-                  <td className="whitespace-nowrap px-3 py-1.5 font-mono">{field}</td>
-                  <td className="px-3 py-1.5 font-mono text-neutral-600">{type}</td>
-                  <td className="px-3 py-1.5">{req}</td>
-                  <td className="whitespace-nowrap px-3 py-1.5 tabular-nums">{rank}</td>
-                  <td className="px-3 py-1.5 text-right tabular-nums">{move}</td>
-                  <td className="px-3 py-1.5">{place}</td>
+              {FIELD_ROWS.map((row) => (
+                <tr key={row.path} className="border-b border-neutral-200 last:border-0">
+                  <td className="whitespace-nowrap px-3 py-1.5 font-mono">{row.path}</td>
+                  <td className="px-3 py-1.5 font-mono text-neutral-600">
+                    {TYPE_OVERLAY[row.path] ?? row.type}
+                  </td>
+                  <td className="px-3 py-1.5">{row.required ? "yes" : "no"}</td>
+                  <td className="whitespace-nowrap px-3 py-1.5 tabular-nums">
+                    {row.rank != null ? `#${row.rank}` : "—"}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {row.movementPct != null ? `${row.movementPct.toFixed(1)}%` : "—"}
+                  </td>
+                  <td className="px-3 py-1.5">{row.placement}</td>
                 </tr>
               ))}
             </tbody>
@@ -1562,9 +1511,10 @@ export default async function DocsPage() {
           the chosen strategy and whether you picked it, its capital,
           operating and imported-CO₂ cost) and the sizing record (nameplate,
           margin, scale factor, project archetype, FOAK, surplus, distance).
-          The canonical, always-current version of this table is generated
-          into <code>docs/corridor/field-reference.md</code>{" "}
-          in the repository — CI fails if it drifts from the schema.
+          This table and its markdown twin{" "}
+          <code>docs/corridor/field-reference.md</code>{" "}are written by the
+          same generator from the same artifacts — CI fails if either
+          drifts from the schema or the sweep.
         </p>
         {/* ===================== PART 2 — LCOH METHODOLOGY ===================== */}
         <div className="mt-16 border-t-2 border-neutral-300 pt-8">

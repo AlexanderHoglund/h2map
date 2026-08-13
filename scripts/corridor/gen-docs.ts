@@ -84,8 +84,12 @@ function fieldReference(): string {
   // Sensitivity ids don't share every path spelling with the schema; map the
   // known aliases (see scripts/corridor/sensitivity.ts PARAMS).
   const ALIAS: Record<string, string> = {
-  "financing.greenRate": "financing.greenRate",
-  "capitalPhasing.green.weights": "capitalPhasing.years",
+    "financing.greenRate": "financing.greenRate",
+    "financing.baseRate": "financing.baseRate",
+    "financing.debtShare": "financing.debtShare",
+    "financing.tenorYears": "financing.tenorYears",
+    "capitalPhasing.green.weights": "capitalPhasing.years",
+    "capitalPhasing.fossil.weights": "capitalPhasing.years",
     "cargo.waccOverride": "cargo.wacc",
     "green.overrides.priceUsdPerTonne": "green.priceUsdPerTonne",
     "green.overrides.fuelTonnesPerVesselYear": "green.fuelTonnesPerVesselYear",
@@ -110,7 +114,48 @@ function fieldReference(): string {
     "cargo.roundtripsPerYear": "cargo.roundtripsPerYear",
     "vessel.green.capexUsdM": "vessel.green.capexUsdM",
     "vessel.green.opexUsdMPerYear": "vessel.green.opexUsdMPerYear",
+    // Docs-only sweep extension (2026-08-13) — every remaining numeric.
+    "cargo.startYear": "cargo.startYear",
+    "vessel.fossil.capexUsdM": "vessel.fossil.capexUsdM",
+    "vessel.fossil.opexUsdMPerYear": "vessel.fossil.opexUsdMPerYear",
+    "green.overrides.combustionEfTco2PerTonne": "green.combustionEf",
+    "green.overrides.lhvMjPerTonne": "green.lhvMjPerTonne",
+    "green.overrides.bargeOpexUsdMPerYear": "port.bargeOpexUsdMPerYear",
+    "fossil.overrides.fuelTonnesPerVesselYear": "fossil.fuelTonnesPerVesselYear",
+    "fossil.overrides.combustionEfTco2PerTonne": "fossil.combustionEf",
+    "fossil.overrides.lhvMjPerTonne": "fossil.lhvMjPerTonne",
+    "fossil.overrides.portStorageCapexUsdM": "port.fossilStorageCapexUsdM",
+    "fossil.overrides.portStorageOpexUsdMPerYear": "port.fossilStorageOpexUsdMPerYear",
+    "fossil.overrides.bargeCapexUsdM": "port.fossilBargeCapexUsdM",
+    "fossil.overrides.bargeOpexUsdMPerYear": "port.fossilBargeOpexUsdMPerYear",
+    "regulation.ets.euaEscalation": "regulation.euaEscalation",
+    "regulation.fuelEu.vlsfoMjPerTonne": "regulation.fuelEuVlsfoMjPerTonne",
+    "regulation.fuelEu.baselineGco2PerMj": "regulation.fuelEuBaselineGco2PerMj",
+    "regulation.fuelEu.credit.surplusValueEurPerTonneVlsfoEq": "regulation.fuelEuCreditSurplusValue",
+    "regulation.selfDesigned.co2PriceUsdPerTonne": "regulation.selfCo2PriceUsdPerTonne",
+    "regulation.selfDesigned.co2PriceEscalation": "regulation.selfCo2PriceEscalation",
+    "regulation.selfDesigned.supportUsdPerKg": "regulation.selfSupportUsdPerKg",
+    "regulation.selfDesigned.capexSupport": "regulation.selfCapexSupport",
+    "regulation.selfDesigned.opexSupport": "regulation.selfOpexSupport",
+    "regulation.selfDesigned.otherUsdM": "regulation.selfOtherUsdM",
+    "regulation.ira45z.creditUsdPerGallon": "regulation.ira45zCreditUsdPerGallon",
+    "regulation.imoNetZero.scope": "regulation.imoScope",
+    "regulation.imoNetZero.rewardUsdPerTonneCo2e": "regulation.imoRewardUsdPerTonneCo2e",
+    "regulation.imoNetZero.priceEscalation": "regulation.imoPriceEscalation",
   };
+
+  // Completeness guard: a renamed/added PARAMS id that no ALIAS consumes
+  // would silently vanish from the docs — fail loudly instead.
+  const consumed = new Set(Object.values(ALIAS));
+  const orphans = sensitivity.ranked
+    .map((r) => r.id)
+    .filter((id) => !consumed.has(id));
+  if (orphans.length) {
+    console.error(
+      `gen-docs: sensitivity ids missing an ALIAS entry: ${orphans.join(", ")}`,
+    );
+    process.exit(1);
+  }
 
   const lines = [
     "# Corridor scenario — field reference",
@@ -136,11 +181,38 @@ function fieldReference(): string {
   lines.push(
     "",
     "Sensitivity = max headline-gap movement across the input's plausible range",
-    "(one-at-a-time sweep from the Excel-default baseline; see",
-    "`data/corridor-sensitivity/sensitivity.json`). Placement `top-level` means",
-    "the field moved the headline ≥5% and renders prominently in the wizard.",
+    "(one-at-a-time endpoint sweep from the Excel-default baseline; module",
+    "sweeps run with the module enabled — see",
+    "`data/corridor-sensitivity/sensitivity.json`). Placement reflects the",
+    "FROZEN ui-flagged subset: `top-level` renders prominently in the wizard,",
+    "`advanced` behind the Standard view, `—` = not part of the UI prominence",
+    "contract (docs-ranked only, dedicated control, or descriptive).",
     "",
   );
+
+  // The same rows as machine-readable JSON — the docs page (§14 Complete
+  // input inventory) renders THIS artifact, so it can never drift from the
+  // markdown reference.
+  const jsonRows = rows.map((row) => {
+    const sensId = ALIAS[row.path];
+    const hit = sensId ? rank.get(sensId) : undefined;
+    return {
+      path: row.path,
+      type: row.type,
+      required: row.required,
+      rank: hit ? hit.i : null,
+      movementPct: hit
+        ? Number((hit.r.relHeadlineMovement * 100).toFixed(1))
+        : null,
+      placement: sensId ? placement(sensId) : "—",
+    };
+  });
+  writeFileSync(
+    new URL("data/corridor-sensitivity/field-reference.json", ROOT),
+    JSON.stringify({ generatedBy: "scripts/corridor/gen-docs.ts", rows: jsonRows }, null, 1) +
+      "\n",
+  );
+
   return lines.join("\n");
 }
 
@@ -228,7 +300,9 @@ function main(): void {
   mkdirSync(OUT, { recursive: true });
   writeFileSync(new URL("field-reference.md", OUT), fieldReference());
   writeFileSync(new URL("modules.md", OUT), modulesDoc());
-  console.log("wrote docs/corridor/{field-reference,modules}.md");
+  console.log(
+    "wrote docs/corridor/{field-reference,modules}.md + data/corridor-sensitivity/field-reference.json",
+  );
 }
 
 main();

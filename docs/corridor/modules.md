@@ -275,6 +275,20 @@ modeled — the workbook's guard `IF(idx <= horizon, …, 0)` becomes
 
 Documented inline (see source).
 
+### `@h2map/corridor-schema/complete.ts`
+
+**Purpose**
+
+_(no header docblock)_
+
+**Boundary (imports)**: `./scenario`, `./scenario`
+
+**Exports (inputs/outputs)**: `CompleteScenarioJson`, `SCENARIO_TEMPLATE`, `toCompleteScenarioJson`, `fromCompleteScenarioJson`
+
+**Assumptions**
+
+Documented inline (see source).
+
 ### `@h2map/corridor-schema/index.ts`
 
 **Purpose**

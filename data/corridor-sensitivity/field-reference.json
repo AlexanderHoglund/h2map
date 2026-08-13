@@ -1,0 +1,869 @@
+{
+ "generatedBy": "scripts/corridor/gen-docs.ts",
+ "rows": [
+  {
+   "path": "schemaVersion",
+   "type": "= 5",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "refBundleId",
+   "type": "string",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.countryId",
+   "type": "string",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.routeType",
+   "type": "\"point-to-point\", \"single-point\"",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.oneWayDistanceNm",
+   "type": "number",
+   "required": true,
+   "rank": 3,
+   "movementPct": 74.1,
+   "placement": "top-level"
+  },
+  {
+   "path": "cargo.startYear",
+   "type": "integer",
+   "required": true,
+   "rank": 34,
+   "movementPct": 5.6,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.horizonYears",
+   "type": "integer",
+   "required": true,
+   "rank": 18,
+   "movementPct": 17.6,
+   "placement": "top-level"
+  },
+  {
+   "path": "cargo.unitsPerYear",
+   "type": "number",
+   "required": true,
+   "rank": 56,
+   "movementPct": 0,
+   "placement": "advanced"
+  },
+  {
+   "path": "cargo.inflation",
+   "type": "number",
+   "required": true,
+   "rank": 21,
+   "movementPct": 14,
+   "placement": "top-level"
+  },
+  {
+   "path": "cargo.vessels",
+   "type": "integer",
+   "required": true,
+   "rank": 10,
+   "movementPct": 32.9,
+   "placement": "top-level"
+  },
+  {
+   "path": "cargo.roundtripsPerYear",
+   "type": "number",
+   "required": true,
+   "rank": 31,
+   "movementPct": 8.2,
+   "placement": "top-level"
+  },
+  {
+   "path": "cargo.waccOverride",
+   "type": "number, null",
+   "required": true,
+   "rank": 20,
+   "movementPct": 14.6,
+   "placement": "top-level"
+  },
+  {
+   "path": "cargo.unit",
+   "type": "\"tonne\", \"teu\"",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.unitWeightTonnes",
+   "type": "number",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.portAName",
+   "type": "string",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.portACoords.lat",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.portACoords.lon",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.portBName",
+   "type": "string",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.countryBId",
+   "type": "string",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.portBCoords.lat",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.portBCoords.lon",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.routedDistance.nm",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.routedDistance.graphVersion",
+   "type": "string",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.routedDistance.via",
+   "type": "string, null",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "vessel.typeId",
+   "type": "string",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "vessel.consumptionMode",
+   "type": "\"distance\", \"vessel-benchmark\"",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "vessel.green.capexUsdM",
+   "type": "number, null",
+   "required": true,
+   "rank": 5,
+   "movementPct": 56.9,
+   "placement": "top-level"
+  },
+  {
+   "path": "vessel.green.opexUsdMPerYear",
+   "type": "number, null",
+   "required": true,
+   "rank": 6,
+   "movementPct": 42.5,
+   "placement": "top-level"
+  },
+  {
+   "path": "vessel.fossil.capexUsdM",
+   "type": "number, null",
+   "required": true,
+   "rank": 4,
+   "movementPct": 59.9,
+   "placement": "—"
+  },
+  {
+   "path": "vessel.fossil.opexUsdMPerYear",
+   "type": "number, null",
+   "required": true,
+   "rank": 8,
+   "movementPct": 33.7,
+   "placement": "—"
+  },
+  {
+   "path": "green.fuelId",
+   "type": "string",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "green.sourcing",
+   "type": "\"purchase\", \"build-plant\", \"build-here\"",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "green.buildHere",
+   "type": "object, null",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "green.overrides.priceUsdPerTonne",
+   "type": "number, null",
+   "required": true,
+   "rank": 23,
+   "movementPct": 13.7,
+   "placement": "top-level"
+  },
+  {
+   "path": "green.overrides.combustionEfTco2PerTonne",
+   "type": "number, null",
+   "required": true,
+   "rank": 48,
+   "movementPct": 1.5,
+   "placement": "—"
+  },
+  {
+   "path": "green.overrides.lhvMjPerTonne",
+   "type": "number, null",
+   "required": true,
+   "rank": 42,
+   "movementPct": 3.4,
+   "placement": "—"
+  },
+  {
+   "path": "green.overrides.wtwGco2PerMj",
+   "type": "number, null",
+   "required": true,
+   "rank": 55,
+   "movementPct": 0.2,
+   "placement": "advanced"
+  },
+  {
+   "path": "green.overrides.fuelTonnesPerVesselYear",
+   "type": "number, null",
+   "required": true,
+   "rank": 14,
+   "movementPct": 21.1,
+   "placement": "top-level"
+  },
+  {
+   "path": "green.overrides.prodCapexUsdM",
+   "type": "number, null",
+   "required": true,
+   "rank": 9,
+   "movementPct": 32.9,
+   "placement": "top-level"
+  },
+  {
+   "path": "green.overrides.prodOpexUsdMPerYear",
+   "type": "number, null",
+   "required": true,
+   "rank": 13,
+   "movementPct": 26.6,
+   "placement": "top-level"
+  },
+  {
+   "path": "green.overrides.portStorageCapexUsdM",
+   "type": "number, null",
+   "required": true,
+   "rank": 27,
+   "movementPct": 10.8,
+   "placement": "top-level"
+  },
+  {
+   "path": "green.overrides.portStorageOpexUsdMPerYear",
+   "type": "number, null",
+   "required": true,
+   "rank": 30,
+   "movementPct": 8.9,
+   "placement": "top-level"
+  },
+  {
+   "path": "green.overrides.bargeCapexUsdM",
+   "type": "number, null",
+   "required": true,
+   "rank": 38,
+   "movementPct": 4.2,
+   "placement": "advanced"
+  },
+  {
+   "path": "green.overrides.bargeOpexUsdMPerYear",
+   "type": "number, null",
+   "required": true,
+   "rank": 28,
+   "movementPct": 10.6,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.fuelId",
+   "type": "string",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.sourcing",
+   "type": "\"purchase\", \"build-plant\", \"build-here\"",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.buildHere",
+   "type": "object, null",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.overrides.priceUsdPerTonne",
+   "type": "number, null",
+   "required": true,
+   "rank": 43,
+   "movementPct": 3.2,
+   "placement": "advanced"
+  },
+  {
+   "path": "fossil.overrides.combustionEfTco2PerTonne",
+   "type": "number, null",
+   "required": true,
+   "rank": 52,
+   "movementPct": 0.6,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.overrides.lhvMjPerTonne",
+   "type": "number, null",
+   "required": true,
+   "rank": 53,
+   "movementPct": 0.6,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.overrides.wtwGco2PerMj",
+   "type": "number, null",
+   "required": true,
+   "rank": 47,
+   "movementPct": 1.9,
+   "placement": "advanced"
+  },
+  {
+   "path": "fossil.overrides.fuelTonnesPerVesselYear",
+   "type": "number, null",
+   "required": true,
+   "rank": 7,
+   "movementPct": 42,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.overrides.prodCapexUsdM",
+   "type": "number, null",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.overrides.prodOpexUsdMPerYear",
+   "type": "number, null",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.overrides.portStorageCapexUsdM",
+   "type": "number, null",
+   "required": true,
+   "rank": 17,
+   "movementPct": 18,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.overrides.portStorageOpexUsdMPerYear",
+   "type": "number, null",
+   "required": true,
+   "rank": 24,
+   "movementPct": 13.3,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.overrides.bargeCapexUsdM",
+   "type": "number, null",
+   "required": true,
+   "rank": 33,
+   "movementPct": 7.2,
+   "placement": "—"
+  },
+  {
+   "path": "fossil.overrides.bargeOpexUsdMPerYear",
+   "type": "number, null",
+   "required": true,
+   "rank": 25,
+   "movementPct": 13.3,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.eurUsd",
+   "type": "number",
+   "required": true,
+   "rank": 51,
+   "movementPct": 1.2,
+   "placement": "advanced"
+  },
+  {
+   "path": "regulation.ets.enabled",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ets.euaEurPerTonne",
+   "type": "number",
+   "required": true,
+   "rank": 41,
+   "movementPct": 3.6,
+   "placement": "advanced"
+  },
+  {
+   "path": "regulation.ets.euaEscalation",
+   "type": "number",
+   "required": false,
+   "rank": 50,
+   "movementPct": 1.2,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ets.scope",
+   "type": "number",
+   "required": true,
+   "rank": 46,
+   "movementPct": 2.4,
+   "placement": "advanced"
+  },
+  {
+   "path": "regulation.ets.gasCoverage.enabled",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ets.gasCoverage.fromCalendarYear",
+   "type": "integer",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ets.gasCoverage.gwpCh4",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ets.gasCoverage.gwpN2o",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ets.gasCoverage.green.ch4TPerTonne",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ets.gasCoverage.green.n2oTPerTonne",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ets.gasCoverage.fossil.ch4TPerTonne",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ets.gasCoverage.fossil.n2oTPerTonne",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.fuelEu.enabled",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.fuelEu.penaltyEurPerTonne",
+   "type": "number",
+   "required": true,
+   "rank": 40,
+   "movementPct": 3.7,
+   "placement": "advanced"
+  },
+  {
+   "path": "regulation.fuelEu.vlsfoMjPerTonne",
+   "type": "number",
+   "required": true,
+   "rank": 54,
+   "movementPct": 0.2,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.fuelEu.baselineGco2PerMj",
+   "type": "number",
+   "required": true,
+   "rank": 49,
+   "movementPct": 1.3,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.fuelEu.scope",
+   "type": "number",
+   "required": true,
+   "rank": 39,
+   "movementPct": 3.7,
+   "placement": "advanced"
+  },
+  {
+   "path": "regulation.fuelEu.credit.enabled",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.fuelEu.credit.surplusValueEurPerTonneVlsfoEq",
+   "type": "number",
+   "required": true,
+   "rank": 2,
+   "movementPct": 148.3,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.fuelEu.credit.rfnbo",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.fuelEu.credit.rfnboMultiplier",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.fuelEu.credit.rfnboUntil",
+   "type": "integer",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ira45z.enabled",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ira45z.usProduced",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ira45z.creditUsdPerGallon",
+   "type": "number",
+   "required": true,
+   "rank": 35,
+   "movementPct": 5.2,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.ira45z.effectiveUntil",
+   "type": "integer, null",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.selfDesigned.enabled",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.selfDesigned.co2PriceUsdPerTonne",
+   "type": "number",
+   "required": true,
+   "rank": 22,
+   "movementPct": 13.9,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.selfDesigned.co2PriceEscalation",
+   "type": "number",
+   "required": false,
+   "rank": 26,
+   "movementPct": 11.8,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.selfDesigned.supportUsdPerKg",
+   "type": "number",
+   "required": true,
+   "rank": 15,
+   "movementPct": 19.5,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.selfDesigned.capexSupport",
+   "type": "number",
+   "required": true,
+   "rank": 12,
+   "movementPct": 29.1,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.selfDesigned.opexSupport",
+   "type": "number",
+   "required": true,
+   "rank": 11,
+   "movementPct": 32.4,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.selfDesigned.otherUsdM",
+   "type": "number",
+   "required": true,
+   "rank": 1,
+   "movementPct": 377.6,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.imoNetZero.enabled",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.imoNetZero.scope",
+   "type": "number",
+   "required": true,
+   "rank": 45,
+   "movementPct": 2.8,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.imoNetZero.rewardUsdPerTonneCo2e",
+   "type": "number",
+   "required": false,
+   "rank": 37,
+   "movementPct": 4.4,
+   "placement": "—"
+  },
+  {
+   "path": "regulation.imoNetZero.priceEscalation",
+   "type": "number",
+   "required": false,
+   "rank": 36,
+   "movementPct": 4.8,
+   "placement": "—"
+  },
+  {
+   "path": "financing.enabled",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "financing.greenRate",
+   "type": "number",
+   "required": true,
+   "rank": 19,
+   "movementPct": 14.7,
+   "placement": "top-level"
+  },
+  {
+   "path": "financing.baseRate",
+   "type": "number",
+   "required": true,
+   "rank": 16,
+   "movementPct": 18.4,
+   "placement": "—"
+  },
+  {
+   "path": "financing.debtShare",
+   "type": "number",
+   "required": true,
+   "rank": 32,
+   "movementPct": 7.4,
+   "placement": "—"
+  },
+  {
+   "path": "financing.tenorYears",
+   "type": "integer",
+   "required": true,
+   "rank": 29,
+   "movementPct": 10.1,
+   "placement": "—"
+  },
+  {
+   "path": "financing.structure",
+   "type": "\"amortizing\", \"bullet\"",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "capitalPhasing.enabled",
+   "type": "boolean",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "capitalPhasing.green.weights",
+   "type": "array",
+   "required": true,
+   "rank": 44,
+   "movementPct": 3,
+   "placement": "advanced"
+  },
+  {
+   "path": "capitalPhasing.fossil.weights",
+   "type": "array",
+   "required": true,
+   "rank": 44,
+   "movementPct": 3,
+   "placement": "advanced"
+  },
+  {
+   "path": "flags.emissionsBasis",
+   "type": "\"combustion\", \"wellToWake\"",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "flags.rateBasis",
+   "type": "\"nominal\", \"real\"",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "flags.legacyExcelConstruct",
+   "type": "boolean",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 {
  "generatedFrom": "sensitivity.json",
- "note": "Field prominence for the corridor UI: topLevel ≥5% headline movement, rest advanced. CI (--check) fails when this drifts from the model.",
+ "note": "Field prominence for the corridor UI: topLevel ≥5% headline movement among the ui-flagged sweep params, rest advanced. Docs-only sweep params never enter this file. CI (--check) fails when this drifts from the model.",
  "topLevel": [
   "cargo.oneWayDistanceNm",
   "vessel.green.capexUsdM",
