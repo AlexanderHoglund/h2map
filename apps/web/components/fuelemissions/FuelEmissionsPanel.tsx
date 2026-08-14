@@ -484,6 +484,40 @@ export default function FuelEmissionsPanel() {
                   {fmt2(ok.znz.blendWtwGco2ePerMj)} gCO2e/MJ
                 </dd>
               </div>
+              {/* FuelEU's own threshold flag: the RFNBO ceiling of 28.2
+                  gCO2e/MJ WtW (RED Article 28(5)), tested on the same
+                  fuel basis as the IMO's ZNZ verdict — the decision-
+                  relevant answer this view was missing. */}
+              {frameworkId === "fueleu" &&
+                certifiedRange &&
+                (() => {
+                  const qualifies = ok.znz.fuelWtwGco2ePerMj <= rfnboCeiling;
+                  return (
+                    <div className="flex items-baseline justify-between gap-2">
+                      <dt className="text-neutral-500">
+                        {t("rfnboRow", { threshold: fmt1(rfnboCeiling) })}
+                        <Help
+                          text={`${t("rfnboHelp")} ${
+                            ds.frameworks["fueleu"]?.rfnboCeilingSource ?? ""
+                          }`}
+                        />
+                      </dt>
+                      <dd
+                        data-testid="rfnbo"
+                        className={`font-semibold ${
+                          qualifies ? "text-emerald-800" : "text-red-800"
+                        }`}
+                      >
+                        {qualifies ? t("yes") : t("no")}
+                        <span className="ml-1 font-normal text-neutral-500">
+                          · {t("znzFuelIntensity", {
+                            value: fmt2(ok.znz.fuelWtwGco2ePerMj),
+                          })}
+                        </span>
+                      </dd>
+                    </div>
+                  );
+                })()}
               {/* ZNZ is the IMO's concept. BOTH periods render side by
                   side (round-2 fix F): a user checking 2034 has no reason
                   to suspect 2035 fails, and the 14.0 line is the binding
@@ -522,6 +556,22 @@ export default function FuelEmissionsPanel() {
                 ))}
             </dl>
 
+            {/* FuelEU's matching procurement line when the ceiling fails. */}
+            {frameworkId === "fueleu" &&
+              certifiedRange &&
+              ok.znz.fuelWtwGco2ePerMj > rfnboCeiling &&
+              (() => {
+                const extra =
+                  ok.znz.fuelWtwGco2ePerMj - Math.min(candidateWtw, rfnboCeiling);
+                const required = rfnboCeiling - extra;
+                return (
+                  <p className="mt-2 bg-brand-tint/40 px-2.5 py-1.5 text-[11px] leading-snug text-brand-deep">
+                    {required > 0
+                      ? t("rfnboSpec", { wtt: fmt2(required) })
+                      : t("rfnboSpecNone")}
+                  </p>
+                );
+              })()}
             {/* The procurement specification (fix F): what certified WtT
                 would clear the 2035 line, given the selected N2O scenario
                 — derived as 14.0 − the non-certified share of the fuel's

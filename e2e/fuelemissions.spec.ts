@@ -65,6 +65,12 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   await pilot.fill("0");
   await expect(page.getByText(/replaces 459\.3 t/)).toBeVisible();
 
+  // FuelEU's own threshold flag: the RFNBO ceiling (28.2 WtW, RED Art.
+  // 28(5)) — at 18.52 (15 + 3.52 default slip under AR4) the fuel
+  // qualifies comfortably, and the view says so.
+  await expect(page.getByTestId("rfnbo")).toContainText("Yes");
+  await expect(page.getByTestId("rfnbo")).toContainText("fuel 18.52");
+
   // The N2O scenario is unverified and shown as a RANGE; switching the
   // scenario moves the avoided result.
   await expect(page.getByText("unverified").first()).toBeVisible();
@@ -75,6 +81,12 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     .getByLabel("Ammonia N2O slip scenario")
     .selectOption({ label: "Highest observed in the literature" });
   await expect(avoided).not.toHaveText(before);
+  // The worst published slip (51.69) fails even the 28.2 ceiling — and
+  // no certified pathway can rescue it: the spec line says so.
+  await expect(page.getByTestId("rfnbo")).toContainText("No");
+  await expect(
+    page.getByText(/No certified pathway can qualify as an RFNBO/),
+  ).toBeVisible();
   await page
     .getByLabel("Ammonia N2O slip scenario")
     .selectOption({ label: "MAN / WinGD tested two-stroke engines" });
@@ -90,6 +102,8 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     .selectOption({ label: "IMO Net-Zero (AR5 · provisional)" });
   await expect(page.getByTestId("znz-2034")).toContainText("Yes");
   await expect(page.getByTestId("znz-2035")).toContainText("No");
+  // The RFNBO row is FuelEU's concept — absent under IMO.
+  await expect(page.getByTestId("rfnbo")).toHaveCount(0);
   // Fix 5: the verdict tests the FUEL's own WtW intensity (shown in
   // the row), never the blended attained GFI.
   await expect(page.getByTestId("znz-2034")).toContainText("fuel 15.97 gCO2e/MJ");

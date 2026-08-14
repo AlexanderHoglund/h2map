@@ -2429,7 +2429,10 @@ export default async function DocsPage() {
           the binding constraint; a derived line states the certified WtT
           a pathway would need to clear it — a procurement specification,
           computed as 14.0 minus the fuel&apos;s non-certified intensity
-          share. The default 5% pilot lifts the
+          share. The FuelEU view carries the analogous flag against the
+          RFNBO ceiling of 28.2 gCO2e/MJ WtW (RED Article 28(5)), tested
+          on the same fuel basis, with the matching procurement line when
+          it fails. The default 5% pilot lifts the
           attained blend to 18.79 while the fuel itself stays at 15.0;
           and a certified 15 pathway plus real-world N2O misses the 14.0
           line applying from 2035 comfortably — the most
