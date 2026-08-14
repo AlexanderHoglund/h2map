@@ -95,12 +95,22 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     .selectOption({ label: "FuelEU Maritime (AR4)" });
   await expect(certified).toHaveValue(/^15/);
 
-  // LNG refuses: missing upstream factor + per-engine slip — the dataset's
-  // own review note renders, and no headline number is produced.
+  // LNG computes under FuelEU per engine technology (slip is THE lever):
+  // 1,000 t at 49,100 MJ/t replaces 1,197.6 t of VLSFO (pilot still 0).
   await page.getByLabel("Candidate fuel").selectOption({ label: "Liquefied natural gas (fossil)" });
+  await expect(page.getByLabel("LNG engine type")).toBeVisible();
+  await expect(page.getByText(/replaces 1,197\.6 t/)).toBeVisible();
+  // Under the IMO framework it still refuses — no default upstream factor
+  // (ICCT), and the FuelEU WtT is never borrowed. No headline number.
+  await page
+    .getByLabel("Accounting framework")
+    .selectOption({ label: "IMO Net-Zero (AR5 · provisional)" });
   await expect(page.getByText(/Not parameterised/)).toBeVisible();
   await expect(page.getByText(/ICCT/)).toBeVisible();
   await expect(page.locator("p.text-3xl")).toHaveCount(0);
+  await page
+    .getByLabel("Accounting framework")
+    .selectOption({ label: "FuelEU Maritime (AR4)" });
 
   // e-Methanol is a certified-pathway fuel like ammonia: it COMPUTES with
   // the certified E-value (still 15 here). 1,000 t at 19,900 MJ/t =

@@ -43,6 +43,12 @@ const fuelSchema = z.object({
   }),
   wttGco2ePerMj: nullableNumber,
   wttRangeGco2ePerMj: z.tuple([z.number(), z.number()]).optional(),
+  /**
+   * Framework ids under which this fuel must REFUSE despite carrying
+   * values (LNG: the IMO LCA Guidelines lack a default upstream factor —
+   * the row's WtT is FuelEU's and must not be borrowed).
+   */
+  unavailableUnder: z.array(z.string()).optional(),
   framework: z.string().min(1),
   verified: z.boolean(),
   requiresEngineType: z.boolean().optional(),

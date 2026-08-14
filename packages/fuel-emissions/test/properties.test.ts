@@ -144,16 +144,57 @@ describe("fuel-emissions properties", () => {
     );
   });
 
-  it("LNG refuses: missing WtT + per-engine slip requirement, never zeroed", () => {
-    const r = evaluateFuelEmissions(
+  it("LNG: engine type is explicit — refuses without one, slip dominates with one", () => {
+    // No engine type → refuse (Cslip differs per technology).
+    const no = evaluateFuelEmissions(
       { candidateFuelId: "lng", quantityTonnes: 1000, baselineFuelId: "vlsfo", frameworkId: "fueleu" },
       ds,
     );
-    expect("notParameterised" in r && r.notParameterised).toBe(true);
-    if (!("notParameterised" in r) || !r.notParameterised) throw new Error("unreachable");
-    expect(r.missing.join(" ")).toMatch(/wtt/i);
-    expect(r.missing.join(" ")).toMatch(/engineType/);
-    expect(r.reviewNote).toMatch(/ICCT/);
+    expect("notParameterised" in no && no.notParameterised).toBe(true);
+    if (!("notParameterised" in no) || !no.notParameterised) throw new Error("unreachable");
+    expect(no.missing.join(" ")).toMatch(/engineType/);
+
+    // Otto DF medium-speed under FuelEU AR4, hand-computed: per g of fuel
+    // (1−0.031) combusts and 0.031 escapes as CH4 —
+    // (2.750×0.969 + 0.031×25 + 0.00011×0.969×298) / 0.0491 = 70.703 TtW;
+    // + WtT 18.5 = 89.203 WtW, barely below VLSFO's 90.49.
+    const run = (engineType: string) => {
+      const r = evaluateFuelEmissions(
+        {
+          candidateFuelId: "lng",
+          quantityTonnes: 1000,
+          baselineFuelId: "vlsfo",
+          frameworkId: "fueleu",
+          engineType,
+          pilotShare: 0,
+        },
+        ds,
+      );
+      if ("notParameterised" in r && r.notParameterised) throw new Error("refused");
+      return r as FuelEmissionsResult;
+    };
+    const otto = run("lng-otto-df-medium-speed");
+    expect(otto.wellToWake.candidate.intensityGco2ePerMj).toBeCloseTo(89.203, 2);
+    // Diesel DF slow-speed (Cslip 0.2%): 76.081 — slip is THE lever.
+    const diesel = run("lng-diesel-df-slow-speed");
+    expect(diesel.wellToWake.candidate.intensityGco2ePerMj).toBeCloseTo(76.081, 2);
+    expect(otto.wellToWake.avoidedTco2e).toBeLessThan(diesel.wellToWake.avoidedTco2e);
+
+    // The IMO path still refuses: no default upstream factor (ICCT) — the
+    // FuelEU WtT must not be borrowed.
+    const imo = evaluateFuelEmissions(
+      {
+        candidateFuelId: "lng",
+        quantityTonnes: 1000,
+        baselineFuelId: "vlsfo",
+        frameworkId: "imo",
+        engineType: "lng-otto-df-medium-speed",
+      },
+      ds,
+    );
+    expect("notParameterised" in imo && imo.notParameterised).toBe(true);
+    if (!("notParameterised" in imo) || !imo.notParameterised) throw new Error("unreachable");
+    expect(imo.reviewNote).toMatch(/ICCT/);
   });
 
   it("e-methanol refuses without a certified value; computes with one", () => {

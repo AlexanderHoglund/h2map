@@ -2343,11 +2343,13 @@ export default async function DocsPage() {
           impossible. A (fuel, framework) combination missing a needed
           factor reports{" "}<em>not parameterised</em>{" "}with the
           dataset&apos;s own review note — it never falls back to a
-          neighbouring value and never defaults to zero: LNG currently
-          refuses (the IMO guidelines lack a default upstream factor; the
+          neighbouring value and never defaults to zero: LNG evaluates
+          under FuelEU per engine technology but refuses under the IMO
+          framework (the IMO guidelines lack a default upstream factor; the
           real range 18.5–28 gCO2e/MJ is 20–30% of HFO&apos;s whole
           lifecycle intensity, so a missing term flatters LNG
-          substantially), and the pathway fuels — e-ammonia and
+          substantially — FuelEU&apos;s WtT is never borrowed), and the
+          pathway fuels — e-ammonia and
           e-methanol — require a CERTIFIED pathway E-value: a zero-WtW
           RFNBO is an assumption, not a certifiable value. For e-methanol
           the certificate also resolves whether the combustion carbon
@@ -2421,6 +2423,17 @@ export default async function DocsPage() {
             fuel-intensity arithmetic misses.
           </li>
           <li>
+            <strong>Methane slip (LNG)</strong>{" "}— Cslip is the fraction
+            of fuel escaping combustion as CH4, defined at 50% engine load
+            and set per engine technology by both frameworks (0.2–3.1%
+            across technologies under FuelEU): per g of fuel, (1−Cslip)
+            combusts and Cslip is priced as CH4 at the framework&apos;s
+            GWP. Engine type is therefore an explicit input — an Otto
+            dual-fuel medium-speed engine lands at 89.20 gCO2e/MJ WtW
+            under FuelEU AR4, barely below VLSFO&apos;s 90.49, while a
+            diesel slow-speed engine reaches 76.08.
+          </li>
+          <li>
             <strong>N2O slip</strong>{" "}— THE dominant uncertainty:
             published values span ×37 (6.81×10⁻⁵ to 2.5×10⁻³ g N2O/g
             NH3). Between best and worst, avoided emissions fall ~48% and
@@ -2466,8 +2479,12 @@ export default async function DocsPage() {
             unverified.
           </li>
           <li>
-            No LNG evaluation until the upstream-factor gap is resolved —
-            it refuses rather than approximates. e-Methanol evaluates as a
+            LNG evaluates under FuelEU per engine technology, but its WtT
+            of 18.5 gCO2e/MJ is carried from a secondary table pending
+            verification against the Annex II LNG row; under the IMO
+            framework it refuses — the IMO guidelines lack a default
+            upstream factor (ICCT) and FuelEU&apos;s value is never
+            borrowed. e-Methanol evaluates as a
             certified-pathway fuel (the user supplies the E-value per
             project, range 1–28.2 gCO2e/MJ), but the dedicated DAC-sourced
             and point-source-captured pathway rows from RED Delegated

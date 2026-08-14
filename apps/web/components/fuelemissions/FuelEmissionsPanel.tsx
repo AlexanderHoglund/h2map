@@ -56,6 +56,15 @@ const FRAMEWORK_CITATIONS: Record<string, string> = {
   imo: "the IMO LCA Guidelines (MEPC.391(81), provisional)",
 };
 
+/** Human labels for methaneSlip.byEngine ids (LNG only). */
+const ENGINE_LABELS: Record<string, string> = {
+  "lng-otto-df-medium-speed": "Otto dual-fuel · medium-speed",
+  "lng-otto-df-slow-speed": "Otto dual-fuel · slow-speed",
+  "lng-diesel-df-slow-speed": "Diesel dual-fuel · slow-speed",
+  "lng-lbsi": "Lean-burn spark-ignition",
+  "steam-turbine-boiler": "Steam turbine / boiler",
+};
+
 export default function FuelEmissionsPanel() {
   const t = useTranslations("fuelEmissions");
   const [frameworkId, setFrameworkId] = useState("fueleu");
@@ -64,6 +73,7 @@ export default function FuelEmissionsPanel() {
   const [period, setPeriod] = useState<"to2034" | "from2035">("to2034");
   const [direction, setDirection] = useState<"candidate" | "baseline">("baseline");
   const [candidateFuelId, setCandidateFuelId] = useState("e-ammonia");
+  const [engineType, setEngineType] = useState("lng-otto-df-medium-speed");
   const [quantityTonnes, setQuantityTonnes] = useState(1000);
   const [candidateWtw, setCandidateWtw] = useState(15);
   const [baselineFuelId, setBaselineFuelId] = useState("vlsfo");
@@ -86,6 +96,7 @@ export default function FuelEmissionsPanel() {
       evaluateFuelEmissions(
         {
           candidateFuelId,
+          engineType: candidateRow.requiresEngineType ? engineType : undefined,
           quantityTonnes,
           quantityBasis: direction,
           baselineFuelId,
@@ -100,6 +111,8 @@ export default function FuelEmissionsPanel() {
       ),
     [
       candidateFuelId,
+      candidateRow.requiresEngineType,
+      engineType,
       quantityTonnes,
       direction,
       baselineFuelId,
@@ -120,6 +133,7 @@ export default function FuelEmissionsPanel() {
     setPeriod("to2034");
     setDirection("baseline");
     setCandidateFuelId("e-ammonia");
+    setEngineType("lng-otto-df-medium-speed");
     setQuantityTonnes(1000);
     setCandidateWtw(certifiedDefaultFor("fueleu", "to2034"));
     setBaselineFuelId("vlsfo");
@@ -136,14 +150,29 @@ export default function FuelEmissionsPanel() {
 
   /* Form blocks, composed in direction order (start fuel first). */
   const candidateSelect = (
-    <Select
-      label={t("candidate")}
-      value={candidateFuelId}
-      options={ds.fuels
-        .filter((f) => f.family === "green" || f.id === "lng")
-        .map((f) => ({ value: f.id, label: f.name }))}
-      onChange={setCandidateFuelId}
-    />
+    <>
+      <Select
+        label={t("candidate")}
+        value={candidateFuelId}
+        options={ds.fuels
+          .filter((f) => f.family === "green" || f.id === "lng")
+          .map((f) => ({ value: f.id, label: f.name }))}
+        onChange={setCandidateFuelId}
+      />
+      {/* LNG: methane slip is per engine technology — an explicit input. */}
+      {candidateRow.requiresEngineType && (
+        <Select
+          label={t("engineType")}
+          help={`${ds.methaneSlip.note} — ${ds.methaneSlip.source}`}
+          value={engineType}
+          options={ds.methaneSlip.byEngine.map((e) => ({
+            value: e.engine,
+            label: ENGINE_LABELS[e.engine] ?? e.engine,
+          }))}
+          onChange={setEngineType}
+        />
+      )}
+    </>
   );
   const baselineSelect = (
     <Select

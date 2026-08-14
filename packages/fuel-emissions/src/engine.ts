@@ -50,6 +50,12 @@ export interface FuelEmissionsInput {
   /** Share of TOTAL delivered energy burned as fossil pilot (0–1). */
   pilotShare?: number;
   pilotFuelId?: string;
+  /**
+   * Engine technology id (methaneSlip.byEngine) — REQUIRED for fuels
+   * flagged `requiresEngineType` (LNG): Cslip differs per technology and
+   * per framework, and is the dominant term in LNG's result.
+   */
+  engineType?: string;
   /** Ammonia combustion N2O slip, g N2O per g fuel. */
   n2oSlipGPerG?: number;
   /**
@@ -133,18 +139,25 @@ interface Intensity {
   ttwN2o: number;
 }
 
-/** Per-MJ intensity components of a FIXED-row fuel under one GWP set. */
+/**
+ * Per-MJ intensity components of a FIXED-row fuel under one GWP set.
+ * `cslip` (LNG): the mass fraction escaping combustion as CH4 at 50%
+ * load — (1−Cslip) of the fuel combusts, Cslip is priced as CH4 in the
+ * combustion-CH4 term.
+ */
 function rowIntensity(
   fuel: RefFuel,
   gwp: { ch4: number; n2o: number },
+  cslip = 0,
 ): Intensity {
   const lcv = fuel.lcvMjPerG;
   const n2o = typeof fuel.ttw.n2oGPerG === "number" ? fuel.ttw.n2oGPerG : 0;
+  const burn = 1 - cslip;
   return {
     wtt: fuel.wttGco2ePerMj ?? 0,
-    ttwCo2: (fuel.ttw.co2GPerG ?? 0) / lcv,
-    ttwCh4: ((fuel.ttw.ch4GPerG ?? 0) * gwp.ch4) / lcv,
-    ttwN2o: (n2o * gwp.n2o) / lcv,
+    ttwCo2: ((fuel.ttw.co2GPerG ?? 0) * burn) / lcv,
+    ttwCh4: (((fuel.ttw.ch4GPerG ?? 0) * burn + cslip) * gwp.ch4) / lcv,
+    ttwN2o: (n2o * burn * gwp.n2o) / lcv,
   };
 }
 
@@ -160,14 +173,31 @@ export function evaluateFuelEmissions(
   const baseline = getFuel(ds, input.baselineFuelId);
 
   // --- the not-parameterised gate (never zero, never a neighbour) --------
+  // A row can be framework-barred despite carrying values: LNG's WtT is
+  // FuelEU's default; the IMO guidelines have no upstream factor and a
+  // missing upstream term flatters LNG — refuse, never borrow.
+  if (candidate.unavailableUnder?.includes(input.frameworkId)) {
+    return {
+      notParameterised: true,
+      fuelId: candidate.id,
+      missing: [`wttGco2ePerMj (no default upstream factor under ${framework.name})`],
+      reviewNote: candidate.reviewNote,
+    };
+  }
   const pathwayFuel = candidate.wttGco2ePerMj === null && !!candidate.wttRangeGco2ePerMj;
+  // A valid engine-technology id satisfies the requiresEngineType gate.
+  const engineSlipRow = input.engineType
+    ? ds.methaneSlip.byEngine.find((e) => e.engine === input.engineType)
+    : undefined;
   for (const [fuel, role] of [
     [candidate, "candidate"],
     [baseline, "baseline"],
   ] as const) {
     const missing = missingParameters(fuel).filter(
-      // A pathway WtT range is satisfiable by the certified-value input.
-      (m) => !(fuel.id === candidate.id && pathwayFuel && m === "wttGco2ePerMj"),
+      (m) =>
+        // A pathway WtT range is satisfiable by the certified-value input.
+        !(fuel.id === candidate.id && pathwayFuel && m === "wttGco2ePerMj") &&
+        !(fuel.id === candidate.id && engineSlipRow && m.startsWith("engineType")),
     );
     if (missing.length > 0) {
       return {
@@ -228,7 +258,13 @@ export function evaluateFuelEmissions(
   // The TANK-TO-WAKE basis stays chemical: the row's stack factors (zero
   // for e-ammonia by chemistry, 69.1 gCO2/MJ for e-methanol — a carbon
   // molecule regardless of accounting).
-  const candChemical = rowIntensity(candidate, gwp);
+  const cslip =
+    candidate.requiresEngineType && engineSlipRow
+      ? input.frameworkId === "imo"
+        ? engineSlipRow.imo
+        : engineSlipRow.fueleu
+      : 0;
+  const candChemical = rowIntensity(candidate, gwp, cslip);
   const candInt: Intensity = pathwayFuel
     ? {
         wtt: input.candidateWtwGco2ePerMj!,

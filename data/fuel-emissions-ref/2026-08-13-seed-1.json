@@ -90,14 +90,15 @@
       "name": "Liquefied natural gas (fossil)",
       "family": "fossil",
       "lcvMjPerG": 0.0491,
-      "ttw": { "co2GPerG": 2.750, "ch4GPerG": null, "n2oGPerG": null },
-      "wttGco2ePerMj": null,
+      "ttw": { "co2GPerG": 2.750, "ch4GPerG": 0.0, "n2oGPerG": 0.00011 },
+      "wttGco2ePerMj": 18.5,
+      "unavailableUnder": ["imo"],
       "framework": "fueleu",
       "verified": false,
       "requiresEngineType": true,
-      "derivation": "CO2 factor and LCV are engine-independent. Methane slip is NOT — it is set per engine technology at 50% load and is the dominant term in LNG's WtW result.",
-      "reviewNote": "WtT missing. Note the ICCT finding that the IMO LCA Guidelines lack a default upstream factor for fossil LNG, where the real range is 18.5–28 gCO2e/MJ — 20–30% of HFO's whole lifecycle intensity. Do not ship an LNG row without resolving this; a missing upstream term flatters LNG substantially.",
-      "source": "LCV and CO2 factor via agriportance FuelEU worked example; WtT gap per ICCT, April 2025"
+      "derivation": "CO2 factor and LCV are engine-independent. Methane slip is NOT — it is set per engine technology at 50% load (Cslip, see methaneSlip.byEngine) and folded into the combustion-CH4 term: per g of fuel, (1−Cslip) combusts and Cslip escapes as CH4 priced at the framework's GWP. WtT 18.5 is the FuelEU default upstream value. Under FuelEU AR4 an Otto dual-fuel medium-speed engine gives TtW ≈ 70.70 and WtW ≈ 89.20 gCO2e/MJ — barely below VLSFO's 90.49; a diesel slow-speed engine gives ≈ 76.08.",
+      "reviewNote": "Not evaluable under the IMO framework: the IMO LCA Guidelines lack a default upstream factor for fossil LNG, where the real range is 18.5–28 gCO2e/MJ — 20–30% of HFO's whole lifecycle intensity (ICCT, April 2025). A missing upstream term flatters LNG substantially, so the IMO path refuses rather than approximates. The FuelEU WtT of 18.5 is carried from the Sustainable Ships table and MUST be checked against the Annex II LNG row before this fuel drives a published figure.",
+      "source": "LCV and CO2 factor via agriportance FuelEU worked example; WtT and Cslip via Sustainable Ships 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero', July 2025; IMO upstream gap per ICCT, April 2025"
     },
     {
       "id": "e-ammonia",
