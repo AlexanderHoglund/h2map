@@ -79,19 +79,22 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     .getByLabel("Ammonia N2O slip scenario")
     .selectOption({ label: "MAN / WinGD tested two-stroke engines" });
 
-  // ZNZ is the IMO's concept — no status row under FuelEU. Under the IMO
-  // framework the user picks the period; the threshold steps 19.0 → 14.0
-  // and the certified-intensity DEFAULT follows it (15 → 8, since 15 can
-  // never clear 14.0), so the reference case stays a compliant pathway.
-  await expect(page.getByTestId("znz")).toHaveCount(0);
+  // ZNZ is the IMO's concept — no status rows under FuelEU. Both
+  // periods render side by side (round-2 F): the fuel passes ≤19.0 to
+  // 2034 but FAILS the binding ≤14.0 line from 2035 — and a derived
+  // procurement line states the certified WtT that would clear it
+  // (14.0 − 0.97 slip = 13.03 with the tested two-stroke scenario).
+  await expect(page.getByTestId("znz-2034")).toHaveCount(0);
   await page
     .getByLabel("Accounting framework")
     .selectOption({ label: "IMO Net-Zero (AR5 · provisional)" });
-  await expect(page.getByTestId("znz")).toContainText("Yes");
+  await expect(page.getByTestId("znz-2034")).toContainText("Yes");
+  await expect(page.getByTestId("znz-2035")).toContainText("No");
   // Fix 5: the verdict tests the FUEL's own WtW intensity (shown in
   // the row), never the blended attained GFI.
-  await expect(page.getByTestId("znz")).toContainText("fuel 15.97 gCO2e/MJ");
+  await expect(page.getByTestId("znz-2034")).toContainText("fuel 15.97 gCO2e/MJ");
   await expect(page.getByText(/Attained GFI/)).toBeVisible();
+  await expect(page.getByText(/well-to-tank ≤ 13\.03/)).toBeVisible();
   // Round 2 (A/B/C): the IMO has its OWN fossil WtT, binned by sulphur —
   // the baseline renames to the band, a sulphur input appears, and with
   // no pilot burning (share 0) NOTHING is substituted: no blanket claim.
@@ -101,19 +104,15 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   // Under IMO's heavier fossil upstream (16.8) the inversion REVERSES —
   // the note must not assert an inversion that isn't there.
   await expect(page.getByText(/upstream intensity is/)).toHaveCount(0);
-  await page.getByLabel("ZNZ period").selectOption({ label: "From 2035" });
   // The certified field is WELL-TO-TANK (fix 3 of the verification
   // report): entering a WtW certificate would double-count the N2O slip.
   const certified = page.getByRole("textbox", {
     name: /Certified pathway intensity \(well-to-tank\)/,
   });
-  await expect(certified).toHaveValue(/^8/);
-  await expect(page.getByTestId("znz")).toContainText("Yes");
-  // Back to FuelEU: the certified default returns to 15 with the switch.
+  await expect(certified).toHaveValue(/^15/);
   await page
     .getByLabel("Accounting framework")
     .selectOption({ label: "FuelEU Maritime (AR4)" });
-  await expect(certified).toHaveValue(/^15/);
 
   // LNG computes under FuelEU per engine technology (slip is THE lever):
   // 1,000 t at 49,100 MJ/t replaces 1,212.3 t of HFO (pilot still 0).

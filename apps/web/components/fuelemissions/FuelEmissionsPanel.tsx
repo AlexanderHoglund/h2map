@@ -33,18 +33,6 @@ const fmt1 = (n: number) =>
 const fmt2 = (n: number) =>
   n.toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
-/**
- * Contextual default for the certified pathway intensity: 15 gCO2e/MJ is
- * the reference certified e-ammonia pathway; from 2035 the IMO ZNZ
- * threshold steps down to 14.0, which 15 can never clear, so the default
- * follows the period to 8 — a better (still typical, range 5–15)
- * certified pathway that clears 14.0 with the default pilot and slip.
- * Switching back restores 15. A hand-typed value is replaced on the next
- * framework/period switch — the default is contextual, not sticky.
- */
-const certifiedDefaultFor = (fw: string, p: "to2034" | "from2035") =>
-  fw === "imo" && p === "from2035" ? 8 : 15;
-
 const FRAMEWORK_LABELS: Record<string, string> = {
   fueleu: "FuelEU Maritime (AR4)",
   imo: "IMO Net-Zero (AR5 · provisional)",
@@ -69,8 +57,6 @@ export default function FuelEmissionsPanel() {
   const t = useTranslations("fuelEmissions");
   const [frameworkId, setFrameworkId] = useState("fueleu");
   const [basis, setBasis] = useState<"wellToWake" | "tankToWake">("wellToWake");
-  /** IMO ZNZ compliance period — the threshold steps down in 2035. */
-  const [period, setPeriod] = useState<"to2034" | "from2035">("to2034");
   const [direction, setDirection] = useState<"candidate" | "baseline">("baseline");
   const [candidateFuelId, setCandidateFuelId] = useState("e-ammonia");
   const [engineType, setEngineType] = useState("lng-otto-df-medium-speed");
@@ -133,12 +119,11 @@ export default function FuelEmissionsPanel() {
   const resetAll = () => {
     setFrameworkId("fueleu");
     setBasis("wellToWake");
-    setPeriod("to2034");
     setDirection("baseline");
     setCandidateFuelId("e-ammonia");
     setEngineType("lng-otto-df-medium-speed");
     setQuantityTonnes(1000);
-    setCandidateWtw(certifiedDefaultFor("fueleu", "to2034"));
+    setCandidateWtw(15);
     setBaselineFuelId("hfo");
     setSulphurPercent(0.5);
     setPilotShare(ds.pilotFuel.defaultShareOfEnergy);
@@ -288,10 +273,7 @@ export default function FuelEmissionsPanel() {
             value: id,
             label: FRAMEWORK_LABELS[id] ?? id,
           }))}
-          onChange={(v) => {
-            setFrameworkId(v);
-            setCandidateWtw(certifiedDefaultFor(v, period));
-          }}
+          onChange={setFrameworkId}
         />
         <Select
           label={t("basis")}
@@ -302,24 +284,6 @@ export default function FuelEmissionsPanel() {
           ]}
           onChange={(v) => setBasis(v as "wellToWake" | "tankToWake")}
         />
-        {/* The ZNZ threshold steps from 19.0 to 14.0 in 2035 — under the
-            IMO framework the user picks which period they're asking about. */}
-        {frameworkId === "imo" && (
-          <Select
-            label={t("period")}
-            help={t("znzHelp")}
-            value={period}
-            options={[
-              { value: "to2034", label: t("periodTo") },
-              { value: "from2035", label: t("periodFrom") },
-            ]}
-            onChange={(v) => {
-              const p = v as "to2034" | "from2035";
-              setPeriod(p);
-              setCandidateWtw(certifiedDefaultFor(frameworkId, p));
-            }}
-          />
-        )}
         {direction === "candidate" ? (
           <>
             {candidateSelect}
@@ -507,45 +471,63 @@ export default function FuelEmissionsPanel() {
                   {fmt2(ok.znz.blendWtwGco2ePerMj)} gCO2e/MJ
                 </dd>
               </div>
-              {/* ZNZ is the IMO's concept: one row, for the period the
-                  user picked in the inputs. The verdict tests the FUEL's
-                  own WtW intensity (incl. slip, excl. pilot) — verified
-                  against the MEPC 83 text and the IMO NZF FAQ — never
-                  the blended attained GFI above. */}
+              {/* ZNZ is the IMO's concept. BOTH periods render side by
+                  side (round-2 fix F): a user checking 2034 has no reason
+                  to suspect 2035 fails, and the 14.0 line is the binding
+                  constraint. The verdict tests the FUEL's own WtW
+                  intensity (incl. slip, excl. pilot) — verified against
+                  the MEPC 83 text and the IMO NZF FAQ — never the blended
+                  attained GFI above. */}
               {frameworkId === "imo" &&
-                (() => {
-                  const to2034 = period === "to2034";
-                  const compliant = to2034
-                    ? ok.znz.compliantTo2034
-                    : ok.znz.compliantFrom2035;
-                  const threshold = to2034
-                    ? ok.znz.thresholdTo2034
-                    : ok.znz.thresholdFrom2035;
-                  return (
-                    <div className="flex items-baseline justify-between gap-2">
-                      <dt className="text-neutral-500">
-                        {t(to2034 ? "znzTo2034" : "znzFrom2035", {
-                          threshold: fmt1(threshold),
-                        })}
-                        <Help text={t("znzHelp")} />
-                      </dt>
-                      <dd
-                        data-testid="znz"
-                        className={`font-semibold ${
-                          compliant ? "text-emerald-800" : "text-red-800"
-                        }`}
-                      >
-                        {compliant ? t("yes") : t("no")}
+                (
+                  [
+                    ["znz-2034", "znzTo2034", ok.znz.thresholdTo2034, ok.znz.compliantTo2034],
+                    ["znz-2035", "znzFrom2035", ok.znz.thresholdFrom2035, ok.znz.compliantFrom2035],
+                  ] as const
+                ).map(([testid, labelKey, threshold, compliant]) => (
+                  <div key={testid} className="flex items-baseline justify-between gap-2">
+                    <dt className="text-neutral-500">
+                      {t(labelKey, { threshold: fmt1(threshold) })}
+                      {testid === "znz-2034" && <Help text={t("znzHelp")} />}
+                    </dt>
+                    <dd
+                      data-testid={testid}
+                      className={`font-semibold ${
+                        compliant ? "text-emerald-800" : "text-red-800"
+                      }`}
+                    >
+                      {compliant ? t("yes") : t("no")}
+                      {testid === "znz-2034" && (
                         <span className="ml-1 font-normal text-neutral-500">
                           · {t("znzFuelIntensity", {
                             value: fmt2(ok.znz.fuelWtwGco2ePerMj),
                           })}
                         </span>
-                      </dd>
-                    </div>
-                  );
-                })()}
+                      )}
+                    </dd>
+                  </div>
+                ))}
             </dl>
+
+            {/* The procurement specification (fix F): what certified WtT
+                would clear the 2035 line, given the selected N2O scenario
+                — derived as 14.0 − the non-certified share of the fuel's
+                intensity. Turns the verdict into a purchasable number. */}
+            {frameworkId === "imo" &&
+              certifiedRange &&
+              !ok.znz.compliantFrom2035 &&
+              (() => {
+                const extra =
+                  ok.znz.fuelWtwGco2ePerMj - Math.min(candidateWtw, rfnboCeiling);
+                const required = ok.znz.thresholdFrom2035 - extra;
+                return (
+                  <p className="mt-2 bg-brand-tint/40 px-2.5 py-1.5 text-[11px] leading-snug text-brand-deep">
+                    {required > 0
+                      ? t("znzSpec", { wtt: fmt2(required) })
+                      : t("znzSpecNone")}
+                  </p>
+                );
+              })()}
 
             <table className="mt-3 w-full text-xs tabular-nums">
               <thead>

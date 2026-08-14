@@ -2424,8 +2424,12 @@ export default async function DocsPage() {
           the N2O slip, excluding pilot fuel (MEPC 83 approved text; IMO
           Net-Zero Framework FAQ: &ldquo;ZNZs have a GHG Fuel Intensity of
           no more than 19.0 gCO2eq/MJ&rdquo;) — shown in the UI under the
-          IMO framework, for a user-selected period, since the threshold
-          steps from 19.0 to 14.0 in 2035. The default 5% pilot lifts the
+          IMO framework with BOTH periods side by side, since the
+          threshold steps from 19.0 to 14.0 in 2035 and the 14.0 line is
+          the binding constraint; a derived line states the certified WtT
+          a pathway would need to clear it — a procurement specification,
+          computed as 14.0 minus the fuel&apos;s non-certified intensity
+          share. The default 5% pilot lifts the
           attained blend to 18.79 while the fuel itself stays at 15.0;
           and a certified 15 pathway plus real-world N2O misses the 14.0
           line applying from 2035 comfortably — the most
@@ -2462,7 +2466,12 @@ export default async function DocsPage() {
             observed value). Neither framework fixes an ammonia N2O
             default, so the parameter carries the unverified badge, ships
             as three cited scenarios, and the UI always shows the range —
-            never a bare point.
+            never a bare point. A methodological note: moving AR4 → AR5
+            raises the reduction (N2O&apos;s GWP falls 298 → 265, and N2O
+            is a larger share of ammonia&apos;s footprint than of the
+            baseline&apos;s) — a GWP housekeeping update systematically
+            flatters ammonia, so movement between sets is not a modelling
+            change.
           </li>
           <li>
             <strong>Engine efficiency ratio</strong>{" "}— equal fuel energy
