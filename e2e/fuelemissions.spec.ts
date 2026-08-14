@@ -45,6 +45,11 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   await expect(page.getByText(/Method: energy-delivered/)).toBeVisible();
   await expect(page.getByText(/2023\/1805/)).toBeVisible();
 
+  // Fix 6: the WtT inversion is surfaced — green ammonia's upstream
+  // emissions EXCEED fossil's (15 vs 13.5 gCO2e/MJ); the saving is
+  // entirely combustion-side.
+  await expect(page.getByText(/upstream \(well-to-tank\) emissions exceed/)).toBeVisible();
+
   // Switch to the ZNZ-first direction: the quantity relabels to the
   // candidate and the classic forward equivalence shows (5% pilot).
   await page

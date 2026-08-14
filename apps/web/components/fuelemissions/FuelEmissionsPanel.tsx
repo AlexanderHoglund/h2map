@@ -575,6 +575,19 @@ export default function FuelEmissionsPanel() {
                 </tr>
               </tbody>
             </table>
+            {/* The WtT inversion: green ammonia's UPSTREAM emissions exceed
+                fossil's (15 vs 13.5 gCO2e/MJ) — every gram of saving is
+                combustion-side. The single best demonstration of why the
+                tool is well-to-wake; it must not sit unremarked. */}
+            {ok.wellToWake.candidate.parts.wttTco2e >
+              ok.wellToWake.baseline.parts.wttTco2e && (
+              <p className="mt-2 bg-brand-tint/40 px-2.5 py-1.5 text-[11px] leading-snug text-brand-deep">
+                {t("wttInversion", {
+                  cand: fmt1(ok.wellToWake.candidate.parts.wttTco2e),
+                  base: fmt1(ok.wellToWake.baseline.parts.wttTco2e),
+                })}
+              </p>
+            )}
             {/* One-line method reference, kept as short as possible. */}
             <p className="mt-3 border-t border-neutral-200 pt-2 text-[11px] leading-relaxed text-neutral-600">
               {t("citation", {
