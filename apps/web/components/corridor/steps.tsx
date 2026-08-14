@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { ScenarioInput } from "@h2map/corridor-schema";
+import { FUEL_EMISSIONS_DATASET, type ScenarioInput } from "@h2map/corridor-schema";
 import { NumberInput } from "@/components/ui/NumberInput";
 import { Select } from "@/components/ui/Select";
 import { TextInput } from "@/components/ui/TextInput";
@@ -581,6 +581,32 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
     : undefined;
   const r = resolved[side];
   const b = benchmarks[side];
+  // v6 refined emissions: dataset-backed inputs (certified pathway, slip
+  // scenario, pilot share, sulphur). null = the dataset default.
+  const em = s.emissions ?? null;
+  const refined = scenario.regulation.emissions != null;
+  const framework = scenario.regulation.emissions?.framework ?? "fueleu";
+  const feRow = (() => {
+    const feId = bundle.fuelEmissions?.map[s.fuelId];
+    return feId ? FUEL_EMISSIONS_DATASET.fuels.find((f) => f.id === feId) : undefined;
+  })();
+  const feCite = r.emissionsDerivation
+    ? { ...fuelCite, derivation: r.emissionsDerivation }
+    : fuelCite;
+  const setEm = (patch: Partial<NonNullable<ScenarioInput["green"]["emissions"]>>) =>
+    update((d) => {
+      d[side].emissions = {
+        certifiedWttGco2ePerMj: null,
+        n2oScenarioId: null,
+        pilotShare: null,
+        pilotFuelId: null,
+        engineType: null,
+        sulphurPercent: null,
+        efficiencyRatio: null,
+        ...(d[side].emissions ?? {}),
+        ...patch,
+      };
+    });
   const plantMode = s.sourcing === "build-plant" || s.sourcing === "build-here";
   const prodZeroed = !plantMode;
   const legacy = scenario.flags?.legacyExcelConstruct === true;
@@ -668,21 +694,116 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
         "combustionEf",
         t("combustionEf"),
         "t CO2/t",
+        { provenance: feCite },
       ),
     },
     {
       id: `${side}.lhv`,
       hidden: true,
       overridden: s.overrides.lhvMjPerTonne !== null,
-      node: overrideField("lhvMjPerTonne", "lhv", t("lhv"), "MJ/t"),
+      node: overrideField("lhvMjPerTonne", "lhv", t("lhv"), "MJ/t", { provenance: feCite }),
     },
     {
       id: `${side}.wtwGco2PerMj`,
       overridden: s.overrides.wtwGco2PerMj !== null,
       node: overrideField("wtwGco2PerMj", "wtw", t("wtw"), "gCO2e/MJ", {
         help: t("wtwHelp"),
+        provenance: feCite,
       }),
     },
+    // v6 refined-emissions inputs. The certified pathway value is the
+    // green side's normal lever (main); the slip scenario, pilot share
+    // and sulphur are Advanced (hidden entries — outside the frozen
+    // manifest, counted by the Simplified strip when departed from).
+    ...(refined && side === "green" && feRow?.wttRangeGco2ePerMj
+      ? [
+          {
+            id: `${side}.certifiedWtt`,
+            overridden: em?.certifiedWttGco2ePerMj != null,
+            node: (
+              <NumberInput
+                key={`${side}-certifiedWtt`}
+                label={t("certifiedWtt")}
+                unit="gCO2e/MJ"
+                step={0.5}
+                help={t("certifiedWttHelp")}
+                value={
+                  em?.certifiedWttGco2ePerMj ??
+                  feRow.defaultCertifiedWttGco2ePerMj ??
+                  15
+                }
+                onChange={(v) =>
+                  setEm({ certifiedWttGco2ePerMj: Math.max(0.1, v) })
+                }
+              />
+            ),
+          },
+        ]
+      : []),
+    ...(refined && side === "green" && feRow?.id === "e-ammonia"
+      ? [
+          {
+            id: `${side}.n2oScenario`,
+            hidden: true,
+            overridden: em?.n2oScenarioId != null,
+            node: (
+              <Select
+                key={`${side}-n2o`}
+                label={t("n2oScenario")}
+                help={t("n2oScenarioHelp")}
+                value={em?.n2oScenarioId ?? "optimised-injection"}
+                options={FUEL_EMISSIONS_DATASET.n2oSlip.scenarios.map((sc) => ({
+                  value: sc.id,
+                  label: sc.label,
+                }))}
+                onChange={(v) => setEm({ n2oScenarioId: v })}
+              />
+            ),
+          },
+        ]
+      : []),
+    ...(refined && side === "green"
+      ? [
+          {
+            id: `${side}.pilotShare`,
+            hidden: true,
+            overridden: em?.pilotShare != null,
+            node: (
+              <NumberInput
+                key={`${side}-pilotShare`}
+                label={t("pilotShare")}
+                unit="0–1"
+                step={0.01}
+                help={t("pilotShareHelp")}
+                value={
+                  em?.pilotShare ?? FUEL_EMISSIONS_DATASET.pilotFuel.defaultShareOfEnergy
+                }
+                onChange={(v) => setEm({ pilotShare: Math.min(0.5, Math.max(0, v)) })}
+              />
+            ),
+          },
+        ]
+      : []),
+    ...(refined && side === "fossil" && framework === "imo"
+      ? [
+          {
+            id: `${side}.sulphur`,
+            hidden: true,
+            overridden: em?.sulphurPercent != null,
+            node: (
+              <NumberInput
+                key={`${side}-sulphur`}
+                label={t("sulphur")}
+                unit="% S"
+                step={0.1}
+                help={t("sulphurHelp")}
+                value={em?.sulphurPercent ?? 0.5}
+                onChange={(v) => setEm({ sulphurPercent: Math.min(4.5, Math.max(0.1, v)) })}
+              />
+            ),
+          },
+        ]
+      : []),
     // Under build-here the production lines are component sums shown in the
     // panel — the aggregate fields would fight the per-component overrides.
     // In Simplified a disabled field is noise: purchase zeroes production
@@ -1240,6 +1361,34 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
 
   return (
     <div className="space-y-3">
+      {/* v6 — the emission-accounting framework, visible in BOTH modes
+          (explicit product decision): which framework's factors the
+          corridor's intensities derive from. Default FuelEU. The FuelEU
+          and IMO compliance modules each still price with their OWN
+          accounting regardless of this selection. */}
+      <Section title={t("emissionAccounting")}>
+        <Select
+          label={t("framework")}
+          help={t("frameworkHelp")}
+          value={reg.emissions?.framework ?? "fueleu"}
+          options={[
+            { value: "fueleu", label: t("frameworkFuelEu") },
+            { value: "imo", label: t("frameworkImo") },
+          ]}
+          onChange={(v) =>
+            update((d) => {
+              d.regulation.emissions = { framework: v as "fueleu" | "imo" };
+            })
+          }
+        />
+        <p className="sm:col-span-2 text-[11px] leading-snug text-neutral-500">
+          {reg.emissions
+            ? t("frameworkNote", {
+                dataset: FUEL_EMISSIONS_DATASET.datasetVersion,
+              })
+            : t("frameworkLegacyNote")}
+        </p>
+      </Section>
       {/* Silent-active safety net ONLY: the section appears when a scheme
           the Simplified view cannot show is switched on in the scenario
           (import/upgrade history) — otherwise Simplified has no trace of

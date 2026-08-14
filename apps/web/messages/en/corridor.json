@@ -117,14 +117,22 @@
       "combustionEf": "CO2 emission factor, combustion",
       "lhv": "Energy density, LHV",
       "wtw": "GHG intensity, well-to-wake",
-      "wtwHelp": "Used for FuelEU Maritime compliance — replace with your Proof of Sustainability value.",
+      "wtwHelp": "Effective well-to-wake intensity the model uses. Under refined accounting (v6) it DERIVES from the fuel-emissions dataset - certified pathway + slip + pilot on the green side, the framework's row on the fossil side; on legacy scenarios it is the workbook benchmark. Override only to pin a custom value.",
       "consumption": "Fuel consumption",
       "consumptionHelp": "Benchmark from the vessel type, or derived from distance when selected in the Vessel step.",
       "prodCapex": "Fuel production CAPEX (year 1)",
       "prodOpex": "Fuel production O&M, excl. fuel purchase",
       "prodZeroNote": "Forced to 0 under this sourcing — production cost lives inside the fuel price.",
       "sourcingBuildPlant": "Build a dedicated plant",
-      "legacyPriceNote": "Legacy accounting: this merchant price is charged ON TOP of the production CAPEX/O&M below."
+      "legacyPriceNote": "Legacy accounting: this merchant price is charged ON TOP of the production CAPEX/O&M below.",
+      "certifiedWtt": "Certified pathway intensity (well-to-tank)",
+      "certifiedWttHelp": "The green fuel's certified well-to-tank E-value from the Proof of Sustainability, gCO2e/MJ. Never zero - a zero pathway is an assumption, not a certifiable value. Prefilled with the dataset's reference default for this fuel; combustion terms (N2O slip, pilot) are added on top by the model.",
+      "n2oScenario": "Ammonia N2O slip scenario",
+      "n2oScenarioHelp": "THE dominant uncertainty in ammonia's profile: published values span x37 and neither framework fixes a default. Three cited scenarios from the fuel-emissions dataset; the default is the optimised-injection literature value.",
+      "pilotShare": "Pilot fuel share of energy",
+      "pilotShareHelp": "Dual-fuel engines burn a fossil pilot for ignition - around 5% of energy (MAN ES / WinGD). Its emissions ride the green side's derived factors; its energy is not added to the tonnage bookkeeping (documented approximation).",
+      "sulphur": "Sulphur content",
+      "sulphurHelp": "Mass % sulphur. The IMO bins residual fuels by sulphur (MEPC.391(81)): 0.10-0.50% carries WtT 16.8 gCO2e/MJ, above 0.50% carries 14.1. Only consulted under IMO accounting."
     },
     "port": {
       "green": "Green port",
@@ -195,7 +203,14 @@
       "phasingGreenYear": "Green share, year {n}",
       "phasingFossilYear": "Fossil share, year {n}",
       "phasingSumBad": "{side} shares must sum to 1 (currently {sum})",
-      "phasingNote": "Spreads each side's CAPEX over the first N years by explicit shares. Shares must sum to 1 - nothing is silently normalised. The green financing drawdown follows the same schedule."
+      "phasingNote": "Spreads each side's CAPEX over the first N years by explicit shares. Shares must sum to 1 - nothing is silently normalised. The green financing drawdown follows the same schedule.",
+      "emissionAccounting": "Emission accounting",
+      "framework": "Accounting framework",
+      "frameworkFuelEu": "FuelEU Maritime (Annex II, AR4)",
+      "frameworkImo": "IMO Net-Zero (MEPC.391(81), AR5)",
+      "frameworkHelp": "Which framework's emission accounting the corridor's fuel intensities derive from. The same physical fuel carries different official values under the two frameworks (FuelEU bins residual fuels by ISO 8217 viscosity at WtT 13.5; the IMO bins by sulphur at 16.8/14.1) and each fixes its own GWP set. Default: FuelEU. The FuelEU and IMO compliance modules each price with their OWN framework regardless of this selection - it governs the reported intensities, abatement and the self-designed CO2 price.",
+      "frameworkNote": "Fuel factors derive from the fuel-emissions dataset {dataset}: certified pathway + N2O slip + pilot blend on the green side, framework-resolved rows on the fossil side. Effective values appear in the Energy tab; explicit overrides there still win.",
+      "frameworkLegacyNote": "This scenario runs the legacy workbook factors (pre-v6). Pick a framework to upgrade it to the refined method."
     },
     "results": {
       "heading": "Results",
@@ -296,7 +311,12 @@
       "wfFootnote": "* before regulatory instruments - the regulation step carries their full net effect",
       "waterfallPerTonne": "Breakdown of abatement cost per tonne of CO2",
       "wfFinancing": "Green\nfinancing",
-      "regFinancing": "Green financing effect"
+      "regFinancing": "Green financing effect",
+      "frameworkLabel": {
+        "fueleu": "FuelEU factors",
+        "imo": "IMO factors",
+        "legacy": "legacy factors"
+      }
     },
     "buildHere": {
       "chip": "cell {cell} · LCOH ${lcoh}/kg ({rate}%) · synthesis {nameplate} kt/yr, scale ×{scale} · {km} km to port",

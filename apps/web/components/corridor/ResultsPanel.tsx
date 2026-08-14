@@ -249,6 +249,11 @@ export default function ResultsPanel({
           {t("perTonne")}{" "}
           <span className="bg-neutral-500/10 px-1 py-px text-[10px] normal-case tracking-normal text-neutral-700">
             {t(`basisLabel.${basis}`)}
+          </span>{" "}
+          <span className="bg-neutral-500/10 px-1 py-px text-[10px] normal-case tracking-normal text-neutral-700">
+            {t(
+              `frameworkLabel.${scenario.regulation.emissions?.framework ?? "legacy"}`,
+            )}
           </span>
         </>
       ),

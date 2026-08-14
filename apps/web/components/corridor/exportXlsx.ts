@@ -378,6 +378,14 @@ export async function downloadResultsXlsx(
     ["OPEX support", reg.selfDesigned.opexSupport, "fraction", "—"],
     ["IMO Net-Zero Framework", reg.imoNetZero?.enabled ? "enabled" : "off", "—", "—"],
     ["Emissions basis", basis, "—", "—"],
+    [
+      "Emission accounting",
+      reg.emissions
+        ? `${reg.emissions.framework} (fuel-emissions derived)`
+        : "legacy workbook scalars",
+      "—",
+      "—",
+    ],
     ["Rate basis", scenario.flags?.rateBasis ?? "nominal", "—", "—"],
   ]);
   // Percent-formatted cells (fractions) — applied after the fact where the
