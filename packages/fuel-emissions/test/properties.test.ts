@@ -337,6 +337,35 @@ describe("fuel-emissions properties", () => {
     expect(withPilot.substitutedFactors).toEqual(["pilot WtT (Marine gas oil / diesel)"]);
   });
 
+  it("E: the pilot line's upstream share is exposed and sums exactly", () => {
+    // F3's pilot (5% MGO): 978,947 MJ × 14.4 gCO2e/MJ = 14.1 t of
+    // well-to-tank hidden inside the 88.9 t pilot line — the stage rows
+    // were not column-comparable without it.
+    const r = evaluateFuelEmissions(
+      {
+        candidateFuelId: "e-ammonia",
+        quantityTonnes: 1000,
+        candidateWtwGco2ePerMj: 15,
+        baselineFuelId: "hfo",
+        frameworkId: "fueleu",
+        pilotShare: 0.05,
+        pilotFuelId: "mgo",
+        n2oSlipGPerG: 0,
+      },
+      ds,
+    ) as FuelEmissionsResult;
+    expect(r.wellToWake.pilotSplit.wttTco2e).toBeCloseTo(14.1, 1);
+    expect(
+      r.wellToWake.pilotSplit.wttTco2e + r.wellToWake.pilotSplit.ttwTco2e,
+    ).toBeCloseTo(r.wellToWake.candidate.parts.pilotTco2e, 9);
+    // Tank-to-wake basis carries no upstream by construction.
+    expect(r.tankToWake.pilotSplit.wttTco2e).toBe(0);
+    expect(r.tankToWake.pilotSplit.ttwTco2e).toBeCloseTo(
+      r.tankToWake.candidate.parts.pilotTco2e,
+      9,
+    );
+  });
+
   it("row atomicity: every fossil fuel's five factors come from ONE Annex II row", () => {
     // Independent copy of the confirmed Annex II table (DG MOVE FuelEU
     // guidance document; ESSF SAPS WS1 working document — both reproduce

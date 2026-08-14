@@ -104,6 +104,13 @@ export interface BasisResult {
   reductionPercent: number;
   /** Candidate emissions over TOTAL delivered energy (fuel + pilot). */
   blendIntensityGco2ePerMj: number;
+  /**
+   * The pilot line split into lifecycle stages (round-2 fix E): the
+   * pilot row cuts across the stage rows and hides upstream tonnes
+   * inside it — wttTco2e + ttwTco2e === parts.pilotTco2e exactly. On the
+   * tank-to-wake basis wttTco2e is 0 by construction.
+   */
+  pilotSplit: { wttTco2e: number; ttwTco2e: number };
 }
 
 export interface NotParameterised {
@@ -386,6 +393,11 @@ export function evaluateFuelEmissions(
       reductionPercent: baselineEmissions === 0 ? 0 : (avoided / baselineEmissions) * 100,
       blendIntensityGco2ePerMj:
         totalEnergyMj === 0 ? 0 : (candidateEmissions / totalEnergyMj) * 1e6,
+      pilotSplit: (() => {
+        const wttPart =
+          pilotInt && wtw ? pilotInt.wtt * pilotEnergyMj * g2t : 0;
+        return { wttTco2e: wttPart, ttwTco2e: candidateParts.pilotTco2e - wttPart };
+      })(),
     };
   };
 

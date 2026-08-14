@@ -45,10 +45,10 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   await expect(page.getByText(/Method: energy-delivered/)).toBeVisible();
   await expect(page.getByText(/2023\/1805/)).toBeVisible();
 
-  // Fix 6: the WtT inversion is surfaced — green ammonia's upstream
-  // emissions EXCEED fossil's (15 vs 13.5 gCO2e/MJ); the saving is
-  // entirely combustion-side.
-  await expect(page.getByText(/upstream \(well-to-tank\) emissions exceed/)).toBeVisible();
+  // Fix 6 + round-2 E: the WtT inversion is surfaced PER MJ — the
+  // candidate side's upstream (incl. the pilot's) is 14.97 gCO2e/MJ vs
+  // the baseline's 13.50; the saving is entirely combustion-side.
+  await expect(page.getByText(/upstream intensity is 14\.97/)).toBeVisible();
 
   // Switch to the ZNZ-first direction: the quantity relabels to the
   // candidate and the classic forward equivalence shows (5% pilot).
@@ -98,6 +98,9 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   await expect(page.getByLabel("Baseline sulphur content")).toBeVisible();
   await expect(page.getByText("Residual fuel oil, 0.10–0.50% S").first()).toBeVisible();
   await expect(page.getByText(/Substituted from FuelEU Annex II/)).toHaveCount(0);
+  // Under IMO's heavier fossil upstream (16.8) the inversion REVERSES —
+  // the note must not assert an inversion that isn't there.
+  await expect(page.getByText(/upstream intensity is/)).toHaveCount(0);
   await page.getByLabel("ZNZ period").selectOption({ label: "From 2035" });
   // The certified field is WELL-TO-TANK (fix 3 of the verification
   // report): entering a WtW certificate would double-count the N2O slip.

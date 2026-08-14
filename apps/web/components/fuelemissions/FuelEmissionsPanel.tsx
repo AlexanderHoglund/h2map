@@ -567,14 +567,18 @@ export default function FuelEmissionsPanel() {
                     IMO covers itself; residual WtT under IMO is native
                     (sulphur-binned); the certified PoS value and the
                     literature N2O slip are never substitutions. */}
+                {/* Fix E: the stage rows are COLUMN-COMPARABLE — the WtT
+                    row absorbs the pilot's upstream tonnes (stated in its
+                    tooltip) and the pilot row keeps only combustion, so
+                    summing a column's stages gives the engine's number. */}
                 {(
                   [
-                    ["rowWtt", active.candidate.parts.wttTco2e, active.baseline.parts.wttTco2e, candidateRow.source, ok.substitutedFactors.some((f) => !f.startsWith("pilot"))],
+                    ["rowWtt", active.candidate.parts.wttTco2e + active.pilotSplit.wttTco2e, active.baseline.parts.wttTco2e, active.pilotSplit.wttTco2e > 0 ? `${candidateRow.source} — ${t("wttIncludesPilot", { pilot: fmt1(active.pilotSplit.wttTco2e) })}` : candidateRow.source, ok.substitutedFactors.some((f) => !f.startsWith("pilot"))],
                     ["rowTtwCo2", active.candidate.parts.ttwCo2Tco2e, active.baseline.parts.ttwCo2Tco2e, baselineRow.derivation, false],
                     ["rowTtwCh4", active.candidate.parts.ttwCh4Tco2e, active.baseline.parts.ttwCh4Tco2e, ds.gwpSets[ok.gwpSetId]!.source, false],
                     ["rowTtwN2o", active.candidate.parts.ttwN2oTco2e, active.baseline.parts.ttwN2oTco2e, ds.gwpSets[ok.gwpSetId]!.source, false],
                     ["rowSlip", active.candidate.parts.n2oSlipTco2e, 0, n2oScenario.source, false],
-                    ["rowPilot", active.candidate.parts.pilotTco2e, 0, ds.pilotFuel.source, ok.substitutedFactors.some((f) => f.startsWith("pilot"))],
+                    ["rowPilot", active.pilotSplit.ttwTco2e, 0, ds.pilotFuel.source, ok.substitutedFactors.some((f) => f.startsWith("pilot"))],
                   ] as const
                 )
                   // Only rows that carry a number render — zero rows are noise.
@@ -607,19 +611,24 @@ export default function FuelEmissionsPanel() {
                 </tr>
               </tbody>
             </table>
-            {/* The WtT inversion: green ammonia's UPSTREAM emissions exceed
-                fossil's (15 vs 13.5 gCO2e/MJ) — every gram of saving is
-                combustion-side. The single best demonstration of why the
-                tool is well-to-wake; it must not sit unremarked. */}
-            {ok.wellToWake.candidate.parts.wttTco2e >
-              ok.wellToWake.baseline.parts.wttTco2e && (
-              <p className="mt-2 bg-brand-tint/40 px-2.5 py-1.5 text-[11px] leading-snug text-brand-deep">
-                {t("wttInversion", {
-                  cand: fmt1(ok.wellToWake.candidate.parts.wttTco2e),
-                  base: fmt1(ok.wellToWake.baseline.parts.wttTco2e),
-                })}
-              </p>
-            )}
+            {/* The WtT inversion, stated PER MJ (fix E: the tonnage form
+                mixed row structures and understated its own finding) and
+                CONDITIONAL — under IMO's heavier fossil upstream (16.8)
+                the inversion reverses and must not be asserted. */}
+            {(() => {
+              const candUp =
+                ((ok.wellToWake.candidate.parts.wttTco2e +
+                  ok.wellToWake.pilotSplit.wttTco2e) /
+                  ok.totalEnergyMj) *
+                1e6;
+              const baseUp =
+                (ok.wellToWake.baseline.parts.wttTco2e / ok.baselineEnergyMj) * 1e6;
+              return candUp > baseUp ? (
+                <p className="mt-2 bg-brand-tint/40 px-2.5 py-1.5 text-[11px] leading-snug text-brand-deep">
+                  {t("wttInversion", { cand: fmt2(candUp), base: fmt2(baseUp) })}
+                </p>
+              ) : null;
+            })()}
             {/* One-line method reference, kept as short as possible. */}
             <p className="mt-3 border-t border-neutral-200 pt-2 text-[11px] leading-relaxed text-neutral-600">
               {t("citation", {
