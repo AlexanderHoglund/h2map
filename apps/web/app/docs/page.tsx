@@ -2351,8 +2351,13 @@ export default async function DocsPage() {
           lifecycle intensity, so a missing term flatters LNG
           substantially — FuelEU&apos;s WtT is never borrowed), and the
           pathway fuels — e-ammonia and
-          e-methanol — require a CERTIFIED pathway E-value: a zero-WtW
-          RFNBO is an assumption, not a certifiable value. For e-methanol
+          e-methanol — require a CERTIFIED pathway value from the Proof
+          of Sustainability, applied{" "}<strong>well-to-tank</strong>:
+          combustion terms (the ammonia N2O slip) are added separately,
+          so a well-to-wake certificate figure must not be entered — the
+          RFNBO ceiling of 28.2 is itself a well-to-wake number. A
+          zero-emission pathway is an assumption, not a certifiable
+          value. For e-methanol
           the certificate also resolves whether the combustion carbon
           counts (DAC-sourced vs point-source-captured CO2, RED Delegated
           Regulation 2023/1185); on the tank-to-wake basis the chemical

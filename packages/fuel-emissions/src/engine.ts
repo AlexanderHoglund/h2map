@@ -41,10 +41,13 @@ export interface FuelEmissionsInput {
   /** Sensitivity only — still exactly one set per evaluation. */
   gwpSetOverride?: string;
   /**
-   * Certified pathway WtW intensity for pathway-dependent fuels
-   * (e-ammonia): REQUIRED for fuels whose WtT is a range, ignored for
-   * fixed-row fuels. Never defaulted — a zero-WtW fuel is an assumption,
-   * not a certifiable value.
+   * Certified pathway intensity for pathway-dependent fuels, applied
+   * WELL-TO-TANK: it fills the wtt slot and combustion terms are added
+   * separately (the N2O slip for ammonia) — entering a well-to-wake
+   * certificate figure here would double-count the slip. REQUIRED for
+   * fuels whose WtT is a range, ignored for fixed-row fuels. Never
+   * defaulted — a zero-emission pathway is an assumption, not a
+   * certifiable value. (Field name is historical; semantics are WtT.)
    */
   candidateWtwGco2ePerMj?: number;
   /** Share of TOTAL delivered energy burned as fossil pilot (0–1). */

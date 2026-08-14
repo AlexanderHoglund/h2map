@@ -84,8 +84,10 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     .selectOption({ label: "IMO Net-Zero (AR5 · provisional)" });
   await expect(page.getByTestId("znz")).toHaveText("Yes");
   await page.getByLabel("ZNZ period").selectOption({ label: "From 2035" });
+  // The certified field is WELL-TO-TANK (fix 3 of the verification
+  // report): entering a WtW certificate would double-count the N2O slip.
   const certified = page.getByRole("textbox", {
-    name: /Certified pathway intensity/,
+    name: /Certified pathway intensity \(well-to-tank\)/,
   });
   await expect(certified).toHaveValue(/^8/);
   await expect(page.getByTestId("znz")).toHaveText("Yes");
