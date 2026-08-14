@@ -477,7 +477,9 @@ export default function FuelEmissionsPanel() {
               </div>
               <div className="flex items-baseline justify-between gap-2">
                 <dt className="text-neutral-500">
-                  {t("blendLabel")}
+                  {frameworkId === "imo"
+                    ? t("attainedGfi", { share: fmt1(pilotShare * 100) })
+                    : t("blendLabel")}
                   <Help text={t("blendHelp")} />
                 </dt>
                 <dd className="font-medium tabular-nums text-neutral-800">
@@ -485,7 +487,10 @@ export default function FuelEmissionsPanel() {
                 </dd>
               </div>
               {/* ZNZ is the IMO's concept: one row, for the period the
-                  user picked in the inputs. */}
+                  user picked in the inputs. The verdict tests the FUEL's
+                  own WtW intensity (incl. slip, excl. pilot) — verified
+                  against the MEPC 83 text and the IMO NZF FAQ — never
+                  the blended attained GFI above. */}
               {frameworkId === "imo" &&
                 (() => {
                   const to2034 = period === "to2034";
@@ -510,6 +515,11 @@ export default function FuelEmissionsPanel() {
                         }`}
                       >
                         {compliant ? t("yes") : t("no")}
+                        <span className="ml-1 font-normal text-neutral-500">
+                          · {t("znzFuelIntensity", {
+                            value: fmt2(ok.znz.fuelWtwGco2ePerMj),
+                          })}
+                        </span>
                       </dd>
                     </div>
                   );

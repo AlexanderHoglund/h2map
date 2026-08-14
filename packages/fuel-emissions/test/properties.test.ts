@@ -257,6 +257,46 @@ describe("fuel-emissions properties", () => {
     expect(r.missing[0]).toMatch(/certified pathway/);
   });
 
+  it("ZNZ tests the FUEL's own WtW intensity, never the blended attained GFI", () => {
+    // Verified basis (MEPC 83 approved text; IMO NZF FAQ: "ZNZs have a
+    // GHG Fuel Intensity of no more than 19.0 gCO2eq/MJ"): eligibility
+    // is a property of the fuel/energy source. A 30% pilot pushes the
+    // BLEND far above 19 while the fuel itself stays at 15 — still ZNZ.
+    const r = evaluateFuelEmissions(
+      {
+        candidateFuelId: "e-ammonia",
+        quantityTonnes: 1000,
+        candidateWtwGco2ePerMj: 15,
+        baselineFuelId: "hfo",
+        frameworkId: "imo",
+        pilotShare: 0.3,
+        n2oSlipGPerG: 0,
+      },
+      ds,
+    );
+    if ("notParameterised" in r && r.notParameterised) throw new Error("refused");
+    const ok = r as FuelEmissionsResult;
+    expect(ok.znz.fuelWtwGco2ePerMj).toBeCloseTo(15, 9);
+    expect(ok.znz.blendWtwGco2ePerMj).toBeGreaterThan(19);
+    expect(ok.znz.compliantTo2034).toBe(true);
+    expect(ok.znz.compliantFrom2035).toBe(false); // 15 > 14
+    // The slip IS part of the fuel's intensity: the worst published slip
+    // destroys eligibility with no pilot at all.
+    const worst = evaluateFuelEmissions(
+      {
+        candidateFuelId: "e-ammonia",
+        quantityTonnes: 1000,
+        candidateWtwGco2ePerMj: 15,
+        baselineFuelId: "hfo",
+        frameworkId: "imo",
+        pilotShare: 0,
+        n2oSlipGPerG: 0.0025,
+      },
+      ds,
+    ) as FuelEmissionsResult;
+    expect(worst.znz.compliantTo2034).toBe(false);
+  });
+
   it("row atomicity: every fossil fuel's five factors come from ONE Annex II row", () => {
     // Independent copy of the confirmed Annex II table (DG MOVE FuelEU
     // guidance document; ESSF SAPS WS1 working document — both reproduce

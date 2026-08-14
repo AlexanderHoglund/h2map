@@ -67,7 +67,7 @@
         "avoidedTco2e": 1428.4,
         "blendIntensityGco2ePerMj": 18.79
       },
-      "note": "Avoided emissions move only ~1 t — because pilot energy displaces baseline energy at almost the same intensity (MGO 90.768 vs HFO 91.744). But the blend intensity rises from 15.00 to 18.79, which sits just under the IMO ZNZ threshold of 19.0 and comfortably ABOVE the 14.0 threshold applying from 2035. That threshold proximity is a headline output, not a footnote."
+      "note": "Avoided emissions move only ~1 t — because pilot energy displaces baseline energy at almost the same intensity (MGO 90.768 vs HFO 91.744). The blend intensity (the attained-GFI analogue, fuel + pilot) rises from 15.00 to 18.79 while the FUEL's own WtW intensity stays 15.0 — two different tests: ZNZ eligibility applies to the fuel itself (15.0 ≤ 19.0 passes to 2034; 15.0 > 14.0 fails from 2035), the blend is tested against the reduction ladder. Threshold proximity is a headline output, not a footnote."
     },
 
     {

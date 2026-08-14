@@ -2409,12 +2409,18 @@ export default async function DocsPage() {
           WtT + TtW(CO2, CH4·GWP, N2O·GWP) + pilot + N2O slip, summing
           exactly to the side total — property-tested at 10⁻⁹. The blend
           intensity (candidate emissions over TOTAL delivered energy) is
-          compared against the ZNZ thresholds — shown in the UI under the
-          IMO framework only, for a user-selected period, since the
-          threshold steps from 19.0 to 14.0 in 2035. Threshold proximity
-          matters: the default 5% pilot takes a
-          15-gCO2e/MJ e-ammonia to 18.79, just under the 19.0 line and
-          comfortably above the 14.0 line applying from 2035.
+          the attained-GFI analogue. ZNZ eligibility is a DIFFERENT test:
+          it applies to the well-to-wake GHG intensity of the fuel or
+          energy source itself — including its own combustion terms and
+          the N2O slip, excluding pilot fuel (MEPC 83 approved text; IMO
+          Net-Zero Framework FAQ: &ldquo;ZNZs have a GHG Fuel Intensity of
+          no more than 19.0 gCO2eq/MJ&rdquo;) — shown in the UI under the
+          IMO framework, for a user-selected period, since the threshold
+          steps from 19.0 to 14.0 in 2035. The default 5% pilot lifts the
+          attained blend to 18.79 while the fuel itself stays at 15.0;
+          and a certified 15 pathway plus real-world N2O misses the 14.0
+          line applying from 2035 comfortably — the most
+          decision-relevant fact on the screen.
         </p>
 
         <H id="fe-corrections">35. Combustion-side corrections</H>
@@ -2526,7 +2532,7 @@ export default async function DocsPage() {
                   ["Regulation (EU) 2023/1805, Annex II (FuelEU Maritime)", "Default LCVs, WtT factors, TtW CO2/CH4/N2O per fuel; the AR4 GWP basis; the VLSFO reference energy content; the missing-value rule (Article 10)."],
                   ["RED II Article 28(5) + Delegated Regulation (EU) 2023/1185", "The RFNBO ceiling of 28.2 gCO2eq/MJ (≥70% saving vs the fossil comparator) and certified pathway E-values for e-fuels."],
                   ["IMO: 2024 LCA Guidelines, MEPC.391(81) rev. MEPC.376(79)", "The global framework's default-value structure, the AR5 GWP basis, and the 93.3 gCO2eq/MJ 2008 reference GFI."],
-                  ["MEPC 83 approved Net-Zero Framework text (April 2025)", "ZNZ thresholds: at most 19.0 gCO2eq/MJ to end-2034, 14.0 from 1 January 2035. Adoption targeted MEPC 85 (October 2026) — provisional."],
+                  ["MEPC 83 approved Net-Zero Framework text (April 2025) + IMO Net-Zero Framework FAQ", "ZNZ thresholds: at most 19.0 gCO2eq/MJ to end-2034, 14.0 from 1 January 2035 — applying to the fuel/energy source's own WtW intensity, not the ship's attained GFI (FAQ wording verified 2026-08-14). Adoption targeted MEPC 85 (October 2026) — provisional."],
                   ["MEPC 83/7/23 — Pacific Environment / Clean Shipping Coalition", "The ammonia N2O literature range (6.81×10⁻⁵ to 2.5×10⁻³ g N2O/g NH3) and the optimised-injection reduction figure behind the default scenario."],
                   ["BetterSea, 'How to Calculate GHG Intensity under FuelEU Maritime'", "The published worked example (7,000 t HFO containership, 91.744 gCO2e/MJ under AR4) reproduced by golden fixture F2 to three decimals."],
                   ["European Commission DG MOVE, FuelEU guidance document for shipping companies", "Verbatim reproduction of the Annex II table used to confirm the HFO / LFO / MDO-MGO rows (retrieved 2026-08-14)."],

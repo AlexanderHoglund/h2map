@@ -87,7 +87,11 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   await page
     .getByLabel("Accounting framework")
     .selectOption({ label: "IMO Net-Zero (AR5 · provisional)" });
-  await expect(page.getByTestId("znz")).toHaveText("Yes");
+  await expect(page.getByTestId("znz")).toContainText("Yes");
+  // Fix 5: the verdict tests the FUEL's own WtW intensity (shown in
+  // the row), never the blended attained GFI.
+  await expect(page.getByTestId("znz")).toContainText("fuel 15.97 gCO2e/MJ");
+  await expect(page.getByText(/Attained GFI/)).toBeVisible();
   // Fix 4: the IMO GWP set is IMO's, the fuel factors are Annex II
   // substitutions — the method line and the marked rows say so.
   await expect(page.getByText(/substituted from FuelEU Annex II/)).toBeVisible();
@@ -98,7 +102,7 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     name: /Certified pathway intensity \(well-to-tank\)/,
   });
   await expect(certified).toHaveValue(/^8/);
-  await expect(page.getByTestId("znz")).toHaveText("Yes");
+  await expect(page.getByTestId("znz")).toContainText("Yes");
   // Back to FuelEU: the certified default returns to 15 with the switch.
   await page
     .getByLabel("Accounting framework")

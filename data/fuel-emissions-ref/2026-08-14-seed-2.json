@@ -39,7 +39,7 @@
       "defaultGwpSet": "AR5",
       "referenceGfi2008": 93.3,
       "znzThresholdGco2ePerMj": { "to2034": 19.0, "from2035": 14.0 },
-      "znzSource": "MEPC 83 approved text: ZNZ threshold at most 19.0 gCO2eq/MJ until end-2034, no greater than 14.0 gCO2eq/MJ from 1 January 2035.",
+      "znzSource": "MEPC 83 approved text: ZNZ threshold at most 19.0 gCO2eq/MJ until end-2034, no greater than 14.0 gCO2eq/MJ from 1 January 2035. The threshold applies to the WtW GHG intensity of the FUEL/energy source itself — 'ZNZs have a GHG Fuel Intensity (GFI) of no more than 19.0 gCO2eq/MJ' (IMO Net-Zero Framework FAQ; Sustainable Ships regulation summary, both retrieved 2026-08-14) — not to the ship's attained blended GFI, which is tested against the reduction ladder.",
       "status": "Approved at MEPC 83 April 2025; formal adoption targeted MEPC 85 October 2026. Defaults not yet published for all fuels.",
       "verified": false
     }

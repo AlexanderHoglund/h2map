@@ -99,8 +99,8 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
     expect(r.equivalentBaselineMassTonnes).toBeCloseTo(483.4, 1);
     expect(r.wellToWake.avoidedTco2e).toBeCloseTo(1428.4, 1);
     expect(r.wellToWake.blendIntensityGco2ePerMj).toBeCloseTo(18.79, 2);
-    // The threshold proximity IS the headline: under 19.0 (to 2034),
-    // above 14.0 (from 2035).
+    // ZNZ tests the FUEL's own WtW intensity (15.0 here, slip 0) — not
+    // the 18.79 blend: under 19.0 (to 2034), above 14.0 (from 2035).
     expect(r.znz.compliantTo2034).toBe(true);
     expect(r.znz.compliantFrom2035).toBe(false);
   });

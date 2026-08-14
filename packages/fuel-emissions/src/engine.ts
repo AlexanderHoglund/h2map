@@ -123,6 +123,14 @@ export interface FuelEmissionsResult {
   wellToWake: BasisResult;
   tankToWake: BasisResult;
   znz: {
+    /**
+     * The candidate FUEL's own WtW intensity (incl. slip, excl. pilot) —
+     * the ZNZ eligibility basis: the threshold applies to the fuel /
+     * energy source itself (MEPC 83 approved text; IMO NZF FAQ), not to
+     * the ship's attained blended GFI.
+     */
+    fuelWtwGco2ePerMj: number;
+    /** Attained-GFI analogue: candidate emissions over TOTAL energy. */
     blendWtwGco2ePerMj: number;
     thresholdTo2034: number;
     thresholdFrom2035: number;
@@ -340,6 +348,13 @@ export function evaluateFuelEmissions(
   const znzTo2034 = imo?.znzThresholdGco2ePerMj?.to2034 ?? 19.0;
   const znzFrom2035 = imo?.znzThresholdGco2ePerMj?.from2035 ?? 14.0;
   const blendWtw = wellToWake.blendIntensityGco2ePerMj;
+  // ZNZ eligibility is a property of the FUEL/energy source itself: its
+  // well-to-wake GHG intensity (incl. its own combustion terms and the
+  // N2O slip, excl. pilot fuel) — NOT the ship's attained blended GFI.
+  // MEPC 83 approved text; IMO Net-Zero Framework FAQ: "ZNZs have a GHG
+  // Fuel Intensity (GFI) of no more than 19.0 gCO2eq/MJ". The blend
+  // (attained-GFI analogue) is reported separately.
+  const fuelWtw = wellToWake.candidate.intensityGco2ePerMj;
 
   return {
     datasetVersion: ds.datasetVersion,
@@ -354,11 +369,12 @@ export function evaluateFuelEmissions(
     wellToWake,
     tankToWake,
     znz: {
+      fuelWtwGco2ePerMj: fuelWtw,
       blendWtwGco2ePerMj: blendWtw,
       thresholdTo2034: znzTo2034,
       thresholdFrom2035: znzFrom2035,
-      compliantTo2034: blendWtw <= znzTo2034,
-      compliantFrom2035: blendWtw <= znzFrom2035,
+      compliantTo2034: fuelWtw <= znzTo2034,
+      compliantFrom2035: fuelWtw <= znzFrom2035,
     },
     references: {
       imoGfi2008: imo?.referenceGfi2008 ?? 93.3,
