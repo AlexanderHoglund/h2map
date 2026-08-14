@@ -21,7 +21,10 @@ import { buildReporting } from "./reporting";
  * Version pinned into saved scenarios (scenarios.engine_version). Bump on any
  * behavior change so stored results can be flagged for recompute.
  */
-export const CORRIDOR_ENGINE_VERSION = "0.1.0";
+// 0.2.0 — the emission-method replacement: factors derive from the
+// fuel-emissions dataset (schema v6) and the FuelEU/IMO modules price
+// with their own framework's intensity when both are available.
+export const CORRIDOR_ENGINE_VERSION = "0.2.0";
 
 export { evaluateSide } from "./side";
 export { buildReporting } from "./reporting";

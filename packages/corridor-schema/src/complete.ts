@@ -112,6 +112,9 @@ export const SCENARIO_TEMPLATE: CompleteScenarioJson = {
       rewardUsdPerTonneCo2e: null,
       priceEscalation: null,
     },
+    emissions: {
+      framework: null,
+    },
   },
   financing: {
     enabled: null,
@@ -190,6 +193,15 @@ function sideTemplate(): CompleteJson<ScenarioInput["green"]> {
       bargeCapexUsdM: null,
       bargeOpexUsdMPerYear: null,
     },
+    emissions: {
+      certifiedWttGco2ePerMj: null,
+      n2oScenarioId: null,
+      pilotShare: null,
+      pilotFuelId: null,
+      engineType: null,
+      sulphurPercent: null,
+      efficiencyRatio: null,
+    },
   };
 }
 
@@ -212,6 +224,10 @@ const KEEP_NULL_PATHS: string[][] = [
   ["fossil", "buildHere", "firming"],
   ["green", "buildHere", "components", "*", "overrideUsdM"],
   ["fossil", "buildHere", "components", "*", "overrideUsdM"],
+  // v6 refined-emissions inputs: null = "use the dataset default", a
+  // meaningful stored value exactly like the factor overrides above.
+  ["green", "emissions", "*"],
+  ["fossil", "emissions", "*"],
   // NOT ira45z.effectiveUntil: null and absent both mean "no sunset", so
   // the complete form canonicalizes the null to absent.
 ];
@@ -259,6 +275,9 @@ const OPTIONAL_SUBTREES: string[][] = [
   ["regulation", "ets", "gasCoverage"],
   ["regulation", "fuelEu", "credit"],
   ["regulation", "imoNetZero"],
+  ["regulation", "emissions"],
+  ["green", "emissions"],
+  ["fossil", "emissions"],
   ["financing"],
   ["capitalPhasing"],
   ["flags"],

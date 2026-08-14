@@ -52,7 +52,7 @@ export function imoNetZeroYear(
   const ref = params.referenceIntensityGco2PerMj;
   const baseTarget = ref * (1 - stepValue(params.baseTargets, cal));
   const directTarget = ref * (1 - stepValue(params.directTargets, cal));
-  const attained = fuel.wtw;
+  const attained = (fuel.wtwByFramework?.imo ?? fuel.wtw);
   const energyMj = vessels * fuel.tonnesPerVesselYear * fuel.lhv;
 
   // Intensity gaps [gCO2e/MJ] → tonnes CO2e via energy (g → t is /1e6).

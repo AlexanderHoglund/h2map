@@ -20,9 +20,12 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ["@h2map/*", "!@h2map/units"],
+              // v6: schema also consumes @h2map/fuel-emissions for the
+              // refined factor derivation (acyclic: units → fuel-emissions
+              // → schema → engine; fuel-emissions never imports schema).
+              group: ["@h2map/*", "!@h2map/units", "!@h2map/fuel-emissions"],
               message:
-                "corridor-schema depends only on @h2map/units (dependency graph: units → schema → engine).",
+                "corridor-schema depends only on @h2map/units and @h2map/fuel-emissions (dependency graph: units → fuel-emissions → schema → engine).",
             },
             {
               group: [

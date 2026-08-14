@@ -85,6 +85,18 @@ const fuelSideSchema = z
       .nullable()
       .optional(),
     overrides: fuelSideOverridesSchema,
+    // v6 — per-side refined-emissions inputs (null = dataset default).
+    emissions: z
+      .object({
+        certifiedWttGco2ePerMj: z.number().positive().nullable(),
+        n2oScenarioId: z.string().min(1).nullable(),
+        pilotShare: z.number().min(0).max(1).nullable(),
+        pilotFuelId: z.string().min(1).nullable(),
+        engineType: z.string().min(1).nullable(),
+        sulphurPercent: z.number().positive().nullable(),
+        efficiencyRatio: z.number().positive().nullable(),
+      })
+      .optional(),
   })
   // build-here without an evaluated site has nothing to derive from.
   .refine((s) => s.sourcing !== "build-here" || s.buildHere != null, {
@@ -201,6 +213,11 @@ export const scenarioInputSchema = z.object({
         rewardUsdPerTonneCo2e: z.number().nonnegative().optional(),
         priceEscalation: z.number().gt(-1).lt(1).optional(),
       })
+      .optional(),
+    // v6 — refined emission accounting (declared here or silently
+    // stripped; see the imoNetZero note above).
+    emissions: z
+      .object({ framework: z.enum(["fueleu", "imo"]) })
       .optional(),
   }),
   // Green-financing effect line (sprint 4, task 1). Absent = off.

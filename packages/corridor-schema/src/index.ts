@@ -75,3 +75,9 @@ export type {
   SynthesisConfig,
   SynthesisPlantConfig,
 } from "./ref/synthesis";
+export {
+  deriveFuelFactors,
+  FUEL_EMISSIONS_DATASET,
+  type DerivedFuelFactors,
+  type EmissionsFramework,
+} from "./emissions";

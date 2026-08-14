@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@h2map/units": "*",
-    "zod": "^4.1.5"
+    "zod": "^4.1.5",
+    "@h2map/fuel-emissions": "*"
   }
 }

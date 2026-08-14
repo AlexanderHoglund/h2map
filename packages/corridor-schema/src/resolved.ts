@@ -87,6 +87,14 @@ export interface CostComponent {
 }
 
 export interface FuelParams {
+  /**
+   * v6 — per-framework WtW intensities where the refined derivation
+   * produced both: the FuelEU compliance module and the IMO GFI module
+   * each price with their OWN accounting; `wtw` stays the
+   * selected-framework value used for abatement/display/self-designed.
+   * Absent on the legacy path (modules fall back to `wtw`).
+   */
+  readonly wtwByFramework?: { readonly fueleu?: GCo2ePerMj; readonly imo?: GCo2ePerMj };
   readonly priceUsdPerTonne: UsdPerTonne;
   readonly combustionEf: TCo2PerTonne;
   readonly lhv: MjPerTonne;
@@ -220,6 +228,10 @@ export interface SideInputs {
 // ---------------------------------------------------------------------------
 
 export interface ResolvedFuelSide {
+  /** v6 — per-framework WtW where derivable (see FuelParams). */
+  readonly wtwByFramework?: { readonly fueleu?: GCo2ePerMj; readonly imo?: GCo2ePerMj };
+  /** v6 — provenance line when factors were derived from fuel-emissions. */
+  readonly emissionsDerivation?: string;
   readonly priceUsdPerTonne: Resolved<UsdPerTonne>;
   readonly combustionEf: Resolved<TCo2PerTonne>;
   readonly lhv: Resolved<MjPerTonne>;
@@ -265,6 +277,8 @@ export interface ResolvedScenario {
   };
   /** Divergence flags with defaults applied (absent input → Excel behaviour). */
   readonly flags: {
+    /** v6 — the selected accounting framework (absent = legacy scalars). */
+    readonly emissionsFramework?: "fueleu" | "imo";
     readonly emissionsBasis: "combustion" | "wellToWake";
     readonly rateBasis: "nominal" | "real";
   };

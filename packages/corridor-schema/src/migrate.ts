@@ -104,6 +104,23 @@ const MIGRATIONS: Record<number, Migration> = {
     next.schemaVersion = 5;
     return next;
   },
+  // v5 -> v6: THE EMISSION-METHOD REPLACEMENT — deliberately
+  // behaviour-changing, unlike every migration before it. Injecting
+  // `regulation.emissions` switches factor resolution from the workbook's
+  // flat scalars to values derived from the fuel-emissions dataset
+  // (framework default "fueleu"): saved scenarios AUTO-UPGRADE on open,
+  // per the recorded product decision. Explicit factor overrides still
+  // win, so a scenario that pinned its numbers keeps them; benchmark-path
+  // scenarios move to the refined values. Tests exercising the legacy
+  // workbook path delete the injected block (the Excel golden's gate).
+  5: (raw) => {
+    const next = JSON.parse(JSON.stringify(raw)) as RawScenario;
+    const reg = (next.regulation ?? {}) as Record<string, unknown>;
+    if (reg.emissions == null) reg.emissions = { framework: "fueleu" };
+    next.regulation = reg;
+    next.schemaVersion = 6;
+    return next;
+  },
 };
 
 export interface MigratedScenario {

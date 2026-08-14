@@ -88,6 +88,16 @@ export const refBundleSchema = z.object({
   constants: z.object({
     ira45zMjPerGallon: z.number(),
   }),
+  // v6 — corridor→fuel-emissions integration: the dataset version this
+  // bundle derives refined factors from, and the fuel-id mapping between
+  // the two id spaces. Optional (additive): a bundle without it cannot
+  // resolve refined factors and every scenario runs the legacy scalars.
+  fuelEmissions: z
+    .object({
+      datasetVersion: z.string().min(1),
+      map: z.record(z.string(), z.string()),
+    })
+    .optional(),
   schedules: z.object({
     etsPhaseIn: z.array(scheduleStepSchema).nonempty(),
     fuelEuTargets: z.array(scheduleStepSchema).nonempty(),

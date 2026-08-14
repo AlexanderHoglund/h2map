@@ -35,7 +35,7 @@ const component = (derived: number, override: number | null) => ({
 
 /** Every field present, every optional set — incl. ports, lon/lat, route. */
 const MAXIMAL: DeepRequired<ScenarioInput> = {
-  schemaVersion: 5,
+  schemaVersion: 6,
   refBundleId: "2026-07-30-excel-v1",
   cargo: {
     countryId: "australia",
@@ -118,6 +118,15 @@ const MAXIMAL: DeepRequired<ScenarioInput> = {
       bargeCapexUsdM: 12,
       bargeOpexUsdMPerYear: 1.5,
     },
+    emissions: {
+      certifiedWttGco2ePerMj: 12,
+      n2oScenarioId: "tested-two-stroke",
+      pilotShare: 0.04,
+      pilotFuelId: "mgo",
+      engineType: "lng-otto-df-medium-speed",
+      sulphurPercent: 0.5,
+      efficiencyRatio: 1.05,
+    },
   },
   fossil: {
     fuelId: "lsfo",
@@ -135,6 +144,15 @@ const MAXIMAL: DeepRequired<ScenarioInput> = {
       portStorageOpexUsdMPerYear: 0.8,
       bargeCapexUsdM: 0,
       bargeOpexUsdMPerYear: 0,
+    },
+    emissions: {
+      certifiedWttGco2ePerMj: null,
+      n2oScenarioId: null,
+      pilotShare: null,
+      pilotFuelId: null,
+      engineType: null,
+      sulphurPercent: 0.5,
+      efficiencyRatio: null,
     },
   },
   regulation: {
@@ -187,6 +205,9 @@ const MAXIMAL: DeepRequired<ScenarioInput> = {
       scope: 0.8,
       rewardUsdPerTonneCo2e: 20,
       priceEscalation: 0.01,
+    },
+    emissions: {
+      framework: "imo",
     },
   },
   financing: {
@@ -248,7 +269,7 @@ describe("scenario JSON round-trip is lossless", () => {
 
 /** A sparse scenario: no coords, no optional blocks — the complaint case. */
 const MINIMAL: ScenarioInput = {
-  schemaVersion: 5,
+  schemaVersion: 6,
   refBundleId: "2026-07-30-excel-v1",
   cargo: {
     countryId: "australia",

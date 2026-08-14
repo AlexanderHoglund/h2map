@@ -37,8 +37,8 @@ const bundle = parseRefBundle(
     ),
   ),
 );
-const baseInput = (): ScenarioInput =>
-  migrateScenarioInput(
+const baseInput = (): ScenarioInput => {
+  const input = migrateScenarioInput(
     JSON.parse(
       readFileSync(
         new URL("../../../fixtures/golden/corridor/excel-baseline.input.json", import.meta.url),
@@ -46,6 +46,11 @@ const baseInput = (): ScenarioInput =>
       ),
     ),
   ).input;
+  // Pin the LEGACY factor path (workbook scalars): the v6 migration
+  // injects refined accounting, which these divergence tests predate.
+  delete input.regulation.emissions;
+  return input;
+};
 
 const fuel = (over: Partial<Record<keyof FuelParams, number>> = {}): FuelParams => ({
   priceUsdPerTonne: usdPerTonne(over.priceUsdPerTonne ?? 900),

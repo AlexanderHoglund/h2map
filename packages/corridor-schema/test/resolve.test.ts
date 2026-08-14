@@ -17,7 +17,7 @@ const bundle = parseRefBundle(
 function fixtureInput(): ScenarioInput {
   // The frozen fixture stays at its original schemaVersion; the migration
   // registry (4.1) brings it to current — old scenarios must always load.
-  return migrateScenarioInput(
+  const input = migrateScenarioInput(
     JSON.parse(
       readFileSync(
         new URL(
@@ -28,6 +28,10 @@ function fixtureInput(): ScenarioInput {
       ),
     ),
   ).input;
+  // Pin the LEGACY factor path: the v6 migration injects refined
+  // accounting; these tests exercise workbook benchmark resolution.
+  delete input.regulation.emissions;
+  return input;
 }
 
 describe("resolveScenario — fixture defaults (all overrides null)", () => {

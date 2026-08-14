@@ -55,6 +55,7 @@ import type {
 } from "./resolved";
 import type { RefBundle, RefFuel, RefVesselType } from "./ref/bundle";
 import { getCountry, getFuel, getVesselType } from "./ref/accessors";
+import { deriveFuelFactors, type DerivedFuelFactors } from "./emissions";
 
 // ---------------------------------------------------------------------------
 // Primitive
@@ -98,6 +99,8 @@ interface SideCtx {
   readonly fuel: RefFuel;
   readonly vesselType: RefVesselType;
   readonly isFossil: boolean;
+  /** v6 — refined factors, or null (legacy scalars / underivable fuel). */
+  readonly derivedFactors: DerivedFuelFactors | null;
 }
 
 function resolveFuelSide(
@@ -105,7 +108,7 @@ function resolveFuelSide(
   scenario: ScenarioInput,
   bundle: RefBundle,
 ): ResolvedFuelSide {
-  const { input, vesselOverrides, fuel, vesselType, isFossil } = ctx;
+  const { input, vesselOverrides, fuel, vesselType, isFossil, derivedFactors: fe } = ctx;
   const o = input.overrides;
 
   // Sourcing semantics (spec §1; v4 folded named-plant into purchase):
@@ -124,14 +127,23 @@ function resolveFuelSide(
       : resolve(o.priceUsdPerTonne, usdPerTonne, () =>
           benchmark(usdPerTonne(fuel.priceUsdPerTonne)),
         );
+  // v6: refined factors take the derived slot — override still wins, and
+  // an underivable fuel falls back to the bundle's legacy scalar (the
+  // provenance note discloses which path ran).
   const combustionEf = resolve(o.combustionEfTco2PerTonne, tCo2PerTonne, () =>
-    benchmark(tCo2PerTonne(fuel.combustionEfTco2PerTonne)),
+    fe
+      ? derived(tCo2PerTonne(fe.combustionEfTco2PerTonne))
+      : benchmark(tCo2PerTonne(fuel.combustionEfTco2PerTonne)),
   );
   const lhv = resolve(o.lhvMjPerTonne, mjPerTonne, () =>
-    benchmark(mjPerTonne(fuel.lhvMjPerTonne)),
+    fe
+      ? derived(mjPerTonne(fe.lhvMjPerTonne))
+      : benchmark(mjPerTonne(fuel.lhvMjPerTonne)),
   );
   const wtw = resolve(o.wtwGco2PerMj, gCo2ePerMj, () =>
-    benchmark(gCo2ePerMj(fuel.wtwGco2PerMj)),
+    fe
+      ? derived(gCo2ePerMj(fe.wtwGco2PerMj))
+      : benchmark(gCo2ePerMj(fuel.wtwGco2PerMj)),
   );
 
   // Fuel!F15/F28: distance mode derives from the RESOLVED LHV (E13/E26).
@@ -263,6 +275,22 @@ function resolveFuelSide(
     combustionEf,
     lhv,
     wtw,
+    // Override precedence is absolute: an explicit wtw override governs
+    // EVERY module, so the per-framework derived values attach only when
+    // the wtw actually resolved to the derived path.
+    ...(fe && wtw.source !== "override"
+      ? {
+          wtwByFramework: {
+            ...(fe.wtwByFramework.fueleu !== undefined
+              ? { fueleu: gCo2ePerMj(fe.wtwByFramework.fueleu) }
+              : {}),
+            ...(fe.wtwByFramework.imo !== undefined
+              ? { imo: gCo2ePerMj(fe.wtwByFramework.imo) }
+              : {}),
+          },
+          emissionsDerivation: fe.derivation,
+        }
+      : {}),
     tonnesPerVesselYear: tonnes,
     prodCapexUsdM: prodCapex,
     prodOpexUsdMPerYear: prodOpex,
@@ -474,6 +502,20 @@ export function resolveScenario(
     benchmark(fraction(country.wacc)),
   );
 
+  // v6: derive refined factors per side when the scenario carries the
+  // emissions-accounting block (injected by migration; default FuelEU).
+  const emissionsFramework = input.regulation.emissions?.framework;
+  const factorsFor = (side: "green" | "fossil"): DerivedFuelFactors | null =>
+    emissionsFramework
+      ? deriveFuelFactors({
+          bundle,
+          corridorFuelId: input[side].fuelId,
+          side,
+          framework: emissionsFramework,
+          em: input[side].emissions ?? null,
+        })
+      : null;
+
   const green = resolveFuelSide(
     {
       input: input.green,
@@ -481,6 +523,7 @@ export function resolveScenario(
       fuel: getFuel(bundle, input.green.fuelId),
       vesselType,
       isFossil: false,
+      derivedFactors: factorsFor("green"),
     },
     input,
     bundle,
@@ -492,6 +535,7 @@ export function resolveScenario(
       fuel: getFuel(bundle, input.fossil.fuelId),
       vesselType,
       isFossil: true,
+      derivedFactors: factorsFor("fossil"),
     },
     input,
     bundle,
@@ -553,6 +597,7 @@ export function resolveScenario(
       ? { imoNotParameterised: true as const }
       : {}),
     flags: {
+      ...(emissionsFramework ? { emissionsFramework } : {}),
       emissionsBasis: input.flags?.emissionsBasis ?? "combustion",
       rateBasis: input.flags?.rateBasis ?? "nominal",
     },
@@ -573,6 +618,7 @@ export function toSideInputs(
       combustionEf: side.combustionEf.value,
       lhv: side.lhv.value,
       wtw: side.wtw.value,
+      ...(side.wtwByFramework ? { wtwByFramework: side.wtwByFramework } : {}),
       tonnesPerVesselYear: side.tonnesPerVesselYear.value,
     },
     components: [

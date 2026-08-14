@@ -17,6 +17,11 @@ import type { CalendarYear } from "@h2map/units";
 import type { FuelEuParams, FuelParams } from "@h2map/corridor-schema";
 import { stepValue } from "../schedule";
 
+/**
+ * v6: FuelEU compliance always prices with FuelEU accounting — when the
+ * refined derivation supplied per-framework intensities, the fueleu one
+ * is used regardless of the scenario's selected display framework.
+ */
 export function fuelEuCostUsdM(
   params: FuelEuParams,
   fuel: FuelParams,
@@ -24,7 +29,7 @@ export function fuelEuCostUsdM(
   cal: CalendarYear,
 ): number {
   const target = stepValue(params.targets, cal);
-  const rawDeficit = fuel.wtw - params.baselineGco2PerMj * (1 - target);
+  const rawDeficit = (fuel.wtwByFramework?.fueleu ?? fuel.wtw) - params.baselineGco2PerMj * (1 - target);
 
   if (rawDeficit > 0 || !params.credit) {
     // Deficit (or Excel behaviour): MAX(0, ·) penalty — the workbook's clamp.
@@ -33,10 +38,10 @@ export function fuelEuCostUsdM(
     // which is 0/0-degenerate for a zero-emission fuel (wtw = 0): computing it
     // would give 0 × Infinity = NaN and poison the whole side's total.
     if (deficit === 0) return 0;
-    // Here deficit > 0 ⇒ fuel.wtw > baseline×(1−target) ≥ 0, so the division is safe.
+    // Here deficit > 0 ⇒ (fuel.wtwByFramework?.fueleu ?? fuel.wtw) > baseline×(1−target) ≥ 0, so the division is safe.
     const massPerIntensity =
       (vessels * fuel.tonnesPerVesselYear * fuel.lhv) /
-      fuel.wtw /
+      (fuel.wtwByFramework?.fueleu ?? fuel.wtw) /
       params.vlsfoMjPerTonne;
     return (
       ((deficit * massPerIntensity * params.penaltyEurPerTonne) *
@@ -50,11 +55,11 @@ export function fuelEuCostUsdM(
   // priced at the surplus value, with the RFNBO ×multiplier until its cutoff.
   // Negative return = revenue reducing the side's cost. The ÷WTW mass
   // conversion is undefined for a zero-emission fuel — no priced surplus.
-  if (fuel.wtw === 0) return 0;
+  if ((fuel.wtwByFramework?.fueleu ?? fuel.wtw) === 0) return 0;
   const multiplier = cal <= params.credit.multiplierUntil ? params.credit.multiplier : 1;
   const massPerIntensity =
     (vessels * fuel.tonnesPerVesselYear * fuel.lhv) /
-    fuel.wtw /
+    (fuel.wtwByFramework?.fueleu ?? fuel.wtw) /
     params.vlsfoMjPerTonne;
   return (
     ((rawDeficit * multiplier * massPerIntensity * params.credit.surplusValueEurPerTonne) *

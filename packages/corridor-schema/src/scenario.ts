@@ -14,7 +14,11 @@
  * live; v2 `build-here` (delivered-price basis) is REJECTED — the
  * calculation basis changed to capital+operating. See migrate.ts.
  */
-export const SCHEMA_VERSION = 5;
+// v6 replaced the workbook emission scalars with the refined
+// fuel-emissions method: `regulation.emissions` (framework selector,
+// default "fueleu") is INJECTED by migration — saved scenarios
+// auto-upgrade on open (recorded product decision). See migrate.ts.
+export const SCHEMA_VERSION = 6;
 
 /**
  * Project archetype (realism pass, Task 4) — ONE selector that moves FOAK,
@@ -232,6 +236,28 @@ export interface BuildHereSite {
   };
 }
 
+/**
+ * Per-side refined-emissions inputs (v6). Every field nullable: null =
+ * the fuel-emissions dataset's default (certified prefill, default slip
+ * scenario, documented pilot share…). The green side uses the pathway /
+ * slip / pilot fields; the fossil side uses `sulphurPercent` (IMO
+ * sulphur-band classification). Irrelevant fields stay null.
+ */
+export interface FuelEmissionsSideInput {
+  /** Certified pathway WtT (PoS E-value), gCO2e/MJ. Pathway fuels. */
+  certifiedWttGco2ePerMj: number | null;
+  /** N2O slip scenario id (e-ammonia). */
+  n2oScenarioId: string | null;
+  /** Pilot share of delivered energy, 0–1. */
+  pilotShare: number | null;
+  pilotFuelId: string | null;
+  /** LNG engine technology id (methaneSlip.byEngine). */
+  engineType: string | null;
+  /** Baseline sulphur mass % — IMO residual band resolution. */
+  sulphurPercent: number | null;
+  efficiencyRatio: number | null;
+}
+
 export interface FuelSideInput {
   fuelId: string;
   sourcing: FuelSourcing;
@@ -245,6 +271,8 @@ export interface FuelSideInput {
    */
   buildHere?: BuildHereSite | null;
   overrides: FuelSideOverrides;
+  /** v6 refined-emissions inputs. Absent = all dataset defaults. */
+  emissions?: FuelEmissionsSideInput;
 }
 
 /** D3 — per-side non-CO2 combustion factors (tonnes of gas per tonne fuel). */
@@ -338,6 +366,17 @@ export interface ImoNetZeroInput {
   priceEscalation?: number;
 }
 
+/**
+ * v6 — the emission-accounting framework. PRESENT = refined factors
+ * derived from the fuel-emissions dataset (injected by migration for
+ * every scenario; default framework "fueleu"). ABSENT = the legacy
+ * workbook scalars — kept only for the Excel golden fixture's
+ * legacy-path gate and explicit calibration tests.
+ */
+export interface EmissionsAccountingInput {
+  framework: "fueleu" | "imo";
+}
+
 export interface RegulationInput {
   eurUsd: number;
   ets: EtsInput;
@@ -346,6 +385,8 @@ export interface RegulationInput {
   selfDesigned: SelfDesignedInput;
   /** Absent = module off (legacy scenarios). */
   imoNetZero?: ImoNetZeroInput;
+  /** v6 refined emission accounting. Absent = legacy workbook scalars. */
+  emissions?: EmissionsAccountingInput;
 }
 
 /**

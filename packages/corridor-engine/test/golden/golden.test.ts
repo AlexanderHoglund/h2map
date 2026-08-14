@@ -23,6 +23,12 @@ interface ExpectedFile {
 describe("golden: excel-baseline", () => {
   // The frozen v1 fixture loads through the migration registry (4.1).
   const input = migrateScenarioInput(loadFixtureJson("excel-baseline.input.json")).input;
+  // v6 REFRAME: this fixture is the LEGACY-PATH gate. The emission-method
+  // replacement made refined accounting the default (migration injects
+  // it), so the workbook-reproduction promise now applies to the legacy
+  // scalar path only — exercised by deleting the injected block. Refined
+  // defaults are pinned in reporting.test.ts instead.
+  delete input.regulation.emissions;
   const bundle = parseRefBundle(loadRefBundleJson(input.refBundleId));
   const expected = loadFixtureJson("excel-baseline.expected.json") as ExpectedFile;
 

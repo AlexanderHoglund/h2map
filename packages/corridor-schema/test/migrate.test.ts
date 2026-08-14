@@ -25,6 +25,9 @@ describe("migrateScenarioInput", () => {
     const { input, migratedFrom } = migrateScenarioInput(raw);
     expect(input.schemaVersion).toBe(SCHEMA_VERSION);
     expect(migratedFrom).toBe(1);
+    // v6 auto-upgrade: refined emission accounting is INJECTED (default
+    // FuelEU) — the deliberate behaviour-changing migration.
+    expect(input.regulation.emissions).toEqual({ framework: "fueleu" });
   });
 
   it("v1→v2 carries the renamed 45Z field value across", () => {

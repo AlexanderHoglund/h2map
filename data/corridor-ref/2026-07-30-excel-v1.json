@@ -250,6 +250,17 @@
     "fossilVesselCapexUsdM": 0,
     "fossilPortCapexUsdM": 0
   },
+  "fuelEmissions": {
+    "datasetVersion": "2026-08-14-seed-3",
+    "map": {
+      "lsfo": "hfo",
+      "lng": "lng",
+      "e-ammonia": "e-ammonia",
+      "e-methanol": "e-methanol",
+      "biodiesel-hvo": "bio-hvo",
+      "lh2": "lh2"
+    }
+  },
   "constants": {
     "ira45zMjPerGallon": 122.5
   },
