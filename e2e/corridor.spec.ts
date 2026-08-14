@@ -5,10 +5,11 @@
  * axe-core pass (serious/critical) over the entry screen and all tabs.
  *
  * The DEFAULT scenario is the MMMCZCS Chilean copper-concentrate corridor
- * (Mejillones → Japan): gap $1,762.21m, green total $2,850.66m (study:
- * $2,850m), fossil total incl. the IMO-NZF proxy $1,088.45m ($280/tCO2
+ * (Mejillones → Japan), v6 refined factors: gap $1,819.48m, green total
+ * $2,911.41m, fossil total incl. the IMO-NZF proxy $1,091.93m ($280/tCO2
  * priced on the WTW basis the model reports, fix #2), $71/t cargo,
- * $1,215/tCO2 (WTW), CO2 abated 1,450,095 t (study: 1.45 Mt exact),
+ * $1,627/tCO2 (WTW), CO2 abated 1,118,236 t (the study-exact 1.45 Mt
+ * survives as the legacy calibration),
  * lifetime cargo 24,750,000 t. The WORKBOOK golden ($166.95m…) still pins
  * the engine via the frozen fixture in the package tests.
  */
@@ -17,7 +18,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 const STEPS = ["Intro", "Energy", "Vessels", "Cargo", "Ports", "Financing", "Regulation"];
-const GAP = "$1,762.21m";
+// v6 refined default (the legacy $1,762.21m study calibration is pinned
+// in reporting.test.ts).
+const GAP = "$1,819.48m";
 
 async function expectNoSeriousViolations(page: Page, context: string) {
   const results = await new AxeBuilder({ page }).analyze();
@@ -109,12 +112,12 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   // assertions to the docked COMPACT summary.
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
-  await expect(results.getByText("$71", { exact: true })).toBeVisible();
-  await expect(results.getByText("$1,215", { exact: true })).toBeVisible();
+  await expect(results.getByText("$74", { exact: true })).toBeVisible();
+  await expect(results.getByText("$1,627", { exact: true })).toBeVisible();
   await expect(results.getByText("well-to-wake basis")).toBeVisible();
   // Side totals: green ≈ the study's $2,850m; fossil incl. the NZF proxy.
-  await expect(results.getByText("$2,850.66m")).toBeVisible();
-  await expect(results.getByText("$1,088.45m")).toBeVisible();
+  await expect(results.getByText("$2,911.41m")).toBeVisible();
+  await expect(results.getByText("$1,091.93m")).toBeVisible();
   // Fix #1: the PRE-regulation gap (the study's $2,000m quantity) is shown
   // as a secondary line under the headline.
   await expect(results.getByText(/\$2,012\.44m/)).toBeVisible();
@@ -127,9 +130,9 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   // Twice by design: the snapshot strip and the Cargo & Corridor result card.
   await expect(full.getByText("24,750,000")).toHaveCount(2);
   // Derived figures render at four significant figures (sprint 1.2): the
-  // engine's 1,450,095 t displays as 1,450,000 t; full precision stays in
+  // engine's 1,118,236 t displays as 1,118,000 t; full precision stays in
   // the model (the exact GAP above is computed from it).
-  await expect(full.getByText("1,450,000 t").first()).toBeVisible();
+  await expect(full.getByText("1,118,000 t").first()).toBeVisible();
   // Fix #4: ETS is disabled here — the carbon-price reference must come
   // from the ACTIVE scheme (self-designed $280), labelled as such.
   await expect(full.getByText("your carbon price $280")).toBeVisible();
@@ -158,7 +161,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
       await expect(chart.getByText(label, { exact: false }).first()).toBeVisible();
     }
     await expect(chart.getByText("$2,012m", { exact: true })).toBeVisible(); // gross
-    await expect(chart.getByText("$1,762m", { exact: true })).toBeVisible(); // incremental
+    await expect(chart.getByText("$1,819m", { exact: true })).toBeVisible(); // incremental
     await expect(chart.getByText(/before regulatory instruments/)).toBeVisible();
   }
 
@@ -170,8 +173,8 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
       .locator("section", { hasText: "Breakdown of abatement cost per tonne" })
       .last();
     await expect(chart.getByText("well-to-wake", { exact: false }).first()).toBeVisible();
-    await expect(chart.getByText("$1,388", { exact: true })).toBeVisible(); // gross /t
-    await expect(chart.getByText("$1,215", { exact: true })).toBeVisible(); // incremental /t
+    await expect(chart.getByText("$1,800", { exact: true })).toBeVisible(); // gross /t
+    await expect(chart.getByText("$1,627", { exact: true })).toBeVisible(); // incremental /t
   }
 
   // The emissions & abatement diagram: pre/post bars per basis.
@@ -343,7 +346,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     .poll(
       () =>
         page.evaluate(() => {
-          const raw = localStorage.getItem("corridor-draft-v2");
+          const raw = localStorage.getItem("corridor-draft-v3");
           if (!raw) return "draft-missing";
           const draft = JSON.parse(raw) as {
             green?: { overrides?: Record<string, unknown> };
@@ -372,14 +375,14 @@ test("the Standard upgrade is one-way and output-neutral", async ({ page }) => {
   // Let the post-load autosave settle before taking the baseline.
   await expect
     .poll(async () => {
-      const a = await page.evaluate(() => localStorage.getItem("corridor-draft-v2"));
+      const a = await page.evaluate(() => localStorage.getItem("corridor-draft-v3"));
       await page.waitForTimeout(600);
-      const b = await page.evaluate(() => localStorage.getItem("corridor-draft-v2"));
+      const b = await page.evaluate(() => localStorage.getItem("corridor-draft-v3"));
       return a !== null && a === b;
     })
     .toBe(true);
   const draftBefore = await page.evaluate(() =>
-    localStorage.getItem("corridor-draft-v2"),
+    localStorage.getItem("corridor-draft-v3"),
   );
 
   // Declining the confirm leaves the project Simplified.
@@ -399,7 +402,7 @@ test("the Standard upgrade is one-way and output-neutral", async ({ page }) => {
   await expect(results.getByText("$110.87m").first()).toBeVisible();
   expect(await results.innerText()).toBe(summaryBefore);
   const draftAfter = await page.evaluate(() =>
-    localStorage.getItem("corridor-draft-v2"),
+    localStorage.getItem("corridor-draft-v3"),
   );
   expect(draftAfter).toBe(draftBefore);
   expect(draftAfter).not.toContain("viewMode");
@@ -421,7 +424,7 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   // The sourcing selector this test drives is a Standard capability.
   await useStandard(page);
   const results = page.getByRole("complementary");
-  await expect(results.getByText("$1,762.21m")).toBeVisible();
+  await expect(results.getByText(GAP)).toBeVisible();
   const nav = page.getByRole("navigation").first();
 
   // Reference Chilean scenario: every tab green (the WACC is overridden, so
@@ -453,7 +456,7 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
     )
     .toBe("green.sourcing");
   await page.getByLabel("Fuel sourcing").first().selectOption("build-plant");
-  await expect(results.getByText("$1,762.21m")).toBeVisible();
+  await expect(results.getByText(GAP)).toBeVisible();
 
   // Amber: clear the WACC override so the UNVERIFIED country benchmark is
   // actually in use — the Financing tab warns without blocking.
@@ -472,7 +475,7 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   await wacc.fill("0.07");
   await wacc.fill("0.08");
   await wacc.blur();
-  await expect(results.getByText("$1,762.21m")).toBeVisible();
+  await expect(results.getByText(GAP)).toBeVisible();
   await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(9);
 });
 
@@ -499,7 +502,7 @@ test("routed distance follows override > derived(routed), adoption-only", async 
   await expect
     .poll(() =>
       page.evaluate(() => {
-        const raw = localStorage.getItem("corridor-draft-v2");
+        const raw = localStorage.getItem("corridor-draft-v3");
         if (!raw) return null;
         const draft = JSON.parse(raw) as {
           cargo: { oneWayDistanceNm: number; routedDistance?: { graphVersion: string } };
@@ -515,7 +518,7 @@ test("routed distance follows override > derived(routed), adoption-only", async 
   await expect
     .poll(() =>
       page.evaluate(() => {
-        const raw = localStorage.getItem("corridor-draft-v2");
+        const raw = localStorage.getItem("corridor-draft-v3");
         if (!raw) return null;
         const draft = JSON.parse(raw) as {
           cargo: { oneWayDistanceNm: number; routedDistance?: unknown };
@@ -613,16 +616,16 @@ test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", asy
   await page.goto("/corridor");
   await page.getByRole("button", { name: /Start|Resume draft/ }).click();
   await expect
-    .poll(() => page.evaluate(() => localStorage.getItem("corridor-draft-v2") !== null))
+    .poll(() => page.evaluate(() => localStorage.getItem("corridor-draft-v3") !== null))
     .toBe(true);
   // …then plant a tonne scenario carrying a non-1 weight, as an old save might.
   await page.evaluate(() => {
-    const draft = JSON.parse(localStorage.getItem("corridor-draft-v2")!) as {
+    const draft = JSON.parse(localStorage.getItem("corridor-draft-v3")!) as {
       cargo: { unit?: string; unitWeightTonnes?: number };
     };
     draft.cargo.unit = "tonne";
     draft.cargo.unitWeightTonnes = 2;
-    localStorage.setItem("corridor-draft-v2", JSON.stringify(draft));
+    localStorage.setItem("corridor-draft-v3", JSON.stringify(draft));
   });
   await page.reload();
   await page.getByRole("button", { name: /Resume draft/ }).click();
@@ -634,7 +637,7 @@ test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", asy
   await expect(page.getByLabel("Weight per unit")).toHaveCount(0);
   await page.waitForTimeout(1200); // let the autosave cycle write back
   const stored = await page.evaluate(() => {
-    const draft = JSON.parse(localStorage.getItem("corridor-draft-v2")!) as {
+    const draft = JSON.parse(localStorage.getItem("corridor-draft-v3")!) as {
       cargo: { unitWeightTonnes?: number };
     };
     return draft.cargo.unitWeightTonnes;
@@ -660,7 +663,7 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
   await expect(toggle).toBeVisible();
   await toggle.click();
   await expect(results.getByText(GAP)).toHaveCount(0);
-  await expect(results.getByText("$1,566.29m")).toBeVisible(); // 1,762.21 − 195.92
+  await expect(results.getByText("$1,623.56m")).toBeVisible(); // 1,762.21 − 195.92
 
   // Results: the waterfall gains the financing float between the gross
   // incremental bar and the regulation bar, with the sign in the label.
@@ -674,7 +677,7 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
     await expect(chart.getByText("Greenfinancing", { exact: false }).first()).toBeVisible();
     await expect(chart.getByText("\u2212$196m", { exact: true })).toBeVisible();
     await expect(chart.getByText("$2,012m", { exact: true })).toBeVisible(); // gross unchanged
-    await expect(chart.getByText("$1,566m", { exact: true })).toBeVisible(); // incremental after
+    await expect(chart.getByText("$1,624m", { exact: true })).toBeVisible(); // incremental after
   }
   // The decomposition table gains a green-only "Green financing effect" row.
   await expect(page.getByText("Green financing effect").first()).toBeVisible();
@@ -701,7 +704,7 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
   await expect(results.getByText(GAP)).toBeVisible();
 
   await page.getByRole("button", { name: "30/40/30 preset" }).click();
-  await expect(results.getByText("$1,665.88m")).toBeVisible();
+  await expect(results.getByText("$1,723.15m")).toBeVisible();
 
   // The annual chart's caption recomputes (year-1 capital 0.3 × $1,690m)
   // and switches to the phased wording — "charged in full up front" would
@@ -719,7 +722,7 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
   await expect(page.getByText(/Green shares must sum to 1 \(currently 0\.70\)/)).toBeVisible();
   await expect(page.getByText(/capitalPhasing\.green\.weights must sum to 1/)).toBeVisible();
   await y3.fill("0.3");
-  await expect(results.getByText("$1,665.88m")).toBeVisible();
+  await expect(results.getByText("$1,723.15m")).toBeVisible();
 
   // Off again → the golden default returns.
   await page.getByRole("switch", { name: "Capital deployment schedule" }).click();
@@ -742,7 +745,9 @@ test("Simplified shows only essential inputs, defaults carry the rest", async ({
   await page.getByRole("button", { name: "02 Energy" }).click();
   await expect(page.getByLabel("Fuel sourcing")).toHaveCount(0);
   await expect(page.getByLabel("Energy density, LHV")).toHaveCount(0);
-  await expect(page.getByLabel(/combustion/i)).toHaveCount(0);
+  // Exact label: the certified-pathway field's help text mentions
+  // combustion, which a loose /combustion/i regex would match.
+  await expect(page.getByLabel("CO2 emission factor, combustion")).toHaveCount(0);
   await expect(page.getByLabel("Fuel price")).toHaveCount(1); // green purchase
   await expect(page.getByLabel("Fuel consumption")).toHaveCount(1); // green only
   // Disabled inputs are noise in Simplified: purchase zeroes production
