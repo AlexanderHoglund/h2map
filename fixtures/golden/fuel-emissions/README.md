@@ -44,3 +44,9 @@ Rules (same discipline as `fixtures/golden/corridor/`):
   earlier blanket substitution understated avoided emissions by 64.6 t.
   The pilot MGO WtT stays an Annex II value — a DISCLOSED substitution
   (no confirmed IMO distillate default).
+- 2026-08-14 — dataset `2026-08-14-seed-3` (additive only, no fixture
+  values move): two certified-pathway rows added for the corridor
+  integration — `bio-hvo` (E-value per RED II Annex V/VI, reference
+  default 18) and `lh2` (RFNBO, all-zero TtW by chemistry, workbook-carry
+  default 10, unverified) — plus `defaultCertifiedWttGco2ePerMj`
+  prefills on all pathway rows. F1–F7 rows and values untouched.

@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Help } from "@/components/ui/Help";
 import { NumberInput } from "@/components/ui/NumberInput";
 import { Select } from "@/components/ui/Select";
-import seedJson from "../../../../data/fuel-emissions-ref/2026-08-14-seed-2.json";
+import seedJson from "../../../../data/fuel-emissions-ref/2026-08-14-seed-3.json";
 
 /**
  * Fuel Emissions Calculator (client-side, recomputes on keystroke).
@@ -154,7 +154,15 @@ export default function FuelEmissionsPanel() {
         options={ds.fuels
           .filter((f) => f.family === "green" || f.id === "lng")
           .map((f) => ({ value: f.id, label: f.name }))}
-        onChange={setCandidateFuelId}
+        onChange={(v) => {
+          setCandidateFuelId(v);
+          // Each pathway fuel carries its own reference prefill (15 / 18 /
+          // 10) — an editable default, never silently applied by the engine.
+          const row = ds.fuels.find((f) => f.id === v);
+          if (row?.defaultCertifiedWttGco2ePerMj) {
+            setCandidateWtw(row.defaultCertifiedWttGco2ePerMj);
+          }
+        }}
       />
       {/* LNG: methane slip is per engine technology — an explicit input. */}
       {candidateRow.requiresEngineType && (

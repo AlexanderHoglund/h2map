@@ -44,6 +44,12 @@ const fuelSchema = z.object({
   wttGco2ePerMj: nullableNumber,
   wttRangeGco2ePerMj: z.tuple([z.number(), z.number()]).optional(),
   /**
+   * Reference prefill for the certified pathway value (consumers may
+   * present it as an editable default — it is NOT applied silently by
+   * the engine, which still requires an explicit certified input).
+   */
+  defaultCertifiedWttGco2ePerMj: z.number().positive().optional(),
+  /**
    * Framework ids under which this fuel must REFUSE despite carrying
    * values (LNG: the IMO LCA Guidelines lack a default upstream factor —
    * the row's WtT is FuelEU's and must not be borrowed).

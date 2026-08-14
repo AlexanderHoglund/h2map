@@ -1,6 +1,6 @@
 {
   "$comment": "GOLDEN FIXTURES — authoritative. Computed by hand from ref_fuel_emissions.seed.json BEFORE the engine exists, so they are independent of the implementation. If the engine disagrees with a fixture, the ENGINE is wrong. Never regenerate these from code output.",
-  "datasetVersion": "2026-08-14-seed-2",
+  "datasetVersion": "2026-08-14-seed-3",
   "gwpSet": "AR4",
 
   "fixtures": [

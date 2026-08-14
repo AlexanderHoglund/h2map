@@ -1,6 +1,6 @@
 {
   "$schema": "ref_fuel_emissions.schema.json",
-  "datasetVersion": "2026-08-14-seed-2",
+  "datasetVersion": "2026-08-14-seed-3",
   "retrievedDate": "2026-08-14",
   "status": "SEED — human review required before use. Rows marked verified:false must not drive a headline number without the unverified badge.",
   "gwpSets": {
@@ -109,6 +109,7 @@
       "ttw": { "co2GPerG": 0.0, "ch4GPerG": 0.0, "n2oGPerG": "SEE n2oSlip" },
       "wttGco2ePerMj": null,
       "wttRangeGco2ePerMj": [5, 28.2],
+      "defaultCertifiedWttGco2ePerMj": 15,
       "framework": "fueleu",
       "verified": false,
       "derivation": "Ammonia contains no carbon, so TtW CO2 is zero by chemistry. The WtT term is entirely determined by the electricity pathway and must come from a certified E-value — there is no single default. The RED ceiling for an RFNBO is 28.2 gCO2eq/MJ; certified renewable pathways typically land 5–15.",
@@ -123,11 +124,42 @@
       "ttw": { "co2GPerG": 1.375, "ch4GPerG": 0.0, "n2oGPerG": 0.0 },
       "wttGco2ePerMj": null,
       "wttRangeGco2ePerMj": [1, 28.2],
+      "defaultCertifiedWttGco2ePerMj": 15,
       "framework": "fueleu",
       "verified": false,
       "derivation": "A certified-pathway fuel like e-ammonia: the user supplies the certified E-value (full WtW under RED accounting — whether the combustion carbon counts depends on the CO2 source, DAC vs point-source capture, which the certificate resolves). The RFNBO ceiling is 28.2 gCO2eq/MJ. On the tank-to-wake basis the chemical stack CO2 (1.375 g/g over LCV 0.0199 = 69.1 gCO2/MJ) is reported — methanol is a carbon molecule regardless of accounting. Combustion CH4/N2O are not fixed by either framework for methanol engines and are far below the CO2 term; carried as nil pending an Annex II methanol row.",
       "reviewNote": "Dedicated pathway rows (DAC-sourced vs point-source-captured CO2, RED Delegated Regulation 2023/1185) remain to be added; until then the certified E-value must be supplied per project.",
       "source": "RED Article 28(5) ceiling; pathway values per certificate (RED Delegated Regulation 2023/1185)"
+    },
+    {
+      "id": "bio-hvo",
+      "name": "Biodiesel / HVO",
+      "family": "green",
+      "lcvMjPerG": 0.044,
+      "ttw": { "co2GPerG": 0.0, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
+      "wttGco2ePerMj": null,
+      "wttRangeGco2ePerMj": [2, 38],
+      "defaultCertifiedWttGco2ePerMj": 18,
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "A certified-pathway fuel: the E-value comes from the RED II Annex V/VI pathway certificate and varies strongly by feedstock \u2014 there is no single default. Combustion CO2 is short-cycle biogenic and nets to zero under both frameworks' E-value accounting; the diesel-family CH4/N2O stack factors are carried from the Annex II distillate family. The 18 gCO2e/MJ reference default is the standard E-value Sustainable Ships uses for compliant high-grade biofuels (see frameworks.fueleu.biofuelReferenceNote).",
+      "reviewNote": "Feedstock-specific Annex V/VI pathway rows remain to be added; until then the certified E-value must be supplied (or the 18 reference default consciously accepted) per project. LCV 0.044 MJ/g is carried from the corridor workbook and MUST be checked against the Annex II biofuel rows.",
+      "source": "RED II Annex V/VI pathway accounting; 18 gCO2e/MJ reference via Sustainable Ships 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero', July 2025; CH4/N2O per Annex II distillate family"
+    },
+    {
+      "id": "lh2",
+      "name": "Hydrogen (liquid, RFNBO)",
+      "family": "green",
+      "lcvMjPerG": 0.12,
+      "ttw": { "co2GPerG": 0.0, "ch4GPerG": 0.0, "n2oGPerG": 0.0 },
+      "wttGco2ePerMj": null,
+      "wttRangeGco2ePerMj": [1, 28.2],
+      "defaultCertifiedWttGco2ePerMj": 10,
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "Hydrogen contains no carbon or nitrogen, so all combustion terms are zero by chemistry (like e-ammonia minus the N2O slip question \u2014 H2 engines' NOx is regulated air pollution, not a GHG accounting term in either framework). The WtT term is entirely the electricity-and-liquefaction pathway and must come from a certified E-value under the RED Article 28(5) RFNBO ceiling of 28.2 gCO2eq/MJ. The 10 gCO2e/MJ default is carried from the corridor workbook's reference table pending a certified-pathway citation.",
+      "reviewNote": "NEVER default this to zero. The 10 gCO2e/MJ prefill is a workbook carry, not a certified value \u2014 replace per project from the Proof of Sustainability.",
+      "source": "RED Article 28(5) ceiling; default carried from Green_Corridor_Model_Simplified_30_07.xlsx Data_tables!B20 \u2014 to be replaced by a certified pathway citation"
     }
   ],
 
