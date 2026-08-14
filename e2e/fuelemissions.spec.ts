@@ -32,14 +32,14 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     page.getByRole("link", { name: "Fuel Emissions Calculator" }),
   ).toBeVisible();
 
-  // Default direction: from fossil to ZNZ. 1,000 t of VLSFO (41.0e6 MJ)
-  // with the documented 5% pilot needs 41.0e6 × 0.95 ÷ 18,600 =
-  // 2,094.1 t of e-ammonia — the fuel-needed stat leads the results.
+  // Default direction: from fossil to ZNZ. 1,000 t of HFO (40.5e6 MJ)
+  // with the documented 5% pilot needs 40.5e6 × 0.95 ÷ 18,600 =
+  // 2,068.5 t of e-ammonia — the fuel-needed stat leads the results.
   await expect(page.getByLabel("Direction")).toHaveValue("baseline");
-  await expect(page.getByLabel(/Quantity of Very low sulphur/)).toBeVisible();
+  await expect(page.getByLabel(/Quantity of Heavy fuel oil/)).toBeVisible();
   await expect(page.getByText("ZNZ fuel needed")).toBeVisible();
-  await expect(page.getByTestId("mass-hero")).toContainText("2,094.1");
-  await expect(page.getByText(/needs 2,094\.1 t/)).toBeVisible();
+  await expect(page.getByTestId("mass-hero")).toContainText("2,068.5");
+  await expect(page.getByText(/needs 2,068\.5 t/)).toBeVisible();
 
   // The one-line method reference is present and citation-ready.
   await expect(page.getByText(/Method: energy-delivered/)).toBeVisible();
@@ -51,14 +51,14 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     .getByLabel("Direction")
     .selectOption({ label: "From ZNZ fuel to fossil" });
   await expect(page.getByLabel(/Quantity of e-Ammonia/)).toBeVisible();
-  await expect(page.getByText(/replaces 477\.5 t/)).toBeVisible();
+  await expect(page.getByText(/replaces 483\.4 t/)).toBeVisible();
 
   // Zero the pilot (fixture F1's state): the pedagogical anchor appears —
-  // 1,000 t of e-ammonia replaces 453.7 t of VLSFO, not 1,000 t.
+  // 1,000 t of e-ammonia replaces 459.3 t of HFO, not 1,000 t.
   await page.getByText("Combustion-side corrections").click();
   const pilot = page.getByLabel("Pilot fuel share of energy");
   await pilot.fill("0");
-  await expect(page.getByText(/replaces 453\.7 t/)).toBeVisible();
+  await expect(page.getByText(/replaces 459\.3 t/)).toBeVisible();
 
   // The N2O scenario is unverified and shown as a RANGE; switching the
   // scenario moves the avoided result.
@@ -96,10 +96,10 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   await expect(certified).toHaveValue(/^15/);
 
   // LNG computes under FuelEU per engine technology (slip is THE lever):
-  // 1,000 t at 49,100 MJ/t replaces 1,197.6 t of VLSFO (pilot still 0).
+  // 1,000 t at 49,100 MJ/t replaces 1,212.3 t of HFO (pilot still 0).
   await page.getByLabel("Candidate fuel").selectOption({ label: "Liquefied natural gas (fossil)" });
   await expect(page.getByLabel("LNG engine type")).toBeVisible();
-  await expect(page.getByText(/replaces 1,197\.6 t/)).toBeVisible();
+  await expect(page.getByText(/replaces 1,212\.3 t/)).toBeVisible();
   // Under the IMO framework it still refuses — no default upstream factor
   // (ICCT), and the FuelEU WtT is never borrowed. No headline number.
   await page
@@ -114,33 +114,33 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
 
   // e-Methanol is a certified-pathway fuel like ammonia: it COMPUTES with
   // the certified E-value (still 15 here). 1,000 t at 19,900 MJ/t =
-  // 19.9e6 MJ replaces 485.4 t VLSFO (pilot still 0).
+  // 19.9e6 MJ replaces 491.4 t HFO (pilot still 0).
   await page.getByLabel("Candidate fuel").selectOption({ label: "e-Methanol (RFNBO)" });
-  await expect(page.getByText(/replaces 485\.4 t/)).toBeVisible();
+  await expect(page.getByText(/replaces 491\.4 t/)).toBeVisible();
   await expect(page.getByTestId("avoided")).toBeVisible();
 
   // Back to the ammonia anchor state.
   await page.getByLabel("Candidate fuel").selectOption({ label: "e-Ammonia (RFNBO)" });
-  await expect(page.getByText(/replaces 453\.7 t/)).toBeVisible();
+  await expect(page.getByText(/replaces 459\.3 t/)).toBeVisible();
 
   // Back to fossil-first: "I want to replace 1,000 t of fossil fuel" —
-  // the required candidate mass is 41.0e6 MJ ÷ 18,600 MJ/t = 2,204.3 t
+  // the required candidate mass is 40.5e6 MJ ÷ 18,600 MJ/t = 2,177.4 t
   // (pilot still 0, state survives the direction change).
   await page
     .getByLabel("Direction")
     .selectOption({ label: "From fossil to zero / near-zero (ZNZ) fuel" });
-  await expect(page.getByLabel(/Quantity of Very low sulphur/)).toBeVisible();
-  await expect(page.getByText(/Replacing 1,000\.0 t .* needs 2,204\.3 t/)).toBeVisible();
+  await expect(page.getByLabel(/Quantity of Heavy fuel oil/)).toBeVisible();
+  await expect(page.getByText(/Replacing 1,000\.0 t .* needs 2,177\.4 t/)).toBeVisible();
   await expect(page.getByText("ZNZ fuel needed")).toBeVisible();
-  // Same reduction either way — intensities are per-MJ (82.2% here: the
+  // Same reduction either way — intensities are per-MJ (82.5% here: the
   // tested-two-stroke slip is still selected, adding ~1.1 gCO2e/MJ).
-  await expect(page.getByText(/82\.2%/)).toBeVisible();
+  await expect(page.getByText(/82\.5%/)).toBeVisible();
 
   // Reset restores every default in one click — the documented 5% pilot
-  // returns, so 1,000 t of VLSFO needs 2,094.1 t again.
+  // returns, so 1,000 t of HFO needs 2,068.5 t again.
   await page.getByRole("button", { name: "Reset" }).click();
   await expect(page.getByLabel("Direction")).toHaveValue("baseline");
-  await expect(page.getByText(/needs 2,094\.1 t/)).toBeVisible();
+  await expect(page.getByText(/needs 2,068\.5 t/)).toBeVisible();
 
   await axeClean(page, "fuel emissions calculator");
 });

@@ -16,7 +16,7 @@ import {
 const ds = parseRefDataset(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/fuel-emissions-ref/2026-08-13-seed-1.json", import.meta.url),
+      new URL("../../../data/fuel-emissions-ref/2026-08-14-seed-2.json", import.meta.url),
       "utf8",
     ),
   ),
@@ -50,7 +50,7 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
           candidateFuelId: "e-ammonia",
           quantityTonnes: 1000,
           candidateWtwGco2ePerMj: 15.0,
-          baselineFuelId: "vlsfo",
+          baselineFuelId: "hfo",
           frameworkId: "fueleu",
           pilotShare: 0,
           n2oSlipGPerG: 0,
@@ -60,14 +60,14 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
       ),
     );
     expect(r.candidateEnergyMj).toBeCloseTo(18_600_000, 0);
-    expect(r.equivalentBaselineMassTonnes).toBeCloseTo(453.7, 1);
+    expect(r.equivalentBaselineMassTonnes).toBeCloseTo(459.3, 1);
     expect(r.wellToWake.candidate.emissionsTco2e).toBeCloseTo(279.0, 1);
-    expect(r.wellToWake.baseline.emissionsTco2e).toBeCloseTo(1683.1, 1);
-    expect(r.wellToWake.avoidedTco2e).toBeCloseTo(1404.1, 1);
-    expect(r.wellToWake.reductionPercent).toBeCloseTo(83.4, 1);
+    expect(r.wellToWake.baseline.emissionsTco2e).toBeCloseTo(1706.4, 1);
+    expect(r.wellToWake.avoidedTco2e).toBeCloseTo(1427.4, 1);
+    expect(r.wellToWake.reductionPercent).toBeCloseTo(83.7, 1);
     // The failure mode this fixture exists to catch: tonne-for-tonne
-    // arithmetic returns 3,095.1 tCO2e (2.20x). Assert we are nowhere near.
-    expect(Math.abs(r.wellToWake.avoidedTco2e - 3095.1)).toBeGreaterThan(1000);
+    // arithmetic returns 3,436.6 tCO2e (2.41x). Assert we are nowhere near.
+    expect(Math.abs(r.wellToWake.avoidedTco2e - 3436.6)).toBeGreaterThan(1000);
   });
 
   it("F2 — BetterSea reproduction: 7,000 t HFO under AR4, to 0.001", () => {
@@ -84,7 +84,7 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
           candidateFuelId: "e-ammonia",
           quantityTonnes: 1000,
           candidateWtwGco2ePerMj: 15.0,
-          baselineFuelId: "vlsfo",
+          baselineFuelId: "hfo",
           frameworkId: "fueleu",
           pilotShare: 0.05,
           pilotFuelId: "mgo",
@@ -96,8 +96,8 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
     );
     expect(r.totalEnergyMj).toBeCloseTo(19_578_947, 0);
     expect(r.pilotEnergyMj).toBeCloseTo(978_947, 0);
-    expect(r.equivalentBaselineMassTonnes).toBeCloseTo(477.5, 1);
-    expect(r.wellToWake.avoidedTco2e).toBeCloseTo(1403.8, 1);
+    expect(r.equivalentBaselineMassTonnes).toBeCloseTo(483.4, 1);
+    expect(r.wellToWake.avoidedTco2e).toBeCloseTo(1428.4, 1);
     expect(r.wellToWake.blendIntensityGco2ePerMj).toBeCloseTo(18.79, 2);
     // The threshold proximity IS the headline: under 19.0 (to 2034),
     // above 14.0 (from 2035).
@@ -106,15 +106,15 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
   });
 
   it("F4 — N2O sensitivity: three published scenarios, slip priced at 273", () => {
-    // Fixture convention: the framework stays FuelEU/AR4 (baseline 90.49);
-    // ONLY the slip term is priced at GWP 273 — the sensitivity the
-    // dataset's scenarios were derived with.
+    // Fixture convention: the framework stays FuelEU/AR4 (baseline
+    // 91.744, the HFO row); ONLY the slip term is priced at GWP 273 —
+    // the sensitivity the dataset's scenarios were derived with. Avoided
+    // values were hand-derived from the ROUNDED adds intermediates
+    // (1.0 / 3.23 / 36.69); the exact engine lands within the tolerance.
     const cases = [
-      { slip: 0.0000681, intensity: 16.0, avoided: 1385.5, tol: 0.05, znz: true },
-      // 1344.0 and 721.7 were hand-derived from the ROUNDED adds
-      // intermediates (3.23 / 36.69); the exact engine lands within 0.1.
-      { slip: 0.00022, intensity: 18.23, avoided: 1344.0, tol: 0.1, znz: true },
-      { slip: 0.0025, intensity: 51.69, avoided: 721.7, tol: 0.15, znz: false },
+      { slip: 0.0000681, intensity: 16.0, avoided: 1408.8, tol: 0.1, znz: true },
+      { slip: 0.00022, intensity: 18.23, avoided: 1367.4, tol: 0.1, znz: true },
+      { slip: 0.0025, intensity: 51.69, avoided: 745.0, tol: 0.15, znz: false },
     ] as const;
     for (const c of cases) {
       const r = ok(
@@ -123,7 +123,7 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
             candidateFuelId: "e-ammonia",
             quantityTonnes: 1000,
             candidateWtwGco2ePerMj: 15.0,
-            baselineFuelId: "vlsfo",
+            baselineFuelId: "hfo",
             frameworkId: "fueleu",
             pilotShare: 0,
             n2oSlipGPerG: c.slip,
@@ -158,10 +158,10 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
     expect(delta).toBeCloseTo(expected, 9);
   });
 
-  it("reverse direction: replacing 1,000 t VLSFO needs 2,204.3 t e-ammonia", () => {
-    // Hand-computed: 1,000 t VLSFO × 41,000 MJ/t = 41.0e6 MJ; at pilot 0
-    // and ratio 1.0 that is 41.0e6 / 18,600 = 2,204.3 t of e-ammonia —
-    // with the SAME 83.4% reduction as F1 (intensities are per-MJ).
+  it("reverse direction: replacing 1,000 t HFO needs 2,177.4 t e-ammonia", () => {
+    // Hand-computed: 1,000 t HFO × 40,500 MJ/t = 40.5e6 MJ; at pilot 0
+    // and ratio 1.0 that is 40.5e6 / 18,600 = 2,177.4 t of e-ammonia —
+    // with the SAME 83.7% reduction as F1 (intensities are per-MJ).
     const r = ok(
       evaluateFuelEmissions(
         {
@@ -169,7 +169,7 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
           quantityTonnes: 1000,
           quantityBasis: "baseline",
           candidateWtwGco2ePerMj: 15.0,
-          baselineFuelId: "vlsfo",
+          baselineFuelId: "hfo",
           frameworkId: "fueleu",
           pilotShare: 0,
           n2oSlipGPerG: 0,
@@ -178,9 +178,9 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
         ds,
       ),
     );
-    expect(r.candidateMassTonnes).toBeCloseTo(2204.3, 1);
+    expect(r.candidateMassTonnes).toBeCloseTo(2177.4, 1);
     expect(r.equivalentBaselineMassTonnes).toBeCloseTo(1000, 9);
-    expect(r.wellToWake.reductionPercent).toBeCloseTo(83.4, 1);
+    expect(r.wellToWake.reductionPercent).toBeCloseTo(83.7, 1);
   });
 
   it("F6 — identity: avoided(X vs X) === 0 for every parameterised fuel", () => {

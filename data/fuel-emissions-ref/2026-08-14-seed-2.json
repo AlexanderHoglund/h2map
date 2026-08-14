@@ -1,7 +1,7 @@
 {
   "$schema": "ref_fuel_emissions.schema.json",
-  "datasetVersion": "2026-08-13-seed-1",
-  "retrievedDate": "2026-08-13",
+  "datasetVersion": "2026-08-14-seed-2",
+  "retrievedDate": "2026-08-14",
   "status": "SEED — human review required before use. Rows marked verified:false must not drive a headline number without the unverified badge.",
   "gwpSets": {
     "AR4": {
@@ -48,42 +48,40 @@
   "fuels": [
     {
       "id": "hfo",
-      "name": "Heavy fuel oil",
+      "name": "Heavy fuel oil (RME–RMK, incl. most VLSFO)",
       "family": "fossil",
       "lcvMjPerG": 0.0405,
       "ttw": { "co2GPerG": 3.114, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
       "wttGco2ePerMj": 13.5,
       "framework": "fueleu",
       "verified": true,
-      "derivation": "FuelEU Annex II default values. TtW under AR4 = (3.114 + 0.00005×25 + 0.00018×298) / 0.0405 = 78.244 gCO2e/MJ; adding WtT 13.5 gives 91.744 gCO2e/MJ.",
+      "derivation": "FuelEU Annex II HFO row, ISO 8217 grades RME–RMK — classification is by viscosity per the Bunker Delivery Note (above 80 cSt), NOT by sulphur, so most VLSFO sold (typically RMG 380) is THIS row. TtW under AR4 = (3.114 + 0.00005×25 + 0.00018×298) / 0.0405 = 78.244 gCO2e/MJ; adding WtT 13.5 gives 91.744 gCO2e/MJ (AR5: 91.601).",
       "validation": "Reproduces BetterSea's published worked example (7,000 t HFO containership, 91.744 gCO2e/MJ, AR4) to three decimals.",
-      "source": "Regulation (EU) 2023/1805 Annex II, via BetterSea 'How to Calculate GHG Intensity under FuelEU Maritime'"
+      "source": "Regulation (EU) 2023/1805 Annex II, via BetterSea 'How to Calculate GHG Intensity under FuelEU Maritime'; row confirmed against the DG MOVE FuelEU guidance document for shipping companies and the ESSF SAPS WS1 working document, retrieved 2026-08-14"
     },
     {
-      "id": "vlsfo",
-      "name": "Very low sulphur fuel oil",
+      "id": "lfo",
+      "name": "Light fuel oil (RMA–RMD)",
       "family": "fossil",
       "lcvMjPerG": 0.041,
-      "ttw": { "co2GPerG": 3.114, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
+      "ttw": { "co2GPerG": 3.151, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
       "wttGco2ePerMj": 13.2,
       "framework": "fueleu",
-      "verified": false,
-      "derivation": "TtW factor family shared with HFO; LCV 0.041 MJ/g is the FuelEU VLSFO reference energy content, also used as the VLSFO-equivalent denominator in the penalty formula. Gives WtW 90.49 gCO2e/MJ under AR4.",
-      "reviewNote": "LCV confirmed; the WtT value of 13.2 is carried from secondary sources and MUST be checked against the Annex II VLSFO row before this fuel drives a published figure.",
-      "source": "Regulation (EU) 2023/1805 Annex II — row to be verified"
+      "verified": true,
+      "derivation": "FuelEU Annex II LFO row, ISO 8217 grades RMA–RMD (residual fuels of 80 cSt or less — classification by viscosity, not sulphur). TtW under AR4 = (3.151 + 0.00005×25 + 0.00018×298) / 0.041 = 78.192 gCO2e/MJ; + WtT 13.2 = 91.392 (AR5: 91.251). Replaces the former 'VLSFO' row, which mixed this row's LCV and WtT with the HFO carbon factor — a combination in neither Annex II row.",
+      "source": "Regulation (EU) 2023/1805 Annex II, confirmed against the DG MOVE FuelEU guidance document for shipping companies and the ESSF SAPS WS1 working document, retrieved 2026-08-14"
     },
     {
       "id": "mgo",
-      "name": "Marine gas oil / marine diesel oil",
+      "name": "Marine gas oil / diesel (DMX–DMB)",
       "family": "fossil",
       "lcvMjPerG": 0.0427,
       "ttw": { "co2GPerG": 3.206, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
       "wttGco2ePerMj": 14.4,
       "framework": "fueleu",
-      "verified": false,
-      "derivation": "Distillate row. Used as the default pilot fuel for dual-fuel engines. WtW ≈ 90.8 gCO2e/MJ under AR4.",
-      "reviewNote": "Verify LCV, CO2 factor and WtT against the Annex II MDO/MGO row.",
-      "source": "Regulation (EU) 2023/1805 Annex II — row to be verified"
+      "verified": true,
+      "derivation": "FuelEU Annex II MDO/MGO row, ISO 8217 grades DMX–DMB. Used as the default pilot fuel for dual-fuel engines. TtW under AR4 = (3.206 + 0.00005×25 + 0.00018×298) / 0.0427 = 76.368 gCO2e/MJ; + WtT 14.4 = 90.768.",
+      "source": "Regulation (EU) 2023/1805 Annex II, confirmed against the DG MOVE FuelEU guidance document for shipping companies and the ESSF SAPS WS1 working document, retrieved 2026-08-14"
     },
     {
       "id": "lng",

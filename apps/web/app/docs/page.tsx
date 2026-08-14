@@ -2299,10 +2299,11 @@ export default async function DocsPage() {
         <p className="mt-2">
           <strong>A tonne of green fuel does not replace a tonne of fossil
           fuel.</strong>{" "}e-Ammonia carries 18,600 MJ/t against
-          VLSFO&apos;s 41,000, so 1,000 t of e-ammonia replaces about 453.7 t
-          of VLSFO — not 1,000 t. A calculator comparing tonne-for-tonne
-          overstates avoided emissions by more than 2× for ammonia (3,095
-          vs the correct 1,404 tCO2e on the reference case). The functional
+          HFO&apos;s 40,500 (the Annex II residual row covering most
+          VLSFO sold), so 1,000 t of e-ammonia replaces about 459.3 t of
+          HFO — not 1,000 t. A calculator comparing tonne-for-tonne
+          overstates avoided emissions by more than 2× for ammonia (3,437
+          vs the correct 1,427 tCO2e on the reference case). The functional
           unit is therefore{" "}
           <strong>energy delivered on board (MJ)</strong>{" "}and every
           comparison runs through it — golden fixture F1 pins exactly this
@@ -2393,8 +2394,8 @@ export default async function DocsPage() {
           the engine derives E<sub>base</sub>{" "}= quantity × LCV
           <sub>base</sub>, then E<sub>cand</sub>{" "}= E<sub>base</sub>{" "}/
           efficiencyRatio × (1 − pilotShare) and the required candidate
-          mass — replacing 1,000 t of VLSFO needs 2,204.3 t of e-ammonia
-          (41.0×10⁶ MJ ÷ 18,600 MJ/t). Every downstream quantity is the
+          mass — replacing 1,000 t of HFO needs 2,177.4 t of e-ammonia
+          (40.5×10⁶ MJ ÷ 18,600 MJ/t). Every downstream quantity is the
           same computation, so the round trip is exact (property-tested).
         </p>
         <p className="mt-2">
@@ -2430,7 +2431,7 @@ export default async function DocsPage() {
             combusts and Cslip is priced as CH4 at the framework&apos;s
             GWP. Engine type is therefore an explicit input — an Otto
             dual-fuel medium-speed engine lands at 89.20 gCO2e/MJ WtW
-            under FuelEU AR4, barely below VLSFO&apos;s 90.49, while a
+            under FuelEU AR4, barely below HFO&apos;s 91.74, while a
             diesel slow-speed engine reaches 76.08.
           </li>
           <li>
@@ -2473,10 +2474,15 @@ export default async function DocsPage() {
         <H id="fe-limitations">37. Limitations &amp; open items</H>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            VLSFO&apos;s WtT of 13.2 gCO2e/MJ is carried from a secondary
-            source pending verification against the Annex II VLSFO row —
-            fixtures F1 and F3 depend on it. The MGO row is likewise
-            unverified.
+            &ldquo;VLSFO&rdquo; is not an Annex II fuel class — residual
+            fuels are classed by ISO 8217 viscosity grade (80 cSt splits
+            LFO from HFO), not sulphur, so most VLSFO sold (typically RMG
+            380) is the HFO row. The baseline menu therefore offers the
+            Annex II classes directly — HFO (RME–RMK), LFO (RMA–RMD),
+            MDO/MGO (DMX–DMB) — loaded atomically from one row each and
+            confirmed against the DG MOVE FuelEU guidance document and the
+            ESSF SAPS WS1 working document; a row-atomicity test forbids
+            mixing factors across rows.
           </li>
           <li>
             LNG evaluates under FuelEU per engine technology, but its WtT
@@ -2518,9 +2524,11 @@ export default async function DocsPage() {
                   ["MEPC 83 approved Net-Zero Framework text (April 2025)", "ZNZ thresholds: at most 19.0 gCO2eq/MJ to end-2034, 14.0 from 1 January 2035. Adoption targeted MEPC 85 (October 2026) — provisional."],
                   ["MEPC 83/7/23 — Pacific Environment / Clean Shipping Coalition", "The ammonia N2O literature range (6.81×10⁻⁵ to 2.5×10⁻³ g N2O/g NH3) and the optimised-injection reduction figure behind the default scenario."],
                   ["BetterSea, 'How to Calculate GHG Intensity under FuelEU Maritime'", "The published worked example (7,000 t HFO containership, 91.744 gCO2e/MJ under AR4) reproduced by golden fixture F2 to three decimals."],
+                  ["European Commission DG MOVE, FuelEU guidance document for shipping companies", "Verbatim reproduction of the Annex II table used to confirm the HFO / LFO / MDO-MGO rows (retrieved 2026-08-14)."],
+                  ["ESSF SAPS WS1 working document", "Second independent reproduction of the Annex II table — cross-check for the same three rows (retrieved 2026-08-14)."],
                   ["Sustainable Ships, 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero' (July 2025)", "Per-engine methane-slip values under both frameworks (Otto MS/SS, Diesel SS, LBSI, steam) and the biofuel reference E-value note."],
                   ["Ammonia Energy Association (September 2025), citing MAN ES Research Centre Copenhagen and WinGD", "The ~95/5 ammonia/pilot energy split, tested two-stroke N2O emission levels, and the efficiency-ratio 1.0 evidence."],
-                  ["ICCT (April 2025)", "The missing IMO default upstream factor for fossil LNG and the real 18.5–28 gCO2e/MJ range — the reason LNG refuses to evaluate."],
+                  ["ICCT (April 2025)", "The missing IMO default upstream factor for fossil LNG and the real 18.5–28 gCO2e/MJ range — the reason LNG refuses under the IMO framework."],
                   ["GCMD GFI calculator (post-MEPC 83)", "Planned independent cross-check (e-ammonia case) — open item, not yet reproduced."],
                 ] as const
               ).map(([src, anchors]) => (
@@ -2534,7 +2542,7 @@ export default async function DocsPage() {
         </div>
         <p className="mt-2 text-neutral-600">
           The reference dataset (
-          <code>data/fuel-emissions-ref/2026-08-13-seed-1.json</code>) carries
+          <code>data/fuel-emissions-ref/2026-08-14-seed-2.json</code>) carries
           these citations row by row — every factor in the calculator&apos;s
           decomposition table surfaces its own source and derivation in a
           tooltip, and rows pending primary-source verification render with

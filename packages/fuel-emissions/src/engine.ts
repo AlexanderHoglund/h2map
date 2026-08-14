@@ -1,9 +1,9 @@
 /**
  * Pure fuel-emissions evaluator. The functional unit is ENERGY DELIVERED
  * ON BOARD (MJ): a tonne of green fuel does not replace a tonne of fossil
- * fuel (e-ammonia at 18,600 MJ/t replaces ~453.7 t of VLSFO per 1,000 t,
+ * fuel (e-ammonia at 18,600 MJ/t replaces ~459.3 t of HFO per 1,000 t,
  * not 1,000 t — golden fixture F1 exists to catch the tonne-for-tonne
- * trap, which overstates avoided emissions 2.2×).
+ * trap, which overstates avoided emissions 2.4×).
  *
  * Framework values are never blended: one framework id selects every
  * factor AND the GWP set (FuelEU Annex II → AR4; IMO LCA → AR5); a GWP

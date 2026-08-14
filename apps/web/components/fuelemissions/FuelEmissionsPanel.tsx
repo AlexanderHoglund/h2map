@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Help } from "@/components/ui/Help";
 import { NumberInput } from "@/components/ui/NumberInput";
 import { Select } from "@/components/ui/Select";
-import seedJson from "../../../../data/fuel-emissions-ref/2026-08-13-seed-1.json";
+import seedJson from "../../../../data/fuel-emissions-ref/2026-08-14-seed-2.json";
 
 /**
  * Fuel Emissions Calculator (client-side, recomputes on keystroke).
@@ -76,7 +76,7 @@ export default function FuelEmissionsPanel() {
   const [engineType, setEngineType] = useState("lng-otto-df-medium-speed");
   const [quantityTonnes, setQuantityTonnes] = useState(1000);
   const [candidateWtw, setCandidateWtw] = useState(15);
-  const [baselineFuelId, setBaselineFuelId] = useState("vlsfo");
+  const [baselineFuelId, setBaselineFuelId] = useState("hfo");
   const [pilotShare, setPilotShare] = useState(ds.pilotFuel.defaultShareOfEnergy);
   const [pilotFuelId, setPilotFuelId] = useState(ds.pilotFuel.defaultPilotFuelId);
   const [n2oScenarioId, setN2oScenarioId] = useState("optimised-injection");
@@ -136,7 +136,7 @@ export default function FuelEmissionsPanel() {
     setEngineType("lng-otto-df-medium-speed");
     setQuantityTonnes(1000);
     setCandidateWtw(certifiedDefaultFor("fueleu", "to2034"));
-    setBaselineFuelId("vlsfo");
+    setBaselineFuelId("hfo");
     setPilotShare(ds.pilotFuel.defaultShareOfEnergy);
     setPilotFuelId(ds.pilotFuel.defaultPilotFuelId);
     setN2oScenarioId("optimised-injection");

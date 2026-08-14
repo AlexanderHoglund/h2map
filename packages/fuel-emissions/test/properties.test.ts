@@ -15,7 +15,7 @@ import {
 const ds = parseRefDataset(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/fuel-emissions-ref/2026-08-13-seed-1.json", import.meta.url),
+      new URL("../../../data/fuel-emissions-ref/2026-08-14-seed-2.json", import.meta.url),
       "utf8",
     ),
   ),
@@ -27,7 +27,7 @@ const arbInput = fc.record({
   pilotShare: fc.double({ min: 0, max: 0.08, noNaN: true }),
   n2oSlip: fc.double({ min: 0, max: 0.0025, noNaN: true }),
   efficiencyRatio: fc.double({ min: 0.8, max: 1.2, noNaN: true }),
-  baseline: fc.constantFrom("vlsfo", "hfo", "mgo"),
+  baseline: fc.constantFrom("hfo", "lfo", "mgo"),
   gwpSet: fc.constantFrom("AR4", "AR5", "AR6"),
 });
 
@@ -147,7 +147,7 @@ describe("fuel-emissions properties", () => {
   it("LNG: engine type is explicit — refuses without one, slip dominates with one", () => {
     // No engine type → refuse (Cslip differs per technology).
     const no = evaluateFuelEmissions(
-      { candidateFuelId: "lng", quantityTonnes: 1000, baselineFuelId: "vlsfo", frameworkId: "fueleu" },
+      { candidateFuelId: "lng", quantityTonnes: 1000, baselineFuelId: "hfo", frameworkId: "fueleu" },
       ds,
     );
     expect("notParameterised" in no && no.notParameterised).toBe(true);
@@ -157,13 +157,13 @@ describe("fuel-emissions properties", () => {
     // Otto DF medium-speed under FuelEU AR4, hand-computed: per g of fuel
     // (1−0.031) combusts and 0.031 escapes as CH4 —
     // (2.750×0.969 + 0.031×25 + 0.00011×0.969×298) / 0.0491 = 70.703 TtW;
-    // + WtT 18.5 = 89.203 WtW, barely below VLSFO's 90.49.
+    // + WtT 18.5 = 89.203 WtW, below HFO's 91.744 by only ~2.5.
     const run = (engineType: string) => {
       const r = evaluateFuelEmissions(
         {
           candidateFuelId: "lng",
           quantityTonnes: 1000,
-          baselineFuelId: "vlsfo",
+          baselineFuelId: "hfo",
           frameworkId: "fueleu",
           engineType,
           pilotShare: 0,
@@ -186,7 +186,7 @@ describe("fuel-emissions properties", () => {
       {
         candidateFuelId: "lng",
         quantityTonnes: 1000,
-        baselineFuelId: "vlsfo",
+        baselineFuelId: "hfo",
         frameworkId: "imo",
         engineType: "lng-otto-df-medium-speed",
       },
@@ -202,7 +202,7 @@ describe("fuel-emissions properties", () => {
       {
         candidateFuelId: "e-methanol",
         quantityTonnes: 1000,
-        baselineFuelId: "vlsfo",
+        baselineFuelId: "hfo",
         frameworkId: "fueleu",
       },
       ds,
@@ -213,8 +213,8 @@ describe("fuel-emissions properties", () => {
     expect(refused.missing[0]).toMatch(/certified pathway/);
 
     // With a certified E-value it is a pathway fuel like e-ammonia:
-    // 1,000 t @ 19,900 MJ/t = 19.9e6 MJ replaces 485.4 t VLSFO; avoided
-    // WtW = 19.9e6 x (90.49 - 10) x 1e-6 = 1,601.75 tCO2e. The TtW basis
+    // 1,000 t @ 19,900 MJ/t = 19.9e6 MJ replaces 491.4 t HFO; avoided
+    // WtW = 19.9e6 x (91.744 - 10) x 1e-6 = 1,626.71 tCO2e. The TtW basis
     // stays chemical: methanol is a carbon molecule, so the candidate's
     // tank-to-wake intensity is 1.375 / 0.0199 = 69.10 gCO2/MJ even
     // though the certified WtW is 10.
@@ -222,7 +222,7 @@ describe("fuel-emissions properties", () => {
       {
         candidateFuelId: "e-methanol",
         quantityTonnes: 1000,
-        baselineFuelId: "vlsfo",
+        baselineFuelId: "hfo",
         frameworkId: "fueleu",
         candidateWtwGco2ePerMj: 10,
         pilotShare: 0,
@@ -231,8 +231,8 @@ describe("fuel-emissions properties", () => {
     );
     if ("notParameterised" in r && r.notParameterised) throw new Error("refused");
     const ok = r as FuelEmissionsResult;
-    expect(ok.equivalentBaselineMassTonnes).toBeCloseTo(485.37, 1);
-    expect(ok.wellToWake.avoidedTco2e).toBeCloseTo(1601.75, 1);
+    expect(ok.equivalentBaselineMassTonnes).toBeCloseTo(491.36, 1);
+    expect(ok.wellToWake.avoidedTco2e).toBeCloseTo(1626.71, 1);
     expect(ok.wellToWake.candidate.intensityGco2ePerMj).toBeCloseTo(10, 9);
     expect(ok.tankToWake.candidate.intensityGco2ePerMj).toBeCloseTo(69.095, 2);
     // Chemical TtW decomposition parts carry the combustion CO2.
@@ -247,7 +247,7 @@ describe("fuel-emissions properties", () => {
       {
         candidateFuelId: "e-ammonia",
         quantityTonnes: 1000,
-        baselineFuelId: "vlsfo",
+        baselineFuelId: "hfo",
         frameworkId: "fueleu",
       },
       ds,
@@ -255,6 +255,34 @@ describe("fuel-emissions properties", () => {
     expect("notParameterised" in r && r.notParameterised).toBe(true);
     if (!("notParameterised" in r) || !r.notParameterised) throw new Error("unreachable");
     expect(r.missing[0]).toMatch(/certified pathway/);
+  });
+
+  it("row atomicity: every fossil fuel's five factors come from ONE Annex II row", () => {
+    // Independent copy of the confirmed Annex II table (DG MOVE FuelEU
+    // guidance document; ESSF SAPS WS1 working document — both reproduce
+    // it verbatim; retrieved 2026-08-14). The former "VLSFO" row mixed
+    // the LFO LCV/WtT with the HFO carbon factor — a combination in
+    // neither row. This test makes that class of bug impossible to
+    // reintroduce: a fossil row must match a single Annex II row on ALL
+    // five factors at once, or name its exception explicitly (LNG's WtT
+    // is a secondary-source value pending Annex II verification).
+    const ANNEX_II = [
+      { lcv: 0.0405, wtt: 13.5, co2: 3.114, ch4: 0.00005, n2o: 0.00018 }, // HFO RME–RMK
+      { lcv: 0.041, wtt: 13.2, co2: 3.151, ch4: 0.00005, n2o: 0.00018 }, // LFO RMA–RMD
+      { lcv: 0.0427, wtt: 14.4, co2: 3.206, ch4: 0.00005, n2o: 0.00018 }, // MDO/MGO DMX–DMB
+      { lcv: 0.0491, wtt: 18.5, co2: 2.75, ch4: 0, n2o: 0.00011 }, // LNG (WtT unverified)
+    ];
+    for (const fuel of ds.fuels.filter((f) => f.family === "fossil")) {
+      const match = ANNEX_II.find(
+        (row) =>
+          row.lcv === fuel.lcvMjPerG &&
+          row.wtt === fuel.wttGco2ePerMj &&
+          row.co2 === fuel.ttw.co2GPerG &&
+          row.ch4 === fuel.ttw.ch4GPerG &&
+          row.n2o === fuel.ttw.n2oGPerG,
+      );
+      expect(match, `${fuel.id}: factors do not match any single Annex II row`).toBeDefined();
+    }
   });
 
   it("dataset hygiene: every fuel row carries source + derivation + verified", () => {

@@ -1,6 +1,6 @@
 {
   "$comment": "GOLDEN FIXTURES — authoritative. Computed by hand from ref_fuel_emissions.seed.json BEFORE the engine exists, so they are independent of the implementation. If the engine disagrees with a fixture, the ENGINE is wrong. Never regenerate these from code output.",
-  "datasetVersion": "2026-08-13-seed-1",
+  "datasetVersion": "2026-08-14-seed-2",
   "gwpSet": "AR4",
 
   "fixtures": [
@@ -11,21 +11,21 @@
         "candidateFuelId": "e-ammonia",
         "quantityTonnes": 1000,
         "candidateWtwGco2ePerMj": 15.0,
-        "baselineFuelId": "vlsfo",
-        "baselineWtwGco2ePerMj": 90.49,
+        "baselineFuelId": "hfo",
+        "baselineWtwGco2ePerMj": 91.744,
         "pilotShare": 0,
         "n2oSlip": 0,
         "efficiencyRatio": 1.0
       },
       "expected": {
         "candidateEnergyMj": 18600000,
-        "equivalentBaselineMassTonnes": 453.7,
+        "equivalentBaselineMassTonnes": 459.3,
         "candidateEmissionsTco2e": 279.0,
-        "baselineEmissionsTco2e": 1683.1,
-        "avoidedTco2e": 1404.1,
-        "reductionPercent": 83.4
+        "baselineEmissionsTco2e": 1706.4,
+        "avoidedTco2e": 1427.4,
+        "reductionPercent": 83.7
       },
-      "failureMode": "A tonne-for-tonne implementation returns 3,095.1 tCO2e — 2.20× the correct answer. This fixture exists to catch exactly that."
+      "failureMode": "A tonne-for-tonne implementation returns 3,436.6 tCO2e — 2.41× the correct answer. This fixture exists to catch exactly that."
     },
 
     {
@@ -52,22 +52,22 @@
         "candidateFuelId": "e-ammonia",
         "quantityTonnes": 1000,
         "candidateWtwGco2ePerMj": 15.0,
-        "baselineFuelId": "vlsfo",
-        "baselineWtwGco2ePerMj": 90.49,
+        "baselineFuelId": "hfo",
+        "baselineWtwGco2ePerMj": 91.744,
         "pilotShare": 0.05,
         "pilotFuelId": "mgo",
-        "pilotWtwGco2ePerMj": 90.8,
+        "pilotWtwGco2ePerMj": 90.768,
         "n2oSlip": 0,
         "efficiencyRatio": 1.0
       },
       "expected": {
         "totalEnergyMj": 19578947,
         "pilotEnergyMj": 978947,
-        "equivalentBaselineMassTonnes": 477.5,
-        "avoidedTco2e": 1403.8,
+        "equivalentBaselineMassTonnes": 483.4,
+        "avoidedTco2e": 1428.4,
         "blendIntensityGco2ePerMj": 18.79
       },
-      "note": "Avoided emissions move only 0.3 t — because pilot energy displaces baseline energy at almost the same intensity. But the blend intensity rises from 15.00 to 18.79, which sits just under the IMO ZNZ threshold of 19.0 and comfortably ABOVE the 14.0 threshold applying from 2035. That threshold proximity is a headline output, not a footnote."
+      "note": "Avoided emissions move only ~1 t — because pilot energy displaces baseline energy at almost the same intensity (MGO 90.768 vs HFO 91.744). But the blend intensity rises from 15.00 to 18.79, which sits just under the IMO ZNZ threshold of 19.0 and comfortably ABOVE the 14.0 threshold applying from 2035. That threshold proximity is a headline output, not a footnote."
     },
 
     {
@@ -77,7 +77,8 @@
         "candidateFuelId": "e-ammonia",
         "quantityTonnes": 1000,
         "candidateWtwGco2ePerMj": 15.0,
-        "baselineWtwGco2ePerMj": 90.49,
+        "baselineFuelId": "hfo",
+        "baselineWtwGco2ePerMj": 91.744,
         "gwpN2o": 273
       },
       "expectedByScenario": [
@@ -86,7 +87,7 @@
           "gN2oPerGNh3": 0.0000681,
           "addsGco2ePerMj": 1.0,
           "totalIntensityGco2ePerMj": 16.0,
-          "avoidedTco2e": 1385.5,
+          "avoidedTco2e": 1408.8,
           "znzCompliant": true
         },
         {
@@ -94,7 +95,7 @@
           "gN2oPerGNh3": 0.00022,
           "addsGco2ePerMj": 3.23,
           "totalIntensityGco2ePerMj": 18.23,
-          "avoidedTco2e": 1344.0,
+          "avoidedTco2e": 1367.4,
           "znzCompliant": true
         },
         {
@@ -102,7 +103,7 @@
           "gN2oPerGNh3": 0.0025,
           "addsGco2ePerMj": 36.69,
           "totalIntensityGco2ePerMj": 51.69,
-          "avoidedTco2e": 721.7,
+          "avoidedTco2e": 745.0,
           "znzCompliant": false
         }
       ],
@@ -128,9 +129,8 @@
   ],
 
   "openItems": [
-    "VLSFO WtT of 13.2 gCO2e/MJ is carried from a secondary source and must be checked against the Annex II VLSFO row. F1 and F3 depend on it — if it changes, both fixtures change.",
-    "MGO row unverified; F3's pilot value depends on it.",
-    "No LNG fixture yet: the IMO LCA Guidelines lack a default upstream factor for fossil LNG (real range 18.5–28 gCO2e/MJ), so an LNG fixture cannot be computed honestly until that is resolved.",
+    "RESOLVED 2026-08-14: the former VLSFO row mixed the LFO LCV/WtT with the HFO carbon factor — a row in neither Annex II class. Baselines are now atomic Annex II rows (HFO RME–RMK / LFO RMA–RMD / MDO-MGO DMX–DMB), confirmed against the DG MOVE FuelEU guidance document and the ESSF SAPS WS1 working document; F1/F3/F4 rebased by hand onto the HFO row (see README changelog).",
+    "No LNG fixture yet, although LNG evaluates under FuelEU per engine type since seed-2 (WtT 18.5 pending Annex II verification); the IMO upstream factor is still missing.",
     "No e-methanol fixture: needs the two CO2-source pathway rows from RED Delegated Regulation 2023/1185.",
     "GCMD's published GFI calculator should be reproduced as an independent cross-check once the engine exists."
   ]
