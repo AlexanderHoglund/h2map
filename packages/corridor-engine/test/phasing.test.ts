@@ -54,7 +54,9 @@ describe("capital deployment schedule", () => {
     expect(Math.abs(r.summary.greenCapexPvUsdM - 1567.6)).toBeLessThan(0.1);
     expect(Math.abs(r.summary.fossilCapexPvUsdM - 333.9)).toBeLessThan(0.1);
     expect(Math.abs(r.reporting.gapPvPreRegulationUsdM - 1916.1)).toBeLessThan(0.1);
-    expect(Math.abs(r.summary.gapPvUsdM - 1665.9)).toBeLessThan(0.1);
+    // v6 refined default: the self-designed net effect shifts +57.27
+    // (green side pays too) — post-regulation gap moves with it.
+    expect(Math.abs(r.summary.gapPvUsdM - 1723.15)).toBeLessThan(0.1);
   });
 
   it("green-only phasing moves the gap by −122.4", () => {

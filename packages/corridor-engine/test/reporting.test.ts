@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 import { parseRefBundle, resolveScenario } from "@h2map/corridor-schema";
 import { evaluateScenario } from "../src/index";
 import { loadRefBundleJson } from "./golden/loader";
-import { chileReferenceInput } from "./reference/chile";
+import { chileReferenceInput, chileStudyCalibrationInput } from "./reference/chile";
 
 describe("reporting: pre/post-regulation split (Chilean reference)", () => {
   const bundle = parseRefBundle(loadRefBundleJson("2026-07-30-excel-v1"));
@@ -21,8 +21,10 @@ describe("reporting: pre/post-regulation split (Chilean reference)", () => {
     expect(r.gapPvPreRegulationUsdM).toBeCloseTo(2012.44, 2);
   });
 
-  it("post-regulation gap is the headline (1762.21 ± 0.01 under WTW)", () => {
-    expect(r.gapPvPostRegulationUsdM).toBeCloseTo(1762.21, 2);
+  it("post-regulation gap is the headline (1819.48 ± 0.01 under WTW, v6 refined)", () => {
+    // v6: green ammonia stops being free (certified 15 + slip + pilot =
+    // blend 22.14; fossil 91.744) — the refined default headline.
+    expect(r.gapPvPostRegulationUsdM).toBeCloseTo(1819.48, 2);
     expect(r.gapPvPostRegulationUsdM).toBe(result.summary.gapPvUsdM);
   });
 
@@ -50,21 +52,41 @@ describe("reporting: pre/post-regulation split (Chilean reference)", () => {
 describe("fix #2: self-designed CO2 price follows flags.emissionsBasis", () => {
   const bundle = parseRefBundle(loadRefBundleJson("2026-07-30-excel-v1"));
 
-  it("wellToWake: fossil self-designed PV ≈ the study's $250m benefit (251 ± 0.5)", () => {
+  it("wellToWake (v6 refined): both sides pay — fossil 253.71, green 60.75", () => {
     const res = evaluateScenario(
       resolveScenario(chileReferenceInput("wellToWake"), bundle),
     );
-    // $280/t now charged on the WTW series the model reports (96,667 t/yr),
-    // not the combustion series (82,148 t/yr).
-    expect(res.summary.selfDesignedFossilPvUsdM).toBeCloseTo(250.23, 2);
-    expect(res.reporting.netRegulatoryEffectUsdM).toBeCloseTo(-250.23, 2);
-    // Green side: WTW intensity 0 → zero charge either way.
-    expect(res.summary.selfDesignedGreenPvUsdM).toBe(0);
+    // Derived factors: fossil 91.744 over LHV 40,500; green blend 22.14.
+    expect(res.summary.selfDesignedFossilPvUsdM).toBeCloseTo(253.71, 2);
+    expect(res.summary.selfDesignedGreenPvUsdM).toBeCloseTo(60.75, 2);
   });
 
-  it("combustion: unchanged (212.63 ± 0.01) — the Excel behaviour", () => {
+  it("combustion (v6 refined): 216.38 fossil / 20.70 green", () => {
     const res = evaluateScenario(
       resolveScenario(chileReferenceInput("combustion"), bundle),
+    );
+    expect(res.summary.selfDesignedFossilPvUsdM).toBeCloseTo(216.38, 2);
+    expect(res.summary.selfDesignedGreenPvUsdM).toBeCloseTo(20.7, 2);
+  });
+});
+
+describe("STUDY CALIBRATION (legacy factors) — the permanent reproduction pin", () => {
+  const bundle = parseRefBundle(loadRefBundleJson("2026-07-30-excel-v1"));
+
+  it("reproduces the MMMCZCS study exactly: $1,762.21m / 1,450,095 t / $250.23m", () => {
+    const res = evaluateScenario(
+      resolveScenario(chileStudyCalibrationInput(), bundle),
+    );
+    expect(res.reporting.gapPvPostRegulationUsdM).toBeCloseTo(1762.21, 2);
+    expect(res.summary.co2AbatedTonnes).toBeCloseTo(1_450_095, 0);
+    expect(res.summary.selfDesignedFossilPvUsdM).toBeCloseTo(250.23, 2);
+    expect(res.summary.selfDesignedGreenPvUsdM).toBe(0);
+    expect(res.reporting.gapPvPreRegulationUsdM).toBeCloseTo(2012.44, 2);
+  });
+
+  it("combustion basis: the Excel behaviour (212.63)", () => {
+    const res = evaluateScenario(
+      resolveScenario(chileStudyCalibrationInput("combustion"), bundle),
     );
     expect(res.summary.selfDesignedFossilPvUsdM).toBeCloseTo(212.63, 2);
   });

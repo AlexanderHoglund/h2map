@@ -30,8 +30,9 @@ export function workbookScenario(): ScenarioInput {
  * - EU ETS / FuelEU / 45Z all OFF (no EEA leg; Chilean production);
  *   self-designed regulation proxies the IMO Net-Zero Framework at
  *   $280/tCO2 (study's $250m regulatory benefit, TTW-priced here)
- * - emissions basis well-to-wake (the study's implied treatment: green
- *   NH3 at 0, LSFO at 91.16 gCO2e/MJ reproduces its 1.45 Mt exactly)
+ * - emissions basis well-to-wake. v6: factors DERIVE from the refined
+ *   fuel-emissions method (FuelEU accounting by default) — the study's
+ *   WtW=0/91.16 treatment is preserved as the LEGACY calibration only
  *
  * The workbook-default scenario remains available via workbookScenario()
  * and the frozen golden fixture keeps pinning the engine.
@@ -81,10 +82,14 @@ export function defaultScenario(): ScenarioInput {
     overrides: {
       ...input.green.overrides,
       priceUsdPerTonne: null,
-      fuelTonnesPerVesselYear: 5700, // [D] 57,015 t/yr fleet ÷ 10 (pins 1.45 Mt)
-      lhvMjPerTonne: 18600,
-      combustionEfTco2PerTonne: 0, // [S]
-      wtwGco2PerMj: 0, // [D] the study's implied treatment (real RFNBO: 5–15)
+      fuelTonnesPerVesselYear: 5700, // [D] 57,015 t/yr fleet ÷ 10
+      // v6: emission factors DERIVE from the fuel-emissions method
+      // (certified 15 + N2O slip + 5% pilot → blend 22.14 under FuelEU).
+      // The study's implied WtW=0 treatment survives as the documented
+      // legacy calibration (chileStudyCalibrationInput / docs).
+      lhvMjPerTonne: null,
+      combustionEfTco2PerTonne: null,
+      wtwGco2PerMj: null,
       prodCapexUsdM: 1100, // [F] 60 kt/yr plant, no economies of scale
       prodOpexUsdMPerYear: 72, // [F] incl. PPA electricity for 24/7 Haber-Bosch
       portStorageCapexUsdM: 150, // [F] tanks, refrigeration, pumping, jetty
@@ -102,9 +107,10 @@ export function defaultScenario(): ScenarioInput {
       ...input.fossil.overrides,
       priceUsdPerTonne: 650, // [F]
       fuelTonnesPerVesselYear: 2638, // [D] energy-matched to the NH3 fleet
-      lhvMjPerTonne: 40200,
-      combustionEfTco2PerTonne: 3.114, // [A]
-      wtwGco2PerMj: 91.16, // [D] reproduces the study's 1.45 Mt exactly
+      // v6: derived — Annex II HFO row (91.744 / 3.169 CO2e / 40,500).
+      lhvMjPerTonne: null,
+      combustionEfTco2PerTonne: null,
+      wtwGco2PerMj: null,
       prodCapexUsdM: null, // purchase forces 0
       prodOpexUsdMPerYear: null,
       portStorageCapexUsdM: 10, // [F] existing bunkering infrastructure

@@ -60,9 +60,9 @@ export function chileReferenceInput(
       ...input.green.overrides,
       priceUsdPerTonne: null,
       fuelTonnesPerVesselYear: 5700,
-      lhvMjPerTonne: 18600,
-      combustionEfTco2PerTonne: 0,
-      wtwGco2PerMj: 0,
+      lhvMjPerTonne: null,
+      combustionEfTco2PerTonne: null,
+      wtwGco2PerMj: null,
       prodCapexUsdM: 1100,
       prodOpexUsdMPerYear: 72,
       portStorageCapexUsdM: 150,
@@ -80,9 +80,9 @@ export function chileReferenceInput(
       ...input.fossil.overrides,
       priceUsdPerTonne: 650,
       fuelTonnesPerVesselYear: 2638,
-      lhvMjPerTonne: 40200,
-      combustionEfTco2PerTonne: 3.114,
-      wtwGco2PerMj: 91.16,
+      lhvMjPerTonne: null,
+      combustionEfTco2PerTonne: null,
+      wtwGco2PerMj: null,
       prodCapexUsdM: null,
       prodOpexUsdMPerYear: null,
       portStorageCapexUsdM: 10,
@@ -107,5 +107,26 @@ export function chileReferenceInput(
   };
 
   input.flags = { emissionsBasis, rateBasis: "nominal" };
+  return input;
+}
+
+/**
+ * The STUDY CALIBRATION variant (legacy factors): explicit overrides
+ * reproduce the MMMCZCS study's published totals forever — WtW=0 green
+ * ammonia (the study's implied treatment; not certifiable under the
+ * refined method) against 91.16, on the legacy scalar path. This is the
+ * permanent pin for $1,762.21m / 1,450,095 t / $250.23m.
+ */
+export function chileStudyCalibrationInput(
+  emissionsBasis: "combustion" | "wellToWake" = "wellToWake",
+): ScenarioInput {
+  const input = chileReferenceInput(emissionsBasis);
+  delete input.regulation.emissions;
+  input.green.overrides.lhvMjPerTonne = 18600;
+  input.green.overrides.combustionEfTco2PerTonne = 0;
+  input.green.overrides.wtwGco2PerMj = 0;
+  input.fossil.overrides.lhvMjPerTonne = 40200;
+  input.fossil.overrides.combustionEfTco2PerTonne = 3.114;
+  input.fossil.overrides.wtwGco2PerMj = 91.16;
   return input;
 }

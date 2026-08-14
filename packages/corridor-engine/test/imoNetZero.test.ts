@@ -138,8 +138,13 @@ describe("IMO module in scenarios", () => {
     expect(imo.green.surplusTonnesCo2e).toBeGreaterThan(0);
     // Pin the published finding loosely (the docs quote ≈$86m / ≈0.9 Mt):
     // a drift past these bands means the documented numbers went stale.
-    expect(Math.abs(netImo - 85.69)).toBeLessThan(1);
-    expect(Math.abs(imo.green.surplusTonnesCo2e - 911_022)).toBeLessThan(5_000);
+    // v6 refined: the IMO module prices with IMO accounting (fossil
+    // 94.90, sulphur-binned) and the green fuel is no longer free (blend
+    // 21.76 AR5) — fossil PV rises to ~100.4 and the ZNZ surplus falls
+    // from the legacy 911 kt to ~565 kt (the reward basis was overstated
+    // ~1.6× by the WtW=0 treatment).
+    expect(Math.abs(netImo - 100.37)).toBeLessThan(1);
+    expect(Math.abs(imo.green.surplusTonnesCo2e - 564_985)).toBeLessThan(5_000);
     // Exhaustiveness: the 7th row is emitted and sums into totals.
     expect(res.perYear.fossil.imoNetZeroUsdM).toHaveLength(15);
     // Net regulatory effect now comes from the IMO module alone:

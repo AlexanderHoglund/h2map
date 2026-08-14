@@ -54,7 +54,8 @@ export function isAdvanced(paramId: string): boolean {
 // v2: the default scenario changed to the Chilean copper corridor — old
 // v1 drafts (the workbook defaults) would shadow it on load, so the key
 // is versioned. The v1 entry stays in storage untouched.
-export const DRAFT_KEY = "corridor-draft-v2";
+// v3: the v6 emission-method replacement changes default resolution.
+export const DRAFT_KEY = "corridor-draft-v3";
 
 /**
  * A production-site pick — the FULL evaluation hand-back (spec: the tile
