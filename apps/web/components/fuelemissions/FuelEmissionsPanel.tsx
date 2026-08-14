@@ -139,6 +139,11 @@ export default function FuelEmissionsPanel() {
   const baselineName = ok ? ok.baselineLabel : baselineRow.name;
   const active = ok ? (basis === "wellToWake" ? ok.wellToWake : ok.tankToWake) : null;
   const other = ok ? (basis === "wellToWake" ? ok.tankToWake : ok.wellToWake) : null;
+  /* The badge follows the VALUE: WtT substitutions (incl. the pilot's
+     upstream, which fix E moved into the WtT row) mark the WtT row; LCV
+     substitutions sit in the TtW denominator and mark the CO2 row. */
+  const subWtt = ok ? ok.substitutedFactors.filter((f) => f.includes("WtT")) : [];
+  const subLcv = ok ? ok.substitutedFactors.filter((f) => f.includes("LCV")) : [];
 
   /* Form blocks, composed in direction order (start fuel first). */
   const candidateSelect = (
@@ -191,6 +196,14 @@ export default function FuelEmissionsPanel() {
           value={sulphurPercent}
           onChange={(v) => setSulphurPercent(Math.min(4.5, Math.max(0.1, v)))}
         />
+      )}
+      {/* The selector picks the PHYSICAL fuel; outputs show the resolved
+          IMO classification — state the mapping so neither reads as a
+          contradiction of the other. */}
+      {frameworkId === "imo" && ok && (
+        <p className="sm:col-span-2 text-[11px] leading-snug text-neutral-500">
+          {t("resolvesTo", { label: ok.baselineLabel })}
+        </p>
       )}
     </>
   );
@@ -555,17 +568,18 @@ export default function FuelEmissionsPanel() {
                     summing a column's stages gives the engine's number. */}
                 {(
                   [
-                    ["rowWtt", active.candidate.parts.wttTco2e + active.pilotSplit.wttTco2e, active.baseline.parts.wttTco2e, active.pilotSplit.wttTco2e > 0 ? `${candidateRow.source} — ${t("wttIncludesPilot", { pilot: fmt1(active.pilotSplit.wttTco2e) })}` : candidateRow.source, ok.substitutedFactors.some((f) => !f.startsWith("pilot"))],
-                    ["rowTtwCo2", active.candidate.parts.ttwCo2Tco2e, active.baseline.parts.ttwCo2Tco2e, baselineRow.derivation, false],
-                    ["rowTtwCh4", active.candidate.parts.ttwCh4Tco2e, active.baseline.parts.ttwCh4Tco2e, ds.gwpSets[ok.gwpSetId]!.source, false],
-                    ["rowTtwN2o", active.candidate.parts.ttwN2oTco2e, active.baseline.parts.ttwN2oTco2e, ds.gwpSets[ok.gwpSetId]!.source, false],
-                    ["rowSlip", active.candidate.parts.n2oSlipTco2e, 0, n2oScenario.source, false],
-                    ["rowPilot", active.pilotSplit.ttwTco2e, 0, ds.pilotFuel.source, ok.substitutedFactors.some((f) => f.startsWith("pilot"))],
+                    ["rowWtt", active.candidate.parts.wttTco2e + active.pilotSplit.wttTco2e, active.baseline.parts.wttTco2e, active.pilotSplit.wttTco2e > 0 ? `${candidateRow.source} — ${t("wttIncludesPilot", { pilot: fmt1(active.pilotSplit.wttTco2e) })}` : candidateRow.source, subWtt],
+                    ["rowTtwCo2", active.candidate.parts.ttwCo2Tco2e, active.baseline.parts.ttwCo2Tco2e, baselineRow.derivation, subLcv],
+                    ["rowTtwCh4", active.candidate.parts.ttwCh4Tco2e, active.baseline.parts.ttwCh4Tco2e, ds.gwpSets[ok.gwpSetId]!.source, [] as string[]],
+                    ["rowTtwN2o", active.candidate.parts.ttwN2oTco2e, active.baseline.parts.ttwN2oTco2e, ds.gwpSets[ok.gwpSetId]!.source, [] as string[]],
+                    ["rowSlip", active.candidate.parts.n2oSlipTco2e, 0, n2oScenario.source, [] as string[]],
+                    ["rowPilot", active.pilotSplit.ttwTco2e, 0, ds.pilotFuel.source, [] as string[]],
                   ] as const
                 )
                   // Only rows that carry a number render — zero rows are noise.
                   .filter(([, cand, base]) => Math.abs(cand) >= 0.05 || Math.abs(base) >= 0.05)
-                  .map(([key, cand, base, source, substituted]) => {
+                  .map(([key, cand, base, source, subs]) => {
+                    const substituted = subs.length > 0;
                     return (
                       <tr key={key} className="border-b border-neutral-100">
                         <td className="py-1.5 pr-2 text-neutral-600">
@@ -576,7 +590,11 @@ export default function FuelEmissionsPanel() {
                             </span>
                           )}
                           <Help
-                            text={substituted ? `${t("imoSubstitution")} ${source}` : source}
+                            text={
+                              substituted
+                                ? `${t("imoSubstitutionRow", { factors: subs.join(", ") })} ${source}`
+                                : source
+                            }
                           />
                         </td>
                         <td className="py-1.5 pr-2 text-right">{fmt1(cand)}</td>

@@ -326,15 +326,18 @@ describe("fuel-emissions properties", () => {
     ) as FuelEmissionsResult;
     expect(wttPerMj(imoHigh)).toBeCloseTo(14.1, 9);
     expect(imoHigh.baselineLabel).toBe("Residual fuel oil, > 0.50% S");
-    // C: residual fossil rows under IMO are NATIVE — no substitutions
-    // (the badge is reserved for genuinely absent values, like the
-    // distillate pilot's WtT).
-    expect(imoLow.substitutedFactors).toEqual([]);
+    // C+D: the residual WtT under IMO is NATIVE, but the Annex II LCV
+    // in its TtW denominator is an unconfirmed carryover — disclosed.
+    expect(imoLow.substitutedFactors).toEqual(["baseline LCV (Heavy fuel oil)"]);
     const withPilot = evaluateFuelEmissions(
       { ...base, frameworkId: "imo", baselineSulphurPercent: 0.5, pilotShare: 0.05 },
       ds,
     ) as FuelEmissionsResult;
-    expect(withPilot.substitutedFactors).toEqual(["pilot WtT (Marine gas oil / diesel)"]);
+    expect(withPilot.substitutedFactors).toEqual([
+      "baseline LCV (Heavy fuel oil)",
+      "pilot LCV (Marine gas oil / diesel)",
+      "pilot WtT (Marine gas oil / diesel)",
+    ]);
   });
 
   it("E: the pilot line's upstream share is exposed and sums exactly", () => {

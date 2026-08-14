@@ -213,9 +213,14 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
     expect(r.wellToWake.avoidedTco2e).toBeCloseTo(1432.0, 1);
     expect(r.wellToWake.reductionPercent).toBeCloseTo(77.1, 1);
     expect(r.znz.fuelWtwGco2ePerMj).toBeCloseTo(18.13, 2);
-    // The pilot's WtT is the one remaining DISCLOSED substitution: no
-    // confirmed IMO distillate value in the verified sources.
-    expect(r.substitutedFactors).toEqual(["pilot WtT (Marine gas oil / diesel)"]);
+    // Disclosed substitutions: the unconfirmed IMO LCVs (fix D — LCVs
+    // demonstrably diverge, LNG 0.0480 vs 0.0491) and the distillate
+    // pilot's WtT. The residual baseline's WtT itself is IMO-native.
+    expect(r.substitutedFactors).toEqual([
+      "baseline LCV (Heavy fuel oil)",
+      "pilot LCV (Marine gas oil / diesel)",
+      "pilot WtT (Marine gas oil / diesel)",
+    ]);
   });
 
   it("F6 — identity: avoided(X vs X) === 0 for every parameterised fuel", () => {

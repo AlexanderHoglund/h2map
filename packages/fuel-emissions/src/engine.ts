@@ -302,6 +302,11 @@ export function evaluateFuelEmissions(
     if (input.frameworkId !== "imo" || fuel.family !== "fossil") {
       return { wtt: undefined, label: fuel.name };
     }
+    // Fix D: LCVs demonstrably diverge across frameworks (IMO implies
+    // 0.0480 for LNG vs Annex II's 0.0491) and the residual/distillate
+    // IMO LCVs are UNCONFIRMED — the Annex II LCV in the TtW denominator
+    // is itself a disclosed substitution, not a verified carryover.
+    substitutedFactors.push(`${role} LCV (${shortName(fuel)})`);
     if (fuel.imoClass === "residual") {
       const s = input.baselineSulphurPercent ?? 0.5;
       const bands = ds.imoFossilWtt.residualBySulphur;

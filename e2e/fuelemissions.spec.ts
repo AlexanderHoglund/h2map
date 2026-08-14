@@ -95,12 +95,14 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   await expect(page.getByTestId("znz-2034")).toContainText("fuel 15.97 gCO2e/MJ");
   await expect(page.getByText(/Attained GFI/)).toBeVisible();
   await expect(page.getByText(/well-to-tank ≤ 13\.03/)).toBeVisible();
-  // Round 2 (A/B/C): the IMO has its OWN fossil WtT, binned by sulphur —
-  // the baseline renames to the band, a sulphur input appears, and with
-  // no pilot burning (share 0) NOTHING is substituted: no blanket claim.
+  // Round 2 (A/B/C/D): the IMO has its OWN fossil WtT, binned by
+  // sulphur — the baseline renames to the band, a sulphur input appears
+  // with a resolves-to note under the selector, and the one substitution
+  // left with no pilot burning is the unconfirmed baseline LCV, named.
   await expect(page.getByLabel("Baseline sulphur content")).toBeVisible();
   await expect(page.getByText("Residual fuel oil, 0.10–0.50% S").first()).toBeVisible();
-  await expect(page.getByText(/Substituted from FuelEU Annex II/)).toHaveCount(0);
+  await expect(page.getByText(/resolves by sulphur content/)).toBeVisible();
+  await expect(page.getByText(/Substituted from FuelEU Annex II.*baseline LCV \(Heavy fuel oil\)/)).toBeVisible();
   // Under IMO's heavier fossil upstream (16.8) the inversion REVERSES —
   // the note must not assert an inversion that isn't there.
   await expect(page.getByText(/upstream intensity is/)).toHaveCount(0);
