@@ -1,7 +1,7 @@
 {
  "baseline": "excel-baseline",
  "refBundleId": "2026-07-30-excel-v1",
- "baseGapPvUsdM": 166.95059118904504,
+ "baseGapPvUsdM": 167.5724998516053,
  "topLevelThreshold": 0.05,
  "ranked": [
   {
@@ -12,10 +12,10 @@
     0,
     50
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": -463.43208489092297,
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": -462.8101762283627,
    "maxAbsDeltaUsdM": 630.382676079968,
-   "relHeadlineMovement": 3.775863694703301
+   "relHeadlineMovement": 3.761850402889535
   },
   {
    "id": "regulation.fuelEuCreditSurplusValue",
@@ -25,10 +25,10 @@
     0,
     2400
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": -80.65893217119509,
-   "maxAbsDeltaUsdM": 247.60952336024013,
-   "relHeadlineMovement": 1.4831305573507174
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 17.991615732503632,
+   "maxAbsDeltaUsdM": 149.58088411910165,
+   "relHeadlineMovement": 0.8926338405857989
   },
   {
    "id": "cargo.oneWayDistanceNm",
@@ -38,10 +38,10 @@
     100,
     5000
    ],
-   "gapAtLow": 155.95715052957402,
-   "gapAtHigh": 290.62679860809453,
-   "maxAbsDeltaUsdM": 123.67620741904949,
-   "relHeadlineMovement": 0.7407952648637574
+   "gapAtLow": 156.081532262086,
+   "gapAtHigh": 296.84588523369723,
+   "maxAbsDeltaUsdM": 129.27338538209193,
+   "relHeadlineMovement": 0.771447495839536
   },
   {
    "id": "vessel.fossil.capexUsdM",
@@ -51,10 +51,10 @@
     15,
     100
    ],
-   "gapAtLow": 151.95059118904504,
-   "gapAtHigh": 66.95059118904507,
-   "maxAbsDeltaUsdM": 99.99999999999997,
-   "relHeadlineMovement": 0.5989796100018948
+   "gapAtLow": 152.57249985160527,
+   "gapAtHigh": 67.57249985160527,
+   "maxAbsDeltaUsdM": 100.00000000000003,
+   "relHeadlineMovement": 0.5967566282567578
   },
   {
    "id": "vessel.green.capexUsdM",
@@ -64,10 +64,10 @@
     15,
     120
    ],
-   "gapAtLow": 156.95059118904504,
-   "gapAtHigh": 261.9505911890449,
-   "maxAbsDeltaUsdM": 94.99999999999989,
-   "relHeadlineMovement": 0.5690306295017995
+   "gapAtLow": 157.5724998516053,
+   "gapAtHigh": 262.5724998516053,
+   "maxAbsDeltaUsdM": 95,
+   "relHeadlineMovement": 0.5669187968439198
   },
   {
    "id": "vessel.green.opexUsdMPerYear",
@@ -77,10 +77,10 @@
     0.8,
     6
    ],
-   "gapAtLow": 161.03387641381283,
-   "gapAtHigh": 237.95116849183182,
+   "gapAtLow": 161.65578507637315,
+   "gapAtHigh": 238.57307715439208,
    "maxAbsDeltaUsdM": 71.00057730278678,
-   "relHeadlineMovement": 0.4252789810273262
+   "relHeadlineMovement": 0.42370065115494315
   },
   {
    "id": "fossil.fuelTonnesPerVesselYear",
@@ -90,36 +90,10 @@
     1300,
     5200
    ],
-   "gapAtLow": 165.09621077246436,
-   "gapAtHigh": 96.84978783548728,
-   "maxAbsDeltaUsdM": 70.10080335355777,
-   "relHeadlineMovement": 0.4198895185353356
-  },
-  {
-   "id": "vessel.fossil.opexUsdMPerYear",
-   "label": "Fossil vessel OPEX ($m/yr)",
-   "step": 2,
-   "range": [
-    0.8,
-    5
-   ],
-   "gapAtLow": 172.8673059642773,
-   "gapAtHigh": 110.74180082433882,
-   "maxAbsDeltaUsdM": 56.20879036470622,
-   "relHeadlineMovement": 0.33667919331330004
-  },
-  {
-   "id": "green.prodCapexUsdM",
-   "label": "Fuel production CAPEX ($m)",
-   "step": 3,
-   "range": [
-    0,
-    110
-   ],
-   "gapAtLow": 111.95059118904506,
-   "gapAtHigh": 221.95059118904504,
-   "maxAbsDeltaUsdM": 55,
-   "relHeadlineMovement": 0.3294387855010422
+   "gapAtLow": 165.59761953727576,
+   "gapAtHigh": 98.51539466666259,
+   "maxAbsDeltaUsdM": 69.05710518494271,
+   "relHeadlineMovement": 0.4121028524733867
   },
   {
    "id": "cargo.vessels",
@@ -129,10 +103,36 @@
     1,
     5
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 221.91779448640034,
-   "maxAbsDeltaUsdM": 54.9672032973553,
-   "relHeadlineMovement": 0.3292423399394475
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 225.0273377992017,
+   "maxAbsDeltaUsdM": 57.45483794759639,
+   "relHeadlineMovement": 0.3428655537064603
+  },
+  {
+   "id": "vessel.fossil.opexUsdMPerYear",
+   "label": "Fossil vessel OPEX ($m/yr)",
+   "step": 2,
+   "range": [
+    0.8,
+    5
+   ],
+   "gapAtLow": 173.48921462683754,
+   "gapAtHigh": 111.36370948689904,
+   "maxAbsDeltaUsdM": 56.20879036470626,
+   "relHeadlineMovement": 0.33542968216433033
+  },
+  {
+   "id": "green.prodCapexUsdM",
+   "label": "Fuel production CAPEX ($m)",
+   "step": 3,
+   "range": [
+    0,
+    110
+   ],
+   "gapAtLow": 112.57249985160531,
+   "gapAtHigh": 222.5724998516053,
+   "maxAbsDeltaUsdM": 55,
+   "relHeadlineMovement": 0.3282161455412167
   },
   {
    "id": "regulation.selfOpexSupport",
@@ -142,10 +142,10 @@
     0,
     0.5
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 112.79356481897578,
-   "maxAbsDeltaUsdM": 54.15702637006926,
-   "relHeadlineMovement": 0.32438954534006426
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 113.41547348153613,
+   "maxAbsDeltaUsdM": 54.157026370069175,
+   "relHeadlineMovement": 0.3231856445301479
   },
   {
    "id": "regulation.selfCapexSupport",
@@ -155,10 +155,10 @@
     0,
     0.5
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 118.45059118904508,
-   "maxAbsDeltaUsdM": 48.49999999999996,
-   "relHeadlineMovement": 0.2905051108509188
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 119.07249985160531,
+   "maxAbsDeltaUsdM": 48.499999999999986,
+   "relHeadlineMovement": 0.2894269647045274
   },
   {
    "id": "green.prodOpexUsdMPerYear",
@@ -168,10 +168,10 @@
     0,
     6
    ],
-   "gapAtLow": 122.57523037480335,
-   "gapAtHigh": 211.32595200328683,
+   "gapAtLow": 123.19713903736356,
+   "gapAtHigh": 211.9478606658471,
    "maxAbsDeltaUsdM": 44.37536081424179,
-   "relHeadlineMovement": 0.2657993631420792
+   "relHeadlineMovement": 0.2648129069718398
   },
   {
    "id": "green.fuelTonnesPerVesselYear",
@@ -181,10 +181,10 @@
     1300,
     5200
    ],
-   "gapAtLow": 149.7623630175368,
-   "gapAtHigh": 202.10636266326344,
-   "maxAbsDeltaUsdM": 35.1557714742184,
-   "relHeadlineMovement": 0.2105759028694308
+   "gapAtLow": 150.3280253440371,
+   "gapAtHigh": 202.84331420965424,
+   "maxAbsDeltaUsdM": 35.27081435804894,
+   "relHeadlineMovement": 0.2104809225217932
   },
   {
    "id": "regulation.selfSupportUsdPerKg",
@@ -194,36 +194,10 @@
     0,
     1
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 134.41471113330476,
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 135.03661979586502,
    "maxAbsDeltaUsdM": 32.53588005574028,
-   "relHeadlineMovement": 0.19488328746855746
-  },
-  {
-   "id": "financing.baseRate",
-   "label": "Base cost of debt (module on, green 6%)",
-   "step": 5,
-   "range": [
-    0.05,
-    0.11
-   ],
-   "gapAtLow": 173.10609608783125,
-   "gapAtHigh": 136.1730666951143,
-   "maxAbsDeltaUsdM": 30.77752449393074,
-   "relHeadlineMovement": 0.18435109618198406
-  },
-  {
-   "id": "port.fossilStorageCapexUsdM",
-   "label": "Fossil port storage CAPEX ($m)",
-   "step": 4,
-   "range": [
-    0,
-    30
-   ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 136.95059118904504,
-   "maxAbsDeltaUsdM": 30,
-   "relHeadlineMovement": 0.1796938830005685
+   "relHeadlineMovement": 0.19416002079429856
   },
   {
    "id": "cargo.horizonYears",
@@ -233,10 +207,36 @@
     10,
     40
    ],
-   "gapAtLow": 139.46244822893956,
-   "gapAtHigh": 196.3558190234651,
-   "maxAbsDeltaUsdM": 29.40522783442006,
-   "relHeadlineMovement": 0.17613131900277793
+   "gapAtLow": 139.86620098646134,
+   "gapAtHigh": 198.93809231621725,
+   "maxAbsDeltaUsdM": 31.36559246461195,
+   "relHeadlineMovement": 0.1871762520245739
+  },
+  {
+   "id": "financing.baseRate",
+   "label": "Base cost of debt (module on, green 6%)",
+   "step": 5,
+   "range": [
+    0.05,
+    0.11
+   ],
+   "gapAtLow": 173.7280047503915,
+   "gapAtHigh": 136.79497535767456,
+   "maxAbsDeltaUsdM": 30.77752449393074,
+   "relHeadlineMovement": 0.1836669174308788
+  },
+  {
+   "id": "port.fossilStorageCapexUsdM",
+   "label": "Fossil port storage CAPEX ($m)",
+   "step": 4,
+   "range": [
+    0,
+    30
+   ],
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 137.5724998516053,
+   "maxAbsDeltaUsdM": 30,
+   "relHeadlineMovement": 0.1790269884770273
   },
   {
    "id": "financing.greenRate",
@@ -246,10 +246,10 @@
     0.04,
     0.1
    ],
-   "gapAtLow": 142.32857159390045,
-   "gapAtHigh": 179.2616009866174,
-   "maxAbsDeltaUsdM": 24.622019595144593,
-   "relHeadlineMovement": 0.14748087694558723
+   "gapAtLow": 142.95048025646076,
+   "gapAtHigh": 179.8835096491776,
+   "maxAbsDeltaUsdM": 24.622019595144536,
+   "relHeadlineMovement": 0.1469335339447027
   },
   {
    "id": "cargo.wacc",
@@ -259,10 +259,10 @@
     0.03,
     0.12
    ],
-   "gapAtLow": 182.64368348494742,
-   "gapAtHigh": 142.58678639709353,
-   "maxAbsDeltaUsdM": 24.36380479195151,
-   "relHeadlineMovement": 0.14593422292445415
+   "gapAtLow": 183.39466414978338,
+   "gapAtHigh": 143.00490974482977,
+   "maxAbsDeltaUsdM": 24.567590106775526,
+   "relHeadlineMovement": 0.1466087223651344
   },
   {
    "id": "cargo.inflation",
@@ -272,23 +272,10 @@
     0,
     0.05
    ],
-   "gapAtLow": 155.127162982238,
-   "gapAtHigh": 190.40565430032336,
-   "maxAbsDeltaUsdM": 23.45506311127832,
-   "relHeadlineMovement": 0.1404910455496332
-  },
-  {
-   "id": "regulation.selfCo2PriceUsdPerTonne",
-   "label": "Self-designed CO2 price ($/t, module on)",
-   "step": 5,
-   "range": [
-    0,
-    500
-   ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 143.7384260149497,
-   "maxAbsDeltaUsdM": 23.212165174095333,
-   "relHeadlineMovement": 0.13903613643279192
+   "gapAtLow": 155.7375967946102,
+   "gapAtHigh": 191.05032652440286,
+   "maxAbsDeltaUsdM": 23.477826672797562,
+   "relHeadlineMovement": 0.14010548684055243
   },
   {
    "id": "green.priceUsdPerTonne",
@@ -298,10 +285,10 @@
     500,
     1500
    ],
-   "gapAtLow": 151.68164983360708,
-   "gapAtHigh": 189.85400322220215,
-   "maxAbsDeltaUsdM": 22.90341203315711,
-   "relHeadlineMovement": 0.13718676807333155
+   "gapAtLow": 152.30355849616728,
+   "gapAtHigh": 190.47591188476235,
+   "maxAbsDeltaUsdM": 22.903412033157053,
+   "relHeadlineMovement": 0.13667762940482053
   },
   {
    "id": "port.fossilStorageOpexUsdMPerYear",
@@ -311,10 +298,10 @@
     0,
     1.5
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 144.76291078192418,
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 145.38481944448444,
    "maxAbsDeltaUsdM": 22.187680407120865,
-   "relHeadlineMovement": 0.13289968157103943
+   "relHeadlineMovement": 0.1324064534859197
   },
   {
    "id": "port.fossilBargeOpexUsdMPerYear",
@@ -324,10 +311,23 @@
     0,
     1.5
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 144.76291078192418,
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 145.38481944448444,
    "maxAbsDeltaUsdM": 22.187680407120865,
-   "relHeadlineMovement": 0.13289968157103943
+   "relHeadlineMovement": 0.1324064534859197
+  },
+  {
+   "id": "regulation.selfCo2PriceUsdPerTonne",
+   "label": "Self-designed CO2 price ($/t, module on)",
+   "step": 5,
+   "range": [
+    0,
+    500
+   ],
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 146.17979492314632,
+   "maxAbsDeltaUsdM": 21.392704928458983,
+   "relHeadlineMovement": 0.12766238462398904
   },
   {
    "id": "regulation.selfCo2PriceEscalation",
@@ -337,10 +337,10 @@
     0,
     0.05
    ],
-   "gapAtLow": 153.95177869155168,
-   "gapAtHigh": 147.23261590136565,
-   "maxAbsDeltaUsdM": 19.717975287679394,
-   "relHeadlineMovement": 0.11810665147841207
+   "gapAtLow": 155.59258509166824,
+   "gapAtHigh": 149.40009654703454,
+   "maxAbsDeltaUsdM": 18.172403304570764,
+   "relHeadlineMovement": 0.10844502123357609
   },
   {
    "id": "port.storageCapexUsdM",
@@ -350,10 +350,10 @@
     0,
     30
    ],
-   "gapAtLow": 154.95059118904504,
-   "gapAtHigh": 184.9505911890451,
-   "maxAbsDeltaUsdM": 18.000000000000057,
-   "relHeadlineMovement": 0.10781632980034143
+   "gapAtLow": 155.5724998516053,
+   "gapAtHigh": 185.5724998516053,
+   "maxAbsDeltaUsdM": 18,
+   "relHeadlineMovement": 0.10741619308621637
   },
   {
    "id": "port.bargeOpexUsdMPerYear",
@@ -363,10 +363,10 @@
     0,
     1.5
    ],
-   "gapAtLow": 162.51305510762091,
-   "gapAtHigh": 184.70073551474172,
+   "gapAtLow": 163.13496377018112,
+   "gapAtHigh": 185.32264417730198,
    "maxAbsDeltaUsdM": 17.75014432569668,
-   "relHeadlineMovement": 0.10631974525683147
+   "relHeadlineMovement": 0.1059251627887357
   },
   {
    "id": "financing.tenorYears",
@@ -376,10 +376,10 @@
     5,
     25
    ],
-   "gapAtLow": 161.5196502299528,
-   "gapAtHigh": 150.07689277313926,
-   "maxAbsDeltaUsdM": 16.87369841590578,
-   "relHeadlineMovement": 0.10107001296448836
+   "gapAtLow": 162.14155889251305,
+   "gapAtHigh": 150.69880143569947,
+   "maxAbsDeltaUsdM": 16.873698415905835,
+   "relHeadlineMovement": 0.10069491372897359
   },
   {
    "id": "port.storageOpexUsdMPerYear",
@@ -389,10 +389,10 @@
     0,
     1.5
    ],
-   "gapAtLow": 159.5546977200048,
-   "gapAtHigh": 181.74237812712562,
+   "gapAtLow": 160.176606382565,
+   "gapAtHigh": 182.36428678968588,
    "maxAbsDeltaUsdM": 14.791786938080577,
-   "relHeadlineMovement": 0.08859978771402628
+   "relHeadlineMovement": 0.08827096899061314
   },
   {
    "id": "cargo.roundtripsPerYear",
@@ -402,10 +402,10 @@
     6,
     24
    ],
-   "gapAtLow": 160.07969077687568,
-   "gapAtHigh": 180.69239201338394,
-   "maxAbsDeltaUsdM": 13.741800824338895,
-   "relHeadlineMovement": 0.08231058498486231
+   "gapAtLow": 160.3906451081558,
+   "gapAtHigh": 181.9362093385044,
+   "maxAbsDeltaUsdM": 14.363709486899097,
+   "relHeadlineMovement": 0.08571638842661508
   },
   {
    "id": "financing.debtShare",
@@ -415,10 +415,10 @@
     0,
     1
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 154.63958139147275,
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 155.261490054033,
    "maxAbsDeltaUsdM": 12.311009797572297,
-   "relHeadlineMovement": 0.07374043847279362
+   "relHeadlineMovement": 0.07346676697235152
   },
   {
    "id": "port.fossilBargeCapexUsdM",
@@ -428,36 +428,10 @@
     0,
     12
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 154.95059118904504,
-   "maxAbsDeltaUsdM": 12,
-   "relHeadlineMovement": 0.0718775532002274
-  },
-  {
-   "id": "cargo.startYear",
-   "label": "Start year (calendar anchoring)",
-   "step": 1,
-   "range": [
-    2025,
-    2035
-   ],
-   "gapAtLow": 168.736994381572,
-   "gapAtHigh": 157.66468084354892,
-   "maxAbsDeltaUsdM": 9.28591034549612,
-   "relHeadlineMovement": 0.055620709572578274
-  },
-  {
-   "id": "regulation.ira45zCreditUsdPerGallon",
-   "label": "45Z credit ($/gal, module on, US-produced)",
-   "step": 5,
-   "range": [
-    0,
-    1.75
-   ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 158.30534305994837,
-   "maxAbsDeltaUsdM": 8.645248129096672,
-   "relHeadlineMovement": 0.05178327352735936
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 155.57249985160527,
+   "maxAbsDeltaUsdM": 12.000000000000028,
+   "relHeadlineMovement": 0.07161079539081108
   },
   {
    "id": "regulation.imoPriceEscalation",
@@ -467,10 +441,36 @@
     0,
     0.05
    ],
-   "gapAtLow": 162.21814037323364,
-   "gapAtHigh": 158.884875311056,
-   "maxAbsDeltaUsdM": 8.06571587798905,
-   "relHeadlineMovement": 0.048311993509839724
+   "gapAtLow": 162.31047864804816,
+   "gapAtHigh": 158.67989298264658,
+   "maxAbsDeltaUsdM": 8.892606868958723,
+   "relHeadlineMovement": 0.053067220915326896
+  },
+  {
+   "id": "regulation.ira45zCreditUsdPerGallon",
+   "label": "45Z credit ($/gal, module on, US-produced)",
+   "step": 5,
+   "range": [
+    0,
+    1.75
+   ],
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 158.92725172250863,
+   "maxAbsDeltaUsdM": 8.645248129096672,
+   "relHeadlineMovement": 0.05159109123962772
+  },
+  {
+   "id": "cargo.startYear",
+   "label": "Start year (calendar anchoring)",
+   "step": 1,
+   "range": [
+    2025,
+    2035
+   ],
+   "gapAtLow": 169.36350906440967,
+   "gapAtHigh": 159.3004139657669,
+   "maxAbsDeltaUsdM": 8.272085885838408,
+   "relHeadlineMovement": 0.049364220818832426
   },
   {
    "id": "regulation.imoRewardUsdPerTonneCo2e",
@@ -480,10 +480,10 @@
     0,
     100
    ],
-   "gapAtLow": 162.21814037323364,
-   "gapAtHigh": 159.6489960056113,
-   "maxAbsDeltaUsdM": 7.301595183433733,
-   "relHeadlineMovement": 0.04373506635364852
+   "gapAtLow": 162.31047864804816,
+   "gapAtHigh": 160.11793934361438,
+   "maxAbsDeltaUsdM": 7.454560507990919,
+   "relHeadlineMovement": 0.04448558393884643
   },
   {
    "id": "port.bargeCapexUsdM",
@@ -493,23 +493,10 @@
     0,
     12
    ],
-   "gapAtLow": 161.95059118904504,
-   "gapAtHigh": 173.95059118904504,
+   "gapAtLow": 162.5724998516053,
+   "gapAtHigh": 174.5724998516053,
    "maxAbsDeltaUsdM": 7,
-   "relHeadlineMovement": 0.04192857270013265
-  },
-  {
-   "id": "regulation.fuelEuScope",
-   "label": "FuelEU scope (%)",
-   "step": 5,
-   "range": [
-    0,
-    1
-   ],
-   "gapAtLow": 173.0617161932896,
-   "gapAtHigh": 166.95059118904504,
-   "maxAbsDeltaUsdM": 6.11112500424457,
-   "relHeadlineMovement": 0.03660439271715241
+   "relHeadlineMovement": 0.04177296397797303
   },
   {
    "id": "regulation.fuelEuPenalty",
@@ -519,23 +506,23 @@
     1200,
     4800
    ],
-   "gapAtLow": 170.00615369116733,
-   "gapAtHigh": 160.83946618480053,
-   "maxAbsDeltaUsdM": 6.1111250042445135,
-   "relHeadlineMovement": 0.03660439271715207
+   "gapAtLow": 170.5131654250003,
+   "gapAtHigh": 161.69116870481528,
+   "maxAbsDeltaUsdM": 5.881331146790018,
+   "relHeadlineMovement": 0.03509723344819861
   },
   {
-   "id": "regulation.euaEurPerTonne",
-   "label": "EUA price (€/tCO2)",
+   "id": "regulation.fuelEuScope",
+   "label": "FuelEU scope (%)",
    "step": 5,
    "range": [
-    40,
-    200
+    0,
+    1
    ],
-   "gapAtLow": 168.95612226008683,
-   "gapAtHigh": 160.93399797591957,
-   "maxAbsDeltaUsdM": 6.016593213125475,
-   "relHeadlineMovement": 0.03603816656337945
+   "gapAtLow": 173.4538309983953,
+   "gapAtHigh": 167.5724998516053,
+   "maxAbsDeltaUsdM": 5.881331146789989,
+   "relHeadlineMovement": 0.035097233448198435
   },
   {
    "id": "green.lhvMjPerTonne",
@@ -545,10 +532,23 @@
     16000,
     21000
    ],
-   "gapAtLow": 172.57897824772533,
-   "gapAtHigh": 162.99216512579738,
-   "maxAbsDeltaUsdM": 5.628387058680289,
-   "relHeadlineMovement": 0.03371289085348032
+   "gapAtLow": 173.2193051059728,
+   "gapAtHigh": 163.6011203320502,
+   "maxAbsDeltaUsdM": 5.646805254367507,
+   "relHeadlineMovement": 0.03369768464018896
+  },
+  {
+   "id": "regulation.euaEurPerTonne",
+   "label": "EUA price (€/tCO2)",
+   "step": 5,
+   "range": [
+    40,
+    200
+   ],
+   "gapAtLow": 169.42082955742416,
+   "gapAtHigh": 162.02751073414876,
+   "maxAbsDeltaUsdM": 5.544989117456538,
+   "relHeadlineMovement": 0.033090090094537776
   },
   {
    "id": "fossil.priceUsdPerTonne",
@@ -558,23 +558,10 @@
     300,
     900
    ],
-   "gapAtLow": 172.14317072312946,
-   "gapAtHigh": 161.5460696331613,
-   "maxAbsDeltaUsdM": 5.404521555883747,
-   "relHeadlineMovement": 0.032371982137900816
-  },
-  {
-   "id": "capitalPhasing.years",
-   "label": "Capital deployment years (30/40/30 at 3)",
-   "step": 3,
-   "range": [
-    1,
-    3
-   ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 161.9728076711546,
-   "maxAbsDeltaUsdM": 4.97778351789043,
-   "relHeadlineMovement": 0.029815908302198702
+   "gapAtLow": 172.72661583358536,
+   "gapAtHigh": 162.20801178872807,
+   "maxAbsDeltaUsdM": 5.3644880628772285,
+   "relHeadlineMovement": 0.0320129380872624
   },
   {
    "id": "regulation.imoScope",
@@ -584,10 +571,23 @@
     0,
     1
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 162.21814037323364,
-   "maxAbsDeltaUsdM": 4.732450815811404,
-   "relHeadlineMovement": 0.028346415440078647
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 162.31047864804816,
+   "maxAbsDeltaUsdM": 5.26202120355714,
+   "relHeadlineMovement": 0.031401460312503245
+  },
+  {
+   "id": "capitalPhasing.years",
+   "label": "Capital deployment years (30/40/30 at 3)",
+   "step": 3,
+   "range": [
+    1,
+    3
+   ],
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 162.59471633371487,
+   "maxAbsDeltaUsdM": 4.97778351789043,
+   "relHeadlineMovement": 0.029705253083283544
   },
   {
    "id": "regulation.etsScope",
@@ -597,10 +597,10 @@
     0,
     1
    ],
-   "gapAtLow": 170.96165333112876,
-   "gapAtHigh": 166.95059118904504,
-   "maxAbsDeltaUsdM": 4.011062142083716,
-   "relHeadlineMovement": 0.024025444375586697
+   "gapAtLow": 171.26915926324307,
+   "gapAtHigh": 167.5724998516053,
+   "maxAbsDeltaUsdM": 3.696659411637768,
+   "relHeadlineMovement": 0.02206006006302564
   },
   {
    "id": "fossil.wtwGco2PerMj",
@@ -610,10 +610,10 @@
     80,
     100
    ],
-   "gapAtLow": 170.09723460700093,
-   "gapAtHigh": 164.50739936348248,
-   "maxAbsDeltaUsdM": 3.146643417955886,
-   "relHeadlineMovement": 0.018847752473022464
+   "gapAtLow": 170.4893494121066,
+   "gapAtHigh": 164.89951416858818,
+   "maxAbsDeltaUsdM": 2.916849560501305,
+   "relHeadlineMovement": 0.017406493088569643
   },
   {
    "id": "green.combustionEf",
@@ -623,10 +623,10 @@
     0,
     1
    ],
-   "gapAtLow": 166.6694811853635,
-   "gapAtHigh": 169.4805812221794,
-   "maxAbsDeltaUsdM": 2.529990033134368,
-   "relHeadlineMovement": 0.01515412443355505
+   "gapAtLow": 167.17804710523365,
+   "gapAtHigh": 169.98914714204955,
+   "maxAbsDeltaUsdM": 2.4166472904442458,
+   "relHeadlineMovement": 0.014421502887313373
   },
   {
    "id": "regulation.fuelEuBaselineGco2PerMj",
@@ -636,23 +636,10 @@
     85,
     95
    ],
-   "gapAtLow": 164.77828834882985,
-   "gapAtHigh": 168.23932020075208,
-   "maxAbsDeltaUsdM": 2.1723028402151954,
-   "relHeadlineMovement": 0.013011651080381065
-  },
-  {
-   "id": "regulation.euaEscalation",
-   "label": "EUA price escalation (/yr)",
-   "step": 5,
-   "range": [
-    0,
-    0.05
-   ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 164.87724952807332,
-   "maxAbsDeltaUsdM": 2.073341660971721,
-   "relHeadlineMovement": 0.012418893794895226
+   "gapAtLow": 165.38466903681876,
+   "gapAtHigh": 168.80870035738758,
+   "maxAbsDeltaUsdM": 2.187830814786537,
+   "relHeadlineMovement": 0.013056025402282486
   },
   {
    "id": "regulation.eurUsd",
@@ -662,23 +649,23 @@
     0.9,
     1.3
    ],
-   "gapAtLow": 168.63762238009974,
-   "gapAtHigh": 164.88866417775594,
-   "maxAbsDeltaUsdM": 2.0619270112891,
-   "relHeadlineMovement": 0.01235052237074318
+   "gapAtLow": 169.1688316113433,
+   "gapAtHigh": 165.62142770081448,
+   "maxAbsDeltaUsdM": 1.9510721507908215,
+   "relHeadlineMovement": 0.011643152381915909
   },
   {
-   "id": "fossil.combustionEf",
-   "label": "Fossil combustion EF (tCO2/t)",
-   "step": 3,
+   "id": "regulation.euaEscalation",
+   "label": "EUA price escalation (/yr)",
+   "step": 5,
    "range": [
-    2.5,
-    3.5
+    0,
+    0.05
    ],
-   "gapAtLow": 167.99111776983665,
-   "gapAtHigh": 166.69045954384717,
-   "maxAbsDeltaUsdM": 1.0405265807916066,
-   "relHeadlineMovement": 0.006232542055591618
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 165.66167481497547,
+   "maxAbsDeltaUsdM": 1.9108250366298307,
+   "relHeadlineMovement": 0.011402975060478132
   },
   {
    "id": "fossil.lhvMjPerTonne",
@@ -688,23 +675,23 @@
     38000,
     43000
    ],
-   "gapAtLow": 166.094715797081,
-   "gapAtHigh": 167.91322482229006,
-   "maxAbsDeltaUsdM": 0.9626336332450194,
-   "relHeadlineMovement": 0.005765979182158089
+   "gapAtLow": 166.61825444618304,
+   "gapAtHigh": 168.41578648895518,
+   "maxAbsDeltaUsdM": 0.954245405422256,
+   "relHeadlineMovement": 0.005694522706692882
   },
   {
-   "id": "regulation.fuelEuVlsfoMjPerTonne",
-   "label": "FuelEU VLSFO energy (MJ/t)",
-   "step": 5,
+   "id": "fossil.combustionEf",
+   "label": "Fossil combustion EF (tCO2/t)",
+   "step": 3,
    "range": [
-    39000,
-    43000
+    2.5,
+    3.5
    ],
-   "gapAtLow": 166.63720016318638,
-   "gapAtHigh": 167.23482956133552,
-   "maxAbsDeltaUsdM": 0.31339102585866385,
-   "relHeadlineMovement": 0.0018771483444691625
+   "gapAtLow": 168.4360527080853,
+   "gapAtHigh": 167.14502898747352,
+   "maxAbsDeltaUsdM": 0.8635528564799984,
+   "relHeadlineMovement": 0.0051533089095449555
   },
   {
    "id": "green.wtwGco2PerMj",
@@ -714,10 +701,62 @@
     1,
     40
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 167.25268890689864,
-   "maxAbsDeltaUsdM": 0.3020977178535986,
-   "relHeadlineMovement": 0.00180950373222411
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 167.87459756945884,
+   "maxAbsDeltaUsdM": 0.3020977178535418,
+   "relHeadlineMovement": 0.001802788155103409
+  },
+  {
+   "id": "regulation.fuelEuVlsfoMjPerTonne",
+   "label": "FuelEU VLSFO energy (MJ/t)",
+   "step": 5,
+   "range": [
+    39000,
+    43000
+   ],
+   "gapAtLow": 167.2708931261289,
+   "gapAtHigh": 167.8460501375025,
+   "maxAbsDeltaUsdM": 0.3016067254764039,
+   "relHeadlineMovement": 0.001799858125548603
+  },
+  {
+   "id": "green.pilotShare",
+   "label": "Pilot fuel share of energy (0–1)",
+   "step": 3,
+   "range": [
+    0,
+    0.08
+   ],
+   "gapAtLow": 167.36234282364723,
+   "gapAtHigh": 167.7095587828823,
+   "maxAbsDeltaUsdM": 0.21015702795807556,
+   "relHeadlineMovement": 0.0012541259940872232
+  },
+  {
+   "id": "fossil.sulphurPercent",
+   "label": "Fossil sulphur content (% S, IMO accounting)",
+   "step": 3,
+   "range": [
+    0.1,
+    3
+   ],
+   "gapAtLow": 167.55919314019997,
+   "gapAtHigh": 167.55919314019997,
+   "maxAbsDeltaUsdM": 0.013306711405334681,
+   "relHeadlineMovement": 0.00007940868231433266
+  },
+  {
+   "id": "green.certifiedWttGco2ePerMj",
+   "label": "Green certified pathway WtT (gCO2e/MJ)",
+   "step": 3,
+   "range": [
+    5,
+    28.2
+   ],
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 167.57484503875446,
+   "maxAbsDeltaUsdM": 0.0023451871491602105,
+   "relHeadlineMovement": 0.00001399505975763925
   },
   {
    "id": "cargo.unitsPerYear",
@@ -727,8 +766,21 @@
     11083,
     33250
    ],
-   "gapAtLow": 166.95059118904504,
-   "gapAtHigh": 166.95059118904504,
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 167.5724998516053,
+   "maxAbsDeltaUsdM": 0,
+   "relHeadlineMovement": 0
+  },
+  {
+   "id": "green.efficiencyRatio",
+   "label": "Engine efficiency ratio (green vs fossil)",
+   "step": 3,
+   "range": [
+    0.8,
+    1.2
+   ],
+   "gapAtLow": 167.5724998516053,
+   "gapAtHigh": 167.5724998516053,
    "maxAbsDeltaUsdM": 0,
    "relHeadlineMovement": 0
   }

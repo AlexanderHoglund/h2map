@@ -6,18 +6,18 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 
 | Field | Type | Required | Sensitivity rank | Headline movement | UI placement |
 |---|---|---|---|---|---|
-| `schemaVersion` | = 5 | yes | — | — | — |
+| `schemaVersion` | = 6 | yes | — | — | — |
 | `refBundleId` | string | yes | — | — | — |
 | `cargo.countryId` | string | yes | — | — | — |
 | `cargo.routeType` | "point-to-point", "single-point" | yes | — | — | — |
-| `cargo.oneWayDistanceNm` | number | yes | #3 | 74.1% | top-level |
-| `cargo.startYear` | integer | yes | #34 | 5.6% | — |
-| `cargo.horizonYears` | integer | yes | #18 | 17.6% | top-level |
-| `cargo.unitsPerYear` | number | yes | #56 | 0.0% | advanced |
+| `cargo.oneWayDistanceNm` | number | yes | #3 | 77.1% | top-level |
+| `cargo.startYear` | integer | yes | #36 | 4.9% | — |
+| `cargo.horizonYears` | integer | yes | #16 | 18.7% | top-level |
+| `cargo.unitsPerYear` | number | yes | #59 | 0.0% | advanced |
 | `cargo.inflation` | number | yes | #21 | 14.0% | top-level |
-| `cargo.vessels` | integer | yes | #10 | 32.9% | top-level |
-| `cargo.roundtripsPerYear` | number | yes | #31 | 8.2% | top-level |
-| `cargo.waccOverride` | number, null | yes | #20 | 14.6% | top-level |
+| `cargo.vessels` | integer | yes | #8 | 34.3% | top-level |
+| `cargo.roundtripsPerYear` | number | yes | #31 | 8.6% | top-level |
+| `cargo.waccOverride` | number, null | yes | #20 | 14.7% | top-level |
 | `cargo.unit` | "tonne", "teu" | no | — | — | — |
 | `cargo.unitWeightTonnes` | number | no | — | — | — |
 | `cargo.portAName` | string | no | — | — | — |
@@ -32,43 +32,57 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `cargo.routedDistance.via` | string, null | yes | — | — | — |
 | `vessel.typeId` | string | yes | — | — | — |
 | `vessel.consumptionMode` | "distance", "vessel-benchmark" | yes | — | — | — |
-| `vessel.green.capexUsdM` | number, null | yes | #5 | 56.9% | top-level |
-| `vessel.green.opexUsdMPerYear` | number, null | yes | #6 | 42.5% | top-level |
-| `vessel.fossil.capexUsdM` | number, null | yes | #4 | 59.9% | — |
-| `vessel.fossil.opexUsdMPerYear` | number, null | yes | #8 | 33.7% | — |
+| `vessel.green.capexUsdM` | number, null | yes | #5 | 56.7% | top-level |
+| `vessel.green.opexUsdMPerYear` | number, null | yes | #6 | 42.4% | top-level |
+| `vessel.fossil.capexUsdM` | number, null | yes | #4 | 59.7% | — |
+| `vessel.fossil.opexUsdMPerYear` | number, null | yes | #9 | 33.5% | — |
 | `green.fuelId` | string | yes | — | — | — |
 | `green.sourcing` | "purchase", "build-plant", "build-here" | yes | — | — | — |
 | `green.buildHere` | object, null | no | — | — | — |
-| `green.overrides.priceUsdPerTonne` | number, null | yes | #23 | 13.7% | top-level |
-| `green.overrides.combustionEfTco2PerTonne` | number, null | yes | #48 | 1.5% | — |
-| `green.overrides.lhvMjPerTonne` | number, null | yes | #42 | 3.4% | — |
-| `green.overrides.wtwGco2PerMj` | number, null | yes | #55 | 0.2% | advanced |
-| `green.overrides.fuelTonnesPerVesselYear` | number, null | yes | #14 | 21.1% | top-level |
-| `green.overrides.prodCapexUsdM` | number, null | yes | #9 | 32.9% | top-level |
-| `green.overrides.prodOpexUsdMPerYear` | number, null | yes | #13 | 26.6% | top-level |
-| `green.overrides.portStorageCapexUsdM` | number, null | yes | #27 | 10.8% | top-level |
-| `green.overrides.portStorageOpexUsdMPerYear` | number, null | yes | #30 | 8.9% | top-level |
+| `green.overrides.priceUsdPerTonne` | number, null | yes | #22 | 13.7% | top-level |
+| `green.overrides.combustionEfTco2PerTonne` | number, null | yes | #48 | 1.4% | — |
+| `green.overrides.lhvMjPerTonne` | number, null | yes | #41 | 3.4% | — |
+| `green.overrides.wtwGco2PerMj` | number, null | yes | #54 | 0.2% | advanced |
+| `green.overrides.fuelTonnesPerVesselYear` | number, null | yes | #14 | 21.0% | top-level |
+| `green.overrides.prodCapexUsdM` | number, null | yes | #10 | 32.8% | top-level |
+| `green.overrides.prodOpexUsdMPerYear` | number, null | yes | #13 | 26.5% | top-level |
+| `green.overrides.portStorageCapexUsdM` | number, null | yes | #27 | 10.7% | top-level |
+| `green.overrides.portStorageOpexUsdMPerYear` | number, null | yes | #30 | 8.8% | top-level |
 | `green.overrides.bargeCapexUsdM` | number, null | yes | #38 | 4.2% | advanced |
 | `green.overrides.bargeOpexUsdMPerYear` | number, null | yes | #28 | 10.6% | — |
+| `green.emissions.certifiedWttGco2ePerMj` | number, null | yes | #58 | 0.0% | — |
+| `green.emissions.n2oScenarioId` | string, null | yes | — | — | — |
+| `green.emissions.pilotShare` | number, null | yes | #56 | 0.1% | — |
+| `green.emissions.pilotFuelId` | string, null | yes | — | — | — |
+| `green.emissions.engineType` | string, null | yes | — | — | — |
+| `green.emissions.sulphurPercent` | number, null | yes | — | — | — |
+| `green.emissions.efficiencyRatio` | number, null | yes | #60 | 0.0% | — |
 | `fossil.fuelId` | string | yes | — | — | — |
 | `fossil.sourcing` | "purchase", "build-plant", "build-here" | yes | — | — | — |
 | `fossil.buildHere` | object, null | no | — | — | — |
 | `fossil.overrides.priceUsdPerTonne` | number, null | yes | #43 | 3.2% | advanced |
-| `fossil.overrides.combustionEfTco2PerTonne` | number, null | yes | #52 | 0.6% | — |
-| `fossil.overrides.lhvMjPerTonne` | number, null | yes | #53 | 0.6% | — |
-| `fossil.overrides.wtwGco2PerMj` | number, null | yes | #47 | 1.9% | advanced |
-| `fossil.overrides.fuelTonnesPerVesselYear` | number, null | yes | #7 | 42.0% | — |
+| `fossil.overrides.combustionEfTco2PerTonne` | number, null | yes | #53 | 0.5% | — |
+| `fossil.overrides.lhvMjPerTonne` | number, null | yes | #52 | 0.6% | — |
+| `fossil.overrides.wtwGco2PerMj` | number, null | yes | #47 | 1.7% | advanced |
+| `fossil.overrides.fuelTonnesPerVesselYear` | number, null | yes | #7 | 41.2% | — |
 | `fossil.overrides.prodCapexUsdM` | number, null | yes | — | — | — |
 | `fossil.overrides.prodOpexUsdMPerYear` | number, null | yes | — | — | — |
-| `fossil.overrides.portStorageCapexUsdM` | number, null | yes | #17 | 18.0% | — |
-| `fossil.overrides.portStorageOpexUsdMPerYear` | number, null | yes | #24 | 13.3% | — |
+| `fossil.overrides.portStorageCapexUsdM` | number, null | yes | #18 | 17.9% | — |
+| `fossil.overrides.portStorageOpexUsdMPerYear` | number, null | yes | #23 | 13.2% | — |
 | `fossil.overrides.bargeCapexUsdM` | number, null | yes | #33 | 7.2% | — |
-| `fossil.overrides.bargeOpexUsdMPerYear` | number, null | yes | #25 | 13.3% | — |
-| `regulation.eurUsd` | number | yes | #51 | 1.2% | advanced |
+| `fossil.overrides.bargeOpexUsdMPerYear` | number, null | yes | #24 | 13.2% | — |
+| `fossil.emissions.certifiedWttGco2ePerMj` | number, null | yes | — | — | — |
+| `fossil.emissions.n2oScenarioId` | string, null | yes | — | — | — |
+| `fossil.emissions.pilotShare` | number, null | yes | — | — | — |
+| `fossil.emissions.pilotFuelId` | string, null | yes | — | — | — |
+| `fossil.emissions.engineType` | string, null | yes | — | — | — |
+| `fossil.emissions.sulphurPercent` | number, null | yes | #57 | 0.0% | — |
+| `fossil.emissions.efficiencyRatio` | number, null | yes | — | — | — |
+| `regulation.eurUsd` | number | yes | #50 | 1.2% | advanced |
 | `regulation.ets.enabled` | boolean | yes | — | — | — |
-| `regulation.ets.euaEurPerTonne` | number | yes | #41 | 3.6% | advanced |
-| `regulation.ets.euaEscalation` | number | no | #50 | 1.2% | — |
-| `regulation.ets.scope` | number | yes | #46 | 2.4% | advanced |
+| `regulation.ets.euaEurPerTonne` | number | yes | #42 | 3.3% | advanced |
+| `regulation.ets.euaEscalation` | number | no | #51 | 1.1% | — |
+| `regulation.ets.scope` | number | yes | #46 | 2.2% | advanced |
 | `regulation.ets.gasCoverage.enabled` | boolean | yes | — | — | — |
 | `regulation.ets.gasCoverage.fromCalendarYear` | integer | yes | — | — | — |
 | `regulation.ets.gasCoverage.gwpCh4` | number | yes | — | — | — |
@@ -78,12 +92,12 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `regulation.ets.gasCoverage.fossil.ch4TPerTonne` | number | yes | — | — | — |
 | `regulation.ets.gasCoverage.fossil.n2oTPerTonne` | number | yes | — | — | — |
 | `regulation.fuelEu.enabled` | boolean | yes | — | — | — |
-| `regulation.fuelEu.penaltyEurPerTonne` | number | yes | #40 | 3.7% | advanced |
-| `regulation.fuelEu.vlsfoMjPerTonne` | number | yes | #54 | 0.2% | — |
+| `regulation.fuelEu.penaltyEurPerTonne` | number | yes | #39 | 3.5% | advanced |
+| `regulation.fuelEu.vlsfoMjPerTonne` | number | yes | #55 | 0.2% | — |
 | `regulation.fuelEu.baselineGco2PerMj` | number | yes | #49 | 1.3% | — |
-| `regulation.fuelEu.scope` | number | yes | #39 | 3.7% | advanced |
+| `regulation.fuelEu.scope` | number | yes | #40 | 3.5% | advanced |
 | `regulation.fuelEu.credit.enabled` | boolean | yes | — | — | — |
-| `regulation.fuelEu.credit.surplusValueEurPerTonneVlsfoEq` | number | yes | #2 | 148.3% | — |
+| `regulation.fuelEu.credit.surplusValueEurPerTonneVlsfoEq` | number | yes | #2 | 89.3% | — |
 | `regulation.fuelEu.credit.rfnbo` | boolean | yes | — | — | — |
 | `regulation.fuelEu.credit.rfnboMultiplier` | number | yes | — | — | — |
 | `regulation.fuelEu.credit.rfnboUntil` | integer | yes | — | — | — |
@@ -92,25 +106,26 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `regulation.ira45z.creditUsdPerGallon` | number | yes | #35 | 5.2% | — |
 | `regulation.ira45z.effectiveUntil` | integer, null | no | — | — | — |
 | `regulation.selfDesigned.enabled` | boolean | yes | — | — | — |
-| `regulation.selfDesigned.co2PriceUsdPerTonne` | number | yes | #22 | 13.9% | — |
-| `regulation.selfDesigned.co2PriceEscalation` | number | no | #26 | 11.8% | — |
-| `regulation.selfDesigned.supportUsdPerKg` | number | yes | #15 | 19.5% | — |
-| `regulation.selfDesigned.capexSupport` | number | yes | #12 | 29.1% | — |
-| `regulation.selfDesigned.opexSupport` | number | yes | #11 | 32.4% | — |
-| `regulation.selfDesigned.otherUsdM` | number | yes | #1 | 377.6% | — |
+| `regulation.selfDesigned.co2PriceUsdPerTonne` | number | yes | #25 | 12.8% | — |
+| `regulation.selfDesigned.co2PriceEscalation` | number | no | #26 | 10.8% | — |
+| `regulation.selfDesigned.supportUsdPerKg` | number | yes | #15 | 19.4% | — |
+| `regulation.selfDesigned.capexSupport` | number | yes | #12 | 28.9% | — |
+| `regulation.selfDesigned.opexSupport` | number | yes | #11 | 32.3% | — |
+| `regulation.selfDesigned.otherUsdM` | number | yes | #1 | 376.2% | — |
 | `regulation.imoNetZero.enabled` | boolean | yes | — | — | — |
-| `regulation.imoNetZero.scope` | number | yes | #45 | 2.8% | — |
+| `regulation.imoNetZero.scope` | number | yes | #44 | 3.1% | — |
 | `regulation.imoNetZero.rewardUsdPerTonneCo2e` | number | no | #37 | 4.4% | — |
-| `regulation.imoNetZero.priceEscalation` | number | no | #36 | 4.8% | — |
+| `regulation.imoNetZero.priceEscalation` | number | no | #34 | 5.3% | — |
+| `regulation.emissions.framework` | "fueleu", "imo" | yes | — | — | — |
 | `financing.enabled` | boolean | yes | — | — | — |
 | `financing.greenRate` | number | yes | #19 | 14.7% | top-level |
-| `financing.baseRate` | number | yes | #16 | 18.4% | — |
-| `financing.debtShare` | number | yes | #32 | 7.4% | — |
+| `financing.baseRate` | number | yes | #17 | 18.4% | — |
+| `financing.debtShare` | number | yes | #32 | 7.3% | — |
 | `financing.tenorYears` | integer | yes | #29 | 10.1% | — |
 | `financing.structure` | "amortizing", "bullet" | yes | — | — | — |
 | `capitalPhasing.enabled` | boolean | yes | — | — | — |
-| `capitalPhasing.green.weights` | array | yes | #44 | 3.0% | advanced |
-| `capitalPhasing.fossil.weights` | array | yes | #44 | 3.0% | advanced |
+| `capitalPhasing.green.weights` | array | yes | #45 | 3.0% | advanced |
+| `capitalPhasing.fossil.weights` | array | yes | #45 | 3.0% | advanced |
 | `flags.emissionsBasis` | "combustion", "wellToWake" | no | — | — | — |
 | `flags.rateBasis` | "nominal", "real" | no | — | — | — |
 | `flags.legacyExcelConstruct` | boolean | no | — | — | — |

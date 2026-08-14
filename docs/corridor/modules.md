@@ -330,6 +330,24 @@ expand to full skeletons so the file documents every field that exists.
 
 Documented inline (see source).
 
+### `@h2map/corridor-schema/emissions.ts`
+
+**Purpose**
+
+Refined emission-factor derivation (schema v6) — THE replacement for the
+workbook's flat per-fuel scalars. Factors are computed live from the
+@h2map/fuel-emissions reference dataset under ONE selected accounting
+framework (FuelEU Maritime by default, IMO Net-Zero switchable), instead
+of being transcribed Excel cells:
+
+**Boundary (imports)**: `../../../data/fuel-emissions-ref/2026-08-14-seed-3.json`, `./scenario`, `./ref/bundle`
+
+**Exports (inputs/outputs)**: `FUEL_EMISSIONS_DATASET`, `EmissionsFramework`, `DerivedFuelFactors`, `deriveFuelFactors`
+
+**Assumptions**
+
+Documented inline (see source).
+
 ### `@h2map/corridor-schema/index.ts`
 
 **Purpose**
@@ -429,7 +447,7 @@ Sources / rationale:
 
 The resolution layer — the workbook's `E = IF(D="", F, D)` made explicit.
 
-**Boundary (imports)**: `./ref/bundle`, `./ref/accessors`
+**Boundary (imports)**: `./ref/bundle`, `./ref/accessors`, `./emissions`
 
 **Exports (inputs/outputs)**: `resolveScenario`, `toSideInputs`
 
@@ -497,7 +515,7 @@ them into branded `Resolved<T>` values against a reference bundle.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `ConsumptionMode`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `RegulationInput`, `FinancingInput`, `CapitalPhasingSide`, `CapitalPhasingInput`, `ScenarioInput`
+**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `ConsumptionMode`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelEmissionsSideInput`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `EmissionsAccountingInput`, `RegulationInput`, `FinancingInput`, `CapitalPhasingSide`, `CapitalPhasingInput`, `ScenarioInput`
 
 **Assumptions**
 
@@ -529,9 +547,9 @@ Documented inline (see source).
 
 Pure fuel-emissions evaluator. The functional unit is ENERGY DELIVERED
 ON BOARD (MJ): a tonne of green fuel does not replace a tonne of fossil
-fuel (e-ammonia at 18,600 MJ/t replaces ~453.7 t of VLSFO per 1,000 t,
+fuel (e-ammonia at 18,600 MJ/t replaces ~459.3 t of HFO per 1,000 t,
 not 1,000 t — golden fixture F1 exists to catch the tonne-for-tonne
-trap, which overstates avoided emissions 2.2×).
+trap, which overstates avoided emissions 2.4×).
 
 **Boundary (imports)**: `./ref`, `./ref`
 

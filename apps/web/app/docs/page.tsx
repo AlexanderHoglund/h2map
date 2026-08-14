@@ -915,6 +915,27 @@ export default async function DocsPage() {
           with a counted strip if a scenario carries one of them active.
         </p>
 
+        <H3>Emission accounting (v6)</H3>
+        <p className="mt-2">
+          The tab opens with the{" "}<strong>accounting-framework
+          selector</strong>{" "}(visible in both view modes):{" "}
+          <strong>FuelEU Maritime by default</strong>, IMO Net-Zero
+          switchable. It governs which framework&apos;s factors the
+          corridor&apos;s fuel intensities derive from — the same physical
+          bunker is 91.744 gCO2e/MJ under FuelEU&apos;s Annex II viscosity
+          row and 94.90 under the IMO&apos;s 0.10–0.50%-sulphur band
+          (MEPC.391(81)), and each framework fixes its own GWP set (AR4 vs
+          AR5). Green fuels derive as certified pathway WtT + N2O slip +
+          pilot blend from the fuel-emissions dataset (Part 3). Two rules
+          keep it honest: the FuelEU and IMO <em>compliance modules</em>{" "}
+          each price with their OWN framework regardless of this selection
+          (the selector moves the reported intensities, abatement and the
+          self-designed CO2 price), and explicit factor overrides in the
+          Energy tab always win. Scenarios saved before v6 auto-upgrade to
+          FuelEU accounting on open; the legacy workbook scalars survive
+          only for the Excel golden fixture and the study-calibration test.
+        </p>
+
         <H3>EU ETS (maritime)</H3>
         <F>
           EF<sub>CO2e</sub>{" "}= combustion EF{" "}[+ CH4 t/t × GWP<sub>CH4</sub>{" "}
@@ -1356,9 +1377,21 @@ export default async function DocsPage() {
           </table>
         </div>
         <H3>
-          Fuels (price $/t · combustion EF tCO2/t · LHV MJ/t · WTW gCO2e/MJ ·
-          vessel premium)
+          Fuels (price $/t · vessel premium · legacy factor columns)
         </H3>
+        <p className="mt-2">
+          <strong>v6 — the emission columns below are LEGACY.</strong>{" "}
+          Since the emission-method replacement, combustion EF, LHV and WtW
+          DERIVE per scenario from the fuel-emissions dataset under the
+          selected accounting framework (Part 3): green fuels as certified
+          pathway + N2O slip + pilot blend (e-ammonia ≈ 22.14 gCO2e/MJ under
+          FuelEU at the defaults), fossil fuels from the Annex II row under
+          FuelEU (91.744) or the MEPC.391(81) sulphur band under IMO (94.90
+          at 0.50%&nbsp;S). The table&apos;s emission scalars apply only to
+          legacy scenarios and underivable combinations (LNG as a baseline),
+          always with disclosed provenance. Prices and premiums remain the
+          workbook benchmarks.
+        </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
             <thead>
@@ -1557,7 +1590,22 @@ export default async function DocsPage() {
           </table>
         </div>
         <p className="mt-2">
-          The displayed headline (gap $1,762.21m, $71/t, $1,215/tCO2) is the
+          <strong>v6 — the table above is the STUDY CALIBRATION (legacy
+          factors), reproduced permanently by a pinned test.</strong>{" "}The
+          shipped default now derives its factors from the refined method,
+          which moves the headline deliberately: post-regulation gap{" "}
+          <strong>$1,819.48m</strong>{" "}(was $1,762.21m), CO2 abated{" "}
+          <strong>1,118,236 t</strong>{" "}(was the study-exact 1,450,095 —
+          a WtW=0 green ammonia is not a certifiable value; certified 15 +
+          N2O slip + 5% pilot gives a 22.14 blend), $1,627/tCO2 (was
+          $1,215), and the green side now pays the self-designed CO2 price
+          too ($60.75m PV; fossil $253.71m on the Annex II 91.744/40,500
+          row). The pre-regulation figures are factor-independent and
+          unchanged.
+        </p>
+        <p className="mt-2">
+          The displayed legacy-calibration headline (gap $1,762.21m, $71/t,
+          $1,215/tCO2) is the
           post-regulation figure; the pre-regulation gap ($2,012.44m — the
           study&apos;s $2,000m quantity) shows directly beneath it and in the
           decomposition&apos;s &ldquo;Subtotal before regulation&rdquo; row.
@@ -1579,8 +1627,13 @@ export default async function DocsPage() {
           study&apos;s $250m anticipates post-2030 price escalation /
           stricter parameters, or the flat-price proxy overstates the draft
           framework&apos;s near-term charge. The green side&apos;s
-          reward-eligible surplus (≈0.9 MtCO2e over the horizon) is the
-          upside the study flags, reported unpriced.
+          reward-eligible surplus (≈0.9 MtCO2e over the horizon under the
+          legacy WtW=0 treatment) is the upside the study flags, reported
+          unpriced. <strong>v6:</strong>{" "}under refined factors the IMO
+          module prices the fossil side with IMO&apos;s own accounting
+          (94.90, sulphur-binned) — net effect ≈$100.4m — and the ZNZ
+          surplus falls to ≈0.56 MtCO2e: the legacy treatment overstated
+          the reward basis ~1.6×.
         </p>
 
         <H id="inputs">15. Complete input inventory</H>
@@ -2291,7 +2344,11 @@ export default async function DocsPage() {
             baseline. Small tool, four load-bearing methodological decisions
             — the functional unit, the accounting framework, the
             combustion-side corrections, and the refusal to default what has
-            no defensible default.
+            no defensible default. <strong>Since v6 this is also the
+            corridor model&apos;s emission method</strong>: the corridor
+            derives its per-fuel factors from this dataset and engine under
+            the framework selected in its Regulation tab — one method, two
+            surfaces.
           </p>
         </div>
 
