@@ -92,9 +92,12 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
   // the row), never the blended attained GFI.
   await expect(page.getByTestId("znz")).toContainText("fuel 15.97 gCO2e/MJ");
   await expect(page.getByText(/Attained GFI/)).toBeVisible();
-  // Fix 4: the IMO GWP set is IMO's, the fuel factors are Annex II
-  // substitutions — the method line and the marked rows say so.
-  await expect(page.getByText(/substituted from FuelEU Annex II/)).toBeVisible();
+  // Round 2 (A/B/C): the IMO has its OWN fossil WtT, binned by sulphur —
+  // the baseline renames to the band, a sulphur input appears, and with
+  // no pilot burning (share 0) NOTHING is substituted: no blanket claim.
+  await expect(page.getByLabel("Baseline sulphur content")).toBeVisible();
+  await expect(page.getByText("Residual fuel oil, 0.10–0.50% S").first()).toBeVisible();
+  await expect(page.getByText(/Substituted from FuelEU Annex II/)).toHaveCount(0);
   await page.getByLabel("ZNZ period").selectOption({ label: "From 2035" });
   // The certified field is WELL-TO-TANK (fix 3 of the verification
   // report): entering a WtW certificate would double-count the N2O slip.

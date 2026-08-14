@@ -36,3 +36,11 @@ Rules (same discipline as `fixtures/golden/corridor/`):
   1,408.8 / 1,367.4 / 745.0.
   F2 and F5 exercise the HFO row directly and are unchanged —
   re-verified exactly (BetterSea 91.744 under AR4).
+- 2026-08-14 — F7 added (round-2 verification): the IMO publishes its
+  OWN fossil WtT, sulphur-binned (MEPC.391(81) via arXiv:2502.07201):
+  0.10<S≤0.50% → 16.8, >0.50% → 14.1. Hand computation: baseline WtW
+  AR5 = 16.8 + 78.10 = 94.90; × 19,578,947 MJ = 1,858.1 t; candidate
+  279.0 + 58.3 slip + 88.7 pilot = 426.0; avoided 1,432.0 (77.1%). The
+  earlier blanket substitution understated avoided emissions by 64.6 t.
+  The pilot MGO WtT stays an Annex II value — a DISCLOSED substitution
+  (no confirmed IMO distillate default).

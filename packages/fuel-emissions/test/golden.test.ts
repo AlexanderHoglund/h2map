@@ -183,6 +183,41 @@ describe("golden fixtures (hand-computed, authoritative)", () => {
     expect(r.wellToWake.reductionPercent).toBeCloseTo(83.7, 1);
   });
 
+  it("F7 — IMO's own fossil WtT: sulphur-binned 16.8, not FuelEU's 13.5", () => {
+    // Hand values from the round-2 verification report: the substitution
+    // was UNDERSTATING avoided emissions by 64.6 t (+4.7%), because the
+    // IMO assigns fossil fuels a heavier upstream burden than FuelEU.
+    const r = ok(
+      evaluateFuelEmissions(
+        {
+          candidateFuelId: "e-ammonia",
+          quantityTonnes: 1000,
+          candidateWtwGco2ePerMj: 15.0,
+          baselineFuelId: "hfo",
+          baselineSulphurPercent: 0.5,
+          frameworkId: "imo",
+          pilotShare: 0.05,
+          pilotFuelId: "mgo",
+          n2oSlipGPerG: 0.00022,
+          efficiencyRatio: 1.0,
+        },
+        ds,
+      ),
+    );
+    expect(r.gwpSetId).toBe("AR5");
+    expect(r.baselineLabel).toBe("Residual fuel oil, 0.10\u20130.50% S");
+    expect(r.wellToWake.baseline.intensityGco2ePerMj).toBeCloseTo(94.9, 2);
+    expect(r.equivalentBaselineMassTonnes).toBeCloseTo(483.4, 1);
+    expect(r.wellToWake.baseline.emissionsTco2e).toBeCloseTo(1858.1, 1);
+    expect(r.wellToWake.candidate.emissionsTco2e).toBeCloseTo(426.0, 1);
+    expect(r.wellToWake.avoidedTco2e).toBeCloseTo(1432.0, 1);
+    expect(r.wellToWake.reductionPercent).toBeCloseTo(77.1, 1);
+    expect(r.znz.fuelWtwGco2ePerMj).toBeCloseTo(18.13, 2);
+    // The pilot's WtT is the one remaining DISCLOSED substitution: no
+    // confirmed IMO distillate value in the verified sources.
+    expect(r.substitutedFactors).toEqual(["pilot WtT (Marine gas oil / diesel)"]);
+  });
+
   it("F6 — identity: avoided(X vs X) === 0 for every parameterised fuel", () => {
     for (const fuel of ds.fuels) {
       for (const gwpSetId of Object.keys(ds.gwpSets)) {

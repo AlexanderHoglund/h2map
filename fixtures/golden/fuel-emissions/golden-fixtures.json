@@ -122,6 +122,35 @@
     },
 
     {
+      "id": "F7-imo-own-fossil-wtt",
+      "purpose": "The IMO publishes its OWN fossil WtT (MEPC.391(81), sulphur-binned): a 0.50%-S residual baseline carries 16.8, not FuelEU's 13.5 — the substitution was understating avoided emissions.",
+      "input": {
+        "candidateFuelId": "e-ammonia",
+        "quantityTonnes": 1000,
+        "candidateWtwGco2ePerMj": 15.0,
+        "baselineFuelId": "hfo",
+        "baselineSulphurPercent": 0.5,
+        "frameworkId": "imo",
+        "pilotShare": 0.05,
+        "pilotFuelId": "mgo",
+        "n2oSlip": 0.00022,
+        "efficiencyRatio": 1.0
+      },
+      "expected": {
+        "gwpSet": "AR5",
+        "baselineWtwGco2ePerMj": 94.90,
+        "equivalentBaselineMassTonnes": 483.4,
+        "baselineEmissionsTco2e": 1858.1,
+        "candidateEmissionsTco2e": 426.0,
+        "avoidedTco2e": 1432.0,
+        "reductionPercent": 77.1,
+        "fuelWtwGco2ePerMj": 18.13
+      },
+      "derivation": "Baseline: WtT 16.8 (0.10<S≤0.50% band) + TtW AR5 = (3.114 + 0.00005×28 + 0.00018×265)/0.0405 = 78.10, giving 94.90; × 19,578,947 MJ = 1,858.1 t. Candidate: WtT 279.0 + slip 58.3 (0.00022×265/0.0186 per MJ) + pilot 88.7 = 426.0. Avoided 1,432.0; reduction 77.1%. Fuel intensity 15 + 3.13 = 18.13. Hand-computed in the round-2 verification report.",
+      "note": "The pilot stays on the Annex II MGO WtT (14.4): no confirmed IMO distillate value — a DISCLOSED substitution, named in substitutedFactors."
+    },
+
+    {
       "id": "F6-identity",
       "purpose": "Property test, not a fixture value.",
       "assertion": "avoided(X vs X) === 0 exactly, for every fuel X in the reference bundle, under every GWP set and both bases."

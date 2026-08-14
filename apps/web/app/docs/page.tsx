@@ -2343,7 +2343,16 @@ export default async function DocsPage() {
           framework&apos;s WtT with another&apos;s TtW, is structurally
           impossible. A (fuel, framework) combination missing a needed
           factor reports{" "}<em>not parameterised</em>{" "}with the
-          dataset&apos;s own review note — it never falls back to a
+          dataset&apos;s own review note. The frameworks even CLASSIFY the
+          same bunker differently: FuelEU bins residual fuels by ISO 8217
+          viscosity grade while the IMO bins by sulphur content
+          (MEPC.391(81)) — a typical 0.50%-S VLSFO is FuelEU&apos;s HFO row
+          at WtT 13.5 but the IMO&apos;s 0.10–0.50%-S band at 16.8, a
+          3.3-gCO2e/MJ divergence on the same physical fuel. The engine
+          resolves the row per framework (a sulphur input appears under
+          IMO) and substitutes an Annex II value ONLY where the IMO has no
+          confirmed default (currently the distillate WtT), disclosing
+          each substituted factor by name — it never falls back to a
           neighbouring value and never defaults to zero: LNG evaluates
           under FuelEU per engine technology but refuses under the IMO
           framework (the IMO guidelines lack a default upstream factor; the
@@ -2496,6 +2505,15 @@ export default async function DocsPage() {
             mixing factors across rows.
           </li>
           <li>
+            The IMO fossil WtT bands (16.8 / 14.1) and the LNG LCV
+            divergence (0.0480 vs Annex II&apos;s 0.0491) are confirmed via
+            a paper citing MEPC.391(81) verbatim (arXiv:2502.07201);
+            paragraph-level verification against the resolution text
+            itself, the IMO distillate WtT, and the IMO residual LCVs
+            remain open — the last two are carried from Annex II as
+            disclosed substitutions.
+          </li>
+          <li>
             LNG evaluates under FuelEU per engine technology, but its WtT
             of 18.5 gCO2e/MJ is carried from a secondary table pending
             verification against the Annex II LNG row; under the IMO
@@ -2539,6 +2557,7 @@ export default async function DocsPage() {
                   ["ESSF SAPS WS1 working document", "Second independent reproduction of the Annex II table — cross-check for the same three rows (retrieved 2026-08-14)."],
                   ["Sustainable Ships, 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero' (July 2025)", "Per-engine methane-slip values under both frameworks (Otto MS/SS, Diesel SS, LBSI, steam) and the biofuel reference E-value note."],
                   ["Ammonia Energy Association (September 2025), citing MAN ES Research Centre Copenhagen and WinGD", "The ~95/5 ammonia/pilot energy split, tested two-stroke N2O emission levels, and the efficiency-ratio 1.0 evidence."],
+                  ["'Well-to-Tank Carbon Intensity Variability of Fossil Marine Fuels' (arXiv:2502.07201, Feb 2025)", "Verbatim citation of MEPC.391(81) fossil WtT defaults — HFO 0.10–0.50% S = 16.8, >0.50% S = 14.1 gCO2e/MJ — and the IMO LNG LCV of 0.0480 MJ/g (retrieved 2026-08-14)."],
                   ["ICCT (April 2025)", "The missing IMO default upstream factor for fossil LNG and the real 18.5–28 gCO2e/MJ range — the reason LNG refuses under the IMO framework."],
                   ["GCMD GFI calculator (post-MEPC 83)", "Planned independent cross-check (e-ammonia case) — open item, not yet reproduced."],
                 ] as const

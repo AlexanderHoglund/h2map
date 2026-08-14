@@ -77,6 +77,7 @@ export default function FuelEmissionsPanel() {
   const [quantityTonnes, setQuantityTonnes] = useState(1000);
   const [candidateWtw, setCandidateWtw] = useState(15);
   const [baselineFuelId, setBaselineFuelId] = useState("hfo");
+  const [sulphurPercent, setSulphurPercent] = useState(0.5);
   const [pilotShare, setPilotShare] = useState(ds.pilotFuel.defaultShareOfEnergy);
   const [pilotFuelId, setPilotFuelId] = useState(ds.pilotFuel.defaultPilotFuelId);
   const [n2oScenarioId, setN2oScenarioId] = useState("optimised-injection");
@@ -100,6 +101,7 @@ export default function FuelEmissionsPanel() {
           quantityTonnes,
           quantityBasis: direction,
           baselineFuelId,
+          baselineSulphurPercent: sulphurPercent,
           frameworkId,
           candidateWtwGco2ePerMj: Math.min(candidateWtw, rfnboCeiling),
           pilotShare,
@@ -116,6 +118,7 @@ export default function FuelEmissionsPanel() {
       quantityTonnes,
       direction,
       baselineFuelId,
+      sulphurPercent,
       frameworkId,
       candidateWtw,
       rfnboCeiling,
@@ -137,6 +140,7 @@ export default function FuelEmissionsPanel() {
     setQuantityTonnes(1000);
     setCandidateWtw(certifiedDefaultFor("fueleu", "to2034"));
     setBaselineFuelId("hfo");
+    setSulphurPercent(0.5);
     setPilotShare(ds.pilotFuel.defaultShareOfEnergy);
     setPilotFuelId(ds.pilotFuel.defaultPilotFuelId);
     setN2oScenarioId("optimised-injection");
@@ -145,6 +149,9 @@ export default function FuelEmissionsPanel() {
 
   const refused = "notParameterised" in result && result.notParameterised;
   const ok = refused ? null : (result as FuelEmissionsResult);
+  /* Fix B: the same bunker is named by the ACTIVE framework's
+     classification — ISO 8217 grade under FuelEU, sulphur band under IMO. */
+  const baselineName = ok ? ok.baselineLabel : baselineRow.name;
   const active = ok ? (basis === "wellToWake" ? ok.wellToWake : ok.tankToWake) : null;
   const other = ok ? (basis === "wellToWake" ? ok.tankToWake : ok.wellToWake) : null;
 
@@ -175,23 +182,37 @@ export default function FuelEmissionsPanel() {
     </>
   );
   const baselineSelect = (
-    <Select
-      label={t("baseline")}
-      help={t("baselineHelp")}
-      value={baselineFuelId}
-      options={ds.fuels
-        .filter((f) => f.family === "fossil" && f.id !== "lng")
-        .map((f) => ({
-          value: f.id,
-          label: `${f.name}${f.verified ? "" : " *"}`,
-        }))}
-      onChange={setBaselineFuelId}
-    />
+    <>
+      <Select
+        label={t("baseline")}
+        help={t("baselineHelp")}
+        value={baselineFuelId}
+        options={ds.fuels
+          .filter((f) => f.family === "fossil" && f.id !== "lng")
+          .map((f) => ({
+            value: f.id,
+            label: `${f.name}${f.verified ? "" : " *"}`,
+          }))}
+        onChange={setBaselineFuelId}
+      />
+      {/* The IMO bins residual fuels by SULPHUR (MEPC.391(81)), not ISO
+          8217 grade — the band drives the IMO WtT (16.8 vs 14.1). */}
+      {frameworkId === "imo" && (
+        <NumberInput
+          label={t("sulphur")}
+          unit="% S"
+          step={0.1}
+          help={`${ds.imoFossilWtt.classificationNote} ${ds.imoFossilWtt.source}`}
+          value={sulphurPercent}
+          onChange={(v) => setSulphurPercent(Math.min(4.5, Math.max(0.1, v)))}
+        />
+      )}
+    </>
   );
   const quantityInput = (
     <NumberInput
       label={t("quantityOf", {
-        fuel: direction === "candidate" ? candidateRow.name : baselineRow.name,
+        fuel: direction === "candidate" ? candidateRow.name : baselineName,
       })}
       unit="t"
       step={100}
@@ -222,11 +243,11 @@ export default function FuelEmissionsPanel() {
             candidateQty: fmt1(ok.candidateMassTonnes),
             candidate: candidateRow.name,
             baselineQty: fmt1(ok.equivalentBaselineMassTonnes),
-            baseline: baselineRow.name,
+            baseline: baselineName,
           })
         : t("equivalentReverse", {
             baselineQty: fmt1(ok.equivalentBaselineMassTonnes),
-            baseline: baselineRow.name,
+            baseline: baselineName,
             candidateQty: fmt1(ok.candidateMassTonnes),
             candidate: candidateRow.name,
           })}
@@ -398,12 +419,12 @@ export default function FuelEmissionsPanel() {
             <div className="grid grid-cols-2 gap-3">
               {(direction === "baseline"
                 ? ([
-                    [t("massFossil"), ok.equivalentBaselineMassTonnes, baselineRow.name, false],
+                    [t("massFossil"), ok.equivalentBaselineMassTonnes, baselineName, false],
                     [t("fuelNeeded"), ok.candidateMassTonnes, candidateRow.name, true],
                   ] as const)
                 : ([
                     [t("massZnz"), ok.candidateMassTonnes, candidateRow.name, false],
-                    [t("fossilReplaced"), ok.equivalentBaselineMassTonnes, baselineRow.name, true],
+                    [t("fossilReplaced"), ok.equivalentBaselineMassTonnes, baselineName, true],
                   ] as const)
               ).map(([label, qty, fuel, hero]) => (
                 <div key={label}>
@@ -469,7 +490,7 @@ export default function FuelEmissionsPanel() {
               </div>
               <div className="flex items-baseline justify-between gap-2">
                 <dt className="text-neutral-500">
-                  {t("detailIntensity", { fuel: baselineRow.name })}
+                  {t("detailIntensity", { fuel: baselineName })}
                 </dt>
                 <dd className="font-medium tabular-nums text-neutral-800">
                   {fmt2(active.baseline.intensityGco2ePerMj)} gCO2e/MJ
@@ -539,25 +560,26 @@ export default function FuelEmissionsPanel() {
                 </tr>
               </thead>
               <tbody>
-                {/* Per-factor provenance: under the IMO framework the fuel
-                    factors are SUBSTITUTED from FuelEU Annex II (IMO
-                    defaults unpublished) — those rows carry the unverified
-                    badge and say so. The certified pathway value (PoS) and
-                    the literature N2O slip are not substitutions. */}
+                {/* Per-factor provenance (fix C): the badge marks ONLY
+                    factors genuinely absent from the selected framework and
+                    substituted from Annex II — the engine names them in
+                    substitutedFactors. Combustion factors are chemistry the
+                    IMO covers itself; residual WtT under IMO is native
+                    (sulphur-binned); the certified PoS value and the
+                    literature N2O slip are never substitutions. */}
                 {(
                   [
-                    ["rowWtt", active.candidate.parts.wttTco2e, active.baseline.parts.wttTco2e, candidateRow.source, !certifiedRange],
-                    ["rowTtwCo2", active.candidate.parts.ttwCo2Tco2e, active.baseline.parts.ttwCo2Tco2e, baselineRow.derivation, true],
-                    ["rowTtwCh4", active.candidate.parts.ttwCh4Tco2e, active.baseline.parts.ttwCh4Tco2e, ds.gwpSets[ok.gwpSetId]!.source, true],
-                    ["rowTtwN2o", active.candidate.parts.ttwN2oTco2e, active.baseline.parts.ttwN2oTco2e, ds.gwpSets[ok.gwpSetId]!.source, true],
+                    ["rowWtt", active.candidate.parts.wttTco2e, active.baseline.parts.wttTco2e, candidateRow.source, ok.substitutedFactors.some((f) => !f.startsWith("pilot"))],
+                    ["rowTtwCo2", active.candidate.parts.ttwCo2Tco2e, active.baseline.parts.ttwCo2Tco2e, baselineRow.derivation, false],
+                    ["rowTtwCh4", active.candidate.parts.ttwCh4Tco2e, active.baseline.parts.ttwCh4Tco2e, ds.gwpSets[ok.gwpSetId]!.source, false],
+                    ["rowTtwN2o", active.candidate.parts.ttwN2oTco2e, active.baseline.parts.ttwN2oTco2e, ds.gwpSets[ok.gwpSetId]!.source, false],
                     ["rowSlip", active.candidate.parts.n2oSlipTco2e, 0, n2oScenario.source, false],
-                    ["rowPilot", active.candidate.parts.pilotTco2e, 0, ds.pilotFuel.source, true],
+                    ["rowPilot", active.candidate.parts.pilotTco2e, 0, ds.pilotFuel.source, ok.substitutedFactors.some((f) => f.startsWith("pilot"))],
                   ] as const
                 )
                   // Only rows that carry a number render — zero rows are noise.
                   .filter(([, cand, base]) => Math.abs(cand) >= 0.05 || Math.abs(base) >= 0.05)
-                  .map(([key, cand, base, source, annexFactors]) => {
-                    const substituted = frameworkId === "imo" && annexFactors;
+                  .map(([key, cand, base, source, substituted]) => {
                     return (
                       <tr key={key} className="border-b border-neutral-100">
                         <td className="py-1.5 pr-2 text-neutral-600">
@@ -605,8 +627,12 @@ export default function FuelEmissionsPanel() {
                 framework: FRAMEWORK_CITATIONS[frameworkId] ?? frameworkId,
                 version: ds.datasetVersion,
               })}
-              {/* The GWP set is IMO's; the fuel factors are not — say so. */}
-              {frameworkId === "imo" && ` ${t("citationImoNote")}`}
+              {/* Name exactly WHICH factors are substituted — never a
+                  blanket claim (round-2 fix A). */}
+              {ok.substitutedFactors.length > 0 &&
+                ` ${t("citationSubstituted", {
+                  factors: ok.substitutedFactors.join(", "),
+                })}`}
             </p>
             <p className="mt-2 text-[11px] text-neutral-500">
               {t("footer", { version: ds.datasetVersion })}{" "}

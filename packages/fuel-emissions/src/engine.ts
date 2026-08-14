@@ -36,6 +36,12 @@ export interface FuelEmissionsInput {
   quantityTonnes: number;
   quantityBasis?: "candidate" | "baseline";
   baselineFuelId: string;
+  /**
+   * Baseline sulphur content, mass % (default 0.50 — typical VLSFO).
+   * Only consulted under the IMO framework, which bins residual fuels by
+   * sulphur band (MEPC.391(81)) rather than ISO 8217 viscosity grade.
+   */
+  baselineSulphurPercent?: number;
   /** Framework id ("fueleu" | "imo"); selects factors AND the GWP set. */
   frameworkId: string;
   /** Sensitivity only — still exactly one set per evaluation. */
@@ -120,6 +126,18 @@ export interface FuelEmissionsResult {
   totalEnergyMj: number;
   baselineEnergyMj: number;
   equivalentBaselineMassTonnes: number;
+  /**
+   * The baseline row's name under the ACTIVE framework's classification:
+   * the ISO 8217 grade under FuelEU, the sulphur band under IMO — the
+   * same physical bunker lands in different bins (fix B).
+   */
+  baselineLabel: string;
+  /**
+   * Factors carried from FuelEU Annex II because the selected framework
+   * has no confirmed own value (short labels, e.g. "pilot WtT (MGO)").
+   * Empty when every factor is native to the framework.
+   */
+  substitutedFactors: string[];
   wellToWake: BasisResult;
   tankToWake: BasisResult;
   znz: {
@@ -160,12 +178,13 @@ function rowIntensity(
   fuel: RefFuel,
   gwp: { ch4: number; n2o: number },
   cslip = 0,
+  wttOverride?: number,
 ): Intensity {
   const lcv = fuel.lcvMjPerG;
   const n2o = typeof fuel.ttw.n2oGPerG === "number" ? fuel.ttw.n2oGPerG : 0;
   const burn = 1 - cslip;
   return {
-    wtt: fuel.wttGco2ePerMj ?? 0,
+    wtt: wttOverride ?? fuel.wttGco2ePerMj ?? 0,
     ttwCo2: ((fuel.ttw.co2GPerG ?? 0) * burn) / lcv,
     ttwCh4: (((fuel.ttw.ch4GPerG ?? 0) * burn + cslip) * gwp.ch4) / lcv,
     ttwN2o: (n2o * burn * gwp.n2o) / lcv,
@@ -261,8 +280,36 @@ export function evaluateFuelEmissions(
     }
   }
 
+  // --- per-framework fossil WtT resolution (fixes A/B/C) -----------------
+  // The IMO publishes its OWN fossil WtT defaults, binned by sulphur
+  // (MEPC.391(81)): residual fuels resolve to the band, NOT to FuelEU's
+  // viscosity-row value — the two differ by 3.3 gCO2e/MJ for a typical
+  // 0.50%-S VLSFO. Distillates have no confirmed IMO value yet: the
+  // Annex II number is substituted and DISCLOSED per factor.
+  const substitutedFactors: string[] = [];
+  const shortName = (f: RefFuel) => f.name.split(" (")[0];
+  const resolveFossil = (
+    fuel: RefFuel,
+    role: "baseline" | "pilot",
+  ): { wtt: number | undefined; label: string } => {
+    if (input.frameworkId !== "imo" || fuel.family !== "fossil") {
+      return { wtt: undefined, label: fuel.name };
+    }
+    if (fuel.imoClass === "residual") {
+      const s = input.baselineSulphurPercent ?? 0.5;
+      const bands = ds.imoFossilWtt.residualBySulphur;
+      const band =
+        bands.find((b) => b.maxSulphurPercent !== null && s <= b.maxSulphurPercent) ??
+        bands[bands.length - 1]!;
+      return { wtt: band.wttGco2ePerMj, label: band.label };
+    }
+    substitutedFactors.push(`${role} WtT (${shortName(fuel)})`);
+    return { wtt: undefined, label: fuel.name };
+  };
+  const baseResolved = resolveFossil(baseline, "baseline");
+
   // --- intensities under the ONE selected GWP set ------------------------
-  const baseInt = rowIntensity(baseline, gwp);
+  const baseInt = rowIntensity(baseline, gwp, 0, baseResolved.wtt);
   // Pathway fuels (certified E-value): the WtW basis uses the certified
   // value as the WHOLE pathway intensity — for e-methanol the certificate
   // resolves whether the combustion carbon counts (DAC vs point-source).
@@ -286,7 +333,8 @@ export function evaluateFuelEmissions(
     : candChemical;
   const slipGwp = input.n2oSlipGwpOverride ?? gwp.n2o;
   const slipPerMj = ((input.n2oSlipGPerG ?? 0) * slipGwp) / candidate.lcvMjPerG;
-  const pilotInt = pilot ? rowIntensity(pilot, gwp) : null;
+  const pilotResolved = pilot ? resolveFossil(pilot, "pilot") : null;
+  const pilotInt = pilot ? rowIntensity(pilot, gwp, 0, pilotResolved?.wtt) : null;
 
   const basisResult = (basis: "wellToWake" | "tankToWake"): BasisResult => {
     const wtw = basis === "wellToWake";
@@ -366,6 +414,8 @@ export function evaluateFuelEmissions(
     totalEnergyMj,
     baselineEnergyMj,
     equivalentBaselineMassTonnes,
+    baselineLabel: baseResolved.label,
+    substitutedFactors,
     wellToWake,
     tankToWake,
     znz: {

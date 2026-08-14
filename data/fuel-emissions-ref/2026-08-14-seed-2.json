@@ -50,6 +50,7 @@
       "id": "hfo",
       "name": "Heavy fuel oil (RME–RMK, incl. most VLSFO)",
       "family": "fossil",
+      "imoClass": "residual",
       "lcvMjPerG": 0.0405,
       "ttw": { "co2GPerG": 3.114, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
       "wttGco2ePerMj": 13.5,
@@ -63,6 +64,7 @@
       "id": "lfo",
       "name": "Light fuel oil (RMA–RMD)",
       "family": "fossil",
+      "imoClass": "residual",
       "lcvMjPerG": 0.041,
       "ttw": { "co2GPerG": 3.151, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
       "wttGco2ePerMj": 13.2,
@@ -75,6 +77,7 @@
       "id": "mgo",
       "name": "Marine gas oil / diesel (DMX–DMB)",
       "family": "fossil",
+      "imoClass": "distillate",
       "lcvMjPerG": 0.0427,
       "ttw": { "co2GPerG": 3.206, "ch4GPerG": 0.00005, "n2oGPerG": 0.00018 },
       "wttGco2ePerMj": 14.4,
@@ -94,7 +97,7 @@
       "framework": "fueleu",
       "verified": false,
       "requiresEngineType": true,
-      "derivation": "CO2 factor and LCV are engine-independent. Methane slip is NOT — it is set per engine technology at 50% load (Cslip, see methaneSlip.byEngine) and folded into the combustion-CH4 term: per g of fuel, (1−Cslip) combusts and Cslip escapes as CH4 priced at the framework's GWP. WtT 18.5 is the FuelEU default upstream value. Under FuelEU AR4 an Otto dual-fuel medium-speed engine gives TtW ≈ 70.70 and WtW ≈ 89.20 gCO2e/MJ — barely below VLSFO's 90.49; a diesel slow-speed engine gives ≈ 76.08.",
+      "derivation": "CO2 factor and LCV are engine-independent within a framework — but NOT across them: MEPC.391(81) implies LCV 0.0480 MJ/g for LNG against Annex II's 0.0491 (confirmed via arXiv:2502.07201). Methane slip is NOT — it is set per engine technology at 50% load (Cslip, see methaneSlip.byEngine) and folded into the combustion-CH4 term: per g of fuel, (1−Cslip) combusts and Cslip escapes as CH4 priced at the framework's GWP. WtT 18.5 is the FuelEU default upstream value. Under FuelEU AR4 an Otto dual-fuel medium-speed engine gives TtW ≈ 70.70 and WtW ≈ 89.20 gCO2e/MJ — barely below VLSFO's 90.49; a diesel slow-speed engine gives ≈ 76.08.",
       "reviewNote": "Not evaluable under the IMO framework: the IMO LCA Guidelines lack a default upstream factor for fossil LNG, where the real range is 18.5–28 gCO2e/MJ — 20–30% of HFO's whole lifecycle intensity (ICCT, April 2025). A missing upstream term flatters LNG substantially, so the IMO path refuses rather than approximates. The FuelEU WtT of 18.5 is carried from the Sustainable Ships table and MUST be checked against the Annex II LNG row before this fuel drives a published figure.",
       "source": "LCV and CO2 factor via agriportance FuelEU worked example; WtT and Cslip via Sustainable Ships 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero', July 2025; IMO upstream gap per ICCT, April 2025"
     },
@@ -127,6 +130,19 @@
       "source": "RED Article 28(5) ceiling; pathway values per certificate (RED Delegated Regulation 2023/1185)"
     }
   ],
+
+  "imoFossilWtt": {
+    "legalBasis": "MEPC.391(81), 2024 Guidelines on Life Cycle GHG Intensity of Marine Fuels (adopted 22 March 2024)",
+    "classificationNote": "The IMO bins residual fuels by SULPHUR content, not ISO 8217 viscosity grade — the same physical bunker lands in different bins under the two frameworks. A typical VLSFO at 0.50% S falls in the 0.10–0.50% band (WtT 16.8), while FuelEU files it under the HFO viscosity row (WtT 13.5). Fossil WtT defaults are mandatory under both frameworks, not indicative.",
+    "residualBySulphur": [
+      { "band": "0.10 < S ≤ 0.50%", "maxSulphurPercent": 0.5, "wttGco2ePerMj": 16.8, "label": "Residual fuel oil, 0.10–0.50% S" },
+      { "band": "S > 0.50%", "maxSulphurPercent": null, "wttGco2ePerMj": 14.1, "label": "Residual fuel oil, > 0.50% S" }
+    ],
+    "distillateNote": "No confirmed IMO WtT default for distillates (MGO/MDO) in the verified sources — the FuelEU Annex II value is substituted, disclosed per factor and named in the method line, until the MEPC.391(81) table is checked directly.",
+    "lcvNote": "MEPC.391(81) implies LCV 0.0480 MJ/g for LNG (Annex II: 0.0491) and 0.0463 for LPG — LCVs diverge across frameworks too. Residual/distillate IMO LCVs are unconfirmed and carried from Annex II pending direct verification of the resolution table.",
+    "source": "MEPC.391(81) as cited verbatim in 'Well-to-Tank Carbon Intensity Variability of Fossil Marine Fuels: A Country-Level Assessment' (arXiv:2502.07201, Feb 2025): HFO 0.10<S≤0.50% = 16.8 gCO2e/MJ; HFO >0.50% S = 14.1 gCO2e/MJ. Paragraph-level reference against the resolution text itself still pending; retrieved 2026-08-14.",
+    "verified": false
+  },
 
   "methaneSlip": {
     "note": "Cslip is the fraction of methane escaping combustion, defined at 50% engine load. Both frameworks specify values per engine technology and they differ — engine type must be an explicit input for any LNG calculation.",

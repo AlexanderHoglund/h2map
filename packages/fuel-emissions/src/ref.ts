@@ -49,6 +49,12 @@ const fuelSchema = z.object({
    * the row's WtT is FuelEU's and must not be borrowed).
    */
   unavailableUnder: z.array(z.string()).optional(),
+  /**
+   * IMO classification of fossil rows: the IMO bins residual fuels by
+   * SULPHUR content (MEPC.391(81)), not ISO 8217 viscosity — the same
+   * physical bunker lands in different bins under the two frameworks.
+   */
+  imoClass: z.enum(["residual", "distillate"]).optional(),
   framework: z.string().min(1),
   verified: z.boolean(),
   requiresEngineType: z.boolean().optional(),
@@ -86,6 +92,23 @@ export const refDatasetSchema = z.object({
     }),
   ),
   fuels: z.array(fuelSchema).min(1),
+  /** IMO's OWN fossil WtT defaults (MEPC.391(81)) — resolved by sulphur band. */
+  imoFossilWtt: z.object({
+    legalBasis: z.string().min(1),
+    classificationNote: z.string().min(1),
+    residualBySulphur: z.array(
+      z.object({
+        band: z.string().min(1),
+        maxSulphurPercent: z.number().nullable(),
+        wttGco2ePerMj: z.number(),
+        label: z.string().min(1),
+      }),
+    ),
+    distillateNote: z.string().min(1),
+    lcvNote: z.string().min(1),
+    source: z.string().min(1),
+    verified: z.boolean(),
+  }),
   methaneSlip: z.object({
     note: z.string(),
     source: z.string(),

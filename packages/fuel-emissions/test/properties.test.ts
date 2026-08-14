@@ -297,6 +297,46 @@ describe("fuel-emissions properties", () => {
     expect(worst.znz.compliantTo2034).toBe(false);
   });
 
+  it("B: the same bunker resolves to a different WtT row per framework", () => {
+    // FuelEU bins by ISO 8217 viscosity (HFO row, WtT 13.5); the IMO bins
+    // by sulphur (MEPC.391(81)): 0.10<S<=0.50% -> 16.8, >0.50% -> 14.1.
+    // Neither framework borrows the other's classification logic.
+    const base = {
+      candidateFuelId: "e-ammonia",
+      quantityTonnes: 1000,
+      candidateWtwGco2ePerMj: 15,
+      baselineFuelId: "hfo",
+      pilotShare: 0,
+      n2oSlipGPerG: 0,
+    } as const;
+    const wttPerMj = (r: FuelEmissionsResult) =>
+      (r.wellToWake.baseline.parts.wttTco2e / r.baselineEnergyMj) * 1e6;
+    const eu = evaluateFuelEmissions({ ...base, frameworkId: "fueleu" }, ds) as FuelEmissionsResult;
+    expect(wttPerMj(eu)).toBeCloseTo(13.5, 9);
+    expect(eu.baselineLabel).toMatch(/RME/);
+    const imoLow = evaluateFuelEmissions(
+      { ...base, frameworkId: "imo", baselineSulphurPercent: 0.5 },
+      ds,
+    ) as FuelEmissionsResult;
+    expect(wttPerMj(imoLow)).toBeCloseTo(16.8, 9);
+    expect(imoLow.baselineLabel).toBe("Residual fuel oil, 0.10\u20130.50% S");
+    const imoHigh = evaluateFuelEmissions(
+      { ...base, frameworkId: "imo", baselineSulphurPercent: 2.7 },
+      ds,
+    ) as FuelEmissionsResult;
+    expect(wttPerMj(imoHigh)).toBeCloseTo(14.1, 9);
+    expect(imoHigh.baselineLabel).toBe("Residual fuel oil, > 0.50% S");
+    // C: residual fossil rows under IMO are NATIVE — no substitutions
+    // (the badge is reserved for genuinely absent values, like the
+    // distillate pilot's WtT).
+    expect(imoLow.substitutedFactors).toEqual([]);
+    const withPilot = evaluateFuelEmissions(
+      { ...base, frameworkId: "imo", baselineSulphurPercent: 0.5, pilotShare: 0.05 },
+      ds,
+    ) as FuelEmissionsResult;
+    expect(withPilot.substitutedFactors).toEqual(["pilot WtT (Marine gas oil / diesel)"]);
+  });
+
   it("row atomicity: every fossil fuel's five factors come from ONE Annex II row", () => {
     // Independent copy of the confirmed Annex II table (DG MOVE FuelEU
     // guidance document; ESSF SAPS WS1 working document — both reproduce
