@@ -529,28 +529,43 @@ export default function FuelEmissionsPanel() {
                 </tr>
               </thead>
               <tbody>
+                {/* Per-factor provenance: under the IMO framework the fuel
+                    factors are SUBSTITUTED from FuelEU Annex II (IMO
+                    defaults unpublished) — those rows carry the unverified
+                    badge and say so. The certified pathway value (PoS) and
+                    the literature N2O slip are not substitutions. */}
                 {(
                   [
-                    ["rowWtt", active.candidate.parts.wttTco2e, active.baseline.parts.wttTco2e, candidateRow.source],
-                    ["rowTtwCo2", active.candidate.parts.ttwCo2Tco2e, active.baseline.parts.ttwCo2Tco2e, baselineRow.derivation],
-                    ["rowTtwCh4", active.candidate.parts.ttwCh4Tco2e, active.baseline.parts.ttwCh4Tco2e, ds.gwpSets[ok.gwpSetId]!.source],
-                    ["rowTtwN2o", active.candidate.parts.ttwN2oTco2e, active.baseline.parts.ttwN2oTco2e, ds.gwpSets[ok.gwpSetId]!.source],
-                    ["rowSlip", active.candidate.parts.n2oSlipTco2e, 0, n2oScenario.source],
-                    ["rowPilot", active.candidate.parts.pilotTco2e, 0, ds.pilotFuel.source],
+                    ["rowWtt", active.candidate.parts.wttTco2e, active.baseline.parts.wttTco2e, candidateRow.source, !certifiedRange],
+                    ["rowTtwCo2", active.candidate.parts.ttwCo2Tco2e, active.baseline.parts.ttwCo2Tco2e, baselineRow.derivation, true],
+                    ["rowTtwCh4", active.candidate.parts.ttwCh4Tco2e, active.baseline.parts.ttwCh4Tco2e, ds.gwpSets[ok.gwpSetId]!.source, true],
+                    ["rowTtwN2o", active.candidate.parts.ttwN2oTco2e, active.baseline.parts.ttwN2oTco2e, ds.gwpSets[ok.gwpSetId]!.source, true],
+                    ["rowSlip", active.candidate.parts.n2oSlipTco2e, 0, n2oScenario.source, false],
+                    ["rowPilot", active.candidate.parts.pilotTco2e, 0, ds.pilotFuel.source, true],
                   ] as const
                 )
                   // Only rows that carry a number render — zero rows are noise.
                   .filter(([, cand, base]) => Math.abs(cand) >= 0.05 || Math.abs(base) >= 0.05)
-                  .map(([key, cand, base, source]) => (
-                    <tr key={key} className="border-b border-neutral-100">
-                      <td className="py-1.5 pr-2 text-neutral-600">
-                        {t(key)}
-                        <Help text={source} />
-                      </td>
-                      <td className="py-1.5 pr-2 text-right">{fmt1(cand)}</td>
-                      <td className="py-1.5 text-right">{fmt1(base)}</td>
-                    </tr>
-                  ))}
+                  .map(([key, cand, base, source, annexFactors]) => {
+                    const substituted = frameworkId === "imo" && annexFactors;
+                    return (
+                      <tr key={key} className="border-b border-neutral-100">
+                        <td className="py-1.5 pr-2 text-neutral-600">
+                          {t(key)}
+                          {substituted && (
+                            <span className="ml-1 align-middle">
+                              <Badge tone="warning">{t("unverified")}</Badge>
+                            </span>
+                          )}
+                          <Help
+                            text={substituted ? `${t("imoSubstitution")} ${source}` : source}
+                          />
+                        </td>
+                        <td className="py-1.5 pr-2 text-right">{fmt1(cand)}</td>
+                        <td className="py-1.5 text-right">{fmt1(base)}</td>
+                      </tr>
+                    );
+                  })}
                 <tr className="font-semibold">
                   <td className="py-1.5 pr-2">{t("rowTotal")}</td>
                   <td className="py-1.5 pr-2 text-right">
@@ -567,6 +582,8 @@ export default function FuelEmissionsPanel() {
                 framework: FRAMEWORK_CITATIONS[frameworkId] ?? frameworkId,
                 version: ds.datasetVersion,
               })}
+              {/* The GWP set is IMO's; the fuel factors are not — say so. */}
+              {frameworkId === "imo" && ` ${t("citationImoNote")}`}
             </p>
             <p className="mt-2 text-[11px] text-neutral-500">
               {t("footer", { version: ds.datasetVersion })}{" "}

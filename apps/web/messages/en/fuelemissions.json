@@ -63,6 +63,8 @@
     "yes": "Yes",
     "no": "No",
     "citation": "Method: energy-delivered comparison (MJ), never tonne-for-tonne; emission factors and GWP set {gwp} per {framework}; dataset {version}.",
+    "citationImoNote": "Fuel emission factors are substituted from FuelEU Annex II where IMO defaults are unpublished (marked unverified above).",
+    "imoSubstitution": "IMO default not published - value substituted from FuelEU Annex II.",
     "quantityOf": "Quantity of {fuel}",
     "equivalentReverse": "Replacing {baselineQty} t {baseline} needs {candidateQty} t {candidate}",
     "intensityHelp": "Candidate vs baseline GHG intensity in gCO2e/MJ, on the selected basis. References: IMO 2008 fleet average {gfi}; FuelEU 2020 baseline {feu}.",

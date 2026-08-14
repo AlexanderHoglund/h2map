@@ -83,6 +83,9 @@ test("direction dropdown, energy equivalence, refusal paths and the N2O range", 
     .getByLabel("Accounting framework")
     .selectOption({ label: "IMO Net-Zero (AR5 · provisional)" });
   await expect(page.getByTestId("znz")).toHaveText("Yes");
+  // Fix 4: the IMO GWP set is IMO's, the fuel factors are Annex II
+  // substitutions — the method line and the marked rows say so.
+  await expect(page.getByText(/substituted from FuelEU Annex II/)).toBeVisible();
   await page.getByLabel("ZNZ period").selectOption({ label: "From 2035" });
   // The certified field is WELL-TO-TANK (fix 3 of the verification
   // report): entering a WtW certificate would double-count the N2O slip.
