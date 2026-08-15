@@ -1,7 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { domainLabels, lcohGradientCss, RAMP_STOPS, stopPosition } from "./scale";
+import {
+  domainLabels,
+  lcohGradientCss,
+  NON_VIABLE_ABOVE,
+  RAMP_STOPS,
+  stopPosition,
+} from "./scale";
 import type { LayerBasis, LayerKey } from "./types";
 
 interface Props {
@@ -53,6 +59,13 @@ export default function Legend({ layerKey, basis, maxDetail }: Props) {
       </p>
       <p className="mt-1 text-[11px] text-neutral-500">
         {financing}
+      </p>
+      <p className="mt-1 flex items-center gap-1.5 text-[11px] text-neutral-500">
+        <span
+          aria-hidden="true"
+          className="inline-block h-2.5 w-3.5 shrink-0 rounded-[2px] bg-neutral-400/60"
+        />
+        {t("legend.nonViable", { ceiling: NON_VIABLE_ABOVE })}
       </p>
       {(layerKey === "wind" || layerKey === "best") && (
         <p className="mt-1 flex items-center gap-1.5 text-[11px] text-neutral-500">

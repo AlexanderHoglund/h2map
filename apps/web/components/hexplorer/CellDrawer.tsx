@@ -12,6 +12,7 @@ import {
   type LayerBasis,
   type LayerKey,
 } from "./types";
+import { isNonViable, NON_VIABLE_ABOVE } from "./scale";
 
 interface Props {
   /** Last selected cell; kept by the parent while the drawer slides out. */
@@ -144,12 +145,22 @@ export default function CellDrawer({
                     <dt className="text-neutral-600">
                       {t(`drawer.layers.${key}`)}
                     </dt>
-                    <dd className="tabular-nums font-medium">
+                    <dd
+                      className={`tabular-nums font-medium ${
+                        isNonViable(lcohByLayer[key]) ? "text-neutral-500" : ""
+                      }`}
+                    >
                       {fmt(lcohByLayer[key], 2)}
                     </dd>
                   </div>
                 ))}
               </dl>
+              {/* Past the ceiling the number is a verdict, not a price. */}
+              {LAYER_KEYS.some((k) => isNonViable(lcohByLayer[k])) && (
+                <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+                  {t("drawer.nonViableNote", { ceiling: NON_VIABLE_ABOVE })}
+                </p>
+              )}
             </section>
 
             <section>
@@ -230,7 +241,35 @@ export default function CellDrawer({
                     {fmt(shown.data.bestWindMw, 0)} {t("drawer.unitMw")}
                   </dd>
                 </div>
+                {/* Best-achievable sizing (the 45-configuration sweep):
+                    how much renewable per unit of electrolyser this site
+                    actually wants, and the mix that gets there. Null until
+                    a recompute pass has run the sweep for this cell. */}
+                {shown.data.optimal?.[String(costYear)] && (
+                  <>
+                    <div className="flex justify-between py-0.5">
+                      <dt className="text-neutral-600">{t("drawer.optimalRatio")}</dt>
+                      <dd className="tabular-nums">
+                        {fmt(shown.data.optimal[String(costYear)]!.ratio, 2)}×
+                      </dd>
+                    </div>
+                    <div className="flex justify-between py-0.5">
+                      <dt className="text-neutral-600">{t("drawer.optimalMix")}</dt>
+                      <dd className="tabular-nums">
+                        {fmtPercent(shown.data.optimal[String(costYear)]!.pvShare)}
+                        {" "}
+                        {t("drawer.pvShareSuffix")}
+                      </dd>
+                    </div>
+                  </>
+                )}
               </dl>
+              {/* The seven cost components, utilization, curtailment and
+                  stack replacements are per-EVALUATION outputs, not stored
+                  per tile — the button below runs them for this cell. */}
+              <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+                {t("drawer.diagnosticsNote")}
+              </p>
             </section>
 
             <section>

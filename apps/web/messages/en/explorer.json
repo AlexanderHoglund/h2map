@@ -42,7 +42,8 @@
       "caption": "USD/kg H₂",
       "maxDetail": "Max detail — finest available resolution",
       "financing": "Resource-driven · uniform 8% financing",
-      "fidelity": "Outlined: wind from the fallback model"
+      "fidelity": "Outlined: wind from the fallback model",
+      "nonViable": "Grey: above {ceiling} USD/kg — not viable for this technology"
     },
     "search": {
       "label": "Search for a place or coordinates",
@@ -90,7 +91,12 @@
         "improved": "Open-Meteo · air density + IEC class",
         "fallback": "NASA POWER · generic curve"
       },
-      "fallbackNote": "This cell's wind uses the fallback model: a generic turbine curve with fixed shear, without the air-density and turbine-class corrections applied elsewhere. Outlined on the map so it is not read as directly comparable."
+      "fallbackNote": "This cell's wind uses the fallback model: a generic turbine curve with fixed shear, without the air-density and turbine-class corrections applied elsewhere. Outlined on the map so it is not read as directly comparable.",
+      "nonViableNote": "Above {ceiling} USD/kg: this technology is not viable at this site, not merely expensive.",
+      "optimalRatio": "Best-achievable sizing",
+      "optimalMix": "Best-achievable mix",
+      "pvShareSuffix": "solar",
+      "diagnosticsNote": "Cost breakdown, electrolyser utilisation, curtailment and stack replacements are computed per evaluation — open this cell below to see them."
     }
   }
 }

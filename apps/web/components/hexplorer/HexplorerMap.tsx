@@ -25,7 +25,12 @@ import {
 } from "./types";
 import { useHexCells } from "./useHexCells";
 import { collectWithAncestors, enumerateViewport } from "./viewport";
-import { isReducedFidelity, lcohColor } from "./scale";
+import {
+  isNonViable,
+  isReducedFidelity,
+  lcohColor,
+  NON_VIABLE_COLOR,
+} from "./scale";
 
 const LIGHT_STYLE =
   "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
@@ -451,6 +456,15 @@ export default function HexplorerMap({
           lineWidthMaxPixels: 2.5,
           getHexagon: (d) => d.h3,
           getFillColor: (d) => {
+            // Past the ceiling the number stops meaning "expensive" and
+            // starts meaning "this technology does not work here" (Atacama
+            // wind: 770-1,003 USD/kg). Leave the ramp: neutral grey, half
+            // opacity, so it reads as excluded rather than as the dearest
+            // in-range cell.
+            if (isNonViable(d.value)) {
+              const [r, g, b] = NON_VIABLE_COLOR;
+              return [r, g, b, d.parentFill ? 110 : 140];
+            }
             const [r, g, b] = lcohColor(d.value, layerKey);
             return [r, g, b, d.parentFill ? PARENT_FILL_ALPHA : 255];
           },
