@@ -10,8 +10,8 @@
  *   its local capacity factor (better resource → more MWh from the same
  *   plant → cheaper electricity). This is what makes the choropleth show that
  *   location matters. CAPEX/OPEX from IRENA Renewable Power Generation Costs
- *   2023 global weighted averages (solar PV ~800 USD/kWp, onshore wind
- *   ~1200 USD/kW), differentiated because the two technologies have genuinely
+ *   in 2024 global weighted averages (solar PV 691 USD/kW, onshore wind
+ *   1,041 USD/kW), differentiated because the two technologies have genuinely
  *   different economics.
  */
 import { REFERENCE_DEFAULTS, simulateLCOH } from "@h2map/lcoh-engine";
@@ -53,6 +53,16 @@ export interface CostPack {
    */
   stackLifetimeHours: number;
   degradationPerYear: number;
+  /**
+   * The vintage of the GENERATION cost data this pack is built on, exposed
+   * so a mismatch between the label on a map and the data behind it is
+   * visible rather than inferred. The map ran IRENA 2023 costs under a 2024
+   * label for months; nothing in the output said so.
+   *
+   * Note this is the generation basis specifically. The electrolyser line
+   * has its own anchor (IEA GHR 2025, 2024 vintage) — see the pack comment.
+   */
+  costBasisYear: number;
 }
 
 export const COST_YEARS = [2024, 2030, 2040, 2050] as const;
@@ -70,12 +80,43 @@ export type CostYear = (typeof COST_YEARS)[number];
  *
  * Stack life keeps the documented ×1.5 / ×2.0 / ×2.5 durability trajectory,
  * now measured from the IEA economic optimum of 50,000 h rather than 40,000.
+ *
+ * GENERATION CAPEX is IRENA *Renewable Power Generation Costs in 2024*
+ * (published July 2025): solar PV 691 USD/kW, onshore wind 1,041 USD/kW,
+ * global weighted-average total installed cost. This replaced the 2023
+ * edition's 800/1,200, which had left a map labelled 2024 running 2023
+ * costs — the same vintage mismatch already fixed for the electrolyser.
+ * IRENA's 2025 edition (July 2026) reports LCOE for 2025 but carries the
+ * same 691/1,041 installed costs, describing costs as stabilising, so 2024
+ * remains the current basis rather than an out-of-date one.
+ *
+ * The future-year generation figures below still apply the PREVIOUS
+ * multipliers to this new base; re-deriving them from IRENA's own
+ * projections is a separate change, kept separate so the effect of the
+ * re-base can be read on its own.
+ *
+ * OPEX fractions (1.5% solar, 2.5% wind) are UNCHANGED, and now checked
+ * rather than inherited. IRENA's O&M figures sit in appendix tables absent
+ * from the public summary, so they were validated against the published
+ * LCOE instead, which is the stronger test: with IRENA's own 691/1,041
+ * CAPEX, its ~25-year economic life and its region-weighted real WACC
+ * (~3.8-6.3%), these fractions reproduce IRENA's global weighted-average
+ * LCOE of 43 USD/MWh solar and 34 USD/MWh onshore wind to within a few
+ * percent. They are consistent with the same edition.
+ *
+ * Measured effect of the re-base, swept across the observed CF range:
+ * solar-only falls 5.5-5.7%, wind-only 6.8-7.1%, and within-layer ordering
+ * is preserved exactly (the shift is near-uniform, so no cell overtakes
+ * another). The two layers do NOT move together, though — wind falls about
+ * 1.4 points more than solar, so solar-vs-wind comparisons shift slightly
+ * in wind's favour. Small, but it is a real change in the cross-layer
+ * question ("which technology wins here?"), not only in the levels.
  */
 export const COST_PACKS: Record<CostYear, CostPack> = {
-  2024: { electrolyzerCapexUsdPerKw: 2300, efficiencyLhv: 0.6, solarCapexUsdPerKw: 800, solarOpexFrac: 0.015, windCapexUsdPerKw: 1200, windOpexFrac: 0.025, stackLifetimeHours: 50_000, degradationPerYear: 0.01 },
-  2030: { electrolyzerCapexUsdPerKw: 1610, efficiencyLhv: 0.61, solarCapexUsdPerKw: 552, solarOpexFrac: 0.015, windCapexUsdPerKw: 1104, windOpexFrac: 0.025, stackLifetimeHours: 75_000, degradationPerYear: 0.008 },
-  2040: { electrolyzerCapexUsdPerKw: 1334, efficiencyLhv: 0.63, solarCapexUsdPerKw: 496, solarOpexFrac: 0.015, windCapexUsdPerKw: 1056, windOpexFrac: 0.025, stackLifetimeHours: 100_000, degradationPerYear: 0.006 },
-  2050: { electrolyzerCapexUsdPerKw: 1150, efficiencyLhv: 0.65, solarCapexUsdPerKw: 456, solarOpexFrac: 0.015, windCapexUsdPerKw: 1020, windOpexFrac: 0.025, stackLifetimeHours: 125_000, degradationPerYear: 0.005 },
+  2024: { electrolyzerCapexUsdPerKw: 2300, efficiencyLhv: 0.6, solarCapexUsdPerKw: 691, solarOpexFrac: 0.015, windCapexUsdPerKw: 1041, windOpexFrac: 0.025, stackLifetimeHours: 50_000, degradationPerYear: 0.01, costBasisYear: 2024 },
+  2030: { electrolyzerCapexUsdPerKw: 1610, efficiencyLhv: 0.61, solarCapexUsdPerKw: 477, solarOpexFrac: 0.015, windCapexUsdPerKw: 958, windOpexFrac: 0.025, stackLifetimeHours: 75_000, degradationPerYear: 0.008, costBasisYear: 2024 },
+  2040: { electrolyzerCapexUsdPerKw: 1334, efficiencyLhv: 0.63, solarCapexUsdPerKw: 428, solarOpexFrac: 0.015, windCapexUsdPerKw: 916, windOpexFrac: 0.025, stackLifetimeHours: 100_000, degradationPerYear: 0.006, costBasisYear: 2024 },
+  2050: { electrolyzerCapexUsdPerKw: 1150, efficiencyLhv: 0.65, solarCapexUsdPerKw: 394, solarOpexFrac: 0.015, windCapexUsdPerKw: 885, windOpexFrac: 0.025, stackLifetimeHours: 125_000, degradationPerYear: 0.005, costBasisYear: 2024 },
 };
 
 export interface SweepPoint {
