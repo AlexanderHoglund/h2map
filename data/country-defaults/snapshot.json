@@ -21,7 +21,7 @@
    "curated": true,
    "gridEfTco2PerMwh": 0.68,
    "waccHeuristic": 0.1,
-   "waccCurated": 0.094,
+   "waccCurated": 0.06731707317073199,
    "countryRiskPremium": 0.0246,
    "electricityPriceUsdMwh": 62.9,
    "waterPriceUsdM3": 1.21,
@@ -30,7 +30,7 @@
    "capexPack": null,
    "profileVersion": "2026-08-15",
    "citations": {
-    "wacc_curated": "IEA Cost of Capital Observatory 2024 survey (median nominal post-tax WACC, utility-scale solar PV, Indonesia), via IEA commentary 'High cost of capital and limited project pipeline hinder clean energy investment in Southeast Asia', retrieved 2026-08-15",
+    "wacc_curated": "IEA Cost of Capital Observatory 2024 survey (median nominal post-tax WACC, utility-scale solar PV, Indonesia), deflated to real with Bank Indonesia's 2.5% inflation target, retrieved 2026-08-15",
     "water_price_usd_m3": "PAM Jaya (Jakarta) industrial tariff K3, large industry >20 m3 block: 21,500 IDR/m3 under Kepgub DKI Jakarta 730/2024, converted at JISDOR 17,836 (14 Aug 2026), retrieved 2026-08-15 (unverified)",
     "country_risk_premium": "Damodaran (NYU Stern), country risk premia, 5 January 2026 update — Moody's Baa2, adjusted default spread 1.62%, CRP 2.46%, total ERP 6.69%, retrieved 2026-08-15",
     "electricity_price_usd_mwh": "PLN tariff I-3 (medium voltage, >200 kVA) 1,122 IDR/kWh, Q3 2026 (1 Jul-30 Sep, held flat by government decision under ESDM Reg. 7/2024), converted at Bank Indonesia JISDOR 17,836 IDR/USD (14 Aug 2026), retrieved 2026-08-15 (unverified)"

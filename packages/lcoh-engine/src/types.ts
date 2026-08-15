@@ -63,7 +63,21 @@ export interface ReferenceFlags {
 export interface LCOHInputs {
   finance: {
     lifetimeYears: number;
-    /** Fraction per year, e.g. 0.08. */
+    /**
+     * Fraction per year, e.g. 0.08. **REAL, not nominal.**
+     *
+     * The engine discounts constant-USD cashflows — there is no inflation or
+     * escalation term anywhere in it — so this is a real framework and the
+     * rate must be a real one. Handing it a nominal rate (the basis most
+     * published cost-of-capital surveys report, including the IEA Cost of
+     * Capital Observatory) systematically overstates LCOH: measured at the
+     * West Timor cell, a nominal 9.4% consumed as if real inflates LCOH by
+     * 7.7% against the Fisher-converted 6.4%.
+     *
+     * Convert at the boundary, never here — see `toRealRate` in
+     * scripts/defaults/discountBasis.ts, which carries the inflation
+     * assumption and its citation alongside the rate.
+     */
     discountRate: number;
   };
   electrolyzer: {

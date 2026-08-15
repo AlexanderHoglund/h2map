@@ -72,6 +72,13 @@ export const DEFAULT_SUPPLY_ROUTE = "ex-china" as const;
  *   optimum (up to 95,000 h technically achievable).
  */
 export const REFERENCE_DEFAULTS: LCOHInputs = Object.freeze<LCOHInputs>({
+  // discountRate is REAL (see LCOHInputs.finance.discountRate): the engine
+  // discounts constant-USD cashflows with no escalation term. 8% real is the
+  // source methodology's resource-ranking rate — a deliberately neutral
+  // figure held constant across cells so the map compares RESOURCE, not
+  // country risk. Because it is uniform it barely affects ordering, but the
+  // basis is stated because a rate without one is how the nominal/real bug
+  // enters (see scripts/defaults/discountBasis.ts).
   finance: { lifetimeYears: 20, discountRate: 0.08 },
   electrolyzer: {
     capacityMw: 100,

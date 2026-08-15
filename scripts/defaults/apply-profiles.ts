@@ -16,9 +16,7 @@
  * the new values.
  */
 import { makeSupabase } from "../lib/serviceDeps";
-import { INDONESIA, type CountryProfile } from "./profiles/indonesia";
-
-const PROFILES: CountryProfile[] = [INDONESIA];
+import { PROFILES } from "./profiles";
 
 async function main(): Promise<void> {
   const db = makeSupabase();
@@ -37,6 +35,17 @@ async function main(): Promise<void> {
             retrievedAt: f.retrievedAt,
             verified: f.verified,
             ...(f.note ? { note: f.note } : {}),
+            // A rate's stored value is REAL; `quoted` preserves what was
+            // actually published (basis, currency, vintage, technology) so
+            // the conversion is auditable and not merely asserted.
+            ...(f.rate
+              ? {
+                  quoted: f.rate,
+                  ...(profile.inflation
+                    ? { inflation: profile.inflation }
+                    : {}),
+                }
+              : {}),
           },
         ]),
       ),

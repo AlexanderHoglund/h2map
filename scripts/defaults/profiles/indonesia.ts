@@ -29,12 +29,27 @@
  *    none rather than letting a notional credit close a cost gap.
  */
 
+import {
+  toRealRate,
+  type InflationAssumption,
+  type QuotedRate,
+} from "../discountBasis";
+
 export interface ProfileField {
+  /**
+   * The value AS THE ENGINE CONSUMES IT. For a cost of capital that means
+   * the real rate — see `rate` for what was actually published.
+   */
   value: number;
   source: string;
   retrievedAt: string;
   verified: boolean;
   note?: string;
+  /**
+   * Present on rate-valued fields: the figure as quoted, with its basis,
+   * currency, vintage and technology. `value` is this resolved to real.
+   */
+  rate?: QuotedRate;
 }
 
 export interface CountryProfile {
@@ -50,23 +65,63 @@ export interface CountryProfile {
     land_cost_usd_ha?: ProfileField;
     labour_index?: ProfileField;
   };
+  /** Required when any quoted rate is nominal; must match its currency. */
+  inflation?: InflationAssumption;
   capexPack?: Record<string, number> | null;
 }
 
+/**
+ * Bank Indonesia's own target, not a spot CPI reading. A DCF spanning 20
+ * years should be deflated by the central bank's medium-term anchor rather
+ * than by whatever the last monthly print happened to be — the May 2026
+ * reading was 3.08%, the April one 2.42%, and neither is a 20-year view.
+ */
+const INDONESIA_INFLATION: InflationAssumption = {
+  value: 0.025,
+  currency: "IDR",
+  sourceYear: 2026,
+  source:
+    "Bank Indonesia / Government inflation target for 2025-2027: 2.5% +/- 1% (target corridor 1.5-3.5%), reaffirmed 2026",
+};
+
 export const INDONESIA: CountryProfile = {
   iso2: "ID",
+  inflation: INDONESIA_INFLATION,
   profileVersion: "2026-08-15",
   source:
     "Researched country profile 2026-08-15 — per-field citations in profile_source",
   fields: {
     wacc_curated: {
-      value: 0.094,
+      // REAL rate: the engine discounts constant-USD cashflows, so it must
+      // receive a real one. The published 9.4% is NOMINAL; consumed as real
+      // it overstates LCOH by 7.7% (measured at -9.1/124.7). Derived here
+      // rather than hard-coded so the number can never drift from its inputs.
+      value: toRealRate(
+        {
+          value: 0.094,
+          basis: "nominal",
+          currency: "IDR",
+          sourceYear: 2024,
+          technology: "utility-scale solar PV",
+          source: "IEA Cost of Capital Observatory 2024",
+        },
+        INDONESIA_INFLATION,
+      ),
+      rate: {
+        value: 0.094,
+        basis: "nominal",
+        currency: "IDR",
+        sourceYear: 2024,
+        technology: "utility-scale solar PV",
+        source:
+          "IEA Cost of Capital Observatory 2024 survey (median nominal post-tax WACC, utility-scale solar PV, Indonesia), via IEA commentary 'High cost of capital and limited project pipeline hinder clean energy investment in Southeast Asia'",
+      },
       source:
-        "IEA Cost of Capital Observatory 2024 survey (median nominal post-tax WACC, utility-scale solar PV, Indonesia), via IEA commentary 'High cost of capital and limited project pipeline hinder clean energy investment in Southeast Asia'",
+        "IEA Cost of Capital Observatory 2024 survey (median nominal post-tax WACC, utility-scale solar PV, Indonesia), deflated to real with Bank Indonesia's 2.5% inflation target",
       retrievedAt: "2026-08-15",
       verified: true,
       note:
-        "Nominal, local currency. Indonesian RE project finance is largely USD-denominated, so a USD nominal WACC is close but not identical; a defensible range is 8.5-10.5%. Moody's (Feb 2026) and Fitch (Mar 2026) both moved Indonesia to a NEGATIVE outlook, which argues for the upper end in a stress case. Deliberately NOT IRENA's 6.0%, which is a 2021 real value.",
+        "Two caveats that survive the conversion. (1) TECHNOLOGY: this is a solar-PV cost of capital borrowed for a hydrogen project, which carries offtake risk a contracted PPA does not — a deliberate simplification, and if anything it understates hydrogen's cost of capital. (2) CURRENCY: the survey quotes local-currency nominal, and Indonesian RE project finance is largely USD-denominated, so the IDR deflation is an approximation; a defensible real range is roughly 5.5-7.5%. Moody's (Feb 2026) and Fitch (Mar 2026) both moved Indonesia to a NEGATIVE outlook, arguing for the upper end in a stress case. Deliberately NOT IRENA's 6.0%, which is a 2021 REAL value and so is not comparable to the pre-conversion 9.4%. Note the literature disagrees: an Indonesian PV study uses a real 9.5%, close to the IEA's nominal figure but meaning something quite different — which is why the basis is recorded rather than the number alone.",
     },
     country_risk_premium: {
       value: 0.0246,
