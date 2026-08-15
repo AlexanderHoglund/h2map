@@ -2047,6 +2047,36 @@ export default async function DocsPage() {
         </p>
 
         <H id="inputs">22. Complete input inventory</H>
+        <div className="mt-3 border border-brand/40 bg-brand-tint px-4 py-3">
+          <p className="text-sm font-medium text-brand-deep">
+            Writing a scenario file by hand?
+          </p>
+          <p className="mt-1 text-[13px] leading-snug text-neutral-700">
+            For desk research and AI-assisted data entry there is a generated{" "}
+            <strong>JSON input template</strong>{" "}at{" "}
+            <code>docs/corridor/input-template.md</code>{" "}
+            (<code>npm run corridor:template</code>). It carries the complete
+            object to copy, the legal id values for every field the importer
+            will reject you for, the unit and bound of every number, a{" "}
+            <em>what you must not do</em>{" "}table, and the minimum set of
+            decisions that yields a meaningful scenario. It is generated from
+            this same schema and reference bundle, and a test asserts the
+            published template still imports and computes — so it cannot
+            drift from the model it describes.
+          </p>
+          <p className="mt-2 text-[13px] leading-snug text-neutral-700">
+            The three rules that cause the most silent damage:{" "}
+            <code>null</code>{" "}means &ldquo;use the model&apos;s own
+            value&rdquo;, never zero; every non-null number is an{" "}
+            <strong>override</strong>{" "}that replaces a figure the model would
+            otherwise derive consistently with the rest of the scenario; and
+            an <strong>unknown key is ignored in silence</strong>{" "}— a
+            misspelled field imports cleanly and is simply dropped, so
+            confirm each value you meant to set actually shows an OVERRIDE
+            badge. A wrong <em>value</em>{" "}is rejected and names its path; a
+            wrong <em>key</em>{" "}is not.
+          </p>
+        </div>
         <p className="mt-2">
           Every field a scenario carries — rendered directly from the
           GENERATED field reference (the zod validation schema joined with
@@ -2057,10 +2087,13 @@ export default async function DocsPage() {
           <code>null</code>{" "}to mean &ldquo;use the benchmark&rdquo;.
         </p>
         <p className="mt-2">
-          <strong>Rank / Max gap movement</strong>{" "}come from the
-          one-at-a-time sweep: each input is moved to the ends of its
-          plausible range on the workbook baseline and the largest headline
-          gap movement is recorded. Inputs whose module is off in the
+          <strong>Rank, gap movement, max across KPIs and binding
+          KPI</strong>{" "}come from the one-at-a-time sweep (§20): each input
+          is moved across its plausible range — enums across every option —
+          and the movement of all six headline outputs is recorded. Rank and
+          the gap column preserve the historical ranking; PLACEMENT follows
+          the max across KPIs, and the binding KPI names which output
+          produced it. Inputs whose module is off in the
           baseline (self-designed regulation, IMO NZF, 45Z, the FuelEU
           credit, financing) are swept{" "}
           <em>with the module switched on</em>, so their figures read as
