@@ -33,7 +33,8 @@
     "e2e": "playwright test",
     "corridor:docs": "tsx scripts/corridor/gen-docs.ts",
     "cells:export": "tsx scripts/rankdiff/export-cells.ts",
-    "cells:check-cf": "tsx scripts/rankdiff/check-solar-cf.ts"
+    "cells:check-cf": "tsx scripts/rankdiff/check-solar-cf.ts",
+    "rankdiff:fixed-ratio": "tsx scripts/rankdiff/measure-fixed-ratio-penalty.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
