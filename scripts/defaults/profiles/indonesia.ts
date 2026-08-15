@@ -46,6 +46,20 @@ export interface ProfileField {
   verified: boolean;
   note?: string;
   /**
+   * Publication year of the underlying figure — NOT `retrievedAt`, which
+   * only says when someone looked it up. A 2021 number retrieved today is
+   * still a 2021 number, and that distinction is what makes a vintage
+   * mismatch visible (see the IRENA 2023-under-a-2024-label case).
+   */
+  sourceYear?: number;
+  /**
+   * What kind of quantity this is, where that is ambiguous and consequential
+   * — e.g. a retail tariff versus a PPA price, a stoichiometric floor versus
+   * plant demand. Free text, because the useful distinction differs per
+   * field; the point is that it is stated rather than assumed.
+   */
+  basis?: string;
+  /**
    * Present on rate-valued fields: the figure as quoted, with its basis,
    * currency, vintage and technology. `value` is this resolved to real.
    */
@@ -128,6 +142,9 @@ export const INDONESIA: CountryProfile = {
       source:
         "Damodaran (NYU Stern), country risk premia, 5 January 2026 update — Moody's Baa2, adjusted default spread 1.62%, CRP 2.46%, total ERP 6.69%",
       retrievedAt: "2026-08-15",
+      sourceYear: 2026,
+      basis:
+        "equity country risk premium over a mature-market ERP. Informational: the engine consumes wacc_curated, not this.",
       verified: true,
       note:
         "Stale in the adverse direction: two of three agencies cut Indonesia to a negative outlook AFTER this snapshot.",
@@ -137,18 +154,24 @@ export const INDONESIA: CountryProfile = {
       source:
         "PLN tariff I-3 (medium voltage, >200 kVA) 1,122 IDR/kWh, Q3 2026 (1 Jul-30 Sep, held flat by government decision under ESDM Reg. 7/2024), converted at Bank Indonesia JISDOR 17,836 IDR/USD (14 Aug 2026)",
       retrievedAt: "2026-08-15",
+      sourceYear: 2026,
+      basis:
+        "retail industrial tariff (grid imports). NOT a PPA price and NOT the cost of captive renewables — the calculator applies it to the grid slot only.",
       verified: false,
       note:
-        "Unverified only because PLN's own tariff page was unreachable; the value is consistent across independent Indonesian outlets. I-4 (>=30,000 kVA) is 997 IDR/kWh = $55.9/MWh. Note renewable PPAs price BELOW retail industrial power (PR 112/2022 solar ceiling 5.63 US cents/kWh = $56.3/MWh), which is the interesting fact for a captive-RE project. The exchange rate matters: the ESDM formula window used 16,959, giving $66.2/MWh.",
+        "Unverified only because PLN's own tariff page was unreachable; the value is consistent across independent Indonesian outlets. I-4 (>=30,000 kVA) is 997 IDR/kWh = $55.9/MWh. Note renewable PPAs price BELOW retail industrial power (PR 112/2022 solar ceiling 5.63 US cents/kWh = $56.3/MWh), which is the interesting fact for a captive-RE project. The exchange rate matters: the ESDM formula window used 16,959, giving $66.2/MWh. A single national price also glosses over the eastern-Indonesia premium — defensible for screening, but eastern Indonesia is precisely where the best solar cells are.",
     },
     water_price_usd_m3: {
       value: 1.21,
       source:
         "PAM Jaya (Jakarta) industrial tariff K3, large industry >20 m3 block: 21,500 IDR/m3 under Kepgub DKI Jakarta 730/2024, converted at JISDOR 17,836 (14 Aug 2026)",
       retrievedAt: "2026-08-15",
+      sourceYear: 2024,
+      basis:
+        "regulated municipal industrial tariff (Jakarta). Applies to the calculator's water price; note the engine's 9 L/kg is a stoichiometric floor, so the volume it multiplies is a lower bound.",
       verified: false,
       note:
-        "Jakarta-anchored. PDAM tariffs are set per region and vary widely, and a coastal hydrogen site would likely desalinate ($0.50-1.50/m3) instead. Second-order for LCOH: ~9 kg water per kg H2 is about $0.01/kg at $1/m3.",
+        "Jakarta-anchored. PDAM tariffs are set per region and vary widely, and a coastal hydrogen site would likely desalinate ($0.50-1.50/m3) instead. Second-order for LCOH: ~9 kg water per kg H2 is about $0.01/kg at $1/m3. Checked for double-counting: the engine treats desalination and pumping electricity as emissions-only, so this price is not charged twice.",
     },
     // land_cost_usd_ha: ABSENT. The only published figure is Greater
     // Jakarta (Colliers Q2 2026, USD 180.33/m2 = $1.80m/ha), which is the

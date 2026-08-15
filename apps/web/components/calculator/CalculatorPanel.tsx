@@ -532,6 +532,27 @@ export default function CalculatorPanel({
                             {c.verified === false
                               ? ` — ${t("location.unverified")}`
                               : ""}
+                            {/* What KIND of number it is. A retail tariff
+                                and a PPA price are both "electricity" and
+                                are not interchangeable. */}
+                            {c.basis ? (
+                              <span className="block text-neutral-500">
+                                {c.basis}
+                              </span>
+                            ) : null}
+                            {/* A retail industrial tariff prices GRID
+                                imports. It is deliberately not applied to
+                                the PV/wind slots, which are captive
+                                generation priced by their own LCOE or
+                                CAPEX — a country's grid tariff is not what
+                                a dedicated renewable plant costs. So say
+                                when the field it feeds is switched off,
+                                rather than showing a citation for a number
+                                that is not reaching the result. */}
+                            {field === "electricity_price_usd_mwh" &&
+                            !values.grid?.enabled
+                              ? ` — ${t("location.gridOnlyInactive")}`
+                              : ""}
                           </li>
                         ),
                       )}

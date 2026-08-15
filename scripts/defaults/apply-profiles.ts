@@ -34,6 +34,8 @@ async function main(): Promise<void> {
             source: f.source,
             retrievedAt: f.retrievedAt,
             verified: f.verified,
+            ...(f.sourceYear ? { sourceYear: f.sourceYear } : {}),
+            ...(f.basis ? { basis: f.basis } : {}),
             ...(f.note ? { note: f.note } : {}),
             // A rate's stored value is REAL; `quoted` preserves what was
             // actually published (basis, currency, vintage, technology) so

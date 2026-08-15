@@ -119,9 +119,22 @@ export interface ProfileStatus {
 export interface CountryProfileCitation {
   value?: number;
   source?: string;
+  /** When it was looked up — NOT the vintage of the figure. */
   retrievedAt?: string;
+  /** Publication year of the underlying figure. */
+  sourceYear?: number;
+  /** What kind of quantity this is (retail tariff vs PPA, floor vs demand). */
+  basis?: string;
   verified?: boolean;
   note?: string;
+  /** On rate fields: the figure as published, before conversion to real. */
+  quoted?: {
+    value: number;
+    basis: "real" | "nominal";
+    currency: string;
+    sourceYear: number;
+    technology: string;
+  };
 }
 
 /** Row of GET /api/v1/defaults. */

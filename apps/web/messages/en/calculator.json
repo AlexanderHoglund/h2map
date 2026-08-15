@@ -30,6 +30,7 @@
       "enrichedNote": "researched cost inputs, cited below",
       "heuristicNote": "Regional defaults: grid factor measured (OWID/Ember), cost of capital from a World Bank income-group bracket — not a country estimate.",
       "unverified": "unverified",
+      "gridOnlyInactive": "prices grid imports only, and the grid is off — captive PV/wind keep their own pricing",
       "fields": {
         "wacc_curated": "Cost of capital",
         "country_risk_premium": "Country risk premium",

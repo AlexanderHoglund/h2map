@@ -2683,13 +2683,40 @@ export default async function DocsPage() {
         <p className="mt-2">
           <strong>Enriched profile.</strong>{" "}A researched country carries
           real cost and finance inputs — cost of capital, country risk
-          premium, industrial/PPA electricity price, water price, land and
-          labour, and per-technology CAPEX overrides — each with its own
-          citation and retrieval date. Curation is <em>per field</em>: a
-          profile may research the cost of capital and still let the automated
-          grid factor keep updating, and any field it leaves empty falls back
-          to the model default. A value the research could not confirm ships
-          marked unverified rather than being quietly presented as solid.
+          premium, industrial electricity price, water price, land and
+          labour, and per-technology CAPEX overrides — each carrying its
+          source, the <em>publication year</em>{" "}of the figure (not merely
+          when it was retrieved), and a <em>basis</em>{" "}saying what kind of
+          quantity it is. Curation is <em>per field</em>: a profile may
+          research the cost of capital and still let the automated grid factor
+          keep updating, and any field it leaves empty falls back to the model
+          default. A value the research could not confirm ships marked
+          unverified rather than being quietly presented as solid.
+        </p>
+        <p className="mt-2">
+          <strong>Cost of capital is stored REAL, and says so.</strong>{" "}The
+          engine discounts constant-USD cashflows with no escalation term, so
+          it needs a real rate — but most published surveys quote{" "}
+          <em>nominal</em>. Indonesia&apos;s 9.4% from the IEA Cost of Capital
+          Observatory is nominal, local currency; deflated by Bank
+          Indonesia&apos;s 2.5% target through the exact Fisher relation it
+          becomes <strong>6.73% real</strong>, which is what the model uses.
+          Consuming the nominal figure directly would have overstated LCOH by
+          about 7.7%. Every stored rate now records its basis, currency,
+          publication year and the technology it was measured for, and a rate
+          without a declared basis fails a test rather than being silently
+          consumed.
+        </p>
+        <p className="mt-2">
+          Two caveats travel with that number rather than being resolved. It
+          is a <strong>solar-PV</strong>{" "}cost of capital borrowed for a
+          hydrogen project, which carries offtake risk a contracted PPA does
+          not — if anything it understates hydrogen&apos;s true cost of
+          capital. And the literature genuinely disagrees: an Indonesian PV
+          study uses a <em>real</em>{" "}9.5%, deceptively close to the
+          IEA&apos;s nominal 9.4% but meaning something quite different. This
+          is why the model records number, basis, technology and year rather
+          than quietly picking one figure.
         </p>
         <p className="mt-2">
           <strong>Curated always beats the automated refresh.</strong>{" "}The
@@ -2698,6 +2725,81 @@ export default async function DocsPage() {
           citations. The heuristic WACC keeps refreshing underneath a
           researched one so the comparison stays visible — the table shows
           both.
+        </p>
+        <p className="mt-2">
+          <strong>Which field reaches which surface.</strong>{" "}A country
+          field only matters where something consumes it, and not every field
+          reaches every surface — the map prices generation from CAPEX, so an
+          electricity <em>price</em>{" "}has nothing to act on there.
+        </p>
+        <div className="mt-2 overflow-x-auto">
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-neutral-300 text-left">
+                <th className="py-1.5 pr-3">Field</th>
+                <th className="py-1.5 pr-3">Calculator</th>
+                <th className="py-1.5 pr-3">Map (choropleth)</th>
+                <th className="py-1.5">Corridor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                [
+                  "Cost of capital (curated, else heuristic)",
+                  "Discount rate",
+                  "Risk-adjusted layer only",
+                  "No — see divergence below",
+                ],
+                [
+                  "Grid emission factor",
+                  "Grid emissions",
+                  "Not used (no grid import)",
+                  "No",
+                ],
+                [
+                  "Industrial electricity price",
+                  "Grid import price — only when the grid is enabled",
+                  "No — generation is CAPEX-priced",
+                  "No",
+                ],
+                [
+                  "Industrial water price",
+                  "Water cost",
+                  "No — held at the model default",
+                  "No",
+                ],
+                [
+                  "Country risk premium",
+                  "Informational only",
+                  "No",
+                  "No",
+                ],
+              ].map((r) => (
+                <tr key={r[0]} className="border-b border-neutral-100">
+                  <td className="py-1.5 pr-3 font-medium">{r[0]}</td>
+                  <td className="py-1.5 pr-3">{r[1]}</td>
+                  <td className="py-1.5 pr-3">{r[2]}</td>
+                  <td className="py-1.5">{r[3]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2">
+          The electricity row is the one that surprises. It is a{" "}
+          <strong>retail industrial tariff</strong>, so it prices grid
+          <em>imports</em>{" "}— and the calculator&apos;s PV and wind slots are{" "}
+          <em>captive</em>{" "}generation with their own LCOE or CAPEX pricing.
+          Applying a national retail tariff to a dedicated renewable plant
+          would be wrong, so it is deliberately not done; with the grid
+          switched off (the default) the field has no effect at all, and the
+          citation list says so rather than showing a number that never
+          reaches the result. Worth knowing that renewable PPAs in Indonesia
+          price <em>below</em>{" "}retail industrial power, which is the
+          relevant comparison for a captive project. A single national price
+          also glosses over the eastern-Indonesia premium — acceptable for
+          screening, but eastern Indonesia is exactly where the best solar
+          cells are.
         </p>
         <CountryDefaultsTable snapshot={countryDefaults} />
         <p className="mt-2 text-neutral-600">
