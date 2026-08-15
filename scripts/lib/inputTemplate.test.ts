@@ -25,9 +25,19 @@ const templateJson = (): unknown => {
   return JSON.parse(block) as unknown;
 };
 
+/**
+ * The bundle the TEMPLATE pins, not a hardcoded one — resolution rejects a
+ * mismatch outright, so pinning a bundle here would just mean this test
+ * fails whenever the template is regenerated against a newer catalogue.
+ */
 const bundle = parseRefBundle(
   JSON.parse(
-    readFileSync(`${ROOT}data/corridor-ref/2026-07-30-excel-v1.json`, "utf8"),
+    readFileSync(
+      `${ROOT}data/corridor-ref/${
+        (templateJson() as { refBundleId: string }).refBundleId
+      }.json`,
+      "utf8",
+    ),
   ),
 );
 

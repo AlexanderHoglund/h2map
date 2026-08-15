@@ -22,7 +22,10 @@ import {
 } from "@h2map/corridor-schema";
 import { ENGINE_VERSION as LCOH_ENGINE_VERSION } from "@h2map/lcoh-engine";
 import type { ScenarioResult } from "@h2map/corridor-schema";
-import bundleJson from "../../../../data/corridor-ref/2026-07-30-excel-v1.json";
+// The live catalogue. Scenarios pin their own refBundleId, so an older
+// saved scenario still resolves against the bundle it names — this is only
+// what a NEW scenario gets.
+import bundleJson from "../../../../data/corridor-ref/2026-08-16-vessel-v2.json";
 import uiManifest from "../../../../data/corridor-sensitivity/ui-manifest.json";
 import {
   clearOverrides,

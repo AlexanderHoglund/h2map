@@ -199,6 +199,40 @@ function main(): void {
 
   const path = new URL(`data/corridor-ref/${NEW_ID}.json`, ROOT);
   writeFileSync(path, JSON.stringify(out, null, 2) + "\n", "utf8");
+
+  // §19's vessel table used to be a hand-copied literal in the docs page
+  // with nothing tying it to the bundle — it silently went stale every time
+  // the catalogue changed. Emit it, so the documentation cannot drift from
+  // the reference data it describes.
+  const docRows = rows.map((r) => ({
+    id: r.id as string,
+    label: r.label as string,
+    family: (r.family as string | undefined) ?? null,
+    dwtTonnes: (r.dwtTonnes as number | undefined) ?? null,
+    teuCapacity: (r.teuCapacity as number | undefined) ?? null,
+    capexUsdM: r.capexUsdM as number,
+    opexUsdMPerYear: r.opexUsdMPerYear as number,
+    gjPerNm: r.gjPerNm as number,
+    serviceSpeedKn: (r.serviceSpeedKn as number | undefined) ?? null,
+    costYear: (r.costYear as number | undefined) ?? null,
+    verified: r.verified as boolean,
+    deprecated: (r.deprecated as boolean | undefined) ?? false,
+  }));
+  writeFileSync(
+    new URL("data/corridor-ref/vessel-catalogue.json", ROOT),
+    JSON.stringify(
+      {
+        generatedBy: "scripts/corridor/build-vessel-bundle.ts",
+        bundleId: NEW_ID,
+        note:
+          "Rendered by docs §19. Every cost figure is PER SHIP; deprecated rows are retained so scenarios pinning them reproduce their original numbers.",
+        rows: docRows,
+      },
+      null,
+      1,
+    ) + "\n",
+    "utf8",
+  );
   console.log(
     `wrote data/corridor-ref/${NEW_ID}.json: ${rows.length} vessel rows ` +
       `(${v2.vessels.length} researched + ${RETAIN_FROM_V1.length} retired), ` +

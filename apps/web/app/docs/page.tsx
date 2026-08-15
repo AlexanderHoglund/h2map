@@ -6,6 +6,7 @@ import countryDefaults from "../../../../data/country-defaults/snapshot.json";
 import fieldReference from "../../../../data/corridor-sensitivity/field-reference.json";
 import sensitivityArtifact from "../../../../data/corridor-sensitivity/sensitivity.json";
 import costPacks from "../../../../data/cost-packs/table.json";
+import vesselCatalogue from "../../../../data/corridor-ref/vessel-catalogue.json";
 
 export const metadata = {
   title: "Documentation — Thaduberg",
@@ -1710,36 +1711,59 @@ export default async function DocsPage() {
         </p>
 
         <H id="reference-data">19. Reference data</H>
-        <H3>Vessel types (CAPEX $m · OPEX $m/yr · fuel t/yr · GJ/nm)</H3>
+        <H3>Vessel types</H3>
+        <p className="mt-2">
+          The catalogue behind the vessel selector, rendered from the
+          reference bundle itself (<code>{vesselCatalogue.bundleId}</code>) —
+          this table used to be hand-copied and went quietly stale whenever
+          the data changed. <strong>CAPEX and OPEX are PER SHIP</strong>; the
+          engine multiplies both by the vessel count. GJ/nm is a
+          <em>service-speed</em>{" "}figure and means little without the speed
+          beside it. Rows marked <em>retired</em>{" "}are superseded classes
+          kept so a saved scenario pinning one still reproduces the numbers it
+          was saved with — they are not offered for new scenarios.
+        </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
             <thead>
               <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
                 <th className="px-3 py-2 font-medium">Type</th>
-                <th className="px-3 py-2 text-right font-medium">CAPEX</th>
-                <th className="px-3 py-2 text-right font-medium">OPEX</th>
-                <th className="px-3 py-2 text-right font-medium">Fuel t/yr</th>
+                <th className="px-3 py-2 text-right font-medium">Size</th>
+                <th className="px-3 py-2 text-right font-medium">CAPEX $m</th>
+                <th className="px-3 py-2 text-right font-medium">OPEX $m/yr</th>
                 <th className="px-3 py-2 text-right font-medium">GJ/nm</th>
+                <th className="px-3 py-2 text-right font-medium">at kn</th>
               </tr>
             </thead>
             <tbody>
-              {(
-                [
-                  ["Handymax bulk (58k dwt) — default", 35, 2.8, "2,638", 3.2],
-                  ["Tanker (35k dwt)", 20, 1.2, "2,400", 4],
-                  ["Tanker (80k dwt)", 35, 2, "5,200", 7],
-                  ["Bulk carrier (60k dwt)", 25, 1.5, "3,000", 5],
-                  ["Container (5k TEU)", 45, 2.8, "6,500", 6],
-                  ["Container (15k TEU)", 90, 5, "14,000", 10],
-                  ["Ro-Ro / Ferry", 30, 2, "3,500", 4.5],
-                ] as const
-              ).map(([label, capex, opex, cons, gj]) => (
-                <tr key={label} className="border-b border-neutral-200 last:border-0">
-                  <td className="px-3 py-1.5">{label}</td>
-                  <td className="px-3 py-1.5 text-right">{capex}</td>
-                  <td className="px-3 py-1.5 text-right">{opex}</td>
-                  <td className="px-3 py-1.5 text-right">{cons}</td>
-                  <td className="px-3 py-1.5 text-right">{gj}</td>
+              {vesselCatalogue.rows.map((r) => (
+                <tr
+                  key={r.id}
+                  className={`border-b border-neutral-200 last:border-0 ${
+                    r.deprecated ? "text-neutral-500" : ""
+                  }`}
+                >
+                  <td className="px-3 py-1.5">
+                    {r.label}
+                    {r.deprecated ? (
+                      <span className="ml-1.5 text-[10px] uppercase tracking-wide text-neutral-400">
+                        retired
+                      </span>
+                    ) : null}
+                  </td>
+                  <td className="px-3 py-1.5 text-right">
+                    {r.teuCapacity
+                      ? `${r.teuCapacity.toLocaleString("en-US")} TEU`
+                      : r.dwtTonnes
+                        ? `${r.dwtTonnes.toLocaleString("en-US")} dwt`
+                        : "—"}
+                  </td>
+                  <td className="px-3 py-1.5 text-right">{r.capexUsdM}</td>
+                  <td className="px-3 py-1.5 text-right">{r.opexUsdMPerYear}</td>
+                  <td className="px-3 py-1.5 text-right">{r.gjPerNm}</td>
+                  <td className="px-3 py-1.5 text-right">
+                    {r.serviceSpeedKn ?? "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -23,7 +23,7 @@ import {
 import { emptyScenario } from "../../apps/web/lib/corridor/scenarioDefaults";
 
 const ROOT = new URL("../../", import.meta.url);
-const BUNDLE_ID = "2026-07-30-excel-v1";
+const BUNDLE_ID = "2026-08-16-vessel-v2";
 
 const bundle = parseRefBundle(
   JSON.parse(

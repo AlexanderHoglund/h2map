@@ -441,6 +441,20 @@ Sources / rationale:
 - Shipping $/t·km: planning-level deep-sea bulk/gas-carrier freight
   magnitudes; LH2 markedly higher (boil-off, cryo tonnage scarcity).
 
+### `@h2map/corridor-schema/ref\vesselDerivation.ts`
+
+**Purpose**
+
+The parametric vessel layer: resolving a ship the catalogue does not name.
+
+**Boundary (imports)**: `./bundle`
+
+**Exports (inputs/outputs)**: `VesselSource`, `DerivedVessel`, `gjPerNmFromEedi`, `resolveVesselBySize`
+
+**Assumptions**
+
+Documented inline (see source).
+
 ### `@h2map/corridor-schema/resolve.ts`
 
 **Purpose**
@@ -497,7 +511,7 @@ with no adaptation layer.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SidePerYear`, `SideResult`, `SideImoNetZero`, `ScenarioSummary`, `ScenarioReporting`, `ScenarioIntermediates`, `ScenarioEnergyParity`, `ScenarioResult`
+**Exports (inputs/outputs)**: `SidePerYear`, `SideResult`, `SideImoNetZero`, `ScenarioSummary`, `ScenarioReporting`, `ScenarioIntermediates`, `ScenarioPortEnergy`, `ScenarioEnergyParity`, `ScenarioResult`
 
 **Assumptions**
 

@@ -37,8 +37,21 @@ export function workbookScenario(): ScenarioInput {
  * The workbook-default scenario remains available via workbookScenario()
  * and the frozen golden fixture keeps pinning the engine.
  */
+/**
+ * The catalogue a NEW scenario is built against.
+ *
+ * `workbookScenario()` derives from the frozen golden fixture, which pins
+ * the 2026-07-30 bundle forever — that is what keeps the golden test
+ * meaningful. A new scenario should get the current vessel catalogue
+ * instead, so this re-pins it. Saved scenarios keep whatever id they
+ * carry: resolution rejects a mismatch outright rather than silently
+ * re-pricing them against newer reference data.
+ */
+const LIVE_BUNDLE_ID = "2026-08-16-vessel-v2";
+
 export function defaultScenario(): ScenarioInput {
   const input = workbookScenario();
+  input.refBundleId = LIVE_BUNDLE_ID;
 
   input.cargo = {
     ...input.cargo,

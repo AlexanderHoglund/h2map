@@ -44,6 +44,14 @@ const vesselTypeSchema = z.object({
    * uninterpretable without it, and its absence in the first research pass
    * is what made the derived numbers look like they contradicted the study
    * reconstructions. Any UI showing GJ/nm must show this.
+   *
+   * METADATA, not an input (measured 2026-08-16): the model consumes
+   * `gjPerNm` directly, so changing this field moves NOTHING — 10 kn vs
+   * 20 kn is 0.0000% on all six headline KPIs. It tells a reader what the
+   * energy figure means; it does not let them sail slower. Making speed a
+   * real lever means adding a scenario input and applying the v² per-nm
+   * correction in the consumption derivation, which is a modelling change
+   * with its own decision to make, not a bundle field.
    */
   serviceSpeedKn: z.number().positive().optional(),
   /** Directional split; the equal-leg average reproduces `gjPerNm` exactly. */
