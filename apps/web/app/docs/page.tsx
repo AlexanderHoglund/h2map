@@ -1,6 +1,8 @@
 import Footer from "@/components/shell/Footer";
 import { requireAccess } from "@/lib/server/access";
 import TopBar from "@/components/shell/TopBar";
+import CountryDefaultsTable from "@/components/docs/CountryDefaultsTable";
+import countryDefaults from "../../../../data/country-defaults/snapshot.json";
 import fieldReference from "../../../../data/corridor-sensitivity/field-reference.json";
 import sensitivityArtifact from "../../../../data/corridor-sensitivity/sensitivity.json";
 
@@ -2577,16 +2579,62 @@ export default async function DocsPage() {
         </p>
 
         {/* 25 */}
-        <H id="m-defaults">34. Country defaults</H>
+        <H id="m-defaults">34. Country defaults &amp; enriched profiles</H>
         <p className="mt-2">
           The Calculator&apos;s country selector fills a grid emission factor
-          and a WACC suggestion for every country. Grid emission factors come
-          from Our World in Data&apos;s carbon-intensity-of-electricity dataset
-          (built on Ember + the Energy Institute), latest year, converted
-          gCO₂/kWh ÷ 1000 → tCO₂/MWh. WACC suggestions follow a transparent World
-          Bank income-group heuristic (high-income OECD 6%, upper-middle 8%,
-          lower-middle 10%, low 12%). Countries are matched to ISO2 via Natural
-          Earth boundaries.
+          and a cost of capital for every country. Two tiers supply them, and
+          the table below shows which tier each country is on and what it
+          actually carries.
+        </p>
+        <p className="mt-2">
+          <strong>Regional heuristic (the default, 172 countries).</strong>{" "}
+          Grid emission factors come from Our World in Data&apos;s
+          carbon-intensity-of-electricity dataset (built on Ember + the Energy
+          Institute), latest year, converted gCO₂/kWh ÷ 1000 → tCO₂/MWh — a
+          real measurement, refreshed automatically. The WACC is a{" "}
+          <em>suggestion</em>{" "}from a transparent World Bank income-group
+          heuristic (high-income OECD 6%, high-income non-OECD 7%,
+          upper-middle 8%, lower-middle 10%, low 12%, fallback 9%): a bracket,
+          not a country estimate, because per-country cost-of-capital data is
+          proprietary. Countries are matched to ISO2 via Natural Earth
+          boundaries.
+        </p>
+        <p className="mt-2">
+          <strong>Enriched profile.</strong>{" "}A researched country carries
+          real cost and finance inputs — cost of capital, country risk
+          premium, industrial/PPA electricity price, water price, land and
+          labour, and per-technology CAPEX overrides — each with its own
+          citation and retrieval date. Curation is <em>per field</em>: a
+          profile may research the cost of capital and still let the automated
+          grid factor keep updating, and any field it leaves empty falls back
+          to the model default. A value the research could not confirm ships
+          marked unverified rather than being quietly presented as solid.
+        </p>
+        <p className="mt-2">
+          <strong>Curated always beats the automated refresh.</strong>{" "}The
+          ingest runs every three hours; on an enriched country it writes only
+          the fields the profile leaves empty and never touches its
+          citations. The heuristic WACC keeps refreshing underneath a
+          researched one so the comparison stays visible — the table shows
+          both.
+        </p>
+        <CountryDefaultsTable snapshot={countryDefaults} />
+        <p className="mt-2 text-neutral-600">
+          Snapshotted from the live table by{" "}
+          <code>npm run defaults:snapshot</code>{" "}into{" "}
+          <code>data/country-defaults/snapshot.json</code>, which this page
+          renders — so the published values have a git history rather than
+          depending on a live query.
+        </p>
+        <p className="mt-2">
+          <strong>Known divergence.</strong>{" "}The Green Corridor model keeps
+          its <em>own</em>{" "}seven-row country list (kebab-case ids, all
+          marked unverified, from the source workbook) and does not read these
+          profiles: a country outside those seven resolves to the{" "}
+          <code>other</code>{" "}row at 8%. So an enriched profile improves the
+          Calculator and the map&apos;s risk-adjusted layer, but not yet the
+          corridor&apos;s discount rate. Recorded here deliberately rather
+          than papered over.
         </p>
 
         {/* 26 */}
