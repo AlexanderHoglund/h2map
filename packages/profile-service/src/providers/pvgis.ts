@@ -58,6 +58,19 @@ export function fixedMounting(lat: number): { tiltDeg: number; aspectDeg: number
 }
 
 /**
+ * The mounting fingerprint a CURRENT-generation `pv_fixed` dataset tag must
+ * carry for this latitude — `-tilt{t}a{a}-`. Cells fetched before the
+ * mounting rule existed carry no such token, and their profiles encode a
+ * different (optimiser-chosen, sometimes non-physical) geometry: the cache
+ * read uses this to treat them as a MISS rather than serving two mounting
+ * assumptions side by side on one map.
+ */
+export function fixedMountingTag(lat: number): string {
+  const { tiltDeg, aspectDeg } = fixedMounting(lat);
+  return `-tilt${tiltDeg}a${aspectDeg}-`;
+}
+
+/**
  * Authoritative PV capacity factors from PVGIS's own PV model (seriescalc,
  * pvcalculation=1, 1 kWp, 14 % system loss). With peakpower=1 kWp the hourly
  * P is in W, so CF = P/1000. Fetches the full available multi-year range in

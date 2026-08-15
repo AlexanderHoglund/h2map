@@ -96,9 +96,23 @@ export async function fetchJson(url: string, attempts = 4): Promise<unknown> {
   throw lastError;
 }
 
+/**
+ * How many generations deep a cache read scans for a CURRENT one. Rows are
+ * keyed on dataset_version, so a coordinate accumulates one row per model
+ * generation; 4 covers every generation this project has shipped with room
+ * to spare, while keeping the read a single bounded query.
+ */
+const GENERATION_SCAN_LIMIT = 4;
+
 export function makeCache(db: SupabaseClient): ProfileCache {
   return {
-    async get(latR: number, lonR: number, kind: ProfileKind, mode?: ProfileMode) {
+    async get(
+      latR: number,
+      lonR: number,
+      kind: ProfileKind,
+      mode?: ProfileMode,
+      accept?: (datasetVersion: string, provider: string) => boolean,
+    ) {
       let q = db
         .from("resource_profiles")
         .select("lat_r, lon_r, kind, provider, dataset_version, cf")
@@ -106,19 +120,27 @@ export function makeCache(db: SupabaseClient): ProfileCache {
         .eq("lon_r", lonR)
         .eq("kind", kind);
       if (mode) q = q.eq("mode", mode);
+      // Rows are keyed on dataset_version, so one coordinate can hold several
+      // generations. Take the newest few and let the caller's predicate pick
+      // the first CURRENT one — without this the newest row wins even when it
+      // encodes a superseded model, and the map silently mixes generations.
       const { data, error } = await q
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(GENERATION_SCAN_LIMIT);
       if (error) throw new Error(error.message);
-      if (!data) return null;
+      const row = (data ?? []).find(
+        (r) =>
+          !accept ||
+          accept(r.dataset_version as string, r.provider as string),
+      );
+      if (!row) return null;
       return {
-        latR: Number(data.lat_r),
-        lonR: Number(data.lon_r),
-        kind: data.kind as ProfileKind,
-        provider: data.provider as string,
-        datasetVersion: data.dataset_version as string,
-        cf: data.cf as number[],
+        latR: Number(row.lat_r),
+        lonR: Number(row.lon_r),
+        kind: row.kind as ProfileKind,
+        provider: row.provider as string,
+        datasetVersion: row.dataset_version as string,
+        cf: row.cf as number[],
       } satisfies CachedProfile;
     },
     async put(profile: BuiltProfile) {

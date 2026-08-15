@@ -95,11 +95,21 @@ export interface CachedProfile {
  * as best-effort.
  */
 export interface ProfileCache {
+  /**
+   * `accept` (when supplied) is the CURRENT-generation predicate: the cache
+   * must not return a row whose `datasetVersion` fails it. The store keys
+   * rows on `dataset_version`, so without this a row built under a
+   * superseded generation — a different PV mounting rule, a different
+   * provider, a different year span — is served forever, and one map ends
+   * up mixing incompatible models. The caller owns the rule because only
+   * it knows what the current generation is for this request.
+   */
   get(
     latR: number,
     lonR: number,
     kind: ProfileKind,
     mode?: ProfileMode,
+    accept?: (datasetVersion: string, provider: string) => boolean,
   ): Promise<CachedProfile | null>;
   put(profile: BuiltProfile): Promise<void>;
 }

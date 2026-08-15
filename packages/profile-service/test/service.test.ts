@@ -59,19 +59,31 @@ function pvgisResponse(): unknown {
 
 class MemoryCache implements ProfileCache {
   rows: BuiltProfile[] = [];
-  preloaded: CachedProfile | null = null;
+  /** Newest-first, as the DB adapter returns them. */
+  preloadedRows: CachedProfile[] = [];
   getCalls = 0;
   getModes: (ProfileMode | undefined)[] = [];
+
+  /** Back-compat single-row setter used by the older cases. */
+  set preloaded(row: CachedProfile | null) {
+    this.preloadedRows = row ? [row] : [];
+  }
 
   get(
     _latR: number,
     _lonR: number,
     _kind: ProfileKind,
     mode?: ProfileMode,
+    accept?: (datasetVersion: string, provider: string) => boolean,
   ): Promise<CachedProfile | null> {
     this.getCalls++;
     this.getModes.push(mode);
-    return Promise.resolve(this.preloaded);
+    // Mirrors the real adapters: scan newest-first, return the first row the
+    // caller recognises as the current generation.
+    const row = this.preloadedRows.find(
+      (r) => !accept || accept(r.datasetVersion, r.provider),
+    );
+    return Promise.resolve(row ?? null);
   }
 
   put(profile: BuiltProfile): Promise<void> {
@@ -348,6 +360,136 @@ describe("getResourceProfile", () => {
         "open-meteo-crude",
       ]);
     }
+  });
+
+  // --- cache generation (the mixed-mounting defect) ------------------------
+  // A coordinate accumulates one cached row per model generation, keyed on
+  // dataset_version. Serving the NEWEST row unconditionally meant profiles
+  // built under the pre-fix PV mounting (PVGIS's tilt optimiser, which
+  // returns non-physical geometry near the equator) were served forever, so
+  // one map ran on two mounting assumptions at once.
+
+  it("PV: a stale-mounting cached row MISSES and is refetched", async () => {
+    const cache = new MemoryCache();
+    cache.preloadedRows = [
+      {
+        latR: -8.5,
+        lonR: 118.6,
+        kind: "pv_fixed",
+        provider: "pvgis-seriescalc",
+        // No -tilt tag: the pre-mounting-rule generation.
+        datasetVersion: "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+        cf: new Array<number>(HOURS_PER_YEAR).fill(0.09),
+      },
+    ];
+    let fetched = false;
+    const result = await getResourceProfile(
+      { lat: -8.45, lon: 118.57, kind: "pv_fixed" },
+      {
+        fetchJson: () => {
+          fetched = true;
+          return Promise.resolve(pvgisResponse());
+        },
+        cache,
+        pvMaskUnservable: true,
+      },
+    );
+    expect(fetched).toBe(true);
+    expect(result.cacheHit).toBe(false);
+    // 8 deg south -> tilt 8, equator-facing azimuth 180.
+    expect(result.datasetVersion).toContain("-tilt8a180-");
+  });
+
+  it("PV: the CURRENT-generation row hits, even behind a stale one", async () => {
+    const cache = new MemoryCache();
+    cache.preloadedRows = [
+      {
+        latR: -8.5,
+        lonR: 118.6,
+        kind: "pv_fixed",
+        provider: "pvgis-seriescalc",
+        datasetVersion: "pvgis-5.3-pvgis-era5-pv_fixed-2014-2023/tmy-v1",
+        cf: new Array<number>(HOURS_PER_YEAR).fill(0.09),
+      },
+      {
+        latR: -8.5,
+        lonR: 118.6,
+        kind: "pv_fixed",
+        provider: "pvgis-seriescalc",
+        datasetVersion:
+          "pvgis-5.3-pvgis-era5-pv_fixed-tilt8a180-2014-2023/tmy-v1",
+        cf: new Array<number>(HOURS_PER_YEAR).fill(0.19),
+      },
+    ];
+    const result = await getResourceProfile(
+      { lat: -8.45, lon: 118.57, kind: "pv_fixed" },
+      {
+        fetchJson: () => {
+          throw new Error("providers must not be called: a current row exists");
+        },
+        cache,
+        pvMaskUnservable: true,
+      },
+    );
+    expect(result.cacheHit).toBe(true);
+    expect(result.cf[0]).toBe(0.19);
+  });
+
+  it("PV map mode: a retired crude-provider row MISSES", async () => {
+    const cache = new MemoryCache();
+    cache.preloadedRows = [
+      {
+        latR: 0,
+        lonR: 0,
+        kind: "pv_fixed",
+        // The improved chain is PVGIS-only; this row can no longer be
+        // produced and must not be served as if it could.
+        provider: "open-meteo-crude",
+        datasetVersion: "om-era5-ghi-2015-2024/tmy-v1",
+        cf: new Array<number>(HOURS_PER_YEAR).fill(0.15),
+      },
+    ];
+    let fetched = false;
+    await getResourceProfile(
+      { lat: 0, lon: 0, kind: "pv_fixed" },
+      {
+        fetchJson: () => {
+          fetched = true;
+          return Promise.resolve(pvgisResponse());
+        },
+        cache,
+        pvMaskUnservable: true,
+      },
+    );
+    expect(fetched).toBe(true);
+  });
+
+  it("wind: any generation still hits (the class is chosen after fetching)", async () => {
+    const cache = new MemoryCache();
+    cache.preloadedRows = [
+      {
+        latR: -52.5,
+        lonR: -70.9,
+        kind: "wind_120",
+        provider: "open-meteo",
+        datasetVersion: "om-era5-2015-2024-hub120-generic-5.6MW/tmy-v1",
+        cf: new Array<number>(HOURS_PER_YEAR).fill(0.42),
+      },
+    ];
+    const result = await getResourceProfile(
+      { lat: -52.47, lon: -70.93, kind: "wind_120" },
+      {
+        fetchJson: () => {
+          throw new Error("providers must not be called on a wind cache hit");
+        },
+        cache,
+        getTurbineCurve: () => Promise.resolve(curve),
+        windAirDensityCorrection: true,
+        windTurbineClassSelection: true,
+      },
+    );
+    expect(result.cacheHit).toBe(true);
+    expect(result.cf[0]).toBe(0.42);
   });
 
   it("requires a turbine curve for wind kinds", async () => {

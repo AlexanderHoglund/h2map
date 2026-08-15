@@ -8,12 +8,19 @@ import type {
 import type { ServerSupabase } from "./supabase";
 
 /**
- * `resource_profiles` cache adapter. Reads pick the newest row for the
- * coordinate/kind regardless of dataset version; writes upsert on the unique
- * (lat_r, lon_r, kind, dataset_version) key. Writes require the service-role
- * key (the table intentionally has no RLS insert policy) — with the anon key
+ * `resource_profiles` cache adapter. Writes require the service-role key
+ * (the table intentionally has no RLS insert policy) — with the anon key
  * they fail and the service continues uncached.
+ *
+ * Reads take the newest row for (coordinate, kind, mode) that the caller's
+ * `accept` predicate recognises as the CURRENT model generation. Rows are
+ * keyed on `dataset_version`, so a coordinate accumulates one row per
+ * generation; taking the newest unconditionally served profiles built under
+ * superseded models (e.g. the pre-fix PV mounting) forever, and put one map
+ * on two incompatible models at once.
  */
+const GENERATION_SCAN_LIMIT = 4;
+
 export class SupabaseProfileCache implements ProfileCache {
   constructor(private readonly db: ServerSupabase) {}
 
@@ -22,6 +29,7 @@ export class SupabaseProfileCache implements ProfileCache {
     lonR: number,
     kind: ProfileKind,
     mode?: ProfileMode,
+    accept?: (datasetVersion: string, provider: string) => boolean,
   ): Promise<CachedProfile | null> {
     let query = this.db
       .from("resource_profiles")
@@ -32,17 +40,19 @@ export class SupabaseProfileCache implements ProfileCache {
     if (mode) query = query.eq("mode", mode);
     const { data, error } = await query
       .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .limit(GENERATION_SCAN_LIMIT);
     if (error) throw new Error(`resource_profiles read: ${error.message}`);
-    if (!data) return null;
+    const row = (data ?? []).find(
+      (r) => !accept || accept(r.dataset_version, r.provider),
+    );
+    if (!row) return null;
     return {
-      latR: Number(data.lat_r),
-      lonR: Number(data.lon_r),
-      kind: data.kind as ProfileKind,
-      provider: data.provider,
-      datasetVersion: data.dataset_version,
-      cf: data.cf,
+      latR: Number(row.lat_r),
+      lonR: Number(row.lon_r),
+      kind: row.kind as ProfileKind,
+      provider: row.provider,
+      datasetVersion: row.dataset_version,
+      cf: row.cf,
     };
   }
 
@@ -58,7 +68,10 @@ export class SupabaseProfileCache implements ProfileCache {
         years: `[${profile.yearsUsed[0]},${profile.yearsUsed[1]}]`,
         cf: profile.cf,
       },
-      { onConflict: "lat_r,lon_r,kind,dataset_version" },
+      // Must match the table's unique key exactly (migration
+      // 20260729000001 added `mode`): omitting it made improved and
+      // reference rows collide on one slot and thrash.
+      { onConflict: "lat_r,lon_r,kind,mode,dataset_version" },
     );
     if (error) throw new Error(`resource_profiles write: ${error.message}`);
   }

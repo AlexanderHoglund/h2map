@@ -3,7 +3,7 @@ import {
   fetchOpenMeteoPvCrude,
   fetchOpenMeteoWind,
 } from "./providers/openMeteo";
-import { fetchPvgisPv } from "./providers/pvgis";
+import { fetchPvgisPv, fixedMountingTag } from "./providers/pvgis";
 import { buildTmy } from "./tmy";
 import { fillGaps, HOURS_PER_YEAR } from "./time";
 import { validateProfile, type ProfileValidation } from "./validate";
@@ -28,6 +28,39 @@ function profileMode(kind: ProfileKind, deps: ProfileServiceDeps): ProfileMode {
     ? Boolean(deps.windAirDensityCorrection || deps.windTurbineClassSelection)
     : Boolean(deps.pvMaskUnservable);
   return improved ? "improved" : "reference";
+}
+
+/**
+ * The CURRENT-generation predicate for a cache read (see ProfileCache.get).
+ *
+ * A cached row is only usable if it was built by the model we would build
+ * today. Two generations are distinguishable from the dataset tag alone:
+ *
+ * - `pv_fixed` carries its mounting as `-tilt{t}a{a}-`. Rows fetched before
+ *   the mounting rule existed carry no such token (their geometry came from
+ *   PVGIS's tilt optimiser, which returns non-physical mountings near the
+ *   equator); rows fetched at a different latitude band carry a different
+ *   one. Either way the encoded model differs from today's, so: MISS.
+ * - The map's PV chain is PVGIS-only. A row from the retired crude
+ *   Open-Meteo GHI fallback can no longer be produced under `pvMaskUnservable`
+ *   and must not be served as if it could: MISS.
+ *
+ * Wind tags encode the IEC class, which is chosen FROM the fetched series —
+ * it cannot be known before the fetch, so wind accepts any generation and
+ * relies on `mode` alone. Documented asymmetry, not an oversight.
+ */
+function currentGeneration(
+  kind: ProfileKind,
+  lat: number,
+  deps: ProfileServiceDeps,
+): ((datasetVersion: string, provider: string) => boolean) | undefined {
+  if (kind !== "pv_fixed") return undefined;
+  const mountingTag = fixedMountingTag(lat);
+  const pvgisOnly = Boolean(deps.pvMaskUnservable);
+  return (datasetVersion, provider) => {
+    if (pvgisOnly && !provider.startsWith("pvgis")) return false;
+    return datasetVersion.includes(mountingTag);
+  };
 }
 
 /**
@@ -103,7 +136,13 @@ export async function getResourceProfile(
 
   if (deps.cache) {
     try {
-      const cached = await deps.cache.get(latR, lonR, kind, mode);
+      const cached = await deps.cache.get(
+        latR,
+        lonR,
+        kind,
+        mode,
+        currentGeneration(kind, request.lat, deps),
+      );
       if (cached && cached.cf.length === HOURS_PER_YEAR) {
         const validation = validateProfile(cached.cf, kind, latR);
         // A pre-gate bad row could still be cached; when enforcing, skip it and
