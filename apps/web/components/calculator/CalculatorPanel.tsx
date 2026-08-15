@@ -167,8 +167,10 @@ export default function CalculatorPanel({
     if (!iso2) return;
     const row = countries.find((r) => r.iso2 === iso2);
     if (!row) return;
-    const discountPct =
-      row.wacc_suggestion !== null ? row.wacc_suggestion * 100 : null;
+    // A researched cost of capital governs where one exists; otherwise the
+    // income-group heuristic, which is a bracket rather than an estimate.
+    const wacc = row.wacc_curated ?? row.wacc_suggestion;
+    const discountPct = wacc !== null ? wacc * 100 : null;
     const ef = row.grid_ef_tco2_mwh;
     if (discountPct === null && ef === null) return;
 
@@ -189,6 +191,20 @@ export default function CalculatorPanel({
     if (ef !== null) {
       setValue("grid.emissionFactorTco2PerMwh", ef, { shouldValidate: true });
     }
+    // Enriched-only inputs. These have no heuristic equivalent, so they
+    // apply only where a profile researched them and are simply left alone
+    // otherwise — the model's own default is the honest value for a
+    // country nobody has studied.
+    if (row.electricity_price_usd_mwh !== null) {
+      setValue("grid.priceUsdPerMwh", row.electricity_price_usd_mwh, {
+        shouldValidate: true,
+      });
+    }
+    if (row.water_price_usd_m3 !== null) {
+      setValue("general.waterPriceUsdPerM3", row.water_price_usd_m3, {
+        shouldValidate: true,
+      });
+    }
     lastApplied.current = {
       discountPct: discountPct !== null ? Number(discountPct.toFixed(2)) : curDiscount,
       ef: ef ?? curEf,
@@ -202,10 +218,8 @@ export default function CalculatorPanel({
       const row = countries.find((r) => r.iso2 === iso2);
       if (!row) return;
       setValue("location.country", iso2, { shouldValidate: true });
-      const discountPct =
-        row.wacc_suggestion !== null
-          ? Number((row.wacc_suggestion * 100).toFixed(2))
-          : null;
+      const wacc = row.wacc_curated ?? row.wacc_suggestion;
+      const discountPct = wacc !== null ? Number((wacc * 100).toFixed(2)) : null;
       const ef = row.grid_ef_tco2_mwh;
       const curDiscount = getValues("general.discountRatePct");
       const curEf = getValues("grid.emissionFactorTco2PerMwh");
@@ -220,6 +234,18 @@ export default function CalculatorPanel({
       }
       if (ef !== null && !efEdited) {
         setValue("grid.emissionFactorTco2PerMwh", ef, { shouldValidate: true });
+      }
+      // Enriched-only inputs (see applyCountry): silent here too, and only
+      // where a profile researched them.
+      if (row.electricity_price_usd_mwh !== null) {
+        setValue("grid.priceUsdPerMwh", row.electricity_price_usd_mwh, {
+          shouldValidate: true,
+        });
+      }
+      if (row.water_price_usd_m3 !== null) {
+        setValue("general.waterPriceUsdPerM3", row.water_price_usd_m3, {
+          shouldValidate: true,
+        });
       }
       lastApplied.current = { discountPct: discountPct ?? curDiscount, ef: ef ?? curEf };
     },
@@ -341,7 +367,11 @@ export default function CalculatorPanel({
       }
     };
     return countries
-      .map((r) => ({ iso2: r.iso2, name: displayName(r.iso2) }))
+      .map((r) => ({
+        iso2: r.iso2,
+        name: displayName(r.iso2),
+        curated: Boolean(r.curated),
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [countries]);
 
@@ -456,15 +486,62 @@ export default function CalculatorPanel({
                     {countryOptions.map((r) => (
                       <option key={r.iso2} value={r.iso2}>
                         {r.name === r.iso2 ? r.iso2 : `${r.name} (${r.iso2})`}
+                        {/* Marked in the list itself so the choice is
+                            informed BEFORE it is made. */}
+                        {r.curated ? ` — ${t("location.enrichedShort")}` : ""}
                       </option>
                     ))}
                   </select>
                 </div>
               </div>
-              {countryRow?.source ? (
-                <p className="mt-2 text-[11px] text-neutral-400">
-                  {t("location.defaultsSource", { source: countryRow.source })}
-                </p>
+              {countryRow ? (
+                <div className="mt-2 space-y-1">
+                  <p className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                    {countryRow.curated ? (
+                      <>
+                        <span className="rounded bg-brand-tint px-1.5 py-0.5 font-medium text-brand-deep">
+                          {t("location.enriched")}
+                          {countryRow.profile_version
+                            ? ` · ${countryRow.profile_version}`
+                            : ""}
+                        </span>
+                        <span className="text-neutral-500">
+                          {t("location.enrichedNote")}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-neutral-500">
+                        {t("location.heuristicNote")}
+                      </span>
+                    )}
+                  </p>
+                  {/* Per-field citations: what each number is and where it
+                      came from, with unconfirmed values said to be so. */}
+                  {countryRow.curated && countryRow.profile_source ? (
+                    <ul className="space-y-0.5 text-[11px] text-neutral-400">
+                      {Object.entries(countryRow.profile_source).map(
+                        ([field, c]) => (
+                          <li key={field}>
+                            <span className="text-neutral-500">
+                              {t(`location.fields.${field}`, {
+                                fallback: field,
+                              })}
+                            </span>
+                            : {c.source}
+                            {c.retrievedAt ? `, retrieved ${c.retrievedAt}` : ""}
+                            {c.verified === false
+                              ? ` — ${t("location.unverified")}`
+                              : ""}
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  ) : countryRow.source ? (
+                    <p className="text-[11px] text-neutral-400">
+                      {t("location.defaultsSource", { source: countryRow.source })}
+                    </p>
+                  ) : null}
+                </div>
               ) : null}
               {countriesFailed ? (
                 <p className="mt-2 text-[11px] text-neutral-400">

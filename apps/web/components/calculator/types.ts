@@ -115,11 +115,35 @@ export interface ProfileStatus {
   message?: string;
 }
 
+/** Per-field citation on an enriched profile: {field: {...}}. */
+export interface CountryProfileCitation {
+  value?: number;
+  source?: string;
+  retrievedAt?: string;
+  verified?: boolean;
+  note?: string;
+}
+
 /** Row of GET /api/v1/defaults. */
 export interface CountryDefaults {
   iso2: string;
   grid_ef_tco2_mwh: number | null;
+  /** The World Bank income-group heuristic — a bracket, not an estimate. */
   wacc_suggestion: number | null;
   capex_pack: unknown;
   source: string | null;
+  /**
+   * True when a researched profile owns this row. Enriched countries carry
+   * real cost inputs below; heuristic ones leave them null and the model
+   * uses its own defaults.
+   */
+  curated: boolean | null;
+  wacc_curated: number | null;
+  country_risk_premium: number | null;
+  electricity_price_usd_mwh: number | null;
+  water_price_usd_m3: number | null;
+  land_cost_usd_ha: number | null;
+  labour_index: number | null;
+  profile_version: string | null;
+  profile_source: Record<string, CountryProfileCitation> | null;
 }

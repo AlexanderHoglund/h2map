@@ -24,7 +24,20 @@
       "countryNone": "None",
       "defaultsSource": "Defaults: {source}",
       "countryUnavailable": "Country defaults are unavailable right now.",
-      "confirmOverride": "Applying country defaults will overwrite your edited discount rate and grid emission factor. Continue?"
+      "confirmOverride": "Applying country defaults will overwrite your edited discount rate and grid emission factor. Continue?",
+      "enriched": "Enriched profile",
+      "enrichedShort": "enriched",
+      "enrichedNote": "researched cost inputs, cited below",
+      "heuristicNote": "Regional defaults: grid factor measured (OWID/Ember), cost of capital from a World Bank income-group bracket — not a country estimate.",
+      "unverified": "unverified",
+      "fields": {
+        "wacc_curated": "Cost of capital",
+        "country_risk_premium": "Country risk premium",
+        "electricity_price_usd_mwh": "Industrial electricity",
+        "water_price_usd_m3": "Industrial water",
+        "land_cost_usd_ha": "Land",
+        "labour_index": "Labour"
+      }
     },
     "general": {
       "lifetime": "Project lifetime",
