@@ -1,0 +1,1454 @@
+{
+  "bundleId": "2026-08-16-vessel-v2",
+  "schemaVersion": 1,
+  "source": {
+    "workbook": "Green_Corridor_Model_Simplified_30_07.xlsx",
+    "sha256": "d3b219379402e211249ac336d98461fca98eb9c742dfde9498f03c045da38fbd",
+    "transcribedAt": "2026-07-30",
+    "note": "Vessel catalogue replaced from the 2026-08-16 research bundle (34 classes). Every non-vessel section is copied byte-identical from 2026-07-30-excel-v1. Reference data is immutable: any change is a NEW bundle id, never an edit.",
+    "vesselMethod": "EEDI reference lines (MEPC.203(62), bulk row amended MEPC 75) for size scaling; per-family calibration to observed operating consumption; newbuild prices from dated broker tables and reported contracts; OPEX from Moore Maritime Index 2025 (FY2024 audited accounts, EXCLUDING drydock/special survey)."
+  },
+  "vesselTypes": [
+    {
+      "id": "bulk-handysize-35k",
+      "label": "Handysize bulk (35k dwt)",
+      "capexUsdM": 30,
+      "opexUsdMPerYear": 2.12,
+      "gjPerNm": 2.458,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (bulk) x k=0.832; CAPEX A, OPEX A",
+      "family": "bulk",
+      "dwtTonnes": 35000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13.5,
+      "ladenGjPerNm": 2.658,
+      "ballastGjPerNm": 2.259,
+      "portGjPerDay": 100.5,
+      "idleGjPerDay": 50.2,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table 04-May-2026 (Handysize $30.0m)",
+        "opex": "A: MMI Handysize",
+        "energy": "B: EEDI reference line (bulk) x k=0.832",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "bulk-handymax-58k",
+      "label": "Handymax bulk (58k dwt)",
+      "capexUsdM": 34,
+      "opexUsdMPerYear": 2.47,
+      "gjPerNm": 3.202,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (bulk) x k=0.832; CAPEX A, OPEX A",
+      "family": "bulk",
+      "dwtTonnes": 58000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 14,
+      "ladenGjPerNm": 3.461,
+      "ballastGjPerNm": 2.942,
+      "portGjPerDay": 120.6,
+      "idleGjPerDay": 60.3,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table 04-May-2026 (Ultramax $34.0m)",
+        "opex": "A: MMI Handymax",
+        "energy": "B: EEDI reference line (bulk) x k=0.832",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "A: validated",
+        "verified": false
+      }
+    },
+    {
+      "id": "bulk-ultramax-64k",
+      "label": "Ultramax bulk (64k dwt)",
+      "capexUsdM": 34,
+      "opexUsdMPerYear": 2.47,
+      "gjPerNm": 3.371,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (bulk) x k=0.832; CAPEX A, OPEX A",
+      "family": "bulk",
+      "dwtTonnes": 64000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 14,
+      "ladenGjPerNm": 3.644,
+      "ballastGjPerNm": 3.098,
+      "portGjPerDay": 120.6,
+      "idleGjPerDay": 60.3,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table 04-May-2026 (Ultramax $34.0m)",
+        "opex": "A: MMI Handymax",
+        "energy": "B: EEDI reference line (bulk) x k=0.832",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "bulk-panamax-76k",
+      "label": "Panamax bulk (76k dwt)",
+      "capexUsdM": 36,
+      "opexUsdMPerYear": 2.46,
+      "gjPerNm": 3.688,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (bulk) x k=0.832; CAPEX B, OPEX A",
+      "family": "bulk",
+      "dwtTonnes": 76000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13.5,
+      "ladenGjPerNm": 3.987,
+      "ballastGjPerNm": 3.389,
+      "portGjPerDay": 140.7,
+      "idleGjPerDay": 70.4,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "B: interpolated Ultramax-Kamsarmax, Xclusiv 04-May-2026",
+        "opex": "A: MMI Panamax",
+        "energy": "B: EEDI reference line (bulk) x k=0.832",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "bulk-kamsarmax-82k",
+      "label": "Kamsarmax bulk (82k dwt)",
+      "capexUsdM": 37,
+      "opexUsdMPerYear": 2.46,
+      "gjPerNm": 3.837,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (bulk) x k=0.832; CAPEX A, OPEX A",
+      "family": "bulk",
+      "dwtTonnes": 82000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13.5,
+      "ladenGjPerNm": 4.149,
+      "ballastGjPerNm": 3.526,
+      "portGjPerDay": 140.7,
+      "idleGjPerDay": 70.4,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table + 4x82,000dwt @ $37m Jiangsu Rongsheng",
+        "opex": "A: MMI Panamax",
+        "energy": "B: EEDI reference line (bulk) x k=0.832",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "bulk-postpanamax-93k",
+      "label": "Post-Panamax bulk (93k dwt)",
+      "capexUsdM": 42,
+      "opexUsdMPerYear": 2.46,
+      "gjPerNm": 4.099,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (bulk) x k=0.832; CAPEX C, OPEX A",
+      "family": "bulk",
+      "dwtTonnes": 93000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13.5,
+      "ladenGjPerNm": 4.431,
+      "ballastGjPerNm": 3.766,
+      "portGjPerDay": 160.8,
+      "idleGjPerDay": 80.4,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: scaled Kamsarmax-Capesize curve",
+        "opex": "A: MMI Panamax",
+        "energy": "B: EEDI reference line (bulk) x k=0.832",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "bulk-capesize-180k",
+      "label": "Capesize bulk (180k dwt)",
+      "capexUsdM": 75.5,
+      "opexUsdMPerYear": 2.93,
+      "gjPerNm": 5.789,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (bulk) x k=0.832; CAPEX A, OPEX A",
+      "family": "bulk",
+      "dwtTonnes": 180000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13,
+      "ladenGjPerNm": 6.259,
+      "ballastGjPerNm": 5.32,
+      "portGjPerDay": 180.9,
+      "idleGjPerDay": 90.5,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table 04-May-2026 (Capesize $75.5m)",
+        "opex": "A: MMI Capesize",
+        "energy": "B: EEDI reference line (bulk) x k=0.832",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "A: validated",
+        "verified": false
+      }
+    },
+    {
+      "id": "bulk-newcastlemax-210k",
+      "label": "Newcastlemax bulk (210k dwt)",
+      "capexUsdM": 80.5,
+      "opexUsdMPerYear": 2.93,
+      "gjPerNm": 6.275,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (bulk) x k=0.832; CAPEX A, OPEX A",
+      "family": "bulk",
+      "dwtTonnes": 210000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13,
+      "ladenGjPerNm": 6.784,
+      "ballastGjPerNm": 5.766,
+      "portGjPerDay": 201,
+      "idleGjPerDay": 100.5,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: contract 2x210,000dwt CSSC Qingdao Beihai @ $80.5m ea, H1-2030, scrubbers",
+        "opex": "A: MMI Capesize (excl. drydock - see method 4)",
+        "energy": "B: EEDI reference line (bulk) x k=0.832",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "A: validated",
+        "verified": false
+      }
+    },
+    {
+      "id": "bulk-vloc-325k",
+      "label": "VLOC / Valemax (325k dwt)",
+      "capexUsdM": 118,
+      "opexUsdMPerYear": 2.93,
+      "gjPerNm": 8.481,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (bulk) x k=0.832; CAPEX C, OPEX B",
+      "family": "bulk",
+      "dwtTonnes": 325000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 12.5,
+      "ladenGjPerNm": 9.169,
+      "ballastGjPerNm": 7.793,
+      "portGjPerDay": 241.2,
+      "idleGjPerDay": 120.6,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: scaled from Newcastlemax, no dated quote",
+        "opex": "B: MMI Capesize analogue",
+        "energy": "B: EEDI reference line (bulk) x k=0.832",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "tank-small-15k",
+      "label": "Small tanker (15k dwt)",
+      "capexUsdM": 28,
+      "opexUsdMPerYear": 2.14,
+      "gjPerNm": 2.033,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (tanker) x k=0.94; CAPEX C, OPEX A",
+      "family": "tanker",
+      "dwtTonnes": 15000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13,
+      "ladenGjPerNm": 2.198,
+      "ballastGjPerNm": 1.868,
+      "portGjPerDay": 120.6,
+      "idleGjPerDay": 60.3,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: scaled below MR2 quote",
+        "opex": "A: MMI Small Tanker",
+        "energy": "B: EEDI reference line (tanker) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "tank-mr1-40k",
+      "label": "MR1 / Handy tanker (40k dwt)",
+      "capexUsdM": 45,
+      "opexUsdMPerYear": 2.83,
+      "gjPerNm": 3.359,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (tanker) x k=0.94; CAPEX A, OPEX A",
+      "family": "tanker",
+      "dwtTonnes": 40000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 14,
+      "ladenGjPerNm": 3.631,
+      "ballastGjPerNm": 3.087,
+      "portGjPerDay": 201,
+      "idleGjPerDay": 100.5,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: contract 2x40,500dwt Wuhu/Ardmore @ $45m ea, H2-2028",
+        "opex": "A: MMI Handy Tanker",
+        "energy": "B: EEDI reference line (tanker) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "tank-mr2-50k",
+      "label": "MR2 product tanker (50k dwt)",
+      "capexUsdM": 50,
+      "opexUsdMPerYear": 2.93,
+      "gjPerNm": 3.766,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (tanker) x k=0.94; CAPEX A, OPEX A",
+      "family": "tanker",
+      "dwtTonnes": 50000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 14.5,
+      "ladenGjPerNm": 4.071,
+      "ballastGjPerNm": 3.46,
+      "portGjPerDay": 241.2,
+      "idleGjPerDay": 120.6,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table 04-May-2026 (MR2 $50.0m)",
+        "opex": "A: MMI Panamax Tanker",
+        "energy": "B: EEDI reference line (tanker) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "A: validated",
+        "verified": false
+      }
+    },
+    {
+      "id": "tank-lr1-75k",
+      "label": "LR1 / Panamax tanker (75k dwt)",
+      "capexUsdM": 60,
+      "opexUsdMPerYear": 2.93,
+      "gjPerNm": 4.634,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (tanker) x k=0.94; CAPEX A, OPEX A",
+      "family": "tanker",
+      "dwtTonnes": 75000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 14.5,
+      "ladenGjPerNm": 5.01,
+      "ballastGjPerNm": 4.259,
+      "portGjPerDay": 301.5,
+      "idleGjPerDay": 150.8,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table 04-May-2026 (Panamax $60.0m)",
+        "opex": "A: MMI Panamax Tanker",
+        "energy": "B: EEDI reference line (tanker) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "tank-lr2-115k",
+      "label": "Aframax / LR2 tanker (115k dwt)",
+      "capexUsdM": 75,
+      "opexUsdMPerYear": 3.03,
+      "gjPerNm": 5.768,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (tanker) x k=0.94; CAPEX A, OPEX A",
+      "family": "tanker",
+      "dwtTonnes": 115000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13.5,
+      "ladenGjPerNm": 6.236,
+      "ballastGjPerNm": 5.301,
+      "portGjPerDay": 402,
+      "idleGjPerDay": 201,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table 04-May-2026 (Aframax $75.0m)",
+        "opex": "A: MMI Aframax",
+        "energy": "B: EEDI reference line (tanker) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "tank-suezmax-160k",
+      "label": "Suezmax tanker (160k dwt)",
+      "capexUsdM": 89,
+      "opexUsdMPerYear": 3.24,
+      "gjPerNm": 6.831,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (tanker) x k=0.94; CAPEX A, OPEX A",
+      "family": "tanker",
+      "dwtTonnes": 160000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 14.5,
+      "ladenGjPerNm": 7.385,
+      "ballastGjPerNm": 6.277,
+      "portGjPerDay": 482.4,
+      "idleGjPerDay": 241.2,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table 04-May-2026 (Suezmax $89.0m)",
+        "opex": "A: MMI Suezmax",
+        "energy": "B: EEDI reference line (tanker) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "A: validated",
+        "verified": false
+      }
+    },
+    {
+      "id": "tank-vlcc-300k",
+      "label": "VLCC (300k dwt)",
+      "capexUsdM": 130.5,
+      "opexUsdMPerYear": 3.77,
+      "gjPerNm": 9.424,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (tanker) x k=0.94; CAPEX A, OPEX A",
+      "family": "tanker",
+      "dwtTonnes": 300000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13,
+      "ladenGjPerNm": 10.189,
+      "ballastGjPerNm": 8.66,
+      "portGjPerDay": 603,
+      "idleGjPerDay": 301.5,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: Xclusiv NB table 04-May-2026 (VLCC $130.5m); cf. 2x307,000dwt Dalian @ $123m",
+        "opex": "A: MMI VLCC",
+        "energy": "B: EEDI reference line (tanker) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "A: validated",
+        "verified": false
+      }
+    },
+    {
+      "id": "chem-imo2-12k",
+      "label": "Chemical tanker IMO-2 (12k dwt)",
+      "capexUsdM": 32,
+      "opexUsdMPerYear": 2.14,
+      "gjPerNm": 1.813,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (chemical) x k=0.94; CAPEX C, OPEX B",
+      "family": "chemical",
+      "dwtTonnes": 12000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13.5,
+      "ladenGjPerNm": 1.96,
+      "ballastGjPerNm": 1.666,
+      "portGjPerDay": 201,
+      "idleGjPerDay": 100.5,
+      "cargoSystemGjPerDay": 120.6,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: stainless premium over product tanker, no dated quote",
+        "opex": "B: MMI Small Tanker analogue",
+        "energy": "B: EEDI reference line (chemical) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "chem-imo2-25k",
+      "label": "Chemical tanker IMO-2 (25k dwt)",
+      "capexUsdM": 50,
+      "opexUsdMPerYear": 2.83,
+      "gjPerNm": 2.641,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (chemical) x k=0.94; CAPEX C, OPEX B",
+      "family": "chemical",
+      "dwtTonnes": 25000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 14,
+      "ladenGjPerNm": 2.855,
+      "ballastGjPerNm": 2.427,
+      "portGjPerDay": 241.2,
+      "idleGjPerDay": 120.6,
+      "cargoSystemGjPerDay": 160.8,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: MMMCZCS indicative ~$50m, IMO-2 stainless; needs broker quote",
+        "opex": "B: MMI Handy Tanker analogue",
+        "energy": "B: EEDI reference line (chemical) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "chem-imo2-40k",
+      "label": "Chemical tanker IMO-2 (40k dwt)",
+      "capexUsdM": 65,
+      "opexUsdMPerYear": 2.83,
+      "gjPerNm": 3.359,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (chemical) x k=0.94; CAPEX C, OPEX B",
+      "family": "chemical",
+      "dwtTonnes": 40000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 14.5,
+      "ladenGjPerNm": 3.631,
+      "ballastGjPerNm": 3.087,
+      "portGjPerDay": 281.4,
+      "idleGjPerDay": 140.7,
+      "cargoSystemGjPerDay": 201,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: scaled from 25k, no dated quote",
+        "opex": "B: MMI Handy Tanker analogue",
+        "energy": "B: EEDI reference line (chemical) x k=0.94",
+        "ladenBallastSplit": "C: family ratio 0.85 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "cont-feeder-1800",
+      "label": "Container feeder (1,800 TEU)",
+      "capexUsdM": 34,
+      "opexUsdMPerYear": 2.26,
+      "gjPerNm": 3.359,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (container) x k=0.65; CAPEX A, OPEX C",
+      "family": "container",
+      "dwtTonnes": 23000,
+      "teuCapacity": 1800,
+      "defaultCargoUnit": "teu",
+      "serviceSpeedKn": 16,
+      "ladenGjPerNm": 3.445,
+      "ballastGjPerNm": 3.273,
+      "portGjPerDay": 160.8,
+      "idleGjPerDay": 80.4,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: contract 4x1,800TEU CMI Qinshan @ $34m ea, DF methanol [spec premium]",
+        "opex": "C: no MMI container row",
+        "energy": "B: EEDI reference line (container) x k=0.65",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "cont-handy-2800",
+      "label": "Container handy (2,800 TEU)",
+      "capexUsdM": 45,
+      "opexUsdMPerYear": 2.48,
+      "gjPerNm": 5.016,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (container) x k=0.65; CAPEX C, OPEX C",
+      "family": "container",
+      "dwtTonnes": 38000,
+      "teuCapacity": 2800,
+      "defaultCargoUnit": "teu",
+      "serviceSpeedKn": 17,
+      "ladenGjPerNm": 5.145,
+      "ballastGjPerNm": 4.888,
+      "portGjPerDay": 221.1,
+      "idleGjPerDay": 110.6,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: interpolated 1,800-6,400 TEU contract curve",
+        "opex": "C: no MMI container row",
+        "energy": "B: EEDI reference line (container) x k=0.65",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "cont-subpanamax-5000",
+      "label": "Container sub-Panamax (5,000 TEU)",
+      "capexUsdM": 63,
+      "opexUsdMPerYear": 2.77,
+      "gjPerNm": 7.418,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (container) x k=0.65; CAPEX B, OPEX C",
+      "family": "container",
+      "dwtTonnes": 62000,
+      "teuCapacity": 5000,
+      "defaultCargoUnit": "teu",
+      "serviceSpeedKn": 18,
+      "ladenGjPerNm": 7.608,
+      "ballastGjPerNm": 7.228,
+      "portGjPerDay": 301.5,
+      "idleGjPerDay": 150.8,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "B: interpolated on reported 1,800/6,400/8,000 TEU contracts",
+        "opex": "C: no MMI container row",
+        "energy": "B: EEDI reference line (container) x k=0.65",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "cont-panamax-6400",
+      "label": "Container Panamax (6,400 TEU)",
+      "capexUsdM": 75,
+      "opexUsdMPerYear": 2.99,
+      "gjPerNm": 8.911,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (container) x k=0.65; CAPEX A, OPEX C",
+      "family": "container",
+      "dwtTonnes": 78000,
+      "teuCapacity": 6400,
+      "defaultCargoUnit": "teu",
+      "serviceSpeedKn": 18,
+      "ladenGjPerNm": 9.14,
+      "ballastGjPerNm": 8.683,
+      "portGjPerDay": 361.8,
+      "idleGjPerDay": 180.9,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: contract 4x6,400TEU Huangpu Wenchong @ $75m ea, Q4-2029",
+        "opex": "C: no MMI container row",
+        "energy": "B: EEDI reference line (container) x k=0.65",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "cont-8000",
+      "label": "Container (8,000 TEU)",
+      "capexUsdM": 105,
+      "opexUsdMPerYear": 3.21,
+      "gjPerNm": 10.868,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (container) x k=0.65; CAPEX A, OPEX C",
+      "family": "container",
+      "dwtTonnes": 100000,
+      "teuCapacity": 8000,
+      "defaultCargoUnit": "teu",
+      "serviceSpeedKn": 18.5,
+      "ladenGjPerNm": 11.147,
+      "ballastGjPerNm": 10.589,
+      "portGjPerDay": 422.1,
+      "idleGjPerDay": 211.1,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: contract 4x8,000TEU CMI Hainan @ $105m ea, scrubbers+methanol [spec premium]",
+        "opex": "C: no MMI container row",
+        "energy": "B: EEDI reference line (container) x k=0.65",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "cont-neopanamax-13640",
+      "label": "Container Neo-Panamax (13,640 TEU)",
+      "capexUsdM": 183,
+      "opexUsdMPerYear": 3.83,
+      "gjPerNm": 15.026,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (container) x k=0.65; CAPEX A, OPEX C",
+      "family": "container",
+      "dwtTonnes": 150000,
+      "teuCapacity": 13640,
+      "defaultCargoUnit": "teu",
+      "serviceSpeedKn": 18.5,
+      "ladenGjPerNm": 15.411,
+      "ballastGjPerNm": 14.641,
+      "portGjPerDay": 482.4,
+      "idleGjPerDay": 241.2,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: contract 12x13,640TEU Hudong Zhonghua/OOCL @ $183m ea, 2028-30",
+        "opex": "C: no MMI container row",
+        "energy": "B: EEDI reference line (container) x k=0.65",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "A: validated",
+        "verified": false
+      }
+    },
+    {
+      "id": "cont-ulcv-18000",
+      "label": "ULCV (18,000 TEU)",
+      "capexUsdM": 215,
+      "opexUsdMPerYear": 4.2,
+      "gjPerNm": 18.531,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (container) x k=0.65; CAPEX C, OPEX C",
+      "family": "container",
+      "dwtTonnes": 195000,
+      "teuCapacity": 18000,
+      "defaultCargoUnit": "teu",
+      "serviceSpeedKn": 19,
+      "ladenGjPerNm": 19.006,
+      "ballastGjPerNm": 18.055,
+      "portGjPerDay": 562.8,
+      "idleGjPerDay": 281.4,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: scaled above the 13,640 TEU contract",
+        "opex": "C: no MMI container row",
+        "energy": "B: EEDI reference line (container) x k=0.65",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "cont-ulcv-24000",
+      "label": "ULCV (24,000 TEU)",
+      "capexUsdM": 260,
+      "opexUsdMPerYear": 4.56,
+      "gjPerNm": 21.875,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (container) x k=0.65; CAPEX C, OPEX C",
+      "family": "container",
+      "dwtTonnes": 240000,
+      "teuCapacity": 24000,
+      "defaultCargoUnit": "teu",
+      "serviceSpeedKn": 19,
+      "ladenGjPerNm": 22.436,
+      "ballastGjPerNm": 21.314,
+      "portGjPerDay": 603,
+      "idleGjPerDay": 301.5,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: scaled above the 13,640 TEU contract",
+        "opex": "C: no MMI container row",
+        "energy": "B: EEDI reference line (container) x k=0.65",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "gas-lng-174k",
+      "label": "LNG carrier (174,000 cbm)",
+      "capexUsdM": 250,
+      "opexUsdMPerYear": 5.11,
+      "gjPerNm": 10.5,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: C: direct observed; EEDI gas line NOT used for this row; CAPEX A, OPEX C",
+      "family": "gas",
+      "dwtTonnes": 90000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 19.5,
+      "ladenGjPerNm": 11.053,
+      "ballastGjPerNm": 9.947,
+      "portGjPerDay": 321.6,
+      "idleGjPerDay": 160.8,
+      "cargoSystemGjPerDay": 482.4,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "A: 2026 reports, base-spec 174k cbm >$250m (Hanwha Ocean May-2026 ~$250.3m)",
+        "opex": "C: no MMI gas row",
+        "energy": "C: direct observed; EEDI gas line NOT used for this row",
+        "ladenBallastSplit": "C: family ratio 0.9 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "A: validated",
+        "verified": false
+      }
+    },
+    {
+      "id": "gas-vlgc-84k",
+      "label": "VLGC (84,000 cbm LPG)",
+      "capexUsdM": 95,
+      "opexUsdMPerYear": 3.47,
+      "gjPerNm": 4.341,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (gas) x k=0.8; CAPEX C, OPEX C",
+      "family": "gas",
+      "dwtTonnes": 54000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 16,
+      "ladenGjPerNm": 4.57,
+      "ballastGjPerNm": 4.113,
+      "portGjPerDay": 241.2,
+      "idleGjPerDay": 120.6,
+      "cargoSystemGjPerDay": 241.2,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: sector estimate, no dated quote",
+        "opex": "C: no MMI gas row",
+        "energy": "B: EEDI reference line (gas) x k=0.8",
+        "ladenBallastSplit": "C: family ratio 0.9 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "pctc-7000ceu",
+      "label": "PCTC / car carrier (7,000 CEU)",
+      "capexUsdM": 100,
+      "opexUsdMPerYear": 3.29,
+      "gjPerNm": 2.962,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (pctc) x k=0.7; CAPEX B, OPEX C",
+      "family": "pctc",
+      "dwtTonnes": 18500,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 18,
+      "ladenGjPerNm": 3.038,
+      "ballastGjPerNm": 2.886,
+      "portGjPerDay": 241.2,
+      "idleGjPerDay": 120.6,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "B: Japanese-yard tariff ~$100m DF-LNG 7,000 CEU; Chinese ~$88m [spec premium]",
+        "opex": "C: no MMI row",
+        "energy": "B: EEDI reference line (pctc) x k=0.7",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "roro-cargo-12k",
+      "label": "Ro-Ro cargo (12k dwt)",
+      "capexUsdM": 55,
+      "opexUsdMPerYear": 2.74,
+      "gjPerNm": 2.065,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (roro) x k=0.85; CAPEX C, OPEX C",
+      "family": "roro",
+      "dwtTonnes": 12000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 18,
+      "ladenGjPerNm": 2.118,
+      "ballastGjPerNm": 2.012,
+      "portGjPerDay": 201,
+      "idleGjPerDay": 100.5,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: sector estimate",
+        "opex": "C: no MMI row",
+        "energy": "B: EEDI reference line (roro) x k=0.85",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "ropax-8k",
+      "label": "Ro-Pax ferry (8k dwt)",
+      "capexUsdM": 90,
+      "opexUsdMPerYear": 4.01,
+      "gjPerNm": 2.581,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (ropax) x k=0.85; CAPEX C, OPEX C",
+      "family": "ropax",
+      "dwtTonnes": 8000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 20,
+      "ladenGjPerNm": 2.647,
+      "ballastGjPerNm": 2.515,
+      "portGjPerDay": 321.6,
+      "idleGjPerDay": 160.8,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: sector estimate, highly design-dependent",
+        "opex": "C: no MMI row",
+        "energy": "B: EEDI reference line (ropax) x k=0.85",
+        "ladenBallastSplit": "C: family ratio 0.95 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "genc-12k",
+      "label": "General cargo (12k dwt)",
+      "capexUsdM": 22,
+      "opexUsdMPerYear": 1.9,
+      "gjPerNm": 1.861,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (gencargo) x k=0.85; CAPEX C, OPEX C",
+      "family": "gencargo",
+      "dwtTonnes": 12000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 13,
+      "ladenGjPerNm": 1.959,
+      "ballastGjPerNm": 1.763,
+      "portGjPerDay": 80.4,
+      "idleGjPerDay": 40.2,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: sector estimate",
+        "opex": "C: no MMI row",
+        "energy": "B: EEDI reference line (gencargo) x k=0.85",
+        "ladenBallastSplit": "C: family ratio 0.9 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "genc-25k",
+      "label": "General cargo (25k dwt)",
+      "capexUsdM": 28,
+      "opexUsdMPerYear": 2.04,
+      "gjPerNm": 3.309,
+      "verified": false,
+      "sourceNote": "2026-08-16-vessel-v2: B: EEDI reference line (gencargo) x k=0.85; CAPEX C, OPEX C",
+      "family": "gencargo",
+      "dwtTonnes": 25000,
+      "defaultCargoUnit": "tonne",
+      "serviceSpeedKn": 14,
+      "ladenGjPerNm": 3.483,
+      "ballastGjPerNm": 3.134,
+      "portGjPerDay": 100.5,
+      "idleGjPerDay": 50.2,
+      "cargoSystemGjPerDay": 0,
+      "costYear": 2026,
+      "provenance": {
+        "capex": "C: sector estimate",
+        "opex": "C: no MMI row",
+        "energy": "B: EEDI reference line (gencargo) x k=0.85",
+        "ladenBallastSplit": "C: family ratio 0.9 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED, the largest open term",
+        "serviceSpeed": "C: typical service speed for class",
+        "verified": false
+      }
+    },
+    {
+      "id": "tanker-35k",
+      "label": "Tanker (35k dwt)",
+      "capexUsdM": 20,
+      "opexUsdMPerYear": 1.2,
+      "fuelTonnesPerYear": 2400,
+      "gjPerNm": 4,
+      "verified": true,
+      "sourceNote": "Data_tables!B6 — RETIRED in 2026-08-16-vessel-v2: superseded by the researched catalogue, retained verbatim so scenarios pinning this id reproduce their original numbers.",
+      "deprecated": true
+    },
+    {
+      "id": "tanker-80k",
+      "label": "Tanker (80k dwt)",
+      "capexUsdM": 35,
+      "opexUsdMPerYear": 2,
+      "fuelTonnesPerYear": 5200,
+      "gjPerNm": 7,
+      "verified": true,
+      "sourceNote": "Data_tables!B7 — RETIRED in 2026-08-16-vessel-v2: superseded by the researched catalogue, retained verbatim so scenarios pinning this id reproduce their original numbers.",
+      "deprecated": true
+    },
+    {
+      "id": "bulk-60k",
+      "label": "Bulk carrier (60k dwt)",
+      "capexUsdM": 25,
+      "opexUsdMPerYear": 1.5,
+      "fuelTonnesPerYear": 3000,
+      "gjPerNm": 5,
+      "verified": true,
+      "sourceNote": "Data_tables!B8 — RETIRED in 2026-08-16-vessel-v2: superseded by the researched catalogue, retained verbatim so scenarios pinning this id reproduce their original numbers.",
+      "deprecated": true
+    },
+    {
+      "id": "container-5k",
+      "label": "Container (5k TEU)",
+      "capexUsdM": 45,
+      "opexUsdMPerYear": 2.8,
+      "fuelTonnesPerYear": 6500,
+      "gjPerNm": 6,
+      "verified": true,
+      "sourceNote": "Data_tables!B9 — RETIRED in 2026-08-16-vessel-v2: superseded by the researched catalogue, retained verbatim so scenarios pinning this id reproduce their original numbers.",
+      "deprecated": true
+    },
+    {
+      "id": "container-15k",
+      "label": "Container (15k TEU)",
+      "capexUsdM": 90,
+      "opexUsdMPerYear": 5,
+      "fuelTonnesPerYear": 14000,
+      "gjPerNm": 10,
+      "verified": true,
+      "sourceNote": "Data_tables!B10 — RETIRED in 2026-08-16-vessel-v2: superseded by the researched catalogue, retained verbatim so scenarios pinning this id reproduce their original numbers.",
+      "deprecated": true
+    },
+    {
+      "id": "roro-ferry",
+      "label": "Ro-Ro / Ferry",
+      "capexUsdM": 30,
+      "opexUsdMPerYear": 2,
+      "fuelTonnesPerYear": 3500,
+      "gjPerNm": 4.5,
+      "verified": true,
+      "sourceNote": "Data_tables!B11 — RETIRED in 2026-08-16-vessel-v2: superseded by the researched catalogue, retained verbatim so scenarios pinning this id reproduce their original numbers.",
+      "deprecated": true
+    },
+    {
+      "id": "handymax-bulk-58k",
+      "label": "Handymax bulk (58k dwt)",
+      "capexUsdM": 35,
+      "opexUsdMPerYear": 2.8,
+      "fuelTonnesPerYear": 2638,
+      "gjPerNm": 3.2,
+      "verified": false,
+      "sourceNote": "Chilean Green Corridors - Copper Concentrate Export (MMMCZCS, 2025-09-11): fossil-newbuild Handymax fitted to the study's published totals; not in the workbook Data_tables. — RETIRED in 2026-08-16-vessel-v2: superseded by the researched catalogue, retained verbatim so scenarios pinning this id reproduce their original numbers.",
+      "deprecated": true
+    }
+  ],
+  "fuels": [
+    {
+      "id": "lsfo",
+      "family": "fossil",
+      "label": "LSFO (conventional)",
+      "priceUsdPerTonne": 594,
+      "combustionEfTco2PerTonne": 3.3,
+      "prodCapexUsdM": 0,
+      "prodOpexUsdMPerYear": 0,
+      "portStorageCapexUsdM": 0,
+      "portStorageOpexUsdMPerYear": 0,
+      "bargeCapexUsdM": 0,
+      "bargeOpexUsdMPerYear": 0,
+      "vesselCapexPremium": 0,
+      "lhvMjPerTonne": 40200,
+      "wtwGco2PerMj": 92.4,
+      "verified": true,
+      "sourceNote": "Data_tables!B15"
+    },
+    {
+      "id": "lng",
+      "family": "fossil",
+      "label": "LNG",
+      "priceUsdPerTonne": 550,
+      "combustionEfTco2PerTonne": 2.75,
+      "prodCapexUsdM": 15,
+      "prodOpexUsdMPerYear": 1,
+      "portStorageCapexUsdM": 8,
+      "portStorageOpexUsdMPerYear": 0.3,
+      "bargeCapexUsdM": 3,
+      "bargeOpexUsdMPerYear": 0.1,
+      "vesselCapexPremium": 0.1,
+      "lhvMjPerTonne": 48000,
+      "wtwGco2PerMj": 84,
+      "verified": true,
+      "sourceNote": "Data_tables!B16",
+      "prodNameplateTonnesPerYear": 60000
+    },
+    {
+      "id": "e-ammonia",
+      "family": "green",
+      "label": "e-Ammonia",
+      "priceUsdPerTonne": 900,
+      "combustionEfTco2PerTonne": 0.1,
+      "prodCapexUsdM": 55,
+      "prodOpexUsdMPerYear": 3,
+      "portStorageCapexUsdM": 12,
+      "portStorageOpexUsdMPerYear": 0.5,
+      "bargeCapexUsdM": 5,
+      "bargeOpexUsdMPerYear": 0.3,
+      "vesselCapexPremium": 0.25,
+      "lhvMjPerTonne": 18600,
+      "wtwGco2PerMj": 15,
+      "verified": true,
+      "sourceNote": "Data_tables!B17",
+      "prodNameplateTonnesPerYear": 60000
+    },
+    {
+      "id": "e-methanol",
+      "family": "green",
+      "label": "e-Methanol",
+      "priceUsdPerTonne": 850,
+      "combustionEfTco2PerTonne": 0.2,
+      "prodCapexUsdM": 45,
+      "prodOpexUsdMPerYear": 2.5,
+      "portStorageCapexUsdM": 8,
+      "portStorageOpexUsdMPerYear": 0.4,
+      "bargeCapexUsdM": 4,
+      "bargeOpexUsdMPerYear": 0.2,
+      "vesselCapexPremium": 0.15,
+      "lhvMjPerTonne": 19900,
+      "wtwGco2PerMj": 15,
+      "verified": true,
+      "sourceNote": "Data_tables!B18",
+      "prodNameplateTonnesPerYear": 60000
+    },
+    {
+      "id": "biodiesel-hvo",
+      "family": "green",
+      "label": "Biodiesel / HVO",
+      "priceUsdPerTonne": 1100,
+      "combustionEfTco2PerTonne": 0.3,
+      "prodCapexUsdM": 5,
+      "prodOpexUsdMPerYear": 0.5,
+      "portStorageCapexUsdM": 1,
+      "portStorageOpexUsdMPerYear": 0.1,
+      "bargeCapexUsdM": 0.5,
+      "bargeOpexUsdMPerYear": 0.05,
+      "vesselCapexPremium": 0.05,
+      "lhvMjPerTonne": 44000,
+      "wtwGco2PerMj": 25,
+      "verified": true,
+      "sourceNote": "Data_tables!B19",
+      "prodNameplateTonnesPerYear": 60000
+    },
+    {
+      "id": "lh2",
+      "family": "green",
+      "label": "Hydrogen (liquid)",
+      "priceUsdPerTonne": 1200,
+      "combustionEfTco2PerTonne": 0,
+      "prodCapexUsdM": 80,
+      "prodOpexUsdMPerYear": 4,
+      "portStorageCapexUsdM": 20,
+      "portStorageOpexUsdMPerYear": 0.8,
+      "bargeCapexUsdM": 8,
+      "bargeOpexUsdMPerYear": 0.4,
+      "vesselCapexPremium": 0.3,
+      "lhvMjPerTonne": 120000,
+      "wtwGco2PerMj": 10,
+      "verified": true,
+      "sourceNote": "Data_tables!B20",
+      "prodNameplateTonnesPerYear": 60000
+    }
+  ],
+  "countries": [
+    {
+      "id": "denmark",
+      "label": "Denmark",
+      "wacc": 0.055,
+      "verified": false,
+      "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)"
+    },
+    {
+      "id": "netherlands",
+      "label": "Netherlands",
+      "wacc": 0.055,
+      "verified": false,
+      "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)"
+    },
+    {
+      "id": "india",
+      "label": "India",
+      "wacc": 0.095,
+      "verified": false,
+      "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)"
+    },
+    {
+      "id": "brazil",
+      "label": "Brazil",
+      "wacc": 0.115,
+      "verified": false,
+      "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)"
+    },
+    {
+      "id": "singapore",
+      "label": "Singapore",
+      "wacc": 0.06,
+      "verified": false,
+      "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)"
+    },
+    {
+      "id": "united-states",
+      "label": "United States",
+      "wacc": 0.07,
+      "verified": false,
+      "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)"
+    },
+    {
+      "id": "other",
+      "label": "Other (edit manually)",
+      "wacc": 0.08,
+      "verified": false,
+      "sourceNote": "Illustrative country risk-premium benchmarks, not a verified source - replace with your own project finance / country-risk data. (Data_tables!B33)"
+    }
+  ],
+  "benchmarkRules": {
+    "fossilPortLogisticsOpexFactor": 0.3,
+    "fossilVesselCapexUsdM": 0,
+    "fossilPortCapexUsdM": 0
+  },
+  "fuelEmissions": {
+    "datasetVersion": "2026-08-14-seed-3",
+    "map": {
+      "lsfo": "hfo",
+      "lng": "lng",
+      "e-ammonia": "e-ammonia",
+      "e-methanol": "e-methanol",
+      "biodiesel-hvo": "bio-hvo",
+      "lh2": "lh2"
+    }
+  },
+  "constants": {
+    "ira45zMjPerGallon": 122.5
+  },
+  "schedules": {
+    "etsPhaseIn": [
+      {
+        "fromCalendarYear": 2024,
+        "value": 0.4
+      },
+      {
+        "fromCalendarYear": 2025,
+        "value": 0.7
+      },
+      {
+        "fromCalendarYear": 2026,
+        "value": 1
+      }
+    ],
+    "fuelEuTargets": [
+      {
+        "fromCalendarYear": 2025,
+        "value": 0.02
+      },
+      {
+        "fromCalendarYear": 2030,
+        "value": 0.06
+      },
+      {
+        "fromCalendarYear": 2035,
+        "value": 0.145
+      },
+      {
+        "fromCalendarYear": 2040,
+        "value": 0.31
+      },
+      {
+        "fromCalendarYear": 2045,
+        "value": 0.62
+      },
+      {
+        "fromCalendarYear": 2050,
+        "value": 0.8
+      }
+    ],
+    "imoBaseTargets": [
+      {
+        "fromCalendarYear": 2028,
+        "value": 0.04
+      },
+      {
+        "fromCalendarYear": 2029,
+        "value": 0.06
+      },
+      {
+        "fromCalendarYear": 2030,
+        "value": 0.08
+      },
+      {
+        "fromCalendarYear": 2031,
+        "value": 0.124
+      },
+      {
+        "fromCalendarYear": 2032,
+        "value": 0.168
+      },
+      {
+        "fromCalendarYear": 2033,
+        "value": 0.212
+      },
+      {
+        "fromCalendarYear": 2034,
+        "value": 0.256
+      },
+      {
+        "fromCalendarYear": 2035,
+        "value": 0.3
+      }
+    ],
+    "imoDirectTargets": [
+      {
+        "fromCalendarYear": 2028,
+        "value": 0.17
+      },
+      {
+        "fromCalendarYear": 2029,
+        "value": 0.19
+      },
+      {
+        "fromCalendarYear": 2030,
+        "value": 0.21
+      },
+      {
+        "fromCalendarYear": 2031,
+        "value": 0.254
+      },
+      {
+        "fromCalendarYear": 2032,
+        "value": 0.298
+      },
+      {
+        "fromCalendarYear": 2033,
+        "value": 0.342
+      },
+      {
+        "fromCalendarYear": 2034,
+        "value": 0.386
+      },
+      {
+        "fromCalendarYear": 2035,
+        "value": 0.43
+      }
+    ]
+  },
+  "regulationDefaults": {
+    "eurUsd": 1.08,
+    "ets": {
+      "euaEurPerTonne": 80,
+      "scope": 1
+    },
+    "fuelEu": {
+      "penaltyEurPerTonne": 2400,
+      "vlsfoMjPerTonne": 41000,
+      "baselineGco2PerMj": 91.16,
+      "scope": 1
+    },
+    "ira45z": {
+      "rateUsdPerGallon": 1
+    },
+    "imoNetZero": {
+      "effectiveFromCalendarYear": 2028,
+      "referenceIntensityGco2PerMj": 93.3,
+      "tier1UsdPerTonneCo2e": 100,
+      "tier2UsdPerTonneCo2e": 380,
+      "sourceNote": "IMO Net-Zero Framework, draft MEPC 83 text (approved Apr 2025; adoption targeted MEPC 85, Oct 2026 — PROVISIONAL pending adoption). Reference 93.3 gCO2eq/MJ (2008, WTW). Target ladders agreed 2028-2035 ONLY (base 2040 = 65%, 2036-39 to be set by 2032) - the step function holds the last agreed value flat beyond 2035, a documented approximation. Tier prices $100/$380 per tCO2eq are established for 2028-2030 only and held flat thereafter (provisional). The ZNZ reward rate is genuinely undetermined: no default row - the module reports the surplus balance in tonnes and prices it only via the scenario's optional reward parameter."
+    }
+  },
+  "vesselTypeAliases": {},
+  "vesselDerivation": {
+    "speedLaw": {
+      "perNmExponent": 2,
+      "perDayExponent": 3,
+      "note": "Power ~ v^3 so GJ/day ~ v^3; nm/day ~ v so GJ/nm ~ v^2. Apply 2.0 to the per-nm figures in energy{}. Applying 3.0 to a per-nm quantity understates by 12% at 11.5 vs 13 kn and 23% at 10 kn."
+    },
+    "eediReferenceLines": {
+      "bulk": {
+        "a": 961.79,
+        "c": 0.477,
+        "cap": 279000,
+        "capfrac": 1
+      },
+      "tanker": {
+        "a": 1218.8,
+        "c": 0.488,
+        "cap": null,
+        "capfrac": 1
+      },
+      "chemical": {
+        "a": 1218.8,
+        "c": 0.488,
+        "cap": null,
+        "capfrac": 1
+      },
+      "container": {
+        "a": 174.22,
+        "c": 0.201,
+        "cap": null,
+        "capfrac": 0.7
+      },
+      "gas": {
+        "a": 1120,
+        "c": 0.456,
+        "cap": null,
+        "capfrac": 1
+      },
+      "gencargo": {
+        "a": 107.48,
+        "c": 0.216,
+        "cap": null,
+        "capfrac": 1
+      },
+      "roro": {
+        "a": 1686.17,
+        "c": 0.498,
+        "cap": 17000,
+        "capfrac": 1
+      },
+      "ropax": {
+        "a": 902.59,
+        "c": 0.381,
+        "cap": 10000,
+        "capfrac": 1
+      },
+      "pctc": {
+        "a": 1812.63,
+        "c": 0.471,
+        "cap": null,
+        "capfrac": 1
+      }
+    },
+    "familyCalibration": {
+      "bulk": 0.832,
+      "tanker": 0.94,
+      "chemical": 0.94,
+      "container": 0.65,
+      "gas": 0.8,
+      "gencargo": 0.85,
+      "roro": 0.85,
+      "ropax": 0.85,
+      "pctc": 0.7
+    },
+    "ballastRatio": {
+      "bulk": 0.85,
+      "tanker": 0.85,
+      "chemical": 0.85,
+      "container": 0.95,
+      "gas": 0.9,
+      "gencargo": 0.9,
+      "roro": 0.95,
+      "ropax": 0.95,
+      "pctc": 0.95
+    }
+  }
+}

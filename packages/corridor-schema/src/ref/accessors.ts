@@ -19,7 +19,28 @@ function find<T extends { id: string }>(
   return hit;
 }
 
+/**
+ * Resolve a vessel type, following the bundle's rename aliases first.
+ *
+ * A catalogue revision may rename a class (`handymax-bulk-58k` →
+ * `bulk-handymax-58k`). Stored scenarios pin the OLD id, and there is
+ * deliberately no fallback row for vessels — an unknown id throws — so a
+ * bare rename would break every saved scenario, the default scenario and
+ * the golden fixture at once. `vesselTypeAliases` maps the old name onto
+ * the new row.
+ *
+ * Aliases are only ever declared for renames that PRESERVE the numbers. A
+ * class whose figures moved keeps its own `deprecated: true` row, so an old
+ * scenario reproduces what it always computed rather than silently adopting
+ * a re-valued class.
+ */
 export function getVesselType(bundle: RefBundle, id: string): RefVesselType {
+  const direct = bundle.vesselTypes.find((v) => v.id === id);
+  if (direct) return direct;
+  const aliased = bundle.vesselTypeAliases?.[id];
+  if (aliased !== undefined) {
+    return find(bundle.vesselTypes, aliased, "vessel type", bundle.bundleId);
+  }
   return find(bundle.vesselTypes, id, "vessel type", bundle.bundleId);
 }
 
