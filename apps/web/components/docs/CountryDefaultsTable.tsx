@@ -49,6 +49,11 @@ export default function CountryDefaultsTable({ snapshot }: Props) {
   const [query, setQuery] = useState("");
   const [enrichedOnly, setEnrichedOnly] = useState(false);
 
+  // Filter only — never re-sort. The snapshot is written already ordered
+  // (enriched first, then by name), because `localeCompare` resolves
+  // against host collation data and Node and the browser disagree on
+  // accented names: sorting here produced a different row order on the
+  // server than in the client and React reported a hydration mismatch.
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
     return snapshot.rows
@@ -58,13 +63,6 @@ export default function CountryDefaultsTable({ snapshot }: Props) {
           q === "" ||
           r.name.toLowerCase().includes(q) ||
           r.iso2.toLowerCase().includes(q),
-      )
-      .sort((a, b) =>
-        a.curated === b.curated
-          ? a.name.localeCompare(b.name)
-          : a.curated
-            ? -1
-            : 1,
       );
   }, [snapshot.rows, query, enrichedOnly]);
 

@@ -75,6 +75,19 @@ async function main(): Promise<void> {
     };
   });
 
+  // Sort HERE, not at render time. `localeCompare` resolves against the
+  // host's collation data, and Node and the browser disagree on accented
+  // names (“Côte d’Ivoire” vs “Croatia” order flips), which surfaced as a
+  // React hydration mismatch. Freezing the order into the artifact makes
+  // the table's markup identical on both sides by construction.
+  out.sort((a, b) =>
+    a.curated === b.curated
+      ? new Intl.Collator("en").compare(a.name, b.name)
+      : a.curated
+        ? -1
+        : 1,
+  );
+
   const curated = out.filter((r) => r.curated).length;
   const payload = {
     generatedBy: "scripts/defaults/snapshot-country-defaults.ts",
