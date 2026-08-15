@@ -1,0 +1,112 @@
+{
+ "generatedBy": "scripts/lib/gen-cost-packs-doc.ts",
+ "years": [
+  2024,
+  2030,
+  2040,
+  2050
+ ],
+ "costBasisYear": 2024,
+ "opex": {
+  "solarFraction": 0.015,
+  "windFraction": 0.025
+ },
+ "rows": [
+  {
+   "driver": "Electrolyser CAPEX",
+   "unit": "USD/kW",
+   "values": [
+    "2300",
+    "1610",
+    "1334",
+    "1150"
+   ],
+   "multipliers": [
+    "1.00",
+    "0.70",
+    "0.58",
+    "0.50"
+   ]
+  },
+  {
+   "driver": "Solar PV CAPEX",
+   "unit": "USD/kWp",
+   "values": [
+    "691",
+    "509",
+    "349",
+    "297"
+   ],
+   "multipliers": [
+    "1.00",
+    "0.74",
+    "0.51",
+    "0.43"
+   ]
+  },
+  {
+   "driver": "Onshore wind CAPEX",
+   "unit": "USD/kW",
+   "values": [
+    "1041",
+    "911",
+    "850",
+    "850"
+   ],
+   "multipliers": [
+    "1.00",
+    "0.88",
+    "0.82",
+    "0.82"
+   ]
+  },
+  {
+   "driver": "Efficiency (LHV)",
+   "unit": "%",
+   "values": [
+    "60%",
+    "61%",
+    "63%",
+    "65%"
+   ],
+   "multipliers": [
+    "1.00",
+    "1.02",
+    "1.05",
+    "1.08"
+   ]
+  },
+  {
+   "driver": "Stack life",
+   "unit": "h",
+   "values": [
+    "50k",
+    "75k",
+    "100k",
+    "125k"
+   ],
+   "multipliers": [
+    "1.00",
+    "1.50",
+    "2.00",
+    "2.50"
+   ]
+  },
+  {
+   "driver": "Degradation",
+   "unit": "%/yr",
+   "values": [
+    "1.0",
+    "0.8",
+    "0.6",
+    "0.5"
+   ],
+   "multipliers": [
+    "1.00",
+    "0.80",
+    "0.60",
+    "0.50"
+   ]
+  }
+ ]
+}

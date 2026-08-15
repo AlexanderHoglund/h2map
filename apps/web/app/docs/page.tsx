@@ -5,6 +5,7 @@ import CountryDefaultsTable from "@/components/docs/CountryDefaultsTable";
 import countryDefaults from "../../../../data/country-defaults/snapshot.json";
 import fieldReference from "../../../../data/corridor-sensitivity/field-reference.json";
 import sensitivityArtifact from "../../../../data/corridor-sensitivity/sensitivity.json";
+import costPacks from "../../../../data/cost-packs/table.json";
 
 export const metadata = {
   title: "Documentation — Thaduberg",
@@ -2530,62 +2531,96 @@ export default async function DocsPage() {
         <p className="mt-2">
           The cost-year buttons re-price each cell with future technology costs.
           The <strong>resource is held constant</strong>{" "}— same capacity factors
-          — so the change is purely the techno-economic cost-down. Multipliers
-          on the 2024 base:
+          — so the change is purely the techno-economic cost-down. Absolute
+          values, with the multiplier on the 2024 base in brackets. This table
+          is <strong>generated from the engine&apos;s own cost packs</strong>{" "}
+          (<code>npm run docs:costpacks</code>), not transcribed — an earlier
+          hand-copied version drifted from the code it described.
         </p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full border-collapse text-[13px] tabular-nums">
             <thead>
               <tr className="border-b border-neutral-300 text-left">
                 <th className="py-1.5 pr-3">Driver</th>
-                <th className="py-1.5 pr-3">2024</th>
-                <th className="py-1.5 pr-3">2030</th>
-                <th className="py-1.5 pr-3">2040</th>
-                <th className="py-1.5">2050</th>
+                {costPacks.years.map((y) => (
+                  <th key={y} className="py-1.5 pr-3">
+                    {y}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {[
-                ["Electrolyser CAPEX", "1.00", "0.70", "0.58", "0.50"],
-                ["Solar PV CAPEX", "1.00", "0.69", "0.62", "0.57"],
-                ["Wind CAPEX", "1.00", "0.92", "0.88", "0.85"],
-                ["Efficiency (LHV)", "60%", "61%", "63%", "65%"],
-                ["Stack life (h)", "40k", "60k", "80k", "100k"],
-                ["Degradation (%/yr)", "1.0", "0.8", "0.6", "0.5"],
-              ].map((r) => (
-                <tr
-                  key={r[0]}
-                  className="border-b border-neutral-100"
-                >
-                  <td className="py-1.5 pr-3 font-medium">{r[0]}</td>
-                  <td className="py-1.5 pr-3">{r[1]}</td>
-                  <td className="py-1.5 pr-3">{r[2]}</td>
-                  <td className="py-1.5 pr-3">{r[3]}</td>
-                  <td className="py-1.5">{r[4]}</td>
+              {costPacks.rows.map((r) => (
+                <tr key={r.driver} className="border-b border-neutral-100">
+                  <td className="py-1.5 pr-3 font-medium">
+                    {r.driver}
+                    <span className="ml-1 text-neutral-500">({r.unit})</span>
+                  </td>
+                  {r.values.map((v, i) => (
+                    <td key={costPacks.years[i]} className="py-1.5 pr-3">
+                      {v}
+                      {i > 0 && (
+                        <span className="ml-1 text-[11px] text-neutral-400">
+                          ×{r.multipliers[i]}
+                        </span>
+                      )}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        <p className="mt-2 text-xs text-neutral-500">
+          OPEX is held flat across years at{" "}
+          {(costPacks.opex.solarFraction * 100).toFixed(1)}% of CAPEX per year
+          for solar and {(costPacks.opex.windFraction * 100).toFixed(1)}% for
+          wind. Generation-cost basis year: {costPacks.costBasisYear}.
+        </p>
         <p className="mt-2">
-          The <strong>2030</strong>{" "}multipliers are derived from the IEA Global
-          Hydrogen Review 2025 Assumptions Annex (electrolyser CAPEX 2000–2600 →
-          1400–1820 USD/kW; solar/wind regional cost declines). IEA&apos;s
-          hydrogen publications have a 2030 horizon, so <strong>2040 and 2050
-          are extrapolated</strong>{" "}along IEA&apos;s stated direction and are
-          labeled &quot;projected&quot; throughout the UI. Scenario: IEA
-          Announced Pledges (APS); cost-down applied globally.
+          <strong>Two drivers, two sources, each internally consistent.</strong>{" "}
+          The <strong>electrolyser</strong>{" "}trajectory comes from the IEA
+          Global Hydrogen Review 2025 Assumptions Annex (system CAPEX 2000–2600
+          → 1400–1820 USD/kW by 2030, midpoints 2300 → 1610). The{" "}
+          <strong>generation</strong>{" "}trajectory comes from IRENA{" "}
+          <em>Renewable Power Generation Costs in 2024</em>: solar PV total
+          installed cost falls ~40% over the coming decade, onshore wind ~20%
+          and then <em>stabilises</em>{" "}at USD 850–1,000/kW. Wind is therefore
+          floored at 850, which is why its 2040 and 2050 figures are equal —
+          that is the projection reaching the level the source describes, not a
+          stuck value. Both are applied globally, not per region.
+        </p>
+        <p className="mt-2">
+          Each source publishes a decade horizon, so <strong>2040 and 2050 are
+          extrapolated</strong>{" "}and are labeled &quot;projected&quot;
+          throughout the UI. Scenario for the electrolyser line: IEA Announced
+          Pledges (APS).
         </p>
         <p className="mt-2">
           <strong>Durability trajectory.</strong>{" "}Earlier packs cut CAPEX but
           held stack life flat and degradation at 1%/yr — incoherent,
           since durability is a primary learning-curve target, and it made the
           cost-down conservative. Stack life and degradation now improve
-          alongside CAPEX (2024 unchanged). These durability figures are a{" "}
+          alongside CAPEX. These durability figures are a{" "}
           <em>documented extrapolation</em>{" "}along the IEA/DOE direction, not
-          IEA-published values. Because solar CAPEX falls faster than wind, the
-          cheapest PV/wind mix <strong>flips</strong>{" "}in some cells between cost
-          years — shifting toward solar by 2050.
+          IEA-published values; the 50,000 h starting point is IEA&apos;s stated
+          economic optimum (up to 95,000 h technically achievable). Because
+          solar CAPEX falls faster than wind, the cheapest PV/wind mix{" "}
+          <strong>flips</strong>{" "}in some cells between cost years — shifting
+          toward solar by 2050.
+        </p>
+        <p className="mt-2">
+          <strong>Stack replacement is a step, not a curve.</strong>{" "}A
+          replacement happens when cumulative operating hours cross a multiple
+          of the stack life, so the <em>count</em>{" "}of replacements over the
+          20-year life is an integer that jumps. At 6,719 operating hours a
+          year, a 50,000 h stack is replaced in years 8 and 15 — two events;
+          the same cell at 40,000 h would be replaced in years 6, 12 and 18 —
+          three. Cells sitting near a boundary can therefore move more between
+          cost years than their capacity factors alone suggest, because a
+          longer stack life removes a whole replacement rather than shaving a
+          cost. This is expected behaviour of a discrete schedule, not a
+          discontinuity in the underlying economics.
         </p>
 
         {/* 25 */}

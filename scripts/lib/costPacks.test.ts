@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { COST_PACKS, COST_YEARS } from "./lcohSweep";
+import { ROOT } from "./serviceDeps";
 
 /**
  * Guards on the cost packs.
@@ -77,5 +79,42 @@ describe("COST_PACKS anchors", () => {
     // Not 40,000: the 40k figure appears in an older methodology table and
     // is wrong about what the engine does. Replacement timing depends on it.
     expect(COST_PACKS[2024].stackLifetimeHours).toBe(50_000);
+  });
+});
+
+describe("the generated documentation table", () => {
+  // §33 showed a hand-copied table that drifted from the code: a 2024 stack
+  // life of 40k against the engine's 50k, and pre-IRENA CAPEX multipliers.
+  // The table is generated now, and this asserts the artifact was
+  // regenerated after the packs changed — otherwise the docs go stale again,
+  // just more quietly.
+  it("matches the current cost packs", () => {
+    const table = JSON.parse(
+      readFileSync(`${ROOT}data/cost-packs/table.json`, "utf8"),
+    ) as {
+      years: number[];
+      costBasisYear: number;
+      rows: { driver: string; values: string[] }[];
+    };
+    expect(table.years).toEqual([...COST_YEARS]);
+    expect(table.costBasisYear).toBe(COST_PACKS[2024].costBasisYear);
+
+    const row = (driver: string): string[] => {
+      const found = table.rows.find((r) => r.driver === driver);
+      expect(found, `missing row: ${driver}`).toBeDefined();
+      return found!.values;
+    };
+    expect(row("Solar PV CAPEX")).toEqual(
+      COST_YEARS.map((y) => COST_PACKS[y].solarCapexUsdPerKw.toString()),
+    );
+    expect(row("Onshore wind CAPEX")).toEqual(
+      COST_YEARS.map((y) => COST_PACKS[y].windCapexUsdPerKw.toString()),
+    );
+    expect(row("Electrolyser CAPEX")).toEqual(
+      COST_YEARS.map((y) => COST_PACKS[y].electrolyzerCapexUsdPerKw.toString()),
+    );
+    expect(row("Stack life")).toEqual(
+      COST_YEARS.map((y) => `${COST_PACKS[y].stackLifetimeHours / 1000}k`),
+    );
   });
 });
