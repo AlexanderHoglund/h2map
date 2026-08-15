@@ -2929,17 +2929,47 @@ export default async function DocsPage() {
             the fixed 2:1 design point.
           </li>
           <li>
-            Map cells use one representative coordinate per H3 hexagon.
+            <strong>Map cells use one representative coordinate per H3
+            hexagon — and for wind that is sometimes not enough.</strong>{" "}A
+            res-3 hex covers roughly 12,000 km², computed from a single
+            centroid. Measured against the finer res-4 cells already seeded
+            inside their parents, the wind capacity factor varies a lot{" "}
+            <em>within</em>{" "}a hex everywhere: mean spread 0.061 CF across
+            Indonesian hexes, 0.266 across Chilean ones. Note the direction —
+            the absolute spread is <em>larger</em>{" "}in Chile, so this is a
+            property of the resolution, not of any one region.
+          </li>
+          <li>
+            What differs is the spread <em>relative to the value</em>. Chilean
+            hexes average 0.15–0.42 CF, so a hex value still ranks a region
+            usefully. Indonesian hexes cluster at 0.02–0.07, where a spread of
+            0.061 <strong>exceeds the mean</strong>: the number stops being a
+            weak estimate of a site and becomes uninformative about it.
+            Indonesian wind is a ridge-siting problem, not a regional average
+            — which is why a hand-picked coordinate can imply CF 0.20–0.25
+            while the hex 65 km away reports 0.044, and <em>both are
+            right</em>. Cells below 12% wind CF therefore carry an explicit
+            note in the cell drawer telling the reader to treat the figure as
+            a typical unsited location. The threshold is on the data, not on a
+            region list, because the same condition holds anywhere wind is
+            weak and terrain-driven.
           </li>
           <li>
             <strong>Wind model tiers.</strong>{" "}On the map the Open-Meteo path
             DOES apply an air-density correction and per-site IEC turbine-class
-            selection (97.8 % of cells; their dataset tags carry{" "}
-            <code>-airdensity</code>{" "}and the selected class). The NASA POWER
-            fallback does not: a generic curve with fixed &alpha;&nbsp;=&nbsp;1/7
-            shear, currently 2.2 % of cells. That is a real modelling
-            difference, so those cells are outlined on the map and named in the
-            cell drawer rather than rendered as if they were comparable.
+            selection (their dataset tags carry <code>-airdensity</code>{" "}and
+            the selected class). The NASA POWER fallback does not: a generic
+            curve with fixed &alpha;&nbsp;=&nbsp;1/7 shear. That is a real
+            modelling difference, so those cells are outlined on the map and
+            named in the cell drawer rather than rendered as if they were
+            comparable. Measured 2026-08-15 over ready cells: 58% improved,
+            1.3% fallback — and <strong>37% not recorded at all</strong>,
+            because they were computed before the provenance columns existed.
+            Those are deliberately not flagged, since asserting either tier
+            would be false, but the drawer reports their provenance as
+            unrecorded rather than leaving the reader to assume. The
+            scheduled re-seed stamps each cell as it refreshes, so the
+            unrecorded share shrinks on its own.
           </li>
           <li>
             Cost-year 2040/2050 figures are extrapolations, not IEA-published

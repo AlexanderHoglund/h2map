@@ -12,7 +12,11 @@ import {
   type LayerBasis,
   type LayerKey,
 } from "./types";
-import { isNonViable, NON_VIABLE_ABOVE } from "./scale";
+import {
+  isNonViable,
+  isWindSitingSensitive,
+  NON_VIABLE_ABOVE,
+} from "./scale";
 
 interface Props {
   /** Last selected cell; kept by the parent while the drawer slides out. */
@@ -181,6 +185,16 @@ export default function CellDrawer({
                   <dd className="tabular-nums">{fmtPercent(shown.data.windCf)}</dd>
                 </div>
               </dl>
+              {/* Where wind is weak, the hex's single centroid stops
+                  representing the hex: the within-hex spread exceeds the
+                  mean, so the number describes a typical unsited location
+                  rather than any particular site. Say so here rather than
+                  only in the docs — this is where the number is read. */}
+              {isWindSitingSensitive(shown.data.windCf) && (
+                <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+                  {t("drawer.windSitingNote")}
+                </p>
+              )}
             </section>
 
             {/* Where this cell's numbers came from (T1/T2). Always shown:

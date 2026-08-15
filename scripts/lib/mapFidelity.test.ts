@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   isNonViable,
   isReducedFidelity,
+  isWindSitingSensitive,
   NON_VIABLE_ABOVE,
+  WIND_CF_UNINFORMATIVE_BELOW,
   lcohColor,
 } from "../../apps/web/components/hexplorer/scale";
 
@@ -48,6 +50,32 @@ describe("wind fallback is never indistinguishable from improved", () => {
     expect(isReducedFidelity("wind", null)).not.toBe(
       isReducedFidelity("wind", "fallback"),
     );
+  });
+});
+
+describe("weak-wind cells are marked as siting-sensitive", () => {
+  it("flags the Indonesian range, where within-hex spread exceeds the mean", () => {
+    // Measured Indonesian res-4 wind CFs cluster at 0.02-0.07 with a mean
+    // within-hex spread of 0.061 — the number cannot describe a site.
+    expect(isWindSitingSensitive(0.044)).toBe(true);
+    expect(isWindSitingSensitive(0.02)).toBe(true);
+    expect(isWindSitingSensitive(0.07)).toBe(true);
+  });
+
+  it("does not flag cells where the layer still ranks usefully", () => {
+    // Chilean hexes carry means of 0.15-0.42; the spread there is large in
+    // absolute terms but small against the value, so the layer is useful.
+    expect(isWindSitingSensitive(0.15)).toBe(false);
+    expect(isWindSitingSensitive(0.42)).toBe(false);
+    expect(isWindSitingSensitive(WIND_CF_UNINFORMATIVE_BELOW)).toBe(false);
+  });
+
+  it("says nothing about a masked or absent cell", () => {
+    // A missing CF is not a weak one — claiming siting sensitivity for a
+    // cell with no wind data would be inventing a finding.
+    expect(isWindSitingSensitive(null)).toBe(false);
+    expect(isWindSitingSensitive(undefined)).toBe(false);
+    expect(isWindSitingSensitive(0)).toBe(false);
   });
 });
 

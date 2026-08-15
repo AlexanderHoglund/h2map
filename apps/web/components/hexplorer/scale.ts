@@ -66,6 +66,42 @@ export function isNonViable(value: number | null | undefined): boolean {
 }
 
 /**
+ * Below this wind capacity factor, one representative coordinate stops
+ * saying anything useful about the hex it stands for.
+ *
+ * A res-3 hex covers roughly 12,000 km² and the map computes it from a
+ * single centroid. Measured against the res-4 cells already seeded inside
+ * their res-3 parents, the spread WITHIN a hex is large everywhere — mean
+ * 0.061 CF in Indonesia, 0.266 in Chile. What differs is the spread
+ * relative to the value: Chile's hexes carry means of 0.15–0.42, so a hex
+ * value still ranks a region usefully, while Indonesia's cluster at
+ * 0.02–0.07, where a within-hex spread of 0.061 EXCEEDS the mean. At that
+ * point the number is not a weak estimate of the site, it is uninformative
+ * about it — wind there is a ridge-siting problem, not a regional average.
+ *
+ * Deliberately a threshold on the DATA, not a region list: the same
+ * condition holds anywhere wind is weak and terrain-driven, and hardcoding
+ * "maritime SE Asia" would both miss those places and wrongly imply the
+ * effect is absent elsewhere.
+ */
+export const WIND_CF_UNINFORMATIVE_BELOW = 0.12;
+
+/**
+ * True when this cell's wind figure should be read as "unsited typical"
+ * rather than as an estimate for any particular site in the hex.
+ */
+export function isWindSitingSensitive(
+  windCf: number | null | undefined,
+): boolean {
+  return (
+    windCf !== null &&
+    windCf !== undefined &&
+    windCf > 0 &&
+    windCf < WIND_CF_UNINFORMATIVE_BELOW
+  );
+}
+
+/**
  * Stops: [value USD/kg, RGB]. The reference tool's eight colours keep their
  * order and relative spacing across 3.5–9.5; three added stops continue the
  * ramp into blue-violet so the $9–14 band resolves.

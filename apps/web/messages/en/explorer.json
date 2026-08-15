@@ -92,6 +92,7 @@
         "fallback": "NASA POWER · generic curve"
       },
       "fallbackNote": "This cell's wind uses the fallback model: a generic turbine curve with fixed shear, without the air-density and turbine-class corrections applied elsewhere. Outlined on the map so it is not read as directly comparable.",
+      "windSitingNote": "Wind is weak here, and where wind is weak this hex's single sample point stops representing the hex: measured against finer cells inside it, the spread within a hex exceeds the average. Read this as a typical unsited location, not as an estimate for any particular site — good ridge sites nearby can be several times better.",
       "tierUnrecorded": "not recorded",
       "unrecordedNote": "This cell was computed before its data source was recorded, so which wind model produced it is unknown — it is neither confirmed as the improved model nor flagged as the fallback. The scheduled re-seed stamps each cell as it refreshes.",
       "nonViableNote": "Above {ceiling} USD/kg: this technology is not viable at this site, not merely expensive.",
