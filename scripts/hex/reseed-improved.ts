@@ -26,7 +26,11 @@ import {
   mapSweepOptimalAllYears,
   optimalYearsJson,
 } from "../lib/lcohSweep";
-import { fetchCfOrMask } from "../lib/fetchProfile";
+import {
+  fetchProfileOrMask,
+  pvDbTier,
+  windFidelity,
+} from "../lib/fetchProfile";
 import { makeWaccResolver } from "../lib/countryWacc";
 import {
   fetchJson,
@@ -91,8 +95,10 @@ async function main(): Promise<void> {
         // cell is skipped (prior values kept), not silently single-sourced.
         // Cache hit if already re-seeded (no fetch); otherwise fetches improved.
         const log = (m: string) => console.warn(`  ${h3} ${m}`);
-        const pvCf = await fetchCfOrMask(deps, lat, lon, "pv_fixed", log);
-        const windCf = await fetchCfOrMask(deps, lat, lon, "wind_120", log);
+        const pv = await fetchProfileOrMask(deps, lat, lon, "pv_fixed", log);
+        const wind = await fetchProfileOrMask(deps, lat, lon, "wind_120", log);
+        const pvCf = pv?.cf ?? null;
+        const windCf = wind?.cf ?? null;
         if (!pvCf && !windCf) throw new Error("both PV and wind unavailable (masked)");
         const profiles = {
           ...(pvCf ? { pv: pvCf } : {}),
@@ -116,6 +122,9 @@ async function main(): Promise<void> {
             lcoh_years: futureYearsJson(years),
             lcoh_wacc: allYearsBestJson(waccYears),
             lcoh_optimal: optimalYearsJson(optimalYears),
+            // Per-cell provenance (T1): which data tier served each layer.
+            pv_db_tier: pv ? pvDbTier(pv.datasetVersion) : null,
+            wind_fidelity: wind ? windFidelity(wind.provider) : null,
             solar_cf: pvCf ? meanCf(pvCf) : null,
             wind_cf: windCf ? meanCf(windCf) : null,
           })

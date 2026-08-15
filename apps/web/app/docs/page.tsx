@@ -2126,27 +2126,69 @@ export default async function DocsPage() {
             low-fidelity fallback is used (GHI/1000 × 0.9).
           </li>
           <li>
-            <strong>PV pathway on the map.</strong>{" "}PVGIS auto-resolves a
-            per-cell radiation database (SARAH3/NSRDB satellite, its own
-            tilt-aware PV model). Where that coverage ends, the crude GHI proxy
-            above is a categorically different model, so adjacent hexes stop being
-            comparable and a seam appears in the surface. On the map we therefore
-            drop the crude fallback for PV: a cell PVGIS cannot serve renders as
-            no-data rather than a non-comparable value. (An earlier version pinned{" "}
-            <code>raddatabase=PVGIS-ERA5</code>{" "}for a &ldquo;consistent
-            global&rdquo; model,
-            but that endpoint is unreliable — frequent errors and materially
-            too-low capacity factors — so the map uses PVGIS auto-resolve, which
-            still reaches ERA5 internally only at high latitude where it is the
-            best available database.) The provider and radiation database used are
-            recorded per cell.
+            <strong>PV pathway on the map.</strong>{" "}PVGIS auto-resolves the
+            radiation database per cell and runs its own tilt-aware PV model on
+            it. Where PVGIS cannot serve a cell at all we drop the crude GHI
+            proxy rather than substitute it: that proxy is a categorically
+            different model, so adjacent hexes would stop being comparable and
+            a seam would appear in the surface. Such a cell renders as
+            <strong>{" "}no-data</strong>. The provider and radiation database
+            are recorded per cell (see the data-source tiers below).
+          </li>
+          <li>
+            <strong>Which radiation database, and where.</strong>{" "}Verified
+            against the live API (2026-08-15). PVGIS v5_3 accepts exactly two
+            values worldwide —{" "}<code>PVGIS-SARAH3</code>{" "}and{" "}
+            <code>PVGIS-ERA5</code>. NSRDB was dropped after v5_2 and is
+            rejected everywhere, including over the United States. SARAH3
+            covers the <strong>Meteosat prime disc only</strong>{" "}(Europe,
+            Africa, the Middle East); pinning it at Sumbawa, the Pilbara or
+            the Atacama returns &ldquo;out of the spatial coverage&hellip;
+            select another database (PVGIS-ERA5)&rdquo;. So across the
+            Americas, Asia-Pacific and Oceania —{" "}
+            <strong>about 70% of our seeded cells</strong>{" "}— ERA5 is not a
+            fallback, it is the only database PVGIS has. Where both exist they
+            agree closely and in no fixed direction (Turkana SARAH3 0.203 vs
+            ERA5 0.194; Namibia 0.221 vs 0.224; Ouarzazate 0.217 vs 0.217), so
+            there is no systematic reanalysis bias to correct and none is
+            applied. A satellite-derived product for the Asia-Pacific or the
+            Americas would require a different provider entirely, not a
+            different PVGIS parameter.
           </li>
           <li>
             <strong>Wind — Open-Meteo (ERA5, primary):</strong>{" "}hourly wind
             speed at 10 m and 100 m is extrapolated to hub height (120 or 160 m)
             with a per-hour power-law shear exponent, then converted through a
-            digitized turbine power curve. NASA POWER (fixed shear α = 1/7) is
-            the fallback.
+            digitized turbine power curve. On the map this path also applies
+            the air-density correction and per-site IEC turbine-class
+            selection. NASA POWER (fixed shear α = 1/7, generic curve, neither
+            correction) is the fallback and currently serves{" "}
+            <strong>2.2% of cells</strong>. That is a real modelling
+            difference, so — symmetrically with the PV no-data policy above —
+            those cells are <strong>flagged rather than hidden</strong>:{" "}
+            <code>wind_fidelity</code>{" "}is recorded per cell, rendered
+            distinguishably, and shown in the cell drawer. Flagging rather than
+            masking is the right trade here because the value is real and the
+            population is small; masking 2.2% of otherwise-good cells would
+            lose more than it protects.
+          </li>
+          <li>
+            <strong>Data-source tiers (per-cell provenance).</strong>{" "}Every
+            cell records where its numbers came from, and the export schema
+            carries the same fields:{" "}<code>pv_provider</code>,{" "}
+            <code>pv_dataset_version</code>{" "}(which encodes the radiation
+            database, the mounting geometry and the year span),{" "}
+            <code>pv_db_tier</code>{" "}(<code>satellite</code>{" "}|{" "}
+            <code>era5</code>),{" "}<code>wind_provider</code>,{" "}
+            <code>wind_dataset_version</code>{" "}(hub height, IEC turbine
+            class, air-density flag) and{" "}<code>wind_fidelity</code>{" "}
+            (<code>improved</code>{" "}|{" "}<code>fallback</code>).{" "}
+            <code>pv_db_tier</code>{" "}is transparency, not a quality ranking —
+            see the coverage note above;{" "}<code>wind_fidelity</code>{" "}is a
+            genuine fidelity distinction. Cached profiles also carry a model
+            generation in their dataset version, and the cache refuses to serve
+            a superseded generation (e.g. a profile built before the mounting
+            rule), so one map never mixes two models.
           </li>
         </ul>
         <p className="mt-3 font-medium">Wind-speed extrapolation to hub height</p>

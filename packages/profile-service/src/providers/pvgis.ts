@@ -78,11 +78,27 @@ export function fixedMountingTag(lat: number): string {
  * the trailing complete years.
  *
  * `radDb` pins the radiation database. Leave it undefined: PVGIS auto-resolves
- * to the best DB per cell (SARAH3/NSRDB satellite, reaching ERA5 only where it
- * is genuinely best, e.g. high latitude) — this is the authoritative pathway.
- * Do NOT pin `PVGIS-ERA5`: that endpoint is broken (HTTP 500s and ~3× too-low
- * capacity factors) and was the root cause of the Kenya solar speckle. The
- * parameter is retained only for diagnostics/comparison.
+ * the best available DB per cell, and there are only two to choose from.
+ * Measured against the live API (2026-08-15):
+ *
+ * - v5_3 accepts exactly `['PVGIS-ERA5', 'PVGIS-SARAH3']` — the same list
+ *   worldwide. NSRDB was dropped after v5_2 and is rejected everywhere,
+ *   including over the United States.
+ * - SARAH3 covers the Meteosat prime disc only (roughly lon −30..+60).
+ *   Pinning it at Sumbawa, the Pilbara or the Atacama returns HTTP 400
+ *   “out of the spatial coverage … select another database (PVGIS-ERA5)”.
+ *   So for the Americas, Asia-Pacific and Oceania — about 70 % of our map —
+ *   ERA5 is not a fallback, it is the only option PVGIS has.
+ * - Where both exist the two agree closely and NOT in a fixed direction:
+ *   Turkana SARAH3 0.203 vs ERA5 0.194; Namibia 0.221 vs 0.224; Ouarzazate
+ *   0.217 vs 0.217. There is no systematic ERA5 low bias to correct.
+ *
+ * An earlier version of this comment claimed pinned ERA5 gave “~3× too-low
+ * capacity factors” and blamed it for the Kenya speckle. That was a
+ * misattribution: pinned ERA5 returns 200 and lands within 5 % of SARAH3 at
+ * the very cells that motivated it. The speckle was the `optimalangles`
+ * problem documented above, fixed by the latitude mounting rule. The
+ * parameter is retained for diagnostics/comparison only.
  */
 export async function fetchPvgisPv(
   fetchJson: FetchJson,

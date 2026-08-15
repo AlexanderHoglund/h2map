@@ -26,7 +26,12 @@ import {
   mapSweepOptimalAllYears,
   optimalYearsJson,
 } from "../lib/lcohSweep";
-import { fetchCfOrMask } from "../lib/fetchProfile";
+import {
+  fetchProfileOrMask,
+  pvDbTier,
+  windFidelity,
+  type CfWithProvenance,
+} from "../lib/fetchProfile";
 import { makeWaccResolver } from "../lib/countryWacc";
 import {
   fetchJson,
@@ -86,9 +91,9 @@ async function main(): Promise<void> {
     lat: number,
     lon: number,
     kind: "pv_fixed" | "wind_120",
-  ): Promise<number[] | null> => {
+  ): Promise<CfWithProvenance | null> => {
     try {
-      return await fetchCfOrMask(deps, lat, lon, kind);
+      return await fetchProfileOrMask(deps, lat, lon, kind);
     } catch {
       return null;
     }
@@ -106,8 +111,10 @@ async function main(): Promise<void> {
     }
     processed++;
     const [lat, lon] = cellToLatLng(h3);
-    const pvCf = await safe(lat, lon, "pv_fixed");
-    const windCf = await safe(lat, lon, "wind_120");
+    const pv = await safe(lat, lon, "pv_fixed");
+    const wind = await safe(lat, lon, "wind_120");
+    const pvCf = pv?.cf ?? null;
+    const windCf = wind?.cf ?? null;
     if (!pvCf && !windCf) {
       stillDown++;
       continue; // leave the row as-is; retry a later run
@@ -133,6 +140,9 @@ async function main(): Promise<void> {
         lcoh_years: futureYearsJson(years),
         lcoh_wacc: allYearsBestJson(waccYears),
         lcoh_optimal: optimalYearsJson(optimalYears),
+        // Per-cell provenance (T1): which data tier served each layer.
+        pv_db_tier: pv ? pvDbTier(pv.datasetVersion) : null,
+        wind_fidelity: wind ? windFidelity(wind.provider) : null,
         solar_cf: pvCf ? meanCf(pvCf) : null,
         wind_cf: windCf ? meanCf(windCf) : null,
         engine_version: ENGINE_VERSION,

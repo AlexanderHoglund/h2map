@@ -271,14 +271,13 @@ async function providerChain(
       },
     ];
   }
-  // Map/mask mode: PV is served ONLY by auto-resolved PVGIS (its own choice of
-  // SARAH3 / NSRDB / ERA5 satellite DB per cell — one consistent, tilt-aware PV
-  // model everywhere). No crude Open-Meteo GHI fallback: a cell PVGIS can't
-  // serve renders no-data rather than a differently-modelled value that would
-  // sit as a non-comparable seam next to its neighbours. (Earlier this pinned
-  // raddatabase=PVGIS-ERA5, but that endpoint is broken — HTTP 500s and ~3×
-  // too-low capacity factors — and was the root cause of Kenya's speckle. The
-  // auto-resolve path reaches ERA5 only where it is genuinely the best DB.)
+  // Map/mask mode: PV is served ONLY by auto-resolved PVGIS — one consistent,
+  // tilt-aware PV model everywhere, on whichever of the two radiation
+  // databases v5_3 has for the cell (SARAH3 inside the Meteosat disc, ERA5
+  // elsewhere; see the note on fetchPvgisPv). No crude Open-Meteo GHI
+  // fallback: a cell PVGIS can't serve renders no-data rather than a
+  // differently-modelled value that would sit as a non-comparable seam next
+  // to its neighbours.
   if (deps.pvMaskUnservable) {
     return [
       {

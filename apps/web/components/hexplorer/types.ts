@@ -56,7 +56,23 @@ export interface CellData {
   wacc: Record<string, number> | null;
   /** P1 #6 best-achievable per year {"2024":{best,ratio,pvShare},...}; null until recomputed. */
   optimal: Record<string, { best: number; ratio: number; pvShare: number }> | null;
+  /**
+   * Which PVGIS radiation database served this cell. 'era5' is not a
+   * degraded tier: outside the Meteosat disc it is the only database PVGIS
+   * v5_3 offers, and where both exist the two agree within a few percent.
+   * Null until a recompute pass has visited the cell.
+   */
+  pvDbTier: PvDbTier | null;
+  /**
+   * 'improved' = Open-Meteo (air density + IEC turbine class); 'fallback' =
+   * NASA POWER's generic curve with fixed shear — a real modelling
+   * difference the map must not hide.
+   */
+  windFidelity: WindFidelity | null;
 }
+
+export type PvDbTier = "satellite" | "era5";
+export type WindFidelity = "improved" | "fallback";
 
 /** Cache entry: server data, or "missing" (ocean / unseeded — do not re-request). */
 export type CacheEntry = CellData | "missing";

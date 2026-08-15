@@ -31,7 +31,9 @@
     "rankdiff:oversize": "tsx scripts/rankdiff/measure-oversize.ts",
     "rankdiff:costyear": "tsx scripts/rankdiff/measure-costyear.ts",
     "e2e": "playwright test",
-    "corridor:docs": "tsx scripts/corridor/gen-docs.ts"
+    "corridor:docs": "tsx scripts/corridor/gen-docs.ts",
+    "cells:export": "tsx scripts/rankdiff/export-cells.ts",
+    "cells:check-cf": "tsx scripts/rankdiff/check-solar-cf.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
