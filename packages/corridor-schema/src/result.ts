@@ -113,6 +113,27 @@ export interface ScenarioIntermediates {
 }
 
 /**
+ * How much of a round trip's energy is spent in port rather than steaming.
+ *
+ * Present only when the pinned bundle carries the vessel's day rates — an
+ * absent block means "not known", which must not be confused with a share
+ * of zero. Every day rate behind it is tier C (sector estimate), so this
+ * share is the number that says whether that uncertainty matters for THIS
+ * corridor: negligible on a long haul, a third of the fuel bill on a short
+ * one.
+ */
+export interface ScenarioPortEnergy {
+  /** Modelling assumption, not catalogue data. The share is linear in it. */
+  readonly portDaysPerRoundTrip: number;
+  readonly steamingGjPerRoundTrip: number;
+  readonly portGjPerRoundTrip: number;
+  /** port ÷ (steaming + port). */
+  readonly share: number;
+  /** True past ~10%: the UI escalates the unverified badge to a warning. */
+  readonly material: boolean;
+}
+
+/**
  * Delivered-energy parity for the abatement comparison (v7).
  *
  * `CO2 abated = vessels × (fossil t × fossil EF − green t × green EF)` is a
@@ -135,6 +156,8 @@ export interface ScenarioEnergyParity {
 export interface ScenarioResult {
   readonly summary: ScenarioSummary;
   readonly energyParity: ScenarioEnergyParity;
+  /** Absent when the pinned bundle carries no vessel day rates. */
+  readonly portEnergy?: ScenarioPortEnergy;
   readonly reporting: ScenarioReporting;
   readonly intermediates: ScenarioIntermediates;
   readonly perYear: {

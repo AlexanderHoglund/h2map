@@ -259,6 +259,27 @@ export interface ResolvedScenario {
   readonly inflation: Fraction;
   readonly wacc: Resolved<Fraction>;
   readonly vessels: Count;
+  /**
+   * Voyage geometry and the vessel's non-steaming day rates, carried so the
+   * engine can report what share of a round trip's energy is spent in port.
+   *
+   * The share is a property of the CORRIDOR, not the vessel: the same
+   * Newcastlemax spends under 1% of its energy in port on a 9,500 nm run
+   * and around 10% on a 786 nm one. A raw GJ/day figure cannot tell a user
+   * whether their scenario depends on it, so the engine computes the share.
+   *
+   * Optional: the day rates are tier-C additions to the 2026-08-16
+   * catalogue and absent from earlier bundles, where no share is reported.
+   */
+  readonly voyage?: {
+    readonly oneWayDistanceNm: number;
+    readonly roundtripsPerYear: number;
+    readonly wholeVoyageGjPerNm: number;
+    readonly portGjPerDay?: number;
+    readonly idleGjPerDay?: number;
+    readonly cargoSystemGjPerDay?: number;
+    readonly serviceSpeedKn?: number;
+  };
   readonly green: ResolvedFuelSide;
   readonly fossil: ResolvedFuelSide;
   /** Regulation params per side, already shaped for SideInputs. */

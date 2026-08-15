@@ -534,6 +534,40 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
           onChange={(v) => update((d) => void (d.cargo.roundtripsPerYear = v))}
         />
       </div>
+      {/* The vessel's GJ/nm is a SERVICE-SPEED figure and meaningless
+          without it — the absence of this field is what once made the
+          researched data look like it contradicted the study
+          reconstructions. Shown with the row, never on its own. */}
+      {vesselRow?.serviceSpeedKn !== undefined && (
+        <p className="text-[11px] text-neutral-500">
+          {t("energyBasis", {
+            gj: vesselRow.gjPerNm,
+            kn: vesselRow.serviceSpeedKn,
+          })}
+        </p>
+      )}
+      {/* Port load is a property of the CORRIDOR, not the vessel: the same
+          ship spends under 1% of its energy in port on a 9,500 nm run and a
+          third of it on a short one. The day rates behind this are all
+          tier-C estimates, so the share is what says whether that matters
+          here — and past ~10% it stops being a rounding error. */}
+      {model.result?.portEnergy && (
+        <p
+          className={`text-[11px] leading-snug ${
+            model.result.portEnergy.material
+              ? "bg-amber-500/10 px-2.5 py-1.5 text-amber-800"
+              : "text-neutral-500"
+          }`}
+        >
+          {t(
+            model.result.portEnergy.material ? "portShareWarn" : "portShare",
+            {
+              pct: (model.result.portEnergy.share * 100).toFixed(1),
+              days: model.result.portEnergy.portDaysPerRoundTrip,
+            },
+          )}
+        </p>
+      )}
       <Section title={t("green")}>
         {vesselField("green", "capex")}
         {vesselField("green", "opex")}

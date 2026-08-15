@@ -128,6 +128,54 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
     fossilEnergyMj > 0 ? greenEnergyMj / fossilEnergyMj : null;
   const energyDivergence = energyRatio === null ? null : energyRatio - 1;
 
+  // PORT ENERGY SHARE.
+  //
+  // The catalogue carries port, idle and cargo-system day rates, but a raw
+  // GJ/day tells a user nothing about whether their scenario depends on it.
+  // The share does, and it is a property of the CORRIDOR rather than the
+  // vessel: the same Newcastlemax spends under 1% of round-trip energy in
+  // port on a 9,500 nm run and around 10% on a 786 nm one.
+  //
+  // Every one of these day rates is tier C — sector estimates, the largest
+  // unsourced term in the bundle — so the share is exactly the number that
+  // says how much that matters here. Reported, never corrected.
+  //
+  // Absent day rates report NO share rather than a share computed from
+  // zero: "unknown" and "negligible" must not look alike.
+  const voyage = resolved.voyage;
+  const portDayRateGjPerDay =
+    voyage === undefined
+      ? undefined
+      : voyage.portGjPerDay === undefined && voyage.cargoSystemGjPerDay === undefined
+        ? undefined
+        : (voyage.portGjPerDay ?? 0) + (voyage.cargoSystemGjPerDay ?? 0);
+  const portEnergy = (() => {
+    if (voyage === undefined || portDayRateGjPerDay === undefined) return null;
+    // PORT_DAYS_PER_ROUND_TRIP is a modelling assumption, not catalogue
+    // data — one loading and one discharging call per round trip, two days
+    // each. It is stated here rather than hidden because the share is
+    // linear in it: doubling the port days doubles the share.
+    const PORT_DAYS_PER_ROUND_TRIP = 4;
+    const steamingGj =
+      2 * voyage.oneWayDistanceNm * voyage.wholeVoyageGjPerNm;
+    const portGj = PORT_DAYS_PER_ROUND_TRIP * portDayRateGjPerDay;
+    const total = steamingGj + portGj;
+    return total > 0
+      ? {
+          portDaysPerRoundTrip: PORT_DAYS_PER_ROUND_TRIP,
+          steamingGjPerRoundTrip: steamingGj,
+          portGjPerRoundTrip: portGj,
+          share: portGj / total,
+          /**
+           * Past ~10% the tier-C day rates stop being a rounding error and
+           * start driving the fuel bill, so the UI escalates the unverified
+           * badge to a warning.
+           */
+          material: portGj / total > 0.1,
+        }
+      : null;
+  })();
+
   // Row 80: lifetime cargo = Σ annual throughput — cargo only, no fuel linkage.
   const cargoUnitsLifetime = resolved.unitsPerYear * resolved.horizonYears;
 
@@ -160,6 +208,11 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
       costPerUnitUsd: (gapPvUsdM * 1e6) / cargoUnitsLifetime,
       costPerTonneCo2Usd: (gapPvUsdM * 1e6) / co2AbatedTonnes,
     },
+    // Port energy share, when the catalogue supplies day rates. Outside
+    // `summary` like `energyParity`, so the frozen golden fixture's
+    // compared sections are untouched; absent entirely on a bundle without
+    // the rates, so "unknown" never renders as "negligible".
+    ...(portEnergy ? { portEnergy } : {}),
     // Delivered-energy parity for the abatement comparison. Outside
     // `summary` for the same reason as `reporting` — the golden compares
     // section-wise, so a new top-level block leaves the frozen fixture

@@ -46,6 +46,7 @@ export type {
 export type {
   ScenarioIntermediates,
   ScenarioEnergyParity,
+  ScenarioPortEnergy,
   ScenarioReporting,
   SideImoNetZero,
   ScenarioResult,

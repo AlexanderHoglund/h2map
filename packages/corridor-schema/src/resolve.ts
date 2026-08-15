@@ -621,6 +621,28 @@ export function resolveScenario(
     inflation: fraction(input.cargo.inflation),
     wacc,
     vessels: count(input.cargo.vessels),
+    // Geometry + the vessel's non-steaming day rates, so the engine can
+    // report the port ENERGY SHARE rather than a raw GJ/day the user cannot
+    // interpret. The day rates are optional catalogue additions; without
+    // them no share is reported (rather than a share computed from zero,
+    // which would read as "port load is negligible" when it is unknown).
+    voyage: {
+      oneWayDistanceNm: input.cargo.oneWayDistanceNm,
+      roundtripsPerYear: input.cargo.roundtripsPerYear,
+      wholeVoyageGjPerNm: vesselType.gjPerNm,
+      ...(vesselType.portGjPerDay !== undefined
+        ? { portGjPerDay: vesselType.portGjPerDay }
+        : {}),
+      ...(vesselType.idleGjPerDay !== undefined
+        ? { idleGjPerDay: vesselType.idleGjPerDay }
+        : {}),
+      ...(vesselType.cargoSystemGjPerDay !== undefined
+        ? { cargoSystemGjPerDay: vesselType.cargoSystemGjPerDay }
+        : {}),
+      ...(vesselType.serviceSpeedKn !== undefined
+        ? { serviceSpeedKn: vesselType.serviceSpeedKn }
+        : {}),
+    },
     green,
     fossil,
     regulations: resolveRegulations(input.regulation, bundle),
