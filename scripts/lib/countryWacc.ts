@@ -8,10 +8,17 @@
  *
  * Country match: point-in-polygon against the committed Natural Earth 110m
  * boundaries (the same set the seeder draws and `defaults:ingest` keys on).
- * WACC: `country_defaults.wacc_suggestion` — a transparent World Bank
- * income-group HEURISTIC (0.06 OECD-high → 0.12 low-income), not measured
- * cost-of-capital. It is deliberately isolated here so a better source (e.g.
- * per-country risk premia) can be swapped in without touching the sweep.
+ * WACC: `wacc_curated` where a researched profile supplies one, otherwise
+ * `wacc_suggestion` — a transparent World Bank income-group HEURISTIC (0.06
+ * OECD-high → 0.12 low-income), which is a bracket rather than a measured
+ * cost of capital. Curated wins, matching the calculator; before that rule
+ * reached here, the map financed Indonesia at the 10% bracket while the
+ * calculator used its researched 6.73% real rate.
+ *
+ * Curated rates are stored REAL, which is what this engine needs — it
+ * discounts constant-USD cashflows with no escalation term. See
+ * scripts/defaults/discountBasis.ts for the conversion and why a nominal
+ * rate cannot be used here.
  */
 import { readFileSync } from "node:fs";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -23,8 +30,12 @@ export const UNIFORM_WACC = 0.08;
 export interface WaccResolution {
   wacc: number;
   iso2: string | null;
-  /** `country-heuristic` when a country matched; `uniform-default` otherwise. */
-  source: "country-heuristic" | "uniform-default";
+  /**
+   * `country-curated` when a researched profile supplied the rate,
+   * `country-heuristic` when the income-group bracket did, and
+   * `uniform-default` when no country matched the point.
+   */
+  source: "country-curated" | "country-heuristic" | "uniform-default";
 }
 
 type Ring = [number, number][]; // [lon, lat]
@@ -87,11 +98,24 @@ export interface WaccResolver {
 export async function makeWaccResolver(db: SupabaseClient): Promise<WaccResolver> {
   const { data, error } = await db
     .from("country_defaults")
-    .select("iso2, wacc_suggestion");
+    .select("iso2, wacc_suggestion, wacc_curated");
   if (error) throw new Error(error.message);
-  const waccByIso = new Map<string, number>(
-    (data ?? []).map((r) => [r.iso2 as string, Number(r.wacc_suggestion)]),
-  );
+  // Curated wins, the same rule the calculator applies: a researched real
+  // cost of capital governs where one exists, the income-group bracket
+  // otherwise. Without this the map's risk-adjusted layer kept giving
+  // Indonesia the 10% bracket while the calculator used its researched
+  // 6.73% — the same country financed two different ways in one product.
+  const waccByIso = new Map<string, number>();
+  const curatedIso = new Set<string>();
+  for (const r of data ?? []) {
+    const iso2 = r.iso2 as string;
+    const curated = r.wacc_curated as number | null;
+    const heuristic = r.wacc_suggestion as number | null;
+    const value = curated ?? heuristic;
+    if (value === null || !Number.isFinite(Number(value))) continue;
+    waccByIso.set(iso2, Number(value));
+    if (curated !== null) curatedIso.add(iso2);
+  }
 
   const gj = JSON.parse(
     readFileSync(`${ROOT}data/geo/ne_110m_countries.geojson`, "utf8"),
@@ -115,7 +139,16 @@ export async function makeWaccResolver(db: SupabaseClient): Promise<WaccResolver
         if (lon < minLon || lon > maxLon || lat < minLat || lat > maxLat) continue;
         for (const poly of c.polygons) {
           if (inPolygon(lon, lat, poly)) {
-            return { wacc: waccByIso.get(c.iso2)!, iso2: c.iso2, source: "country-heuristic" };
+            return {
+              wacc: waccByIso.get(c.iso2)!,
+              iso2: c.iso2,
+              // Distinguish a researched rate from a bracket: they are not
+              // the same kind of claim, and the map should not present them
+              // as though they were.
+              source: curatedIso.has(c.iso2)
+                ? "country-curated"
+                : "country-heuristic",
+            };
           }
         }
       }

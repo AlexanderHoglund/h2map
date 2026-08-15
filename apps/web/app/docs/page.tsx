@@ -2358,12 +2358,18 @@ export default async function DocsPage() {
           The capital-recovery factor over 20 yr swings from 0.087 at 6% to
           0.134 at 12% — a larger spread than the resource gap between two good
           sites — so an optional <em>risk-adjusted</em>{" "}layer instead applies
-          each cell&rsquo;s country cost of capital
-          (<code>country_defaults.wacc_suggestion</code>, matched by
-          point-in-polygon against the Natural Earth boundaries). That WACC is a
-          transparent World Bank income-group <em>heuristic</em>{" "}(0.06 OECD-high
-          → 0.12 low-income), labelled as such wherever it appears and isolated
-          in code so a measured cost-of-capital source can replace it.
+          each cell&rsquo;s country cost of capital, matched by
+          point-in-polygon against the Natural Earth boundaries. Two tiers
+          supply it, and the layer records which: a{" "}
+          <strong>researched</strong>{" "}rate (<code>wacc_curated</code>) where
+          an enriched profile has one, otherwise the transparent World Bank
+          income-group <em>heuristic</em>{" "}(<code>wacc_suggestion</code>, 0.06
+          OECD-high → 0.12 low-income) — a bracket, not a measurement, and
+          labelled as such wherever it appears. Curated wins, the same rule the
+          Calculator applies; before that rule reached the map, an enriched
+          country was financed at its income bracket here while the Calculator
+          used its researched rate, so one product answered the same question
+          two ways.
         </p>
         <F>df₀ = 1 ; df_t = df_(t−1) / (1 + r) ; annuity A = Σ_(t=1..N) df_t</F>
         <p className="mt-2">
@@ -2540,8 +2546,17 @@ export default async function DocsPage() {
         <p className="mt-2">
           Unlike the flat-30 reference, the map prices electricity in{" "}
           <strong>CAPEX mode</strong>{" "}so each cell&apos;s cost reflects its own
-          capacity factor (IRENA 2023 global averages: solar 800 USD/kWp + 1.5%
-          OPEX, onshore wind 1200 USD/kW + 2.5% OPEX).
+          capacity factor. Generation costs are IRENA{" "}
+          <em>Renewable Power Generation Costs in 2024</em>{" "}global
+          weighted-average total installed cost — solar 691 USD/kWp + 1.5%
+          OPEX, onshore wind 1,041 USD/kW + 2.5% OPEX — replacing the 2023
+          edition&apos;s 800 / 1,200, which had left a map labelled 2024
+          running 2023 costs. Each cost pack now carries its generation-cost
+          basis year so a vintage mismatch is visible in the data rather than
+          inferred (see §33). The OPEX fractions were checked against the same
+          edition: with IRENA&apos;s own CAPEX, ~25-year life and
+          region-weighted real WACC they reproduce its published LCOE of 43
+          and 34 USD/MWh to within a few percent.
         </p>
         <p className="mt-2">
           <strong>Colour domain and the non-viability ceiling.</strong>{" "}Colours

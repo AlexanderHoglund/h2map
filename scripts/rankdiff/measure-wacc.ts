@@ -62,7 +62,11 @@ async function main(): Promise<void> {
       risk.push(k);
       kept.push(cell);
       waccs.push(r.wacc);
-      if (r.source === "country-heuristic") matched++;
+      // Both country tiers count as "matched to a country" — the metric is
+      // coverage of the point-in-polygon lookup, not which tier supplied
+      // the rate. (Curated rates were added later; testing only for the
+      // heuristic string would silently under-count enriched countries.)
+      if (r.source !== "uniform-default") matched++;
     } catch {
       // cache gap — skip
     }

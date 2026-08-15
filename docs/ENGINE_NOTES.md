@@ -119,7 +119,9 @@ untouched (an `improved-*` golden set is added beside it).
 
 - **P0 #4 — PV pathway / seam removal** (profile layer;
   `ProfileServiceDeps.pvMaskUnservable`). PVGIS auto-resolves a per-cell
-  radiation DB (SARAH3/NSRDB satellite, its own tilt-aware PV model); where that
+  radiation DB (SARAH3 satellite where the Meteosat disc reaches, ERA5
+  reanalysis elsewhere — NSRDB no longer exists in v5_3, see the
+  re-correction below; PVGIS runs its own tilt-aware PV model on it); where that
   coverage ends the map fell back to a categorically different crude GHI proxy,
   so adjacent hexes stopped being comparable and a seam appeared. Map/mask mode
   removes the crude fallback: a cell PVGIS can't serve renders **no-data** rather
