@@ -172,6 +172,43 @@ export default function CellDrawer({
               </dl>
             </section>
 
+            {/* Where this cell's numbers came from (T1/T2). Shown only
+                when a recompute pass has recorded it. */}
+            {(shown.data.pvDbTier || shown.data.windFidelity) && (
+              <section>
+                <h3 className="mb-1 text-xs font-medium text-neutral-500">
+                  {t("drawer.sourceHeading")}
+                </h3>
+                <dl>
+                  {shown.data.pvDbTier && (
+                    <div className="flex justify-between py-0.5">
+                      <dt className="text-neutral-600">{t("drawer.pvSource")}</dt>
+                      <dd>{t(`drawer.pvTier.${shown.data.pvDbTier}`)}</dd>
+                    </div>
+                  )}
+                  {shown.data.windFidelity && (
+                    <div className="flex justify-between py-0.5">
+                      <dt className="text-neutral-600">{t("drawer.windSource")}</dt>
+                      <dd
+                        className={
+                          shown.data.windFidelity === "fallback"
+                            ? "font-medium text-amber-800"
+                            : undefined
+                        }
+                      >
+                        {t(`drawer.windTier.${shown.data.windFidelity}`)}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+                {shown.data.windFidelity === "fallback" && (
+                  <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+                    {t("drawer.fallbackNote")}
+                  </p>
+                )}
+              </section>
+            )}
+
             <section>
               <h3 className="mb-1 text-xs font-medium text-neutral-500">
                 {t("drawer.mixHeading")}

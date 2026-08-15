@@ -13,6 +13,7 @@
 import { expect, test } from "@playwright/test";
 import {
   domainLabels,
+  isReducedFidelity,
   LAYER_DOMAIN,
   lcohColor,
   lcohGradientCss,
@@ -97,4 +98,43 @@ test("legend labels close BOTH buckets; gradient spans the full bar", () => {
   const css = lcohGradientCss();
   expect(css).toContain("0.0%");
   expect(css).toContain("100.0%");
+});
+
+// --- reduced-fidelity disclosure (T2) --------------------------------------
+// 2.2% of wind cells are served by NASA POWER: a generic turbine curve with
+// fixed 1/7 shear and neither the air-density correction nor the per-site IEC
+// class selection the Open-Meteo path applies. Adjacent hexes computed by
+// categorically different models are a seam; the map's rule is to disclose a
+// seam, never smooth it over. THE regression this guards: a fallback cell
+// rendering indistinguishably from an improved one.
+
+test("a fallback-wind cell is never undistinguished from an improved one", () => {
+  // Same LCOH, different model → the fill is identical BY DESIGN (a colour
+  // means one LCOH on every view), so the distinction must come from
+  // elsewhere — which is exactly what this predicate drives.
+  expect(lcohColor(7.5, "wind")).toEqual(lcohColor(7.5, "wind"));
+  expect(isReducedFidelity("wind", "fallback")).toBe(true);
+  expect(isReducedFidelity("wind", "improved")).toBe(false);
+  // Null = no recompute pass has recorded provenance yet: not a claim of
+  // fidelity, so it must not be flagged as reduced.
+  expect(isReducedFidelity("wind", null)).toBe(false);
+});
+
+test("the flag follows the wind model onto the best layer, only when wind won", () => {
+  // Best-of-mix: the wind model's fidelity matters only if wind is in the
+  // winning mix. A solar-only best beside a fallback wind cell is fine.
+  expect(isReducedFidelity("best", "fallback", 200)).toBe(true);
+  expect(isReducedFidelity("best", "fallback", 0)).toBe(false);
+  expect(isReducedFidelity("best", "fallback", null)).toBe(false);
+  expect(isReducedFidelity("best", "improved", 200)).toBe(false);
+});
+
+test("the solar layer and the PV database tier are never fidelity flags", () => {
+  // Solar carries no fallback model at all — PVGIS-or-no-data.
+  expect(isReducedFidelity("solar", "fallback", 200)).toBe(false);
+  // And pv_db_tier is coverage, not quality: outside the Meteosat disc ERA5
+  // is the ONLY database PVGIS v5_3 offers, and where both exist they agree
+  // within a few percent in either direction. It is shown in the drawer and
+  // deliberately absent from this predicate's signature.
+  expect(isReducedFidelity.length).toBe(3);
 });

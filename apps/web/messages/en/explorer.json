@@ -41,7 +41,8 @@
     "legend": {
       "caption": "USD/kg H₂",
       "maxDetail": "Max detail — finest available resolution",
-      "financing": "Resource-driven · uniform 8% financing"
+      "financing": "Resource-driven · uniform 8% financing",
+      "fidelity": "Outlined: wind from the fallback model"
     },
     "search": {
       "label": "Search for a place or coordinates",
@@ -77,7 +78,19 @@
       "cellId": "Cell {id}",
       "approximate": "Approximate — value inherited from parent cell",
       "evaluate": "Evaluate here",
-      "useForCorridor": "Use as corridor fuel site"
+      "useForCorridor": "Use as corridor fuel site",
+      "sourceHeading": "Data source",
+      "pvSource": "Solar irradiance",
+      "pvTier": {
+        "satellite": "PVGIS · SARAH3 satellite",
+        "era5": "PVGIS · ERA5 reanalysis"
+      },
+      "windSource": "Wind model",
+      "windTier": {
+        "improved": "Open-Meteo · air density + IEC class",
+        "fallback": "NASA POWER · generic curve"
+      },
+      "fallbackNote": "This cell's wind uses the fallback model: a generic turbine curve with fixed shear, without the air-density and turbine-class corrections applied elsewhere. Outlined on the map so it is not read as directly comparable."
     }
   }
 }

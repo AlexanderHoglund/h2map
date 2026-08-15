@@ -93,6 +93,37 @@ export function lcohColor(value: number, layer: LayerKey): [number, number, numb
   return rampAt(DOMAIN_MIN + f * (DOMAIN_MAX - DOMAIN_MIN));
 }
 
+/**
+ * Whether a cell's value on THIS layer came from a reduced-fidelity model,
+ * and must therefore be rendered distinguishably (T2).
+ *
+ * Only the wind layers qualify. `wind_fidelity: "fallback"` means NASA
+ * POWER served the cell: a generic turbine curve with fixed 1/7 shear and
+ * neither the air-density correction nor per-site IEC class selection that
+ * the Open-Meteo path applies. Adjacent hexes computed by categorically
+ * different models are a seam, and the map's standing rule is that a seam
+ * is disclosed rather than smoothed over — PV solves it by rendering
+ * no-data, wind by flagging, because here the value is real and the
+ * population is 2.2% (masking would lose more than it protects).
+ *
+ * `pv_db_tier` is deliberately NOT a fidelity signal: outside the Meteosat
+ * disc ERA5 is the only radiation database PVGIS v5_3 offers, and where
+ * both exist the two agree within a few percent in either direction. It is
+ * recorded per cell and shown in the drawer, but it does not change how a
+ * cell is drawn.
+ */
+export function isReducedFidelity(
+  layer: LayerKey,
+  windFidelity: "improved" | "fallback" | null,
+  bestWindMw?: number | null,
+): boolean {
+  if (windFidelity !== "fallback") return false;
+  if (layer === "wind") return true;
+  // On the "best" layer the flag applies only when wind actually won the
+  // mix — a solar-only best is not affected by the wind model's fidelity.
+  return layer === "best" && (bestWindMw ?? 0) > 0;
+}
+
 /** CSS gradient of the ramp (red left → deep blue right), value-positioned. */
 export function lcohGradientCss(): string {
   const stops = RAMP_STOPS.map(

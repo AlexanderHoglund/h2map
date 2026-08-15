@@ -54,6 +54,15 @@ export default function Legend({ layerKey, basis, maxDetail }: Props) {
       <p className="mt-1 text-[11px] text-neutral-500">
         {financing}
       </p>
+      {(layerKey === "wind" || layerKey === "best") && (
+        <p className="mt-1 flex items-center gap-1.5 text-[11px] text-neutral-500">
+          <span
+            aria-hidden="true"
+            className="inline-block h-2.5 w-3.5 shrink-0 rounded-[2px] border-2 border-neutral-800 bg-neutral-200"
+          />
+          {t("legend.fidelity")}
+        </p>
+      )}
       {maxDetail && (
         <p className="mt-1 text-neutral-500">
           {t("legend.maxDetail")}

@@ -25,7 +25,7 @@ import {
 } from "./types";
 import { useHexCells } from "./useHexCells";
 import { collectWithAncestors, enumerateViewport } from "./viewport";
-import { lcohColor } from "./scale";
+import { isReducedFidelity, lcohColor } from "./scale";
 
 const LIGHT_STYLE =
   "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
@@ -88,6 +88,9 @@ const MOVE_RENDER_THROTTLE_MS = 200;
  * ancestor cell at full size and full opacity instead (see buildRenderData).
  */
 const PARENT_FILL_ALPHA = Math.round(255 * 0.8);
+
+/** Outline for a reduced-fidelity cell (see scale.isReducedFidelity). */
+const FIDELITY_LINE_COLOR: [number, number, number, number] = [38, 38, 38, 235];
 /** Zoom past which the resolution stops refining (MAX_RES) — show the note. */
 const MAX_DETAIL_ZOOM = 8;
 const SEARCH_FLY_ZOOM = 6;
@@ -431,17 +434,31 @@ export default function HexplorerMap({
           filled: true,
           extruded: false,
           stroked: true,
-          getLineColor: [252, 252, 251, 220],
+          // Reduced-fidelity cells (T2) carry a dark, thicker outline: the
+          // FILL keeps meaning the same LCOH everywhere (that invariant is
+          // the whole point of a fixed domain), while the border says "this
+          // value came from a different model". Legend and drawer name it.
+          getLineColor: (d) =>
+            isReducedFidelity(layerKey, d.data.windFidelity, d.data.bestWindMw)
+              ? FIDELITY_LINE_COLOR
+              : [252, 252, 251, 220],
           lineWidthUnits: "pixels",
-          getLineWidth: 1,
+          getLineWidth: (d) =>
+            isReducedFidelity(layerKey, d.data.windFidelity, d.data.bestWindMw)
+              ? 2
+              : 1,
           lineWidthMinPixels: 1,
-          lineWidthMaxPixels: 1.5,
+          lineWidthMaxPixels: 2.5,
           getHexagon: (d) => d.h3,
           getFillColor: (d) => {
             const [r, g, b] = lcohColor(d.value, layerKey);
             return [r, g, b, d.parentFill ? PARENT_FILL_ALPHA : 255];
           },
-          updateTriggers: { getFillColor: [layerKey, costYear, basis] },
+          updateTriggers: {
+            getFillColor: [layerKey, costYear, basis],
+            getLineColor: [layerKey],
+            getLineWidth: [layerKey],
+          },
           onHover: onHexHover,
           onClick: onHexClick,
         }),
