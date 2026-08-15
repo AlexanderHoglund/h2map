@@ -81,10 +81,12 @@ export type Database = {
           lcoh_wind: number | null
           lcoh_years: Json | null
           lon: number
+          pv_db_tier: string | null
           res: number
           solar_cf: number | null
           status: string
           wind_cf: number | null
+          wind_fidelity: string | null
         }
         Insert: {
           best_pv_mw?: number | null
@@ -100,10 +102,12 @@ export type Database = {
           lcoh_wind?: number | null
           lcoh_years?: Json | null
           lon: number
+          pv_db_tier?: string | null
           res: number
           solar_cf?: number | null
           status?: string
           wind_cf?: number | null
+          wind_fidelity?: string | null
         }
         Update: {
           best_pv_mw?: number | null
@@ -119,10 +123,12 @@ export type Database = {
           lcoh_wind?: number | null
           lcoh_years?: Json | null
           lon?: number
+          pv_db_tier?: string | null
           res?: number
           solar_cf?: number | null
           status?: string
           wind_cf?: number | null
+          wind_fidelity?: string | null
         }
         Relationships: []
       }
@@ -135,6 +141,7 @@ export type Database = {
           id: string
           is_admin: boolean
           organisation: string
+          projects_seeded_at: string | null
           updated_at: string
         }
         Insert: {
@@ -145,6 +152,7 @@ export type Database = {
           id: string
           is_admin?: boolean
           organisation?: string
+          projects_seeded_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -155,6 +163,7 @@ export type Database = {
           id?: string
           is_admin?: boolean
           organisation?: string
+          projects_seeded_at?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -407,6 +416,7 @@ export type Database = {
           schema_version: number | null
           share_token: string | null
           updated_at: string
+          view_mode: string | null
         }
         Insert: {
           created_at?: string
@@ -422,6 +432,7 @@ export type Database = {
           schema_version?: number | null
           share_token?: string | null
           updated_at?: string
+          view_mode?: string | null
         }
         Update: {
           created_at?: string
@@ -437,6 +448,7 @@ export type Database = {
           schema_version?: number | null
           share_token?: string | null
           updated_at?: string
+          view_mode?: string | null
         }
         Relationships: []
       }
@@ -488,10 +500,12 @@ export type Database = {
           lcoh_wind: number | null
           lcoh_years: Json | null
           lon: number
+          pv_db_tier: string | null
           res: number
           solar_cf: number | null
           status: string
           wind_cf: number | null
+          wind_fidelity: string | null
         }[]
         SetofOptions: {
           from: "*"
@@ -516,6 +530,7 @@ export type Database = {
           schema_version: number | null
           share_token: string | null
           updated_at: string
+          view_mode: string | null
         }[]
         SetofOptions: {
           from: "*"
