@@ -39,6 +39,13 @@ export interface ExistingCountryRow {
   grid_ef_tco2_mwh?: number | null;
   /** Carried through unchanged on curated rows — see mergeCountryRow. */
   source?: string | null;
+  /**
+   * True when the profile deliberately pins its own grid factor instead of
+   * letting the automated OWID refresh keep it current. Absent/false is the
+   * normal case: a researcher curating cost inputs has no reason to freeze
+   * a measurement that improves on its own.
+   */
+  grid_ef_pinned?: boolean | null;
 }
 
 /**
@@ -55,9 +62,12 @@ export type MergedCountryRow = Partial<Omit<IngestedCountryRow, "source">> & {
 /**
  * Merge one ingested row against whatever is already stored.
  *
- * Returns the columns the ingest may write. On a curated row `source` is
- * omitted entirely (PostgREST leaves unsupplied columns alone), which is
- * what stops the automated string from erasing a research citation.
+ * IMPORTANT — upsert semantics. An upsert is an INSERT with conflict
+ * resolution, so ANY column absent from the payload is written as NULL,
+ * not left alone. Every column this function is responsible for must
+ * therefore be present in the returned row, carrying either the fresh
+ * value or the echoed existing one. Omission is deletion. (Learned twice
+ * against the live table: first `source` blanked, then `grid_ef`.)
  */
 export function mergeCountryRow(
   ingested: IngestedCountryRow,
@@ -78,12 +88,15 @@ export function mergeCountryRow(
   // so the heuristic stays visible for comparison and survives un-curating.
   merged.wacc_suggestion = ingested.wacc_suggestion;
 
-  // The grid emission factor is a genuinely-updating measurement. A profile
-  // may pin it (a national inventory figure the researcher prefers); if it
-  // does not, OWID keeps it current.
-  if (existing.grid_ef_tco2_mwh === null || existing.grid_ef_tco2_mwh === undefined) {
-    merged.grid_ef_tco2_mwh = ingested.grid_ef_tco2_mwh;
-  }
+  // The grid emission factor is a genuinely-updating measurement, so a
+  // curated row takes the fresh OWID value UNLESS the profile pinned its
+  // own (a national inventory figure the researcher prefers). Either way
+  // the column must be written: see the note below on upsert semantics —
+  // leaving it out does not preserve it, it nulls it.
+  merged.grid_ef_tco2_mwh =
+    existing.grid_ef_pinned === true && existing.grid_ef_tco2_mwh != null
+      ? existing.grid_ef_tco2_mwh
+      : ingested.grid_ef_tco2_mwh;
 
   // `source` describes the automated values, so a curated row keeps
   // whatever it already had rather than taking the fresh string. It must be

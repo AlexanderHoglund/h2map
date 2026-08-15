@@ -70,21 +70,45 @@ describe("mergeCountryRow", () => {
     // wacc_curated is not in the ingest's vocabulary at all — it cannot be
     // clobbered because it is never written here.
     expect("wacc_curated" in merged).toBe(false);
-    // A pinned grid EF stays pinned.
-    expect("grid_ef_tco2_mwh" in merged).toBe(false);
   });
 
-  it("curation is per FIELD: a null curated field still refreshes", () => {
-    // A profile may research the cost of capital and quite reasonably leave
-    // the grid factor to OWID, which updates as the grid decarbonises.
+  it("EVERY owned column is present: omission is deletion, not preservation", () => {
+    // The trap this codebase hit twice against the live table. An upsert is
+    // an insert-with-conflict, so a column left out of the payload is
+    // written as NULL. Preserving a value means ECHOING it.
+    const curated: ExistingCountryRow = {
+      iso2: "ID",
+      curated: true,
+      wacc_curated: 0.113,
+      grid_ef_tco2_mwh: 0.68,
+      source: "Researched profile v1",
+    };
+    const merged = mergeCountryRow(ingested, curated);
+    for (const col of ["grid_ef_tco2_mwh", "wacc_suggestion", "source"]) {
+      expect(merged[col as keyof typeof merged]).not.toBeUndefined();
+    }
+  });
+
+  it("curation is per FIELD: the grid factor keeps refreshing by default", () => {
+    // A profile researching the cost of capital has no reason to freeze a
+    // measurement that improves on its own, so OWID keeps it current.
     const partial: ExistingCountryRow = {
       iso2: "ID",
       curated: true,
       wacc_curated: 0.113,
-      grid_ef_tco2_mwh: null,
+      grid_ef_tco2_mwh: 0.68,
     };
-    const merged = mergeCountryRow(ingested, partial);
-    expect(merged.grid_ef_tco2_mwh).toBe(0.65);
+    expect(mergeCountryRow(ingested, partial).grid_ef_tco2_mwh).toBe(0.65);
+  });
+
+  it("a profile may PIN the grid factor, and then it is not refreshed", () => {
+    const pinned: ExistingCountryRow = {
+      iso2: "ID",
+      curated: true,
+      grid_ef_tco2_mwh: 0.72,
+      grid_ef_pinned: true,
+    };
+    expect(mergeCountryRow(ingested, pinned).grid_ef_tco2_mwh).toBe(0.72);
   });
 
   it("the heuristic WACC keeps refreshing beneath a curated one", () => {
