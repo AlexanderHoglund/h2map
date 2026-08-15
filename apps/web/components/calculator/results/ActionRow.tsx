@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type { SimulateResponse } from "../types";
+import { buildExchangeFile } from "../exchange";
+import type { CalculatorValues } from "../schema";
+import type { CountryDefaults, SimulateResponse } from "../types";
 
 const CSV_COLUMNS = [
   "year",
@@ -32,9 +34,15 @@ function download(filename: string, mime: string, content: string) {
 /** Share / export actions under the results. */
 export default function ActionRow({
   response,
+  values,
+  countryRow,
   onCopyLink,
 }: {
   response: SimulateResponse;
+  /** The inputs that produced `response` — exported alongside it. */
+  values: CalculatorValues;
+  /** Country row in force, recorded in the file's provenance. */
+  countryRow?: CountryDefaults | null;
   /** Optional — when absent, no share destination, so the copy button is hidden. */
   onCopyLink?: () => void;
 }) {
@@ -59,10 +67,17 @@ export default function ActionRow({
   };
 
   const exportJson = () => {
+    // Inputs AND results, not results alone: a file that records an LCOH
+    // without the capacities, costs and rate that produced it cannot be
+    // re-run or checked, and cannot be imported back.
     download(
-      "h2map-results.json",
+      "h2map-scenario.json",
       "application/json",
-      JSON.stringify(response, null, 2),
+      JSON.stringify(
+        buildExchangeFile(values, response, countryRow ?? null, new Date()),
+        null,
+        2,
+      ),
     );
   };
 

@@ -6,7 +6,8 @@ import EmissionsPanel from "./EmissionsPanel";
 import EnergyPanel from "./EnergyPanel";
 import HeatMap from "./HeatMap";
 import Waterfall from "./Waterfall";
-import type { SimulateResponse } from "../types";
+import type { CalculatorValues } from "../schema";
+import type { CountryDefaults, SimulateResponse } from "../types";
 
 /**
  * Results below the form after a successful run. Code-split via next/dynamic
@@ -14,10 +15,15 @@ import type { SimulateResponse } from "../types";
  */
 export default function ResultsSection({
   response,
+  values,
+  countryRow,
   lifetimeYears,
   onCopyLink,
 }: {
   response: SimulateResponse;
+  /** Inputs that produced this run — exported with it. */
+  values: CalculatorValues;
+  countryRow?: CountryDefaults | null;
   lifetimeYears: number;
   onCopyLink?: () => void;
 }) {
@@ -87,7 +93,12 @@ export default function ResultsSection({
         <EmissionsPanel results={results} lifetimeYears={lifetimeYears} />
       </div>
 
-      <ActionRow response={response} onCopyLink={onCopyLink} />
+      <ActionRow
+        response={response}
+        values={values}
+        countryRow={countryRow}
+        onCopyLink={onCopyLink}
+      />
 
       <p className="text-[11px] text-neutral-400">
         {t("meta", {

@@ -128,7 +128,14 @@
       "errorTitle": "Calculation failed",
       "resetAll": "Reset all",
       "copyLink": "Copy link",
-      "copied": "Copied"
+      "importScenario": "Import scenario JSON…",
+      "copied": "Copied",
+      "importError": {
+        "notJson": "That file isn't valid JSON.",
+        "legacyResultsOnly": "That file holds results but no inputs — it was exported by an older version, which didn't record the scenario that produced it. Re-export from a current run to get an importable file.",
+        "newerVersion": "That file was exported by a newer version of the calculator. Update the page and try again.",
+        "invalid": "That file isn't a calculator scenario ({detail})."
+      }
     },
     "rail": {
       "title": "Scenario"

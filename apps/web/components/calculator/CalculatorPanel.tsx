@@ -14,6 +14,7 @@ import {
 } from "@h2map/lcoh-engine";
 import { encodeConfigParam } from "@/lib/url-state";
 import { Section } from "./Accordion";
+import { parseExchangeFile } from "./exchange";
 import { CheckboxField, NumberField } from "./fields";
 import { BoltIcon, SunIcon, WindIcon } from "./icons";
 import MiniMap from "./MiniMap";
@@ -305,6 +306,33 @@ export default function CalculatorPanel({
     lastApplied.current = null;
     // Embedded: leave the explorer URL alone (the map owns it).
     if (syncUrl) window.history.replaceState(null, "", window.location.pathname);
+  };
+
+  /**
+   * Load a scenario JSON back into the form. Replaces every field rather
+   * than merging: a partially-applied import would leave the form in a
+   * state that matches neither the file nor what was there before, and the
+   * user would have no way to tell which fields came from where.
+   */
+  const [importError, setImportError] = useState<string | null>(null);
+  const importScenario = async (file: File) => {
+    setImportError(null);
+    const parsed = parseExchangeFile(await file.text());
+    if (!parsed.ok) {
+      setImportError(
+        parsed.error === "notJson" ||
+          parsed.error === "legacyResultsOnly" ||
+          parsed.error === "newerVersion"
+          ? t(`run.importError.${parsed.error}`)
+          : t("run.importError.invalid", { detail: parsed.error }),
+      );
+      return;
+    }
+    reset(parsed.values);
+    // The old results describe the old inputs; keeping them on screen next
+    // to freshly imported inputs would misattribute them.
+    resetSim();
+    lastApplied.current = null;
   };
 
   const copyLink = useCallback(() => {
@@ -820,6 +848,29 @@ export default function CalculatorPanel({
                   {copied ? t("run.copied") : t("run.copyLink")}
                 </button>
               </div>
+
+              {/* Load a scenario back. The exported JSON carries its inputs,
+                  so a file can be re-run, edited and shared as a scenario
+                  rather than only read as a result. */}
+              <label className="block cursor-pointer rounded-md border border-dashed border-neutral-300 px-3 py-1.5 text-center text-sm transition-colors duration-150 ease-out hover:border-brand hover:text-brand focus-within:ring-2 focus-within:ring-brand/40">
+                {t("run.importScenario")}
+                <input
+                  type="file"
+                  accept="application/json,.json"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    // Clear the input so re-picking the same file re-fires.
+                    e.target.value = "";
+                    if (f) void importScenario(f);
+                  }}
+                />
+              </label>
+              {importError ? (
+                <p role="alert" className="text-xs text-red-700">
+                  {importError}
+                </p>
+              ) : null}
             </div>
           </form>
 
@@ -917,6 +968,8 @@ export default function CalculatorPanel({
               ) : null}
               <ResultsSection
                 response={sim.response}
+                values={values}
+                countryRow={countryRow}
                 lifetimeYears={values.general.lifetimeYears}
               />
             </>
