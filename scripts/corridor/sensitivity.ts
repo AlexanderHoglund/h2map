@@ -36,9 +36,51 @@ const TOP_LEVEL_THRESHOLD = 0.05; // ±5% headline movement
 const bundle = parseRefBundle(
   JSON.parse(readFileSync(new URL("data/corridor-ref/2026-07-30-excel-v1.json", ROOT), "utf8")),
 );
-const baseRaw = JSON.parse(
-  readFileSync(new URL("fixtures/golden/corridor/excel-baseline.input.json", ROOT), "utf8"),
-) as unknown;
+/**
+ * THE SWEEP BASELINE.
+ *
+ * Starts from the frozen workbook fixture — deterministic, committed, and
+ * the same corridor geometry the sensitivity figures have always described
+ * — then applies the app's ACTUAL default posture on the two axes where the
+ * fixture is deliberately not the app:
+ *
+ * 1. `emissionsBasis: "wellToWake"`. The fixture carries no flags, so it
+ *    falls to the Excel-faithful COMBUSTION basis. That is correct for the
+ *    fixture (the golden test proves the transcription) but wrong for a
+ *    sweep that claims to say what moves the model people run: on a TTW
+ *    basis a well-to-TANK factor is inert almost by definition, which is
+ *    why `green.certifiedWttGco2ePerMj` measured ~0.0% while §21 records it
+ *    moving abatement −23% and $/tCO2 +34%. Every scenario the UI creates
+ *    has been well-to-wake since 2026-07-31.
+ *
+ * 2. Burn overrides NULL on both sides. A frozen burn makes consumption
+ *    constant, so `cargo.oneWayDistanceNm` would measure 0.0%, lose its ≥5%
+ *    top-level placement and be demoted — a real field pushed into the
+ *    Advanced fold by a bookkeeping choice in the baseline rather than by
+ *    its actual influence. (The fixture is already null here; this asserts
+ *    it, so a future fixture edit cannot silently regress the manifest.)
+ *
+ * The FIXTURE FILE IS NEVER EDITED — the golden test still pins the
+ * workbook's combustion-basis numbers exactly. This is a sweep-local copy.
+ */
+const baseRaw = (() => {
+  const raw = JSON.parse(
+    readFileSync(new URL("fixtures/golden/corridor/excel-baseline.input.json", ROOT), "utf8"),
+  ) as Record<string, unknown>;
+  const flags = (raw.flags ?? {}) as Record<string, unknown>;
+  flags.emissionsBasis = "wellToWake";
+  raw.flags = flags;
+  for (const side of ["green", "fossil"] as const) {
+    const s = raw[side] as { overrides: Record<string, unknown> };
+    if (s.overrides.fuelTonnesPerVesselYear != null) {
+      throw new Error(
+        `sweep baseline: ${side}.overrides.fuelTonnesPerVesselYear must be null — ` +
+          "a frozen burn makes corridor length measure 0% and demotes it",
+      );
+    }
+  }
+  return raw as unknown;
+})();
 
 /** A sweepable parameter: a path setter + its plausible [low, high] range. */
 interface Param {
@@ -138,14 +180,6 @@ const PARAMS: Param[] = [
   { id: "regulation.imoPriceEscalation", label: "IMO price escalation (/yr, module on)", step: 5, low: 0, high: 0.05, set: (s, v) => { s.regulation.imoNetZero = { enabled: true, scope: 1, priceEscalation: v }; } },
   // v6 — refined-emissions inputs (docs-only; the slip scenario is an
   // enum and stays unranked like routeType/consumptionMode).
-  // NOTE on certifiedWttGco2ePerMj measuring ~0%: the sweep baseline is the
-  // frozen workbook fixture, which carries no flags and therefore runs the
-  // COMBUSTION (TTW) basis, where a well-to-TANK factor is inert almost by
-  // definition. The parameter itself works — it moves the resolved green WtW
-  // from 12.64 to 34.68 gCO2e/MJ across this range — and §21's reported
-  // -23% abatement / +34% $/tCO2 were measured on a WELL-TO-WAKE scenario.
-  // Not a defect in the field or the sweep; a property of the baseline. It
-  // is docs-only (no `ui` flag), so the ~0% never demotes anything.
   { id: "green.certifiedWttGco2ePerMj", label: "Green certified pathway WtT (gCO2e/MJ)", step: 3, low: 5, high: 28.2, set: (s, v) => { s.green.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, ...(s.green.emissions ?? {}), certifiedWttGco2ePerMj: v }; } },
   { id: "green.pilotShare", label: "Pilot fuel share of energy (0–1)", step: 3, low: 0, high: 0.08, set: (s, v) => { s.green.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, ...(s.green.emissions ?? {}), pilotShare: v }; } },
   { id: "green.efficiencyRatio", label: "Engine efficiency ratio (green vs fossil)", step: 3, low: 0.8, high: 1.2, set: (s, v) => { s.green.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, ...(s.green.emissions ?? {}), efficiencyRatio: v }; } },

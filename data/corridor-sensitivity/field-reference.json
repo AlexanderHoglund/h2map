@@ -3,7 +3,7 @@
  "rows": [
   {
    "path": "schemaVersion",
-   "type": "= 6",
+   "type": "= 7",
    "required": true,
    "rank": null,
    "movementPct": null,
@@ -37,7 +37,7 @@
    "path": "cargo.oneWayDistanceNm",
    "type": "number",
    "required": true,
-   "rank": 3,
+   "rank": 4,
    "movementPct": 77.1,
    "placement": "top-level"
   },
@@ -61,9 +61,9 @@
    "path": "cargo.unitsPerYear",
    "type": "number",
    "required": true,
-   "rank": 59,
+   "rank": 60,
    "movementPct": 0,
-   "placement": "advanced"
+   "placement": "top-level"
   },
   {
    "path": "cargo.inflation",
@@ -77,8 +77,8 @@
    "path": "cargo.vessels",
    "type": "integer",
    "required": true,
-   "rank": 8,
-   "movementPct": 34.3,
+   "rank": 2,
+   "movementPct": 94,
    "placement": "top-level"
   },
   {
@@ -202,39 +202,31 @@
    "placement": "—"
   },
   {
-   "path": "vessel.consumptionMode",
-   "type": "\"distance\", \"vessel-benchmark\"",
-   "required": true,
-   "rank": null,
-   "movementPct": null,
-   "placement": "—"
-  },
-  {
-   "path": "vessel.green.capexUsdM",
+   "path": "vessel.green.capexUsdMPerShip",
    "type": "number, null",
    "required": true,
-   "rank": 5,
+   "rank": 6,
    "movementPct": 56.7,
    "placement": "top-level"
   },
   {
-   "path": "vessel.green.opexUsdMPerYear",
+   "path": "vessel.green.opexUsdMPerShipPerYear",
    "type": "number, null",
    "required": true,
-   "rank": 6,
+   "rank": 7,
    "movementPct": 42.4,
    "placement": "top-level"
   },
   {
-   "path": "vessel.fossil.capexUsdM",
+   "path": "vessel.fossil.capexUsdMPerShip",
    "type": "number, null",
    "required": true,
-   "rank": 4,
+   "rank": 5,
    "movementPct": 59.7,
    "placement": "—"
   },
   {
-   "path": "vessel.fossil.opexUsdMPerYear",
+   "path": "vessel.fossil.opexUsdMPerShipPerYear",
    "type": "number, null",
    "required": true,
    "rank": 9,
@@ -277,7 +269,7 @@
    "path": "green.overrides.combustionEfTco2PerTonne",
    "type": "number, null",
    "required": true,
-   "rank": 48,
+   "rank": 49,
    "movementPct": 1.4,
    "placement": "—"
   },
@@ -293,9 +285,9 @@
    "path": "green.overrides.wtwGco2PerMj",
    "type": "number, null",
    "required": true,
-   "rank": 54,
+   "rank": 55,
    "movementPct": 0.2,
-   "placement": "advanced"
+   "placement": "top-level"
   },
   {
    "path": "green.overrides.fuelTonnesPerVesselYear",
@@ -325,7 +317,7 @@
    "path": "green.overrides.portStorageCapexUsdM",
    "type": "number, null",
    "required": true,
-   "rank": 27,
+   "rank": 26,
    "movementPct": 10.7,
    "placement": "top-level"
   },
@@ -357,7 +349,7 @@
    "path": "green.emissions.certifiedWttGco2ePerMj",
    "type": "number, null",
    "required": true,
-   "rank": 58,
+   "rank": 59,
    "movementPct": 0,
    "placement": "—"
   },
@@ -365,15 +357,15 @@
    "path": "green.emissions.n2oScenarioId",
    "type": "string, null",
    "required": true,
-   "rank": null,
-   "movementPct": null,
+   "rank": 48,
+   "movementPct": 1.7,
    "placement": "—"
   },
   {
    "path": "green.emissions.pilotShare",
    "type": "number, null",
    "required": true,
-   "rank": 56,
+   "rank": 57,
    "movementPct": 0.1,
    "placement": "—"
   },
@@ -405,7 +397,7 @@
    "path": "green.emissions.efficiencyRatio",
    "type": "number, null",
    "required": true,
-   "rank": 60,
+   "rank": 61,
    "movementPct": 0,
    "placement": "—"
   },
@@ -439,13 +431,13 @@
    "required": true,
    "rank": 43,
    "movementPct": 3.2,
-   "placement": "advanced"
+   "placement": "top-level"
   },
   {
    "path": "fossil.overrides.combustionEfTco2PerTonne",
    "type": "number, null",
    "required": true,
-   "rank": 53,
+   "rank": 54,
    "movementPct": 0.5,
    "placement": "—"
   },
@@ -453,7 +445,7 @@
    "path": "fossil.overrides.lhvMjPerTonne",
    "type": "number, null",
    "required": true,
-   "rank": 52,
+   "rank": 53,
    "movementPct": 0.6,
    "placement": "—"
   },
@@ -463,13 +455,13 @@
    "required": true,
    "rank": 47,
    "movementPct": 1.7,
-   "placement": "advanced"
+   "placement": "top-level"
   },
   {
    "path": "fossil.overrides.fuelTonnesPerVesselYear",
    "type": "number, null",
    "required": true,
-   "rank": 7,
+   "rank": 8,
    "movementPct": 41.2,
    "placement": "—"
   },
@@ -565,7 +557,7 @@
    "path": "fossil.emissions.sulphurPercent",
    "type": "number, null",
    "required": true,
-   "rank": 57,
+   "rank": 58,
    "movementPct": 0,
    "placement": "—"
   },
@@ -581,9 +573,9 @@
    "path": "regulation.eurUsd",
    "type": "number",
    "required": true,
-   "rank": 50,
+   "rank": 51,
    "movementPct": 1.2,
-   "placement": "advanced"
+   "placement": "top-level"
   },
   {
    "path": "regulation.ets.enabled",
@@ -599,13 +591,13 @@
    "required": true,
    "rank": 42,
    "movementPct": 3.3,
-   "placement": "advanced"
+   "placement": "top-level"
   },
   {
    "path": "regulation.ets.euaEscalation",
    "type": "number",
    "required": false,
-   "rank": 51,
+   "rank": 52,
    "movementPct": 1.1,
    "placement": "—"
   },
@@ -615,7 +607,7 @@
    "required": true,
    "rank": 46,
    "movementPct": 2.2,
-   "placement": "advanced"
+   "placement": "top-level"
   },
   {
    "path": "regulation.ets.gasCoverage.enabled",
@@ -695,13 +687,13 @@
    "required": true,
    "rank": 39,
    "movementPct": 3.5,
-   "placement": "advanced"
+   "placement": "top-level"
   },
   {
    "path": "regulation.fuelEu.vlsfoMjPerTonne",
    "type": "number",
    "required": true,
-   "rank": 55,
+   "rank": 56,
    "movementPct": 0.2,
    "placement": "—"
   },
@@ -709,7 +701,7 @@
    "path": "regulation.fuelEu.baselineGco2PerMj",
    "type": "number",
    "required": true,
-   "rank": 49,
+   "rank": 50,
    "movementPct": 1.3,
    "placement": "—"
   },
@@ -719,7 +711,7 @@
    "required": true,
    "rank": 40,
    "movementPct": 3.5,
-   "placement": "advanced"
+   "placement": "top-level"
   },
   {
    "path": "regulation.fuelEu.credit.enabled",
@@ -733,7 +725,7 @@
    "path": "regulation.fuelEu.credit.surplusValueEurPerTonneVlsfoEq",
    "type": "number",
    "required": true,
-   "rank": 2,
+   "rank": 3,
    "movementPct": 89.3,
    "placement": "—"
   },
@@ -806,15 +798,15 @@
    "type": "number",
    "required": true,
    "rank": 25,
-   "movementPct": 12.8,
+   "movementPct": 12.6,
    "placement": "—"
   },
   {
    "path": "regulation.selfDesigned.co2PriceEscalation",
    "type": "number",
    "required": false,
-   "rank": 26,
-   "movementPct": 10.8,
+   "rank": 27,
+   "movementPct": 10.7,
    "placement": "—"
   },
   {
@@ -979,6 +971,14 @@
   },
   {
    "path": "flags.legacyExcelConstruct",
+   "type": "boolean",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "flags.migratedVesselBenchmarkBurn",
    "type": "boolean",
    "required": false,
    "rank": null,

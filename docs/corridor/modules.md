@@ -497,7 +497,7 @@ with no adaptation layer.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SidePerYear`, `SideResult`, `SideImoNetZero`, `ScenarioSummary`, `ScenarioReporting`, `ScenarioIntermediates`, `ScenarioResult`
+**Exports (inputs/outputs)**: `SidePerYear`, `SideResult`, `SideImoNetZero`, `ScenarioSummary`, `ScenarioReporting`, `ScenarioIntermediates`, `ScenarioEnergyParity`, `ScenarioResult`
 
 **Assumptions**
 
@@ -515,7 +515,7 @@ them into branded `Resolved<T>` values against a reference bundle.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `ConsumptionMode`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelEmissionsSideInput`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `EmissionsAccountingInput`, `RegulationInput`, `FinancingInput`, `CapitalPhasingSide`, `CapitalPhasingInput`, `ScenarioInput`
+**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelEmissionsSideInput`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `EmissionsAccountingInput`, `RegulationInput`, `FinancingInput`, `CapitalPhasingSide`, `CapitalPhasingInput`, `ScenarioInput`
 
 **Assumptions**
 

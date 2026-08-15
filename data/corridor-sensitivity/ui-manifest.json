@@ -24,11 +24,11 @@
   "regulation.etsScope",
   "fossil.wtwGco2PerMj",
   "regulation.eurUsd",
+  "green.wtwGco2PerMj",
   "cargo.unitsPerYear"
  ],
  "advanced": [
   "port.bargeCapexUsdM",
-  "capitalPhasing.years",
-  "green.wtwGco2PerMj"
+  "capitalPhasing.years"
  ]
 }

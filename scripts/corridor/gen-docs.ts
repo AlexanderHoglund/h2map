@@ -73,7 +73,18 @@ function fieldReference(): string {
 
   const sensitivity = JSON.parse(
     readFileSync(new URL("data/corridor-sensitivity/sensitivity.json", ROOT), "utf8"),
-  ) as { ranked: { id: string; label: string; relHeadlineMovement: number }[] };
+  ) as {
+    ranked: {
+      id: string;
+      label: string;
+      /** Movement of the GAP — kept as §20's primary column for continuity. */
+      relHeadlineMovement: number;
+      /** Max across all headline KPIs — what determines UI placement. */
+      maxRelMovement: number;
+      /** The KPI that produced maxRelMovement, so placement is traceable. */
+      bindingKpi: string;
+    }[];
+  };
   const manifest = JSON.parse(
     readFileSync(new URL("data/corridor-sensitivity/ui-manifest.json", ROOT), "utf8"),
   ) as { topLevel: string[]; advanced: string[] };
@@ -98,6 +109,7 @@ function fieldReference(): string {
     "green.overrides.wtwGco2PerMj": "green.wtwGco2PerMj",
     "green.emissions.certifiedWttGco2ePerMj": "green.certifiedWttGco2ePerMj",
     "green.emissions.pilotShare": "green.pilotShare",
+    "green.emissions.n2oScenarioId": "green.n2oScenarioId",
     "green.emissions.efficiencyRatio": "green.efficiencyRatio",
     "fossil.emissions.sulphurPercent": "fossil.sulphurPercent",
     "fossil.overrides.priceUsdPerTonne": "fossil.priceUsdPerTonne",
@@ -116,12 +128,14 @@ function fieldReference(): string {
     "cargo.inflation": "cargo.inflation",
     "cargo.vessels": "cargo.vessels",
     "cargo.roundtripsPerYear": "cargo.roundtripsPerYear",
-    "vessel.green.capexUsdM": "vessel.green.capexUsdM",
-    "vessel.green.opexUsdMPerYear": "vessel.green.opexUsdMPerYear",
+    // v7: schema path is per-ship; the sweep param id keeps its historical
+    // name so §20's ranking stays comparable across schema versions.
+    "vessel.green.capexUsdMPerShip": "vessel.green.capexUsdM",
+    "vessel.green.opexUsdMPerShipPerYear": "vessel.green.opexUsdMPerYear",
     // Docs-only sweep extension (2026-08-13) — every remaining numeric.
     "cargo.startYear": "cargo.startYear",
-    "vessel.fossil.capexUsdM": "vessel.fossil.capexUsdM",
-    "vessel.fossil.opexUsdMPerYear": "vessel.fossil.opexUsdMPerYear",
+    "vessel.fossil.capexUsdMPerShip": "vessel.fossil.capexUsdM",
+    "vessel.fossil.opexUsdMPerShipPerYear": "vessel.fossil.opexUsdMPerYear",
     "green.overrides.combustionEfTco2PerTonne": "green.combustionEf",
     "green.overrides.lhvMjPerTonne": "green.lhvMjPerTonne",
     "green.overrides.bargeOpexUsdMPerYear": "port.bargeOpexUsdMPerYear",
@@ -168,8 +182,8 @@ function fieldReference(): string {
     "(`@h2map/corridor-schema`) joined with the sensitivity artifact and the",
     "ui-manifest. Do not edit by hand — CI fails on drift.",
     "",
-    "| Field | Type | Required | Sensitivity rank | Headline movement | UI placement |",
-    "|---|---|---|---|---|---|",
+    "| Field | Type | Required | Sensitivity rank | Gap movement | Max across KPIs | Binding KPI | UI placement |",
+    "|---|---|---|---|---|---|---|---|",
   ];
   for (const row of rows) {
     const sensId = ALIAS[row.path];
@@ -178,14 +192,22 @@ function fieldReference(): string {
       `| \`${row.path}\` | ${row.type} | ${row.required ? "yes" : "no"} | ${
         hit ? `#${hit.i}` : "—"
       } | ${hit ? `${(hit.r.relHeadlineMovement * 100).toFixed(1)}%` : "—"} | ${
+        hit ? `${(hit.r.maxRelMovement * 100).toFixed(1)}%` : "—"
+      } | ${hit ? `\`${hit.r.bindingKpi}\`` : "—"} | ${
         sensId ? placement(sensId) : "—"
       } |`,
     );
   }
   lines.push(
     "",
-    "Sensitivity = max headline-gap movement across the input's plausible range",
-    "(one-at-a-time endpoint sweep from the Excel-default baseline; module",
+    "Sensitivity sweeps each input across its plausible range (enums across",
+    "every defined option) against ALL SIX headline KPIs — gap, $/cargo unit,",
+    "$/tCO2 abated, green total, fossil total, lifetime CO2 abated. **Gap",
+    "movement** is kept as the primary column for continuity with earlier",
+    "versions; **max across KPIs** is determines placement, and **binding",
+    "KPI** names the output that produced it, so a field's prominence is",
+    "traceable to what it actually moves. Baseline is the workbook fixture on",
+    "the app's default posture (well-to-wake, distance-derived burns); module",
     "sweeps run with the module enabled — see",
     "`data/corridor-sensitivity/sensitivity.json`). Placement reflects the",
     "FROZEN ui-flagged subset: `top-level` renders prominently in the wizard,",

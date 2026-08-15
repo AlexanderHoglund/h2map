@@ -5,10 +5,10 @@
  "baseKpis": {
   "gapPvUsdM": 167.5724998516053,
   "costPerUnitUsd": 377.9773985013879,
-  "costPerTonneCo2Usd": 2468.944466048738,
+  "costPerTonneCo2Usd": 2507.7055244982826,
   "greenTotalPvUsdM": 205.70850548651018,
   "fossilTotalPvUsdM": 38.13600563490489,
-  "co2AbatedTonnes": 67872.12193548681
+  "co2AbatedTonnes": 66823.03732019395
  },
  "kpis": [
   {
@@ -53,13 +53,13 @@
    "movementByKpi": {
     "gapPvUsdM": 3.761850402889535,
     "costPerUnitUsd": 3.7618504028895345,
-    "costPerTonneCo2Usd": 3.7618504028895354,
+    "costPerTonneCo2Usd": 3.761850402889536,
     "greenTotalPvUsdM": 3.064446336767085,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
    "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 3.7618504028895354
+   "maxRelMovement": 3.761850402889536
   },
   {
    "id": "cargo.vessels",
@@ -76,10 +76,10 @@
    "movementByKpi": {
     "gapPvUsdM": 0.9396221819632183,
     "costPerUnitUsd": 0.9396221819632181,
-    "costPerTonneCo2Usd": 0.6120755636073564,
+    "costPerTonneCo2Usd": 0.6120755636073562,
     "greenTotalPvUsdM": 1.5069812488018144,
     "fossilTotalPvUsdM": 4,
-    "co2AbatedTonnes": 3.999999999999999
+    "co2AbatedTonnes": 3.9999999999999982
    },
    "bindingKpi": "fossilTotalPvUsdM",
    "maxRelMovement": 4
@@ -122,13 +122,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.771447495839536,
     "costPerUnitUsd": 0.7714474958395362,
-    "costPerTonneCo2Usd": 3.657134446293542,
+    "costPerTonneCo2Usd": 3.6571344462935422,
     "greenTotalPvUsdM": 1.5203364412439166,
     "fossilTotalPvUsdM": 4.8110112406461845,
-    "co2AbatedTonnes": 8.999999999999998
+    "co2AbatedTonnes": 8.999999999999995
    },
    "bindingKpi": "co2AbatedTonnes",
-   "maxRelMovement": 8.999999999999998
+   "maxRelMovement": 8.999999999999995
   },
   {
    "id": "vessel.fossil.capexUsdM",
@@ -145,7 +145,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.5967566282567578,
     "costPerUnitUsd": 0.5967566282567579,
-    "costPerTonneCo2Usd": 0.5967566282567579,
+    "costPerTonneCo2Usd": 0.5967566282567578,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 2.6221938646996796,
     "co2AbatedTonnes": 0
@@ -168,13 +168,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.5669187968439198,
     "costPerUnitUsd": 0.5669187968439197,
-    "costPerTonneCo2Usd": 0.5669187968439197,
+    "costPerTonneCo2Usd": 0.5669187968439199,
     "greenTotalPvUsdM": 0.46181853188481736,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0.5669187968439198
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.5669187968439199
   },
   {
    "id": "vessel.green.opexUsdMPerYear",
@@ -191,13 +191,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.42370065115494315,
     "costPerUnitUsd": 0.42370065115494315,
-    "costPerTonneCo2Usd": 0.4237006511549431,
+    "costPerTonneCo2Usd": 0.42370065115494343,
     "greenTotalPvUsdM": 0.34515139339944717,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0.42370065115494315
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.42370065115494343
   },
   {
    "id": "fossil.fuelTonnesPerVesselYear",
@@ -214,13 +214,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.4121028524733867,
     "costPerUnitUsd": 0.4121028524733867,
-    "costPerTonneCo2Usd": 0.8762051747994499,
+    "costPerTonneCo2Usd": 0.8924212911900539,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 1.8108111752987714,
-    "co2AbatedTonnes": 3.748963832488219
+    "co2AbatedTonnes": 4.464809477916507
    },
    "bindingKpi": "co2AbatedTonnes",
-   "maxRelMovement": 3.748963832488219
+   "maxRelMovement": 4.464809477916507
   },
   {
    "id": "vessel.fossil.opexUsdMPerYear",
@@ -237,7 +237,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.33542968216433033,
     "costPerUnitUsd": 0.33542968216433044,
-    "costPerTonneCo2Usd": 0.33542968216433044,
+    "costPerTonneCo2Usd": 0.33542968216433033,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 1.4739034523652317,
     "co2AbatedTonnes": 0
@@ -260,13 +260,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.3282161455412167,
     "costPerUnitUsd": 0.3282161455412167,
-    "costPerTonneCo2Usd": 0.3282161455412167,
+    "costPerTonneCo2Usd": 0.32821614554121686,
     "greenTotalPvUsdM": 0.2673686237227891,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0.3282161455412167
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.32821614554121686
   },
   {
    "id": "regulation.selfOpexSupport",
@@ -283,13 +283,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.3231856445301479,
     "costPerUnitUsd": 0.3231856445301479,
-    "costPerTonneCo2Usd": 0.323185644530148,
+    "costPerTonneCo2Usd": 0.32318564453014786,
     "greenTotalPvUsdM": 0.26327072009971236,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.323185644530148
+   "bindingKpi": "gapPvUsdM",
+   "maxRelMovement": 0.3231856445301479
   },
   {
    "id": "regulation.selfCapexSupport",
@@ -306,7 +306,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.2894269647045274,
     "costPerUnitUsd": 0.28942696470452745,
-    "costPerTonneCo2Usd": 0.2894269647045274,
+    "costPerTonneCo2Usd": 0.28942696470452733,
     "greenTotalPvUsdM": 0.23577051364645918,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
@@ -329,13 +329,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.2648129069718398,
     "costPerUnitUsd": 0.26481290697183985,
-    "costPerTonneCo2Usd": 0.2648129069718397,
+    "costPerTonneCo2Usd": 0.26481290697184,
     "greenTotalPvUsdM": 0.21571962087465477,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "costPerUnitUsd",
-   "maxRelMovement": 0.26481290697183985
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.26481290697184
   },
   {
    "id": "green.fuelTonnesPerVesselYear",
@@ -352,13 +352,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.2104809225217932,
     "costPerUnitUsd": 0.21048092252179315,
-    "costPerTonneCo2Usd": 0.3575067320528078,
+    "costPerTonneCo2Usd": 0.7874668388051366,
     "greenTotalPvUsdM": 0.17146016531806413,
     "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0.10830576825846291
+    "co2AbatedTonnes": 0.3227953122022894
    },
    "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.3575067320528078
+   "maxRelMovement": 0.7874668388051366
   },
   {
    "id": "regulation.selfSupportUsdPerKg",
@@ -375,7 +375,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.19416002079429856,
     "costPerUnitUsd": 0.19416002079429862,
-    "costPerTonneCo2Usd": 0.19416002079429856,
+    "costPerTonneCo2Usd": 0.19416002079429842,
     "greenTotalPvUsdM": 0.1581649722202365,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
@@ -398,13 +398,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.1871762520245739,
     "costPerUnitUsd": 0.6693216501552531,
-    "costPerTonneCo2Usd": 0.6693216501552532,
+    "costPerTonneCo2Usd": 0.6693216501552541,
     "greenTotalPvUsdM": 0.27751817910117926,
     "fossilTotalPvUsdM": 0.6744874555002259,
-    "co2AbatedTonnes": 1
+    "co2AbatedTonnes": 0.9999999999999982
    },
    "bindingKpi": "co2AbatedTonnes",
-   "maxRelMovement": 1
+   "maxRelMovement": 0.9999999999999982
   },
   {
    "id": "financing.baseRate",
@@ -421,7 +421,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.1836669174308788,
     "costPerUnitUsd": 0.18366691743087882,
-    "costPerTonneCo2Usd": 0.1836669174308788,
+    "costPerTonneCo2Usd": 0.18366691743087868,
     "greenTotalPvUsdM": 0.14961717028248508,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
@@ -444,7 +444,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.1790269884770273,
     "costPerUnitUsd": 0.1790269884770274,
-    "costPerTonneCo2Usd": 0.1790269884770274,
+    "costPerTonneCo2Usd": 0.17902698847702728,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.7866581594099038,
     "co2AbatedTonnes": 0
@@ -467,7 +467,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.1469335339447027,
     "costPerUnitUsd": 0.14693353394470274,
-    "costPerTonneCo2Usd": 0.14693353394470274,
+    "costPerTonneCo2Usd": 0.14693353394470257,
     "greenTotalPvUsdM": 0.11969373622598792,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
@@ -490,7 +490,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.1466087223651344,
     "costPerUnitUsd": 0.14660872236513434,
-    "costPerTonneCo2Usd": 0.1466087223651345,
+    "costPerTonneCo2Usd": 0.14660872236513423,
     "greenTotalPvUsdM": 0.18991634392266507,
     "fossilTotalPvUsdM": 0.3802133161986608,
     "co2AbatedTonnes": 0
@@ -513,7 +513,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.14010548684055243,
     "costPerUnitUsd": 0.14010548684055238,
-    "costPerTonneCo2Usd": 0.14010548684055235,
+    "costPerTonneCo2Usd": 0.1401054868405526,
     "greenTotalPvUsdM": 0.1542354713714873,
     "fossilTotalPvUsdM": 0.2163236945950034,
     "co2AbatedTonnes": 0
@@ -536,13 +536,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.13667762940482053,
     "costPerUnitUsd": 0.13667762940482048,
-    "costPerTonneCo2Usd": 0.13667762940482045,
+    "costPerTonneCo2Usd": 0.13667762940482064,
     "greenTotalPvUsdM": 0.11133915916111208,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0.13667762940482053
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.13667762940482064
   },
   {
    "id": "port.fossilStorageOpexUsdMPerYear",
@@ -559,7 +559,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.1324064534859197,
     "costPerUnitUsd": 0.13240645348591962,
-    "costPerTonneCo2Usd": 0.13240645348591967,
+    "costPerTonneCo2Usd": 0.13240645348591953,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.5818039943546961,
     "co2AbatedTonnes": 0
@@ -582,7 +582,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.1324064534859197,
     "costPerUnitUsd": 0.13240645348591962,
-    "costPerTonneCo2Usd": 0.13240645348591967,
+    "costPerTonneCo2Usd": 0.13240645348591953,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.5818039943546961,
     "co2AbatedTonnes": 0
@@ -599,42 +599,19 @@
     500
    ],
    "gapAtLow": 167.5724998516053,
-   "gapAtHigh": 146.17979492314632,
-   "maxAbsDeltaUsdM": 21.392704928458983,
-   "relHeadlineMovement": 0.12766238462398904,
+   "gapAtHigh": 146.51045730675753,
+   "maxAbsDeltaUsdM": 21.06204254484777,
+   "relHeadlineMovement": 0.12568913493263734,
    "movementByKpi": {
-    "gapPvUsdM": 0.12766238462398904,
-    "costPerUnitUsd": 0.1276623846239891,
-    "costPerTonneCo2Usd": 0.12766238462398907,
-    "greenTotalPvUsdM": 0.01109683164152832,
-    "fossilTotalPvUsdM": 0.6208153472529301,
+    "gapPvUsdM": 0.12568913493263734,
+    "costPerUnitUsd": 0.12568913493263736,
+    "costPerTonneCo2Usd": 0.12568913493263714,
+    "greenTotalPvUsdM": 0.032561875656925095,
+    "fossilTotalPvUsdM": 0.7279288132017451,
     "co2AbatedTonnes": 0
    },
    "bindingKpi": "fossilTotalPvUsdM",
-   "maxRelMovement": 0.6208153472529301
-  },
-  {
-   "id": "regulation.selfCo2PriceEscalation",
-   "label": "Self-designed CO2 escalation (/yr, at $280)",
-   "step": 5,
-   "range": [
-    0,
-    0.05
-   ],
-   "gapAtLow": 155.59258509166824,
-   "gapAtHigh": 149.40009654703454,
-   "maxAbsDeltaUsdM": 18.172403304570764,
-   "relHeadlineMovement": 0.10844502123357609,
-   "movementByKpi": {
-    "gapPvUsdM": 0.10844502123357609,
-    "costPerUnitUsd": 0.10844502123357612,
-    "costPerTonneCo2Usd": 0.10844502123357616,
-    "greenTotalPvUsdM": 0.009426395617905594,
-    "fossilTotalPvUsdM": 0.5273623370992785,
-    "co2AbatedTonnes": 0
-   },
-   "bindingKpi": "fossilTotalPvUsdM",
-   "maxRelMovement": 0.5273623370992785
+   "maxRelMovement": 0.7279288132017451
   },
   {
    "id": "port.storageCapexUsdM",
@@ -651,13 +628,36 @@
    "movementByKpi": {
     "gapPvUsdM": 0.10741619308621637,
     "costPerUnitUsd": 0.10741619308621629,
-    "costPerTonneCo2Usd": 0.1074161930862163,
+    "costPerTonneCo2Usd": 0.10741619308621651,
     "greenTotalPvUsdM": 0.08750245867291287,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0.10741619308621637
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.10741619308621651
+  },
+  {
+   "id": "regulation.selfCo2PriceEscalation",
+   "label": "Self-designed CO2 escalation (/yr, at $280)",
+   "step": 5,
+   "range": [
+    0,
+    0.05
+   ],
+   "gapAtLow": 155.77775602649066,
+   "gapAtHigh": 149.68098342939615,
+   "maxAbsDeltaUsdM": 17.89151642220915,
+   "relHeadlineMovement": 0.1067688101451794,
+   "movementByKpi": {
+    "gapPvUsdM": 0.1067688101451794,
+    "costPerUnitUsd": 0.10676881014517942,
+    "costPerTonneCo2Usd": 0.10676881014517928,
+    "greenTotalPvUsdM": 0.02766024861137383,
+    "fossilTotalPvUsdM": 0.6183517238590047,
+    "co2AbatedTonnes": 0
+   },
+   "bindingKpi": "fossilTotalPvUsdM",
+   "maxRelMovement": 0.6183517238590047
   },
   {
    "id": "port.bargeOpexUsdMPerYear",
@@ -674,13 +674,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.1059251627887357,
     "costPerUnitUsd": 0.10592516278873561,
-    "costPerTonneCo2Usd": 0.10592516278873555,
+    "costPerTonneCo2Usd": 0.10592516278873582,
     "greenTotalPvUsdM": 0.08628784834986168,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0.1059251627887357
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.10592516278873582
   },
   {
    "id": "financing.tenorYears",
@@ -697,13 +697,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.10069491372897359,
     "costPerUnitUsd": 0.10069491372897361,
-    "costPerTonneCo2Usd": 0.10069491372897366,
+    "costPerTonneCo2Usd": 0.10069491372897352,
     "greenTotalPvUsdM": 0.08202722768316617,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.10069491372897366
+   "bindingKpi": "costPerUnitUsd",
+   "maxRelMovement": 0.10069491372897361
   },
   {
    "id": "port.storageOpexUsdMPerYear",
@@ -720,13 +720,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.08827096899061314,
     "costPerUnitUsd": 0.08827096899061318,
-    "costPerTonneCo2Usd": 0.08827096899061306,
+    "costPerTonneCo2Usd": 0.08827096899061328,
     "greenTotalPvUsdM": 0.0719065402915516,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "costPerUnitUsd",
-   "maxRelMovement": 0.08827096899061318
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.08827096899061328
   },
   {
    "id": "cargo.roundtripsPerYear",
@@ -743,7 +743,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.08571638842661508,
     "costPerUnitUsd": 0.08571638842661511,
-    "costPerTonneCo2Usd": 0.9142836115733854,
+    "costPerTonneCo2Usd": 0.914283611573386,
     "greenTotalPvUsdM": 0.1689262712493241,
     "fossilTotalPvUsdM": 0.534556804516243,
     "co2AbatedTonnes": 1
@@ -766,13 +766,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.07346676697235152,
     "costPerUnitUsd": 0.07346676697235152,
-    "costPerTonneCo2Usd": 0.07346676697235155,
+    "costPerTonneCo2Usd": 0.07346676697235129,
     "greenTotalPvUsdM": 0.05984686811299409,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.07346676697235155
+   "bindingKpi": "gapPvUsdM",
+   "maxRelMovement": 0.07346676697235152
   },
   {
    "id": "port.fossilBargeCapexUsdM",
@@ -789,7 +789,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.07161079539081108,
     "costPerUnitUsd": 0.07161079539081111,
-    "costPerTonneCo2Usd": 0.07161079539081118,
+    "costPerTonneCo2Usd": 0.07161079539081094,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.3146632637639617,
     "co2AbatedTonnes": 0
@@ -812,7 +812,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.053067220915326896,
     "costPerUnitUsd": 0.05306722091532685,
-    "costPerTonneCo2Usd": 0.05306722091532686,
+    "costPerTonneCo2Usd": 0.053067220915326785,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.23318139172969768,
     "co2AbatedTonnes": 0
@@ -835,13 +835,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.05159109123962772,
     "costPerUnitUsd": 0.05159109123962766,
-    "costPerTonneCo2Usd": 0.05159109123962775,
+    "costPerTonneCo2Usd": 0.05159109123962761,
     "greenTotalPvUsdM": 0.04202669261851973,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.05159109123962775
+   "bindingKpi": "gapPvUsdM",
+   "maxRelMovement": 0.05159109123962772
   },
   {
    "id": "cargo.startYear",
@@ -858,7 +858,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.049364220818832426,
     "costPerUnitUsd": 0.04936422081883237,
-    "costPerTonneCo2Usd": 0.04936422081883235,
+    "costPerTonneCo2Usd": 0.04936422081883227,
     "greenTotalPvUsdM": 0.005251127837096616,
     "fossilTotalPvUsdM": 0.24523511022261416,
     "co2AbatedTonnes": 0
@@ -881,7 +881,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.04448558393884643,
     "costPerUnitUsd": 0.04448558393884651,
-    "costPerTonneCo2Usd": 0.04448558393884664,
+    "costPerTonneCo2Usd": 0.04448558393884641,
     "greenTotalPvUsdM": 0.010658476659719647,
     "fossilTotalPvUsdM": 0.13798039715887117,
     "co2AbatedTonnes": 0
@@ -904,13 +904,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.04177296397797303,
     "costPerUnitUsd": 0.04177296397797301,
-    "costPerTonneCo2Usd": 0.04177296397797293,
+    "costPerTonneCo2Usd": 0.04177296397797307,
     "greenTotalPvUsdM": 0.034028733928354954,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0.04177296397797303
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.04177296397797307
   },
   {
    "id": "regulation.fuelEuPenalty",
@@ -927,7 +927,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.03509723344819861,
     "costPerUnitUsd": 0.035097233448198664,
-    "costPerTonneCo2Usd": 0.03509723344819883,
+    "costPerTonneCo2Usd": 0.03509723344819866,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.15421990449379858,
     "co2AbatedTonnes": 0
@@ -950,7 +950,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.035097233448198435,
     "costPerUnitUsd": 0.03509723344819852,
-    "costPerTonneCo2Usd": 0.03509723344819846,
+    "costPerTonneCo2Usd": 0.03509723344819866,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.15421990449379913,
     "co2AbatedTonnes": 0
@@ -973,13 +973,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.03369768464018896,
     "costPerUnitUsd": 0.03369768464018881,
-    "costPerTonneCo2Usd": 0.05193785944756816,
+    "costPerTonneCo2Usd": 0.03369768464018904,
     "greenTotalPvUsdM": 0.027450519078015517,
     "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0.017339593440394135
+    "co2AbatedTonnes": 0
    },
    "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.05193785944756816
+   "maxRelMovement": 0.03369768464018904
   },
   {
    "id": "regulation.euaEurPerTonne",
@@ -996,7 +996,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.033090090094537776,
     "costPerUnitUsd": 0.03309009009453776,
-    "costPerTonneCo2Usd": 0.03309009009453783,
+    "costPerTonneCo2Usd": 0.0330900900945377,
     "greenTotalPvUsdM": 0.002876298761484388,
     "fossilTotalPvUsdM": 0.16091533800795954,
     "co2AbatedTonnes": 0
@@ -1019,7 +1019,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.0320129380872624,
     "costPerUnitUsd": 0.03201293808726243,
-    "costPerTonneCo2Usd": 0.03201293808726261,
+    "costPerTonneCo2Usd": 0.03201293808726233,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.14066727685731298,
     "co2AbatedTonnes": 0
@@ -1042,7 +1042,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.031401460312503245,
     "costPerUnitUsd": 0.03140146031250328,
-    "costPerTonneCo2Usd": 0.03140146031250324,
+    "costPerTonneCo2Usd": 0.031401460312503134,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.13798039715887117,
     "co2AbatedTonnes": 0
@@ -1065,13 +1065,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.029705253083283544,
     "costPerUnitUsd": 0.029705253083283565,
-    "costPerTonneCo2Usd": 0.029705253083283586,
+    "costPerTonneCo2Usd": 0.02970525308328344,
     "greenTotalPvUsdM": 0.024198238697606168,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0
    },
-   "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.029705253083283586
+   "bindingKpi": "costPerUnitUsd",
+   "maxRelMovement": 0.029705253083283565
   },
   {
    "id": "regulation.etsScope",
@@ -1088,7 +1088,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.02206006006302564,
     "costPerUnitUsd": 0.022060060063025626,
-    "costPerTonneCo2Usd": 0.02206006006302559,
+    "costPerTonneCo2Usd": 0.022060060063025855,
     "greenTotalPvUsdM": 0.0019175325076557059,
     "fossilTotalPvUsdM": 0.10727689200530649,
     "co2AbatedTonnes": 0
@@ -1111,13 +1111,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.017406493088569643,
     "costPerUnitUsd": 0.017406493088569563,
-    "costPerTonneCo2Usd": 0.01740649308856965,
+    "costPerTonneCo2Usd": 0.223904520455037,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.07648545021798515,
-    "co2AbatedTonnes": 0
+    "co2AbatedTonnes": 0.1687206999527162
    },
-   "bindingKpi": "fossilTotalPvUsdM",
-   "maxRelMovement": 0.07648545021798515
+   "bindingKpi": "costPerTonneCo2Usd",
+   "maxRelMovement": 0.223904520455037
   },
   {
    "id": "green.n2oScenarioId",
@@ -1135,13 +1135,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.016653000222885763,
     "costPerUnitUsd": 0.016653000222885836,
-    "costPerTonneCo2Usd": 1.1034589835644633,
+    "costPerTonneCo2Usd": 1.0274175188853716,
     "greenTotalPvUsdM": 0.013565724328114061,
     "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0.5166756242139346
+    "co2AbatedTonnes": 0.4985477876398055
    },
    "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 1.1034589835644633
+   "maxRelMovement": 1.0274175188853716
   },
   {
    "id": "green.combustionEf",
@@ -1158,13 +1158,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.014421502887313373,
     "costPerUnitUsd": 0.014421502887313314,
-    "costPerTonneCo2Usd": 1.9296369416561383,
+    "costPerTonneCo2Usd": 0.01442150288731343,
     "greenTotalPvUsdM": 0.011747921092172592,
     "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0.6537381514878579
+    "co2AbatedTonnes": 0
    },
    "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 1.9296369416561383
+   "maxRelMovement": 0.01442150288731343
   },
   {
    "id": "regulation.fuelEuBaselineGco2PerMj",
@@ -1181,7 +1181,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.013056025402282486,
     "costPerUnitUsd": 0.013056025402282493,
-    "costPerTonneCo2Usd": 0.013056025402282435,
+    "costPerTonneCo2Usd": 0.013056025402282402,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.05736916539534083,
     "co2AbatedTonnes": 0
@@ -1204,7 +1204,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.011643152381915909,
     "costPerUnitUsd": 0.011643152381915926,
-    "costPerTonneCo2Usd": 0.01164315238191586,
+    "costPerTonneCo2Usd": 0.011643152381915671,
     "greenTotalPvUsdM": 0.00039060847378186625,
     "fossilTotalPvUsdM": 0.05326786595352136,
     "co2AbatedTonnes": 0
@@ -1227,7 +1227,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.011402975060478132,
     "costPerUnitUsd": 0.011402975060478084,
-    "costPerTonneCo2Usd": 0.011402975060478226,
+    "costPerTonneCo2Usd": 0.011402975060478018,
     "greenTotalPvUsdM": 0.0009911838544405473,
     "fossilTotalPvUsdM": 0.05545205772818515,
     "co2AbatedTonnes": 0
@@ -1250,13 +1250,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.005694522706692882,
     "costPerUnitUsd": 0.0056945227066927855,
-    "costPerTonneCo2Usd": 0.07414652808277235,
+    "costPerTonneCo2Usd": 0.00569452270669278,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.025022164475160605,
-    "co2AbatedTonnes": 0.07280955200015926
+    "co2AbatedTonnes": 0
    },
-   "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.07414652808277235
+   "bindingKpi": "fossilTotalPvUsdM",
+   "maxRelMovement": 0.025022164475160605
   },
   {
    "id": "fossil.combustionEf",
@@ -1273,13 +1273,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.0051533089095449555,
     "costPerUnitUsd": 0.005153308909544979,
-    "costPerTonneCo2Usd": 0.31153183517039384,
+    "costPerTonneCo2Usd": 0.005153308909545042,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.0226440300210579,
-    "co2AbatedTonnes": 0.23360357563950726
+    "co2AbatedTonnes": 0
    },
-   "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.31153183517039384
+   "bindingKpi": "fossilTotalPvUsdM",
+   "maxRelMovement": 0.0226440300210579
   },
   {
    "id": "green.wtwGco2PerMj",
@@ -1296,13 +1296,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.001802788155103409,
     "costPerUnitUsd": 0.001802788155103402,
-    "costPerTonneCo2Usd": 0.0018027881551034414,
+    "costPerTonneCo2Usd": 0.34764516874155804,
     "greenTotalPvUsdM": 0.0014685718373146266,
     "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0
+    "co2AbatedTonnes": 0.3036586351531134
    },
    "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.0018027881551034414
+   "maxRelMovement": 0.34764516874155804
   },
   {
    "id": "regulation.fuelEuVlsfoMjPerTonne",
@@ -1319,7 +1319,7 @@
    "movementByKpi": {
     "gapPvUsdM": 0.001799858125548603,
     "costPerUnitUsd": 0.001799858125548773,
-    "costPerTonneCo2Usd": 0.0017998581255487477,
+    "costPerTonneCo2Usd": 0.0017998581255484957,
     "greenTotalPvUsdM": 0,
     "fossilTotalPvUsdM": 0.00790871305096368,
     "co2AbatedTonnes": 0
@@ -1342,13 +1342,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.0012541259940872232,
     "costPerUnitUsd": 0.0012541259940871562,
-    "costPerTonneCo2Usd": 0.05497906234870748,
+    "costPerTonneCo2Usd": 0.050525254462045595,
     "greenTotalPvUsdM": 0.0010216253696513152,
     "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0.05685052490809939
+    "co2AbatedTonnes": 0.051893037386731504
    },
    "bindingKpi": "co2AbatedTonnes",
-   "maxRelMovement": 0.05685052490809939
+   "maxRelMovement": 0.051893037386731504
   },
   {
    "id": "fossil.sulphurPercent",
@@ -1365,13 +1365,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.00007940868231433266,
     "costPerUnitUsd": 0.00007940868231440293,
-    "costPerTonneCo2Usd": 0.0036658712794522264,
+    "costPerTonneCo2Usd": 0.048401096583452465,
     "greenTotalPvUsdM": 0.00010102517977330363,
     "fossilTotalPvUsdM": 0.00019600970835558702,
-    "co2AbatedTonnes": 0.0035996584817819307
+    "co2AbatedTonnes": 0.05077946992966021
    },
-   "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.0036658712794522264
+   "bindingKpi": "co2AbatedTonnes",
+   "maxRelMovement": 0.05077946992966021
   },
   {
    "id": "green.certifiedWttGco2ePerMj",
@@ -1388,13 +1388,13 @@
    "movementByKpi": {
     "gapPvUsdM": 0.00001399505975763925,
     "costPerUnitUsd": 0.000013995059757628219,
-    "costPerTonneCo2Usd": 0.00001399505975768428,
+    "costPerTonneCo2Usd": 0.21975750468211586,
     "greenTotalPvUsdM": 0.000011400535644562463,
     "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0
+    "co2AbatedTonnes": 0.18015343933434208
    },
    "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.00001399505975768428
+   "maxRelMovement": 0.21975750468211586
   },
   {
    "id": "cargo.unitsPerYear",
