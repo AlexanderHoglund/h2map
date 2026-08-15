@@ -63,14 +63,14 @@ export function defaultScenario(): ScenarioInput {
 
   input.vessel = {
     typeId: "handymax-bulk-58k", // [S]
-    consumptionMode: "vessel-benchmark", // tonnages entered directly (§6)
-    // FLEET totals — the workbook's vessel capex/opex cells are per-fleet
-    // (the vessel count multiplies fuel & regulation only): 10 × $44m,
-    // 10 × $3.2m/yr ([F], ~25% NH3 dual-fuel premium on a $35m Handymax).
-    green: { capexUsdM: 440, opexUsdMPerYear: 32 },
+    // PER SHIP (v7); the engine multiplies by cargo.vessels = 10, so the
+    // fleet totals are unchanged at $440m / $32m per year. [F] ~25% NH3
+    // dual-fuel premium on a $35m Handymax — note the benchmark computes
+    // 35 × 1.25 = 43.75, so the stated 44 carries a +0.57% override.
+    green: { capexUsdMPerShip: 44, opexUsdMPerShipPerYear: 3.2 },
     // [F] NOT zero — the study costs a fossil NEWBUILD fleet, unlike the
-    // workbook's retrofit-an-existing-fleet default. 10 × $35m, 10 × $2.8m.
-    fossil: { capexUsdM: 350, opexUsdMPerYear: 28 },
+    // workbook's retrofit-an-existing-fleet default ($35m / $2.8m a ship).
+    fossil: { capexUsdMPerShip: 35, opexUsdMPerShipPerYear: 2.8 },
   };
 
   input.green = {
@@ -82,7 +82,13 @@ export function defaultScenario(): ScenarioInput {
     overrides: {
       ...input.green.overrides,
       priceUsdPerTonne: null,
-      fuelTonnesPerVesselYear: 5700, // [D] 57,015 t/yr fleet ÷ 10
+      // [D] NOT an independently published figure: 2,638 × 40,200/18,600 =
+      // 5,701.5, i.e. the FOSSIL vessel-table benchmark restated at equal
+      // delivered energy, then rounded. So it inherits that benchmark's
+      // fleet-average inconsistency rather than corroborating it — the
+      // distance-derived burn for this corridor is 9,806.5 t/vessel/yr.
+      // Kept as an override because the study calibration must reproduce.
+      fuelTonnesPerVesselYear: 5700,
       // v6: emission factors DERIVE from the fuel-emissions method
       // (certified 15 + N2O slip + 5% pilot → blend 22.14 under FuelEU).
       // The study's implied WtW=0 treatment survives as the documented
@@ -106,7 +112,12 @@ export function defaultScenario(): ScenarioInput {
     overrides: {
       ...input.fossil.overrides,
       priceUsdPerTonne: 650, // [F]
-      fuelTonnesPerVesselYear: 2638, // [D] energy-matched to the NH3 fleet
+      // [S] the vessel table's flat annual tonnage for this hull. It is a
+      // fleet average over an unstated trade pattern: it implies ~33,140
+      // nm/yr steamed, while this corridor steams 57,000 (1.72×), so the
+      // distance-derived burn would be 4,537.3. Kept as an override so the
+      // study calibration reproduces — see §21 legacy behaviours.
+      fuelTonnesPerVesselYear: 2638,
       // v6: derived — Annex II HFO row (91.744 / 3.169 CO2e / 40,500).
       lhvMjPerTonne: null,
       combustionEfTco2PerTonne: null,
@@ -144,12 +155,22 @@ export function defaultScenario(): ScenarioInput {
   return input;
 }
 
-/** Null every override so the resolution yields pure benchmark values. */
+/**
+ * Null every override so the resolution yields pure benchmark values.
+ *
+ * THE SWEEP BASELINE DEPENDS ON THIS BEING COMPLETE — in particular on
+ * `fuelTonnesPerVesselYear` being null on both sides. A frozen burn override
+ * makes consumption constant, so `cargo.oneWayDistanceNm` measures 0.0%
+ * movement, loses its ≥5% top-level placement and gets demoted in the UI: a
+ * real field pushed into "advanced" by a bookkeeping choice in the baseline,
+ * not by its actual influence. The loop below covers every override key, so
+ * a new one is nulled automatically.
+ */
 export function clearOverrides(s: ScenarioInput): ScenarioInput {
   const c = JSON.parse(JSON.stringify(s)) as ScenarioInput;
   c.cargo.waccOverride = null;
-  c.vessel.green = { capexUsdM: null, opexUsdMPerYear: null };
-  c.vessel.fossil = { capexUsdM: null, opexUsdMPerYear: null };
+  c.vessel.green = { capexUsdMPerShip: null, opexUsdMPerShipPerYear: null };
+  c.vessel.fossil = { capexUsdMPerShip: null, opexUsdMPerShipPerYear: null };
   for (const side of [c.green, c.fossil]) {
     for (const k of Object.keys(side.overrides) as (keyof typeof side.overrides)[]) {
       side.overrides[k] = null;

@@ -9,9 +9,10 @@ import { SCHEMA_VERSION, type ScenarioInput } from "./scenario";
 
 const nullableNumber = z.number().finite().nullable();
 
+/** v7: per-ship, multiplied by cargo.vessels in the engine. */
 const vesselSideSchema = z.object({
-  capexUsdM: nullableNumber,
-  opexUsdMPerYear: nullableNumber,
+  capexUsdMPerShip: nullableNumber,
+  opexUsdMPerShipPerYear: nullableNumber,
 });
 
 const fuelSideOverridesSchema = z.object({
@@ -141,7 +142,6 @@ export const scenarioInputSchema = z.object({
   }),
   vessel: z.object({
     typeId: z.string().min(1),
-    consumptionMode: z.enum(["distance", "vessel-benchmark"]),
     green: vesselSideSchema,
     fossil: vesselSideSchema,
   }),
@@ -262,6 +262,7 @@ export const scenarioInputSchema = z.object({
       emissionsBasis: z.enum(["combustion", "wellToWake"]).optional(),
       rateBasis: z.enum(["nominal", "real"]).optional(),
       legacyExcelConstruct: z.boolean().optional(),
+      migratedVesselBenchmarkBurn: z.boolean().optional(),
     })
     .optional(),
 });

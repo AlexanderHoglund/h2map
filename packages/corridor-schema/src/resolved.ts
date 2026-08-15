@@ -243,8 +243,12 @@ export interface ResolvedFuelSide {
   readonly portStorageOpexUsdMPerYear: Resolved<UsdM>;
   readonly bargeCapexUsdM: Resolved<UsdM>;
   readonly bargeOpexUsdMPerYear: Resolved<UsdM>;
+  /** FLEET totals — per-ship × `cargo.vessels` (v7). */
   readonly vesselCapexUsdM: Resolved<UsdM>;
   readonly vesselOpexUsdMPerYear: Resolved<UsdM>;
+  /** Per-ship, the dimension the input field and its benchmark share. */
+  readonly vesselCapexUsdMPerShip: Resolved<UsdM>;
+  readonly vesselOpexUsdMPerShipPerYear: Resolved<UsdM>;
 }
 
 export interface ResolvedScenario {

@@ -146,19 +146,33 @@ function resolveFuelSide(
       : benchmark(gCo2ePerMj(fuel.wtwGco2PerMj)),
   );
 
-  // Fuel!F15/F28: distance mode derives from the RESOLVED LHV (E13/E26).
+  // Fuel!F15/F28: consumption is ALWAYS derived from corridor geometry,
+  // against the RESOLVED LHV (E13/E26).
+  //
+  // v7 removed `consumptionMode`. It offered the vessel table's flat annual
+  // tonnage as an alternative "source" for the same quantity, but the two
+  // are incompatible physical claims, not two readings of one: the flat
+  // figure is a fleet average over an unstated trade pattern, while the
+  // GJ/nm rate is a property of the hull. For the Handymax they agree only
+  // at ~33,140 nm/yr, and the Chilean corridor steams 57,000 — a factor of
+  // 1.72. The geometry side is corroborated by the cargo program (vessels x
+  // roundtrips x dwt tracks annual throughput); the flat figure reconciles
+  // with nothing else in the model. Switching modes moved the numbers with
+  // no OVERRIDE badge, no benchmark underneath and no restore.
+  //
+  // A directly-stated burn is still expressible — as an OVERRIDE, which
+  // shows the badge and keeps the derived value visible beneath it.
   const tonnes = resolve(o.fuelTonnesPerVesselYear, tonnesPerVesselYear, () =>
-    scenario.vessel.consumptionMode === "distance"
-      ? derived(
-          tonnesPerVesselYear(
-            ((scenario.cargo.oneWayDistanceNm * 2) *
-              scenario.cargo.roundtripsPerYear *
-              vesselType.gjPerNm *
-              1000) /
-              (lhv.value as MjPerTonne),
-          ),
-        )
-      : benchmark(tonnesPerVesselYear(vesselType.fuelTonnesPerYear)),
+    derived(
+      tonnesPerVesselYear(
+        (scenario.cargo.oneWayDistanceNm *
+          2 *
+          scenario.cargo.roundtripsPerYear *
+          vesselType.gjPerNm *
+          1000) /
+          (lhv.value as MjPerTonne),
+      ),
+    ),
   );
 
   // Priced modes zero production cost BEFORE the override check
@@ -259,16 +273,35 @@ function resolveFuelSide(
       : benchmark(usdM(fuel.bargeOpexUsdMPerYear)),
   );
 
-  // Vessel: green benchmark = type capex × (1 + fuel premium) (Vessel!F12);
-  // fossil benchmark = 0, the "existing baseline vessel" rule (Vessel!F18).
-  const vesselCapex = resolve(vesselOverrides.capexUsdM, usdM, () =>
+  // Vessel, PER SHIP (v7): green benchmark = type capex × (1 + fuel premium)
+  // (Vessel!F12); fossil benchmark = 0, the "existing baseline vessel" rule
+  // (Vessel!F18). Both benchmarks were always per-ship — it was the FIELD
+  // that held a fleet total, so restoring a ten-ship fleet's green CAPEX to
+  // its benchmark cut it tenfold in silence. The fleet total is now formed
+  // in the engine by multiplying these by `cargo.vessels`.
+  const vesselCapexPerShip = resolve(vesselOverrides.capexUsdMPerShip, usdM, () =>
     isFossil
       ? derived(usdM(rules.fossilVesselCapexUsdM))
       : derived(usdM(vesselType.capexUsdM * (1 + fuel.vesselCapexPremium))),
   );
-  const vesselOpex = resolve(vesselOverrides.opexUsdMPerYear, usdM, () =>
-    benchmark(usdM(vesselType.opexUsdMPerYear)),
+  const vesselOpexPerShip = resolve(
+    vesselOverrides.opexUsdMPerShipPerYear,
+    usdM,
+    () => benchmark(usdM(vesselType.opexUsdMPerYear)),
   );
+  // The fleet figures the cost lines consume. Multiplying HERE rather than
+  // in the engine keeps every downstream consumer (engine, exports, the
+  // resolved view) seeing one consistent quantity, and leaves the per-ship
+  // value visible in `perShip` for the UI's benchmark comparison.
+  const vessels = scenario.cargo.vessels;
+  const vesselCapex: Resolved<UsdM> = {
+    ...vesselCapexPerShip,
+    value: usdM((vesselCapexPerShip.value as number) * vessels),
+  };
+  const vesselOpex: Resolved<UsdM> = {
+    ...vesselOpexPerShip,
+    value: usdM((vesselOpexPerShip.value as number) * vessels),
+  };
 
   return {
     priceUsdPerTonne: price,
@@ -300,6 +333,11 @@ function resolveFuelSide(
     bargeOpexUsdMPerYear: bargeOpex,
     vesselCapexUsdM: vesselCapex,
     vesselOpexUsdMPerYear: vesselOpex,
+    // Per-ship, before the fleet multiply — this is the dimension the UI
+    // field and its benchmark both live in, so the override badge and the
+    // "restore" value are comparing like with like.
+    vesselCapexUsdMPerShip: vesselCapexPerShip,
+    vesselOpexUsdMPerShipPerYear: vesselOpexPerShip,
   };
 }
 

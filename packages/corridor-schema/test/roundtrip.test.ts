@@ -35,7 +35,7 @@ const component = (derived: number, override: number | null) => ({
 
 /** Every field present, every optional set — incl. ports, lon/lat, route. */
 const MAXIMAL: DeepRequired<ScenarioInput> = {
-  schemaVersion: 6,
+  schemaVersion: 7,
   refBundleId: "2026-07-30-excel-v1",
   cargo: {
     countryId: "australia",
@@ -59,9 +59,8 @@ const MAXIMAL: DeepRequired<ScenarioInput> = {
   },
   vessel: {
     typeId: "handymax-bulk-58k",
-    consumptionMode: "distance",
-    green: { capexUsdM: 88, opexUsdMPerYear: 6.4 },
-    fossil: { capexUsdM: 70, opexUsdMPerYear: 5.6 },
+    green: { capexUsdMPerShip: 88, opexUsdMPerShipPerYear: 6.4 },
+    fossil: { capexUsdMPerShip: 70, opexUsdMPerShipPerYear: 5.6 },
   },
   green: {
     fuelId: "e-ammonia",
@@ -227,6 +226,7 @@ const MAXIMAL: DeepRequired<ScenarioInput> = {
     emissionsBasis: "wellToWake",
     rateBasis: "real",
     legacyExcelConstruct: false,
+    migratedVesselBenchmarkBurn: false,
   },
 };
 
@@ -269,7 +269,7 @@ describe("scenario JSON round-trip is lossless", () => {
 
 /** A sparse scenario: no coords, no optional blocks — the complaint case. */
 const MINIMAL: ScenarioInput = {
-  schemaVersion: 6,
+  schemaVersion: 7,
   refBundleId: "2026-07-30-excel-v1",
   cargo: {
     countryId: "australia",
@@ -285,9 +285,8 @@ const MINIMAL: ScenarioInput = {
   },
   vessel: {
     typeId: "handymax-bulk-58k",
-    consumptionMode: "distance",
-    green: { capexUsdM: null, opexUsdMPerYear: null },
-    fossil: { capexUsdM: 70, opexUsdMPerYear: null },
+    green: { capexUsdMPerShip: null, opexUsdMPerShipPerYear: null },
+    fossil: { capexUsdMPerShip: 70, opexUsdMPerShipPerYear: null },
   },
   green: {
     fuelId: "e-ammonia",

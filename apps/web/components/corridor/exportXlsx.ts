@@ -301,7 +301,6 @@ export async function downloadResultsXlsx(
 
   section("03 · Vessels", [
     ["Vessel type", scenario.vessel.typeId, "—", "—"],
-    ["Consumption mode", scenario.vessel.consumptionMode, "—", "—"],
     ["Green fleet CAPEX (year 1)", rg.vesselCapexUsdM.value, "$m", rg.vesselCapexUsdM.source],
     ["Green fleet OPEX", rg.vesselOpexUsdMPerYear.value, "$m/yr", rg.vesselOpexUsdMPerYear.source],
     ["Fossil fleet CAPEX (year 1)", rf.vesselCapexUsdM.value, "$m", rf.vesselCapexUsdM.source],

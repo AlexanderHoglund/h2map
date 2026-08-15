@@ -55,9 +55,8 @@ export const SCENARIO_TEMPLATE: CompleteScenarioJson = {
   },
   vessel: {
     typeId: null,
-    consumptionMode: null,
-    green: { capexUsdM: null, opexUsdMPerYear: null },
-    fossil: { capexUsdM: null, opexUsdMPerYear: null },
+    green: { capexUsdMPerShip: null, opexUsdMPerShipPerYear: null },
+    fossil: { capexUsdMPerShip: null, opexUsdMPerShipPerYear: null },
   },
   green: sideTemplate(),
   fossil: sideTemplate(),
@@ -133,6 +132,7 @@ export const SCENARIO_TEMPLATE: CompleteScenarioJson = {
     emissionsBasis: null,
     rateBasis: null,
     legacyExcelConstruct: null,
+    migratedVesselBenchmarkBurn: null,
   },
 };
 
@@ -214,8 +214,8 @@ function sideTemplate(): CompleteJson<ScenarioInput["green"]> {
 const KEEP_NULL_PATHS: string[][] = [
   ["cargo", "waccOverride"],
   ["cargo", "routedDistance", "via"],
-  ["vessel", "*", "capexUsdM"],
-  ["vessel", "*", "opexUsdMPerYear"],
+  ["vessel", "*", "capexUsdMPerShip"],
+  ["vessel", "*", "opexUsdMPerShipPerYear"],
   ["green", "overrides", "*"],
   ["fossil", "overrides", "*"],
   ["green", "buildHere"],

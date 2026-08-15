@@ -5,7 +5,6 @@ export type {
   CapitalPhasingInput,
   CapitalPhasingSide,
   CargoInput,
-  ConsumptionMode,
   EtsInput,
   FuelEuInput,
   FuelSideInput,

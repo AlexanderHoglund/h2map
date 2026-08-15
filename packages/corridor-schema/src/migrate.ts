@@ -17,6 +17,27 @@ import { parseScenarioInput } from "./validate";
 type RawScenario = Record<string, unknown>;
 type Migration = (raw: RawScenario) => RawScenario;
 
+/**
+ * `vesselType.fuelTonnesPerYear` as published in bundle
+ * 2026-07-30-excel-v1, frozen here for the v6→v7 migration.
+ *
+ * The field is retired from the schema by that migration, but a
+ * `vessel-benchmark` scenario was burning these exact figures and the burn
+ * must survive unchanged. A migration cannot load a reference bundle (it is
+ * pure, and the bundle is resolved at runtime by id), and it should not
+ * depend on one anyway: pinning the values here keeps a decade-old payload
+ * migrating to the same numbers even if a future bundle revises the table.
+ */
+const VESSEL_BENCHMARK_TONNES: Record<string, number> = {
+  "tanker-35k": 2400,
+  "tanker-80k": 5200,
+  "bulk-60k": 3000,
+  "container-5k": 6500,
+  "container-15k": 14000,
+  "roro-ferry": 3500,
+  "handymax-bulk-58k": 2638,
+};
+
 const MIGRATIONS: Record<number, Migration> = {
   1: (raw) => {
     const next = JSON.parse(JSON.stringify(raw)) as RawScenario;
@@ -119,6 +140,97 @@ const MIGRATIONS: Record<number, Migration> = {
     if (reg.emissions == null) reg.emissions = { framework: "fueleu" };
     next.regulation = reg;
     next.schemaVersion = 6;
+    return next;
+  },
+  // v6 -> v7: the derived-value layer. TWO concerns, one version bump,
+  // applied in this order because the second reads `cargo.vessels` and the
+  // first does not touch it.
+  //
+  // NUMERICALLY IDENTICAL BY CONSTRUCTION. Every scenario recomputes to the
+  // same numbers after migration; the test asserts that at 1e-9 over the
+  // maximal fixture and every stored scenario. If a number moves, this
+  // migration is wrong — not the tolerance.
+  //
+  // 1. CONSUMPTION MODE removed. `vessel-benchmark` scenarios were burning
+  //    the vessel table's flat annual tonnage; that value is frozen into
+  //    `overrides.fuelTonnesPerVesselYear` so the burn survives exactly, now
+  //    as an explicit override with a visible badge and a derived benchmark
+  //    beneath it. `distance` scenarios were already on the derived chain,
+  //    so the field is simply dropped. An override that was ALREADY set won
+  //    under both modes and is left untouched.
+  //
+  // 2. VESSEL COSTS become per-ship. Stored fleet totals divide by
+  //    `cargo.vessels`; the engine multiplies back. `null` stays `null` — it
+  //    means "use the benchmark", and the benchmark was always per-ship, so
+  //    a null is precisely the case this change FIXES rather than preserves.
+  6: (raw) => {
+    const next = JSON.parse(JSON.stringify(raw)) as RawScenario;
+
+    // --- 1. consumption mode ------------------------------------------------
+    const vessel = (next.vessel ?? {}) as Record<string, unknown>;
+    if (vessel.consumptionMode === "vessel-benchmark") {
+      // Freeze what this scenario was ACTUALLY burning. A migration must be
+      // pure (no bundle load), so the flat tonnages are inlined above — they
+      // are immutable published data, and pinning them here is what makes
+      // the migration reproducible years from now even if a future bundle
+      // revises the table. An override that was already set governed under
+      // both modes, so it is left exactly as it is.
+      const typeId = typeof vessel.typeId === "string" ? vessel.typeId : "";
+      const flat = VESSEL_BENCHMARK_TONNES[typeId];
+      let froze = false;
+      for (const key of ["green", "fossil"] as const) {
+        const side = (next[key] ?? {}) as Record<string, unknown>;
+        const ov = (side.overrides ?? {}) as Record<string, unknown>;
+        if (ov.fuelTonnesPerVesselYear == null) {
+          if (flat === undefined) {
+            throw new Error(
+              `cannot migrate vessel-benchmark scenario: unknown vessel type "${typeId}". ` +
+                "Its annual tonnage is needed to preserve the burn exactly.",
+            );
+          }
+          ov.fuelTonnesPerVesselYear = flat;
+          side.overrides = ov;
+          next[key] = side;
+          froze = true;
+        }
+      }
+      // Surfaced on load (like the v3/v4 notes): these users were running a
+      // burn that reconciles with nothing else in the model, and should see
+      // the frozen value against the distance-derived benchmark it now sits
+      // beside — plus the energy-parity ratio where the two sides diverge.
+      if (froze) {
+        const flags = (next.flags ?? {}) as Record<string, unknown>;
+        flags.migratedVesselBenchmarkBurn = true;
+        next.flags = flags;
+      }
+    }
+    delete vessel.consumptionMode;
+
+    // --- 2. vessel cost dimension -------------------------------------------
+    const cargo = (next.cargo ?? {}) as Record<string, unknown>;
+    const vesselsRaw = cargo.vessels;
+    // Guard: a zero or absent count would divide a real cost to Infinity.
+    // Treat it as 1 — the fleet total IS the per-ship figure when there is
+    // no fleet to divide by, and validation rejects vessels < 1 anyway.
+    const vessels =
+      typeof vesselsRaw === "number" && Number.isFinite(vesselsRaw) && vesselsRaw > 0
+        ? vesselsRaw
+        : 1;
+    for (const key of ["green", "fossil"] as const) {
+      const side = (vessel[key] ?? {}) as Record<string, unknown>;
+      const capex = side.capexUsdM;
+      const opex = side.opexUsdMPerYear;
+      side.capexUsdMPerShip =
+        typeof capex === "number" && Number.isFinite(capex) ? capex / vessels : null;
+      side.opexUsdMPerShipPerYear =
+        typeof opex === "number" && Number.isFinite(opex) ? opex / vessels : null;
+      delete side.capexUsdM;
+      delete side.opexUsdMPerYear;
+      vessel[key] = side;
+    }
+    next.vessel = vessel;
+
+    next.schemaVersion = 7;
     return next;
   },
 };

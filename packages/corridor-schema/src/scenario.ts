@@ -18,7 +18,7 @@
 // fuel-emissions method: `regulation.emissions` (framework selector,
 // default "fueleu") is INJECTED by migration — saved scenarios
 // auto-upgrade on open (recorded product decision). See migrate.ts.
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
 
 /**
  * Project archetype (realism pass, Task 4) — ONE selector that moves FOAK,
@@ -48,7 +48,6 @@ export const ARCHETYPE_FOAK_MULTIPLIER: Record<ProjectArchetype, number> = {
 };
 
 export type RouteType = "point-to-point" | "single-point";
-export type ConsumptionMode = "distance" | "vessel-benchmark";
 
 /**
  * Fuel sourcing (restructured, spec §1 — no legacy in the menu):
@@ -82,6 +81,16 @@ export interface DivergenceFlags {
    * fixture); never offered in the UI. Without it, charging both throws.
    */
   legacyExcelConstruct?: boolean;
+  /**
+   * Set by the v6→v7 migration on a scenario that was consuming the vessel
+   * table's flat annual tonnage. That burn is now frozen as an explicit
+   * `fuelTonnesPerVesselYear` override so the numbers are unchanged, but the
+   * user has been running a figure that reconciles with nothing else in the
+   * model — the loader raises a dismissable note showing the frozen value
+   * against the distance-derived benchmark it now sits beside. Not a
+   * divergence in behaviour; a disclosure that one existed.
+   */
+  migratedVesselBenchmarkBurn?: boolean;
 }
 
 export interface CargoInput {
@@ -141,14 +150,23 @@ export interface CargoInput {
   };
 }
 
+/**
+ * Vessel cost overrides, PER SHIP (v7).
+ *
+ * These were fleet totals that the engine never multiplied by vessel count,
+ * while the benchmark underneath them was per-ship (`type CAPEX x (1 +
+ * premium)`). Pressing "restore" on a ten-ship fleet therefore cut green
+ * vessel CAPEX by an order of magnitude in silence. Per-ship makes the
+ * field and its benchmark the same dimension, and `cargo.vessels`
+ * multiplies in the engine.
+ */
 export interface VesselSideInput {
-  capexUsdM: number | null;
-  opexUsdMPerYear: number | null;
+  capexUsdMPerShip: number | null;
+  opexUsdMPerShipPerYear: number | null;
 }
 
 export interface VesselInput {
   typeId: string;
-  consumptionMode: ConsumptionMode;
   green: VesselSideInput;
   fossil: VesselSideInput;
 }

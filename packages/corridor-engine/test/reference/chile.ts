@@ -47,9 +47,10 @@ export function chileReferenceInput(
 
   input.vessel = {
     typeId: "handymax-bulk-58k",
-    consumptionMode: "vessel-benchmark",
-    green: { capexUsdM: 440, opexUsdMPerYear: 32 },
-    fossil: { capexUsdM: 350, opexUsdMPerYear: 28 },
+    // v7 per-ship; × cargo.vessels (10) reproduces the study's fleet
+    // totals of $440m / $32m per year and $350m / $28m per year exactly.
+    green: { capexUsdMPerShip: 44, opexUsdMPerShipPerYear: 3.2 },
+    fossil: { capexUsdMPerShip: 35, opexUsdMPerShipPerYear: 2.8 },
   };
 
   input.green = {

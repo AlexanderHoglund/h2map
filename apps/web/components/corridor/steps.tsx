@@ -109,8 +109,6 @@ const CARGO_DEFAULTS = defaultScenario().cargo;
 const REG_DEFAULTS = defaultScenario().regulation;
 /** Model-option defaults (emissions/rate basis) for the Intro strip count. */
 const FLAGS_DEFAULTS = defaultScenario().flags;
-/** Vessel defaults (consumption mode) for the Vessels strip count. */
-const VESSEL_DEFAULTS = defaultScenario().vessel;
 
 export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
   const t = useTranslations("corridor.cargo");
@@ -482,12 +480,33 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
               : tp("vesselFossil")
             : undefined,
         }}
-        override={scenario.vessel[side][isCapex ? "capexUsdM" : "opexUsdMPerYear"]}
-        effective={isCapex ? r.vesselCapexUsdM.value : r.vesselOpexUsdMPerYear.value}
-        source={isCapex ? r.vesselCapexUsdM.source : r.vesselOpexUsdMPerYear.source}
-        benchmark={isCapex ? b.vesselCapexUsdM.value : b.vesselOpexUsdMPerYear.value}
+        override={
+          scenario.vessel[side][
+            isCapex ? "capexUsdMPerShip" : "opexUsdMPerShipPerYear"
+          ]
+        }
+        effective={
+          isCapex
+            ? r.vesselCapexUsdMPerShip.value
+            : r.vesselOpexUsdMPerShipPerYear.value
+        }
+        source={
+          isCapex
+            ? r.vesselCapexUsdMPerShip.source
+            : r.vesselOpexUsdMPerShipPerYear.source
+        }
+        benchmark={
+          isCapex
+            ? b.vesselCapexUsdMPerShip.value
+            : b.vesselOpexUsdMPerShipPerYear.value
+        }
         onChange={(v) =>
-          update((d) => void (d.vessel[side][isCapex ? "capexUsdM" : "opexUsdMPerYear"] = v))
+          update(
+            (d) =>
+              void (d.vessel[side][
+                isCapex ? "capexUsdMPerShip" : "opexUsdMPerShipPerYear"
+              ] = v),
+          )
         }
       />
     );
@@ -502,22 +521,6 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
           options={bundle.vesselTypes.map((v) => ({ value: v.id, label: v.label }))}
           onChange={(v) => update((d) => void (d.vessel.typeId = v))}
         />
-        {viewMode === "standard" && (
-          <Select
-            label={t("consumptionMode")}
-            value={scenario.vessel.consumptionMode}
-            options={[
-              { value: "distance", label: t("modeDistance") },
-              { value: "vessel-benchmark", label: t("modeBenchmark") },
-            ]}
-            onChange={(v) =>
-              update(
-                (d) =>
-                  void (d.vessel.consumptionMode = v as ScenarioInput["vessel"]["consumptionMode"]),
-              )
-            }
-          />
-        )}
         <NumberInput
           label={t("vessels")}
           step={1}
@@ -546,12 +549,8 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
         <Section title={t("fossil")}>
           <AdvancedHiddenStrip
             count={
-              (scenario.vessel.consumptionMode !==
-              VESSEL_DEFAULTS.consumptionMode
-                ? 1
-                : 0) +
-              (scenario.vessel.fossil.capexUsdM != null ? 1 : 0) +
-              (scenario.vessel.fossil.opexUsdMPerYear != null ? 1 : 0)
+              (scenario.vessel.fossil.capexUsdMPerShip != null ? 1 : 0) +
+              (scenario.vessel.fossil.opexUsdMPerShipPerYear != null ? 1 : 0)
             }
             onReveal={revealStandard}
           />

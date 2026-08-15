@@ -68,8 +68,8 @@ const PARAMS: Param[] = [
   { id: "cargo.inflation", label: "Inflation", step: 1, low: 0, high: 0.05, ui: true, set: (s, v) => { s.cargo.inflation = v; } },
   { id: "cargo.vessels", label: "Number of vessels", step: 2, low: 1, high: 5, ui: true, set: (s, v) => { s.cargo.vessels = Math.round(v); } },
   { id: "cargo.roundtripsPerYear", label: "Roundtrips per year", step: 2, low: 6, high: 24, ui: true, set: (s, v) => { s.cargo.roundtripsPerYear = Math.round(v); } },
-  { id: "vessel.green.capexUsdM", label: "Green vessel CAPEX ($m)", step: 2, low: 15, high: 120, ui: true, set: (s, v) => { s.vessel.green.capexUsdM = v; } },
-  { id: "vessel.green.opexUsdMPerYear", label: "Green vessel OPEX ($m/yr)", step: 2, low: 0.8, high: 6, ui: true, set: (s, v) => { s.vessel.green.opexUsdMPerYear = v; } },
+  { id: "vessel.green.capexUsdM", label: "Green vessel CAPEX ($m)", step: 2, low: 15, high: 120, ui: true, set: (s, v) => { s.vessel.green.capexUsdMPerShip = v; } },
+  { id: "vessel.green.opexUsdMPerYear", label: "Green vessel OPEX ($m/yr)", step: 2, low: 0.8, high: 6, ui: true, set: (s, v) => { s.vessel.green.opexUsdMPerShipPerYear = v; } },
   { id: "green.priceUsdPerTonne", label: "Green fuel price ($/t)", step: 3, low: 500, high: 1500, ui: true, set: (s, v) => { s.green.overrides.priceUsdPerTonne = v; } },
   { id: "green.fuelTonnesPerVesselYear", label: "Green fuel consumption (t/vessel/yr)", step: 3, low: 1300, high: 5200, ui: true, set: (s, v) => { s.green.overrides.fuelTonnesPerVesselYear = v; } },
   { id: "green.prodCapexUsdM", label: "Fuel production CAPEX ($m)", step: 3, low: 0, high: 110, ui: true, set: (s, v) => { s.green.overrides.prodCapexUsdM = v; } },
@@ -101,8 +101,8 @@ const PARAMS: Param[] = [
   // baseline, the same semantics as financing.greenRate above.
   // -------------------------------------------------------------------------
   { id: "cargo.startYear", label: "Start year (calendar anchoring)", step: 1, low: 2025, high: 2035, set: (s, v) => { s.cargo.startYear = Math.round(v); } },
-  { id: "vessel.fossil.capexUsdM", label: "Fossil vessel CAPEX ($m)", step: 2, low: 15, high: 100, set: (s, v) => { s.vessel.fossil.capexUsdM = v; } },
-  { id: "vessel.fossil.opexUsdMPerYear", label: "Fossil vessel OPEX ($m/yr)", step: 2, low: 0.8, high: 5, set: (s, v) => { s.vessel.fossil.opexUsdMPerYear = v; } },
+  { id: "vessel.fossil.capexUsdM", label: "Fossil vessel CAPEX ($m)", step: 2, low: 15, high: 100, set: (s, v) => { s.vessel.fossil.capexUsdMPerShip = v; } },
+  { id: "vessel.fossil.opexUsdMPerYear", label: "Fossil vessel OPEX ($m/yr)", step: 2, low: 0.8, high: 5, set: (s, v) => { s.vessel.fossil.opexUsdMPerShipPerYear = v; } },
   { id: "green.combustionEf", label: "Green combustion EF (tCO2/t)", step: 3, low: 0, high: 1, set: (s, v) => { s.green.overrides.combustionEfTco2PerTonne = v; } },
   { id: "green.lhvMjPerTonne", label: "Green energy density, LHV (MJ/t)", step: 3, low: 16000, high: 21000, set: (s, v) => { s.green.overrides.lhvMjPerTonne = v; } },
   { id: "fossil.fuelTonnesPerVesselYear", label: "Fossil fuel consumption (t/vessel/yr)", step: 3, low: 1300, high: 5200, set: (s, v) => { s.fossil.overrides.fuelTonnesPerVesselYear = v; } },
