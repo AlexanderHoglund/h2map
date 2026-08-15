@@ -104,9 +104,25 @@ const FIELD_ROWS: FieldRow[] = (fieldReference as { rows: FieldRow[] }).rows;
 /** §20's top-10 — same generated artifact, so it can never contradict §22. */
 const SENSITIVITY_TOP10 = (
   sensitivityArtifact as {
-    ranked: { id: string; label: string; relHeadlineMovement: number }[];
+    ranked: {
+      id: string;
+      label: string;
+      relHeadlineMovement: number;
+      maxRelMovement: number;
+      bindingKpi: string;
+    }[];
   }
 ).ranked.slice(0, 10);
+
+/** KPI ids → the names §20 shows in its binding column. */
+const KPI_LABEL: Record<string, string> = {
+  gapPvUsdM: "cost gap",
+  costPerUnitUsd: "$/cargo unit",
+  costPerTonneCo2Usd: "$/tCO₂",
+  greenTotalPvUsdM: "green total",
+  fossilTotalPvUsdM: "fossil total",
+  co2AbatedTonnes: "CO₂ abated",
+};
 
 const TOC: [string, string][] = [
   ["overview", "1. Overview & how the model works"],
@@ -131,7 +147,7 @@ const TOC: [string, string][] = [
   ["fe-limitations", "17. Emission-method limitations"],
   ["fe-sources", "18. Emission-method sources"],
   ["reference-data", "19. Reference data"],
-  ["sensitivity", "20. What moves the result"],
+  ["sensitivity", "20. What moves the results"],
   ["provenance", "21. Provenance, versions & limits"],
   ["inputs", "22. Complete input inventory"],
 ];
@@ -253,7 +269,7 @@ export default async function DocsPage() {
           </li>
           <li>
             <strong>DERIVED</strong>{" "}— computed from other inputs (e.g.
-            distance-mode fuel consumption, the green vessel&apos;s fuel
+            fuel consumption, the green vessel&apos;s fuel
             premium, the fossil side&apos;s &times;0.3 logistics rule).
           </li>
           <li>
@@ -430,7 +446,7 @@ export default async function DocsPage() {
               "Corridor length, one-way",
               "nm",
               "9,500 (default)",
-              "One-way distance; drives distance-mode fuel consumption (×2 per roundtrip) — among the strongest inputs in the model (§20). With both ports pinned, the model also computes an INDICATIVE sea route on the maritime network (canal transits labelled Panama/Suez) and shows it as a derived benchmark: adoption is an explicit click, never automatic, and a typed distance diverging >15% from the routed figure gets an amber note.",
+              "One-way distance; drives fuel consumption (×2 per roundtrip) — among the strongest inputs in the model (§20). With both ports pinned, the model also computes an INDICATIVE sea route on the maritime network (canal transits labelled Panama/Suez) and shows it as a derived benchmark: adoption is an explicit click, never automatic, and a typed distance diverging >15% from the routed figure gets an amber note.",
             ],
             [
               "Model start year",
@@ -676,7 +692,7 @@ export default async function DocsPage() {
               "Fuel consumption",
               "t/vessel/yr",
               "default: 5,700 green / 2,638 fossil (study)",
-              "Distance mode: 2 × distance × roundtrips × GJ/nm × 1000 / LHV. Defaults: green 2,580.6 t, fossil 1,194.0 t — the green side needs ~2.2× the mass because ammonia carries less energy per tonne.",
+              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV, with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example on the workbook baseline (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 3.2 GJ/nm, 9,500 nm × 3) implies 9,806.5 and 4,537.3 — that scenario states its burns as overrides instead, to reproduce the study.",
             ],
             [
               "CO2 emission factor, combustion",
@@ -714,11 +730,24 @@ export default async function DocsPage() {
         <H id="tab-vessels">5. Tab 03 — Vessels</H>
         <p className="mt-2">
           The ships that serve the corridor. One vessel type is shared by
-          both sides. <strong>The CAPEX/OPEX cells are FLEET totals</strong>{" "}
-          — the vessel count multiplies fuel burn and regulation only, never
-          these cells (the field labels say
-          &ldquo;Fleet&rdquo;). The default scenario costs both fleets as
-          newbuilds: green 10 × $44m = $440m, fossil 10 × $35m = $350m.
+          both sides. <strong>The CAPEX/OPEX cells are PER SHIP</strong>{" "}
+          and the vessel count multiplies them into the fleet total, along
+          with fuel burn and every regulation term. The default scenario
+          costs both fleets as newbuilds: green 10 × $44m = $440m, fossil
+          10 × $35m = $350m.
+        </p>
+        <p className="mt-2">
+          <strong>This changed in schema v7, and it was a correctness
+          fix.</strong>{" "}The cells used to be fleet totals that the engine
+          never multiplied by vessel count — but the benchmark underneath
+          them has always been per-ship (type CAPEX × (1 + premium)). So the
+          field and the value offered by &ldquo;restore&rdquo; were different
+          dimensions, and restoring a ten-ship fleet&apos;s green CAPEX cut
+          it by an order of magnitude in silence, on what the sweep ranks as
+          a top-five mover. Making the field per-ship puts it in the same
+          dimension as its benchmark, which removes the trap rather than
+          documenting it. Stored scenarios were divided by their vessel count
+          on migration, so their numbers are unchanged.
         </p>
         <Fields
           rows={[
@@ -726,37 +755,31 @@ export default async function DocsPage() {
               "Vessel type",
               "—",
               "Handymax bulk (58k dwt), default",
-              "Sets the benchmark CAPEX/OPEX, the benchmark annual fuel burn, and the energy-per-mile figure used by distance-mode consumption. Six types from tanker to 15k-TEU container ship (§19).",
-            ],
-            [
-              "Consumption basis",
-              "—",
-              "vessel benchmark (default)",
-              "Distance: fuel burn is derived from corridor length × roundtrips × the vessel's GJ/nm, divided by each fuel's energy density. Vessel benchmark: use the type's flat tonnes-per-year figure instead.",
+              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. Six types from tanker to 15k-TEU container ship (§19).",
             ],
             [
               "Number of vessels",
               "ships",
               "10 (default)",
-              "Multiplies fuel burn and every regulation term — NOT the fleet CAPEX/OPEX cells.",
+              "Multiplies fuel burn, every regulation term, and — since v7 — the per-ship vessel CAPEX/OPEX into fleet totals.",
             ],
             [
               "Roundtrips per year",
               "1/yr",
               "3 (default)",
-              "Multiplies distance-mode fuel burn.",
+              "Multiplies fuel burn: consumption is 2 × corridor length × roundtrips × GJ/nm ÷ the fuel's energy density.",
             ],
             [
               "Green vessel CAPEX",
               "$m",
               "derived: type CAPEX × (1 + fuel premium)",
-              "New-build premium for the green fuel (e-ammonia +25%, LH2 +30%, e-methanol +15%…). Tanker 35k × e-ammonia benchmark: 20 × 1.25 = 25.",
+              "Per ship. New-build premium for the green fuel (e-ammonia +25%, LH2 +30%, e-methanol +15%…). Tanker 35k × e-ammonia benchmark: 20 × 1.25 = 25 — a single-hull figure, matching the field.",
             ],
             [
               "Green vessel OPEX",
               "$m/yr",
               "type OPEX (1.2)",
-              "Annual operating cost excl. fuel; inflated.",
+              "Per ship, annual operating cost excl. fuel; inflated.",
             ],
             [
               "Fossil vessel CAPEX",
@@ -1255,15 +1278,30 @@ export default async function DocsPage() {
           $/tCO2 = gap × 10⁶ / Σ CO2 abated
         </F>
         <p className="mt-2">
-          Derived benchmarks (the DERIVED badges): distance-mode consumption{" "}
+          Derived benchmarks (the DERIVED badges): fuel consumption{" "}
           <code className="mx-1">
             2 × nm × roundtrips × GJ/nm × 1000 / LHV
           </code>
-          ; green vessel CAPEX{" "}
+          , always — there is no alternative basis, only an override; green
+          vessel CAPEX per ship{" "}
           <code className="mx-1">type CAPEX × (1 + premium)</code>; fossil
           vessel/storage/barge CAPEX = 0 and logistics OPEX × 0.3
           (existing-infrastructure rules). Purchase-type sourcing forces
           production lines to zero with precedence over overrides.
+        </p>
+        <p className="mt-2">
+          <strong>Delivered-energy parity.</strong>{" "}CO₂ abated is a{" "}
+          <em>mass</em>{" "}comparison — fossil tonnes × EF minus green tonnes
+          × EF — so it only describes the same transport work when the two
+          burns carry equal energy. The derived chain guarantees that: both
+          sides solve one geometry against their own LHV, so the ratio is
+          exactly 1.000 and the check costs nothing. Override one side&apos;s
+          burn alone and it silently stops being true, which is why the model
+          computes green MJ against fossil MJ and raises an amber note past
+          ±5% divergence, on the Results Energy card and the CO₂-abated
+          figure itself. Nothing is clamped or rescaled — you may have reason
+          to compare unequal work, and the model&apos;s job is to say that you
+          are.
         </p>
         <p className="mt-2">
           The costs decompose exactly: the per-year lines sum to the total
@@ -1769,15 +1807,34 @@ export default async function DocsPage() {
           $1/gal at 122.5 MJ/gal.
         </p>
 
-        <H id="sensitivity">20. What moves the result</H>
+        <H id="sensitivity">20. What moves the results</H>
         <p className="mt-2">
-          A one-at-a-time endpoint sweep from the workbook baseline, each
-          input across its plausible range, ranked by maximum movement of
-          the headline gap. Parameters whose module is off in the baseline
-          are swept with the module SWITCHED ON, so their figures read as
+          A one-at-a-time sweep from the workbook baseline — each input
+          across its plausible range, enums across every defined option —
+          against <strong>all six headline outputs</strong>: the cost gap,
+          $/cargo unit, $/tCO₂ abated, green total, fossil total and lifetime
+          CO₂ abated. Parameters whose module is off in the baseline are
+          swept with the module SWITCHED ON, so their figures read as
           &ldquo;the module enabled at the range ends&rdquo; — which is why
           support and credit levers can outrank every physical input. The
-          top ten, rendered from the same generated artifact as §22:
+          baseline runs the app&apos;s own defaults (well-to-wake emissions,
+          distance-derived consumption), not the workbook&apos;s
+          combustion-basis flags.
+        </p>
+        <p className="mt-2">
+          <strong>Why more than the gap.</strong>{" "}This section used to
+          measure movement of the gap alone, which made every driver of every
+          other headline output invisible. The N₂O slip scenario moved the
+          gap 1.7% and ranked nowhere, while moving $/tCO₂ by 102.7% and
+          avoided emissions by half — §15 calls it the model&apos;s dominant
+          uncertainty. Cargo throughput measured exactly 0.0% on the gap
+          while being the sole divisor of $/cargo unit, the study&apos;s own
+          headline figure. <strong>Gap movement</strong>{" "}is kept as the
+          primary ranking for continuity; <strong>max across KPIs</strong>{" "}
+          decides field placement, and the <strong>binding KPI</strong>{" "}
+          column names the output responsible, so a field&apos;s prominence is
+          traceable to what it actually moves. The top ten by gap movement,
+          rendered from the same generated artifact as §22:
         </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
@@ -1785,7 +1842,9 @@ export default async function DocsPage() {
               <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
                 <th className="px-3 py-2 font-medium">#</th>
                 <th className="px-3 py-2 font-medium">Input</th>
-                <th className="px-3 py-2 text-right font-medium">Max gap movement</th>
+                <th className="px-3 py-2 text-right font-medium">Gap movement</th>
+                <th className="px-3 py-2 text-right font-medium">Max across KPIs</th>
+                <th className="px-3 py-2 font-medium">Binding KPI</th>
               </tr>
             </thead>
             <tbody>
@@ -1795,6 +1854,12 @@ export default async function DocsPage() {
                   <td className="px-3 py-1.5">{row.label}</td>
                   <td className="px-3 py-1.5 text-right">
                     {(row.relHeadlineMovement * 100).toFixed(1)}%
+                  </td>
+                  <td className="px-3 py-1.5 text-right">
+                    {(row.maxRelMovement * 100).toFixed(1)}%
+                  </td>
+                  <td className="px-3 py-1.5 text-neutral-600">
+                    {KPI_LABEL[row.bindingKpi] ?? row.bindingKpi}
                   </td>
                 </tr>
               ))}
@@ -1809,8 +1874,11 @@ export default async function DocsPage() {
           penalty/scope) move the gap by only a few percent under defaults —
           they matter far more at high carbon prices or late start years.
           Field PROMINENCE in the form is decided over a frozen subset of
-          this sweep (≥5% movement → top-level), plus explicit hiding for
-          structure-dependent fields — §22 lists the placement per field.
+          this sweep (≥5% movement on the binding KPI → top-level), plus
+          explicit hiding for structure-dependent fields — §22 lists the
+          placement and the binding KPI per field. Moving to the full KPI set
+          promoted nine fields and demoted none, which is the expected shape:
+          measuring more outputs can reveal movement, never hide it.
         </p>
 
         <H id="provenance">21. Provenance, versions &amp; limits</H>
@@ -1828,7 +1896,16 @@ export default async function DocsPage() {
             selectable: the{" "}<code>legacyExcelConstruct</code>{" "}flag set
             by migration is the only way past the double-count guard), no
             45Z sunset, and cargo throughput deliberately not linked to fuel
-            burn. Deviations from the original source are the seven numbered
+            burn. <strong>Stated-burn scenarios also survive</strong>: a
+            scenario that used the retired vessel-benchmark consumption basis
+            keeps its exact tonnage as an explicit{" "}
+            <code>fuelTonnesPerVesselYear</code>{" "}override, so its numbers
+            are unchanged — but it now carries a visible OVERRIDE badge
+            against the distance-derived benchmark, and a dismissable note on
+            load shows both figures side by side. That flat tonnage ignores
+            which fuel is in the tank, so such scenarios often burn the same
+            mass on both sides and compare very unequal delivered energy;
+            the parity check (§11) says so. Deviations from the original source are the seven numbered
             divergences, opt-in with defaults that reproduce it: D1 emissions
             basis, D2 FuelEU over-compliance credit, D4 sourcing modes, D5
             45Z sunset, D6 real rate basis, D7 production-country WACC on a
@@ -1836,15 +1913,17 @@ export default async function DocsPage() {
           </li>
           <li>
             <strong>Schema versioning</strong>{" "}— scenarios carry a schema
-            version (currently 5); older exports are migrated on load through
-            an append-only migration registry: v2 renamed the 45Z rate field,
-            v3 restructured fuel sourcing (a v2 build-here scenario is
-            REJECTED on load — its calculation basis changed — rather than
-            silently reinterpreted), v4 folded the named-plant mode into
-            purchase, v5 added the project archetype. A round-trip test with
-            a compile-guarded, maximally-populated fixture proves the
-            validation layer preserves every field — imports, saves and
-            shares cannot silently strip data.
+            version (<strong>currently 7</strong>); older exports are migrated
+            on load through an append-only migration registry: v2 renamed the
+            45Z rate field, v3 restructured fuel sourcing (a v2 build-here
+            scenario is REJECTED on load — its calculation basis changed —
+            rather than silently reinterpreted), v4 folded the named-plant
+            mode into purchase, v5 added the project archetype, v6 switched
+            emission factors to the refined dataset, and v7 removed the
+            consumption-basis switch and made vessel costs per-ship. A
+            round-trip test with a compile-guarded, maximally-populated
+            fixture proves the validation layer preserves every field —
+            imports, saves and shares cannot silently strip data.
           </li>
           <li>
             <strong>Output contract</strong>{" "}— module outputs appear only

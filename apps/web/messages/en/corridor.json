@@ -93,9 +93,6 @@
     },
     "vessel": {
       "type": "Vessel type (shared by both corridors)",
-      "consumptionMode": "Estimate fuel consumption from",
-      "modeDistance": "Distance (nautical miles)",
-      "modeBenchmark": "Vessel-type benchmark",
       "vessels": "Number of vessels",
       "roundtrips": "Roundtrips per year (per vessel)",
       "green": "Green vessel",
