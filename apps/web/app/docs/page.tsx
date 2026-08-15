@@ -2351,6 +2351,22 @@ export default async function DocsPage() {
           and operating costs occur in years 1 … N:
         </p>
         <p className="mt-2">
+          <strong>The rate is REAL, and this matters more than it looks.</strong>{" "}
+          Costs here are constant-USD — there is no inflation or escalation
+          term anywhere in the engine — which makes this a real DCF, so it
+          must be given a real rate. Most published cost-of-capital surveys
+          quote <em>nominal</em>, and the two are indistinguishable at the
+          point of use: both are plausible numbers in the same range, so
+          feeding a nominal rate in fails silently and simply makes hydrogen
+          look dearer. Measured at one cell, a nominal 9.4% consumed as real
+          overstated LCOH by 7.7%. Rates entering the model therefore declare
+          their basis, currency, publication year and the technology they were
+          measured for, and are converted at the boundary via the exact Fisher
+          relation r_real = (1 + r_nominal) / (1 + i) − 1 — not the r − i
+          approximation, which is 18 bp adrift at these values and compounds
+          across a 20-year horizon.
+        </p>
+        <p className="mt-2">
           <strong>Financing layers.</strong>{" "}The map&rsquo;s default surface
           applies a single uniform r = 8% everywhere, so it ranks{" "}
           <em>resource</em>, not project cost — it is labelled{" "}
@@ -2513,7 +2529,12 @@ export default async function DocsPage() {
           <div>
             <p className="font-medium">Reference defaults</p>
             <ul className="mt-1 list-disc space-y-1 pl-5 text-[13px]">
-              <li>Lifetime 20 yr · discount rate 8%/yr</li>
+              <li>
+                Lifetime 20 yr · discount rate 8%/yr{" "}
+                <span className="text-neutral-500">
+                  (real — cashflows are constant-USD, see §28)
+                </span>
+              </li>
               <li>Electrolyzer 100 MW · 2300 USD/kW · 1.3% OPEX/yr</li>
               <li>Efficiency 60% LHV · degradation 1%/yr</li>
               <li>Stack life 50 000 h · replacement 13% of CAPEX (~$300/kW)</li>
@@ -2926,6 +2947,22 @@ export default async function DocsPage() {
             outstanding validation work; the parity harness is dataset-agnostic
             so one can be wired in when a comparably-specified source is
             obtained.
+          </li>
+          <li>
+            <strong>This set cannot adjudicate a solar-versus-wind bias
+            outside Chile.</strong>{" "}Worth stating plainly, because it is the
+            question the map is most often used to answer. The 32 sites sit in
+            one country, in a resource regime — Atacama solar and Magallanes
+            wind — that is close to the global extreme for both technologies,
+            and the comparison validates <em>total</em>{" "}LCOH per site rather
+            than the two single-technology layers against each other. So it
+            says nothing about whether the solar or the wind layer is
+            systematically high or low in, say, maritime Southeast Asia, where
+            both the resource physics and the data pathway (ERA5 rather than
+            SARAH3, and a wind field whose within-hex spread exceeds its mean
+            — §37) are different. A finding of the form &ldquo;wind beats
+            solar here&rdquo; in an un-benchmarked region rests on the model
+            alone, not on this validation.
           </li>
         </ul>
 
