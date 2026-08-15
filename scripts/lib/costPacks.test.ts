@@ -31,12 +31,25 @@ describe("COST_PACKS anchors", () => {
     }
   });
 
-  it("keeps generation costs falling monotonically across cost years", () => {
+  it("never lets generation costs rise across cost years", () => {
+    // Non-increasing, not strictly falling: IRENA projects onshore wind to
+    // STABILISE at 850-1,000 USD/kW rather than keep declining, so a flat
+    // late-period wind figure is the sourced behaviour, not a stuck value.
     for (let i = 1; i < COST_YEARS.length; i++) {
       const prev = COST_PACKS[COST_YEARS[i - 1]!];
       const cur = COST_PACKS[COST_YEARS[i]!];
       expect(cur.solarCapexUsdPerKw).toBeLessThan(prev.solarCapexUsdPerKw);
-      expect(cur.windCapexUsdPerKw).toBeLessThan(prev.windCapexUsdPerKw);
+      expect(cur.windCapexUsdPerKw).toBeLessThanOrEqual(prev.windCapexUsdPerKw);
+    }
+  });
+
+  it("keeps projected wind CAPEX inside IRENA's stabilisation band", () => {
+    // IRENA: onshore wind TIC declines ~20% over the coming decade and
+    // stabilises at USD 850-1,000/kW. A projection below 850 would be
+    // extrapolating past what the source actually says happens.
+    for (const year of COST_YEARS) {
+      if (year === 2024) continue;
+      expect(COST_PACKS[year].windCapexUsdPerKw).toBeGreaterThanOrEqual(850);
     }
   });
 

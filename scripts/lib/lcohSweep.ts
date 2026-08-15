@@ -90,10 +90,30 @@ export type CostYear = (typeof COST_YEARS)[number];
  * same 691/1,041 installed costs, describing costs as stabilising, so 2024
  * remains the current basis rather than an out-of-date one.
  *
- * The future-year generation figures below still apply the PREVIOUS
- * multipliers to this new base; re-deriving them from IRENA's own
- * projections is a separate change, kept separate so the effect of the
- * re-base can be read on its own.
+ * Future-year GENERATION costs are now derived from IRENA's own projections
+ * rather than from IEA's LCOE-decline proxy, so the level and the trajectory
+ * come from one source instead of two. IRENA gives direction, not a table of
+ * years: solar PV total installed cost falls ~40% over the coming decade,
+ * onshore wind ~20% and then STABILISES at USD 850-1,000/kW.
+ *
+ * Applied as a geometric decade rate from the 2024 base, decelerating for
+ * solar (learning rates fall as the technology matures) and floored for wind
+ * at IRENA's stated 850 — a constant 20%/decade would put 2050 wind at 583,
+ * which contradicts the "stabilises" language in the source. The floor is
+ * why 2040 and 2050 wind are equal; that is the projection, not a stuck
+ * value, and a test pins it.
+ *
+ * Note this REVERSES the previous direction for wind: the old ×0.92 came
+ * from IEA's regional LCOE average, and IRENA's decade view is steeper near
+ * term but flatter after 2040.
+ *
+ * 2040/2050 remain EXTRAPOLATIONS — IRENA publishes a decade horizon, not
+ * mid-century CAPEX — and are labelled as projected in the UI.
+ *
+ * Flip analysis over the observed CF grid (5 solar x 5 wind CFs x 3 future
+ * years): 2 of 75 combinations change winning technology, both at near-ties
+ * where the layers are within ~1% of each other (2030 solar->wind at 5.70
+ * vs 5.73; 2050 wind->solar at 3.11 vs 3.12). No structural reordering.
  *
  * OPEX fractions (1.5% solar, 2.5% wind) are UNCHANGED, and now checked
  * rather than inherited. IRENA's O&M figures sit in appendix tables absent
@@ -114,9 +134,9 @@ export type CostYear = (typeof COST_YEARS)[number];
  */
 export const COST_PACKS: Record<CostYear, CostPack> = {
   2024: { electrolyzerCapexUsdPerKw: 2300, efficiencyLhv: 0.6, solarCapexUsdPerKw: 691, solarOpexFrac: 0.015, windCapexUsdPerKw: 1041, windOpexFrac: 0.025, stackLifetimeHours: 50_000, degradationPerYear: 0.01, costBasisYear: 2024 },
-  2030: { electrolyzerCapexUsdPerKw: 1610, efficiencyLhv: 0.61, solarCapexUsdPerKw: 477, solarOpexFrac: 0.015, windCapexUsdPerKw: 958, windOpexFrac: 0.025, stackLifetimeHours: 75_000, degradationPerYear: 0.008, costBasisYear: 2024 },
-  2040: { electrolyzerCapexUsdPerKw: 1334, efficiencyLhv: 0.63, solarCapexUsdPerKw: 428, solarOpexFrac: 0.015, windCapexUsdPerKw: 916, windOpexFrac: 0.025, stackLifetimeHours: 100_000, degradationPerYear: 0.006, costBasisYear: 2024 },
-  2050: { electrolyzerCapexUsdPerKw: 1150, efficiencyLhv: 0.65, solarCapexUsdPerKw: 394, solarOpexFrac: 0.015, windCapexUsdPerKw: 885, windOpexFrac: 0.025, stackLifetimeHours: 125_000, degradationPerYear: 0.005, costBasisYear: 2024 },
+  2030: { electrolyzerCapexUsdPerKw: 1610, efficiencyLhv: 0.61, solarCapexUsdPerKw: 509, solarOpexFrac: 0.015, windCapexUsdPerKw: 911, windOpexFrac: 0.025, stackLifetimeHours: 75_000, degradationPerYear: 0.008, costBasisYear: 2024 },
+  2040: { electrolyzerCapexUsdPerKw: 1334, efficiencyLhv: 0.63, solarCapexUsdPerKw: 349, solarOpexFrac: 0.015, windCapexUsdPerKw: 850, windOpexFrac: 0.025, stackLifetimeHours: 100_000, degradationPerYear: 0.006, costBasisYear: 2024 },
+  2050: { electrolyzerCapexUsdPerKw: 1150, efficiencyLhv: 0.65, solarCapexUsdPerKw: 297, solarOpexFrac: 0.015, windCapexUsdPerKw: 850, windOpexFrac: 0.025, stackLifetimeHours: 125_000, degradationPerYear: 0.005, costBasisYear: 2024 },
 };
 
 export interface SweepPoint {
