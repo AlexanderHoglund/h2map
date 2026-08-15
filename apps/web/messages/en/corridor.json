@@ -400,6 +400,8 @@
       "deleted": ""
     },
     "legacyBanner": "Legacy accounting loaded: this scenario charges the merchant fuel price AND production CAPEX/O&M — production cost is counted twice. Preserved verbatim for comparison with the original source; new scenarios cannot select this mode.",
+    "vesselBurnBanner": "Fuel use was stated directly in this scenario, from the vessel table's flat annual figure. Your numbers are unchanged — the burn is now an explicit override you can see and edit. It is worth a look: green {greenFrozen} t/vessel/yr (this corridor's distance implies {greenDerived}), fossil {fossilFrozen} t (implies {fossilDerived}). The table figure is a fleet average over an unstated trade pattern, so it does not reflect how far these ships actually steam.",
+    "vesselBurnParity": "The two sides also deliver {pct}% different energy, so the abated tonnes compare unequal transport work.",
     "legacyBannerDismiss": "Dismiss",
     "shared": {
       "notFound": "No shared scenario for this link (it may have been revoked).",

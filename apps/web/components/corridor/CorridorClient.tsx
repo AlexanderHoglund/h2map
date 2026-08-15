@@ -106,6 +106,10 @@ const TONE_TEXT: Record<View, string> = {
   results: "var(--color-brand-strong)",
 };
 
+/** One decimal, thousands-separated — tonnages in the migration note. */
+const fmt1 = (v: number): string =>
+  v.toLocaleString("en-US", { maximumFractionDigits: 1 });
+
 export default function CorridorClient() {
   const t = useTranslations("corridor");
   const tc = useTranslations();
@@ -114,6 +118,7 @@ export default function CorridorClient() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [legacyDismissed, setLegacyDismissed] = useState(false);
+  const [vesselBurnDismissed, setVesselBurnDismissed] = useState(false);
   // Projects-first: the platform lands on tab 00 until a project is
   // selected or created (the input tabs stay disabled until then).
   const [view, setView] = useState<View>("projects");
@@ -541,6 +546,53 @@ export default function CorridorClient() {
                   </button>
                 </div>
               )}
+              {/* v6→v7: this scenario was consuming the vessel table's flat
+                  annual tonnage. The burn is frozen as an explicit override
+                  so its numbers are unchanged, but that figure reconciles
+                  with nothing else in the model — show it against the
+                  distance-derived benchmark it now sits beside, and the
+                  energy-parity ratio where the two sides diverge. These
+                  users have been running an inconsistency blind. */}
+              {model.scenario.flags?.migratedVesselBenchmarkBurn &&
+                !vesselBurnDismissed &&
+                model.resolved &&
+                model.benchmarks && (
+                  <div className="mb-4 flex items-start gap-3 border border-amber-300 bg-amber-500/10 px-3 py-2 text-xs leading-snug text-amber-800">
+                    <span className="flex-1">
+                      {t("vesselBurnBanner", {
+                        greenFrozen: fmt1(
+                          model.resolved.green.tonnesPerVesselYear.value,
+                        ),
+                        greenDerived: fmt1(
+                          model.benchmarks.green.tonnesPerVesselYear.value,
+                        ),
+                        fossilFrozen: fmt1(
+                          model.resolved.fossil.tonnesPerVesselYear.value,
+                        ),
+                        fossilDerived: fmt1(
+                          model.benchmarks.fossil.tonnesPerVesselYear.value,
+                        ),
+                      })}
+                      {model.result?.energyParity.diverged && (
+                        <>
+                          {" "}
+                          {t("vesselBurnParity", {
+                            pct: Math.abs(
+                              model.result.energyParity.divergence! * 100,
+                            ).toFixed(0),
+                          })}
+                        </>
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setVesselBurnDismissed(true)}
+                      className="shrink-0 border border-amber-300 px-2 py-0.5 font-medium hover:bg-amber-500/10"
+                    >
+                      {t("legacyBannerDismiss")}
+                    </button>
+                  </div>
+                )}
               {stepBody[view]}
               <div className="mt-4 flex justify-between">
                 <Button
