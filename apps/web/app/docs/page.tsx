@@ -2616,11 +2616,27 @@ export default async function DocsPage() {
           20-year life is an integer that jumps. At 6,719 operating hours a
           year, a 50,000 h stack is replaced in years 8 and 15 — two events;
           the same cell at 40,000 h would be replaced in years 6, 12 and 18 —
-          three. Cells sitting near a boundary can therefore move more between
-          cost years than their capacity factors alone suggest, because a
-          longer stack life removes a whole replacement rather than shaving a
-          cost. This is expected behaviour of a discrete schedule, not a
-          discontinuity in the underlying economics.
+          three. Because each cost year has a different stack life, the
+          boundaries fall at different operating-hour thresholds: a 50,000 h
+          stack adds its second replacement at about 5,500 h/yr, a 75,000 h
+          stack at about 8,000 h/yr. A cell can therefore sit on one side of a
+          boundary in 2024 and the other in 2030.
+        </p>
+        <p className="mt-2">
+          <strong>Why this shows up in the rankings.</strong>{" "}Measured, the
+          largest such step is about <strong>1.4% of LCOH</strong>{" "}— small in
+          absolute terms, but the top of the solar ranking is packed far more
+          tightly than that. Median gap between adjacent cells in the top 50:{" "}
+          <strong>0.049%</strong>{" "}for solar·2030, 0.096% for solar·2024,
+          0.190% for wind·2030. So a single boundary crossing moves a cell
+          roughly 29 ranks in solar·2030, 15 in solar·2024 and 7 in wind·2030.
+          That is why rank churn concentrates in one layer-year rather than
+          appearing everywhere: solar·2030 has the least rank resolution to
+          lose, not the most instability. Read the <em>values</em>{" "}rather
+          than the ordinal positions when cells are this close — a top-50
+          ordering separated by half a tenth of a percent is not a meaningful
+          ranking, and the map&apos;s colour bins deliberately do not resolve
+          it either.
         </p>
 
         {/* 25 */}
