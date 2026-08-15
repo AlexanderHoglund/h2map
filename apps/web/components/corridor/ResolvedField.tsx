@@ -44,6 +44,12 @@ export default function ResolvedField({
   benchmark: number;
   onChange: (next: number | null) => void;
   help?: string;
+  /**
+   * Force the amber badge on. Normally unnecessary — the badge is derived
+   * from `provenance.verified === false` — but kept for the WACC field,
+   * whose unverified status comes from the country row rather than from a
+   * provenance object.
+   */
   unverified?: boolean;
   /** Accepted for call-site compatibility; the text input has no stepper. */
   step?: number | "any";
@@ -82,8 +88,13 @@ export default function ResolvedField({
     const cite = provenance.citation;
     const unv = provenance.verified === false ? ` \u00b7 ${t("provUnverified")}` : "";
     if (source === "derived") {
+      // The unverified suffix belongs on BOTH derived branches. It used to
+      // be dropped whenever a `derivation` was supplied \u2014 and vessel CAPEX
+      // always supplies one and always resolves derived, so an unverified
+      // vessel row's status never reached the user. That is not a corner
+      // case: the default scenario's vessel is `verified: false`.
       return provenance.derivation
-        ? `${t("provDerived")} ${provenance.derivation}${cite ? ` (${cite})` : ""}`
+        ? `${t("provDerived")} ${provenance.derivation}${cite ? ` (${cite})` : ""}${unv}`
         : cite
           ? `${t("provDerived")} ${cite}${unv}`
           : undefined;
@@ -91,6 +102,9 @@ export default function ResolvedField({
     if (source === "benchmark") {
       return cite ? `${t("provBenchmark")} ${cite}${unv}` : undefined;
     }
+    // An override is the USER's number, so the row's verification status
+    // says nothing about it \u2014 the citation is shown only to name what was
+    // overridden.
     return `${t("provOverride", { benchmark: formatSig(benchmark) })}${
       cite ? ` (${cite})` : ""
     }`;
@@ -173,7 +187,11 @@ export default function ResolvedField({
             </button>
           </>
         ) : null}
-        {unverified ? (
+        {/* An unverified REFERENCE row is a fact about the number the model
+            is using, so it earns the badge automatically — a tooltip alone
+            is too quiet for it. An override is the user's own number, so
+            the row's status no longer applies. */}
+        {unverified || (provenance?.verified === false && !overridden) ? (
           <span className="bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
             {t("unverified")}
           </span>
