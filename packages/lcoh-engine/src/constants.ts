@@ -12,7 +12,29 @@ export const DESAL_KWH_PER_M3 = 3.75;
 /** Pumping electricity, kWh per m³ per 100 m of lift — emissions ledger only. */
 export const PUMP_KWH_PER_M3_PER_100M = 0.4;
 
-/** Electrolyzer water consumption, litres per kg H₂. */
+/**
+ * Water per kg H₂, litres — the **stoichiometric floor**, not plant demand.
+ *
+ * 9 L/kg is what the electrolysis reaction itself consumes: the theoretical
+ * minimum, and the number the source methodology specifies. A real plant
+ * needs MORE — purification rejects a fraction of the feed and cooling
+ * consumes more still — so published total consumption runs 15-25 L/kg, and
+ * RMI puts it at 20-30 L/kg. Treat this as a lower bound, roughly a half to
+ * a third of what a site actually withdraws.
+ *
+ * Deliberately NOT scaled up by a plant factor, for two reasons. The cost
+ * consequence is negligible — at the enriched Indonesian water price of
+ * 1.21 USD/m³ the difference between 9 and 30 L/kg is 0.011 vs 0.036
+ * USD/kg, against an LCOH of several dollars — and the value is pinned by
+ * six hand-computed golden fixtures whose water figures are authoritative.
+ * Changing it is a sign-off decision, not a silent constant edit.
+ *
+ * Where it DOES matter is volume: `totals.waterM3` and the desalination
+ * electricity in the emissions ledger both scale linearly with this, so
+ * both are floors too. For water-scarce siting — where the withdrawal
+ * volume is the headline figure, not the cost — multiply by 2-3× before
+ * comparing against a local water budget.
+ */
 export const WATER_L_PER_KG_H2 = 9;
 
 export const DAYS_PER_MONTH = [

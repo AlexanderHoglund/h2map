@@ -2106,9 +2106,24 @@ export default async function DocsPage() {
         </F>
         <p className="mt-2">
           η<sub>LHV</sub>{" "}is the system efficiency on an LHV basis (default
-          60%), so producing 1 kg needs ≈ 33.33 / 0.60 ≈ 55.6 kWh. Water use is
-          9 litres per kg of H₂. The electricity for water desalination and
-          pumping is tracked for emissions only, never for cost (§30).
+          60%), so producing 1 kg needs ≈ 33.33 / 0.60 ≈ 55.6 kWh. The
+          electricity for water desalination and pumping is tracked for
+          emissions only, never for cost (§30).
+        </p>
+        <p className="mt-2">
+          <strong>Water: 9 litres per kg is a stoichiometric floor, not plant
+          demand.</strong>{" "}It is what the electrolysis reaction itself
+          consumes — the theoretical minimum, and the figure the source
+          methodology specifies. A real plant withdraws more, because
+          purification rejects part of the feed and cooling consumes more
+          again: published total consumption runs 15–25 L/kg, and RMI puts it
+          at 20–30 L/kg. For <em>cost</em>{" "}this barely matters — even at
+          30 L/kg and a dear water price the line is a few cents per kg
+          against an LCOH of several dollars. For <em>volume</em>{" "}it matters
+          a great deal, since reported water use and the desalination
+          electricity in the emissions ledger both scale linearly with it.
+          When siting against a local water budget, multiply the reported
+          volume by 2–3×.
         </p>
 
         {/* 16 */}
@@ -2450,7 +2465,12 @@ export default async function DocsPage() {
             <ul className="mt-1 list-disc space-y-1 pl-5 text-[13px]">
               <li>LHV of hydrogen: 33.33 kWh/kg</li>
               <li>Hours per year: 8760 (non-leap)</li>
-              <li>Water consumption: 9 L/kg H₂</li>
+              <li>
+                Water consumption: 9 L/kg H₂{" "}
+                <span className="text-neutral-500">
+                  (stoichiometric floor — a plant needs 15–30; see §24)
+                </span>
+              </li>
               <li>Desalination electricity: 3.75 kWh/m³</li>
               <li>Pumping electricity: 0.40 kWh/m³ per 100 m</li>
             </ul>
