@@ -64,6 +64,8 @@ export type { CompleteScenarioJson } from "./complete";
 export { migrateScenarioInput } from "./migrate";
 export type { MigratedScenario } from "./migrate";
 export { parseRefBundle, refBundleSchema } from "./ref/bundle";
+export { gjPerNmFromEedi, resolveVesselBySize } from "./ref/vesselDerivation";
+export type { DerivedVessel, VesselSource } from "./ref/vesselDerivation";
 export type { RefBundle, RefCountry, RefFuel, RefVesselType } from "./ref/bundle";
 export { getCountry, getFuel, getVesselType } from "./ref/accessors";
 export { resolveScenario, toSideInputs } from "./resolve";
