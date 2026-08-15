@@ -42,27 +42,57 @@ export type Database = {
       country_defaults: {
         Row: {
           capex_pack: Json | null
+          country_risk_premium: number | null
+          curated: boolean
+          electricity_price_usd_mwh: number | null
           grid_ef_tco2_mwh: number | null
           iso2: string
+          labour_index: number | null
+          land_cost_usd_ha: number | null
+          profile_source: Json | null
+          profile_updated_at: string | null
+          profile_version: string | null
           source: string | null
           updated_at: string
+          wacc_curated: number | null
           wacc_suggestion: number | null
+          water_price_usd_m3: number | null
         }
         Insert: {
           capex_pack?: Json | null
+          country_risk_premium?: number | null
+          curated?: boolean
+          electricity_price_usd_mwh?: number | null
           grid_ef_tco2_mwh?: number | null
           iso2: string
+          labour_index?: number | null
+          land_cost_usd_ha?: number | null
+          profile_source?: Json | null
+          profile_updated_at?: string | null
+          profile_version?: string | null
           source?: string | null
           updated_at?: string
+          wacc_curated?: number | null
           wacc_suggestion?: number | null
+          water_price_usd_m3?: number | null
         }
         Update: {
           capex_pack?: Json | null
+          country_risk_premium?: number | null
+          curated?: boolean
+          electricity_price_usd_mwh?: number | null
           grid_ef_tco2_mwh?: number | null
           iso2?: string
+          labour_index?: number | null
+          land_cost_usd_ha?: number | null
+          profile_source?: Json | null
+          profile_updated_at?: string | null
+          profile_version?: string | null
           source?: string | null
           updated_at?: string
+          wacc_curated?: number | null
           wacc_suggestion?: number | null
+          water_price_usd_m3?: number | null
         }
         Relationships: []
       }

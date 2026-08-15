@@ -10,7 +10,7 @@
     "dev": "npm run dev -w web",
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p scripts/tsconfig.json",
     "lint": "npm run lint --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present && npm run test:scripts",
     "test:golden": "npm run test:golden -w @h2map/corridor-engine",
     "corridor:smoke": "tsx scripts/corridor/smoke-phase2.ts",
     "auth:smoke": "tsx scripts/corridor/smoke-auth.ts",
@@ -34,7 +34,8 @@
     "corridor:docs": "tsx scripts/corridor/gen-docs.ts",
     "cells:export": "tsx scripts/rankdiff/export-cells.ts",
     "cells:check-cf": "tsx scripts/rankdiff/check-solar-cf.ts",
-    "rankdiff:fixed-ratio": "tsx scripts/rankdiff/measure-fixed-ratio-penalty.ts"
+    "rankdiff:fixed-ratio": "tsx scripts/rankdiff/measure-fixed-ratio-penalty.ts",
+    "test:scripts": "vitest run --config scripts/vitest.config.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

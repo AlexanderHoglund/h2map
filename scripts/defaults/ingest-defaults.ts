@@ -9,13 +9,23 @@
  * is proprietary). Countries are matched to ISO2 via the committed Natural
  * Earth boundaries, so exactly the countries the seeder draws get defaults.
  *
- * Existing curated WACC values are preserved; grid EF is refreshed to the
- * latest year everywhere. Idempotent — re-run when the committed CSV updates.
+ * CURATION: a row flagged `curated` belongs to a researched country profile.
+ * The ingest then writes only the fields that profile leaves null and never
+ * touches its provenance — see mergeCountryRow.ts for the rule and why the
+ * previous “preserve the existing WACC” behaviour was wrong. Grid EF is
+ * refreshed to the latest year on every un-pinned row. Idempotent — re-run
+ * when the committed CSV updates.
  *
  * Usage: npm run defaults:ingest
  */
 import { readFileSync } from "node:fs";
 import { makeSupabase, ROOT } from "../lib/serviceDeps";
+import {
+  censusOf,
+  mergeCountryRow,
+  type ExistingCountryRow,
+  type MergedCountryRow,
+} from "./mergeCountryRow";
 
 /** WACC suggestion by World Bank income group (documented heuristic). */
 const WACC_BY_INCOME: Record<string, number> = {
@@ -73,19 +83,13 @@ async function main(): Promise<void> {
   const db = makeSupabase();
   const { data: existing, error: readErr } = await db
     .from("country_defaults")
-    .select("iso2, wacc_suggestion");
+    .select("iso2, curated, wacc_curated, grid_ef_tco2_mwh, source");
   if (readErr) throw new Error(readErr.message);
-  const curatedWacc = new Map<string, number>(
-    (existing ?? []).map((r) => [r.iso2 as string, Number(r.wacc_suggestion)]),
+  const existingByIso = new Map<string, ExistingCountryRow>(
+    (existing ?? []).map((r) => [r.iso2 as string, r as ExistingCountryRow]),
   );
 
-  const rows: {
-    iso2: string;
-    grid_ef_tco2_mwh: number;
-    wacc_suggestion: number;
-    source: string;
-    updated_at: string;
-  }[] = [];
+  const rows: MergedCountryRow[] = [];
   const skipped: string[] = [];
   const now = new Date().toISOString();
 
@@ -99,17 +103,19 @@ async function main(): Promise<void> {
       skipped.push(`${p.NAME}${iso2 ? "" : " (no ISO2)"}`);
       continue;
     }
-    const wacc =
-      curatedWacc.get(iso2) ??
-      WACC_BY_INCOME[p.INCOME_GRP] ??
-      WACC_FALLBACK;
-    rows.push({
-      iso2,
-      grid_ef_tco2_mwh: Math.round((intensity.ci / 1000) * 1000) / 1000,
-      wacc_suggestion: wacc,
-      source: `Grid EF: OWID/Ember carbon intensity ${intensity.year}; WACC: World Bank income-group heuristic`,
-      updated_at: now,
-    });
+    const wacc = WACC_BY_INCOME[p.INCOME_GRP] ?? WACC_FALLBACK;
+    rows.push(
+      mergeCountryRow(
+        {
+          iso2,
+          grid_ef_tco2_mwh: Math.round((intensity.ci / 1000) * 1000) / 1000,
+          wacc_suggestion: wacc,
+          source: `Grid EF: OWID/Ember carbon intensity ${intensity.year}; WACC: World Bank income-group heuristic`,
+          updated_at: now,
+        },
+        existingByIso.get(iso2),
+      ),
+    );
   }
 
   const { error } = await db
@@ -117,7 +123,12 @@ async function main(): Promise<void> {
     .upsert(rows, { onConflict: "iso2" });
   if (error) throw new Error(error.message);
 
+  const census = censusOf(rows, existingByIso);
   console.log(`upserted ${rows.length} country_defaults rows`);
+  console.log(
+    `  ${census.curated} curated (profile-owned fields untouched), ` +
+      `${census.heuristic} heuristic`,
+  );
   console.log(`skipped ${skipped.length}: ${skipped.join(", ")}`);
 }
 
