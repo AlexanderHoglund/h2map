@@ -2154,6 +2154,35 @@ export default async function DocsPage() {
             are recorded per cell (see the data-source tiers below).
           </li>
           <li>
+            <strong>Which radiation database serves a cell is a question of
+            longitude, not latitude.</strong>{" "}PVGIS v5_3 offers exactly two
+            — <code>PVGIS-ERA5</code>{" "}and <code>PVGIS-SARAH3</code>{" "}
+            (NSRDB was dropped after v5_2 and is now rejected everywhere,
+            including over the United States). SARAH3 is derived from
+            Meteosat, so it covers the prime disc only. Measured across the
+            whole 3,264-row PV cache: SARAH3 serves 50% and 92% of cells in
+            the +0..30° and +30..60° longitude bands and <strong>0% of every
+            other band</strong>{" "}— the Americas, Asia-Pacific and Oceania
+            are ERA5 in their entirety. Latitude predicts nothing by
+            comparison (+45..60° is 68% SARAH3, +15..30° is 0%).
+          </li>
+          <li>
+            <strong>ERA5 is not a degraded tier.</strong>{" "}For most of the
+            map it is the only database PVGIS has, and where both exist they
+            agree closely and in no fixed direction (Turkana SARAH3 0.203 vs
+            ERA5 0.194; Namibia 0.221 vs 0.224; Ouarzazate 0.217 vs 0.217).
+            An earlier note in this project claimed pinned ERA5 returned
+            capacity factors about 3× too low and blamed it for the Kenyan
+            speckle; a live probe disproved both — that speckle was a
+            mounting-geometry problem, since fixed. So{" "}
+            <code>pv_db_tier</code>{" "}is recorded and shown for transparency
+            but does <em>not</em>{" "}change how a cell is drawn. The real
+            caveat is resolution: ERA5&apos;s ~31 km grid is coarse for
+            coastlines and mountains, which is a reason to treat single cells
+            carefully, not a reason to apply a bias correction — and no
+            correction is applied without a citable basis.
+          </li>
+          <li>
             <strong>Which radiation database, and where.</strong>{" "}Verified
             against the live API (2026-08-15). PVGIS v5_3 accepts exactly two
             values worldwide —{" "}<code>PVGIS-SARAH3</code>{" "}and{" "}

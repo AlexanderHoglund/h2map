@@ -92,6 +92,8 @@
         "fallback": "NASA POWER · generic curve"
       },
       "fallbackNote": "This cell's wind uses the fallback model: a generic turbine curve with fixed shear, without the air-density and turbine-class corrections applied elsewhere. Outlined on the map so it is not read as directly comparable.",
+      "tierUnrecorded": "not recorded",
+      "unrecordedNote": "This cell was computed before its data source was recorded, so which wind model produced it is unknown — it is neither confirmed as the improved model nor flagged as the fallback. The scheduled re-seed stamps each cell as it refreshes.",
       "nonViableNote": "Above {ceiling} USD/kg: this technology is not viable at this site, not merely expensive.",
       "optimalRatio": "Best-achievable sizing",
       "optimalMix": "Best-achievable mix",

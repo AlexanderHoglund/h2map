@@ -136,13 +136,25 @@ export function lcohColor(value: number, layer: LayerKey): [number, number, numb
  * different models are a seam, and the map's standing rule is that a seam
  * is disclosed rather than smoothed over — PV solves it by rendering
  * no-data, wind by flagging, because here the value is real and the
- * population is 2.2% (masking would lose more than it protects).
+ * population is small (1.3% of ready cells, measured 2026-08-15) so masking
+ * would lose more than it protects.
+ *
+ * A THIRD state exists and is neither: 37% of ready cells were seeded
+ * before the provenance columns and carry `wind_fidelity: null`. They are
+ * deliberately not flagged — claiming "fallback" would be as false as
+ * claiming "improved" — but that means the map currently renders a
+ * substantial population whose wind provenance is simply unknown. The
+ * scheduled re-seed stamps each cell as it re-fetches, so the share shrinks
+ * on its own; until then the drawer reports the provenance as unrecorded
+ * rather than guessing.
  *
  * `pv_db_tier` is deliberately NOT a fidelity signal: outside the Meteosat
  * disc ERA5 is the only radiation database PVGIS v5_3 offers, and where
- * both exist the two agree within a few percent in either direction. It is
- * recorded per cell and shown in the drawer, but it does not change how a
- * cell is drawn.
+ * both exist the two agree within a few percent in either direction.
+ * Measured over the 3,264-row PV cache, SARAH3 appears ONLY in the +0..60°
+ * longitude bands and is absent everywhere else — it tracks the Meteosat
+ * disc, not latitude. It is recorded per cell and shown in the drawer, but
+ * it does not change how a cell is drawn.
  */
 export function isReducedFidelity(
   layer: LayerKey,

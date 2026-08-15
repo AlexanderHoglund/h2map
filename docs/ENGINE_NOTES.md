@@ -127,14 +127,29 @@ untouched (an `improved-*` golden set is added beside it).
   crude fallback) that parity and the calculator use is unchanged.
   **Correction (2026-07-29) — this reverses the original ERA5 pin.** The first
   version of #4 pinned `raddatabase=PVGIS-ERA5` for one "consistent global"
-  model. That was wrong: the PVGIS-ERA5 endpoint is **broken** — it returns HTTP
-  500 for many cells and, where it does respond, ~3× too-low capacity factors
-  (Turkana-region cells came back at CF 0.037 vs a true ~0.20). It was the root
-  cause of Kenya's solar-layer speckle (adjacent hexes 6 vs 25 USD/kg). The
-  authoritative pathway is PVGIS **auto-resolve** (SARAH3/NSRDB), which returns
-  correct, tilt-aware profiles; auto-resolve still reaches ERA5 internally only
-  at high latitude where it is genuinely the best DB. So mask mode is now just
-  `[pvgis-auto] → mask`. Because improved-mode PV now auto-resolves to the same
+  model. Auto-resolve replaced it and remains the right pathway, so mask mode
+  is now just `[pvgis-auto] → mask`.
+
+  **Re-correction (2026-08-15) — the REASON given above was wrong.** This note
+  claimed pinned ERA5 was "broken", returning HTTP 500 and ~3× too-low
+  capacity factors. A live probe disproved both: pinned ERA5 returns 200 and
+  lands within 5% of SARAH3 at the very cells that motivated the change
+  (Turkana SARAH3 0.203 vs ERA5 0.194; Namibia 0.221 vs 0.224; Ouarzazate
+  0.217 vs 0.217, no systematic direction). The Kenya speckle was the
+  `optimalangles` problem, fixed by the latitude mounting rule — a
+  misattribution, not an ERA5 fault.
+
+  Two further claims here are also wrong. **NSRDB no longer exists**: v5_3
+  accepts exactly `['PVGIS-ERA5','PVGIS-SARAH3']` worldwide, NSRDB having been
+  dropped after v5_2, and it is rejected even over the United States. And
+  auto-resolve does **not** reach ERA5 "only at high latitude" — the
+  predictor is LONGITUDE, because SARAH3 is Meteosat-disc-only. Measured over
+  the 3,264-row PV cache: SARAH3 appears only in the +0..60° longitude bands
+  (50% and 92% of cells) and is entirely absent from every other band — 0%
+  across the Americas, Asia-Pacific and Oceania. By latitude there is no such
+  pattern at all (+45..60° is 68% SARAH3 while +15..30° is 0%). So for most
+  of the map ERA5 is not a degraded fallback, it is the only database PVGIS
+  has. Because improved-mode PV now auto-resolves to the same
   DB as reference-mode PV, both build the same `dataset_version`; they coexist in
   the cache only because `mode` is now part of the resource-profile unique key
   (migration `20260729000001_resource_profiles_mode_unique`). The flag was

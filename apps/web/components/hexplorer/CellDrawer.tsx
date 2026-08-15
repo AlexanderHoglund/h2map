@@ -183,42 +183,52 @@ export default function CellDrawer({
               </dl>
             </section>
 
-            {/* Where this cell's numbers came from (T1/T2). Shown only
-                when a recompute pass has recorded it. */}
-            {(shown.data.pvDbTier || shown.data.windFidelity) && (
-              <section>
-                <h3 className="mb-1 text-xs font-medium text-neutral-500">
-                  {t("drawer.sourceHeading")}
-                </h3>
-                <dl>
-                  {shown.data.pvDbTier && (
-                    <div className="flex justify-between py-0.5">
-                      <dt className="text-neutral-600">{t("drawer.pvSource")}</dt>
-                      <dd>{t(`drawer.pvTier.${shown.data.pvDbTier}`)}</dd>
-                    </div>
-                  )}
-                  {shown.data.windFidelity && (
-                    <div className="flex justify-between py-0.5">
-                      <dt className="text-neutral-600">{t("drawer.windSource")}</dt>
-                      <dd
-                        className={
-                          shown.data.windFidelity === "fallback"
-                            ? "font-medium text-amber-800"
-                            : undefined
-                        }
-                      >
-                        {t(`drawer.windTier.${shown.data.windFidelity}`)}
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-                {shown.data.windFidelity === "fallback" && (
-                  <p className="mt-1 text-[11px] leading-snug text-neutral-500">
-                    {t("drawer.fallbackNote")}
-                  </p>
-                )}
-              </section>
-            )}
+            {/* Where this cell's numbers came from (T1/T2). Always shown:
+                a cell seeded before the provenance columns existed carries
+                null, and hiding the section made "we don't know" look
+                identical to "we didn't ask". Unknown is a real answer and
+                is reported as one. */}
+            <section>
+              <h3 className="mb-1 text-xs font-medium text-neutral-500">
+                {t("drawer.sourceHeading")}
+              </h3>
+              <dl>
+                <div className="flex justify-between py-0.5">
+                  <dt className="text-neutral-600">{t("drawer.pvSource")}</dt>
+                  <dd className={shown.data.pvDbTier ? undefined : "text-neutral-500"}>
+                    {shown.data.pvDbTier
+                      ? t(`drawer.pvTier.${shown.data.pvDbTier}`)
+                      : t("drawer.tierUnrecorded")}
+                  </dd>
+                </div>
+                <div className="flex justify-between py-0.5">
+                  <dt className="text-neutral-600">{t("drawer.windSource")}</dt>
+                  <dd
+                    className={
+                      shown.data.windFidelity === "fallback"
+                        ? "font-medium text-amber-800"
+                        : shown.data.windFidelity
+                          ? undefined
+                          : "text-neutral-500"
+                    }
+                  >
+                    {shown.data.windFidelity
+                      ? t(`drawer.windTier.${shown.data.windFidelity}`)
+                      : t("drawer.tierUnrecorded")}
+                  </dd>
+                </div>
+              </dl>
+              {shown.data.windFidelity === "fallback" && (
+                <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+                  {t("drawer.fallbackNote")}
+                </p>
+              )}
+              {!shown.data.windFidelity && (
+                <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+                  {t("drawer.unrecordedNote")}
+                </p>
+              )}
+            </section>
 
             <section>
               <h3 className="mb-1 text-xs font-medium text-neutral-500">
