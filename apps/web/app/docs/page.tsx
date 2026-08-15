@@ -2479,9 +2479,38 @@ export default async function DocsPage() {
           Unlike the flat-30 reference, the map prices electricity in{" "}
           <strong>CAPEX mode</strong>{" "}so each cell&apos;s cost reflects its own
           capacity factor (IRENA 2023 global averages: solar 800 USD/kWp + 1.5%
-          OPEX, onshore wind 1200 USD/kW + 2.5% OPEX). Colors use a fixed
-          per-layer domain (never rescaled to the viewport), so a color means
-          the same LCOH everywhere on that layer.
+          OPEX, onshore wind 1200 USD/kW + 2.5% OPEX).
+        </p>
+        <p className="mt-2">
+          <strong>Colour domain and the non-viability ceiling.</strong>{" "}Colours
+          use a fixed per-layer domain of{" "}
+          <strong>3.5&ndash;14 USD/kg</strong>, never rescaled to the viewport,
+          so a colour means the same LCOH everywhere on that layer and across
+          layers. Both bounds are deliberate: nothing on Earth produces below
+          ~3.5 at today&apos;s costs, and real cells run to ~15.5 (Indonesia&apos;s
+          res-3 solar layer measures 9.34&ndash;15.48), so the earlier
+          0&ndash;10 domain spent its warm half on values that never occur while
+          pinning every tropical cell to one blue at the top. Values outside the
+          domain pin to their end&apos;s own reserved colour rather than
+          extrapolating. Above{" "}<strong>25 USD/kg</strong>{" "}(configurable) a
+          cell is drawn in a neutral grey instead of a ramp colour: past that
+          point the number has stopped being a price and become a verdict —
+          Atacama wind at CF&nbsp;0.02 computes 770&ndash;1,003 USD/kg, which is
+          &ldquo;this technology does not work here&rdquo;, not &ldquo;expensive&rdquo;.
+        </p>
+        <p className="mt-2">
+          <strong>Sweep persistence.</strong>{" "}The best-achievable and
+          risk-adjusted-WACC layers are written by the recompute passes, not by
+          the per-cell seeder (which stays fast), so a freshly seeded cell
+          carries the base layers immediately and the optional layers once a
+          recompute has visited it. At the last census 4,544 of 5,993 ready
+          cells carried them; the remainder are cells seeded since the last
+          pass, which the scheduled job fills as it re-fetches. Measured on that
+          population, the fixed 2:1 design point costs a median 2.5 % against
+          free sizing, and it favours <em>solar</em>: solar-led cells gain a
+          mean 2.63 % from sweeping the ratio, wind-led cells 4.21 %, because
+          flat wind saturates the electrolyser at a lower ratio (mean optimum
+          1.57&times;) than peaky solar does (2.18&times;).
         </p>
 
         {/* 24 */}
@@ -2634,12 +2663,23 @@ export default async function DocsPage() {
           </li>
           <li>
             One representative year repeated; no inter-annual variability,
-            battery buffering, part-load efficiency curve, or oversizing
-            optimizer (reserved for a future version).
+            battery buffering, or part-load efficiency curve (reserved for a
+            future version). Oversizing IS swept on the map&apos;s
+            best-achievable layer (&sect;32), though the headline layers stay at
+            the fixed 2:1 design point.
           </li>
           <li>
-            Map cells use one representative coordinate per H3 hexagon; the
-            turbine curve carries no air-density correction.
+            Map cells use one representative coordinate per H3 hexagon.
+          </li>
+          <li>
+            <strong>Wind model tiers.</strong>{" "}On the map the Open-Meteo path
+            DOES apply an air-density correction and per-site IEC turbine-class
+            selection (97.8 % of cells; their dataset tags carry{" "}
+            <code>-airdensity</code>{" "}and the selected class). The NASA POWER
+            fallback does not: a generic curve with fixed &alpha;&nbsp;=&nbsp;1/7
+            shear, currently 2.2 % of cells. That is a real modelling
+            difference, so those cells are outlined on the map and named in the
+            cell drawer rather than rendered as if they were comparable.
           </li>
           <li>
             Cost-year 2040/2050 figures are extrapolations, not IEA-published
