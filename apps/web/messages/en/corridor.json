@@ -294,6 +294,8 @@
       "tabProdOpex": "Production O&M, $m/yr",
       "tabFuelPrice": "Fuel price, $/t",
       "tabWtw": "WTW intensity, gCO2e/MJ",
+      "energyParityNote": "The two sides deliver {pct}% different energy ({side} carries more), so the abated tonnes compare unequal transport work. Nothing has been rescaled — check whether one side's fuel use was overridden alone.",
+      "energyParityKpiSub": "{pct}% energy mismatch — unequal work compared",
       "tabStorageCapex": "Storage CAPEX (year 1), $m",
       "tabStorageOpex": "Storage OPEX, $m/yr",
       "tabBargeCapex": "Barge CAPEX (year 1), $m",

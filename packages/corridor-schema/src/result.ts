@@ -112,8 +112,29 @@ export interface ScenarioIntermediates {
   readonly greenVesselCapexUsdM: number;
 }
 
+/**
+ * Delivered-energy parity for the abatement comparison (v7).
+ *
+ * `CO2 abated = vessels × (fossil t × fossil EF − green t × green EF)` is a
+ * MASS comparison, valid as a statement about the same transport work only
+ * when the two tonnages carry the same delivered energy. The derived chain
+ * guarantees that (both sides solve one geometry against their own LHV), so
+ * the ratio is 1.000 unless a burn override breaks it on one side.
+ */
+export interface ScenarioEnergyParity {
+  readonly greenMjPerYear: number;
+  readonly fossilMjPerYear: number;
+  /** green ÷ fossil. Null when the fossil side delivers no energy. */
+  readonly ratio: number | null;
+  /** Signed fractional divergence from parity; 0 = matched. */
+  readonly divergence: number | null;
+  /** True past ±5% — the UI raises an amber note, and nothing is clamped. */
+  readonly diverged: boolean;
+}
+
 export interface ScenarioResult {
   readonly summary: ScenarioSummary;
+  readonly energyParity: ScenarioEnergyParity;
   readonly reporting: ScenarioReporting;
   readonly intermediates: ScenarioIntermediates;
   readonly perYear: {

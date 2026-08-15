@@ -139,10 +139,10 @@ describe("v6 → v7 derived-value migration", () => {
     const raw = v6Payload((r) => {
       (r.cargo as Record<string, unknown>).vessels = 10;
       const v = r.vessel as Record<string, Record<string, unknown>>;
-      v.green.capexUsdM = 440;
-      v.green.opexUsdMPerYear = 32;
-      v.fossil.capexUsdM = 350;
-      v.fossil.opexUsdMPerYear = 28;
+      v.green!.capexUsdM = 440;
+      v.green!.opexUsdMPerYear = 32;
+      v.fossil!.capexUsdM = 350;
+      v.fossil!.opexUsdMPerYear = 28;
     });
     const { input } = migrateScenarioInput(raw);
     expect(input.vessel.green.capexUsdMPerShip).toBe(44);
@@ -159,8 +159,8 @@ describe("v6 → v7 derived-value migration", () => {
     const raw = v6Payload((r) => {
       (r.cargo as Record<string, unknown>).vessels = 10;
       const v = r.vessel as Record<string, Record<string, unknown>>;
-      v.green.capexUsdM = null;
-      v.green.opexUsdMPerYear = null;
+      v.green!.capexUsdM = null;
+      v.green!.opexUsdMPerYear = null;
     });
     const { input } = migrateScenarioInput(raw);
     expect(input.vessel.green.capexUsdMPerShip).toBeNull();
@@ -170,7 +170,7 @@ describe("v6 → v7 derived-value migration", () => {
   it("guards a zero vessel count rather than dividing to Infinity", () => {
     const raw = v6Payload((r) => {
       (r.cargo as Record<string, unknown>).vessels = 0;
-      (r.vessel as Record<string, Record<string, unknown>>).green.capexUsdM = 44;
+      (r.vessel as Record<string, Record<string, unknown>>).green!.capexUsdM = 44;
     });
     // vessels=0 fails validation downstream, but the migration must not
     // produce Infinity on the way there.

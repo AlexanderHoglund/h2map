@@ -95,6 +95,39 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
   const co2PerYear = ctx.timeline.years.map(() => basisPerYearT);
   const co2AbatedTonnes = co2PerYear.reduce((a, b) => a + b, 0); // row 81
 
+  // DELIVERED-ENERGY PARITY.
+  //
+  // Abatement above is a MASS comparison: fossil tonnes × EF minus green
+  // tonnes × EF. That is only a valid statement about the same transport
+  // work when the two tonnages carry the same delivered energy. Under the
+  // derived chain they do exactly — both sides solve the same
+  // 2 × distance × roundtrips × GJ/nm against their own LHV, so the ratio
+  // is 1.000 by construction and this costs nothing.
+  //
+  // Override ONE side's burn, though, and the comparison silently becomes
+  // "this much of fuel A against that much of fuel B", with no shared basis.
+  // The shipped Chilean default happens to be energy-matched (5,700/2,638 =
+  // 2.1607 against LHV 40,200/18,600 = 2.1613) but nothing enforced it, and
+  // the v6→v7 migrated vessel-benchmark scenarios are exactly the population
+  // where it can silently fail.
+  //
+  // DISCLOSE ONLY — never clamp, rescale or block. The user may have good
+  // reason to compare unequal work; they should just know they are.
+  const greenEnergyMj =
+    resolved.vessels *
+    greenInputs.fuel.tonnesPerVesselYear *
+    greenInputs.fuel.lhv;
+  const fossilEnergyMj =
+    resolved.vessels *
+    fossilInputs.fuel.tonnesPerVesselYear *
+    fossilInputs.fuel.lhv;
+  // Green ÷ fossil: >1 means the green side delivers MORE energy, so the
+  // abated figure flatters the comparison. Guard a zero fossil side rather
+  // than reporting Infinity.
+  const energyRatio =
+    fossilEnergyMj > 0 ? greenEnergyMj / fossilEnergyMj : null;
+  const energyDivergence = energyRatio === null ? null : energyRatio - 1;
+
   // Row 80: lifetime cargo = Σ annual throughput — cargo only, no fuel linkage.
   const cargoUnitsLifetime = resolved.unitsPerYear * resolved.horizonYears;
 
@@ -126,6 +159,27 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
       // Output!D26/D31 — the ×1e6 converts $m to $ explicitly.
       costPerUnitUsd: (gapPvUsdM * 1e6) / cargoUnitsLifetime,
       costPerTonneCo2Usd: (gapPvUsdM * 1e6) / co2AbatedTonnes,
+    },
+    // Delivered-energy parity for the abatement comparison. Outside
+    // `summary` for the same reason as `reporting` — the golden compares
+    // section-wise, so a new top-level block leaves the frozen fixture
+    // untouched.
+    energyParity: {
+      greenMjPerYear: greenEnergyMj,
+      fossilMjPerYear: fossilEnergyMj,
+      /** green ÷ fossil; 1.000 under the derived chain. Null if fossil is 0. */
+      ratio: energyRatio,
+      /** Signed fractional divergence from parity (0 = matched). */
+      divergence: energyDivergence,
+      /**
+       * Past ±5%, the abated tonnes compare unequal transport work and the
+       * UI raises an amber note. The threshold is a judgement call: small
+       * enough to catch a one-sided override, wide enough that rounding in
+       * a deliberately energy-matched scenario (the Chilean default sits at
+       * 0.03%) does not cry wolf.
+       */
+      diverged:
+        energyDivergence !== null && Math.abs(energyDivergence) > 0.05,
     },
     // Fix #1: pre/post-regulation split. Lives OUTSIDE `summary` — the
     // golden compares summary/intermediates/perYear section-wise, so this

@@ -230,6 +230,8 @@ export default function ResultsPanel({
     label: React.ReactNode;
     value: string;
     sub?: string;
+    /** "warn" renders the sub-line amber — a caveat, not a comparison. */
+    subTone?: "warn";
     strong?: boolean;
   }[] = [
     {
@@ -262,7 +264,20 @@ export default function ResultsPanel({
     },
     { label: t("green"), value: fmtUsdM(s.greenTotalPvUsdM) },
     { label: t("fossil"), value: fmtUsdM(s.fossilTotalPvUsdM) },
-    { label: t("co2"), value: `${formatSig(s.co2AbatedTonnes)} t` },
+    {
+      label: t("co2"),
+      value: `${formatSig(s.co2AbatedTonnes)} t`,
+      // The abated figure IS the mass comparison, so the caveat belongs on
+      // it, not only in the Energy card.
+      ...(result.energyParity.diverged
+        ? {
+            sub: t("energyParityKpiSub", {
+              pct: Math.abs(result.energyParity.divergence! * 100).toFixed(0),
+            }),
+            subTone: "warn" as const,
+          }
+        : {}),
+    },
   ];
 
   const decompRows: {
@@ -398,7 +413,13 @@ export default function ResultsPanel({
               {k.value}
             </p>
             {k.sub && (
-              <p className="mt-0.5 text-[11px] tabular-nums text-neutral-500">
+              <p
+                className={`mt-0.5 text-[11px] tabular-nums ${
+                  k.subTone === "warn"
+                    ? "font-medium text-amber-800"
+                    : "text-neutral-500"
+                }`}
+              >
                 {k.sub}
               </p>
             )}
@@ -660,6 +681,21 @@ export default function ResultsPanel({
                 [t("tabWtw"), resolved.green.wtw.value, resolved.fossil.wtw.value],
               ]}
             />
+            {/* Delivered-energy parity: abated tonnes are a MASS comparison,
+                so they only describe the same transport work when the two
+                burns carry equal energy. Derived = 1.000; a one-sided
+                override breaks it. Disclosed, never corrected. */}
+            {result.energyParity.diverged && (
+              <p className="mt-2 bg-amber-500/10 px-2 py-1.5 text-[11px] leading-snug text-amber-800">
+                {t("energyParityNote", {
+                  pct: Math.abs(result.energyParity.divergence! * 100).toFixed(0),
+                  side:
+                    result.energyParity.divergence! > 0
+                      ? t("sideGreen")
+                      : t("sideFossil"),
+                })}
+              </p>
+            )}
           </section>
 
           {/* 03 Vessels */}

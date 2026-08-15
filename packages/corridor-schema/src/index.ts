@@ -45,6 +45,7 @@ export type {
 } from "./resolved";
 export type {
   ScenarioIntermediates,
+  ScenarioEnergyParity,
   ScenarioReporting,
   SideImoNetZero,
   ScenarioResult,
