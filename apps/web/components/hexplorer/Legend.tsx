@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { domainLabels, lcohGradientCss, RAMP_STOPS } from "./scale";
+import { domainLabels, lcohGradientCss, RAMP_STOPS, stopPosition } from "./scale";
 import type { LayerBasis, LayerKey } from "./types";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
   maxDetail: boolean;
 }
 
-/** Always-visible legend (bottom-left): the reference ramp over 0–10 USD/kg. */
+/** Always-visible legend (bottom-left): the ramp over 3.5–10 USD/kg. */
 export default function Legend({ layerKey, basis, maxDetail }: Props) {
   const t = useTranslations("explorer");
   // The basis (WACC / best-achievable) only re-expresses the "best" layer.
@@ -31,7 +31,7 @@ export default function Legend({ layerKey, basis, maxDetail }: Props) {
           values are not evenly spaced), ends anchored to the bar's edges. */}
       <div className="relative mt-1 h-3.5 text-[10px] tabular-nums text-neutral-600">
         {labels.map((label, i) => {
-          const pct = (RAMP_STOPS[i]![0] / 10) * 100;
+          const pct = stopPosition(RAMP_STOPS[i]![0]) * 100;
           const style =
             i === 0
               ? { left: 0 }
