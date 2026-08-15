@@ -100,10 +100,10 @@
       "roundtrips": "Roundtrips per year (per vessel)",
       "green": "Green vessel",
       "fossil": "Fossil vessel",
-      "capex": "Fleet CAPEX (year 1)",
-      "capexGreenHelp": "Whole-fleet figure — the vessel count multiplies fuel and regulation only, never this cell. Benchmark = vessel type × (1 + green-fuel readiness premium), single hull.",
-      "capexFossilHelp": "Whole-fleet figure. Benchmark 0 — existing baseline fleet; override when the comparison builds new fossil tonnage too.",
-      "opex": "Fleet OPEX (excluding fuel)"
+      "capex": "CAPEX per ship (year 1)",
+      "capexGreenHelp": "Per-ship figure, multiplied by the vessel count for the fleet total. Benchmark = vessel type × (1 + green-fuel readiness premium), the same single-hull basis — so restoring the benchmark no longer changes the dimension.",
+      "capexFossilHelp": "Per-ship figure, multiplied by the vessel count. Benchmark 0 — existing baseline fleet, so no newbuild capital; override when the comparison builds new fossil tonnage too.",
+      "opex": "OPEX per ship (excluding fuel)"
     },
     "fuel": {
       "green": "Green fuel",
@@ -289,6 +289,7 @@
       "tabCargoPerYear": "Cargo per year",
       "tabFleetCapex": "Fleet CAPEX (year 1), $m",
       "tabFleetOpex": "Fleet OPEX (excluding fuel), $m/yr",
+      "tabPerShipNote": "Fleet totals — per-ship input × {vessels} vessels.",
       "tabFuelUse": "Fuel use, t/vessel/yr",
       "tabProdCapex": "Production CAPEX (year 1), $m",
       "tabProdOpex": "Production O&M, $m/yr",

@@ -45,8 +45,17 @@ interface Param {
   id: string;
   label: string;
   step: 1 | 2 | 3 | 4 | 5; // wizard step (Cargo/Vessel/Fuel/Port/Regulation)
-  low: number;
-  high: number;
+  /** Numeric params: the plausible range endpoints. */
+  low?: number;
+  high?: number;
+  /**
+   * Enum params: every defined option. Previously these were skipped and
+   * ranked "—", which hid n2oScenarioId — the dominant uncertainty per §15
+   * — from the sweep entirely. A categorical driver is swept across its
+   * options and ranks like any other field.
+   */
+  options?: readonly string[];
+  setOption?: (s: ScenarioInput, v: string) => void;
   /**
    * Part of the FROZEN UI prominence contract: only ui-flagged params feed
    * ui-manifest.json (top-level vs advanced) and the --check gate. The
@@ -54,7 +63,7 @@ interface Param {
    * field in the interface (user decision 2026-08-13: docs only, freeze UI).
    */
   ui?: boolean;
-  set: (s: ScenarioInput, v: number) => void;
+  set?: (s: ScenarioInput, v: number) => void;
 }
 
 // Plausible ranges: workbook-informed planning bands. Overrides go through the
@@ -129,6 +138,14 @@ const PARAMS: Param[] = [
   { id: "regulation.imoPriceEscalation", label: "IMO price escalation (/yr, module on)", step: 5, low: 0, high: 0.05, set: (s, v) => { s.regulation.imoNetZero = { enabled: true, scope: 1, priceEscalation: v }; } },
   // v6 — refined-emissions inputs (docs-only; the slip scenario is an
   // enum and stays unranked like routeType/consumptionMode).
+  // NOTE on certifiedWttGco2ePerMj measuring ~0%: the sweep baseline is the
+  // frozen workbook fixture, which carries no flags and therefore runs the
+  // COMBUSTION (TTW) basis, where a well-to-TANK factor is inert almost by
+  // definition. The parameter itself works — it moves the resolved green WtW
+  // from 12.64 to 34.68 gCO2e/MJ across this range — and §21's reported
+  // -23% abatement / +34% $/tCO2 were measured on a WELL-TO-WAKE scenario.
+  // Not a defect in the field or the sweep; a property of the baseline. It
+  // is docs-only (no `ui` flag), so the ~0% never demotes anything.
   { id: "green.certifiedWttGco2ePerMj", label: "Green certified pathway WtT (gCO2e/MJ)", step: 3, low: 5, high: 28.2, set: (s, v) => { s.green.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, ...(s.green.emissions ?? {}), certifiedWttGco2ePerMj: v }; } },
   { id: "green.pilotShare", label: "Pilot fuel share of energy (0–1)", step: 3, low: 0, high: 0.08, set: (s, v) => { s.green.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, ...(s.green.emissions ?? {}), pilotShare: v }; } },
   { id: "green.efficiencyRatio", label: "Engine efficiency ratio (green vs fossil)", step: 3, low: 0.8, high: 1.2, set: (s, v) => { s.green.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, ...(s.green.emissions ?? {}), efficiencyRatio: v }; } },
@@ -136,32 +153,125 @@ const PARAMS: Param[] = [
   { id: "financing.baseRate", label: "Base cost of debt (module on, green 6%)", step: 5, low: 0.05, high: 0.11, set: (s, v) => { s.financing = { enabled: true, greenRate: 0.06, baseRate: v, debtShare: 1, tenorYears: 15, structure: "amortizing" }; } },
   { id: "financing.debtShare", label: "Debt share of green CAPEX (module on)", step: 5, low: 0, high: 1, set: (s, v) => { s.financing = { enabled: true, greenRate: 0.06, baseRate: 0.08, debtShare: v, tenorYears: 15, structure: "amortizing" }; } },
   { id: "financing.tenorYears", label: "Loan tenor (yr, module on)", step: 5, low: 5, high: 25, set: (s, v) => { s.financing = { enabled: true, greenRate: 0.06, baseRate: 0.08, debtShare: 1, tenorYears: Math.round(v), structure: "amortizing" }; } },
+  // ---------------------------------------------------------------------
+  // ENUM params. Previously skipped and ranked "—", which hid the model's
+  // dominant emissions uncertainty from the sweep entirely (§15). Swept
+  // across every defined option.
+  // ---------------------------------------------------------------------
+  {
+    id: "green.n2oScenarioId",
+    label: "N2O slip scenario (e-ammonia)",
+    step: 3,
+    // The published span is ×37 in slip mass (6.81e-05 → 0.0025 g N2O/g NH3),
+    // adding 1.0 → 36.69 gCO2e/MJ. It also flips ZNZ qualification, which no
+    // continuous parameter in this sweep does.
+    options: ["tested-two-stroke", "optimised-injection", "highest-observed"],
+    setOption: (s, v) => {
+      s.green.emissions = {
+        ...{
+          certifiedWttGco2ePerMj: null,
+          n2oScenarioId: null,
+          pilotShare: null,
+          pilotFuelId: null,
+          engineType: null,
+          sulphurPercent: null,
+          efficiencyRatio: null,
+        },
+        ...(s.green.emissions ?? {}),
+        n2oScenarioId: v,
+      };
+    },
+  },
 ];
 
-function gapFor(mutate?: (s: ScenarioInput) => void): number {
+/**
+ * The headline KPIs the model actually reports.
+ *
+ * The sweep measured movement of the GAP alone, which made every driver of
+ * every other output invisible: n2oScenarioId ranked "—" while §15 calls it
+ * the dominant uncertainty, and cargo.unitsPerYear measured 0.0% while being
+ * the sole driver of $/cargo unit, the study's own headline figure. A field's
+ * placement now comes from the MAX movement across all of these, and the KPI
+ * that produced it is recorded so the placement is traceable.
+ */
+const KPIS = [
+  { id: "gapPvUsdM", label: "Cost gap (PV $m)" },
+  { id: "costPerUnitUsd", label: "$ per cargo unit" },
+  { id: "costPerTonneCo2Usd", label: "$ per tCO2 abated" },
+  { id: "greenTotalPvUsdM", label: "Green total (PV $m)" },
+  { id: "fossilTotalPvUsdM", label: "Fossil total (PV $m)" },
+  { id: "co2AbatedTonnes", label: "Lifetime CO2 abated (t)" },
+] as const;
+type KpiId = (typeof KPIS)[number]["id"];
+
+type KpiVector = Record<KpiId, number>;
+
+function kpisFor(mutate?: (s: ScenarioInput) => void): KpiVector {
   // The fixture is frozen at v1 — the migration registry brings it to current.
   const input = migrateScenarioInput(JSON.parse(JSON.stringify(baseRaw))).input;
   mutate?.(input);
-  return evaluateScenario(resolveScenario(input, bundle)).summary.gapPvUsdM;
+  const summary = evaluateScenario(resolveScenario(input, bundle)).summary;
+  return {
+    gapPvUsdM: summary.gapPvUsdM,
+    costPerUnitUsd: summary.costPerUnitUsd,
+    costPerTonneCo2Usd: summary.costPerTonneCo2Usd,
+    greenTotalPvUsdM: summary.greenTotalPvUsdM,
+    fossilTotalPvUsdM: summary.fossilTotalPvUsdM,
+    co2AbatedTonnes: summary.co2AbatedTonnes,
+  };
 }
 
 function main(): void {
   const checkMode = process.argv.includes("--check");
-  const baseGap = gapFor();
+  const base = kpisFor();
+
+  /** Relative movement of every KPI between a param's sampled settings. */
+  const movementOf = (samples: KpiVector[]) => {
+    const per = {} as Record<KpiId, number>;
+    for (const { id } of KPIS) {
+      const b = base[id];
+      let worst = 0;
+      for (const v of samples) {
+        // Relative to the BASELINE value of that KPI, so KPIs on wildly
+        // different scales ($m vs tonnes vs $/t) compare on equal terms.
+        const rel = b === 0 ? (v[id] === 0 ? 0 : Infinity) : Math.abs((v[id] - b) / b);
+        if (Number.isFinite(rel) && rel > worst) worst = rel;
+      }
+      per[id] = worst;
+    }
+    return per;
+  };
 
   const rows = PARAMS.map((p) => {
-    const lowGap = gapFor((s) => p.set(s, p.low));
-    const highGap = gapFor((s) => p.set(s, p.high));
-    const maxAbsDelta = Math.max(Math.abs(lowGap - baseGap), Math.abs(highGap - baseGap));
+    // Numeric params sample their endpoints; enum params sample every
+    // defined option, so a categorical driver can rank instead of being
+    // skipped as "—".
+    const samples = p.options
+      ? p.options.map((o) => kpisFor((s) => p.setOption!(s, o)))
+      : [kpisFor((s) => p.set!(s, p.low!)), kpisFor((s) => p.set!(s, p.high!))];
+    const per = movementOf(samples);
+    // Placement comes from the MAX across KPIs; the KPI that produced it is
+    // recorded so a field's prominence is traceable to the output it moves.
+    let binding: KpiId = "gapPvUsdM";
+    for (const { id } of KPIS) if (per[id] > per[binding]) binding = id;
+    const gapSamples = samples.map((v) => v.gapPvUsdM);
     return {
       id: p.id,
       label: p.label,
       step: p.step,
-      range: [p.low, p.high] as const,
-      gapAtLow: lowGap,
-      gapAtHigh: highGap,
-      maxAbsDeltaUsdM: maxAbsDelta,
-      relHeadlineMovement: maxAbsDelta / Math.abs(baseGap),
+      range: p.options ? p.options : ([p.low, p.high] as const),
+      // Gap columns kept for continuity — §20's primary ranking is still
+      // the gap, so the historical figures stay comparable.
+      gapAtLow: gapSamples[0]!,
+      gapAtHigh: gapSamples[gapSamples.length - 1]!,
+      maxAbsDeltaUsdM: Math.max(
+        ...gapSamples.map((g) => Math.abs(g - base.gapPvUsdM)),
+      ),
+      relHeadlineMovement: per.gapPvUsdM,
+      /** Per-KPI relative movement, and the one that binds placement. */
+      movementByKpi: per,
+      bindingKpi: binding,
+      maxRelMovement: per[binding],
     };
   }).sort((a, b) => b.maxAbsDeltaUsdM - a.maxAbsDeltaUsdM);
 
@@ -169,11 +279,14 @@ function main(): void {
   // docs-only extension must never move a field in the interface.
   const uiIds = new Set(PARAMS.filter((p) => p.ui).map((p) => p.id));
   const uiRows = rows.filter((r) => uiIds.has(r.id));
+  // Placement from the MAX across KPIs, not the gap alone: a field that
+  // barely moves the gap but drives $/cargo unit or $/tCO2 is a top-level
+  // field, and was previously buried in advanced.
   const topLevel = uiRows
-    .filter((r) => r.relHeadlineMovement >= TOP_LEVEL_THRESHOLD)
+    .filter((r) => r.maxRelMovement >= TOP_LEVEL_THRESHOLD)
     .map((r) => r.id);
   const advanced = uiRows
-    .filter((r) => r.relHeadlineMovement < TOP_LEVEL_THRESHOLD)
+    .filter((r) => r.maxRelMovement < TOP_LEVEL_THRESHOLD)
     .map((r) => r.id);
 
   if (checkMode) {
@@ -210,7 +323,9 @@ function main(): void {
       {
         baseline: "excel-baseline",
         refBundleId: bundle.bundleId,
-        baseGapPvUsdM: baseGap,
+        baseGapPvUsdM: base.gapPvUsdM,
+        baseKpis: base,
+        kpis: KPIS,
         topLevelThreshold: TOP_LEVEL_THRESHOLD,
         ranked: rows,
       },
@@ -231,7 +346,7 @@ function main(): void {
       1,
     ) + "\n",
   );
-  console.log(`base gap ${baseGap.toFixed(3)} $m · ${rows.length} params swept`);
+  console.log(`base gap ${base.gapPvUsdM.toFixed(3)} $m · ${rows.length} params swept`);
   console.log(`top-level (${topLevel.length}): ${topLevel.join(", ")}`);
   console.log(`wrote data/corridor-sensitivity/{sensitivity,ui-manifest}.json`);
 }

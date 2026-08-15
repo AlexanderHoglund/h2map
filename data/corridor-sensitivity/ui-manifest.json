@@ -2,10 +2,10 @@
  "generatedFrom": "sensitivity.json",
  "note": "Field prominence for the corridor UI: topLevel ≥5% headline movement among the ui-flagged sweep params, rest advanced. Docs-only sweep params never enter this file. CI (--check) fails when this drifts from the model.",
  "topLevel": [
+  "cargo.vessels",
   "cargo.oneWayDistanceNm",
   "vessel.green.capexUsdM",
   "vessel.green.opexUsdMPerYear",
-  "cargo.vessels",
   "green.prodCapexUsdM",
   "green.prodOpexUsdMPerYear",
   "green.fuelTonnesPerVesselYear",
@@ -16,19 +16,19 @@
   "green.priceUsdPerTonne",
   "port.storageCapexUsdM",
   "port.storageOpexUsdMPerYear",
-  "cargo.roundtripsPerYear"
- ],
- "advanced": [
-  "port.bargeCapexUsdM",
+  "cargo.roundtripsPerYear",
   "regulation.fuelEuPenalty",
   "regulation.fuelEuScope",
   "regulation.euaEurPerTonne",
   "fossil.priceUsdPerTonne",
-  "capitalPhasing.years",
   "regulation.etsScope",
   "fossil.wtwGco2PerMj",
   "regulation.eurUsd",
-  "green.wtwGco2PerMj",
   "cargo.unitsPerYear"
+ ],
+ "advanced": [
+  "port.bargeCapexUsdM",
+  "capitalPhasing.years",
+  "green.wtwGco2PerMj"
  ]
 }

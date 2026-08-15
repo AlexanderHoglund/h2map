@@ -717,6 +717,13 @@ export default function ResultsPanel({
                 ],
               ]}
             />
+            {/* The INPUT is per-ship (v7) and this card reports the fleet
+                total, so say which is which — the two differing by a factor
+                of the vessel count is exactly the confusion that made the
+                old benchmark mismatch invisible. */}
+            <p className="mt-2 text-[11px] text-neutral-500">
+              {t("tabPerShipNote", { vessels: resolved.vessels })}
+            </p>
           </section>
 
           {/* 04 Cargo */}
