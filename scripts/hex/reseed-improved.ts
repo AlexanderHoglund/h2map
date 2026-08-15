@@ -15,6 +15,15 @@
  * unresolvable cells are skipped. Set RESEED_LIMIT to cap the cell count (for a
  * smoke test).
  *
+ * This job does NOT converge on "every cell re-seeded", and that is correct.
+ * A cell seeded before the latitude mounting rule may sit over water: PVGIS
+ * answers `400 Location over the sea` there, so its PV can never be
+ * re-fetched and it is skipped on every pass, forever. (Measured 2026-08-15
+ * at five skipped cells — 54.9-68.6°N, all North Sea/Baltic — against two
+ * land controls at Bergen and Copenhagen, which return 200 normally.) So
+ * progress is best read as the tilt-tagged share of cells that CAN fetch PV,
+ * not as a count trending to zero skips.
+ *
  *   npm run hex:reseed-improved
  */
 import { cellToLatLng } from "h3-js";

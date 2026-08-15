@@ -2190,7 +2190,17 @@ export default async function DocsPage() {
             genuine fidelity distinction. Cached profiles also carry a model
             generation in their dataset version, and the cache refuses to serve
             a superseded generation (e.g. a profile built before the mounting
-            rule), so one map never mixes two models.
+            rule), so one map never mixes two models.{" "}
+            <strong>This transition is still in progress</strong>: refusing a
+            superseded profile turns it into a re-fetch, and re-fetching is
+            rate-limited by the upstream providers, so the map currently holds
+            a mix of cells already rebuilt under the mounting rule and cells
+            awaiting their turn (1,918 of 6,160 ready cells rebuilt as of
+            2026-08-15). Cells whose PV cannot be re-fetched at all — the
+            seeded-over-water cases, where PVGIS answers{" "}
+            <em>location over the sea</em>{" "}— never convert, so the share does
+            not reach 100%. Until the sweep completes, cross-cell comparisons
+            of solar values carry this caveat.
           </li>
         </ul>
         <p className="mt-3 font-medium">Wind-speed extrapolation to hub height</p>
