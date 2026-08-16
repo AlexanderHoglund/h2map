@@ -358,23 +358,32 @@ export function clearOverrides(s: ScenarioInput): ScenarioInput {
  * you know only the route, and take every cost from the model's own
  * reference data?
  *
- * THE ANSWER DIVERGES SHARPLY, AND THAT IS THE FINDING:
+ * THE ANSWER, on bundle 2026-08-18-fuel-v4:
  *
- *   gap NPV (pre-reg)    $334.2m   against the study's $2,000m   (−83%)
- *   $/cargo tonne         $13.50   against $80
+ *   gap NPV (pre-reg)   $1,520.2m   against the study's $2,000m   (−24%)
+ *   $/cargo tonne          $61.42   against $80                   (−23%)
+ *   plant CAPEX / OPEX  $827m / $42.9m/yr   vs the study's $1,100m / $72m/yr
  *
- * Almost all of it is the plant. The benchmark production line is $55m CAPEX
- * and $3m/yr OPEX; the study's 60 kt/yr Atacama facility is $1,100m and
- * $72m/yr — the benchmark is 5% of the CAPEX and 4.2% of the OPEX. The
- * workbook's generic figures describe a small demonstration plant, not a
- * corridor-scale one, and this scenario is the cleanest way to see that.
+ * It closes to 76% of the study and stops. Nothing here is tuned to the
+ * study — landing exactly on $2,000m would have meant something was — and
+ * the residual is scale, first-of-a-kind execution and site quality.
  *
- * SO DO NOT READ THIS AS A CORRIDOR ESTIMATE. It is a statement about the
- * reference data: the model's own defaults, applied to a real corridor with
- * no project knowledge, understate it roughly six-fold. Sizing the plant
- * from the corridor's actual demand is what the build-here/LCOH path exists
- * for, and that is the honest route to a benchmark-only number that means
- * something.
+ * THIS USED TO SAY SOMETHING VERY DIFFERENT, and the change is worth keeping
+ * on the record. Before 18 August 2026 the answer was a $334m gap and $13.50
+ * a tonne, 83% below the study, because production capex was an unsourced
+ * flat $55m that did not scale with the corridor at all: a 15 kt/yr corridor
+ * and a 600 kt/yr one were charged the same. That made the benchmark plant
+ * 5% of the study's Atacama facility, and this scenario was the cleanest way
+ * to see it. The fuel rows have since been re-based from researched sources
+ * and production capex now scales with the corridor's own demand, so the
+ * same plant costs $827m — 75% of the study's fitted figure.
+ *
+ * IT IS STILL NOT A CORRIDOR ESTIMATE, for a narrower reason than before.
+ * The costs are now researched rather than generic, but 17 of the 30
+ * researched blocks are honestly unverified — bunkering for every fuel,
+ * everything about liquid hydrogen — so this reads the best public data
+ * there is, not a project estimate. Sizing the plant from an evaluated site
+ * is what the build-here/LCOH path exists for.
  *
  * Two decisions this makes beyond clearing overrides, both for the same
  * reason — a fitted input is an assertion even when it is not an override:

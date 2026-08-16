@@ -34,10 +34,9 @@ import {
  *                          or derived from the route.
  *
  * None is "the right answer" alone. The first says what the report said;
- * the last says what the model's generic reference data says about the same
- * route, and lands 83% lower — almost entirely because the benchmark plant
- * is 5% of the study's Atacama facility. The SPREAD is the useful output,
- * not any single number in it.
+ * the last says what the model's own researched reference data says about
+ * the same route, and lands 24% lower. The SPREAD is the useful output, not
+ * any single number in it.
  *
  * They are gated DIFFERENTLY, and the reason matters. The original example
  * rides the once-ever stamp. The second was added later, by which point
@@ -183,9 +182,11 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   // The same corridor with NOTHING asserted — every figure a bundle
-  // benchmark or derived from the route. It lands 83% below the study, and
-  // that divergence is the point: it measures how far the model's generic
-  // reference data sits from a real corridor-scale project.
+  // benchmark or derived from the route. It lands 24% below the study, and
+  // the remaining distance is the point: it measures what the model's own
+  // researched data says about a real corridor when nobody types a number
+  // in. (It was 83% below until the fuel rows were re-based in
+  // 2026-08-18-fuel-v4 and production capex started scaling with demand.)
   const benchmark = await ensureByName(
     BENCHMARK_EXAMPLE_NAME,
     benchmarkChileScenario(),
