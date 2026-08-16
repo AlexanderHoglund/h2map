@@ -946,6 +946,14 @@
    "placement": "—"
   },
   {
+   "path": "commercial.willingnessToPayUsdPerTonneCo2",
+   "type": "number",
+   "required": true,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
    "path": "capitalPhasing.enabled",
    "type": "boolean",
    "required": true,

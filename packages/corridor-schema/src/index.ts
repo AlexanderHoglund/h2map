@@ -65,6 +65,13 @@ export { migrateScenarioInput } from "./migrate";
 export type { MigratedScenario } from "./migrate";
 export { parseRefBundle, refBundleSchema } from "./ref/bundle";
 export { gjPerNmFromEedi, resolveVesselBySize } from "./ref/vesselDerivation";
+export {
+  scaleCorrection,
+  scaledCapitalUsd,
+  specificCapitalScaleFactor,
+  SCALE_EXTRAPOLATION_LIMIT,
+} from "./ref/scale";
+export type { ScaleCorrection } from "./ref/scale";
 export type { DerivedVessel, VesselSource } from "./ref/vesselDerivation";
 export type { RefBundle, RefCountry, RefFuel, RefVesselType } from "./ref/bundle";
 export { getCountry, getFuel, getVesselType } from "./ref/accessors";

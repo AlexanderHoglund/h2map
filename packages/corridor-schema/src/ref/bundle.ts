@@ -77,6 +77,120 @@ const vesselTypeSchema = z.object({
   deprecated: z.boolean().optional(),
 });
 
+/**
+ * A low/central/high band. Every band in the researched data is strictly
+ * ASCENDING except `scaleExponent`, which preserves the bundle's existing
+ * descending convention (low 0.95 / central 0.85 / high 0.75 — `low` holds
+ * the numerically larger exponent, i.e. LESS discount at scale).
+ *
+ * That inconsistency is deliberate on the research side and is flagged here
+ * rather than normalised: one field inverted against fifteen others is how a
+ * low/high gets silently swapped later. Normalising it is a separate change,
+ * because it would move numbers.
+ */
+const bandSchema = z.object({
+  low: z.number(),
+  central: z.number(),
+  high: z.number(),
+});
+
+/**
+ * One citation. Replaces the `sourceNote` string, which for every fuel row
+ * was a spreadsheet cell address (`Data_tables!B17`) — not something a reader
+ * can check, and not a basis for `verified: true`.
+ *
+ * `figureUsed` is the number AS PRINTED in the source, before any conversion
+ * of ours; the conversion belongs in `note`. That separation is what makes a
+ * figure traceable back to a page rather than to our arithmetic.
+ */
+const sourceRefSchema = z.object({
+  title: z.string(),
+  publisher: z.string(),
+  year: z.number().int(),
+  locator: z.string(),
+  url: z.string(),
+  figureUsed: z.string(),
+  note: z.string(),
+});
+
+/**
+ * Production cost as $/tpa at a STATED reference nameplate, so it can be
+ * scale-corrected. The flat `prodCapexUsdM` scalar below charged a 15 kt/yr
+ * corridor and a 600 kt/yr one the same $55m.
+ *
+ * SCOPE: a complete export-ready complex INCLUDING dedicated renewables.
+ * This is NOT the same quantity as `SynthesisBenchmark.plantCapexUsdPerTpa`,
+ * which is synthesis-island only because the LCOH engine carries generation
+ * separately. Renewables plus electrolysis are ~73% of this number; feeding
+ * one into the other would double-count them. `scopeIncluded` /
+ * `scopeExcluded` are carried so the boundary is data, not folklore.
+ *
+ * `foakMultiplier` applies to a NOAK or study-derived baseline ONLY. The
+ * researched central is already FOAK-inclusive — it is anchored on NEOM at
+ * financial close and AM Green at FID, both first-of-a-kind with contingency
+ * inside their published numbers. See `productionCapexUsdM` in resolve.ts,
+ * which deliberately does not apply it.
+ */
+const fuelProductionSchema = z.object({
+  referenceNameplateTonnesPerYear: z.number().nonnegative(),
+  capexUsdPerTpa: bandSchema,
+  opexUsdPerTpaPerYear: bandSchema,
+  scaleExponent: bandSchema,
+  foakMultiplier: bandSchema,
+  scopeIncluded: z.array(z.string()),
+  scopeExcluded: z.array(z.string()),
+  verified: z.boolean(),
+  sources: z.array(sourceRefSchema),
+});
+
+/** Absolute cost at a stated throughput — port storage and bunkering. */
+const fuelFacilitySchema = z.object({
+  basisTonnesPerYearThroughput: z.number().nonnegative().optional(),
+  capexUsdM: bandSchema,
+  opexUsdMPerYear: bandSchema,
+  scopeIncluded: z.array(z.string()).optional(),
+  /** jetty (shore-to-ship), barge (ship-to-ship), or both. */
+  mode: z.enum(["jetty", "barge", "both"]).optional(),
+  verified: z.boolean(),
+  sources: z.array(sourceRefSchema),
+});
+
+/** A researched scalar with its own provenance and verified flag. */
+const fuelPricedSchema = z.object({
+  usdPerTonne: bandSchema,
+  priceType: z.enum(["delivered", "fob", "production-cost"]),
+  assessmentDate: z.string(),
+  verified: z.boolean(),
+  sources: z.array(sourceRefSchema),
+});
+
+const fuelPremiumSchema = z.object({
+  fraction: bandSchema,
+  appliesTo: z.string(),
+  verified: z.boolean(),
+  sources: z.array(sourceRefSchema),
+});
+
+/**
+ * The researched block. OPTIONAL and parallel to the flat scalars above, not
+ * a replacement for them: four UI sites interpolate `sourceNote` into a
+ * template string and `build-vessel-bundle.ts` concatenates it behind an
+ * `as string` cast, so a flag-day swap would render "[object Object]".
+ * Bundles published before this block simply resolve the old way.
+ *
+ * `verified` lives PER BLOCK, not per fuel. A well-sourced production cost
+ * beside a guessed barge cost is the normal case — 13 of 30 blocks in the
+ * researched data are verified and the other 17 are honestly false. The UI
+ * badge is the point of recording it.
+ */
+const fuelResearchSchema = z.object({
+  production: fuelProductionSchema,
+  portStorage: fuelFacilitySchema,
+  bunkering: fuelFacilitySchema,
+  merchantPrice: fuelPricedSchema,
+  vesselCapexPremium: fuelPremiumSchema,
+});
+
 const fuelSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -110,8 +224,25 @@ const fuelSchema = z.object({
    * lets a user typing over the row anchor it correctly.
    */
   prodNameplateTonnesPerYear: z.number().positive().optional(),
+  /**
+   * Whether this fuel rides infrastructure that already exists at a
+   * commercial bunker port.
+   *
+   * Replaces the `isFossil` branch in resolve.ts, which was the wrong axis
+   * twice over: it keyed on WHICH SIDE of the comparison a fuel sat on
+   * rather than on the fuel, and it discarded the row's own port and barge
+   * capex. LNG is fossil and needs a full cryogenic terminal plus a $55-90m
+   * bunker vessel — it already carries $8m/$3m in this bundle and the fossil
+   * side zeroed both. True for LSFO and for biodiesel blends, which go into
+   * existing product tankage through the incumbent barge fleet.
+   *
+   * Optional so an older bundle without it falls back to the side branch.
+   */
+  incumbentInfrastructure: z.boolean().optional(),
   verified: z.boolean(),
   sourceNote: z.string(),
+  /** Researched costs with real provenance. Absent on pre-2026-08-18 bundles. */
+  research: fuelResearchSchema.optional(),
 });
 
 const countrySchema = z.object({

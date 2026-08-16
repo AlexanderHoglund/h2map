@@ -55,6 +55,7 @@ import type {
 } from "./resolved";
 import type { RefBundle, RefFuel, RefVesselType } from "./ref/bundle";
 import { getCountry, getFuel, getVesselType } from "./ref/accessors";
+import { scaledCapitalUsd } from "./ref/scale";
 import { deriveFuelFactors, type DerivedFuelFactors } from "./emissions";
 
 // ---------------------------------------------------------------------------
@@ -234,6 +235,56 @@ function resolveFuelSide(
   // them would be a cost the corridor never sees.
   const firmCapexUsdM = bh?.firming ? bh.firming.capitalUsdM : 0;
   const firmOpexUsdM = bh?.firming ? bh.firming.operatingUsdMPerYear : 0;
+  // THE CORRIDOR'S OWN ANNUAL DEMAND — what a dedicated plant must be built
+  // to supply. This is the quantity the researched $/tpa figures scale
+  // against, and the reason `prodNameplateTonnesPerYear` existed in the data
+  // for two weeks without a single reader: production cost resolved as a flat
+  // scalar, so a 15 kt/yr corridor and a 600 kt/yr one were charged the same.
+  const corridorDemandTonnesPerYear =
+    (tonnes.value as number) * scenario.cargo.vessels;
+
+  /**
+   * Production capital from the researched $/tpa benchmark, scale-corrected.
+   *
+   * Returns null when the bundle carries no research block, so an older
+   * bundle keeps resolving through the flat scalar below and its numbers do
+   * not move.
+   *
+   * NOTE THE MISSING foakMultiplier, which is deliberate. The researched
+   * central is ALREADY first-of-a-kind — it is anchored on NEOM at financial
+   * close and AM Green at FID, both carrying FOAK contingency inside their
+   * published figures. The band is there for a NOAK or study-derived
+   * baseline; applying it here would charge FOAK twice.
+   */
+  const researchedProdCapexUsdM = (): number | null => {
+    const r = fuel.research?.production;
+    if (!r || r.referenceNameplateTonnesPerYear <= 0) return null;
+    if (corridorDemandTonnesPerYear <= 0) return null;
+    return (
+      scaledCapitalUsd(
+        r.capexUsdPerTpa.central,
+        r.referenceNameplateTonnesPerYear,
+        r.scaleExponent.central,
+        corridorDemandTonnesPerYear,
+      ) / 1e6
+    );
+  };
+
+  /**
+   * Production O&M, likewise per tpa and likewise scaled with demand.
+   *
+   * The research note flags that `opex = pct x capex` is wrong-signed under
+   * scale — a small plant carries a higher capex/tpa AND a higher true
+   * O&M/tpa, so a fixed percentage of an already-inflated capex counts the
+   * penalty twice. The researched data gives an ABSOLUTE $/tpa/yr, so this
+   * takes it directly and avoids the compounding.
+   */
+  const researchedProdOpexUsdM = (): number | null => {
+    const r = fuel.research?.production;
+    if (!r || corridorDemandTonnesPerYear <= 0) return null;
+    return (r.opexUsdPerTpaPerYear.central * corridorDemandTonnesPerYear) / 1e6;
+  };
+
   const prodCapex: Resolved<UsdM> = noProductionLines
     ? derived(usdM(0))
     : bh
@@ -247,7 +298,10 @@ function resolveFuelSide(
             ? "override"
             : "derived",
         }
-      : resolve(o.prodCapexUsdM, usdM, () => benchmark(usdM(fuel.prodCapexUsdM)));
+      : resolve(o.prodCapexUsdM, usdM, () => {
+          const scaled = researchedProdCapexUsdM();
+          return benchmark(usdM(scaled ?? fuel.prodCapexUsdM));
+        });
   const prodOpex: Resolved<UsdM> = noProductionLines
     ? derived(usdM(0))
     : bh
@@ -266,9 +320,10 @@ function resolveFuelSide(
             ? "override"
             : "derived",
         }
-      : resolve(o.prodOpexUsdMPerYear, usdM, () =>
-        benchmark(usdM(fuel.prodOpexUsdMPerYear)),
-      );
+      : resolve(o.prodOpexUsdMPerYear, usdM, () => {
+          const scaled = researchedProdOpexUsdM();
+          return benchmark(usdM(scaled ?? fuel.prodOpexUsdMPerYear));
+        });
 
   // THE GUARD (spec §1): charging a fuel price AND production CAPEX/OPEX on
   // one side is the Excel double-count — allowed only under the migrated

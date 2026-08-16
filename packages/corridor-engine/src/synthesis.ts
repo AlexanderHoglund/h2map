@@ -20,6 +20,7 @@ import type {
   SynthesisConfig,
   SynthesisPlantConfig,
 } from "@h2map/corridor-schema";
+import { specificCapitalScaleFactor } from "@h2map/corridor-schema";
 
 export interface SynthesisBreakdown {
   h2FeedstockUsdPerTonne: number;
@@ -56,10 +57,15 @@ export function synthesisScaleFactor(
   nameplateTonnesPerYear: number,
   foakMultiplier = 1,
 ): number {
-  return (
-    (nameplateTonnesPerYear / benchmark.referenceScaleTonnesPerYear) **
-      (benchmark.scaleExponent - 1) *
-    foakMultiplier
+  // Delegates to the single implementation in corridor-schema. The build-plant
+  // path needs the same power law from inside resolve.ts, and the schema
+  // package cannot import from the engine — so the arithmetic lives there and
+  // this stays as the synthesis-flavoured signature its callers already use.
+  return specificCapitalScaleFactor(
+    benchmark.referenceScaleTonnesPerYear,
+    benchmark.scaleExponent,
+    nameplateTonnesPerYear,
+    foakMultiplier,
   );
 }
 
