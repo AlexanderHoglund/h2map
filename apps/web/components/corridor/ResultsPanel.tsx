@@ -44,6 +44,7 @@ import {
 } from "./results/charts";
 import type { WfStep } from "./results/charts";
 import { warnIfDominated } from "./results/guard";
+import { ProbabilisticSection } from "./results/probabilistic";
 
 /**
  * The full results report (its own tab), in two bands: RESULTS & DIAGRAMS
@@ -996,6 +997,13 @@ export default function ResultsPanel({
           </Card>
         </div>
       )}
+
+      {/*
+        Last, and deliberately so: the deterministic report above is what the
+        rest of the tab means, and a distribution rendered alongside it invites
+        reading one as a correction of the other. Opt-in, below everything.
+      */}
+      <ProbabilisticSection scenario={scenario} ready={result !== null && !error} />
     </div>
   );
 }

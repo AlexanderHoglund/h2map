@@ -130,6 +130,27 @@ engine can replace the internals later without touching callers.
 
 Documented inline (see source).
 
+### `@h2map/corridor-engine/monteCarlo.ts`
+
+**Purpose**
+
+Probabilistic corridor — the result as a distribution, not a point.
+
+**Boundary (imports)**: `@h2map/corridor-schema`, `@h2map/corridor-schema`, `./index`
+
+**Exports (inputs/outputs)**: `MC_KPIS`, `McKpi`, `SAMPLED`, `SampledKey`, `PERCENTILES`, `KpiDistribution`, `McContribution`, `McResult`, `triangular`, `percentileOf`, `runMonteCarlo`
+
+**Assumptions**
+
+The sibling of `band.ts`, and deliberately not a replacement for it.
+`computeBand` moves four hard-coded drivers to their endpoints together and
+reports a 3-point span; it answers "how wide could this be?". This answers a
+different question — "where does it actually land?" — which needs a
+distribution, because the endpoints of a span carry no probability mass and
+the middle of a span is not the median. On the Chilean benchmark corridor
+the sampled median sits ABOVE the deterministic point estimate, and no
+3-point band can show that.
+
 ### `@h2map/corridor-engine/rates.ts`
 
 **Purpose**

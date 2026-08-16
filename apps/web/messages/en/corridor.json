@@ -330,7 +330,35 @@
         "fueleu": "FuelEU factors",
         "imo": "IMO factors",
         "legacy": "legacy factors"
-      }
+      },
+      "probabilistic": "Probabilistic view",
+      "probRun": "Run probabilistic view",
+      "probRerun": "Re-run",
+      "probIntro": "The results above are single numbers. The researched production benchmarks each carry a sourced low/central/high range, so this runs the corridor 2,000 times across those ranges and reports where it lands.",
+      "probUnavailable": "Available once the scenario resolves — fix the blocking input above.",
+      "probStale": "Inputs have changed since this run. Re-run to match the results above.",
+      "probHeadline": "Incremental cost gap (PV), median of 2,000 runs",
+      "probRange": "P05–P95",
+      "probPoint": "Point estimate",
+      "probDraws": "runs",
+      "probKpi": "Metric",
+      "probDriver": "Most of the spread is",
+      "probCaveat": "A screening range, not a quote. It samples the three researched production parameters the model reads — plant CAPEX, plant O&M and the scale exponent — and treats them as independent, which widens the range where they would in practice move together. Port, bunkering and merchant-price ranges are researched but not yet priced in.",
+      "kpi": {
+        "gapPvUsdM": "Incremental cost gap (PV)",
+        "costPerUnitUsd": "Cost per unit of cargo",
+        "costPerTonneCo2Usd": "Cost per tonne CO2 abated",
+        "greenTotalPvUsdM": "Green corridor (PV)",
+        "fossilTotalPvUsdM": "Fossil corridor (PV)",
+        "co2AbatedTonnes": "CO2 abated over lifetime"
+      },
+      "probParam": {
+        "capexUsdPerTpa": "plant CAPEX ($/tpa)",
+        "opexUsdPerTpaPerYear": "plant O&M ($/tpa/yr)",
+        "scaleExponent": "the scale exponent"
+      },
+      "probDegenerate": "This scenario sets plant CAPEX and O&M directly, so the researched ranges this samples are never used and every run returns the same answer. Clear those overrides on the Fuel tab to see the range.",
+      "probRunning": "Running…"
     },
     "buildHere": {
       "chip": "cell {cell} · LCOH ${lcoh}/kg ({rate}%) · synthesis {nameplate} kt/yr, scale ×{scale} · {km} km to port",
