@@ -341,27 +341,59 @@ function resolveFuelSide(
     );
   }
 
-  // Port storage & barge. Fossil benchmarks: capex = 0 ("existing
-  // infrastructure assumed"), opex = fossil fuel-table opex × 0.3.
+  /**
+   * Port storage & barge.
+   *
+   * THE AXIS CHANGED. This used to branch on `isFossil` — which is not the
+   * fuel's family but WHICH SIDE OF THE COMPARISON it sits on — and it
+   * discarded the row's own capex entirely, substituting
+   * `benchmarkRules.fossilPortCapexUsdM` (zero). Two things wrong with that:
+   *
+   *  - LNG is fossil and needs a full cryogenic terminal plus a $55-90m
+   *    bunker vessel. It already carries $8m port and $3m barge in the
+   *    bundle, and the fossil side zeroed both, so the data was dead.
+   *  - The same fuel on the green side got its real costs. A property of the
+   *    comparison was deciding a property of the infrastructure.
+   *
+   * The real split is whether the fuel rides infrastructure that ALREADY
+   * EXISTS at a commercial bunker port. LSFO does; so does a biodiesel blend
+   * going into existing product tankage through the incumbent barge fleet.
+   * Ammonia, methanol, LH2 and LNG do not.
+   *
+   * `incumbentInfrastructure` is optional, so a bundle published before this
+   * change keeps the old side-based behaviour EXACTLY — that is what lets a
+   * saved scenario pinning an older bundle reproduce its original numbers.
+   */
   const rules = bundle.benchmarkRules;
+  const incumbent = fuel.incumbentInfrastructure;
+  /** Pre-flag bundles fall back to the side branch, unchanged. */
+  const legacyPortAxis = incumbent === undefined;
+  const noPortCapital = legacyPortAxis ? isFossil : incumbent;
+  /**
+   * The 0.3 factor was "existing infrastructure, so only a share of the
+   * logistics O&M". That reasoning belongs to the incumbent case, not to the
+   * fossil side, so it moves with it.
+   */
+  const portOpexFactor = noPortCapital ? rules.fossilPortLogisticsOpexFactor : 1;
+
   const portStorageCapex = resolve(o.portStorageCapexUsdM, usdM, () =>
-    isFossil
+    noPortCapital
       ? derived(usdM(rules.fossilPortCapexUsdM))
       : benchmark(usdM(fuel.portStorageCapexUsdM)),
   );
   const portStorageOpex = resolve(o.portStorageOpexUsdMPerYear, usdM, () =>
-    isFossil
-      ? derived(usdM(fuel.portStorageOpexUsdMPerYear * rules.fossilPortLogisticsOpexFactor))
+    noPortCapital
+      ? derived(usdM(fuel.portStorageOpexUsdMPerYear * portOpexFactor))
       : benchmark(usdM(fuel.portStorageOpexUsdMPerYear)),
   );
   const bargeCapex = resolve(o.bargeCapexUsdM, usdM, () =>
-    isFossil
+    noPortCapital
       ? derived(usdM(rules.fossilPortCapexUsdM))
       : benchmark(usdM(fuel.bargeCapexUsdM)),
   );
   const bargeOpex = resolve(o.bargeOpexUsdMPerYear, usdM, () =>
-    isFossil
-      ? derived(usdM(fuel.bargeOpexUsdMPerYear * rules.fossilPortLogisticsOpexFactor))
+    noPortCapital
+      ? derived(usdM(fuel.bargeOpexUsdMPerYear * portOpexFactor))
       : benchmark(usdM(fuel.bargeOpexUsdMPerYear)),
   );
 
