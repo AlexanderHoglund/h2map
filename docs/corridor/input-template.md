@@ -52,9 +52,18 @@ Rule 5 is about that, and it is the one to be careful of.
 
 ## Allowed id values
 
+> `vessel.typeId` lists the 35 current classes only. The catalogue also
+> still resolves seven retired ids from the original workbook (`tanker-35k`,
+> `tanker-80k`, `bulk-60k`, `container-5k`, `container-15k`, `roro-ferry`,
+> `handymax-bulk-58k`) so older saved scenarios keep working. **Do not use them
+> for new work.** They pre-date the study-sourced energy figures and several are
+> superseded by a researched row for the same ship: `handymax-bulk-58k` carries
+> 3.200 GJ/nm against `bulk-handymax-58k`'s 2.334, so picking the retired id
+> overstates the burn by 37% while looking entirely plausible.
+
 | Field | Allowed values |
 |---|---|
-| `vessel.typeId` | `bulk-handysize-35k`, `bulk-handymax-58k`, `bulk-ultramax-64k`, `bulk-panamax-76k`, `bulk-kamsarmax-82k`, `bulk-postpanamax-93k`, `bulk-capesize-180k`, `bulk-newcastlemax-210k`, `bulk-vloc-325k`, `tank-small-15k`, `tank-mr1-40k`, `tank-mr2-50k`, `tank-lr1-75k`, `tank-lr2-115k`, `tank-suezmax-160k`, `tank-vlcc-300k`, `chem-imo2-12k`, `chem-imo2-25k`, `chem-imo2-40k`, `cont-feeder-1800`, `cont-handy-2800`, `cont-subpanamax-5000`, `cont-panamax-6400`, `cont-8000`, `cont-neopanamax-13640`, `cont-ulcv-18000`, `cont-ulcv-24000`, `gas-lng-174k`, `gas-vlgc-84k`, `vlac-93k`, `pctc-7000ceu`, `roro-cargo-12k`, `ropax-8k`, `genc-12k`, `genc-25k`, `tanker-35k`, `tanker-80k`, `bulk-60k`, `container-5k`, `container-15k`, `roro-ferry`, `handymax-bulk-58k` |
+| `vessel.typeId` | `bulk-handysize-35k`, `bulk-handymax-58k`, `bulk-ultramax-64k`, `bulk-panamax-76k`, `bulk-kamsarmax-82k`, `bulk-postpanamax-93k`, `bulk-capesize-180k`, `bulk-newcastlemax-210k`, `bulk-vloc-325k`, `tank-small-15k`, `tank-mr1-40k`, `tank-mr2-50k`, `tank-lr1-75k`, `tank-lr2-115k`, `tank-suezmax-160k`, `tank-vlcc-300k`, `chem-imo2-12k`, `chem-imo2-25k`, `chem-imo2-40k`, `cont-feeder-1800`, `cont-handy-2800`, `cont-subpanamax-5000`, `cont-panamax-6400`, `cont-8000`, `cont-neopanamax-13640`, `cont-ulcv-18000`, `cont-ulcv-24000`, `gas-lng-174k`, `gas-vlgc-84k`, `vlac-93k`, `pctc-7000ceu`, `roro-cargo-12k`, `ropax-8k`, `genc-12k`, `genc-25k` |
 | `green.fuelId`, `fossil.fuelId` | `lsfo`, `lng`, `e-ammonia`, `e-methanol`, `biodiesel-hvo`, `lh2` |
 | `cargo.countryId`, `cargo.countryBId` | `denmark`, `netherlands`, `india`, `brazil`, `singapore`, `united-states`, `other` |
 | `*.emissions.n2oScenarioId` | `tested-two-stroke`, `optimised-injection`, `highest-observed` (e-ammonia only) |
@@ -193,7 +202,7 @@ Copy this whole object. Replace values; keep every key.
     "waccOverride": null
   },
   "vessel": {
-    "typeId": "handymax-bulk-58k",
+    "typeId": "bulk-handymax-58k",
     "green": {
       "capexUsdMPerShip": null,
       "opexUsdMPerShipPerYear": null

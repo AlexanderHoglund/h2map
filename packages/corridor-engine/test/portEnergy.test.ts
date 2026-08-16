@@ -76,6 +76,10 @@ describe("port energy share", () => {
     // "Unknown" and "negligible" must not look alike. The 2026-07-30 bundle
     // carries no day rates, so there is no share to report.
     const s: ScenarioInput = { ...emptyScenario(), refBundleId: v1.bundleId };
+    // Re-pointing the bundle means re-pointing the vessel: the app default
+    // now uses a researched class that only exists from v2 onward, and v1
+    // holds nothing but the seven original rows.
+    s.vessel = { ...s.vessel, typeId: "tanker-35k" };
     const r = evaluateScenario(resolveScenario(s, v1));
     expect(r.portEnergy).toBeUndefined();
   });

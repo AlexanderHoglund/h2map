@@ -39,7 +39,12 @@ const fuelRef = JSON.parse(
 const template = toCompleteScenarioJson(emptyScenario());
 
 const ids = {
-  vessels: bundle.vesselTypes.map((v) => v.id),
+  // Retired classes are omitted: they still RESOLVE (so an existing scenario
+  // keeps working) but must never be chosen for new research. Several are
+  // superseded by a researched row for the same ship carrying materially
+  // different energy, so offering them here would invite a wrong answer that
+  // looks right — `handymax-bulk-58k` is 37% above `bulk-handymax-58k`.
+  vessels: bundle.vesselTypes.filter((v) => !v.deprecated).map((v) => v.id),
   fuels: bundle.fuels.map((f) => f.id),
   countries: bundle.countries.map((c) => c.id),
   n2o: fuelRef.n2oSlip.scenarios.map((s) => s.id),
@@ -99,6 +104,15 @@ const lines: string[] = [
   "| Put a fleet total in `capexUsdMPerShip` | It is PER SHIP; the model multiplies by `cargo.vessels`. A fleet number here is silently ×N too large. |",
   "",
   "## Allowed id values",
+  "",
+  `> \`vessel.typeId\` lists the ${ids.vessels.length} current classes only. The catalogue also`,
+  "> still resolves seven retired ids from the original workbook (`tanker-35k`,",
+  "> `tanker-80k`, `bulk-60k`, `container-5k`, `container-15k`, `roro-ferry`,",
+  "> `handymax-bulk-58k`) so older saved scenarios keep working. **Do not use them",
+  "> for new work.** They pre-date the study-sourced energy figures and several are",
+  "> superseded by a researched row for the same ship: `handymax-bulk-58k` carries",
+  "> 3.200 GJ/nm against `bulk-handymax-58k`'s 2.334, so picking the retired id",
+  "> overstates the burn by 37% while looking entirely plausible.",
   "",
   "| Field | Allowed values |",
   "|---|---|",

@@ -75,7 +75,13 @@ export function defaultScenario(): ScenarioInput {
   };
 
   input.vessel = {
-    typeId: "handymax-bulk-58k", // [S]
+    // [S] The RESEARCHED Handymax, not the retired v1 row of the same name.
+    // Both are 58k dwt bulkers; the v1 row carries 3.2 GJ/nm against this
+    // one's 2.334. The swap is inert HERE because this scenario overrides
+    // both burns with the study's tonnages (verified: every resolved vessel
+    // field is identical), but it matters the moment someone clears an
+    // override — which is exactly what the sweep baseline does.
+    typeId: "bulk-handymax-58k",
     // PER SHIP (v7); the engine multiplies by cargo.vessels = 10, so the
     // fleet totals are unchanged at $440m / $32m per year. [F] ~25% NH3
     // dual-fuel premium on a $35m Handymax — note the benchmark computes
@@ -99,7 +105,7 @@ export function defaultScenario(): ScenarioInput {
       // 5,701.5, i.e. the FOSSIL vessel-table benchmark restated at equal
       // delivered energy, then rounded. So it inherits that benchmark's
       // fleet-average inconsistency rather than corroborating it — the
-      // distance-derived burn for this corridor is 9,806.5 t/vessel/yr.
+      // distance-derived burn for this corridor is 7,152.6 t/vessel/yr.
       // Kept as an override because the study calibration must reproduce.
       fuelTonnesPerVesselYear: 5700,
       // v6: emission factors DERIVE from the fuel-emissions method
@@ -126,10 +132,13 @@ export function defaultScenario(): ScenarioInput {
       ...input.fossil.overrides,
       priceUsdPerTonne: 650, // [F]
       // [S] the vessel table's flat annual tonnage for this hull. It is a
-      // fleet average over an unstated trade pattern: it implies ~33,140
-      // nm/yr steamed, while this corridor steams 57,000 (1.72×), so the
-      // distance-derived burn would be 4,537.3. Kept as an override so the
-      // study calibration reproduces — see §21 legacy behaviours.
+      // fleet average over an unstated trade pattern: against the researched
+      // row it implies ~45,775 nm/yr steamed, while this corridor steams
+      // 57,000 (1.25×), so the distance-derived burn would be 3,284.9. Kept
+      // as an override so the study calibration reproduces — see §21 legacy
+      // behaviours. (The retired row implied 33,140 nm/yr, a 1.72× gap; the
+      // researched energy makes the study's own tonnage far more plausible
+      // as a fleet average, which is independent support for the change.)
       fuelTonnesPerVesselYear: 2638,
       // v6: derived — Annex II HFO row (91.744 / 3.169 CO2e / 40,500).
       lhvMjPerTonne: null,

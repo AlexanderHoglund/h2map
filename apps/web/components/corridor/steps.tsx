@@ -518,7 +518,19 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
         <Select
           label={t("type")}
           value={scenario.vessel.typeId}
-          options={bundle.vesselTypes.map((v) => ({ value: v.id, label: v.label }))}
+          options={bundle.vesselTypes
+            // Retired classes stay IN the bundle so saved scenarios keep
+            // resolving, but must not be offered for new work: several are
+            // superseded by a researched row of the same class carrying very
+            // different energy (the v1 Handymax reads 3.2 GJ/nm against the
+            // catalogue's 2.334 — a 27% burn difference for the same ship).
+            // The one already pinned stays listed, or changing any other
+            // field would silently re-point the scenario at a new vessel.
+            .filter((v) => !v.deprecated || v.id === scenario.vessel.typeId)
+            .map((v) => ({
+              value: v.id,
+              label: v.deprecated ? `${v.label} — retired` : v.label,
+            }))}
           onChange={(v) => update((d) => void (d.vessel.typeId = v))}
         />
         <NumberInput

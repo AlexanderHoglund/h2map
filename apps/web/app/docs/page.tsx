@@ -693,7 +693,7 @@ export default async function DocsPage() {
               "Fuel consumption",
               "t/vessel/yr",
               "default: 5,700 green / 2,638 fossil (study)",
-              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV, with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example on the workbook baseline (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 3.2 GJ/nm, 9,500 nm × 3) implies 9,806.5 and 4,537.3 — that scenario states its burns as overrides instead, to reproduce the study.",
+              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV, with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example on the workbook baseline (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 2.334 GJ/nm, 9,500 nm × 3) implies 7,152.6 and 3,284.9 — that scenario states its burns as overrides instead, to reproduce the study.",
             ],
             [
               "CO2 emission factor, combustion",
@@ -756,7 +756,7 @@ export default async function DocsPage() {
               "Vessel type",
               "—",
               "Handymax bulk (58k dwt), default",
-              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. Six types from tanker to 15k-TEU container ship (§19).",
+              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. 35 researched classes from Handysize bulk to 174k-m³ LNG carrier (§19). Seven superseded classes from the original workbook are retained so scenarios pinning them still resolve, but are hidden from the picker — they carry pre-research energy figures (the retired Handymax reads 3.2 GJ/nm against this one's 2.334).",
             ],
             [
               "Number of vessels",

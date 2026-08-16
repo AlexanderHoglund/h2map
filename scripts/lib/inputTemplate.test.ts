@@ -80,12 +80,51 @@ describe("the published input template", () => {
     expect(md).toContain(`Schema version **${SCHEMA_VERSION}**`);
   });
 
+  /** The `vessel.typeId` row of the allowed-values table, alone. */
+  const vesselIdRow = (): string => {
+    const row = md.split("\n").find((l) => l.startsWith("| `vessel.typeId` |"));
+    if (!row) throw new Error("no vessel.typeId row in the allowed-values table");
+    return row;
+  };
+
   it("documents every id vocabulary the schema will reject you for", () => {
     // An unknown id is a hard error with no fallback, so the legal values
     // must be in the document, not in the reader's head.
-    for (const v of bundle.vesselTypes) expect(md).toContain(`\`${v.id}\``);
+    for (const v of bundle.vesselTypes.filter((v) => !v.deprecated)) {
+      expect(vesselIdRow(), v.id).toContain(`\`${v.id}\``);
+    }
     for (const f of bundle.fuels) expect(md).toContain(`\`${f.id}\``);
     for (const c of bundle.countries) expect(md).toContain(`\`${c.id}\``);
+  });
+
+  it("offers no RETIRED vessel id as an allowed value", () => {
+    // Retired rows stay in the bundle so old scenarios resolve, but the
+    // template is what desk research and models copy from. Several are
+    // superseded by a researched row for the same ship carrying materially
+    // different energy — `handymax-bulk-58k` runs 37% above
+    // `bulk-handymax-58k` — so listing them invites a wrong answer that
+    // looks entirely plausible. Asserted against the TABLE ROW, not the
+    // whole file, because the prose deliberately names them to warn.
+    const row = vesselIdRow();
+    for (const v of bundle.vesselTypes.filter((v) => v.deprecated)) {
+      expect(row, `retired ${v.id} offered as allowed`).not.toContain(`\`${v.id}\``);
+    }
+  });
+
+  it("warns that the retired ids exist and must not be used", () => {
+    // Omitting them silently is not enough: a reader who meets one in an old
+    // file needs to know why it is absent and that it still resolves.
+    expect(md).toContain("handymax-bulk-58k");
+    expect(md).toMatch(/retired/i);
+    expect(md).toMatch(/Do not use them\s*\n?>?\s*for new work/i);
+  });
+
+  it("seeds the starter scenario with a current class", () => {
+    // The copy-paste block is the single most-used part of the document.
+    const t = templateJson() as { vessel: { typeId: string } };
+    const row = bundle.vesselTypes.find((v) => v.id === t.vessel.typeId);
+    expect(row, t.vessel.typeId).toBeDefined();
+    expect(row!.deprecated ?? false, `template seeds retired ${row!.id}`).toBe(false);
   });
 
   it("carries no retired v6 field", () => {
