@@ -247,7 +247,14 @@ export default function CorridorClient() {
 
   return (
     <div
-      className="flex h-dvh flex-col"
+      // `fixed inset-0` rather than `h-dvh`: the root layout wraps every page
+      // in a `min-h-full` body with a `flex-1` div that is NOT height-bounded,
+      // so an h-dvh child let the body grow past the viewport — it scrolled
+      // while <main> scrolled independently, giving two vertical scrollbars.
+      // Taking the shell out of flow bounds it to the viewport and leaves
+      // <main> as the single scroll region. Other pages are unaffected:
+      // only this shell is fixed.
+      className="fixed inset-0 flex flex-col"
       style={
         { "--tone": TONES[view], "--tone-text": TONE_TEXT[view] } as React.CSSProperties
       }

@@ -334,7 +334,7 @@
       "probabilistic": "Probabilistic view",
       "probRun": "Run probabilistic view",
       "probRerun": "Re-run",
-      "probIntro": "The results above are single numbers. The researched production benchmarks each carry a sourced low/central/high range, so this runs the corridor 2,000 times across those ranges and reports where it lands.",
+      "probIntro": "Runs the corridor 2,000 times across the researched cost ranges, instead of once at their midpoints.",
       "probUnavailable": "Available once the scenario resolves — fix the blocking input above.",
       "probStale": "Inputs have changed since this run. Re-run to match the results above.",
       "probHeadline": "Incremental cost gap (PV), median of 2,000 runs",
@@ -343,7 +343,7 @@
       "probDraws": "runs",
       "probKpi": "Metric",
       "probDriver": "Most of the spread is",
-      "probCaveat": "A screening range, not a quote. It samples the three researched production parameters the model reads — plant CAPEX, plant O&M and the scale exponent — and treats them as independent, which widens the range where they would in practice move together. Port, bunkering and merchant-price ranges are researched but not yet priced in.",
+      "probCaveat": "A screening range, not a quote. Samples plant CAPEX, plant O&M and the scale exponent as independent.",
       "kpi": {
         "gapPvUsdM": "Incremental cost gap (PV)",
         "costPerUnitUsd": "Cost per unit of cargo",
