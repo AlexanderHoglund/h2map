@@ -1017,6 +1017,38 @@
       }
     },
     {
+      "id": "vlac-93k",
+      "label": "VLAC (93,000 m3 ammonia carrier)",
+      "family": "gas",
+      "dwtTonnes": 61000,
+      "teuCapacity": null,
+      "defaultCargoUnit": "tonne",
+      "energy": {
+        "ladenGjPerNm": 3.484,
+        "ballastGjPerNm": 3.136,
+        "wholeVoyageGjPerNm": 3.31,
+        "serviceSpeedKn": 14.5,
+        "speedExponentPerNm": 2.0,
+        "portGjPerDay": 241.2,
+        "idleGjPerDay": 120.6,
+        "cargoSystemGjPerDay": 241.2
+      },
+      "cost": {
+        "newbuildUsdM": 184.0,
+        "opexUsdMPerYear": 3.47,
+        "costYear": 2026
+      },
+      "provenance": {
+        "capex": "B: solved from the MMMCZCS Bahia Posesion-Algeciras published fleet total; $221m for the dual-fuel variant.",
+        "opex": "C: VLGC analogue - no segment accounts data for this class.",
+        "energy": "A: MMMCZCS Bahia Posesion-Algeciras: 20,250 t NH3 x 18,600 MJ/t / (2 x 6,316 nm x 9 roundtrips) = 3,313 MJ/nm. Cross-checks independently against the study's daily figures: 62.5 t/day / 348 nm/day at 14.5 kn = 3,341 MJ/nm, agreeing to 0.8%.",
+        "ladenBallastSplit": "C: family ratio 0.9 at equal speed; whole-voyage value preserved",
+        "portAndCargoLoad": "C: sector estimate - UNSOURCED. Cargo reliquefaction is real on an ammonia carrier but no rate was published.",
+        "serviceSpeed": "A: study states eco 14.5 kn (nominal 16.5 kn)",
+        "verified": false
+      }
+    },
+    {
       "id": "pctc-7000ceu",
       "label": "PCTC / car carrier (7,000 CEU)",
       "family": "pctc",

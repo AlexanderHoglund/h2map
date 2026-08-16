@@ -1,6 +1,6 @@
 {
  "generatedBy": "scripts/corridor/build-vessel-bundle.ts",
- "bundleId": "2026-08-16-vessel-v2",
+ "bundleId": "2026-08-17-vessel-v3",
  "note": "Rendered by docs §19. Every cost figure is PER SHIP; deprecated rows are retained so scenarios pinning them reproduce their original numbers.",
  "rows": [
   {
@@ -95,7 +95,7 @@
    "teuCapacity": null,
    "capexUsdM": 75.5,
    "opexUsdMPerYear": 2.93,
-   "gjPerNm": 5.789,
+   "gjPerNm": 4.22,
    "serviceSpeedKn": 13,
    "costYear": 2026,
    "verified": false,
@@ -109,7 +109,7 @@
    "teuCapacity": null,
    "capexUsdM": 80.5,
    "opexUsdMPerYear": 2.93,
-   "gjPerNm": 6.275,
+   "gjPerNm": 4.13,
    "serviceSpeedKn": 13,
    "costYear": 2026,
    "verified": false,
@@ -249,7 +249,7 @@
    "teuCapacity": null,
    "capexUsdM": 50,
    "opexUsdMPerYear": 2.83,
-   "gjPerNm": 2.641,
+   "gjPerNm": 5.92,
    "serviceSpeedKn": 14,
    "costYear": 2026,
    "verified": false,
@@ -405,6 +405,20 @@
    "opexUsdMPerYear": 3.47,
    "gjPerNm": 4.341,
    "serviceSpeedKn": 16,
+   "costYear": 2026,
+   "verified": false,
+   "deprecated": false
+  },
+  {
+   "id": "vlac-93k",
+   "label": "VLAC (93,000 m3 ammonia carrier)",
+   "family": "gas",
+   "dwtTonnes": 61000,
+   "teuCapacity": null,
+   "capexUsdM": 184,
+   "opexUsdMPerYear": 3.47,
+   "gjPerNm": 3.31,
+   "serviceSpeedKn": 14.5,
    "costYear": 2026,
    "verified": false,
    "deprecated": false

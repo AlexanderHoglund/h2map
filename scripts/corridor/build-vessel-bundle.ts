@@ -1,5 +1,5 @@
 /**
- * Build the 2026-08-16-vessel-v2 reference bundle.
+ * Build the 2026-08-17-vessel-v3 reference bundle.
  *
  * Bundles are IMMUTABLE — a change publishes a new id, never an edit (see
  * ref/bundle.ts and the bundle's own source.note). So this composes a NEW
@@ -30,7 +30,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 const ROOT = new URL("../../", import.meta.url);
 const V1_ID = "2026-07-30-excel-v1";
-const NEW_ID = "2026-08-16-vessel-v2";
+const NEW_ID = "2026-08-17-vessel-v3";
 
 interface V2Row {
   id: string;
@@ -94,8 +94,61 @@ const RETAIN_FROM_V1 = [
   "handymax-bulk-58k",
 ];
 
+/**
+ * STUDY-SOURCED ENERGY — observations beat the derivation.
+ *
+ * The EEDI reference line gives a defensible SHAPE across sizes, but it is
+ * a regression on ships built 1999–2009 at DESIGN speed, corrected by a
+ * per-family `k` fitted to a handful of secondary datapoints. Where a
+ * published feasibility study states what a real ship on a real corridor
+ * actually burned, that observation is better evidence than the line, and
+ * it wins.
+ *
+ * Measured against the derived catalogue, the disagreement is systematic:
+ * the line runs +37% to +52% high on three studies. The fourth runs LOW
+ * (−55%) and is the only one whose figure explicitly bundles port load and
+ * cargo heating — a whole-cycle residual rather than a steaming rate, which
+ * is why it is flagged rather than trusted as a rate.
+ *
+ * Each value is `stated_tonnes × LHV ÷ (2 × oneWayNm × roundtrips)`, so it
+ * is reproducible from the study's own published figures.
+ */
+interface StudyEnergy {
+  gjPerNm: number;
+  note: string;
+  /** Set when the figure is an annual residual, not a steaming rate. */
+  wholeCycleResidual?: boolean;
+}
+
+const STUDY_ENERGY: Record<string, StudyEnergy> = {
+  "bulk-newcastlemax-210k": {
+    gjPerNm: 4.13,
+    note:
+      "GMF/RMI South Africa-Europe iron ore: 16,440 t NH3 x 18,600 MJ/t / (2 x 6,166 nm x 6 roundtrips) = 4,133 MJ/nm. Ammonia only; pilot fuel is carried separately by pilotShare. Supersedes the EEDI-derived 6.275 (+52%).",
+  },
+  "bulk-capesize-180k": {
+    gjPerNm: 4.22,
+    note:
+      "GMF Appendix B2 variant: 60.8 t/day x 46 sailing days x 18,600 MJ/t / (2 x 6,166 nm) = 4,218 MJ/nm. Sailing days only. Supersedes the EEDI-derived 5.789 (+37%).",
+  },
+  "chem-imo2-25k": {
+    gjPerNm: 5.92,
+    wholeCycleResidual: true,
+    note:
+      "MMMCZCS Chilean sulfuric acid: 10,000 t x 18,600 MJ/t / (2 x 786 nm x 20 roundtrips) = 5,916 MJ/nm. CAUTION - this is an ANNUAL RESIDUAL containing steaming, port load and cargo heating with no way to separate them, which is why it exceeds the VLAC's 3.31 despite being a quarter the size. Use as a fallback, not as a steaming rate.",
+  },
+};
+
 /** Flatten a nested v2 row onto the live flat row shape. */
 function flatten(r: V2Row): Record<string, unknown> {
+  const study = STUDY_ENERGY[r.id];
+  // Rescale the laden/ballast pair onto the study figure, PRESERVING their
+  // ratio. The invariant that the pair averages back to the scalar is
+  // pinned by a test, and an equal-leg voyage must keep reproducing it.
+  const ratio = r.energy.ballastGjPerNm / r.energy.ladenGjPerNm;
+  const laden = study ? (2 * study.gjPerNm) / (1 + ratio) : r.energy.ladenGjPerNm;
+  const ballast = study ? ratio * laden : r.energy.ballastGjPerNm;
+  const round3 = (x: number): number => Math.round(x * 1000) / 1000;
   const tier = (s: string): string => (s.match(/^([ABC]):/)?.[1] ?? "C");
   // A row is "verified" only when every parameter it carries is tier A.
   // Nothing in v2 is: `verified: false` is set on every research row, and
@@ -105,22 +158,39 @@ function flatten(r: V2Row): Record<string, unknown> {
     label: r.label,
     capexUsdM: r.cost.newbuildUsdM,
     opexUsdMPerYear: r.cost.opexUsdMPerYear,
-    gjPerNm: r.energy.wholeVoyageGjPerNm,
+    gjPerNm: study ? study.gjPerNm : r.energy.wholeVoyageGjPerNm,
     verified: false,
-    sourceNote: `${NEW_ID}: ${r.provenance.energy as string}; CAPEX ${tier(r.provenance.capex as string)}, OPEX ${tier(r.provenance.opex as string)}`,
+    sourceNote: study
+      ? `${NEW_ID}: ${study.note} CAPEX ${tier(r.provenance.capex as string)}, OPEX ${tier(r.provenance.opex as string)}.`
+      : `${NEW_ID}: ${r.provenance.energy as string}; CAPEX ${tier(r.provenance.capex as string)}, OPEX ${tier(r.provenance.opex as string)}`,
     // --- v2 additive fields (all optional in the schema) ---
     family: r.family,
     dwtTonnes: r.dwtTonnes,
     ...(r.teuCapacity !== null ? { teuCapacity: r.teuCapacity } : {}),
     defaultCargoUnit: r.defaultCargoUnit,
     serviceSpeedKn: r.energy.serviceSpeedKn,
-    ladenGjPerNm: r.energy.ladenGjPerNm,
-    ballastGjPerNm: r.energy.ballastGjPerNm,
+    ladenGjPerNm: round3(laden),
+    ballastGjPerNm: round3(ballast),
     portGjPerDay: r.energy.portGjPerDay,
     idleGjPerDay: r.energy.idleGjPerDay,
     cargoSystemGjPerDay: r.energy.cargoSystemGjPerDay,
     costYear: r.cost.costYear,
-    provenance: r.provenance,
+    provenance: study
+      ? {
+          ...r.provenance,
+          // The old string claimed "B: EEDI reference line x k", which is
+          // FALSE once the value comes from an observation. Leaving it
+          // would misattribute the number to a derivation it no longer uses.
+          energy: `A: study-stated burn - ${study.note}`,
+          ...(study.wholeCycleResidual
+            ? {
+                energyBasis:
+                  "WHOLE-CYCLE RESIDUAL, not a steaming rate: contains port load and cargo heating, inseparable in the source.",
+              }
+            : {}),
+          supersededEediGjPerNm: r.energy.wholeVoyageGjPerNm,
+        }
+      : r.provenance,
   };
 }
 
