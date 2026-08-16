@@ -33,7 +33,7 @@ export function TabRow({
       <dd className="text-right font-medium tabular-nums">
         {value}
         {sub && (
-          <span className="block text-[11px] font-normal text-neutral-500">{sub}</span>
+          <span className="block text-xs font-normal text-neutral-500">{sub}</span>
         )}
       </dd>
     </div>
@@ -63,7 +63,7 @@ export function TabTable({
     <div className="overflow-x-auto">
     <table className="w-full min-w-[18rem] text-xs tabular-nums">
       <thead>
-        <tr className="border-b border-neutral-300 text-[11px] uppercase tracking-wider text-neutral-500">
+        <tr className="border-b border-neutral-300 text-xs uppercase tracking-wide text-neutral-500">
           <th className="py-1 text-left font-medium" scope="col">
             &nbsp;
           </th>

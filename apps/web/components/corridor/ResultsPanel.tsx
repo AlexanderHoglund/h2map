@@ -534,7 +534,7 @@ export default function ResultsPanel({
         <Card as="section">
         <SectionLabel className="mb-2">{t("waterfall")}</SectionLabel>
         <WaterfallChart data={waterfall.pv} />
-        <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
+        <p className="mt-1 text-xs text-neutral-500">{t("wfFootnote")}</p>
       </Card>
 
       {/* ===== Decomposition: green | fossil | Δ ===== */}
@@ -546,7 +546,7 @@ export default function ResultsPanel({
         <div className="overflow-x-auto">
         <table className="w-full min-w-[22rem] text-xs tabular-nums">
           <thead>
-            <tr className="border-b border-neutral-300 text-[11px] uppercase tracking-wider text-neutral-500">
+            <tr className="border-b border-neutral-300 text-xs uppercase tracking-wide text-neutral-500">
               <th className="py-1.5 text-left font-medium" scope="col">
                 &nbsp;
               </th>
@@ -619,7 +619,7 @@ export default function ResultsPanel({
             </ValueChip>
           </SectionLabel>
           <WaterfallChart data={waterfall.perTonne} />
-            <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
+            <p className="mt-1 text-xs text-neutral-500">{t("wfFootnote")}</p>
           </Card>
         )}
 
@@ -633,7 +633,7 @@ export default function ResultsPanel({
             </span>
           </SectionLabel>
           {/* Legend — nature by shade, side by colour family; never colour alone */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-600">
             <span className="text-neutral-500">{t("green")}:</span>
             <LegendSwatch color={NATURE_FILLS.gCapex} label={t("natureCapex")} />
             <LegendSwatch color={NATURE_FILLS.gOpex} label={t("natureOperating")} />
@@ -679,7 +679,7 @@ export default function ResultsPanel({
           </ResponsiveContainer>
         </div>
         {chartMeta && (
-          <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+          <p className="mt-1 text-xs leading-snug text-neutral-500">
             {/* "charged in full up front" is only true without a deployment
                 schedule (sprint 4) — the phased variant drops the claim. */}
             {t(
@@ -713,7 +713,7 @@ export default function ResultsPanel({
               · {t("unitUsdPerTco2")}
             </span>
           </SectionLabel>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-600">
             <LegendSwatch color="var(--viz-ink-muted)" label={t("abatePre")} />
             <LegendSwatch color="var(--color-brand)" label={t("abatePost")} />
           </div>
@@ -760,7 +760,7 @@ export default function ResultsPanel({
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <p className="mt-1 text-[11px] leading-snug text-neutral-500">
+        <p className="mt-1 text-xs leading-snug text-neutral-500">
           {refPrice ? refPrice.note : t("abatementNoteNone")}
         </p>
         </Card>
@@ -838,7 +838,7 @@ export default function ResultsPanel({
                 total, so say which is which — the two differing by a factor
                 of the vessel count is exactly the confusion that made the
                 old benchmark mismatch invisible. */}
-            <p className="mt-2 text-[11px] text-neutral-500">
+            <p className="mt-2 text-xs text-neutral-500">
               {t("tabPerShipNote", { vessels: resolved.vessels })}
             </p>
           </Card>
@@ -978,7 +978,7 @@ export default function ResultsPanel({
               ))}
             </dl>
             {imo && imo.green.surplusTonnesCo2e > 0 && (
-              <p className="mt-2 text-[11px] leading-snug text-neutral-500">
+              <p className="mt-2 text-xs leading-snug text-neutral-500">
                 {t("imoSurplus")}:{" "}
                 <span className="tabular-nums font-medium text-neutral-700">
                   {formatSig(imo.green.surplusTonnesCo2e)} tCO2e
