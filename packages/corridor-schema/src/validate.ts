@@ -267,6 +267,7 @@ export const scenarioInputSchema = z.object({
       rateBasis: z.enum(["nominal", "real"]).optional(),
       legacyExcelConstruct: z.boolean().optional(),
       migratedVesselBenchmarkBurn: z.boolean().optional(),
+      fossilFleetBasis: z.enum(["existing", "newbuild"]).optional(),
     })
     .optional(),
 });

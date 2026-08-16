@@ -135,6 +135,7 @@ export const SCENARIO_TEMPLATE: CompleteScenarioJson = {
     rateBasis: null,
     legacyExcelConstruct: null,
     migratedVesselBenchmarkBurn: null,
+    fossilFleetBasis: null,
   },
 };
 

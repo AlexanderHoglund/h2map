@@ -316,9 +316,24 @@ function resolveFuelSide(
   // that held a fleet total, so restoring a ten-ship fleet's green CAPEX to
   // its benchmark cut it tenfold in silence. The fleet total is now formed
   // in the engine by multiplying these by `cargo.vessels`.
+  //
+  // The fossil zero encodes "the ships are already afloat". That is right
+  // for a retrofit question and wrong for a greenfield one, where the
+  // counterfactual is newbuild conventional tonnage — which is what both
+  // reconstructed studies actually cost. `flags.fossilFleetBasis:
+  // "newbuild"` derives it from the vessel type instead, with NO green-fuel
+  // readiness premium, because a conventional ship does not pay one.
+  const fossilNewbuildFleet =
+    scenario.flags?.fossilFleetBasis === "newbuild";
   const vesselCapexPerShip = resolve(vesselOverrides.capexUsdMPerShip, usdM, () =>
     isFossil
-      ? derived(usdM(rules.fossilVesselCapexUsdM))
+      ? derived(
+          usdM(
+            fossilNewbuildFleet
+              ? vesselType.capexUsdM
+              : rules.fossilVesselCapexUsdM,
+          ),
+        )
       : derived(usdM(vesselType.capexUsdM * (1 + fuel.vesselCapexPremium))),
   );
   const vesselOpexPerShip = resolve(

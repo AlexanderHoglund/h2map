@@ -229,6 +229,7 @@ const MAXIMAL: DeepRequired<ScenarioInput> = {
     rateBasis: "real",
     legacyExcelConstruct: false,
     migratedVesselBenchmarkBurn: false,
+    fossilFleetBasis: "newbuild" as const,
   },
 };
 

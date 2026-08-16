@@ -91,6 +91,32 @@ export interface DivergenceFlags {
    * divergence in behaviour; a disclosure that one existed.
    */
   migratedVesselBenchmarkBurn?: boolean;
+  /**
+   * What the fossil counterfactual IS. Absent = `"existing"` = the Excel
+   * behaviour, so the golden fixture is untouched by construction.
+   *
+   * The workbook benchmarks fossil vessel CAPEX to zero — the "existing
+   * baseline fleet" rule: the ships are already afloat, so the comparison
+   * charges the green corridor for newbuilds and the fossil one for
+   * nothing. That is right for a retrofit-style question ("what does
+   * switching cost?") and wrong for a greenfield one ("what does this trade
+   * lane cost, either way?").
+   *
+   * Both published studies reconstructed against this model are the second
+   * kind. Bahia Posesion-Algeciras costs TWO newbuild conventional carriers
+   * at $368M; GMF explicitly overrides the zero for the same reason. Until
+   * now the only signal that the assumption was even being made was a
+   * DERIVED badge showing 0, and the only escape was a per-field override
+   * that discards the vessel type's own cost.
+   *
+   * `"newbuild"` derives fossil vessel CAPEX from the vessel type instead,
+   * with no green-fuel readiness premium — a conventional ship. The port
+   * and logistics rules stay on the existing-infrastructure basis either
+   * way: a greenfield fossil corridor still loads at existing oil terminals,
+   * which is a different claim from needing new ships, and folding the two
+   * together would overstate the fossil side.
+   */
+  fossilFleetBasis?: "existing" | "newbuild";
 }
 
 export interface CargoInput {
