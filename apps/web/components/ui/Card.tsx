@@ -5,20 +5,29 @@
  * and sit on the off-white page — nothing else floats.
  */
 
-/** Plain white card. */
+/**
+ * Plain white card.
+ *
+ * `as` exists so a card can keep its landmark: the results panel's blocks are
+ * `<section>`s, and swapping them for `<div>`s to gain a shared style would
+ * trade screen-reader structure for visual consistency. Defaults to `div`,
+ * so every existing caller is unaffected.
+ */
 export function Card({
+  as: Tag = "div",
   className = "",
   children,
 }: {
+  as?: "div" | "section";
   className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div
+    <Tag
       className={`rounded-lg border border-neutral-300 bg-white p-3 ${className}`}
     >
       {children}
-    </div>
+    </Tag>
   );
 }
 

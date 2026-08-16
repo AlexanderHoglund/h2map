@@ -21,6 +21,8 @@ import type {
 } from "@h2map/corridor-schema";
 import { buildCostBridge, withFunding } from "@h2map/corridor-engine";
 import { formatSig } from "@h2map/units";
+import { Card } from "@/components/ui/Card";
+import { Note, SectionLabel, Stat, ValueChip } from "@/components/ui/Stat";
 import {
   idLabel,
   int,
@@ -257,7 +259,7 @@ export default function ResultsPanel({
 
   if (error || !result) {
     return (
-      <div className="border border-amber-300 bg-amber-500/10 p-3 text-xs leading-snug text-amber-800">
+      <Note bordered className="p-3">
         {t("invalid", { message: error ?? "…" })}
         {errorNav ? (
           <button
@@ -268,7 +270,7 @@ export default function ResultsPanel({
             {t("invalidGo", { tab: errorNav.label })}
           </button>
         ) : null}
-      </div>
+      </Note>
     );
   }
 
@@ -315,14 +317,14 @@ export default function ResultsPanel({
       label: (
         <>
           {t("perTonne")}{" "}
-          <span className="bg-neutral-500/10 px-1 py-px text-[10px] normal-case tracking-normal text-neutral-700">
+          <ValueChip>
             {t(`basisLabel.${basis}`)}
-          </span>{" "}
-          <span className="bg-neutral-500/10 px-1 py-px text-[10px] normal-case tracking-normal text-neutral-700">
+          </ValueChip>{" "}
+          <ValueChip>
             {t(
               `frameworkLabel.${scenario.regulation.emissions?.framework ?? "legacy"}`,
             )}
-          </span>
+          </ValueChip>
         </>
       ),
       value: usd(s.costPerTonneCo2Usd),
@@ -466,37 +468,24 @@ export default function ResultsPanel({
       <div className="grid grid-cols-2 gap-px border border-neutral-300 bg-neutral-300 sm:grid-cols-3 lg:col-span-12 xl:grid-cols-6">
         {kpis.map((k, i) => (
           <div key={i} className="bg-white p-3">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-500">
-              {k.label}
-            </p>
-            <p
-              className={`mt-1 tabular-nums ${
-                k.strong
-                  ? "text-2xl font-semibold tracking-tight text-brand-deep"
-                  : "text-lg font-semibold text-neutral-900"
-              }`}
-            >
-              {k.value}
-            </p>
-            {k.sub && (
-              <p
-                className={`mt-0.5 text-[11px] tabular-nums ${
-                  k.subTone === "warn"
-                    ? "font-medium text-amber-800"
-                    : "text-neutral-500"
-                }`}
-              >
-                {k.sub}
-              </p>
-            )}
+            <Stat
+              label={k.label}
+              value={k.value}
+              sub={k.sub}
+              subTone={k.subTone === "warn" ? "warn" : "muted"}
+              tone={k.strong ? "strong" : "default"}
+            />
           </div>
         ))}
       </div>
 
       {/* ===== Scenario snapshot strip: what corridor these numbers describe.
           Directly under the KPIs so everything below reads in context. ===== */}
-      <section className="border border-neutral-300 bg-white px-3 py-2 lg:col-span-12">
-        <Eyebrow className="mb-1.5">{t("snapshot")}</Eyebrow>
+      {/* Standard card padding: this strip used px-3 py-2 for no stated
+          reason, which is exactly the sort of near-miss that made the page
+          read as unconsidered. */}
+      <Card as="section" className="lg:col-span-12">
+        <SectionLabel className="mb-2">{t("snapshot")}</SectionLabel>
         <dl className="flex flex-wrap items-baseline gap-x-0 gap-y-1 text-xs">
           {snapshot.map(([label, value], i) => (
             <div
@@ -512,18 +501,18 @@ export default function ResultsPanel({
             </div>
           ))}
         </dl>
-      </section>
+      </Card>
 
       {/* ===== Breakdown of total cost (the MMMCZCS waterfall) ===== */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
-        <Eyebrow>{t("waterfall")}</Eyebrow>
+      <Card as="section" className="lg:col-span-7">
+        <SectionLabel className="mb-2">{t("waterfall")}</SectionLabel>
         <WaterfallChart data={waterfall.pv} />
         <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
-      </section>
+      </Card>
 
       {/* ===== Decomposition: green | fossil | Δ ===== */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
-        <Eyebrow>{t("decomposition")}</Eyebrow>
+      <Card as="section" className="lg:col-span-5">
+        <SectionLabel className="mb-2">{t("decomposition")}</SectionLabel>
         <table className="w-full text-xs tabular-nums">
           <thead>
             <tr className="border-b border-neutral-300 text-[11px] uppercase tracking-wider text-neutral-500">
@@ -583,31 +572,31 @@ export default function ResultsPanel({
             </tr>
           </tfoot>
         </table>
-      </section>
+      </Card>
 
       {/* ===== The same breakdown per tonne of CO2 abated ===== */}
       {waterfall.perTonne.length > 0 && (
-        <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
-          <Eyebrow>
+        <Card as="section" className="lg:col-span-5">
+          <SectionLabel className="mb-2">
             {t("waterfallPerTonne")}{" "}
-            <span className="bg-neutral-500/10 px-1 py-px text-[10px] normal-case tracking-normal text-neutral-700">
+            <ValueChip>
               {t(`basisLabel.${basis}`)}
-            </span>
-          </Eyebrow>
+            </ValueChip>
+          </SectionLabel>
           <WaterfallChart data={waterfall.perTonne} />
           <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
-        </section>
+        </Card>
       )}
 
       {/* ===== Annual cost — stacked by nature, green vs fossil ===== */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
+      <Card as="section" className="lg:col-span-7">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-          <Eyebrow className="mb-0">
+          <SectionLabel>
             {t("perYear")}{" "}
             <span className="font-normal normal-case tracking-normal text-neutral-500">
               · {t("unitUsdM")}
             </span>
-          </Eyebrow>
+          </SectionLabel>
           {/* Legend — nature by shade, side by colour family; never colour alone */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
             <span className="text-neutral-500">{t("green")}:</span>
@@ -657,21 +646,21 @@ export default function ResultsPanel({
             )}
           </p>
         )}
-      </section>
+      </Card>
 
       {/* ===== Emissions & abatement — the premium per tonne avoided =====
           Grouped bars per emissions basis, before and after the regulation
           modules, against the active scheme's carbon price as a reference
           line: how far above (or below) the market price of carbon this
           corridor's abatement sits. */}
-      <section className="border border-neutral-300 bg-white p-3 lg:col-span-5">
+      <Card as="section" className="lg:col-span-5">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-          <Eyebrow className="mb-0">
+          <SectionLabel>
             {t("emissionsChart")}{" "}
             <span className="font-normal normal-case tracking-normal text-neutral-500">
               · {t("unitUsdPerTco2")}
             </span>
-          </Eyebrow>
+          </SectionLabel>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-neutral-600">
             <LegendSwatch color="var(--viz-ink-muted)" label={t("abatePre")} />
             <LegendSwatch color="var(--color-brand)" label={t("abatePost")} />
@@ -715,14 +704,14 @@ export default function ResultsPanel({
         <p className="mt-1 text-[11px] leading-snug text-neutral-500">
           {refPrice ? refPrice.note : t("abatementNoteNone")}
         </p>
-      </section>
+      </Card>
 
       {/* ===== Results by tab: one section per input step, equal frames ===== */}
       {resolved && (
         <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:col-span-12 lg:grid-cols-3 xl:grid-cols-5">
           {/* 02 Energy */}
-          <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>02 · {ts("energy")}</Eyebrow>
+          <Card as="section">
+            <SectionLabel className="mb-2">02 · {ts("energy")}</SectionLabel>
             <TabTable
               green={t("sideGreen")}
               fossil={t("sideFossil")}
@@ -755,7 +744,7 @@ export default function ResultsPanel({
                 burns carry equal energy. Derived = 1.000; a one-sided
                 override breaks it. Disclosed, never corrected. */}
             {result.energyParity.diverged && (
-              <p className="mt-2 bg-amber-500/10 px-2 py-1.5 text-[11px] leading-snug text-amber-800">
+              <Note className="mt-2">
                 {t("energyParityNote", {
                   pct: Math.abs(result.energyParity.divergence! * 100).toFixed(0),
                   side:
@@ -763,13 +752,13 @@ export default function ResultsPanel({
                       ? t("sideGreen")
                       : t("sideFossil"),
                 })}
-              </p>
+              </Note>
             )}
-          </section>
+          </Card>
 
           {/* 03 Vessels */}
-          <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>03 · {ts("vessels")}</Eyebrow>
+          <Card as="section">
+            <SectionLabel className="mb-2">03 · {ts("vessels")}</SectionLabel>
             <TabTable
               green={t("sideGreen")}
               fossil={t("sideFossil")}
@@ -793,11 +782,11 @@ export default function ResultsPanel({
             <p className="mt-2 text-[11px] text-neutral-500">
               {t("tabPerShipNote", { vessels: resolved.vessels })}
             </p>
-          </section>
+          </Card>
 
           {/* 04 Cargo */}
-          <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>04 · {ts("cargo")}</Eyebrow>
+          <Card as="section">
+            <SectionLabel className="mb-2">04 · {ts("cargo")}</SectionLabel>
             <dl className="text-xs">
               <TabRow label={t("tabCargoPerYear")} value={int(resolved.unitsPerYear)} />
               <TabRow label={t("snapCargoLifetime")} value={formatSig(s.cargoUnitsLifetime)} />
@@ -808,11 +797,11 @@ export default function ResultsPanel({
               />
               <TabRow label={t("co2")} value={`${formatSig(s.co2AbatedTonnes)} t`} />
             </dl>
-          </section>
+          </Card>
 
           {/* 05 Ports */}
-          <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>05 · {ts("ports")}</Eyebrow>
+          <Card as="section">
+            <SectionLabel className="mb-2">05 · {ts("ports")}</SectionLabel>
             <TabTable
               green={t("sideGreen")}
               fossil={t("sideFossil")}
@@ -839,11 +828,11 @@ export default function ResultsPanel({
                 ],
               ]}
             />
-          </section>
+          </Card>
 
           {/* 06 Financing — its own tab since sprint 4's amendment */}
-          <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>06 · {ts("financing")}</Eyebrow>
+          <Card as="section">
+            <SectionLabel className="mb-2">06 · {ts("financing")}</SectionLabel>
             <dl className="text-xs">
               <TabRow
                 label={tc("wacc")}
@@ -876,11 +865,11 @@ export default function ResultsPanel({
                 />
               )}
             </dl>
-          </section>
+          </Card>
 
           {/* 07 Regulation */}
-          <section className="border border-neutral-300 bg-white p-3">
-            <Eyebrow>07 · {ts("regulation")}</Eyebrow>
+          <Card as="section">
+            <SectionLabel className="mb-2">07 · {ts("regulation")}</SectionLabel>
             <TabTable
               green={t("sideGreen")}
               fossil={t("sideFossil")}
@@ -918,9 +907,9 @@ export default function ResultsPanel({
                     <>
                       {t("abatementCost")} · {t(`basisLabel.${row.key}`)}
                       {row.active && (
-                        <span className="ml-1 bg-brand-tint px-1 py-px text-[10px] font-medium text-brand-deep">
+                        <ValueChip tone="brand">
                           {t("activeBasis")}
-                        </span>
+                        </ValueChip>
                       )}
                     </>
                   }
@@ -938,11 +927,11 @@ export default function ResultsPanel({
               </p>
             )}
             {imoNotParam && (
-              <p className="mt-2 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
+              <Note className="mt-2">
                 {t("imoNotParam")}
-              </p>
+              </Note>
             )}
-          </section>
+          </Card>
         </div>
       )}
     </div>
@@ -1147,21 +1136,6 @@ function LegendSwatch({ color, label }: { color: string; label: string }) {
   );
 }
 
-function Eyebrow({
-  children,
-  className = "mb-2",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <p
-      className={`text-[11px] font-semibold uppercase tracking-wider text-neutral-500 ${className}`}
-    >
-      {children}
-    </p>
-  );
-}
 
 /** Δ colors reuse the CVD-safe waterfall pair; near-zero stays neutral. */
 function deltaStyle(delta: number): React.CSSProperties | undefined {
