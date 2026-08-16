@@ -48,6 +48,41 @@ export { defaultScenario, emptyScenario, workbookScenario };
 
 export const DEFAULT_BUNDLE: RefBundle = parseRefBundle(bundleJson);
 
+/**
+ * Bring a stored scenario onto the bundle this build actually ships.
+ *
+ * The browser bundles exactly ONE reference bundle — shipping every
+ * historical one to every visitor to keep old saves byte-reproducible is
+ * not a trade worth making. So a project saved against an older bundle id
+ * would hit `resolveScenario`'s guard and refuse to open:
+ *
+ *   scenario pins bundle "2026-08-17-vessel-v3" but got "2026-08-18-fuel-v4"
+ *
+ * Re-pinning is therefore the price of a single shipped catalogue, and it
+ * is a REAL CHANGE, not a formality: the scenario is re-costed against
+ * current reference data, so a benchmark-driven figure can move. Anything
+ * the user actually typed is an override and is carried across untouched —
+ * only benchmarks move, which is the same thing that happens when a
+ * benchmark is corrected under a scenario that never moved bundles.
+ *
+ * Deliberately NOT inside `migrateScenarioInput`: that runs in the engine
+ * tests too, where the golden fixture and the frozen MMMCZCS pin resolve
+ * against 2026-07-30-excel-v1 on purpose. Re-pinning there would silently
+ * re-cost the very fixtures that exist to never move.
+ */
+export function repinToCurrentBundle(input: ScenarioInput): {
+  input: ScenarioInput;
+  repinnedFrom: string | null;
+} {
+  if (input.refBundleId === DEFAULT_BUNDLE.bundleId) {
+    return { input, repinnedFrom: null };
+  }
+  return {
+    input: { ...input, refBundleId: DEFAULT_BUNDLE.bundleId },
+    repinnedFrom: input.refBundleId,
+  };
+}
+
 /** Sensitivity-driven field prominence (build-plan 3.2): id → advanced? */
 const ADVANCED = new Set<string>((uiManifest as { advanced: string[] }).advanced);
 export function isAdvanced(paramId: string): boolean {
@@ -290,7 +325,12 @@ export function useCorridorModel(): CorridorModel {
     let base: { scenario: ScenarioInput; hadDraft: boolean } | null = null;
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
-      if (raw) base = { scenario: migrateScenarioInput(JSON.parse(raw)).input, hadDraft: true };
+      if (raw) {
+        // Re-pin: a draft saved before the current bundle would otherwise
+        // throw on resolve and leave the user with an unopenable workspace.
+        const migrated = migrateScenarioInput(JSON.parse(raw)).input;
+        base = { scenario: repinToCurrentBundle(migrated).input, hadDraft: true };
+      }
     } catch {
       localStorage.removeItem(DRAFT_KEY);
     }
@@ -326,7 +366,7 @@ export function useCorridorModel(): CorridorModel {
 
   /** Replace the whole draft (loading a saved/shared scenario). Validates. */
   const load = useCallback((payload: unknown) => {
-    setScenario(migrateScenarioInput(payload).input);
+    setScenario(repinToCurrentBundle(migrateScenarioInput(payload).input).input);
   }, []);
 
   const pickSite = useCallback((pick: SitePickPayload) => {

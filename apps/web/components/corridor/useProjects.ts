@@ -8,6 +8,7 @@ import { CORRIDOR_ENGINE_VERSION } from "@h2map/corridor-engine";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { defaultScenario, emptyScenario } from "@/lib/corridor/scenarioDefaults";
 import type { CorridorModel } from "./state";
+import { repinToCurrentBundle } from "./state";
 
 /**
  * Shared project (saved-scenario) state for the corridor workspace.
@@ -73,7 +74,8 @@ export const DEFAULT_PROJECT_NAME = "Mejillones–Japan copper corridor";
 /** Canonical JSON for dirty-comparison: migration-normalized key order. */
 function normalizeScenarioJson(scenario: unknown): string {
   return JSON.stringify(
-    migrateScenarioInput(JSON.parse(JSON.stringify(scenario))).input,
+    repinToCurrentBundle(migrateScenarioInput(JSON.parse(JSON.stringify(scenario))).input)
+      .input,
   );
 }
 
@@ -209,8 +211,11 @@ export function useProjects(
           view_mode?: ProjectViewMode | null;
         };
         const migrated = migrateScenarioInput(row.inputs);
-        model.load(migrated.input);
-        savedSnapshotRef.current = normalizeScenarioJson(migrated.input);
+        // A project saved against an older bundle id cannot resolve against
+        // the one this build ships, so re-pin it rather than refuse to open.
+        const repinned = repinToCurrentBundle(migrated.input);
+        model.load(repinned.input);
+        savedSnapshotRef.current = normalizeScenarioJson(repinned.input);
         onViewMode?.(row.view_mode ?? null);
         setCurrentId(row.id);
         setName(row.name);
