@@ -16,7 +16,7 @@ import {
 const bundle = parseRefBundle(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/corridor-ref/2026-08-16-vessel-v2.json", import.meta.url),
+      new URL("../../../data/corridor-ref/2026-08-17-vessel-v3.json", import.meta.url),
       "utf8",
     ),
   ),
@@ -24,10 +24,14 @@ const bundle = parseRefBundle(
 
 describe("EEDI-derived GJ/nm", () => {
   it("reproduces a catalogue row it was used to build", () => {
-    // The Newcastlemax row is itself EEDI-derived, so the function must
-    // return what the bundle stores — otherwise the two have drifted.
+    // gjPerNmFromEedi returns the RAW line. In v3 the Newcastlemax row no
+    // longer sits on it — a study measured that hull at 4.130 against the
+    // line's 6.275 — so this pins the gap rather than the agreement. That
+    // 52% disagreement is the durable finding about `k`.
     const row = bundle.vesselTypes.find((v) => v.id === "bulk-newcastlemax-210k")!;
-    expect(gjPerNmFromEedi(bundle, "bulk", 210_000)).toBeCloseTo(row.gjPerNm, 3);
+    const raw = gjPerNmFromEedi(bundle, "bulk", 210_000);
+    expect(raw).toBeCloseTo(6.275, 3);
+    expect(raw / row.gjPerNm - 1).toBeGreaterThan(0.4);
   });
 
   it("applies the MEPC 75 bulk dwt cap — GJ/nm goes LINEAR past 279,000", () => {
@@ -64,7 +68,7 @@ describe("resolveVesselBySize", () => {
   it("prefers a named class within tolerance", () => {
     const r = resolveVesselBySize(bundle, "bulk", 209_000);
     expect(r.source).toBe("catalogue");
-    expect(r.gjPerNm).toBeCloseTo(6.275, 3);
+    expect(r.gjPerNm).toBeCloseTo(4.13, 3); // study-measured in v3
     expect(r.notes[0]).toMatch(/bulk-newcastlemax-210k/);
   });
 
@@ -119,5 +123,51 @@ describe("resolveVesselBySize", () => {
       expect(g).toBeGreaterThan(prev);
       prev = g;
     }
+  });
+});
+
+describe("study-corrected families stay continuous", () => {
+  it("has no cliff where a study row meets a derived size", () => {
+    // The defect this exists to prevent: the Newcastlemax reads 4.130
+    // because a study measured it, but the untouched EEDI line gives ~6.35
+    // at 215,000 dwt — a 55% jump for a 2.4% change in size, which would be
+    // worse than the error the study figures fix. The derivation is
+    // corrected against the catalogue's own rows so it lands between them.
+    const at = (dwt: number) => resolveVesselBySize(bundle, "bulk", dwt).gjPerNm;
+    const named = at(210_000);
+    const justAbove = at(215_000);
+    expect(Math.abs(justAbove / named - 1)).toBeLessThan(0.1);
+  });
+
+  it("keeps every step small across the whole family", () => {
+    let worst = 0;
+    let prev: number | null = null;
+    for (let dwt = 40_000; dwt <= 340_000; dwt += 2_500) {
+      const g = resolveVesselBySize(bundle, "bulk", dwt).gjPerNm;
+      if (prev !== null) worst = Math.max(worst, Math.abs(g / prev - 1));
+      prev = g;
+    }
+    // Steps are the catalogue's own spacing now, not a derivation artifact.
+    expect(worst).toBeLessThan(0.1);
+  });
+
+  it("reports the correction rather than folding it in silently", () => {
+    const r = resolveVesselBySize(bundle, "bulk", 150_000);
+    expect(r.source).toBe("derived");
+    expect(r.studyCorrection).toBeDefined();
+    // The raw line is kept, so the adjustment is auditable.
+    expect(r.studyCorrection!.rawEediGjPerNm).toBeGreaterThan(r.gjPerNm);
+    expect(r.notes.join(" ")).toMatch(/Corrected/);
+  });
+
+  it("leaves an uncorrected family on the raw line", () => {
+    // No study touched containers, so the factor must be ~1 there and the
+    // correction machinery must not invent one.
+    const r = resolveVesselBySize(bundle, "container", 120_000);
+    const raw = gjPerNmFromEedi(bundle, "container", 120_000);
+    expect(r.gjPerNm / raw).toBeCloseTo(
+      r.studyCorrection?.factor ?? 1,
+      6,
+    );
   });
 });

@@ -139,15 +139,68 @@ const STUDY_ENERGY: Record<string, StudyEnergy> = {
   },
 };
 
+/**
+ * Carry the study correction across the rest of the family.
+ *
+ * Correcting only the MEASURED rows moves the inconsistency rather than
+ * removing it. After the first pass the bulk family read: Post-Panamax
+ * 93k = 4.099 (raw line), Capesize 180k = 4.220 (study), Newcastlemax 210k
+ * = 4.130 (study), VLOC 325k = 8.481 (raw line) — a 325,000 dwt ship
+ * showing more than double the energy per mile of a 210,000 dwt one. A 55%
+ * increase in size cannot mean a 105% increase in GJ/nm, and because these
+ * are NAMED rows the user picks from a list, the contradiction is visible
+ * in the selector, not just in the fallback.
+ *
+ * The studies say the line runs high for this hull family as a whole, not
+ * only at the three sizes someone happened to publish. So every row in a
+ * family with study evidence takes the correction, interpolated by size
+ * between anchors and held flat outside them. `k` is untouched — this is a
+ * per-family, data-driven correction confined to families with evidence.
+ */
+function familyCorrection(rows: V2Row[]): Map<string, number> {
+  const anchors = new Map<string, { dwt: number; factor: number }[]>();
+  for (const r of rows) {
+    const study = STUDY_ENERGY[r.id];
+    if (!study) continue;
+    const list = anchors.get(r.family) ?? [];
+    list.push({
+      dwt: r.dwtTonnes,
+      factor: study.gjPerNm / r.energy.wholeVoyageGjPerNm,
+    });
+    anchors.set(r.family, list);
+  }
+  for (const list of anchors.values()) list.sort((a, b) => a.dwt - b.dwt);
+
+  const out = new Map<string, number>();
+  for (const r of rows) {
+    if (STUDY_ENERGY[r.id]) continue; // measured rows use their own figure
+    const list = anchors.get(r.family);
+    if (!list || list.length === 0) continue;
+    const below = [...list].reverse().find((a) => a.dwt <= r.dwtTonnes);
+    const above = list.find((a) => a.dwt >= r.dwtTonnes);
+    let factor: number;
+    if (below && above && below !== above) {
+      const t = (r.dwtTonnes - below.dwt) / (above.dwt - below.dwt);
+      factor = below.factor + t * (above.factor - below.factor);
+    } else {
+      factor = (below ?? above!).factor;
+    }
+    out.set(r.id, factor);
+  }
+  return out;
+}
+
 /** Flatten a nested v2 row onto the live flat row shape. */
-function flatten(r: V2Row): Record<string, unknown> {
+function flatten(r: V2Row, correction?: number): Record<string, unknown> {
   const study = STUDY_ENERGY[r.id];
   // Rescale the laden/ballast pair onto the study figure, PRESERVING their
   // ratio. The invariant that the pair averages back to the scalar is
   // pinned by a test, and an equal-leg voyage must keep reproducing it.
   const ratio = r.energy.ballastGjPerNm / r.energy.ladenGjPerNm;
-  const laden = study ? (2 * study.gjPerNm) / (1 + ratio) : r.energy.ladenGjPerNm;
-  const ballast = study ? ratio * laden : r.energy.ballastGjPerNm;
+  const k = correction ?? 1;
+  const whole = study ? study.gjPerNm : r.energy.wholeVoyageGjPerNm * k;
+  const laden = (2 * whole) / (1 + ratio);
+  const ballast = ratio * laden;
   const round3 = (x: number): number => Math.round(x * 1000) / 1000;
   const tier = (s: string): string => (s.match(/^([ABC]):/)?.[1] ?? "C");
   // A row is "verified" only when every parameter it carries is tier A.
@@ -158,7 +211,7 @@ function flatten(r: V2Row): Record<string, unknown> {
     label: r.label,
     capexUsdM: r.cost.newbuildUsdM,
     opexUsdMPerYear: r.cost.opexUsdMPerYear,
-    gjPerNm: study ? study.gjPerNm : r.energy.wholeVoyageGjPerNm,
+    gjPerNm: round3(whole),
     verified: false,
     sourceNote: study
       ? `${NEW_ID}: ${study.note} CAPEX ${tier(r.provenance.capex as string)}, OPEX ${tier(r.provenance.opex as string)}.`
@@ -175,7 +228,13 @@ function flatten(r: V2Row): Record<string, unknown> {
     idleGjPerDay: r.energy.idleGjPerDay,
     cargoSystemGjPerDay: r.energy.cargoSystemGjPerDay,
     costYear: r.cost.costYear,
-    provenance: study
+    provenance: !study && correction !== undefined
+      ? {
+          ...r.provenance,
+          energy: `${r.provenance.energy as string} Corrected x${correction.toFixed(3)} to the study-measured level for this family (published corridor studies measure ${r.family} lower than the reference line); the family's measured rows are the anchors.`,
+          supersededEediGjPerNm: r.energy.wholeVoyageGjPerNm,
+        }
+      : study
       ? {
           ...r.provenance,
           // The old string claimed "B: EEDI reference line x k", which is
@@ -205,7 +264,10 @@ function main(): void {
   const v1Rows = v1.vesselTypes as Record<string, unknown>[];
   const byId = new Map(v1Rows.map((r) => [r.id as string, r]));
 
-  const rows: Record<string, unknown>[] = v2.vessels.map(flatten);
+  const corrections = familyCorrection(v2.vessels);
+  const rows: Record<string, unknown>[] = v2.vessels.map((r) =>
+    flatten(r, corrections.get(r.id)),
+  );
   const newIds = new Set(rows.map((r) => r.id as string));
 
   // Retired rows: verbatim, flagged, so an old scenario still computes what

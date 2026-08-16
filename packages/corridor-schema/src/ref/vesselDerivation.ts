@@ -54,6 +54,16 @@ export interface DerivedVessel {
    * ro-pax, vehicle carriers.
    */
   uncalibratedFamily?: boolean;
+  /**
+   * Present when nearby study-measured rows corrected the raw EEDI line.
+   * `rawEediGjPerNm` is what the uncorrected line gave, so the adjustment
+   * stays visible rather than being folded silently into the answer.
+   */
+  studyCorrection?: {
+    factor: number;
+    anchors: string[];
+    rawEediGjPerNm: number;
+  };
   notes: string[];
 }
 
@@ -92,6 +102,61 @@ export function gjPerNmFromEedi(
     line.cap !== null ? Math.min(capacity, line.cap) : capacity;
   const gCo2PerNm = line.a * referenceCapacity ** -line.c * capacity;
   return (gCo2PerNm * LHV_HFO_MJ_PER_KG) / (CF_HFO * 1e6) * k;
+}
+
+/**
+ * How much to scale the raw EEDI line at this size, given the catalogue.
+ *
+ * The bundle build already corrects every row in a family where a study
+ * measured one — so the CATALOGUE, not the raw line, is the best statement
+ * of that family's energy. Deriving an unnamed size straight off the line
+ * would contradict the rows either side of it: a 210,000 dwt bulker reads
+ * 4.130 because a study measured it, while the untouched line gives ~6.4 at
+ * 215,000 — a 55% jump for a 2.4% change in size.
+ *
+ * So the correction is measured against the catalogue itself: at each
+ * bracketing row, how far does the stored value sit from what the line
+ * would give? That ratio interpolates by size and is held flat outside the
+ * outermost rows. A family whose rows all sit ON the line gets a factor of
+ * 1 and nothing changes. `k` is never touched.
+ */
+function correctionFactor(
+  bundle: RefBundle,
+  family: string,
+  dwtTonnes: number,
+): { factor: number; anchors: string[] } {
+  const anchors = bundle.vesselTypes
+    .filter(
+      (v) =>
+        v.family === family && v.deprecated !== true && v.dwtTonnes !== undefined,
+    )
+    .map((v) => {
+      let line: number;
+      try {
+        line = gjPerNmFromEedi(bundle, family, v.dwtTonnes!);
+      } catch {
+        return null;
+      }
+      return line > 0
+        ? { id: v.id, dwt: v.dwtTonnes!, factor: v.gjPerNm / line }
+        : null;
+    })
+    .filter((x): x is { id: string; dwt: number; factor: number } => x !== null)
+    .sort((a, b) => a.dwt - b.dwt);
+
+  if (anchors.length === 0) return { factor: 1, anchors: [] };
+
+  const below = [...anchors].reverse().find((a) => a.dwt <= dwtTonnes);
+  const above = anchors.find((a) => a.dwt >= dwtTonnes);
+  if (below && above && below !== above) {
+    const t = (dwtTonnes - below.dwt) / (above.dwt - below.dwt);
+    return {
+      factor: below.factor + t * (above.factor - below.factor),
+      anchors: [below.id, above.id],
+    };
+  }
+  const nearest = below ?? above!;
+  return { factor: nearest.factor, anchors: [nearest.id] };
 }
 
 /** Linear interpolation between two anchors, clamped reporting outside them. */
@@ -169,11 +234,18 @@ export function resolveVesselBySize(
   }
 
   // --- 2. derive ---------------------------------------------------------
-  const gjPerNm = gjPerNmFromEedi(bundle, family, dwtTonnes);
+  const raw = gjPerNmFromEedi(bundle, family, dwtTonnes);
+  const { factor, anchors } = correctionFactor(bundle, family, dwtTonnes);
+  const gjPerNm = raw * factor;
   const k = bundle.vesselDerivation!.familyCalibration[family]!;
   notes.push(
     `GJ/nm derived from the IMO EEDI reference line for ${family} × k=${k} (fitted calibration, unverified).`,
   );
+  if (anchors.length > 0 && Math.abs(factor - 1) > 1e-9) {
+    notes.push(
+      `Corrected ×${factor.toFixed(3)} to sit continuously between ${anchors.join(" / ")}: the raw EEDI line gives ${raw.toFixed(3)} GJ/nm, but the catalogue's rows for this family sit below it (published corridor studies measure them lower). Without this a size just outside a named row would jump discontinuously.`,
+    );
+  }
 
   const sorted = [...candidates].sort((a, b) => a.dwtTonnes! - b.dwtTonnes!);
   const below = [...sorted].reverse().find((v) => v.dwtTonnes! <= dwtTonnes) ?? null;
@@ -211,6 +283,9 @@ export function resolveVesselBySize(
     family,
     dwtTonnes,
     costAnchors: { lower: below?.id ?? null, upper: above?.id ?? null },
+    ...(anchors.length > 0 && Math.abs(factor - 1) > 1e-9
+      ? { studyCorrection: { factor, anchors, rawEediGjPerNm: raw } }
+      : {}),
     ...(extrapolated ? { extrapolated: true } : {}),
     ...(THIN_FAMILIES.has(family) ? { uncalibratedFamily: true } : {}),
     notes,
