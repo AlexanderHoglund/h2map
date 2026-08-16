@@ -463,9 +463,15 @@ export default function ResultsPanel({
   ];
 
   return (
-    <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-12">
+    // A vertical stack of full-width blocks, with explicit two-up ROWS where
+    // two cards belong side by side. The previous 12-column grid tiled only
+    // by accident: spans ran 12, 12, 7+5, 5+7, 5, and the middle rows closed
+    // only because of a CONDITIONAL card (the per-tonne waterfall, hidden
+    // when abatement is zero). Losing it reflowed every card below into a
+    // different layout. Rows cannot do that to each other.
+    <div className="space-y-4">
       {/* ===== KPI strip: one pixel-grid box ===== */}
-      <div className="grid grid-cols-2 gap-px border border-neutral-300 bg-neutral-300 sm:grid-cols-3 lg:col-span-12 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-px border border-neutral-300 bg-neutral-300 sm:grid-cols-3 xl:grid-cols-6">
         {kpis.map((k, i) => (
           <div key={i} className="bg-white p-3">
             <Stat
@@ -484,18 +490,24 @@ export default function ResultsPanel({
       {/* Standard card padding: this strip used px-3 py-2 for no stated
           reason, which is exactly the sort of near-miss that made the page
           read as unconsidered. */}
-      <Card as="section" className="lg:col-span-12">
+      <Card as="section">
         <SectionLabel className="mb-2">{t("snapshot")}</SectionLabel>
-        <dl className="flex flex-wrap items-baseline gap-x-0 gap-y-1 text-xs">
+        {/* Dividers sit on the RIGHT of every item but the last, not on the
+            left of every item but the first. The old index-keyed rule left a
+            dangling separator at the start of every wrapped line — and with
+            12-15 items this strip wraps at nearly every viewport.
+            `min-w-0` + wrapping values: port names are free text, so a long
+            one must break rather than push the whole flex line. */}
+        <dl className="flex flex-wrap items-baseline gap-y-1 text-xs">
           {snapshot.map(([label, value], i) => (
             <div
               key={label}
-              className={`flex items-baseline gap-1.5 pr-3 ${
-                i > 0 ? "border-l border-neutral-200 pl-3" : ""
+              className={`flex min-w-0 items-baseline gap-1.5 pr-3 ${
+                i < snapshot.length - 1 ? "mr-3 border-r border-neutral-200" : ""
               }`}
             >
               <dt className="whitespace-nowrap text-neutral-500">{label}</dt>
-              <dd className="whitespace-nowrap font-medium tabular-nums text-neutral-900">
+              <dd className="min-w-0 break-words font-medium tabular-nums text-neutral-900">
                 {value}
               </dd>
             </div>
@@ -503,17 +515,25 @@ export default function ResultsPanel({
         </dl>
       </Card>
 
-      {/* ===== Breakdown of total cost (the MMMCZCS waterfall) ===== */}
-      <Card as="section" className="lg:col-span-7">
+      {/* Two-up from xl: the waterfall and the table that itemises it read
+          together. Below xl they stack, because a 4-column money table and a
+          bar chart both need width more than they need adjacency. */}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        {/* ===== Breakdown of total cost (the MMMCZCS waterfall) ===== */}
+        <Card as="section">
         <SectionLabel className="mb-2">{t("waterfall")}</SectionLabel>
         <WaterfallChart data={waterfall.pv} />
         <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
       </Card>
 
       {/* ===== Decomposition: green | fossil | Δ ===== */}
-      <Card as="section" className="lg:col-span-5">
+      <Card as="section">
         <SectionLabel className="mb-2">{t("decomposition")}</SectionLabel>
-        <table className="w-full text-xs tabular-nums">
+        {/* Four columns of $X,XXX.XXm cannot wrap - tabular-nums values have
+            no break opportunity - so the table scrolls rather than forcing
+            the card wider than its column. */}
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[22rem] text-xs tabular-nums">
           <thead>
             <tr className="border-b border-neutral-300 text-[11px] uppercase tracking-wider text-neutral-500">
               <th className="py-1.5 text-left font-medium" scope="col">
@@ -572,11 +592,15 @@ export default function ResultsPanel({
             </tr>
           </tfoot>
         </table>
+        </div>
       </Card>
 
-      {/* ===== The same breakdown per tonne of CO2 abated ===== */}
-      {waterfall.perTonne.length > 0 && (
-        <Card as="section" className="lg:col-span-5">
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        {/* ===== The same breakdown per tonne of CO2 abated ===== */}
+        {waterfall.perTonne.length > 0 && (
+          <Card as="section">
           <SectionLabel className="mb-2">
             {t("waterfallPerTonne")}{" "}
             <ValueChip>
@@ -584,12 +608,12 @@ export default function ResultsPanel({
             </ValueChip>
           </SectionLabel>
           <WaterfallChart data={waterfall.perTonne} />
-          <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
-        </Card>
-      )}
+            <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
+          </Card>
+        )}
 
-      {/* ===== Annual cost — stacked by nature, green vs fossil ===== */}
-      <Card as="section" className="lg:col-span-7">
+        {/* ===== Annual cost — stacked by nature, green vs fossil ===== */}
+        <Card as="section">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <SectionLabel>
             {t("perYear")}{" "}
@@ -612,7 +636,11 @@ export default function ResultsPanel({
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={perYear} margin={{ top: 4, right: 14, bottom: 0, left: 0 }} barCategoryGap="16%">
               <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} tickMargin={4} />
+              {/* NOT interval={0}: the horizon is user input up to 40 years,
+                  and forcing a tick per year overlapped the labels in a
+                  half-width card. "preserveStartEnd" keeps the first and last
+                  year legible and thins the middle to fit. */}
+              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval="preserveStartEnd" tickMargin={4} />
               <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={46} />
               <Tooltip
                 formatter={(v, name) => [
@@ -648,12 +676,17 @@ export default function ResultsPanel({
         )}
       </Card>
 
+      </div>
+
       {/* ===== Emissions & abatement — the premium per tonne avoided =====
           Grouped bars per emissions basis, before and after the regulation
           modules, against the active scheme's carbon price as a reference
           line: how far above (or below) the market price of carbon this
-          corridor's abatement sits. */}
-      <Card as="section" className="lg:col-span-5">
+          corridor's abatement sits.
+
+          Full width, deliberately: it is the only card in its row, and a
+          half-width orphan is what the old 12-column grid produced. */}
+      <Card as="section">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <SectionLabel>
             {t("emissionsChart")}{" "}
@@ -704,11 +737,11 @@ export default function ResultsPanel({
         <p className="mt-1 text-[11px] leading-snug text-neutral-500">
           {refPrice ? refPrice.note : t("abatementNoteNone")}
         </p>
-      </Card>
+        </Card>
 
       {/* ===== Results by tab: one section per input step, equal frames ===== */}
       {resolved && (
-        <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:col-span-12 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {/* 02 Energy */}
           <Card as="section">
             <SectionLabel className="mb-2">02 · {ts("energy")}</SectionLabel>
@@ -983,7 +1016,10 @@ function TabTable({
   // Money keeps the $X,XXX.XXm convention.
   const fmt = (n: number) => (money ? usdM(n) : formatSig(n));
   return (
-    <table className="w-full text-xs tabular-nums">
+    // These sit in sm:grid-cols-2 cards (~360px) carrying three columns of
+    // money, so they scroll rather than overflow their card.
+    <div className="overflow-x-auto">
+    <table className="w-full min-w-[18rem] text-xs tabular-nums">
       <thead>
         <tr className="border-b border-neutral-300 text-[11px] uppercase tracking-wider text-neutral-500">
           <th className="py-1 text-left font-medium" scope="col">
@@ -1009,6 +1045,7 @@ function TabTable({
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 
