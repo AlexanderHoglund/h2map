@@ -200,8 +200,15 @@ export function ProbabilisticSection({
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-136 text-sm">
+          {/*
+            No overflow wrapper and no min-width: unlike the by-tab tables in
+            tables.tsx, which scroll because they sit in ~360px half-width
+            grid cells, this one is in a full-width card with room for all
+            seven columns. A min-width here forced a scrollbar inside the
+            card — a scroller inside the page's scroller — for no gain.
+          */}
+          <div className="mt-4">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500">
                   <th className="py-1 pr-3 font-medium">{t("probKpi")}</th>
