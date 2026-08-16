@@ -1183,34 +1183,42 @@ export default async function DocsPage() {
         </p>
         <H3>Cost bridges (two waterfalls)</H3>
         <p className="mt-2">
-          The MMMCZCS-style breakdown, with{" "}
-          <strong>one block per regulatory instrument</strong>{" "}rather than a
-          single fused bar, and{" "}<strong>two stopping points</strong>. Left
-          to right:{" "}<strong>Total cost of green corridor*</strong>{" "}
-          (anchored),{" "}<strong>Total cost of fossil corridor*</strong>{" "}
-          (hangs from the green total down to the gross level),{" "}
-          <strong>Gross cost before regulation</strong>, then a float for every
-          instrument that is <em>in force today</em>{" "}(EU ETS, FuelEU
+          The MMMCZCS-style breakdown: seven bars, with{" "}
+          <strong>two stopping points</strong>. Left to right:{" "}
+          <strong>Total cost of green corridor*</strong>{" "}(anchored),{" "}
+          <strong>Total cost of fossil corridor*</strong>{" "}(hangs from the
+          green total down to the gross level),{" "}
+          <strong>Gross cost before regulation</strong>, a float for{" "}
+          <strong>regulation in force</strong>{" "}today (EU ETS, FuelEU
           Maritime, IRA 45Z) landing on{" "}
           <strong>Gross incremental cost</strong>{" "}— what the corridor
-          costs under the law as it stands. Floats for instruments still being{" "}
-          <em>tested</em>{" "}(IMO Net-Zero, provisional pending adoption at
-          MEPC 85; self-designed regulation, which is user-invented by
-          definition) and the green financing line then close onto{" "}
-          <strong>Incremental cost</strong>, the headline gap.
+          costs under the law as it stands — then a float for{" "}
+          <strong>regulation being tested</strong>{" "}(IMO Net-Zero,
+          provisional pending adoption at MEPC 85; self-designed regulation,
+          user-invented by definition; and the green financing line) closing
+          onto <strong>Incremental cost</strong>, the headline gap.
         </p>
         <p className="mt-2">
-          Three details that make it readable. A block worth exactly zero is{" "}
-          <strong>dropped, not drawn flat</strong>: an empty bar would imply
-          the instrument was modelled and found negligible, which is a
-          different claim from &ldquo;does not apply to this corridor&rdquo;.
-          The <strong>Gross incremental</strong>{" "}bar appears only when an
-          in-force instrument actually moved it — on a corridor touching no
-          EEA port (the Chilean default) ETS and FuelEU are inert, so it would
-          merely repeat the bar before it. And a float that{" "}
-          <strong>widens</strong>{" "}the gap is now coloured differently from
-          one that closes it, on the CVD-safe diverging pair; previously
-          direction lived only in the label&apos;s minus sign.
+          Regulation is <strong>grouped, not itemised</strong>{" "}in the bars:
+          six instruments would draw six slivers and answer a question nobody
+          asked. Hovering a regulation bar breaks out every instrument inside
+          it — <strong>including the ones that do not apply</strong>,
+          shown as &ldquo;not applicable&rdquo; rather than omitted. That
+          distinction matters: a corridor touching no EEA port genuinely
+          escapes ETS and FuelEU, and a missing row would read as
+          &ldquo;nobody modelled this&rdquo; instead of &ldquo;this scheme
+          does not reach here&rdquo;. The decomposition table below carries
+          the same instruments as exact numbers.
+        </p>
+        <p className="mt-2">
+          Two further details. The{" "}
+          <strong>Gross incremental</strong>{" "}bar is drawn even when it
+          equals the bar before it — on the Chilean default no in-force
+          scheme applies, and that equality is the finding rather than a gap
+          in the chart. And a float that{" "}<strong>widens</strong>{" "}the gap
+          is coloured differently from one that closes it, on the CVD-safe
+          diverging pair; previously direction lived only in the
+          label&apos;s minus sign.
         </p>
         <p className="mt-2">
           The block arithmetic lives in the engine (<code>buildCostBridge</code>),
@@ -1222,7 +1230,7 @@ export default async function DocsPage() {
           per-instrument differences — same arithmetic, different
           association order, so the last one or two ULPs move (measured
           ≤1e-15 relative). A{" "}
-          <strong>second waterfall</strong>{" "}repeats the same blocks
+          <strong>second waterfall</strong>{" "}repeats the same bars
           denominated in $ per tonne of CO2 abated (every step over the same
           lifetime abatement, active basis tagged), so the gross bar reads the
           pre-regulation abatement cost and the final bar the headline $/tCO2.

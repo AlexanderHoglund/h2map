@@ -85,6 +85,16 @@ export interface BridgeBlock {
   readonly stop: Exclude<BridgeStop, "valueChain">;
 }
 
+/** One drawn bar: a stop's instruments summed, with their parts kept. */
+export interface BridgeGroup {
+  /** Stable id — also the i18n key suffix. */
+  readonly key: Exclude<BridgeStop, "valueChain">;
+  /** Signed effect on the gap, $m PV — the sum of `parts`. */
+  readonly deltaUsdM: number;
+  /** The instruments inside, including inactive ones worth zero. */
+  readonly parts: readonly BridgeBlock[];
+}
+
 export interface CostBridge {
   /** Anchored: green CAPEX+OPEX PV, the leftmost bar. */
   readonly greenTotalUsdM: number;
@@ -92,8 +102,15 @@ export interface CostBridge {
   readonly fossilTotalUsdM: number;
   /** green − fossil, before ANY regulation. */
   readonly grossUsdM: number;
-  /** Every non-zero block, in display order. */
+  /** Every instrument block, in display order. Zero-valued ones included. */
   readonly blocks: readonly BridgeBlock[];
+  /**
+   * The blocks collapsed to one bar per STOP — what the chart actually
+   * draws. Regulation reads as a single "in force today" step and a single
+   * "tested" step; the per-instrument detail stays on `blocks` for the
+   * tooltip and the decomposition table, so grouping loses nothing.
+   */
+  readonly groups: readonly BridgeGroup[];
   /** Running totals at each stop. */
   readonly stops: {
     /** gross + in-force regulation. */
@@ -106,10 +123,11 @@ export interface CostBridge {
 /**
  * Build the bridge from an evaluated scenario.
  *
- * Blocks that come out at exactly zero are DROPPED. With six instruments most
- * scenarios have several inactive, and a row of zero-height bars makes the
- * chart unreadable while implying the instrument was modelled and found
- * negligible — which is a different claim from "not applicable here".
+ * Returns BOTH shapes: `blocks` per instrument, and `groups` collapsing them
+ * to one bar per stop. The chart draws the groups — a reader wants "what does
+ * regulation do to this corridor", not six near-invisible slivers — while the
+ * tooltip and the decomposition table read the parts. Nothing is discarded,
+ * so the two views cannot disagree.
  */
 export function buildCostBridge(result: ScenarioResult): CostBridge {
   const s = result.summary;
@@ -156,7 +174,12 @@ export function buildCostBridge(result: ScenarioResult): CostBridge {
     },
   ];
 
-  const blocks = candidates.filter((b) => b.deltaUsdM !== 0);
+  // Every instrument is kept, including the ones worth exactly zero. An
+  // inactive scheme is INFORMATION: "this corridor touches no EEA port, so
+  // ETS does not bite" is a result a reader needs, and silently omitting the
+  // bar makes an inapplicable instrument indistinguishable from one nobody
+  // modelled. The renderer draws these as a marked zero-height tick.
+  const blocks = candidates;
 
   const sumTo = (stop: BridgeBlock["stop"]) =>
     candidates
@@ -165,11 +188,21 @@ export function buildCostBridge(result: ScenarioResult): CostBridge {
 
   const grossIncrementalUsdM = grossUsdM + sumTo("grossIncremental");
 
+  const group = (key: BridgeGroup["key"]): BridgeGroup => {
+    const parts = blocks.filter((b) => b.stop === key);
+    return {
+      key,
+      deltaUsdM: parts.reduce((acc, b) => acc + b.deltaUsdM, 0),
+      parts,
+    };
+  };
+
   return {
     greenTotalUsdM,
     fossilTotalUsdM,
     grossUsdM,
     blocks,
+    groups: [group("grossIncremental"), group("netIncremental")],
     stops: {
       grossIncrementalUsdM,
       netIncrementalUsdM: grossIncrementalUsdM + sumTo("netIncremental"),

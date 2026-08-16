@@ -4,9 +4,14 @@
  * The waterfall used to be assembled in the React component, where the
  * renderer hand-subtracted the financing line out of `netRegulatoryEffectUsdM`
  * so its two floats would not double-count. Nothing verified that subtraction.
- * With one float that was survivable; splitting regulation into one block per
- * instrument makes it six, and a silent arithmetic slip would show up as a
- * waterfall that looks plausible and misattributes the gap.
+ * With one float that was survivable; decomposing regulation per instrument
+ * makes it six, and a silent arithmetic slip would show up as a waterfall
+ * that looks plausible and misattributes the gap.
+ *
+ * The CHART groups those instruments back into one bar per stop — six
+ * slivers answer a question nobody asked. The per-instrument blocks stay
+ * available for the tooltip and the decomposition table, and the tests below
+ * pin that the grouping is a pure re-presentation of them.
  *
  * So the arithmetic moved into `costBridge.ts` and these tests pin it.
  *
@@ -155,13 +160,54 @@ describe("the three stopping points", () => {
 });
 
 describe("block hygiene", () => {
-  it("drops zero blocks rather than drawing empty bars", () => {
-    // A zero-height bar implies "modelled and found negligible", which is a
-    // different claim from "not applicable to this corridor".
-    for (const [, make] of SCENARIOS) {
-      for (const b of buildCostBridge(run(make())).blocks) {
-        expect(b.deltaUsdM, b.key).not.toBe(0);
+  it("KEEPS inactive instruments rather than hiding them", () => {
+    // Reversed deliberately. An instrument worth zero is a result: "this
+    // corridor touches no EEA port, so ETS does not bite" is something a
+    // reader needs to see. Dropping the bar makes an inapplicable scheme
+    // indistinguishable from one nobody modelled.
+    const b = buildCostBridge(run(defaultScenario()));
+    const keys = b.blocks.map((x) => x.key);
+    for (const k of ["ets", "fuelEu", "ira45z", "imoNetZero", "selfDesigned", "financing"]) {
+      expect(keys, `${k} missing`).toContain(k);
+    }
+    // ...and this scenario really does have inactive ones, or the assertion
+    // above would pass without testing anything.
+    expect(b.blocks.some((x) => x.deltaUsdM === 0)).toBe(true);
+  });
+
+  it("groups the instruments into one bar per stop", () => {
+    // The chart draws groups, not instruments: six near-invisible slivers
+    // answer a question nobody asked. The parts stay attached for the
+    // tooltip and the decomposition table.
+    for (const [name, make] of SCENARIOS) {
+      const b = buildCostBridge(run(make()));
+      expect(b.groups.map((g) => g.key), name).toEqual([
+        "grossIncremental",
+        "netIncremental",
+      ]);
+      for (const g of b.groups) {
+        const sum = g.parts.reduce((acc, p) => acc + p.deltaUsdM, 0);
+        expect(g.deltaUsdM, `${name}/${g.key}`).toBeCloseTo(sum, 9);
       }
+      // Every block belongs to exactly one group — none orphaned, none double-counted.
+      expect(b.groups.flatMap((g) => g.parts).length, name).toBe(b.blocks.length);
+    }
+  });
+
+  it("groups reach the same stops as the blocks", () => {
+    // The grouping must be a pure re-presentation: if it drifted from the
+    // per-instrument sum, the chart and the table would disagree on screen.
+    for (const [name, make] of SCENARIOS) {
+      const b = buildCostBridge(run(make()));
+      const [inForce, tested] = b.groups;
+      expect(b.grossUsdM + inForce!.deltaUsdM, name).toBeCloseTo(
+        b.stops.grossIncrementalUsdM,
+        9,
+      );
+      expect(
+        b.stops.grossIncrementalUsdM + tested!.deltaUsdM,
+        name,
+      ).toBeCloseTo(b.stops.netIncrementalUsdM, 9);
     }
   });
 

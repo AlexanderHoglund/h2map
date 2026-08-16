@@ -310,6 +310,9 @@
       "wfFossilTotal": "Total cost of\nfossil corridor*",
       "wfGross": "Gross cost\nbefore regulation",
       "wfGrossIncremental": "Gross\nincremental cost",
+      "wfGroup_grossIncremental": "Regulation\nin force",
+      "wfGroup_netIncremental": "Regulation\nbeing tested",
+      "wfInactive": "not applicable",
       "wf_ets": "EU ETS",
       "wf_fuelEu": "FuelEU\nMaritime",
       "wf_ira45z": "IRA 45Z",
@@ -317,7 +320,7 @@
       "wf_selfDesigned": "Self-designed\nregulation",
       "wf_financing": "Green\nfinancing",
       "wfIncremental": "Incremental\ncost",
-      "wfFootnote": "* excludes every regulatory instrument - each one is drawn as its own block",
+      "wfFootnote": "* excludes every regulatory instrument - hover a regulation bar for the breakdown, including schemes that do not apply here",
       "waterfallPerTonne": "Breakdown of abatement cost per tonne of CO2",
       "regFinancing": "Green financing effect",
       "frameworkLabel": {

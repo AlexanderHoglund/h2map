@@ -20,7 +20,6 @@ import type {
   ScenarioResult,
 } from "@h2map/corridor-schema";
 import { buildCostBridge } from "@h2map/corridor-engine";
-import type { BridgeBlock } from "@h2map/corridor-engine";
 import { formatSig } from "@h2map/units";
 import { DEFAULT_BUNDLE } from "./state";
 
@@ -96,30 +95,43 @@ export default function ResultsPanel({
       });
 
       /**
-       * Walk a run of blocks from a starting level, returning the bars and
-       * the level they land on. A fold rather than a push loop: the running
-       * level is genuinely sequential (each float starts where the previous
-       * ended), but the array itself stays immutable.
+       * One bar per STOP, not per instrument. Six instruments produce six
+       * slivers that answer a question nobody asked; the reader wants "what
+       * does regulation do to this corridor". The per-instrument parts ride
+       * along on the datum so the tooltip can break them out, and the
+       * decomposition table below the chart already lists them in full.
        */
-      const walk = (from: number, stop: BridgeBlock["stop"]) =>
-        bridge.blocks
-          .filter((x) => x.stop === stop)
-          .reduce<{ bars: Omit<WfStep, "label">[]; level: number }>(
-            (acc, b) => {
-              const to = acc.level + b.deltaUsdM;
-              return {
-                bars: [
-                  ...acc.bars,
-                  { key: `wf_${b.key}`, ...float(acc.level, to, scale, fmt) },
-                ],
-                level: to,
-              };
-            },
-            { bars: [], level: from },
-          );
-
-      const inForce = walk(bridge.grossUsdM, "grossIncremental");
-      const tested = walk(inForce.level, "netIncremental");
+      const regBars = bridge.groups.reduce<{
+        bars: Omit<WfStep, "label">[];
+        level: number;
+      }>(
+        (acc, g) => {
+          const to = acc.level + g.deltaUsdM;
+          return {
+            bars: [
+              ...acc.bars,
+              {
+                key: `wfGroup_${g.key}`,
+                ...float(acc.level, to, scale, fmt),
+                // Inactive instruments are still listed, marked as such, so
+                // "does not apply here" never reads as "not modelled".
+                parts: g.parts.map((p) => ({
+                  key: p.key,
+                  label: t(`wf_${p.key}`),
+                  text:
+                    p.deltaUsdM === 0
+                      ? t("wfInactive")
+                      : `${p.deltaUsdM > 0 ? "+" : "−"}${fmt(Math.abs(p.deltaUsdM) * scale)}`,
+                })),
+              },
+            ],
+            level: to,
+          };
+        },
+        { bars: [], level: bridge.grossUsdM },
+      );
+      const inForce = { bars: [regBars.bars[0]!], level: bridge.stops.grossIncrementalUsdM };
+      const tested = { bars: [regBars.bars[1]!], level: bridge.stops.netIncrementalUsdM };
 
       return [
         {
@@ -140,11 +152,11 @@ export default function ResultsPanel({
         },
         anchor("wfGross", bridge.grossUsdM),
         ...inForce.bars,
-        // STOP 1 - the law as it stands. Drawn only when an in-force
-        // instrument actually moved it; otherwise it repeats the bar before.
-        ...(bridge.stops.grossIncrementalUsdM !== bridge.grossUsdM
-          ? [anchor("wfGrossIncremental", bridge.stops.grossIncrementalUsdM)]
-          : []),
+        // STOP 1 - the corridor under the law as it stands. Always drawn,
+        // even when it equals the bar before it: that equality is itself the
+        // finding (no in-force scheme reaches this corridor), and a missing
+        // bar would just look like the chart forgot.
+        anchor("wfGrossIncremental", bridge.stops.grossIncrementalUsdM),
         ...tested.bars,
         // STOP 2 - the headline gap.
         anchor("wfIncremental", bridge.stops.netIncrementalUsdM),
@@ -480,7 +492,7 @@ export default function ResultsPanel({
       {/* ===== Breakdown of total cost (the MMMCZCS waterfall) ===== */}
       <section className="border border-neutral-300 bg-white p-3 lg:col-span-7">
         <Eyebrow>{t("waterfall")}</Eyebrow>
-        <WaterfallChart data={waterfall.pv} fmt={fmtUsdM} />
+        <WaterfallChart data={waterfall.pv} />
         <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
       </section>
 
@@ -557,7 +569,7 @@ export default function ResultsPanel({
               {t(`basisLabel.${basis}`)}
             </span>
           </Eyebrow>
-          <WaterfallChart data={waterfall.perTonne} fmt={fmtUsd} />
+          <WaterfallChart data={waterfall.perTonne} />
           <p className="mt-1 text-[11px] text-neutral-500">{t("wfFootnote")}</p>
         </section>
       )}
@@ -1008,11 +1020,16 @@ interface WfStep {
   kind: keyof typeof WF_COLORS;
   labelText: string;
   exitLevel: number;
+  /** Instruments inside a grouped bar, for the tooltip. Absent on totals. */
+  parts?: readonly { key: string; label: string; text: string }[];
 }
 
 /** The MMMCZCS float-bar waterfall, denomination-agnostic: the same chart
  *  draws PV \u0024m and \u0024/t CO2 abated. */
-function WaterfallChart({ data, fmt }: { data: WfStep[]; fmt: (n: number) => string }) {
+/* Every value arrives pre-formatted on the datum (`labelText`, `parts[].text`)
+   because the two denominations format differently — so the chart itself needs
+   no formatter. */
+function WaterfallChart({ data }: { data: WfStep[] }) {
   return (
     <div className="h-72">
       <ResponsiveContainer width="100%" height="100%">
@@ -1032,11 +1049,33 @@ function WaterfallChart({ data, fmt }: { data: WfStep[]; fmt: (n: number) => str
             unit=""
           />
           <Tooltip
-            formatter={(v, name) =>
-              name === "span" && typeof v === "number" ? [fmt(v), ""] : null
-            }
-            labelStyle={{ fontSize: 11 }}
-            contentStyle={{ fontSize: 11 }}
+            cursor={{ fill: "var(--viz-grid)", fillOpacity: 0.35 }}
+            content={({ active, payload }) => {
+              if (!active || !payload?.length) return null;
+              const step = payload[0]?.payload as WfStep | undefined;
+              if (!step) return null;
+              return (
+                <div className="rounded border border-neutral-300 bg-white px-2.5 py-2 text-[11px] shadow-sm">
+                  <div className="font-medium">{step.label.split(String.fromCharCode(10)).join(' ')}</div>
+                  <div className="tabular-nums">{step.labelText}</div>
+                  {/* A grouped bar breaks out its instruments here — including
+                      the inactive ones, which is where "does not apply to this
+                      corridor" gets said rather than silently omitted. */}
+                  {step.parts && step.parts.length > 0 && (
+                    <ul className="mt-1.5 space-y-0.5 border-t border-neutral-200 pt-1.5">
+                      {step.parts.map((p) => (
+                        <li key={p.key} className="flex justify-between gap-4">
+                          <span className="text-neutral-600">
+                            {p.label.split(String.fromCharCode(10)).join(' ')}
+                          </span>
+                          <span className="tabular-nums">{p.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            }}
           />
           <Bar dataKey="base" stackId="w" fill="transparent" isAnimationActive={false} />
           <Bar dataKey="span" stackId="w" isAnimationActive={false}>
