@@ -632,16 +632,24 @@ export default function ResultsPanel({
             <LegendSwatch color={NATURE_FILLS.reg} label={t("natureRegulation")} />
           </div>
         </div>
+        {/* Text alternative: the endpoints and the peak, not 40 rows of data. */}
+        <p className="sr-only">
+          {perYear.length > 0
+            ? `${perYear[0]!.year}: ${t("green")} ${usdM(perYear[0]!.green)}, ${t("fossil")} ${usdM(perYear[0]!.fossil)}. ` +
+              `${perYear[perYear.length - 1]!.year}: ${t("green")} ${usdM(perYear[perYear.length - 1]!.green)}, ` +
+              `${t("fossil")} ${usdM(perYear[perYear.length - 1]!.fossil)}.`
+            : ""}
+        </p>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={perYear} margin={{ top: 4, right: 14, bottom: 0, left: 0 }} barCategoryGap="16%">
-              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid {...GRID_PROPS} />
               {/* NOT interval={0}: the horizon is user input up to 40 years,
                   and forcing a tick per year overlapped the labels in a
                   half-width card. "preserveStartEnd" keeps the first and last
                   year legible and thins the middle to fit. */}
-              <XAxis dataKey="year" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval="preserveStartEnd" tickMargin={4} />
-              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={46} />
+              <XAxis dataKey="year" {...X_AXIS_PROPS} interval="preserveStartEnd" />
+              <YAxis {...Y_AXIS_PROPS} width={46} />
               <Tooltip
                 formatter={(v, name) => [
                   typeof v === "number" ? usdM(v) : String(v),
@@ -699,12 +707,19 @@ export default function ResultsPanel({
             <LegendSwatch color="var(--color-brand)" label={t("abatePost")} />
           </div>
         </div>
+        {/* Text alternative — derived from the same rows the bars use. */}
+        <p className="sr-only">
+          {abatementDiagram
+            .map((d) => `${d.name}: ${t("abatePre")} ${usd(d.pre)}/t, ${t("abatePost")} ${usd(d.post)}/t`)
+            .join(". ")}
+          {refPrice ? ` ${refPrice.label}: ${usd(refPrice.usdPerTonne)}/t.` : ""}
+        </p>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={abatementDiagram} margin={{ top: 14, right: 14, bottom: 0, left: 0 }} barCategoryGap="28%">
-              <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" interval={0} tickMargin={4} />
-              <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={44} allowDecimals={false} />
+              <CartesianGrid {...GRID_PROPS} />
+              <XAxis dataKey="name" {...X_AXIS_PROPS} interval={0} />
+              <YAxis {...Y_AXIS_PROPS} width={44} allowDecimals={false} />
               {refPrice !== null && (
                 <ReferenceLine
                   y={refPrice.usdPerTonne}
@@ -1049,6 +1064,41 @@ function TabTable({
   );
 }
 
+/**
+ * The axis kit, shared by every chart on this page and matched to the
+ * calculator's (components/calculator/results/*).
+ *
+ * The differences it removes were all small and all visible together: a
+ * dashed grid against the calculator's solid, 10px ticks against 11px, tick
+ * marks and a Y axis line the calculator drops, and the lighter
+ * --viz-ink-muted where the calculator uses --viz-ink-secondary for text
+ * that has to be read.
+ *
+ * Bars stay SQUARE. The calculator rounds them (radius={[3,3,0,0]}), and
+ * that is a recharts SVG prop rather than a Tailwind utility, so the
+ * design system's zeroed --radius-* scale does not reach it — the rounding
+ * is real, and it contradicts the documented "straight lines, square boxes"
+ * rule. Copying it would spread the inconsistency rather than settle it.
+ */
+const AXIS_TICK = { fontSize: 11, fill: "var(--viz-ink-secondary)" } as const;
+/** Solid, horizontal only — a dashed grid competes with dashed reference lines. */
+const GRID_PROPS = {
+  vertical: false,
+  stroke: "var(--viz-grid)",
+} as const;
+/** The category axis keeps its baseline; the value axis does not need one. */
+const X_AXIS_PROPS = {
+  tickLine: false,
+  axisLine: { stroke: "var(--viz-baseline)" },
+  tick: AXIS_TICK,
+  tickMargin: 4,
+} as const;
+const Y_AXIS_PROPS = {
+  tickLine: false,
+  axisLine: false,
+  tick: AXIS_TICK,
+} as const;
+
 // Viz tokens (globals.css): the corridor identities — series green for the
 // green total, neutral for fossil, brand blue for the incremental bars, the
 // light baseline neutral for the regulation float (its sign is carried by
@@ -1085,23 +1135,29 @@ interface WfStep {
    no formatter. */
 function WaterfallChart({ data }: { data: WfStep[] }) {
   return (
+    <>
+    {/* A bar chart carries no text alternative, so state the sequence. Built
+        from the same data the bars use, so it cannot drift out of date. */}
+    <p className="sr-only">
+      {data
+        .map((d) => `${d.label.split(String.fromCharCode(10)).join(" ")}: ${d.labelText}`)
+        .join(". ")}
+    </p>
     <div className="h-72">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 16, right: 4, bottom: 0, left: 0 }}>
-          <CartesianGrid stroke="var(--viz-grid)" strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid {...GRID_PROPS} />
+          {/* Keeps its own tick renderer — these labels wrap to two lines —
+              but takes the shared axis-line and tick-mark treatment. */}
           <XAxis
             dataKey="label"
             tick={<WrappedTick />}
-            stroke="var(--viz-baseline)"
+            tickLine={false}
+            axisLine={{ stroke: "var(--viz-baseline)" }}
             interval={0}
             height={34}
           />
-          <YAxis
-            tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }}
-            stroke="var(--viz-baseline)"
-            width={44}
-            unit=""
-          />
+          <YAxis {...Y_AXIS_PROPS} width={44} />
           <Tooltip
             cursor={{ fill: "var(--viz-grid)", fillOpacity: 0.35 }}
             content={({ active, payload }) => {
@@ -1109,7 +1165,7 @@ function WaterfallChart({ data }: { data: WfStep[] }) {
               const step = payload[0]?.payload as WfStep | undefined;
               if (!step) return null;
               return (
-                <div className="rounded border border-neutral-300 bg-white px-2.5 py-2 text-[11px] shadow-sm">
+                <div className="border border-neutral-300 bg-white px-2.5 py-1.5 text-xs">
                   <div className="font-medium">{step.label.split(String.fromCharCode(10)).join(' ')}</div>
                   <div className="tabular-nums">{step.labelText}</div>
                   {/* A grouped bar breaks out its instruments here — including
@@ -1145,6 +1201,7 @@ function WaterfallChart({ data }: { data: WfStep[] }) {
         </BarChart>
       </ResponsiveContainer>
     </div>
+    </>
   );
 }
 
@@ -1153,7 +1210,13 @@ function WrappedTick(props: { x?: number; y?: number; payload?: { value?: string
   const { x = 0, y = 0, payload } = props;
   const lines = String(payload?.value ?? "").split("\n");
   return (
-    <text x={x} y={y + 10} textAnchor="middle" fontSize={10} fill="var(--viz-ink-muted)">
+    <text
+      x={x}
+      y={y + 10}
+      textAnchor="middle"
+      fontSize={AXIS_TICK.fontSize}
+      fill={AXIS_TICK.fill}
+    >
       {lines.map((line, i) => (
         <tspan key={i} x={x} dy={i === 0 ? 0 : 11}>
           {line}
