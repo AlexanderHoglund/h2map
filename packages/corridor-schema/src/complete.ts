@@ -50,6 +50,8 @@ export const SCENARIO_TEMPLATE: CompleteScenarioJson = {
     unitsPerYear: null,
     vessels: null,
     roundtripsPerYear: null,
+    serviceSpeedKn: null,
+    portDaysPerRoundTrip: null,
     inflation: null,
     waccOverride: null,
   },

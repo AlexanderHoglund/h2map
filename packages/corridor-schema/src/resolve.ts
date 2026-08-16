@@ -162,13 +162,50 @@ function resolveFuelSide(
   //
   // A directly-stated burn is still expressible — as an OVERRIDE, which
   // shows the badge and keeps the derived value visible beneath it.
+  // v3 catalogue: two OPTIONAL corrections, each a no-op when its scenario
+  // input is absent, so a scenario written before them computes exactly what
+  // it always did.
+  //
+  //   perRoundTrip = 2 x nm x gjPerNm x (vService / vDesign)^n
+  //                + portDays x (portGjPerDay + cargoSystemGjPerDay)
+  //
+  // SPEED, exponent 2.0 — not 3.0. Power scales with v^3, so GJ per DAY
+  // does; but nm/day scales with v, so GJ per NM scales with v^2. Applying
+  // the cube law to a per-nm quantity understates by 12% at 11.5 against 13
+  // kn. The bundle carries both exponents precisely so a consumer picks the
+  // one matching the quantity it holds.
+  //
+  // PORT DAYS burn fuel at zero miles, which a distance-only formula cannot
+  // express at all: GMF's cycle is 24 laden + 7 port + 22 ballast days, so
+  // 13% of it is stationary. Note these day rates are all tier C — the
+  // least-evidenced numbers in the catalogue — which is why the port term
+  // is opt-in rather than assumed, and why `portEnergy.share` reports how
+  // much a scenario leans on them.
+  const speedFactor = (() => {
+    const vService = scenario.cargo.serviceSpeedKn;
+    const vDesign = vesselType.serviceSpeedKn;
+    if (vService === undefined || vDesign === undefined || vDesign <= 0) return 1;
+    const n = bundle.vesselDerivation?.speedLaw.perNmExponent ?? 2;
+    return (vService / vDesign) ** n;
+  })();
+  const portGjPerRoundTrip = (() => {
+    const days = scenario.cargo.portDaysPerRoundTrip;
+    if (days === undefined || days <= 0) return 0;
+    return (
+      days *
+      ((vesselType.portGjPerDay ?? 0) + (vesselType.cargoSystemGjPerDay ?? 0))
+    );
+  })();
+
   const tonnes = resolve(o.fuelTonnesPerVesselYear, tonnesPerVesselYear, () =>
     derived(
       tonnesPerVesselYear(
-        (scenario.cargo.oneWayDistanceNm *
+        ((scenario.cargo.oneWayDistanceNm *
           2 *
-          scenario.cargo.roundtripsPerYear *
           vesselType.gjPerNm *
+          speedFactor +
+          portGjPerRoundTrip) *
+          scenario.cargo.roundtripsPerYear *
           1000) /
           (lhv.value as MjPerTonne),
       ),
@@ -630,6 +667,14 @@ export function resolveScenario(
       oneWayDistanceNm: input.cargo.oneWayDistanceNm,
       roundtripsPerYear: input.cargo.roundtripsPerYear,
       wholeVoyageGjPerNm: vesselType.gjPerNm,
+      // The user's choices, so the engine's port-share reports what the
+      // burn actually used rather than a default it did not.
+      ...(input.cargo.serviceSpeedKn !== undefined
+        ? { scenarioSpeedKn: input.cargo.serviceSpeedKn }
+        : {}),
+      ...(input.cargo.portDaysPerRoundTrip !== undefined
+        ? { scenarioPortDaysPerRoundTrip: input.cargo.portDaysPerRoundTrip }
+        : {}),
       ...(vesselType.portGjPerDay !== undefined
         ? { portGjPerDay: vesselType.portGjPerDay }
         : {}),

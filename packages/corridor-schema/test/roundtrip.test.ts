@@ -47,6 +47,8 @@ const MAXIMAL: DeepRequired<ScenarioInput> = {
     inflation: 0.02,
     vessels: 2,
     roundtripsPerYear: 9,
+    serviceSpeedKn: 13.5,
+    portDaysPerRoundTrip: 3,
     waccOverride: 0.075,
     unit: "teu",
     unitWeightTonnes: 14,

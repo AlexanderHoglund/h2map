@@ -279,6 +279,10 @@ export interface ResolvedScenario {
     readonly idleGjPerDay?: number;
     readonly cargoSystemGjPerDay?: number;
     readonly serviceSpeedKn?: number;
+    /** The scenario's chosen speed, when it set one (else the type's). */
+    readonly scenarioSpeedKn?: number;
+    /** The scenario's port days, when it set them (else none are burned). */
+    readonly scenarioPortDaysPerRoundTrip?: number;
   };
   readonly green: ResolvedFuelSide;
   readonly fossil: ResolvedFuelSide;

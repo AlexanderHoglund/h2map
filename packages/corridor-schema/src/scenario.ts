@@ -108,6 +108,28 @@ export interface CargoInput {
   inflation: number;
   vessels: number;
   roundtripsPerYear: number;
+  /**
+   * Steaming speed, knots. OPTIONAL — absent means "the vessel type's own
+   * service speed", i.e. no correction, i.e. exactly today's arithmetic.
+   *
+   * A vessel's GJ/nm is measured AT a speed; sailing slower burns less per
+   * mile. The correction is v² per nautical mile, NOT v³: power scales with
+   * v³ so GJ/DAY does, but nm/day scales with v, so GJ/NM scales with v².
+   * Applying the cube law to a per-nm quantity understates by 12% at 11.5
+   * against 13 kn. Studies state this choice explicitly (Bahia: eco 14.5 kn
+   * against nominal 16.5), so the model has to be able to express it.
+   */
+  serviceSpeedKn?: number;
+  /**
+   * Days in port per round trip, burning auxiliary and cargo-system fuel at
+   * zero miles. OPTIONAL — absent means the port term is omitted entirely,
+   * which is today's behaviour.
+   *
+   * Not a rounding error on short corridors: GMF's cycle is 24 laden + 7
+   * port + 22 ballast days, so 13% of it burns fuel while stationary, and a
+   * distance-only formula cannot express that at all.
+   */
+  portDaysPerRoundTrip?: number;
   /** Project-specific WACC; null → country benchmark. */
   waccOverride: number | null;
   /**

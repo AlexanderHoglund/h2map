@@ -117,6 +117,10 @@ export const scenarioInputSchema = z.object({
     inflation: z.number().finite(),
     vessels: z.number().int().positive(),
     roundtripsPerYear: z.number().positive(),
+    // Both optional: absent reproduces the pre-v3 arithmetic exactly, so
+    // no schema bump and no migration.
+    serviceSpeedKn: z.number().positive().optional(),
+    portDaysPerRoundTrip: z.number().nonnegative().optional(),
     waccOverride: nullableNumber,
     // Descriptive / presentation-only additions (absent = legacy scenario):
     // cargo-unit identity + weight, and named ports. None affect the engine.
