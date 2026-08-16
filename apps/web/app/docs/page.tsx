@@ -1183,24 +1183,49 @@ export default async function DocsPage() {
         </p>
         <H3>Cost bridges (two waterfalls)</H3>
         <p className="mt-2">
-          The MMMCZCS-style breakdown, restricted to the segments the model
-          carries data for. Six steps, left to right:{" "}
-          <strong>Total cost of green corridor*</strong>{" "}(anchored),{" "}
-          <strong>Total cost of fossil corridor*</strong>{" "}(hangs from the
-          green total down to the gross level),{" "}
-          <strong>Gross incremental cost</strong>{" "}(the pre-regulation gap),
-          then the floats that close it —{" "}
-          <strong>Green financing</strong>{" "}(only when the module is on;
-          sign carried in the label text) and{" "}
-          <strong>Regulations</strong>{" "}(the regulation-only net effect) —
-          landing on the final{" "}<strong>Incremental cost</strong>{" "}bar,
-          the headline gap. The starred totals and the footnote mark the
-          pre-regulation boundary. A{" "}
-          <strong>second waterfall</strong>{" "}repeats the same six steps
+          The MMMCZCS-style breakdown, with{" "}
+          <strong>one block per regulatory instrument</strong>{" "}rather than a
+          single fused bar, and{" "}<strong>two stopping points</strong>. Left
+          to right:{" "}<strong>Total cost of green corridor*</strong>{" "}
+          (anchored),{" "}<strong>Total cost of fossil corridor*</strong>{" "}
+          (hangs from the green total down to the gross level),{" "}
+          <strong>Gross cost before regulation</strong>, then a float for every
+          instrument that is <em>in force today</em>{" "}(EU ETS, FuelEU
+          Maritime, IRA 45Z) landing on{" "}
+          <strong>Gross incremental cost</strong>{" "}— what the corridor
+          costs under the law as it stands. Floats for instruments still being{" "}
+          <em>tested</em>{" "}(IMO Net-Zero, provisional pending adoption at
+          MEPC 85; self-designed regulation, which is user-invented by
+          definition) and the green financing line then close onto{" "}
+          <strong>Incremental cost</strong>, the headline gap.
+        </p>
+        <p className="mt-2">
+          Three details that make it readable. A block worth exactly zero is{" "}
+          <strong>dropped, not drawn flat</strong>: an empty bar would imply
+          the instrument was modelled and found negligible, which is a
+          different claim from &ldquo;does not apply to this corridor&rdquo;.
+          The <strong>Gross incremental</strong>{" "}bar appears only when an
+          in-force instrument actually moved it — on a corridor touching no
+          EEA port (the Chilean default) ETS and FuelEU are inert, so it would
+          merely repeat the bar before it. And a float that{" "}
+          <strong>widens</strong>{" "}the gap is now coloured differently from
+          one that closes it, on the CVD-safe diverging pair; previously
+          direction lived only in the label&apos;s minus sign.
+        </p>
+        <p className="mt-2">
+          The block arithmetic lives in the engine (<code>buildCostBridge</code>),
+          not the chart component, because the closure — that every block
+          sums back to the headline gap — is only testable there. It is
+          asserted relative to the gap at 1e-9 across every shipped scenario.
+          Not bit-exact, deliberately: the engine sums each side&apos;s
+          per-year rows then differences the totals, while the bridge sums
+          per-instrument differences — same arithmetic, different
+          association order, so the last one or two ULPs move (measured
+          ≤1e-15 relative). A{" "}
+          <strong>second waterfall</strong>{" "}repeats the same blocks
           denominated in $ per tonne of CO2 abated (every step over the same
-          lifetime abatement, active basis tagged), so the gross bar reads
-          the pre-regulation abatement cost and the final bar the headline
-          $/tCO2.
+          lifetime abatement, active basis tagged), so the gross bar reads the
+          pre-regulation abatement cost and the final bar the headline $/tCO2.
         </p>
         <H3>Cost decomposition table</H3>
         <p className="mt-2">

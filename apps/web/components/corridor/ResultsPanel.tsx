@@ -19,6 +19,8 @@ import type {
   ScenarioInput,
   ScenarioResult,
 } from "@h2map/corridor-schema";
+import { buildCostBridge } from "@h2map/corridor-engine";
+import type { BridgeBlock } from "@h2map/corridor-engine";
 import { formatSig } from "@h2map/units";
 import { DEFAULT_BUNDLE } from "./state";
 
@@ -53,76 +55,103 @@ export default function ResultsPanel({
   const waterfall = useMemo(() => {
     if (!result) return { pv: [], perTonne: [] };
     const s = result.summary;
-    const rep2 = result.reporting;
-    // The MMMCZCS stylized breakdown, restricted to the segments the model
-    // carries data for. Excluded until they exist (append as further
-    // floats): optimized financing, the cargo/customer green premium,
-    // value-chain cost management, public funding.
-    const greenSub = s.greenCapexPvUsdM + s.greenOpexPvUsdM;
-    const fossilSub = s.fossilCapexPvUsdM + s.fossilOpexPvUsdM;
-    const gross = rep2.gapPvPreRegulationUsdM; // === greenSub - fossilSub
-    // Sprint 4 — the financing line sits in the image's "A" slot as its own
-    // float; the regulation bar then carries the REGULATION-only remainder.
-    const financing = s.financingGreenPvUsdM ?? 0;
-    const net = rep2.netRegulatoryEffectUsdM - financing;
-    const afterFin = gross + financing;
-    const post = s.gapPvUsdM; // === gross + financing + net (invariant)
+    // The MMMCZCS stylized breakdown. The arithmetic lives in the ENGINE
+    // (`buildCostBridge`) rather than here, because the closure - that every
+    // block sums back to the headline gap - is only testable there. This
+    // component now only lays the blocks out.
+    //
+    // Two stopping points are drawn: GROSS INCREMENTAL (the corridor under
+    // regulation in force today) and NET INCREMENTAL (adding instruments
+    // still being tested). The third, value-chain allocation, is not drawn:
+    // those quantities do not exist in the engine yet.
+    const bridge = buildCostBridge(result);
 
     const anchored = (v: number) => ({ base: Math.min(0, v), span: Math.abs(v) });
-    const mk = (scale: number, fmt: (n: number) => string) => [
-      {
-        key: "wfGreenTotal",
-        ...anchored(greenSub * scale),
-        kind: "greenTotal" as const,
-        labelText: fmt(greenSub * scale),
-        exitLevel: greenSub * scale,
-      },
-      {
-        key: "wfFossilTotal",
-        // Hangs from the green total's top down to the gross level.
-        base: (greenSub - fossilSub) * scale,
-        span: fossilSub * scale,
-        kind: "fossilTotal" as const,
-        labelText: fmt(fossilSub * scale),
-        exitLevel: gross * scale,
-      },
-      {
-        key: "wfGross",
-        ...anchored(gross * scale),
-        kind: "incremental" as const,
-        labelText: fmt(gross * scale),
-        exitLevel: gross * scale,
-      },
-      ...(s.financingGreenPvUsdM !== undefined
-        ? [
-            {
-              key: "wfFinancing",
-              base: Math.min(gross, afterFin) * scale,
-              span: Math.abs(financing) * scale,
-              kind: "reduction" as const,
-              labelText: `${financing > 0 ? "+" : financing < 0 ? "\u2212" : ""}${fmt(Math.abs(financing) * scale)}`,
-              exitLevel: afterFin * scale,
-            },
-          ]
-        : []),
-      {
-        key: "wfRegs",
-        base: Math.min(afterFin, post) * scale,
-        span: Math.abs(net) * scale,
-        kind: "reduction" as const,
-        labelText: `${net > 0 ? "+" : net < 0 ? "\u2212" : ""}${fmt(Math.abs(net) * scale)}`,
-        exitLevel: post * scale,
-      },
-      {
-        key: "wfIncremental",
-        ...anchored(post * scale),
-        kind: "incremental" as const,
-        labelText: fmt(post * scale),
-        exitLevel: post * scale,
-      },
-    ].map((s2) => ({ ...s2, label: t(s2.key) }));
+    /** A float spanning two running levels; sign lives in fill AND label. */
+    const float = (
+      from: number,
+      to: number,
+      scale: number,
+      fmt: (n: number) => string,
+    ) => {
+      const d = to - from;
+      return {
+        base: Math.min(from, to) * scale,
+        span: Math.abs(d) * scale,
+        // Direction is now in the FILL, not only the label: an instrument
+        // that widens the gap must not read the same as one that closes it.
+        kind: d > 0 ? ("increase" as const) : ("reduction" as const),
+        labelText: `${d > 0 ? "+" : d < 0 ? "−" : ""}${fmt(Math.abs(d) * scale)}`,
+        exitLevel: to * scale,
+      };
+    };
 
-    // Same five steps in two denominations: PV \u0024m, and abatement cost
+    const mk = (scale: number, fmt: (n: number) => string) => {
+      const anchor = (key: string, v: number) => ({
+        key,
+        ...anchored(v * scale),
+        kind: "incremental" as const,
+        labelText: fmt(v * scale),
+        exitLevel: v * scale,
+      });
+
+      /**
+       * Walk a run of blocks from a starting level, returning the bars and
+       * the level they land on. A fold rather than a push loop: the running
+       * level is genuinely sequential (each float starts where the previous
+       * ended), but the array itself stays immutable.
+       */
+      const walk = (from: number, stop: BridgeBlock["stop"]) =>
+        bridge.blocks
+          .filter((x) => x.stop === stop)
+          .reduce<{ bars: Omit<WfStep, "label">[]; level: number }>(
+            (acc, b) => {
+              const to = acc.level + b.deltaUsdM;
+              return {
+                bars: [
+                  ...acc.bars,
+                  { key: `wf_${b.key}`, ...float(acc.level, to, scale, fmt) },
+                ],
+                level: to,
+              };
+            },
+            { bars: [], level: from },
+          );
+
+      const inForce = walk(bridge.grossUsdM, "grossIncremental");
+      const tested = walk(inForce.level, "netIncremental");
+
+      return [
+        {
+          key: "wfGreenTotal",
+          ...anchored(bridge.greenTotalUsdM * scale),
+          kind: "greenTotal" as const,
+          labelText: fmt(bridge.greenTotalUsdM * scale),
+          exitLevel: bridge.greenTotalUsdM * scale,
+        },
+        {
+          key: "wfFossilTotal",
+          // Hangs from the green total's top down to the gross level.
+          base: (bridge.greenTotalUsdM - bridge.fossilTotalUsdM) * scale,
+          span: bridge.fossilTotalUsdM * scale,
+          kind: "fossilTotal" as const,
+          labelText: fmt(bridge.fossilTotalUsdM * scale),
+          exitLevel: bridge.grossUsdM * scale,
+        },
+        anchor("wfGross", bridge.grossUsdM),
+        ...inForce.bars,
+        // STOP 1 - the law as it stands. Drawn only when an in-force
+        // instrument actually moved it; otherwise it repeats the bar before.
+        ...(bridge.stops.grossIncrementalUsdM !== bridge.grossUsdM
+          ? [anchor("wfGrossIncremental", bridge.stops.grossIncrementalUsdM)]
+          : []),
+        ...tested.bars,
+        // STOP 2 - the headline gap.
+        anchor("wfIncremental", bridge.stops.netIncrementalUsdM),
+      ].map((s2) => ({ ...s2, label: t(s2.key) }));
+    };
+
+    // The same blocks in two denominations: PV $m, and abatement cost
     // per tonne of CO2 (every step over the same lifetime abatement, so
     // the waterfall identities carry over unchanged).
     const abated = s.co2AbatedTonnes;
@@ -962,7 +991,13 @@ const WF_COLORS = {
   greenTotal: "var(--viz-series-green)",
   fossilTotal: "var(--viz-total)",
   incremental: "var(--viz-series-1)",
-  reduction: "var(--viz-baseline)",
+  // A float that CLOSES the gap vs one that WIDENS it. Previously both used
+  // the neutral baseline and direction lived only in the label's minus sign,
+  // so an instrument that made the corridor more expensive looked identical
+  // to one that made it cheaper. These are the purpose-built CVD-safe
+  // diverging pair (globals.css) rather than an invented colour.
+  reduction: "var(--viz-delta-down)",
+  increase: "var(--viz-delta-up)",
 } as const;
 
 interface WfStep {
