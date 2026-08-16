@@ -5,7 +5,7 @@ import { getCallerWithAccess, getUserSupabase } from "@/lib/server/userSupabase"
 import { getServerSupabase } from "@/lib/server/supabase";
 import type { ScenarioInput } from "@h2map/corridor-schema";
 import type { ProjectViewMode } from "@/lib/server/corridorScenarios";
-import { insertScenarioRow } from "@/lib/server/corridorScenarios";
+import { insertScenarioRow, resetScenarioRow } from "@/lib/server/corridorScenarios";
 import {
   benchmarkChileScenario,
   defaultScenario,
@@ -120,18 +120,34 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   /**
-   * Create a row only if this user has none by that name.
+   * Keep a starter example at its shipped definition: create it if absent,
+   * RESET it to the current definition if present.
    *
-   * Used for anything added to the starter set AFTER a user's once-ever
-   * stamp was already written: the `seedExample` branch above can never run
-   * again for an existing account, so a new starter placed inside it would
-   * reach nobody but brand-new users. Ensure-by-name reaches everyone on
-   * their next visit, and re-creates the row if it is deleted.
+   * Two reasons this is a reset rather than a create-if-missing.
+   *
+   * First, reach: the `seedExample` branch above can never run again for an
+   * existing account, so anything added to the starter set later would
+   * otherwise reach nobody but brand-new users.
+   *
+   * Second, and the reason it overwrites: these rows are REFERENCE MATERIAL,
+   * not the user's work. Their whole value is showing what the model
+   * currently says about one published corridor, so a copy left behind at an
+   * older bundle is worse than no copy — it looks authoritative and is not.
+   * A user who wants to keep an edited version should rename it; a row under
+   * one of these four names is understood to be a mirror of the shipped
+   * definition and is refreshed on every seed call.
+   *
+   * DISCARDS EDITS when `reset` is set. Only ever set it for the reference
+   * EXAMPLES. The Simplified template is deliberately excluded: it is a
+   * blank starting point people build inside, so resetting it would wipe
+   * real work, and unlike the examples it carries no reference numbers that
+   * can go stale.
    */
   const ensureByName = async (
     name: string,
     payload: ScenarioInput,
     viewMode: ProjectViewMode,
+    reset = false,
   ): Promise<{ error: { message: string } | null }> => {
     const { data, error: lookupError } = await supabase
       .from("scenarios")
@@ -141,7 +157,13 @@ export async function POST(request: NextRequest): Promise<Response> {
       .limit(1);
     // A failed lookup must NOT be read as "absent" — that would insert a
     // duplicate on every seed call.
-    if (lookupError || (data?.length ?? 0) > 0) return { error: null };
+    if (lookupError) return { error: null };
+    const existing = data?.[0] as { id: string } | undefined;
+    if (existing) {
+      if (!reset) return { error: null };
+      const done = await resetScenarioRow(supabase, existing.id, payload, viewMode);
+      return { error: done.error };
+    }
     const row = await insertScenarioRow(supabase, caller.id, name, payload, viewMode);
     if (row.error) return { error: row.error };
     created.push(row.data);
@@ -160,6 +182,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     MODERN_EXAMPLE_NAME,
     modernChileScenario(),
     "standard",
+    true, // reference material — refresh it, do not leave a stale copy
   );
   if (modern.error) {
     console.error("[api/corridor/scenarios/seed]", modern.error);
@@ -175,6 +198,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     STUDY_EXAMPLE_NAME,
     studyChileScenario(),
     "standard",
+    true, // reference material — refresh it, do not leave a stale copy
   );
   if (study.error) {
     console.error("[api/corridor/scenarios/seed]", study.error);
@@ -191,6 +215,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     BENCHMARK_EXAMPLE_NAME,
     benchmarkChileScenario(),
     "standard",
+    true, // reference material — refresh it, do not leave a stale copy
   );
   if (benchmark.error) {
     console.error("[api/corridor/scenarios/seed]", benchmark.error);

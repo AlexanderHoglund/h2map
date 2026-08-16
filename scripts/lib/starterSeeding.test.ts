@@ -67,8 +67,46 @@ describe("starter seeding reaches existing users", () => {
 
   it("a failed name lookup does not count as absent", () => {
     // Otherwise a transient error inserts a duplicate on every seed call,
-    // and the user accumulates copies of the same starter.
-    expect(route).toMatch(/if \(lookupError \|\| \(data\?\.length \?\? 0\) > 0\) return/);
+    // and the user accumulates copies of the same starter. Now that the
+    // helper can also RESET, the same guard stops a lookup failure from
+    // being read as "no row here" and overwriting the wrong thing.
+    expect(route).toMatch(/if \(lookupError\) return \{ error: null \};/);
+  });
+
+  it("resets ONLY the three reference examples, never the template", () => {
+    // ensureByName overwrites when `reset` is set, so this decides whose
+    // work can be destroyed. The examples are reference material whose whole
+    // value is showing what the model CURRENTLY says — a copy left at an
+    // older bundle looks authoritative and is not. The Simplified template
+    // is the opposite: a blank starting point people build inside, so
+    // resetting it would wipe real work.
+    const calls = [
+      ...route.matchAll(/ensureByName\(\s*([A-Z_]+),[\s\S]*?\);/g),
+    ];
+    expect(calls.length, "expected four ensureByName call sites").toBe(4);
+    const resetting = calls
+      .filter((m) => /\btrue,/.test(m[0]))
+      .map((m) => m[1]);
+    expect(resetting.sort()).toEqual(
+      ["BENCHMARK_EXAMPLE_NAME", "MODERN_EXAMPLE_NAME", "STUDY_EXAMPLE_NAME"].sort(),
+    );
+    expect(resetting).not.toContain("SIMPLE_TEMPLATE_NAME");
+  });
+
+  it("a reset writes through the server-side recompute", () => {
+    // Results, engine version and bundle version are derived server-side and
+    // never trusted from a client, exactly as an insert does. A reset that
+    // wrote inputs without recomputing would leave a row whose stored
+    // numbers disagreed with its own scenario.
+    const helpers = readFileSync(
+      `${ROOT}apps/web/lib/server/corridorScenarios.ts`,
+      "utf8",
+    );
+    expect(helpers).toMatch(/export async function resetScenarioRow/);
+    const fn = helpers.slice(helpers.indexOf("export async function resetScenarioRow"));
+    expect(fn).toMatch(/evaluateScenario\(resolveScenario\(/);
+    expect(fn).toMatch(/engine_version: CORRIDOR_ENGINE_VERSION/);
+    expect(fn).toMatch(/ref_bundle_version: payload\.refBundleId/);
   });
 
   it("the two starter names cannot match each other's selectors", () => {

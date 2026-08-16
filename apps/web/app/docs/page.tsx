@@ -330,7 +330,19 @@ export default async function DocsPage() {
           <em>Simple corridor (template)</em>{" "}(a blank purchase-sourced
           Simplified template — generic route, benchmark costs, every scheme
           off — kept available for every account: deleting it brings the
-          template back on the next visit).
+          template back on the next visit, and edits to it are yours to
+          keep).
+        </p>
+        <p className="mt-2">
+          <strong>The three named variants are refreshed on every
+          visit.</strong>{" "}They are reference material, not documents: their
+          value is showing what the model <em>currently</em>{" "}says about one
+          published corridor, so a copy left behind on an older reference
+          bundle would look authoritative while being out of date. Edits to
+          them are therefore overwritten — rename a copy if you want to keep
+          one. The original{" "}<em>Example — Chilean copper corridor</em>{" "}
+          and the Simplified template are both left alone, because those are
+          places people work rather than mirrors of a shipped definition.
           Creating a new project asks for a name and its level —{" "}
           <strong>Simplified or Standard</strong>. The level is stored on the
           project and is a ONE-WAY ladder: a Simplified project can be
