@@ -315,14 +315,17 @@ export default async function DocsPage() {
         <p className="mt-2">
           <strong>Projects first.</strong>{" "}The platform always opens on the
           Projects tab; the input tabs unlock once a project is selected or
-          created. Every account starts with four projects: the{" "}
+          created. Every account starts with five projects: the{" "}
           <em>Example — Chilean copper corridor</em>{" "}(the published reference
           case, a Standard project, created once — deleted, it stays gone);
-          two further Standard views of that same corridor —{" "}
-          <em>Chilean copper corridor — as published</em>{" "}(the report&apos;s
-          own emission accounting, reproducing all six published figures) and{" "}
-          <em>Chilean copper corridor — current model</em>{" "}(the study&apos;s
-          asserted burns and fleet costs released, so the model derives them);
+          three further Standard views of that same corridor, each asserting
+          less than the last —{" "}
+          <em>… — as published</em>{" "}(the report&apos;s own emission
+          accounting, reproducing all six published figures),{" "}
+          <em>… — current model</em>{" "}(the study&apos;s asserted burns and
+          fleet costs released, so the model derives them) and{" "}
+          <em>… — benchmarks only</em>{" "}(nothing asserted at all: every
+          figure a bundle benchmark or derived from the route);
           and{" "}
           <em>Simple corridor (template)</em>{" "}(a blank purchase-sourced
           Simplified template — generic route, benchmark costs, every scheme
@@ -2068,12 +2071,15 @@ export default async function DocsPage() {
           row). The pre-regulation figures are factor-independent and
           unchanged.
         </p>
-        <H3>The same corridor, three ways</H3>
+        <H3>The same corridor, four ways</H3>
         <p className="mt-2">
-          The corridor is seeded three times, because &ldquo;what did the
+          The corridor is seeded four times, because &ldquo;what did the
           report say?&rdquo; and &ldquo;what does the model think?&rdquo; are
           different questions with different answers, and showing only one of
-          them would be a choice disguised as a fact.
+          them would be a choice disguised as a fact. The four differ in{" "}
+          <em>how much study knowledge each one asserts</em>, from 27
+          overridden fields down to none — which is why the last row of the
+          table below is the one to read first.
         </p>
         <p className="mt-2">
           <em>Chilean copper corridor — as published</em>{" "}adopts the
@@ -2101,7 +2107,33 @@ export default async function DocsPage() {
           own line, where the study&apos;s waterfall puts it.
         </p>
         <p className="mt-2">
-          <strong>What actually separates them is one number.</strong>{" "}Every
+          <em>Chilean copper corridor — benchmarks only</em>{" "}is the strict
+          case: <strong>zero overridden fields</strong>. Every figure is a
+          bundle benchmark or derived from the route — no burn, no plant cost,
+          no fleet price is typed in, and the $280/t self-designed proxy is off
+          too, because a fitted input is an assertion even when it is not an
+          override. It answers what this route costs if you know only the
+          route.
+        </p>
+        <p className="mt-2">
+          <strong>It lands 83% below the study, and that gap is the
+          output.</strong>{" "}Almost all of it is the plant: the benchmark
+          production line is $55m CAPEX and $3m/yr OPEX against the
+          study&apos;s 60 kt/yr Atacama facility at $1,100m and $72m/yr — 5%
+          and 4.2%. The workbook&apos;s generic figures describe a small
+          demonstration plant, not a corridor-scale one, so this variant is
+          not a corridor estimate and must not be read as one. It is a
+          measurement of the reference data itself: the model&apos;s own
+          defaults, applied to a real corridor with no project knowledge,
+          understate it roughly six-fold. Sizing the plant from the
+          corridor&apos;s actual demand is what the build-here/LCOH path
+          exists for, and that is the route to a benchmark-only number that
+          means something. Note the one figure that barely moves — CO2 abated
+          at −4.2%, the same as the current-model variant, because both derive
+          their burns and neither depends on the plant&apos;s cost.
+        </p>
+        <p className="mt-2">
+          <strong>What separates the first three is one number.</strong>{" "}Every
           cost input is shared, and the shipped default already reproduces the
           report on green NPV, fossil NPV, the gap and cost per cargo tonne. It
           diverges on exactly two figures — CO2 abated (−23%) and the
@@ -2121,25 +2153,28 @@ export default async function DocsPage() {
                 <th className="px-3 py-2 text-right font-medium">As published</th>
                 <th className="px-3 py-2 text-right font-medium">Default</th>
                 <th className="px-3 py-2 text-right font-medium">Current model</th>
+                <th className="px-3 py-2 text-right font-medium">Benchmarks</th>
               </tr>
             </thead>
             <tbody>
               {(
                 [
-                  ["Green corridor NPV", "$2,850m", "+0.02%", "+0.02%", "+0.02%"],
-                  ["Fossil corridor NPV", "$850m", "−1.4%", "−1.4%", "+2.6%"],
-                  ["Gap NPV (pre-regulation)", "$2,000m", "+0.6%", "+0.6%", "−1.1%"],
-                  ["Cost per cargo tonne (pre-reg.)", "$80/t", "+1.6%", "+1.6%", "−0.06%"],
-                  ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "+0.01%", "−23%", "−4.2%"],
-                  ["Regulatory benefit", "≈$250m", "+0.09%", "−23%", "n/a"],
+                  ["Green corridor NPV", "$2,850m", "+0.02%", "+0.02%", "+0.02%", "−72%"],
+                  ["Fossil corridor NPV", "$850m", "−1.4%", "−1.4%", "+2.6%", "−46%"],
+                  ["Gap NPV (pre-regulation)", "$2,000m", "+0.6%", "+0.6%", "−1.1%", "−83%"],
+                  ["Cost per cargo tonne (pre-reg.)", "$80/t", "+1.6%", "+1.6%", "−0.06%", "−83%"],
+                  ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "+0.01%", "−23%", "−4.2%", "−4.2%"],
+                  ["Regulatory benefit", "≈$250m", "+0.09%", "−23%", "n/a", "n/a"],
+                  ["Overridden fields", "—", "27", "21", "17", "0"],
                 ] as const
-              ).map(([metric, report, published, dflt, derived]) => (
+              ).map(([metric, report, published, dflt, derived, bench]) => (
                 <tr key={metric} className="border-b border-neutral-200 last:border-0">
                   <td className="px-3 py-1.5">{metric}</td>
                   <td className="px-3 py-1.5 text-right">{report}</td>
                   <td className="px-3 py-1.5 text-right font-medium">{published}</td>
                   <td className="px-3 py-1.5 text-right">{dflt}</td>
                   <td className="px-3 py-1.5 text-right font-medium">{derived}</td>
+                  <td className="px-3 py-1.5 text-right font-medium">{bench}</td>
                 </tr>
               ))}
             </tbody>

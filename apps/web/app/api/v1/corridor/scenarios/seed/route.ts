@@ -7,6 +7,7 @@ import type { ScenarioInput } from "@h2map/corridor-schema";
 import type { ProjectViewMode } from "@/lib/server/corridorScenarios";
 import { insertScenarioRow } from "@/lib/server/corridorScenarios";
 import {
+  benchmarkChileScenario,
   defaultScenario,
   emptyScenario,
   modernChileScenario,
@@ -15,24 +16,28 @@ import {
 
 /**
  * Starter-project seeding (projects-first UX, 2026-08-11; template rework
- * 2026-08-13; further Chilean examples 2026-08-16): every user gets THREE
+ * 2026-08-13; further Chilean examples 2026-08-16): every user gets FOUR
  * STANDARD Chilean examples plus the SIMPLIFIED template "Simple corridor
  * (template)".
  *
- * The three examples are the SAME published corridor under three
- * treatments, and reading them side by side is the point:
+ * The four examples are the SAME published corridor under four treatments,
+ * ordered by how much study knowledge each asserts. Reading them side by
+ * side is the point:
  *
- *   "Example — …"              the shipped default: the study's asserted
- *                              burns and fleet costs, but the refined
- *                              emission method
- *   "… — as published"         the report's own accounting, reproducing
- *                              all six published figures within 1.7%
- *   "… — current model"        the overrides released, so the model
- *                              derives what it can and is then scored
+ *   "… — as published"     27 overrides. The report's own accounting;
+ *                          reproduces all six published figures within 1.7%.
+ *   "Example — …"          21 overrides. The shipped default: the study's
+ *                          asserted burns and costs, refined emission method.
+ *   "… — current model"    17 overrides. Burns and fleet cost released, so
+ *                          the model derives them and is then scored.
+ *   "… — benchmarks only"  ZERO overrides. Every figure a bundle benchmark
+ *                          or derived from the route.
  *
- * Neither outer variant is "the right answer": one says what the report
- * said, the other what the model thinks, and they differ mainly on whether
- * green ammonia is zero-emission well-to-wake.
+ * None is "the right answer" alone. The first says what the report said;
+ * the last says what the model's generic reference data says about the same
+ * route, and lands 83% lower — almost entirely because the benchmark plant
+ * is 5% of the study's Atacama facility. The SPREAD is the useful output,
+ * not any single number in it.
  *
  * They are gated DIFFERENTLY, and the reason matters. The original example
  * rides the once-ever stamp. The second was added later, by which point
@@ -68,6 +73,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   const SIMPLE_TEMPLATE_NAME = "Simple corridor (template)";
   const MODERN_EXAMPLE_NAME = "Chilean copper corridor — current model";
   const STUDY_EXAMPLE_NAME = "Chilean copper corridor — as published";
+  const BENCHMARK_EXAMPLE_NAME = "Chilean copper corridor — benchmarks only";
   const created: unknown[] = [];
 
   const service = getServerSupabase();
@@ -173,6 +179,20 @@ export async function POST(request: NextRequest): Promise<Response> {
   );
   if (study.error) {
     console.error("[api/corridor/scenarios/seed]", study.error);
+    return jsonError(500, "db_error", "Could not create the starter projects");
+  }
+
+  // The same corridor with NOTHING asserted — every figure a bundle
+  // benchmark or derived from the route. It lands 83% below the study, and
+  // that divergence is the point: it measures how far the model's generic
+  // reference data sits from a real corridor-scale project.
+  const benchmark = await ensureByName(
+    BENCHMARK_EXAMPLE_NAME,
+    benchmarkChileScenario(),
+    "standard",
+  );
+  if (benchmark.error) {
+    console.error("[api/corridor/scenarios/seed]", benchmark.error);
     return jsonError(500, "db_error", "Could not create the starter projects");
   }
 

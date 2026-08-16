@@ -346,6 +346,58 @@ export function clearOverrides(s: ScenarioInput): ScenarioInput {
 }
 
 /**
+ * THE SAME CORRIDOR ON IN-MODEL BENCHMARKS ONLY — nothing asserted.
+ *
+ * The other three variants all type numbers in. Counted as resolved fields
+ * carrying an OVERRIDE badge: the shipped default has 21, the as-published
+ * variant 27, the current-model variant 17. This one has ZERO. Every figure
+ * is either a benchmark from the reference bundle or derived from the
+ * corridor's own geometry (19 derived, 11 benchmark).
+ *
+ * It answers a question none of the others can: what does this route cost if
+ * you know only the route, and take every cost from the model's own
+ * reference data?
+ *
+ * THE ANSWER DIVERGES SHARPLY, AND THAT IS THE FINDING:
+ *
+ *   gap NPV (pre-reg)    $334.2m   against the study's $2,000m   (−83%)
+ *   $/cargo tonne         $13.50   against $80
+ *
+ * Almost all of it is the plant. The benchmark production line is $55m CAPEX
+ * and $3m/yr OPEX; the study's 60 kt/yr Atacama facility is $1,100m and
+ * $72m/yr — the benchmark is 5% of the CAPEX and 4.2% of the OPEX. The
+ * workbook's generic figures describe a small demonstration plant, not a
+ * corridor-scale one, and this scenario is the cleanest way to see that.
+ *
+ * SO DO NOT READ THIS AS A CORRIDOR ESTIMATE. It is a statement about the
+ * reference data: the model's own defaults, applied to a real corridor with
+ * no project knowledge, understate it roughly six-fold. Sizing the plant
+ * from the corridor's actual demand is what the build-here/LCOH path exists
+ * for, and that is the honest route to a benchmark-only number that means
+ * something.
+ *
+ * Two decisions this makes beyond clearing overrides, both for the same
+ * reason — a fitted input is an assertion even when it is not an override:
+ *  - the $280/t self-designed price is OFF. It was calibrated to reproduce
+ *    the study's ≈$250m benefit, so it carries study knowledge.
+ *  - the structured IMO ladder replaces it, parameterised from the bundle.
+ */
+export function benchmarkChileScenario(): ScenarioInput {
+  // clearOverrides() nulls every override key by iteration, so a newly added
+  // override is covered here automatically rather than silently missed.
+  const input = clearOverrides(defaultScenario());
+
+  input.regulation.selfDesigned = {
+    ...input.regulation.selfDesigned,
+    enabled: false,
+    co2PriceUsdPerTonne: 0,
+  };
+  input.regulation.imoNetZero = { enabled: true, scope: 1 };
+
+  return input;
+}
+
+/**
  * The empty starter project (projects-first UX, 2026-08-11): every override
  * on its benchmark, every regulation module off, and NEUTRAL identity —
  * generic country, unnamed ports, round placeholder numbers. It must still
