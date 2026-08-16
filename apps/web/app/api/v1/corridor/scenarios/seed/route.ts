@@ -3,6 +3,8 @@ import { jsonError, rateLimited } from "@/lib/api/responses";
 import { checkRateLimit, clientIp, GENERAL_POLICY } from "@/lib/server/rateLimit";
 import { getCallerWithAccess, getUserSupabase } from "@/lib/server/userSupabase";
 import { getServerSupabase } from "@/lib/server/supabase";
+import type { ScenarioInput } from "@h2map/corridor-schema";
+import type { ProjectViewMode } from "@/lib/server/corridorScenarios";
 import { insertScenarioRow } from "@/lib/server/corridorScenarios";
 import {
   defaultScenario,
@@ -22,8 +24,14 @@ import {
  * The two examples are the same published corridor under different
  * treatments: one reproduces the MMMCZCS study by asserting its published
  * burns and fleet costs, the other releases those overrides and lets the
- * current model derive them. Both are documents, so both are gated by the
- * once-ever stamp together.
+ * current model derive them.
+ *
+ * They are gated DIFFERENTLY, and the reason matters. The original example
+ * rides the once-ever stamp. The second was added later, by which point
+ * most accounts were already stamped — putting it behind the same gate
+ * would have shipped it to nobody but brand-new users. It is ensured by
+ * name instead, so existing users pick it up on their next visit.
+ * Anything added to the starter set from here on wants the same treatment.
  *
  * POST /api/v1/corridor/scenarios/seed → 201 { seeded: true, scenarios }
  *                                       | 204 (nothing to do)
@@ -95,48 +103,64 @@ export async function POST(request: NextRequest): Promise<Response> {
       return jsonError(500, "db_error", "Could not create the starter projects");
     }
     created.push(example.data);
+  }
 
-    // The same corridor with the overrides released, so the two sit side by
-    // side: one reproduces the study by asserting its answers, the other
-    // derives what the current model can and lands within ~4% of it.
-    //
-    // Named so it CANNOT be a superstring of the example above — the e2e
-    // suite selects that row by regex with .first(), which a longer name
-    // containing it would match non-deterministically.
-    const modern = await insertScenarioRow(
-      supabase,
-      caller.id,
-      MODERN_EXAMPLE_NAME,
-      modernChileScenario(),
-      "standard",
-    );
-    if (modern.error) {
-      console.error("[api/corridor/scenarios/seed]", modern.error);
-      return jsonError(500, "db_error", "Could not create the starter projects");
-    }
-    created.push(modern.data);
+  /**
+   * Create a row only if this user has none by that name.
+   *
+   * Used for anything added to the starter set AFTER a user's once-ever
+   * stamp was already written: the `seedExample` branch above can never run
+   * again for an existing account, so a new starter placed inside it would
+   * reach nobody but brand-new users. Ensure-by-name reaches everyone on
+   * their next visit, and re-creates the row if it is deleted.
+   */
+  const ensureByName = async (
+    name: string,
+    payload: ScenarioInput,
+    viewMode: ProjectViewMode,
+  ): Promise<{ error: { message: string } | null }> => {
+    const { data, error: lookupError } = await supabase
+      .from("scenarios")
+      .select("id")
+      .eq("kind", "corridor")
+      .eq("name", name)
+      .limit(1);
+    // A failed lookup must NOT be read as "absent" — that would insert a
+    // duplicate on every seed call.
+    if (lookupError || (data?.length ?? 0) > 0) return { error: null };
+    const row = await insertScenarioRow(supabase, caller.id, name, payload, viewMode);
+    if (row.error) return { error: row.error };
+    created.push(row.data);
+    return { error: null };
+  };
+
+  // The same corridor with the study's asserted burns and fleet costs
+  // released, so the two examples sit side by side. Ensured by name rather
+  // than gated on the once-ever stamp: it was added after most accounts were
+  // already stamped, and those users would otherwise never see it.
+  //
+  // Named so it CANNOT be a superstring of the example above — the e2e suite
+  // selects that row by regex with .first(), which a longer name containing
+  // it would match non-deterministically.
+  const modern = await ensureByName(
+    MODERN_EXAMPLE_NAME,
+    modernChileScenario(),
+    "standard",
+  );
+  if (modern.error) {
+    console.error("[api/corridor/scenarios/seed]", modern.error);
+    return jsonError(500, "db_error", "Could not create the starter projects");
   }
 
   // The Simplified template is ensured for EVERY user, by name.
-  const { data: tmpl, error: tmplLookupError } = await supabase
-    .from("scenarios")
-    .select("id")
-    .eq("kind", "corridor")
-    .eq("name", SIMPLE_TEMPLATE_NAME)
-    .limit(1);
-  if (!tmplLookupError && (tmpl?.length ?? 0) === 0) {
-    const template = await insertScenarioRow(
-      supabase,
-      caller.id,
-      SIMPLE_TEMPLATE_NAME,
-      emptyScenario(),
-      "simplified",
-    );
-    if (template.error) {
-      console.error("[api/corridor/scenarios/seed]", template.error);
-      return jsonError(500, "db_error", "Could not create the starter projects");
-    }
-    created.push(template.data);
+  const template = await ensureByName(
+    SIMPLE_TEMPLATE_NAME,
+    emptyScenario(),
+    "simplified",
+  );
+  if (template.error) {
+    console.error("[api/corridor/scenarios/seed]", template.error);
+    return jsonError(500, "db_error", "Could not create the starter projects");
   }
 
   if (created.length === 0) return new Response(null, { status: 204 });
