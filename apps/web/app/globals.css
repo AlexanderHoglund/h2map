@@ -64,10 +64,23 @@
   --viz-ink-muted: #898781;
   --viz-grid: #e1e0d9;
   --viz-baseline: #c3c2b7;
-  --viz-series-1: #2171b5; /* snapped to brand */
-  --viz-series-green: #008300; /* the "green fuel" series (domain identity) */
-  --viz-delta-up: #d03b3b; /* waterfall cost increase */
-  --viz-delta-down: #2171b5; /* waterfall savings */
+  --viz-series-1: #2171b5; /* snapped to brand — the logo's core blue */
+  /* The Thaduberg stripes are an RdBu diverging ramp; the whole chart palette
+     is drawn from it plus the workspace tab tones, so a diagram reads as part
+     of the product rather than as generic recharts output.
+       #08306b  #2171b5  #6badd6   |   #f4a582  #d6604d  #b2182b
+     Deep blue anchors a total, brand blue carries a saving, deep red a cost
+     increase. Every bar used to resolve to #2171b5 — an anchored total and a
+     savings float were literally the same pixel value. */
+  --viz-anchor: #08306b; /* logo deep blue — anchored subtotals/totals */
+  --viz-accent-warm: #d6604d; /* logo mid red — a second categorical series */
+  --viz-series-green: #4ea72e; /* --domain-energy: the Energy tab's hue */
+  --viz-delta-up: #b2182b; /* logo deep red — waterfall cost increase */
+  /* Deliberately the same value as --viz-series-1: both are the logo's core
+     blue, and they never share a chart (one is a waterfall float, the other a
+     categorical series). Kept as separate NAMES so a future change to one
+     role does not silently move the other. */
+  --viz-delta-down: #2171b5; /* logo core blue — waterfall savings */
   --viz-total: #52514e; /* waterfall anchored totals (neutral) */
 
   /* Cost NATURE fills for a stacked series: side identity by colour family
@@ -85,9 +98,9 @@
      would want, and fine here only because they are always adjacent to
      their darker partner rather than floating on the page. Stated rather
      than rounded up. */
-  --viz-series-green-2: #5aa85a; /* green operating */
-  --viz-fossil: #52514e; /* fossil CAPEX — the --viz-total neutral */
-  --viz-fossil-2: #a6a49d; /* fossil operating */
+  --viz-series-green-2: #8fcf6f; /* Energy hue, lightened for operating */
+  --viz-fossil: #156082; /* --domain-cargo: the deep teal-blue tab hue */
+  --viz-fossil-2: #6ba3bd; /* same hue, lightened for operating */
 
   /* Regulation as a cost CATEGORY, and a priced benchmark line.
      Deliberately NOT --viz-delta-up: that token means "this got more

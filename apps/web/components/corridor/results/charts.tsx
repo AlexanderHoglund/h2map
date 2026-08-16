@@ -46,9 +46,14 @@ export const Y_AXIS_PROPS = {
 // light baseline neutral for the regulation float (its sign is carried by
 // position, the signed label and the tooltip).
 export const WF_COLORS = {
+  // Sides carry their workspace tab tone: the Energy green and the Cargo
+  // teal-blue, so a bar means the same thing here as in the nav.
   greenTotal: "var(--viz-series-green)",
-  fossilTotal: "var(--viz-total)",
-  incremental: "var(--viz-series-1)",
+  fossilTotal: "var(--viz-fossil)",
+  // The logo's DEEP blue, not its core blue. These anchored bars and the
+  // savings floats below used to resolve to the same #2171b5 — the reason
+  // the chart read as "most of it is blue".
+  incremental: "var(--viz-anchor)",
   // A float that CLOSES the gap vs one that WIDENS it. Previously both used
   // the neutral baseline and direction lived only in the label's minus sign,
   // so an instrument that made the corridor more expensive looked identical

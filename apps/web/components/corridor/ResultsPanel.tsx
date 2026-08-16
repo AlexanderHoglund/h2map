@@ -755,8 +755,11 @@ export default function ResultsPanel({
                 labelStyle={{ fontSize: 11 }}
                 contentStyle={{ fontSize: 11 }}
               />
-              <Bar dataKey="pre" fill="var(--viz-ink-muted)" isAnimationActive={false} maxBarSize={48} />
-              <Bar dataKey="post" fill="var(--color-brand)" isAnimationActive={false} maxBarSize={48} />
+              {/* Before/after is a SEQUENCE, so it walks the logo ramp rather
+                  than pairing a neutral grey with a brand blue: light blue to
+                  deep blue reads as movement in one direction. */}
+              <Bar dataKey="pre" fill="var(--viz-series-1)" isAnimationActive={false} maxBarSize={48} />
+              <Bar dataKey="post" fill="var(--viz-anchor)" isAnimationActive={false} maxBarSize={48} />
             </BarChart>
           </ResponsiveContainer>
         </div>
