@@ -9,7 +9,7 @@
  * THIS TEST INVERTED ON 2026-08-17, deliberately. It used to assert that the
  * model did NOT reproduce that figure, and carried the warning "anyone who
  * later makes this test pass has changed the model, and should say why".
- * The model did change: bundle 2026-08-17-vessel-v3 takes this hull's energy
+ * The model did change: bundle 2026-08-18-fuel-v4 takes this hull's energy
  * from the study itself rather than from the EEDI reference line, because
  * four independent studies all disagreed with the line in the same
  * direction. So reproduction is now BY CONSTRUCTION, and what these tests
@@ -28,7 +28,7 @@ import { gjPerNmFromEedi, parseRefBundle } from "@h2map/corridor-schema";
 const bundle = parseRefBundle(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/corridor-ref/2026-08-17-vessel-v3.json", import.meta.url),
+      new URL("../../../data/corridor-ref/2026-08-18-fuel-v4.json", import.meta.url),
       "utf8",
     ),
   ),

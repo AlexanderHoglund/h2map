@@ -2,7 +2,7 @@
 
 # Corridor scenario — JSON input template
 
-Schema version **7** · reference bundle `2026-08-17-vessel-v3`
+Schema version **7** · reference bundle `2026-08-18-fuel-v4`
 
 This is the contract for writing a scenario file by hand, for desk
 research or AI-assisted data entry. A file that follows it loads without
@@ -170,7 +170,7 @@ Copy this whole object. Replace values; keep every key.
 ```json
 {
   "schemaVersion": 7,
-  "refBundleId": "2026-08-17-vessel-v3",
+  "refBundleId": "2026-08-18-fuel-v4",
   "cargo": {
     "countryId": "other",
     "countryBId": "other",

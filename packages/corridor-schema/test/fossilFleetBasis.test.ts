@@ -18,7 +18,7 @@ import type { ScenarioInput } from "../src/scenario";
 const bundle = parseRefBundle(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/corridor-ref/2026-08-17-vessel-v3.json", import.meta.url),
+      new URL("../../../data/corridor-ref/2026-08-18-fuel-v4.json", import.meta.url),
       "utf8",
     ),
   ),

@@ -25,7 +25,7 @@ import type { ScenarioResult } from "@h2map/corridor-schema";
 // The live catalogue. Scenarios pin their own refBundleId, so an older
 // saved scenario still resolves against the bundle it names — this is only
 // what a NEW scenario gets.
-import bundleJson from "../../../../data/corridor-ref/2026-08-17-vessel-v3.json";
+import bundleJson from "../../../../data/corridor-ref/2026-08-18-fuel-v4.json";
 import uiManifest from "../../../../data/corridor-sensitivity/ui-manifest.json";
 import {
   clearOverrides,

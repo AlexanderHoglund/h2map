@@ -299,7 +299,17 @@ H2 → carrier synthesis at plant gate (build-plan 1.5). Pure:
 sums exactly to the total (same decomposition contract as the corridor
 evaluator).
 
-**Boundary (imports)**: none — leaf module
+  gate = H2 feedstock  (lcoh $/kg × tH2/t × 1000 kg/t)
+       + CO2 feedstock (MeOH: 1.374 t × CO2 price)
+       + electricity   (ASU / synthesis / liquefaction MWh/t × price)
+       + plant         (CAPEX/tpa annuitized at the PRODUCTION-side WACC
+                        over plant life  +  fixed O&M as capex fraction)
+
+D7 lives here: `config.productionWacc` is the production country's cost of
+capital — deliberately a separate number from the corridor NPV's discount
+rate.
+
+**Boundary (imports)**: `@h2map/corridor-schema`
 
 **Exports (inputs/outputs)**: `SynthesisBreakdown`, `SynthesisResult`, `capitalRecoveryFactor`, `synthesisScaleFactor`, `SCALE_EXTRAPOLATION_LIMIT`, `SynthesisPlantResult`, `synthesizePlant`, `synthesize`
 
@@ -434,6 +444,27 @@ unknown into a typed bundle.
 
 Documented inline (see source).
 
+### `@h2map/corridor-schema/ref\scale.ts`
+
+**Purpose**
+
+Specific-capital scale correction — the one implementation.
+
+**Boundary (imports)**: none — leaf module
+
+**Exports (inputs/outputs)**: `SCALE_EXTRAPOLATION_LIMIT`, `ScaleCorrection`, `specificCapitalScaleFactor`, `scaleCorrection`, `scaledCapitalUsd`
+
+**Assumptions**
+
+WHAT IT DELIBERATELY DOES NOT DO. It takes a reference scale, an exponent
+and a nameplate — nothing else. It knows nothing about sites, LCOH,
+firming or carriers, which is what lets one function serve both paths.
+The BENCHMARKS the two paths feed it are different quantities and must
+stay that way: build-here passes a synthesis-island cost (the LCOH engine
+carries generation separately), build-plant passes a complete-complex
+cost that already includes renewables. Mixing them double-counts ~73% of
+a green ammonia plant.
+
 ### `@h2map/corridor-schema/ref\synthesis.ts`
 
 **Purpose**
@@ -486,7 +517,23 @@ Documented inline (see source).
 
 The resolution layer — the workbook's `E = IF(D="", F, D)` made explicit.
 
-**Boundary (imports)**: `./ref/bundle`, `./ref/accessors`, `./emissions`
+Precedence: override > (derived | benchmark). "Derived" marks computed
+benchmarks (distance-mode consumption, vessel premium, the fossil ×0.3 / =0
+rules, Purchase-zeroing); in Excel those computations ARE the F benchmark
+cells, so the precedence is identical — the tag only records HOW the
+benchmark was produced, for provenance display.
+
+Two deliberate subtleties, both verbatim from the workbook:
+- Purchase sourcing zeroes production capex/O&M BEFORE the override check
+  (`E16 = IF(D9="Purchase", 0, IF(D16="", F16, D16))`) — an override cannot
+  resurrect production cost on a purchased fuel.
+- Distance-mode consumption divides by the side's RESOLVED LHV (`Fuel!E13`,
+  which is itself overridable), not the table LHV.
+
+The engine never sees this module's `Resolved<>` wrappers — `toSideInputs`
+strips to bare branded scalars.
+
+**Boundary (imports)**: `./ref/bundle`, `./ref/accessors`, `./ref/scale`, `./emissions`
 
 **Exports (inputs/outputs)**: `resolveScenario`, `toSideInputs`
 

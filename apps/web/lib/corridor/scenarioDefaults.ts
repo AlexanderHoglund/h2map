@@ -47,7 +47,7 @@ export function workbookScenario(): ScenarioInput {
  * carry: resolution rejects a mismatch outright rather than silently
  * re-pricing them against newer reference data.
  */
-const LIVE_BUNDLE_ID = "2026-08-17-vessel-v3";
+const LIVE_BUNDLE_ID = "2026-08-18-fuel-v4";
 
 export function defaultScenario(): ScenarioInput {
   const input = workbookScenario();
@@ -190,7 +190,7 @@ export function defaultScenario(): ScenarioInput {
  * This variant releases those overrides and lets the model derive what it
  * can. It is NOT tuned to the study; where it lands is the finding.
  *
- * Measured against the study's published totals (bundle 2026-08-17-vessel-v3):
+ * Measured against the study's published totals (bundle 2026-08-18-fuel-v4):
  *
  *                        study      asserted      derived
  *   green PV (pre-reg)   $2,850m    +0.02%        +0.02%

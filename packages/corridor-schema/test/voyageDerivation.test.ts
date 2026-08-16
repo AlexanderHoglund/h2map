@@ -27,7 +27,7 @@ const load = (id: string) =>
     ),
   );
 
-const v3 = load("2026-08-17-vessel-v3");
+const v3 = load("2026-08-18-fuel-v4");
 
 const fixture = () =>
   migrateScenarioInput(

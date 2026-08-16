@@ -11,11 +11,23 @@
  * resolved fields carrying an override. That is what the tests here pin,
  * because it is the claim the scenario's name makes.
  *
- * The answer diverges hard — a $334m gap against the study's $2,000m — and
- * that divergence is the deliverable, not a defect. It measures how far the
- * workbook's generic benchmarks sit from a real corridor-scale project: the
- * benchmark plant is 5% of the study's Atacama facility. A test below pins
- * that attribution so the explanation cannot quietly stop being true.
+ * WHAT THIS TEST MEASURED CHANGED, on 2026-08-18, and deliberately.
+ *
+ * It used to record a $334m gap against the study's $2,000m and attribute
+ * almost all of it to one cause: the benchmark plant was 5% of the study's
+ * Atacama facility, because production capex was an unsourced flat $55m that
+ * did not scale with the corridor at all.
+ *
+ * Bundle 2026-08-18-fuel-v4 re-based those rows from researched data and made
+ * them scale with demand, so the benchmark plant is now $827m — 75% of the
+ * study's figure rather than 5% — and the gap is $1,520m, 76% of the study.
+ *
+ * The old assertion was written with a comment telling a future reader to
+ * revisit it deliberately if the plant was ever re-based, rather than let it
+ * be "silently satisfied by a different cause". This is that revision: the
+ * claim below is now that the benchmark lands in the same ORDER as the study
+ * without reaching it, which is a different and weaker statement than the one
+ * it replaces. Landing ON the study would mean something had been tuned.
  */
 
 import { readFileSync } from "node:fs";
@@ -32,7 +44,7 @@ import {
 const bundle = parseRefBundle(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/corridor-ref/2026-08-17-vessel-v3.json", import.meta.url),
+      new URL("../../../data/corridor-ref/2026-08-18-fuel-v4.json", import.meta.url),
       "utf8",
     ),
   ),
@@ -96,21 +108,38 @@ describe("benchmarks only — the provenance claim", () => {
 });
 
 describe("what the divergence actually measures", () => {
-  it("lands far below the study, and the plant is why", () => {
-    // The finding, pinned as an attribution rather than a bare number. If
-    // the benchmark plant is ever re-based, this test should be revisited
-    // deliberately — not silently satisfied by a different cause.
+  it("lands in the study's order of magnitude, without reaching it", () => {
+    // Re-based 2026-08-18 (see the file header). The researched plant is
+    // within striking distance of the study's fitted figure but below it,
+    // which is the honest outcome: nothing here is tuned to the study, and
+    // the residual is scale, FOAK and site quality.
     const bench = resolveScenario(benchmarkChileScenario(), bundle);
     const study = resolveScenario(defaultScenario(), bundle);
     const ratio =
       (bench.green.prodCapexUsdM.value as number) /
       (study.green.prodCapexUsdM.value as number);
-    expect(ratio).toBeLessThan(0.1); // benchmark is <10% of the study plant
+    expect(ratio).toBeGreaterThan(0.5);
+    expect(ratio).toBeLessThan(1); // still below the study's fitted plant
 
     const gap = evaluateScenario(resolveScenario(benchmarkChileScenario(), bundle))
       .reporting.gapPvPreRegulationUsdM;
-    expect(gap).toBeLessThan(600);
-    expect(gap).toBeGreaterThan(0); // still a real corridor, not a null run
+    // The study publishes ~$2,000m. Substantial closure, deliberately short:
+    // an upper bound below it is what stops a future change from tuning its
+    // way onto the published number and calling that agreement.
+    expect(gap).toBeGreaterThan(1_000);
+    expect(gap).toBeLessThan(1_800);
+  });
+
+  it("the benchmark plant SCALES — it is no longer a flat scalar", () => {
+    // The defect that made the old 5% attribution possible: production capex
+    // ignored prodNameplateTonnesPerYear entirely, so every corridor was
+    // charged the same $55m regardless of how much fuel it needed.
+    const half = benchmarkChileScenario();
+    half.cargo = { ...half.cargo, roundtripsPerYear: half.cargo.roundtripsPerYear / 3 };
+    const small = resolveScenario(half, bundle).green.prodCapexUsdM.value as number;
+    const full = resolveScenario(benchmarkChileScenario(), bundle).green.prodCapexUsdM
+      .value as number;
+    expect(full).toBeGreaterThan(small * 1.5);
   });
 
   it("keeps the corridor's identity — it is the same route", () => {
