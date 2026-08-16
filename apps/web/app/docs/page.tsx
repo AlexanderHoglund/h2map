@@ -2169,24 +2169,56 @@ export default async function DocsPage() {
           no fleet price is typed in, and the $280/t self-designed proxy is off
           too, because a fitted input is an assertion even when it is not an
           override. It answers what this route costs if you know only the
-          route.
+          route — which makes it the one variant that reads the benchmark
+          data directly, and therefore the only one that moved when that data
+          was re-based.
         </p>
         <p className="mt-2">
-          <strong>It lands 83% below the study, and that gap is the
-          output.</strong>{" "}Almost all of it is the plant: the benchmark
-          production line is $55m CAPEX and $3m/yr OPEX against the
-          study&apos;s 60 kt/yr Atacama facility at $1,100m and $72m/yr — 5%
-          and 4.2%. The workbook&apos;s generic figures describe a small
-          demonstration plant, not a corridor-scale one, so this variant is
-          not a corridor estimate and must not be read as one. It is a
-          measurement of the reference data itself: the model&apos;s own
-          defaults, applied to a real corridor with no project knowledge,
-          understate it roughly six-fold. Sizing the plant from the
-          corridor&apos;s actual demand is what the build-here/LCOH path
-          exists for, and that is the route to a benchmark-only number that
-          means something. Note the one figure that barely moves — CO2 abated
-          at −4.2%, the same as the current-model variant, because both derive
-          their burns and neither depends on the plant&apos;s cost.
+          <strong>What the fuel benchmarks now are.</strong>{" "}Until 18 August
+          2026 every fuel row cited a spreadsheet cell (<code>Data_tables!B17</code>)
+          and claimed verified status on that basis. A cell address is not a
+          source. Bundle{" "}<code>2026-08-18-fuel-v4</code>{" "}replaces them
+          with researched figures carrying real provenance — publication,
+          publisher, year, locator, URL, the figure as printed and the
+          conversion applied — stored in{" "}
+          <code>docs/corridor/research/</code>{" "}so a number can be walked
+          back to its page without leaving the repository.
+        </p>
+        <p className="mt-2">
+          Two consequences worth knowing. Production capex is now{" "}
+          <strong>$/tonne-per-annum at a stated reference size</strong>, scale-
+          corrected against the corridor&apos;s own demand: the old flat scalar
+          charged a 15 kt/yr corridor and a 600 kt/yr one the same $55m. And{" "}
+          <strong>13 of 30 researched blocks are verified; 17 are not</strong>,
+          and the unverified ones show as unverified. Bunkering is verified for
+          no fuel because no public bunker-vessel operating-cost benchmark
+          exists for any of them, and every liquid-hydrogen block is
+          extrapolation because nothing at bunker scale has been built.
+          Rounding those up would recreate exactly the defect this replaced.
+        </p>
+        <p className="mt-2">
+          <strong>It lands 24% below the study, and that gap is the
+          output.</strong>{" "}This is a different number from the one this
+          section carried before 18 August 2026, and the change is the point.
+          The benchmark plant used to be an unsourced flat $55m that did not
+          scale with the corridor at all — 5% of the study&apos;s 60 kt/yr
+          Atacama facility — so the benchmark-only gap came out at $334m, 83%
+          below the study. Bundle{" "}<code>2026-08-18-fuel-v4</code>{" "}
+          re-based the fuel rows from researched sources and made production
+          capex scale with the corridor&apos;s own demand, so the same plant
+          now costs $827m and the gap is $1,520m.
+        </p>
+        <p className="mt-2">
+          <strong>It closes on the study and stops.</strong>{" "}76% of the
+          published figure, not 100%, and nothing was tuned to get there —
+          landing exactly on $2,000m would have meant something was. The
+          residual is scale, first-of-a-kind execution and site quality: the
+          researched plant scaled to this corridor is $827m against the
+          study&apos;s fitted $1,100m, which the research note predicted at
+          roughly 35% below on its own arithmetic before any of it was built.
+          Note the one figure that barely moves — CO2 abated at −4%, the same
+          as the current-model variant, because both derive their burns and
+          neither depends on what the plant cost.
         </p>
         <p className="mt-2">
           <strong>What separates the first three is one number.</strong>{" "}Every
@@ -2215,10 +2247,10 @@ export default async function DocsPage() {
             <tbody>
               {(
                 [
-                  ["Green corridor NPV", "$2,850m", "+0.02%", "+0.02%", "+0.02%", "−72%"],
+                  ["Green corridor NPV", "$2,850m", "+0.02%", "+0.02%", "+0.02%", "−31%"],
                   ["Fossil corridor NPV", "$850m", "−1.4%", "−1.4%", "+2.6%", "−46%"],
-                  ["Gap NPV (pre-regulation)", "$2,000m", "+0.6%", "+0.6%", "−1.1%", "−83%"],
-                  ["Cost per cargo tonne (pre-reg.)", "$80/t", "+1.6%", "+1.6%", "−0.06%", "−83%"],
+                  ["Gap NPV (pre-regulation)", "$2,000m", "+0.6%", "+0.6%", "−1.1%", "−24%"],
+                  ["Cost per cargo tonne (pre-reg.)", "$80/t", "+1.6%", "+1.6%", "−0.06%", "−23%"],
                   ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "+0.01%", "−23%", "−4.2%", "−4.2%"],
                   ["Regulatory benefit", "≈$250m", "+0.09%", "−23%", "n/a", "n/a"],
                   ["Overridden fields", "—", "27", "21", "17", "0"],
