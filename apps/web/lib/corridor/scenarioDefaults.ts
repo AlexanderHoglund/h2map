@@ -178,6 +178,84 @@ export function defaultScenario(): ScenarioInput {
 }
 
 /**
+ * THE SAME CORRIDOR, RUN ON THE CURRENT MODEL.
+ *
+ * `defaultScenario()` reproduces the MMMCZCS study by ASSERTING its answers:
+ * the burns, the fossil fleet cost and the regulatory benefit are all typed
+ * in. That was the right way to prove the engine could hit a published
+ * total, but it means almost nothing downstream can move — so the researched
+ * vessel catalogue, the derived consumption chain, the fossil-fleet basis and
+ * the structured IMO module are all bypassed or hand-substituted.
+ *
+ * This variant releases those overrides and lets the model derive what it
+ * can. It is NOT tuned to the study; where it lands is the finding.
+ *
+ * Measured against the study's published totals (bundle 2026-08-17-vessel-v3):
+ *
+ *                        study      asserted      derived
+ *   green PV (pre-reg)   $2,850m    +0.02%        +0.02%
+ *   fossil PV (pre-reg)  $850m      −1.4%         +2.6%
+ *   gap PV (pre-reg)     $2,000m    +0.6%         −1.1%
+ *   $/t cargo (pre-reg)  $80        +1.6%         −0.1%
+ *   CO2 abated           1.45 Mt    −23%          −4.2%
+ *
+ * The headline: DERIVING the burn lands closer to the study than asserting
+ * it did. That is independent validation of the vessel catalogue, and it is
+ * only visible once the overrides come off.
+ *
+ * What is deliberately NOT changed: the plant CAPEX/OPEX blocks (still the
+ * study's fitted figures — nothing has replaced them as a source), the
+ * corridor geometry, the 8% WACC and the well-to-wake basis.
+ */
+export function modernChileScenario(): ScenarioInput {
+  const input = defaultScenario();
+
+  // 1. Consumption DERIVES from corridor geometry and the researched hull
+  //    (7,152.6 t green / 3,284.9 t fossil) instead of restating the study's
+  //    own tonnages. This is the change that moves CO2 abated from −23% to
+  //    −4.2%, and it makes the energy-parity ratio exactly 1.000 by
+  //    construction rather than by the coincidence the asserted pair relies
+  //    on (5700/2638 happens to match the LHV ratio to 0.03%).
+  input.green.overrides.fuelTonnesPerVesselYear = null;
+  input.fossil.overrides.fuelTonnesPerVesselYear = null;
+
+  // 2. Say the fossil counterfactual is a newbuild fleet, rather than
+  //    asserting a per-ship figure to work around the "already afloat"
+  //    benchmark. This is what the default's `capexUsdMPerShip: 35` override
+  //    was standing in for; the flag states it and the catalogue prices it.
+  input.vessel.fossil.capexUsdMPerShip = null;
+  input.flags = { ...input.flags, fossilFleetBasis: "newbuild" };
+
+  // 3. The structured IMO Net-Zero Framework REPLACES the $280/t proxy.
+  //    That proxy was fitted to reproduce the study's ≈$250m benefit back
+  //    when the financing module did not exist. With financing on (below),
+  //    keeping it counts part of the same benefit twice — net regulation
+  //    reaches −$435.6m against the study's ≈$250m. The IMO ladder is
+  //    parameterised from the bundle and fitted to nothing.
+  input.regulation.selfDesigned = {
+    ...input.regulation.selfDesigned,
+    enabled: false,
+  };
+  input.regulation.imoNetZero = { enabled: true, scope: 1 };
+
+  // 4. Green financing as its own line — where the study's own waterfall
+  //    puts it, separate from the regulatory float. Calibration is BOUNDS,
+  //    not a target: amortizing yields $195.9m and bullet $312.5m, and the
+  //    study's ≈$250m sits between them. Amortizing is the conservative end;
+  //    nothing here is tuned to hit 250.
+  input.financing = {
+    enabled: true,
+    greenRate: 0.06,
+    baseRate: 0.08,
+    debtShare: 1,
+    tenorYears: 15,
+    structure: "amortizing",
+  };
+
+  return input;
+}
+
+/**
  * Null every override so the resolution yields pure benchmark values.
  *
  * THE SWEEP BASELINE DEPENDS ON THIS BEING COMPLETE — in particular on

@@ -4,15 +4,26 @@ import { checkRateLimit, clientIp, GENERAL_POLICY } from "@/lib/server/rateLimit
 import { getCallerWithAccess, getUserSupabase } from "@/lib/server/userSupabase";
 import { getServerSupabase } from "@/lib/server/supabase";
 import { insertScenarioRow } from "@/lib/server/corridorScenarios";
-import { defaultScenario, emptyScenario } from "@/lib/corridor/scenarioDefaults";
+import {
+  defaultScenario,
+  emptyScenario,
+  modernChileScenario,
+} from "@/lib/corridor/scenarioDefaults";
 
 /**
  * Starter-project seeding (projects-first UX, 2026-08-11; template rework
- * 2026-08-13): every user gets the STANDARD Chilean example (once per
- * user, ever — deleted, it never comes back) plus the SIMPLIFIED template
- * "Simple corridor (template)", which is ENSURED BY NAME on every seed
- * call — existing users gain it on their next visit, and deleting it just
- * brings the template back (it is a template, not a document).
+ * 2026-08-13; second Chilean example 2026-08-16): every user gets TWO
+ * STANDARD Chilean examples (once per user, ever — deleted, they never
+ * come back) plus the SIMPLIFIED template "Simple corridor (template)",
+ * which is ENSURED BY NAME on every seed call — existing users gain it on
+ * their next visit, and deleting it just brings the template back (it is a
+ * template, not a document).
+ *
+ * The two examples are the same published corridor under different
+ * treatments: one reproduces the MMMCZCS study by asserting its published
+ * burns and fleet costs, the other releases those overrides and lets the
+ * current model derive them. Both are documents, so both are gated by the
+ * once-ever stamp together.
  *
  * POST /api/v1/corridor/scenarios/seed → 201 { seeded: true, scenarios }
  *                                       | 204 (nothing to do)
@@ -39,6 +50,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   const caller = access.caller;
 
   const SIMPLE_TEMPLATE_NAME = "Simple corridor (template)";
+  const MODERN_EXAMPLE_NAME = "Chilean copper corridor — current model";
   const created: unknown[] = [];
 
   const service = getServerSupabase();
@@ -83,6 +95,26 @@ export async function POST(request: NextRequest): Promise<Response> {
       return jsonError(500, "db_error", "Could not create the starter projects");
     }
     created.push(example.data);
+
+    // The same corridor with the overrides released, so the two sit side by
+    // side: one reproduces the study by asserting its answers, the other
+    // derives what the current model can and lands within ~4% of it.
+    //
+    // Named so it CANNOT be a superstring of the example above — the e2e
+    // suite selects that row by regex with .first(), which a longer name
+    // containing it would match non-deterministically.
+    const modern = await insertScenarioRow(
+      supabase,
+      caller.id,
+      MODERN_EXAMPLE_NAME,
+      modernChileScenario(),
+      "standard",
+    );
+    if (modern.error) {
+      console.error("[api/corridor/scenarios/seed]", modern.error);
+      return jsonError(500, "db_error", "Could not create the starter projects");
+    }
+    created.push(modern.data);
   }
 
   // The Simplified template is ensured for EVERY user, by name.

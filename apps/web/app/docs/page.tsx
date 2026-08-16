@@ -315,10 +315,13 @@ export default async function DocsPage() {
         <p className="mt-2">
           <strong>Projects first.</strong>{" "}The platform always opens on the
           Projects tab; the input tabs unlock once a project is selected or
-          created. Every account starts with two projects, created once and
+          created. Every account starts with three projects, created once and
           never re-created: the{" "}
           <em>Example — Chilean copper corridor</em>{" "}(the published reference
-          case, a Standard project, created once — deleted, it stays gone)
+          case, a Standard project, created once — deleted, it stays gone);{" "}
+          <em>Chilean copper corridor — current model</em>{" "}(the same corridor
+          with the study&apos;s asserted burns and fleet costs released, so the
+          model derives them — see §21);
           and{" "}
           <em>Simple corridor (template)</em>{" "}(a blank purchase-sourced
           Simplified template — generic route, benchmark costs, every scheme
@@ -2063,6 +2066,90 @@ export default async function DocsPage() {
           too ($60.75m PV; fossil $253.71m on the Annex II 91.744/40,500
           row). The pre-regulation figures are factor-independent and
           unchanged.
+        </p>
+        <H3>The same corridor, run on the current model</H3>
+        <p className="mt-2">
+          The calibration above reproduces the study by{" "}
+          <em>asserting its answers</em>: the fuel burns, the fossil fleet cost
+          and a $280/t regulatory proxy are all typed in. That is how you prove
+          an engine can hit a published total, but it also means almost nothing
+          downstream can move — the researched vessel catalogue, the derived
+          consumption chain and the structured IMO module are all bypassed. So
+          a second seeded project,{" "}
+          <em>Chilean copper corridor — current model</em>, runs the same
+          corridor with those overrides released. Consumption derives from the
+          researched Handymax (2.334 GJ/nm) and the corridor&apos;s own
+          geometry; the fossil counterfactual is priced from the catalogue as a
+          newbuild fleet; regulation comes from the draft-MEPC-83 ladder
+          instead of a fitted flat price; and green financing appears as its
+          own line, where the study&apos;s waterfall puts it.
+        </p>
+        <div className="my-3 overflow-x-auto">
+          <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
+            <thead>
+              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 font-medium">Metric (pre-regulation)</th>
+                <th className="px-3 py-2 text-right font-medium">Study</th>
+                <th className="px-3 py-2 text-right font-medium">Asserted</th>
+                <th className="px-3 py-2 text-right font-medium">Derived</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(
+                [
+                  ["Green corridor NPV", "$2,850m", "+0.02%", "+0.02%"],
+                  ["Fossil corridor NPV", "$850m", "−1.4%", "+2.6%"],
+                  ["Gap NPV", "$2,000m", "+0.6%", "−1.1%"],
+                  ["Incremental cost per cargo tonne", "$80/t", "+1.6%", "−0.06%"],
+                  ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "−23%", "−4.2%"],
+                ] as const
+              ).map(([metric, study, asserted, derived]) => (
+                <tr key={metric} className="border-b border-neutral-200 last:border-0">
+                  <td className="px-3 py-1.5">{metric}</td>
+                  <td className="px-3 py-1.5 text-right">{study}</td>
+                  <td className="px-3 py-1.5 text-right">{asserted}</td>
+                  <td className="px-3 py-1.5 text-right font-medium">{derived}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2">
+          <strong>Deriving the burn lands closer to the study than asserting
+          it did.</strong>{" "}CO2 abated moves from −23% to −4.2% and cost per
+          cargo tonne from +1.6% to −0.06%, with nothing tuned — the model is
+          not being fitted to the study here, it is being let go and then
+          scored. That is independent corroboration of the vessel catalogue,
+          and it is only visible once the overrides come off. Delivered-energy
+          parity also becomes exact by construction (ratio 1.000) rather than
+          by the coincidence the asserted pair relies on: the study&apos;s
+          5,700/2,638 tonnages happen to sit 0.03% from the ammonia/LSFO LHV
+          ratio, which nothing enforced.
+        </p>
+        <p className="mt-2">
+          <strong>Why the $280/t proxy is off in this variant.</strong>{" "}It was
+          calibrated to reproduce the study&apos;s ≈$250m regulatory benefit at
+          a time when the model had no financing module. The study&apos;s own
+          waterfall carries financing and regulation as two separate floats, so
+          with the financing line on, keeping the fitted proxy counts part of
+          the same benefit twice — net regulation reaches −$435.6m against the
+          study&apos;s ≈$250m. The structured IMO module gives −$320.9m from
+          bundle-parameterised trajectories and is fitted to nothing. Financing
+          is bounds, not a target: amortizing yields $195.9m and bullet
+          $312.5m, and the study&apos;s ≈$250m sits between them; this variant
+          ships the conservative end.
+        </p>
+        <p className="mt-2">
+          The residual is stated rather than tuned. The green side is unmoved
+          because its plant CAPEX/OPEX are still the study&apos;s fitted
+          figures — nothing has replaced them as a source — and the CO2 gap is
+          an accounting disagreement, not an arithmetic one: the study&apos;s
+          1.45 Mt assumes a WtW=0 green ammonia, which is not certifiable under
+          the refined method. Capital phasing stays off for the same reason: it
+          would move the gap another ≈$122m, but the study states no deployment
+          schedule, so any weights would be invented. Both projects are seeded
+          together and neither disturbs the other; the calibration pin above is
+          unaffected, since it resolves against the 2026-07-30 bundle.
         </p>
         <p className="mt-2">
           The displayed legacy-calibration headline (gap $1,762.21m, $71/t,
