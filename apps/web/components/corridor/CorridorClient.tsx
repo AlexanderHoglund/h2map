@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
+import { usdM } from "@/lib/corridor/format";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { useCorridorModel } from "./state";
 import { downloadResultsXlsx } from "./exportXlsx";
@@ -353,7 +354,7 @@ export default function CorridorClient() {
                 {t("results.gapShort")}
               </span>
               <span className="font-semibold text-brand-deep">
-                ${gap.toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}m
+                {usdM(gap)}
               </span>
             </span>
           )}

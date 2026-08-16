@@ -21,6 +21,15 @@ import type {
 } from "@h2map/corridor-schema";
 import { buildCostBridge, withFunding } from "@h2map/corridor-engine";
 import { formatSig } from "@h2map/units";
+import {
+  idLabel,
+  int,
+  round2,
+  usd,
+  usdM,
+  usdMShort,
+  usdMSigned,
+} from "@/lib/corridor/format";
 import { DEFAULT_BUNDLE } from "./state";
 
 /**
@@ -184,9 +193,9 @@ export default function ResultsPanel({
     // the waterfall identities carry over unchanged).
     const abated = s.co2AbatedTonnes;
     return {
-      pv: mk(1, fmtUsdMShort),
+      pv: mk(1, usdMShort),
       perTonne:
-        abated > 0 ? mk(1e6 / abated, (n) => fmtUsd(n)) : [],
+        abated > 0 ? mk(1e6 / abated, (n) => usd(n)) : [],
     };
   }, [result, scenario.commercial?.willingnessToPayUsdPerTonneCo2, t]);
 
@@ -293,14 +302,14 @@ export default function ResultsPanel({
   }[] = [
     {
       label: t("gap"),
-      value: fmtUsdM(s.gapPvUsdM),
-      sub: `${fmtUsdM(rep.gapPvPreRegulationUsdM)} ${t("preRegLabel")}`,
+      value: usdM(s.gapPvUsdM),
+      sub: `${usdM(rep.gapPvPreRegulationUsdM)} ${t("preRegLabel")}`,
       strong: true,
     },
     {
       label: cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne"),
-      value: fmtUsd(s.costPerUnitUsd),
-      sub: `${fmtUsd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`,
+      value: usd(s.costPerUnitUsd),
+      sub: `${usd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`,
     },
     {
       label: (
@@ -316,11 +325,11 @@ export default function ResultsPanel({
           </span>
         </>
       ),
-      value: fmtUsd(s.costPerTonneCo2Usd),
-      sub: `${fmtUsd(rep.costPerTonneCo2PreRegulationUsd)} ${t("preRegLabel")}`,
+      value: usd(s.costPerTonneCo2Usd),
+      sub: `${usd(rep.costPerTonneCo2PreRegulationUsd)} ${t("preRegLabel")}`,
     },
-    { label: t("green"), value: fmtUsdM(s.greenTotalPvUsdM) },
-    { label: t("fossil"), value: fmtUsdM(s.fossilTotalPvUsdM) },
+    { label: t("green"), value: usdM(s.greenTotalPvUsdM) },
+    { label: t("fossil"), value: usdM(s.fossilTotalPvUsdM) },
     {
       label: t("co2"),
       value: `${formatSig(s.co2AbatedTonnes)} t`,
@@ -412,18 +421,18 @@ export default function ResultsPanel({
     { separated: false },
   );
 
-  const portA = [scenario.cargo.portAName, fmtId(scenario.cargo.countryId)]
+  const portA = [scenario.cargo.portAName, idLabel(scenario.cargo.countryId)]
     .filter(Boolean)
     .join(", ");
   const portB =
     scenario.cargo.routeType === "point-to-point"
-      ? [scenario.cargo.portBName, fmtId(scenario.cargo.countryBId ?? scenario.cargo.countryId)]
+      ? [scenario.cargo.portBName, idLabel(scenario.cargo.countryBId ?? scenario.cargo.countryId)]
           .filter(Boolean)
           .join(", ")
       : null;
 
   const snapshot: [string, string][] = [
-    [t("snapRoute"), fmtId(scenario.cargo.routeType)],
+    [t("snapRoute"), idLabel(scenario.cargo.routeType)],
     [t("snapPortA"), portA],
     ...(portB ? ([[t("snapPortB"), portB]] as [string, string][]) : []),
     [
@@ -431,15 +440,15 @@ export default function ResultsPanel({
       `${cargoUnit === "teu" ? "TEU" : "Tonne"} · ${unitWeight} t`,
     ],
     ...(cargoUnit === "teu"
-      ? ([[t("perTonneCargo"), fmtUsd(s.costPerUnitUsd / unitWeight)]] as [string, string][])
+      ? ([[t("perTonneCargo"), usd(s.costPerUnitUsd / unitWeight)]] as [string, string][])
       : []),
-    [t("snapDistance"), `${fmtInt(scenario.cargo.oneWayDistanceNm)} nm`],
+    [t("snapDistance"), `${int(scenario.cargo.oneWayDistanceNm)} nm`],
     [t("snapStart"), String(scenario.cargo.startYear)],
     [t("snapHorizon"), String(scenario.cargo.horizonYears)],
     [t("snapVessels"), String(scenario.cargo.vessels)],
     [t("snapRoundtrips"), String(scenario.cargo.roundtripsPerYear)],
-    [t("snapGreenFuel"), `${fmtId(scenario.green.fuelId)} · ${fmtId(scenario.green.sourcing)}`],
-    [t("snapFossilFuel"), `${fmtId(scenario.fossil.fuelId)} · ${fmtId(scenario.fossil.sourcing)}`],
+    [t("snapGreenFuel"), `${idLabel(scenario.green.fuelId)} · ${idLabel(scenario.green.sourcing)}`],
+    [t("snapFossilFuel"), `${idLabel(scenario.fossil.fuelId)} · ${idLabel(scenario.fossil.sourcing)}`],
     [
       t("snapGreenUse"),
       `${formatSig(result.intermediates.greenFuelTonnesPerVesselYear)} ${t("unitTPerVesselYr")}`,
@@ -539,25 +548,25 @@ export default function ResultsPanel({
                 <React.Fragment key={row.label}>
                   <tr className="border-b border-neutral-100 last:border-0">
                     <td className="py-1.5 text-neutral-600">{row.label}</td>
-                    <td className="py-1.5 text-right">{fmtUsdM(row.green)}</td>
+                    <td className="py-1.5 text-right">{usdM(row.green)}</td>
                     <td className="py-1.5 text-right text-neutral-500">
-                      {row.fossil === null ? "—" : fmtUsdM(row.fossil)}
+                      {row.fossil === null ? "—" : usdM(row.fossil)}
                     </td>
                     <td className="py-1.5 text-right font-medium" style={deltaStyle(delta)}>
-                      {fmtSigned(delta)}
+                      {usdMSigned(delta)}
                     </td>
                   </tr>
                   {row.subtotalAfter && (
                     <tr className="border-b border-neutral-300 bg-neutral-50 font-medium">
                       <td className="py-1.5">{t("subtotalPreReg")}</td>
                       <td className="py-1.5 text-right">
-                        {fmtUsdM(rep.greenPreRegulationPvUsdM)}
+                        {usdM(rep.greenPreRegulationPvUsdM)}
                       </td>
                       <td className="py-1.5 text-right text-neutral-500">
-                        {fmtUsdM(rep.fossilPreRegulationPvUsdM)}
+                        {usdM(rep.fossilPreRegulationPvUsdM)}
                       </td>
                       <td className="py-1.5 text-right">
-                        {fmtSigned(rep.gapPvPreRegulationUsdM)}
+                        {usdMSigned(rep.gapPvPreRegulationUsdM)}
                       </td>
                     </tr>
                   )}
@@ -568,9 +577,9 @@ export default function ResultsPanel({
           <tfoot>
             <tr className="border-t border-neutral-300 font-semibold">
               <td className="pt-2">{t("rowTotal")}</td>
-              <td className="pt-2 text-right">{fmtUsdM(s.greenTotalPvUsdM)}</td>
-              <td className="pt-2 text-right">{fmtUsdM(s.fossilTotalPvUsdM)}</td>
-              <td className="pt-2 text-right text-brand-deep">{fmtSigned(s.gapPvUsdM)}</td>
+              <td className="pt-2 text-right">{usdM(s.greenTotalPvUsdM)}</td>
+              <td className="pt-2 text-right">{usdM(s.fossilTotalPvUsdM)}</td>
+              <td className="pt-2 text-right text-brand-deep">{usdMSigned(s.gapPvUsdM)}</td>
             </tr>
           </tfoot>
         </table>
@@ -618,7 +627,7 @@ export default function ResultsPanel({
               <YAxis tick={{ fontSize: 10, fill: "var(--viz-ink-muted)" }} stroke="var(--viz-baseline)" width={46} />
               <Tooltip
                 formatter={(v, name) => [
-                  typeof v === "number" ? fmtUsdM(v) : String(v),
+                  typeof v === "number" ? usdM(v) : String(v),
                   NATURE_NAMES[name as string] ? t(NATURE_NAMES[name as string]!) : String(name),
                 ]}
                 labelStyle={{ fontSize: 11 }}
@@ -642,7 +651,7 @@ export default function ResultsPanel({
                 ? "annualPhasedCaption"
                 : "annualYear1Caption",
               {
-                capital: fmtUsdMShort(chartMeta.y1Capital),
+                capital: usdMShort(chartMeta.y1Capital),
                 share: chartMeta.y1Share,
               },
             )}
@@ -689,7 +698,10 @@ export default function ResultsPanel({
               )}
               <Tooltip
                 formatter={(v, name) => [
-                  typeof v === "number" ? `$${v.toLocaleString("en-US")}/t` : String(v),
+                  // Was a bare toLocaleString, so this tooltip rendered
+                  // $1,215.239/t against the card's $1,215/t for the same
+                  // number. Whole dollars, like every other $/t in the app.
+                  typeof v === "number" ? `${usd(v)}/t` : String(v),
                   name === "pre" ? t("abatePre") : t("abatePost"),
                 ]}
                 labelStyle={{ fontSize: 11 }}
@@ -787,12 +799,12 @@ export default function ResultsPanel({
           <section className="border border-neutral-300 bg-white p-3">
             <Eyebrow>04 · {ts("cargo")}</Eyebrow>
             <dl className="text-xs">
-              <TabRow label={t("tabCargoPerYear")} value={fmtInt(resolved.unitsPerYear)} />
+              <TabRow label={t("tabCargoPerYear")} value={int(resolved.unitsPerYear)} />
               <TabRow label={t("snapCargoLifetime")} value={formatSig(s.cargoUnitsLifetime)} />
               <TabRow
                 label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")}
-                value={fmtUsd(s.costPerUnitUsd)}
-                sub={`${fmtUsd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`}
+                value={usd(s.costPerUnitUsd)}
+                sub={`${usd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`}
               />
               <TabRow label={t("co2")} value={`${formatSig(s.co2AbatedTonnes)} t`} />
             </dl>
@@ -844,7 +856,7 @@ export default function ResultsPanel({
               {s.financingGreenPvUsdM !== undefined && (
                 <TabRow
                   label={t("regFinancing")}
-                  value={fmtSigned(s.financingGreenPvUsdM)}
+                  value={usdMSigned(s.financingGreenPvUsdM)}
                 />
               )}
               {scenario.capitalPhasing?.enabled && (
@@ -895,7 +907,7 @@ export default function ResultsPanel({
                 className="tabular-nums"
                 style={deltaStyle(netReg - (s.financingGreenPvUsdM ?? 0))}
               >
-                {fmtSigned(netReg - (s.financingGreenPvUsdM ?? 0))}
+                {usdMSigned(netReg - (s.financingGreenPvUsdM ?? 0))}
               </span>
             </div>
             <dl className="mt-2 border-t border-neutral-100 pt-2 text-xs">
@@ -912,7 +924,7 @@ export default function ResultsPanel({
                       )}
                     </>
                   }
-                  value={`${fmtUsd((s.gapPvUsdM * 1e6) / row.tonnes)}/t`}
+                  value={`${usd((s.gapPvUsdM * 1e6) / row.tonnes)}/t`}
                   sub={`${t("abated")}: ${formatSig(row.tonnes)} t`}
                 />
               ))}
@@ -980,7 +992,7 @@ function TabTable({
   // Non-money values are derived (fuel use, WTW intensity …): four
   // significant figures — never render precision the number doesn't have.
   // Money keeps the $X,XXX.XXm convention.
-  const fmt = (n: number) => (money ? fmtUsdM(n) : formatSig(n));
+  const fmt = (n: number) => (money ? usdM(n) : formatSig(n));
   return (
     <table className="w-full text-xs tabular-nums">
       <thead>
@@ -1209,31 +1221,3 @@ function warnIfDominated(
   }
 }
 
-function round2(n: number): number {
-  return Math.round(n * 100) / 100;
-}
-function fmtUsdM(n: number): string {
-  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}m`;
-}
-/**
- * Magnitude-aware $m for captions/annotations: whole millions above $100m
- * (trailing zeros on a $1,690m figure are noise), two decimals below. Full
- * precision stays in tooltips and the decomposition table via `fmtUsdM`.
- */
-function fmtUsdMShort(n: number): string {
-  const max = Math.abs(n) >= 100 ? 0 : 2;
-  return `$${n.toLocaleString("en-US", { maximumFractionDigits: max })}m`;
-}
-function fmtSigned(n: number): string {
-  return `${n > 0 ? "+" : ""}${fmtUsdM(n)}`;
-}
-function fmtUsd(n: number): string {
-  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
-}
-function fmtInt(n: number): string {
-  return Math.round(n).toLocaleString("en-US");
-}
-/** Readable form of a benchmark id ("e-ammonia", "build-here"). */
-function fmtId(id: string): string {
-  return id.charAt(0).toUpperCase() + id.slice(1);
-}

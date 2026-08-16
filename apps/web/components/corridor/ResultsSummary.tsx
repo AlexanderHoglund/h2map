@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { ScenarioInput, ScenarioResult } from "@h2map/corridor-schema";
 import { Button } from "@/components/ui/Button";
+import { usd, usdM } from "@/lib/corridor/format";
 
 /**
  * Compact live summary docked on the five input steps: the headline numbers
@@ -42,13 +43,13 @@ export default function ResultsSummary({
         {t("gap")}
       </p>
       <p className="mt-0.5 text-2xl font-semibold tracking-tight tabular-nums text-brand-deep">
-        {fmtUsdM(s.gapPvUsdM)}
+        {usdM(s.gapPvUsdM)}
       </p>
       <p className="text-[11px] tabular-nums text-neutral-500">
-        {fmtUsdM(result.reporting.gapPvPreRegulationUsdM)} {t("preRegLabel")}
+        {usdM(result.reporting.gapPvPreRegulationUsdM)} {t("preRegLabel")}
       </p>
       <dl className="mt-3 space-y-1.5 border-t border-neutral-200 pt-2 text-xs">
-        <Row label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")} value={fmtUsd(s.costPerUnitUsd)} />
+        <Row label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")} value={usd(s.costPerUnitUsd)} />
         <Row
           label={
             <>
@@ -58,10 +59,10 @@ export default function ResultsSummary({
               </span>
             </>
           }
-          value={fmtUsd(s.costPerTonneCo2Usd)}
+          value={usd(s.costPerTonneCo2Usd)}
         />
-        <Row label={t("green")} value={fmtUsdM(s.greenTotalPvUsdM)} />
-        <Row label={t("fossil")} value={fmtUsdM(s.fossilTotalPvUsdM)} />
+        <Row label={t("green")} value={usdM(s.greenTotalPvUsdM)} />
+        <Row label={t("fossil")} value={usdM(s.fossilTotalPvUsdM)} />
       </dl>
       <Button size="md" className="mt-3 w-full px-3 py-1.5" onClick={onViewFull}>
         {t("viewFull")} →
@@ -77,11 +78,4 @@ function Row({ label, value }: { label: React.ReactNode; value: string }) {
       <dd className="tabular-nums font-medium">{value}</dd>
     </div>
   );
-}
-
-function fmtUsdM(n: number): string {
-  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}m`;
-}
-function fmtUsd(n: number): string {
-  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 }

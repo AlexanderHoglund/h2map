@@ -674,7 +674,9 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
       .last();
     // The wrapped axis label's tspans concatenate without a space, like the
     // existing "Total cost ofgreen corridor*" labels.
-    await expect(chart.getByText("Greenfinancing", { exact: false }).first()).toBeVisible();
+    // Renamed when regulation was grouped: the financing bar is now labelled
+    // "Optimized financing" and sits beside a single "Regulations" bar.
+    await expect(chart.getByText("Optimizedfinancing", { exact: false }).first()).toBeVisible();
     await expect(chart.getByText("\u2212$196m", { exact: true })).toBeVisible();
     await expect(chart.getByText("$2,012m", { exact: true })).toBeVisible(); // gross unchanged
     await expect(chart.getByText("$1,624m", { exact: true })).toBeVisible(); // incremental after
