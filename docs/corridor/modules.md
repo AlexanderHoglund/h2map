@@ -33,6 +33,20 @@ SOURCED drivers across their published ranges and reports low / central /
 high, plus which driver contributes most of the spread — so the reader can
 see both the uncertainty and where it comes from.
 
+### `@h2map/corridor-engine/costBridge.ts`
+
+**Purpose**
+
+The MMMCZCS cost bridge, decomposed into named blocks.
+
+**Boundary (imports)**: `@h2map/corridor-schema`
+
+**Exports (inputs/outputs)**: `BridgeStop`, `REGULATION_KEYS`, `RegulationKey`, `BridgeBlock`, `BridgeGroup`, `FundingBridge`, `CostBridge`, `buildCostBridge`, `withFunding`, `costBridgeClosure`
+
+**Assumptions**
+
+Documented inline (see source).
+
 ### `@h2map/corridor-engine/financing.ts`
 
 **Purpose**
@@ -85,6 +99,11 @@ Documented inline (see source).
 **Purpose**
 
 Green Corridor engine — pure scenario evaluation.
+
+`evaluateScenario(resolved)`: builds the timeline, runs the SAME
+`evaluateSide` for green and fossil, and assembles the summary
+(Calculation rows 64–85 + Output unit metrics). No I/O, no clock, no
+randomness — enforced by the package's eslint boundary.
 
 **Boundary (imports)**: `@h2map/corridor-schema`, `./timeline`, `./side`, `./reporting`
 
@@ -322,6 +341,12 @@ scenario form, populated or not: unset fields are explicit `null`, and
 optional blocks (port coordinates, financing, phasing, build-here…)
 expand to full skeletons so the file documents every field that exists.
 
+Internal storage stays absent-style (drafts, API saves, the golden
+fixtures never carry null-filled keys) — `toCompleteScenarioJson`
+produces the complete form on the way OUT, `fromCompleteScenarioJson`
+normalizes it away on the way IN, before the strict zod parse. One spec
+tree drives both directions.
+
 **Boundary (imports)**: `./scenario`, `./scenario`
 
 **Exports (inputs/outputs)**: `CompleteScenarioJson`, `SCENARIO_TEMPLATE`, `toCompleteScenarioJson`, `fromCompleteScenarioJson`
@@ -529,7 +554,7 @@ them into branded `Resolved<T>` values against a reference bundle.
 
 **Boundary (imports)**: none — leaf module
 
-**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelEmissionsSideInput`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `EmissionsAccountingInput`, `RegulationInput`, `FinancingInput`, `CapitalPhasingSide`, `CapitalPhasingInput`, `ScenarioInput`
+**Exports (inputs/outputs)**: `SCHEMA_VERSION`, `ProjectArchetype`, `ARCHETYPE_FOAK_MULTIPLIER`, `RouteType`, `FuelSourcing`, `DivergenceFlags`, `CargoInput`, `VesselSideInput`, `VesselInput`, `FuelSideOverrides`, `BuildHereComponent`, `BuildHereSite`, `FuelEmissionsSideInput`, `FuelSideInput`, `EtsGasFactors`, `EtsInput`, `FuelEuInput`, `Ira45zInput`, `SelfDesignedInput`, `ImoNetZeroInput`, `EmissionsAccountingInput`, `RegulationInput`, `FinancingInput`, `CommercialInput`, `CapitalPhasingSide`, `CapitalPhasingInput`, `ScenarioInput`
 
 **Assumptions**
 

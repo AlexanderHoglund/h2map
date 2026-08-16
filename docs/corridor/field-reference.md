@@ -124,6 +124,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `financing.debtShare` | number | yes | #32 | 7.3% | 7.3% | `gapPvUsdM` | — |
 | `financing.tenorYears` | integer | yes | #29 | 10.1% | 10.1% | `costPerUnitUsd` | — |
 | `financing.structure` | "amortizing", "bullet" | yes | — | — | — | — | — |
+| `commercial.willingnessToPayUsdPerTonneCo2` | number | yes | — | — | — | — | — |
 | `capitalPhasing.enabled` | boolean | yes | — | — | — | — | — |
 | `capitalPhasing.green.weights` | array | yes | #45 | 3.0% | 3.0% | `costPerUnitUsd` | advanced |
 | `capitalPhasing.fossil.weights` | array | yes | #45 | 3.0% | 3.0% | `costPerUnitUsd` | advanced |
