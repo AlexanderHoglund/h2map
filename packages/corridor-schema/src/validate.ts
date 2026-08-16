@@ -235,6 +235,17 @@ export const scenarioInputSchema = z.object({
       structure: z.enum(["amortizing", "bullet"]),
     })
     .optional(),
+  // Cargo-owner willingness to pay, $/tCO2e abated. Absent or 0 = off.
+  // Bounded rather than open: this funds an abatement cost the model
+  // measures in the hundreds to low thousands of $/tCO2, so a five-figure
+  // entry is a unit error (a $/tonne-of-cargo or a total) rather than a
+  // negotiation. Non-negative — a cargo owner paying LESS than nothing is
+  // not a willingness to pay, it is a discount, and belongs in the price.
+  commercial: z
+    .object({
+      willingnessToPayUsdPerTonneCo2: z.number().min(0).max(10_000),
+    })
+    .optional(),
   // Capital deployment schedule (sprint 4, task 2). The sum-to-1 rule is
   // enforced BY NAME when enabled — weights are never silently normalised.
   capitalPhasing: z

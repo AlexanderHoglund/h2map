@@ -49,6 +49,7 @@ Rule 5 is about that, and it is the one to be careful of.
 | Override one side's `fuelTonnesPerVesselYear` alone | The two sides then carry different delivered energy, and CO₂ abated compares unequal transport work. The model raises an amber note; fix the pairing or state why. |
 | Hand-write `buildHere` | It is written by the map when you evaluate a site. Leave the whole block null unless you are round-tripping a file that already had one. |
 | Put a fleet total in `capexUsdMPerShip` | It is PER SHIP; the model multiplies by `cargo.vessels`. A fleet number here is silently ×N too large. |
+| Expect `commercial.willingnessToPayUsdPerTonneCo2` to lower the gap | It does NOT. It is a FUNDING allocation, not a cost: it splits the incremental cost into a cargo-owner share and the public funding that remains. The headline gap is unchanged. |
 
 ## Allowed id values
 
@@ -106,6 +107,7 @@ out wrong while still importing cleanly. The model cannot detect it.
 | `regulation.ets.euaEurPerTonne` | EUR per tonne CO₂ | ≥ 0 |
 | `regulation.*.scope` | fraction of the voyage in scope | 0–1 |
 | `financing.*Rate`, `debtShare`, `*Support` | fraction | 0–1 |
+| `commercial.willingnessToPayUsdPerTonneCo2` | $ per tonne CO2e **abated** (not per tonne of cargo) | 0–10,000 |
 
 ## What the model derives — do not research these
 
@@ -440,6 +442,9 @@ Copy this whole object. Replace values; keep every key.
     "debtShare": null,
     "tenorYears": null,
     "structure": null
+  },
+  "commercial": {
+    "willingnessToPayUsdPerTonneCo2": null
   },
   "capitalPhasing": {
     "enabled": null,

@@ -125,6 +125,9 @@ export const SCENARIO_TEMPLATE: CompleteScenarioJson = {
     tenorYears: null,
     structure: null,
   },
+  commercial: {
+    willingnessToPayUsdPerTonneCo2: null,
+  },
   capitalPhasing: {
     enabled: null,
     green: { weights: null },
@@ -282,6 +285,7 @@ const OPTIONAL_SUBTREES: string[][] = [
   ["green", "emissions"],
   ["fossil", "emissions"],
   ["financing"],
+  ["commercial"],
   ["capitalPhasing"],
   ["flags"],
   ["green", "buildHere"],

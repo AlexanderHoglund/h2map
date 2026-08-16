@@ -28,8 +28,20 @@ export const CORRIDOR_ENGINE_VERSION = "0.2.0";
 
 export { evaluateSide } from "./side";
 export { buildReporting } from "./reporting";
-export { buildCostBridge, costBridgeClosure, REGULATION_STATUS } from "./costBridge";
-export type { BridgeBlock, BridgeStop, CostBridge, RegulationKey } from "./costBridge";
+export {
+  buildCostBridge,
+  costBridgeClosure,
+  withFunding,
+  REGULATION_KEYS,
+} from "./costBridge";
+export type {
+  BridgeBlock,
+  BridgeGroup,
+  BridgeStop,
+  CostBridge,
+  FundingBridge,
+  RegulationKey,
+} from "./costBridge";
 export { buildTimeline } from "./timeline";
 export { discountFactor, inflationFactor } from "./rates";
 export { stepValue } from "./schedule";

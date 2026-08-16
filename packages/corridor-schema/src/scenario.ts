@@ -481,6 +481,28 @@ export interface FinancingInput {
 }
 
 /**
+ * What the cargo owner is prepared to pay toward decarbonising this
+ * corridor, expressed per tonne of CO2e ABATED rather than per tonne of
+ * cargo — that is the unit a customer green-premium commitment is actually
+ * negotiated in, and it makes the number comparable to the corridor's
+ * $/tCO2 abatement cost directly.
+ *
+ * DELIBERATELY NOT A COST LINE. It never enters `totalPvUsdM`, so it cannot
+ * move the headline gap: what the corridor costs to run does not change
+ * because a customer agreed to help pay for it. It funds the gap that is
+ * already there, and the waterfall shows it that way — the bar after the
+ * headline, with public support as whatever remains.
+ *
+ * Absent, or zero, = off. That is the default: a willingness to pay is a
+ * commercial fact about a specific negotiation, never a benchmark, so the
+ * model must not invent one.
+ */
+export interface CommercialInput {
+  /** $/tCO2e abated the cargo owner will fund. 0 = none. */
+  willingnessToPayUsdPerTonneCo2: number;
+}
+
+/**
  * Capital deployment schedule (sprint 4, task 2): CAPEX charged over the
  * first N years by explicit weights instead of landing entirely in year 1
  * at a discount factor of exactly 1.0. Weights MUST sum to 1 per side —
@@ -508,6 +530,8 @@ export interface ScenarioInput {
   regulation: RegulationInput;
   /** Green-financing effect line. Absent = off (legacy scenarios). */
   financing?: FinancingInput;
+  /** Cargo-owner willingness to pay. Absent = 0 = off. */
+  commercial?: CommercialInput;
   /** Capital deployment schedule. Absent = all CAPEX in year 1. */
   capitalPhasing?: CapitalPhasingInput;
   /** Divergence flags (D1/D6). Absent = pure Excel behaviour. */

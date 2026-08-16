@@ -127,6 +127,15 @@ describe("the published input template", () => {
     expect(row!.deprecated ?? false, `template seeds retired ${row!.id}`).toBe(false);
   });
 
+  it("carries the cargo-owner willingness to pay, and warns it is not a cost", () => {
+    // The field is new and its trap is silent: a reader who sets it and
+    // watches the headline gap NOT move will assume the model ignored them.
+    // The template has to say why up front.
+    expect(md).toContain("commercial.willingnessToPayUsdPerTonneCo2");
+    expect(md).toMatch(/per tonne CO2e \*\*abated\*\*/);
+    expect(md).toMatch(/does NOT|It does NOT/);
+  });
+
   it("carries no retired v6 field", () => {
     // The template is the thing people copy. A retired field surviving here
     // would be reproduced across every researched scenario.

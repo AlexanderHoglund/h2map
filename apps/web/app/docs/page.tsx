@@ -1183,42 +1183,65 @@ export default async function DocsPage() {
         </p>
         <H3>Cost bridges (two waterfalls)</H3>
         <p className="mt-2">
-          The MMMCZCS-style breakdown: seven bars, with{" "}
-          <strong>two stopping points</strong>. Left to right:{" "}
+          The MMMCZCS-style breakdown. Left to right:{" "}
           <strong>Total cost of green corridor*</strong>{" "}(anchored),{" "}
           <strong>Total cost of fossil corridor*</strong>{" "}(hangs from the
           green total down to the gross level),{" "}
-          <strong>Gross cost before regulation</strong>, a float for{" "}
-          <strong>regulation in force</strong>{" "}today (EU ETS, FuelEU
-          Maritime, IRA 45Z) landing on{" "}
-          <strong>Gross incremental cost</strong>{" "}— what the corridor
-          costs under the law as it stands — then a float for{" "}
-          <strong>regulation being tested</strong>{" "}(IMO Net-Zero,
-          provisional pending adoption at MEPC 85; self-designed regulation,
-          user-invented by definition; and the green financing line) closing
-          onto <strong>Incremental cost</strong>, the headline gap.
+          <strong>Gross cost before regulation</strong>, then{" "}
+          <strong>Regulations</strong>{" "}(every instrument in one bar) and{" "}
+          <strong>Optimized financing</strong>{" "}(the green-debt interest
+          line, which is not a policy and so never sits inside regulation),
+          landing on <strong>Incremental cost</strong>{" "}— the headline
+          gap.
         </p>
         <p className="mt-2">
-          Regulation is <strong>grouped, not itemised</strong>{" "}in the bars:
-          six instruments would draw six slivers and answer a question nobody
-          asked. Hovering a regulation bar breaks out every instrument inside
-          it — <strong>including the ones that do not apply</strong>,
-          shown as &ldquo;not applicable&rdquo; rather than omitted. That
-          distinction matters: a corridor touching no EEA port genuinely
-          escapes ETS and FuelEU, and a missing row would read as
-          &ldquo;nobody modelled this&rdquo; instead of &ldquo;this scheme
-          does not reach here&rdquo;. The decomposition table below carries
-          the same instruments as exact numbers.
+          Regulation is <strong>grouped, not itemised</strong>: five
+          instruments would draw five slivers and answer a question nobody
+          asked. Hovering the bar breaks out every instrument inside it —{" "}
+          <strong>including the ones that do not apply</strong>, shown as
+          &ldquo;not applicable&rdquo; rather than omitted. That distinction
+          matters: a corridor touching no EEA port genuinely escapes ETS and
+          FuelEU, and a missing row would read as &ldquo;nobody modelled
+          this&rdquo; instead of &ldquo;this scheme does not reach here&rdquo;.
+          The decomposition table below carries the same instruments as exact
+          numbers. A float that <strong>widens</strong>{" "}the gap is coloured
+          differently from one that closes it, on the CVD-safe diverging pair.
+        </p>
+        <H3>Who pays: the funding split</H3>
+        <p className="mt-2">
+          Set a{" "}<strong>cargo-owner willingness to pay</strong>{" "}(Financing
+          tab, $/tCO2e abated, default 0) and the waterfall continues past the
+          incremental cost into two more bars:{" "}
+          <strong>Cargo owner green premium</strong>{" "}and{" "}
+          <strong>Public funding</strong>. This is the MMMCZCS figure&apos;s
+          right-hand block, and it answers a different question from
+          everything left of it.
         </p>
         <p className="mt-2">
-          Two further details. The{" "}
-          <strong>Gross incremental</strong>{" "}bar is drawn even when it
-          equals the bar before it — on the Chilean default no in-force
-          scheme applies, and that equality is the finding rather than a gap
-          in the chart. And a float that{" "}<strong>widens</strong>{" "}the gap
-          is coloured differently from one that closes it, on the CVD-safe
-          diverging pair; previously direction lived only in the
-          label&apos;s minus sign.
+          <strong>It is an allocation, not a cost — and the distinction is
+          load-bearing.</strong>{" "}The willingness to pay never enters the
+          corridor&apos;s present value, so the headline gap does not move when
+          you set it: a customer agreeing to pay does not make the corridor
+          cheaper to run. A model that reported a smaller gap because somebody
+          volunteered money would be conflating what a corridor{" "}
+          <em>costs</em>{" "}with how it is <em>funded</em>. Priced per tonne
+          abated rather than per tonne of cargo, so it scales with what the
+          corridor actually delivers — a commitment to fund
+          decarbonisation, not freight.
+        </p>
+        <p className="mt-2">
+          <strong>Public funding is the residual</strong>{" "}— the
+          incremental cost less the cargo-owner share — and is never
+          entered directly. That is what makes the bar honest: it always
+          balances, and it answers &ldquo;how large is the funding
+          gap?&rdquo; rather than asserting an answer. If the willingness to
+          pay exceeds the incremental cost the residual goes{" "}
+          <strong>negative</strong>, and it is reported that way rather than
+          clamped at zero: an over-funded corridor pays for itself
+          commercially, which is a result worth seeing, not a floor to hide
+          behind. Default 0 means the split is absent entirely — a
+          willingness to pay is a fact about one negotiation, never a
+          benchmark the model can supply.
         </p>
         <p className="mt-2">
           The block arithmetic lives in the engine (<code>buildCostBridge</code>),

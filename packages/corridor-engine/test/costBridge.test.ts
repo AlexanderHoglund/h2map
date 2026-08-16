@@ -32,7 +32,8 @@ import { evaluateScenario } from "../src/index";
 import {
   buildCostBridge,
   costBridgeClosure,
-  REGULATION_STATUS,
+  withFunding,
+  REGULATION_KEYS,
 } from "../src/costBridge";
 import {
   benchmarkChileScenario,
@@ -86,12 +87,9 @@ describe("the cost bridge closes", () => {
     );
   });
 
-  it.each(SCENARIOS)("%s: the net stop IS the headline gap", (_name, make) => {
+  it.each(SCENARIOS)("%s: the bridge lands ON the headline gap", (_name, make) => {
     const r = run(make());
-    expect(buildCostBridge(r).stops.netIncrementalUsdM).toBeCloseTo(
-      r.summary.gapPvUsdM,
-      6,
-    );
+    expect(buildCostBridge(r).incrementalUsdM).toBeCloseTo(r.summary.gapPvUsdM, 6);
   });
 
   it("the residual really is rounding, not a missing block", () => {
@@ -114,48 +112,87 @@ describe("the cost bridge closes", () => {
     const financing = bridge.blocks.find((b) => b.key === "financing");
     expect(financing, "expected a financing block to exist here").toBeDefined();
     expect(financing!.deltaUsdM).not.toBe(0);
-    const withoutIt = bridge.stops.netIncrementalUsdM - financing!.deltaUsdM;
+    const withoutIt = bridge.incrementalUsdM - financing!.deltaUsdM;
     expect(withoutIt).not.toBe(r.summary.gapPvUsdM);
   });
 });
 
-describe("the three stopping points", () => {
-  it("gross incremental carries ONLY in-force regulation", () => {
-    // The distinction that makes stop 1 meaningful: a corridor priced under
-    // the law as it stands, with nothing provisional folded in.
-    const r = run(withEuSchemes());
-    const b = buildCostBridge(r);
-    const inForce = b.blocks
-      .filter((x) => x.key !== "financing" && REGULATION_STATUS[x.key] === "inForce")
-      .reduce((acc, x) => acc + x.deltaUsdM, 0);
-    expect(b.stops.grossIncrementalUsdM).toBeCloseTo(b.grossUsdM + inForce, 9);
+describe("regulation is ONE bar", () => {
+  it("draws exactly two bars: regulation, then financing", () => {
+    // An earlier revision split regulation by in-force vs still-provisional.
+    // Real distinction, wrong chart: readers want one answer to "what does
+    // regulation do here", and two thin bars obscured it.
+    for (const [name, make] of SCENARIOS) {
+      expect(buildCostBridge(run(make())).groups.map((g) => g.key), name).toEqual([
+        "regulation",
+        "financing",
+      ]);
+    }
   });
 
-  it("the two stops differ once an in-force scheme bites", () => {
-    // Guards against the split being real only on paper. The Chilean default
-    // touches no EEA port, so ETS/FuelEU are inert and stop 1 collapses onto
-    // the gross bar; forcing them on must separate the two.
-    const b = buildCostBridge(run(withEuSchemes()));
-    expect(b.stops.grossIncrementalUsdM).not.toBe(b.grossUsdM);
-    expect(b.stops.grossIncrementalUsdM).toBeLessThan(b.grossUsdM);
+  it("puts every instrument in the regulation bar, financing on its own", () => {
+    // Financing is an interest saving actually paid, not a policy. Folding
+    // it into regulation is what the old renderer had to undo by hand.
+    const b = buildCostBridge(run(modernChileScenario()));
+    const [reg, fin] = b.groups;
+    expect(reg!.parts.map((p) => p.key)).toEqual([...REGULATION_KEYS]);
+    expect(fin!.parts.map((p) => p.key)).toEqual(["financing"]);
   });
 
-  it("stop 1 equals the gross bar when no in-force scheme applies", () => {
-    // The honest converse, and the reason the chart can look a bar short on
-    // the shipped default. Documented rather than hidden.
-    const b = buildCostBridge(run(defaultScenario()));
-    expect(b.stops.grossIncrementalUsdM).toBe(b.grossUsdM);
+  it("the regulation bar equals the sum of its instruments", () => {
+    for (const [name, make] of SCENARIOS) {
+      for (const g of buildCostBridge(run(make())).groups) {
+        const sum = g.parts.reduce((acc, p) => acc + p.deltaUsdM, 0);
+        expect(g.deltaUsdM, `${name}/${g.key}`).toBeCloseTo(sum, 9);
+      }
+    }
+  });
+});
+
+describe("the funding split", () => {
+  const withWtp = (wtp: number) => {
+    const r = run(defaultScenario());
+    return { r, b: withFunding(buildCostBridge(r), r, wtp) };
+  };
+
+  it("is ABSENT by default — the model must not invent a willingness to pay", () => {
+    const r = run(defaultScenario());
+    expect(withFunding(buildCostBridge(r), r, undefined).funding).toBeUndefined();
+    expect(withFunding(buildCostBridge(r), r, 0).funding).toBeUndefined();
   });
 
-  it("classifies IMO Net-Zero as tested, not in force", () => {
-    // It is provisional pending adoption (MEPC 85, Oct 2026) per the bundle's
-    // own sourceNote. If it is ever adopted, this line moves — and this test
-    // is where someone will notice they must also update the docs.
-    expect(REGULATION_STATUS.imoNetZero).toBe("tested");
-    expect(REGULATION_STATUS.selfDesigned).toBe("tested");
-    expect(REGULATION_STATUS.ets).toBe("inForce");
-    expect(REGULATION_STATUS.fuelEu).toBe("inForce");
-    expect(REGULATION_STATUS.ira45z).toBe("inForce");
+  it("prices the cargo owner's share per tonne ABATED", () => {
+    const { r, b } = withWtp(100);
+    expect(b.funding!.cargoOwnerUsdM).toBeCloseTo(
+      (100 * r.summary.co2AbatedTonnes) / 1e6,
+      9,
+    );
+  });
+
+  it("public support is the RESIDUAL, so the split always balances", () => {
+    const { b } = withWtp(250);
+    const f = b.funding!;
+    expect(f.cargoOwnerUsdM + f.publicSupportUsdM).toBeCloseTo(
+      f.incrementalUsdM,
+      9,
+    );
+  });
+
+  it("does NOT move the headline gap", () => {
+    // The load-bearing economic claim. A customer agreeing to pay does not
+    // make the corridor cheaper to run; it funds a cost that already exists.
+    const r = run(defaultScenario());
+    const before = buildCostBridge(r).incrementalUsdM;
+    expect(withFunding(buildCostBridge(r), r, 5000).incrementalUsdM).toBe(before);
+    expect(r.summary.gapPvUsdM).toBeCloseTo(before, 6);
+  });
+
+  it("reports over-funding rather than clamping it at zero", () => {
+    // A cargo owner willing to cover more than the gap is a real result —
+    // the corridor pays for itself — and hiding it behind a floor would
+    // turn an interesting finding into a silent no-op.
+    const { b } = withWtp(9_000);
+    expect(b.funding!.publicSupportUsdM).toBeLessThan(0);
   });
 });
 
@@ -175,39 +212,13 @@ describe("block hygiene", () => {
     expect(b.blocks.some((x) => x.deltaUsdM === 0)).toBe(true);
   });
 
-  it("groups the instruments into one bar per stop", () => {
-    // The chart draws groups, not instruments: six near-invisible slivers
-    // answer a question nobody asked. The parts stay attached for the
-    // tooltip and the decomposition table.
-    for (const [name, make] of SCENARIOS) {
-      const b = buildCostBridge(run(make()));
-      expect(b.groups.map((g) => g.key), name).toEqual([
-        "grossIncremental",
-        "netIncremental",
-      ]);
-      for (const g of b.groups) {
-        const sum = g.parts.reduce((acc, p) => acc + p.deltaUsdM, 0);
-        expect(g.deltaUsdM, `${name}/${g.key}`).toBeCloseTo(sum, 9);
-      }
-      // Every block belongs to exactly one group — none orphaned, none double-counted.
-      expect(b.groups.flatMap((g) => g.parts).length, name).toBe(b.blocks.length);
-    }
-  });
-
-  it("groups reach the same stops as the blocks", () => {
+  it("the groups walk the gross bar to the headline", () => {
     // The grouping must be a pure re-presentation: if it drifted from the
     // per-instrument sum, the chart and the table would disagree on screen.
     for (const [name, make] of SCENARIOS) {
       const b = buildCostBridge(run(make()));
-      const [inForce, tested] = b.groups;
-      expect(b.grossUsdM + inForce!.deltaUsdM, name).toBeCloseTo(
-        b.stops.grossIncrementalUsdM,
-        9,
-      );
-      expect(
-        b.stops.grossIncrementalUsdM + tested!.deltaUsdM,
-        name,
-      ).toBeCloseTo(b.stops.netIncrementalUsdM, 9);
+      const walked = b.groups.reduce((acc, g) => acc + g.deltaUsdM, b.grossUsdM);
+      expect(walked, name).toBeCloseTo(b.incrementalUsdM, 9);
     }
   });
 

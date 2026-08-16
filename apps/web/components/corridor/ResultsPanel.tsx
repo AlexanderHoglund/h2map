@@ -19,7 +19,7 @@ import type {
   ScenarioInput,
   ScenarioResult,
 } from "@h2map/corridor-schema";
-import { buildCostBridge } from "@h2map/corridor-engine";
+import { buildCostBridge, withFunding } from "@h2map/corridor-engine";
 import { formatSig } from "@h2map/units";
 import { DEFAULT_BUNDLE } from "./state";
 
@@ -63,7 +63,14 @@ export default function ResultsPanel({
     // regulation in force today) and NET INCREMENTAL (adding instruments
     // still being tested). The third, value-chain allocation, is not drawn:
     // those quantities do not exist in the engine yet.
-    const bridge = buildCostBridge(result);
+    // The funding split rides on top: it allocates the headline gap rather
+    // than composing it, so it needs the SCENARIO (willingness to pay is an
+    // input) and must never feed back into the cost bars.
+    const bridge = withFunding(
+      buildCostBridge(result),
+      result,
+      scenario.commercial?.willingnessToPayUsdPerTonneCo2,
+    );
 
     const anchored = (v: number) => ({ base: Math.min(0, v), span: Math.abs(v) });
     /** A float spanning two running levels; sign lives in fill AND label. */
@@ -130,8 +137,6 @@ export default function ResultsPanel({
         },
         { bars: [], level: bridge.grossUsdM },
       );
-      const inForce = { bars: [regBars.bars[0]!], level: bridge.stops.grossIncrementalUsdM };
-      const tested = { bars: [regBars.bars[1]!], level: bridge.stops.netIncrementalUsdM };
 
       return [
         {
@@ -151,15 +156,26 @@ export default function ResultsPanel({
           exitLevel: bridge.grossUsdM * scale,
         },
         anchor("wfGross", bridge.grossUsdM),
-        ...inForce.bars,
-        // STOP 1 - the corridor under the law as it stands. Always drawn,
-        // even when it equals the bar before it: that equality is itself the
-        // finding (no in-force scheme reaches this corridor), and a missing
-        // bar would just look like the chart forgot.
-        anchor("wfGrossIncremental", bridge.stops.grossIncrementalUsdM),
-        ...tested.bars,
-        // STOP 2 - the headline gap.
-        anchor("wfIncremental", bridge.stops.netIncrementalUsdM),
+        // Regulation as ONE bar, then financing as its own.
+        ...regBars.bars,
+        anchor("wfIncremental", bridge.incrementalUsdM),
+        // THE FUNDING SPLIT — who pays the cost above, drawn only when a
+        // willingness to pay is set. These do NOT reduce the incremental
+        // cost: they allocate it. Public support is the residual.
+        ...(bridge.funding
+          ? [
+              float(
+                bridge.funding.incrementalUsdM,
+                bridge.funding.publicSupportUsdM,
+                scale,
+                fmt,
+              ),
+              anchor("wfPublicSupport", bridge.funding.publicSupportUsdM),
+            ].map((b, i) => ({
+              ...b,
+              key: i === 0 ? "wfCargoOwner" : "wfPublicSupport",
+            }))
+          : []),
       ].map((s2) => ({ ...s2, label: t(s2.key) }));
     };
 
@@ -172,7 +188,7 @@ export default function ResultsPanel({
       perTonne:
         abated > 0 ? mk(1e6 / abated, (n) => fmtUsd(n)) : [],
     };
-  }, [result, t]);
+  }, [result, scenario.commercial?.willingnessToPayUsdPerTonneCo2, t]);
 
   // Per-year rows: each side's annual cost SPLIT BY NATURE (CAPEX / operating
   // / regulation) so the annual chart can separate the one-off year-1 capital

@@ -219,6 +219,9 @@ const MAXIMAL: DeepRequired<ScenarioInput> = {
     tenorYears: 12,
     structure: "bullet",
   },
+  commercial: {
+    willingnessToPayUsdPerTonneCo2: 120,
+  },
   capitalPhasing: {
     enabled: true,
     green: { weights: [0.3, 0.4, 0.3] },

@@ -1238,6 +1238,33 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
             )}
           </>
         )}
+        {/* Cargo-owner willingness to pay. NOT a cost line: it never enters
+            the corridor's PV, so it cannot move the headline gap — a
+            customer agreeing to pay does not make the corridor cheaper to
+            run. It splits the gap that is already there into a customer
+            share and the public support that remains, which is what the
+            waterfall's last two bars show. Default 0 = off, because a
+            willingness to pay is a fact about one negotiation, never a
+            benchmark the model can supply. */}
+        <div className="sm:col-span-2 border-t border-neutral-200 pt-3">
+          <NumberInput
+            label={t("wtp")}
+            unit="$/tCO2e"
+            step={10}
+            help={t("wtpHelp")}
+            value={scenario.commercial?.willingnessToPayUsdPerTonneCo2 ?? 0}
+            onChange={(v) =>
+              update((d) => {
+                const next = Math.max(0, Math.min(10_000, v));
+                if (d.commercial) {
+                  d.commercial.willingnessToPayUsdPerTonneCo2 = next;
+                } else if (next > 0) {
+                  d.commercial = { willingnessToPayUsdPerTonneCo2: next };
+                }
+              })
+            }
+          />
+        </div>
         {/* Sprint 4 — capital deployment schedule: CAPEX over the first N
             years by explicit shares. Sum-to-1 is enforced by validation —
             the amber line below mirrors it live, nothing is normalised. */}
