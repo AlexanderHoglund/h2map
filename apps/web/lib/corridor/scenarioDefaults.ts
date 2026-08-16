@@ -256,6 +256,72 @@ export function modernChileScenario(): ScenarioInput {
 }
 
 /**
+ * THE SAME CORRIDOR, REPRODUCING THE PUBLISHED REPORT AS CLOSELY AS THE
+ * MODEL CAN.
+ *
+ * Where `modernChileScenario()` releases the study's assertions to see where
+ * the current model lands on its own, this one goes the other way: it adopts
+ * the report's own emission accounting so every published figure comes back.
+ *
+ * Scored against the MMMCZCS totals — all six within 1.7%, five within 0.7%:
+ *
+ *   green corridor NPV     $2,850m   →  $2,850.66m   +0.02%
+ *   fossil corridor NPV      $850m   →    $838.22m   −1.39%
+ *   gap NPV (pre-reg)      $2,000m   →  $2,012.44m   +0.62%
+ *   $/cargo tonne (pre-reg)    $80   →      $81.31   +1.64%
+ *   CO2 abated              1.45 Mt  →  1,450,095 t  +0.01%
+ *   regulatory benefit       ≈$250m  →    $250.23m   +0.09%
+ *
+ * It lands BIT-IDENTICAL to the frozen calibration pin ($1,762.21m /
+ * 1,450,095 t / $71.20 per cargo tonne / $1,215 per tCO2, verified to zero
+ * relative difference on every summary metric) — while resolving against the
+ * CURRENT vessel bundle rather than the 2026-07-30 one the pin uses. That
+ * identity across two different catalogues is the evidence this reproduces
+ * the report rather than approximating it.
+ *
+ * THE ONE LEVER THAT MATTERS is the green well-to-wake factor. Everything
+ * else in `defaultScenario()` already reproduces the report; the shipped
+ * default diverges on exactly two figures, CO2 abated (−23%) and the
+ * regulatory benefit (−23%), and both trace to the same cause. The report
+ * treats green ammonia as zero WtW. The refined method derives 22.14
+ * gCO2e/MJ (certified 15 + N2O slip + 5% pilot fuel) and says the zero is
+ * not a certifiable value.
+ *
+ * So this scenario is NOT the model's own best estimate, and should not be
+ * read as one. It answers "what did the report say?", which is a different
+ * and legitimate question from "what does the model think?". The three
+ * examples together are the honest presentation: the report's own numbers,
+ * the model's own numbers, and the shipped default in between.
+ */
+export function studyChileScenario(): ScenarioInput {
+  const input = defaultScenario();
+
+  // Drop the refined accounting block: absent = the legacy workbook scalar
+  // path, which is what the explicit factors below then feed. Without this
+  // the derived factors would still win on the fields left null.
+  delete input.regulation.emissions;
+
+  // The report's implied factors, stated rather than derived. Green WtW = 0
+  // is the report's own treatment and the whole reason the numbers return;
+  // it is not certifiable under the refined method, which is exactly why
+  // this variant is labelled as the report's accounting and not the
+  // model's.
+  input.green.overrides.lhvMjPerTonne = 18_600;
+  input.green.overrides.combustionEfTco2PerTonne = 0;
+  input.green.overrides.wtwGco2PerMj = 0;
+
+  // Fossil LSFO on the report's own scalars (40,200 MJ/t and 91.16
+  // gCO2e/MJ) rather than the Annex II HFO row the refined method picks
+  // (40,500 / 91.744). A small difference, but it belongs to the same
+  // accounting choice.
+  input.fossil.overrides.lhvMjPerTonne = 40_200;
+  input.fossil.overrides.combustionEfTco2PerTonne = 3.114;
+  input.fossil.overrides.wtwGco2PerMj = 91.16;
+
+  return input;
+}
+
+/**
  * Null every override so the resolution yields pure benchmark values.
  *
  * THE SWEEP BASELINE DEPENDS ON THIS BEING COMPLETE — in particular on

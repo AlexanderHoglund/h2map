@@ -315,13 +315,14 @@ export default async function DocsPage() {
         <p className="mt-2">
           <strong>Projects first.</strong>{" "}The platform always opens on the
           Projects tab; the input tabs unlock once a project is selected or
-          created. Every account starts with three projects, created once and
-          never re-created: the{" "}
+          created. Every account starts with four projects: the{" "}
           <em>Example — Chilean copper corridor</em>{" "}(the published reference
-          case, a Standard project, created once — deleted, it stays gone);{" "}
-          <em>Chilean copper corridor — current model</em>{" "}(the same corridor
-          with the study&apos;s asserted burns and fleet costs released, so the
-          model derives them — see §21);
+          case, a Standard project, created once — deleted, it stays gone);
+          two further Standard views of that same corridor —{" "}
+          <em>Chilean copper corridor — as published</em>{" "}(the report&apos;s
+          own emission accounting, reproducing all six published figures) and{" "}
+          <em>Chilean copper corridor — current model</em>{" "}(the study&apos;s
+          asserted burns and fleet costs released, so the model derives them);
           and{" "}
           <em>Simple corridor (template)</em>{" "}(a blank purchase-sourced
           Simplified template — generic route, benchmark costs, every scheme
@@ -2067,47 +2068,77 @@ export default async function DocsPage() {
           row). The pre-regulation figures are factor-independent and
           unchanged.
         </p>
-        <H3>The same corridor, run on the current model</H3>
+        <H3>The same corridor, three ways</H3>
         <p className="mt-2">
-          The calibration above reproduces the study by{" "}
+          The corridor is seeded three times, because &ldquo;what did the
+          report say?&rdquo; and &ldquo;what does the model think?&rdquo; are
+          different questions with different answers, and showing only one of
+          them would be a choice disguised as a fact.
+        </p>
+        <p className="mt-2">
+          <em>Chilean copper corridor — as published</em>{" "}adopts the
+          report&apos;s own emission accounting and brings every published
+          figure back, all six within 1.7%. It lands bit-identical to the
+          frozen calibration pin ($1,762.21m / 1,450,095 t / $1,215 per tCO2)
+          while resolving against the <em>current</em>{" "}vessel catalogue
+          rather than the 2026-07-30 one the pin uses — the same answers out
+          of two different reference datasets, which is what distinguishes a
+          reproduction from a coincidence.
+        </p>
+        <p className="mt-2">
+          <em>Chilean copper corridor — current model</em>{" "}goes the other
+          way. The shipped default reproduces the study by{" "}
           <em>asserting its answers</em>: the fuel burns, the fossil fleet cost
           and a $280/t regulatory proxy are all typed in. That is how you prove
           an engine can hit a published total, but it also means almost nothing
           downstream can move — the researched vessel catalogue, the derived
           consumption chain and the structured IMO module are all bypassed. So
-          a second seeded project,{" "}
-          <em>Chilean copper corridor — current model</em>, runs the same
-          corridor with those overrides released. Consumption derives from the
+          this variant releases those overrides. Consumption derives from the
           researched Handymax (2.334 GJ/nm) and the corridor&apos;s own
           geometry; the fossil counterfactual is priced from the catalogue as a
           newbuild fleet; regulation comes from the draft-MEPC-83 ladder
           instead of a fitted flat price; and green financing appears as its
           own line, where the study&apos;s waterfall puts it.
         </p>
+        <p className="mt-2">
+          <strong>What actually separates them is one number.</strong>{" "}Every
+          cost input is shared, and the shipped default already reproduces the
+          report on green NPV, fossil NPV, the gap and cost per cargo tonne. It
+          diverges on exactly two figures — CO2 abated (−23%) and the
+          regulatory benefit (−23%) — and both trace to the green well-to-wake
+          factor: the report treats green ammonia as zero, the refined method
+          derives 22.14 gCO2e/MJ (certified 15 + N2O slip + 5% pilot fuel) and
+          holds that a zero is not a certifiable value. The as-published
+          variant is therefore the report&apos;s accounting, not the
+          model&apos;s best estimate, and should not be read as one.
+        </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
             <thead>
               <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
-                <th className="px-3 py-2 font-medium">Metric (pre-regulation)</th>
-                <th className="px-3 py-2 text-right font-medium">Study</th>
-                <th className="px-3 py-2 text-right font-medium">Asserted</th>
-                <th className="px-3 py-2 text-right font-medium">Derived</th>
+                <th className="px-3 py-2 font-medium">Metric</th>
+                <th className="px-3 py-2 text-right font-medium">Report</th>
+                <th className="px-3 py-2 text-right font-medium">As published</th>
+                <th className="px-3 py-2 text-right font-medium">Default</th>
+                <th className="px-3 py-2 text-right font-medium">Current model</th>
               </tr>
             </thead>
             <tbody>
               {(
                 [
-                  ["Green corridor NPV", "$2,850m", "+0.02%", "+0.02%"],
-                  ["Fossil corridor NPV", "$850m", "−1.4%", "+2.6%"],
-                  ["Gap NPV", "$2,000m", "+0.6%", "−1.1%"],
-                  ["Incremental cost per cargo tonne", "$80/t", "+1.6%", "−0.06%"],
-                  ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "−23%", "−4.2%"],
+                  ["Green corridor NPV", "$2,850m", "+0.02%", "+0.02%", "+0.02%"],
+                  ["Fossil corridor NPV", "$850m", "−1.4%", "−1.4%", "+2.6%"],
+                  ["Gap NPV (pre-regulation)", "$2,000m", "+0.6%", "+0.6%", "−1.1%"],
+                  ["Cost per cargo tonne (pre-reg.)", "$80/t", "+1.6%", "+1.6%", "−0.06%"],
+                  ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "+0.01%", "−23%", "−4.2%"],
+                  ["Regulatory benefit", "≈$250m", "+0.09%", "−23%", "n/a"],
                 ] as const
-              ).map(([metric, study, asserted, derived]) => (
+              ).map(([metric, report, published, dflt, derived]) => (
                 <tr key={metric} className="border-b border-neutral-200 last:border-0">
                   <td className="px-3 py-1.5">{metric}</td>
-                  <td className="px-3 py-1.5 text-right">{study}</td>
-                  <td className="px-3 py-1.5 text-right">{asserted}</td>
+                  <td className="px-3 py-1.5 text-right">{report}</td>
+                  <td className="px-3 py-1.5 text-right font-medium">{published}</td>
+                  <td className="px-3 py-1.5 text-right">{dflt}</td>
                   <td className="px-3 py-1.5 text-right font-medium">{derived}</td>
                 </tr>
               ))}

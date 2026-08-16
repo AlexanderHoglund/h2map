@@ -416,7 +416,7 @@
     "projects": {
       "tab": "Projects",
       "heading": "Projects",
-      "intro": "Select a project to work on - or create a new one. The input tabs unlock once a project is open. You start with two Chilean examples - the published study and the same corridor on the current model - plus an empty Simplified starter.",
+      "intro": "Select a project to work on - or create a new one. The input tabs unlock once a project is open. You start with three views of the same Chilean corridor - the shipped default, the report's own accounting, and the current model - plus an empty Simplified starter.",
       "saveCurrent": "Save changes",
       "saveDraft": "Save as project",
       "newProject": "New project",

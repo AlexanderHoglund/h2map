@@ -10,21 +10,29 @@ import {
   defaultScenario,
   emptyScenario,
   modernChileScenario,
+  studyChileScenario,
 } from "@/lib/corridor/scenarioDefaults";
 
 /**
  * Starter-project seeding (projects-first UX, 2026-08-11; template rework
- * 2026-08-13; second Chilean example 2026-08-16): every user gets TWO
- * STANDARD Chilean examples (once per user, ever — deleted, they never
- * come back) plus the SIMPLIFIED template "Simple corridor (template)",
- * which is ENSURED BY NAME on every seed call — existing users gain it on
- * their next visit, and deleting it just brings the template back (it is a
- * template, not a document).
+ * 2026-08-13; further Chilean examples 2026-08-16): every user gets THREE
+ * STANDARD Chilean examples plus the SIMPLIFIED template "Simple corridor
+ * (template)".
  *
- * The two examples are the same published corridor under different
- * treatments: one reproduces the MMMCZCS study by asserting its published
- * burns and fleet costs, the other releases those overrides and lets the
- * current model derive them.
+ * The three examples are the SAME published corridor under three
+ * treatments, and reading them side by side is the point:
+ *
+ *   "Example — …"              the shipped default: the study's asserted
+ *                              burns and fleet costs, but the refined
+ *                              emission method
+ *   "… — as published"         the report's own accounting, reproducing
+ *                              all six published figures within 1.7%
+ *   "… — current model"        the overrides released, so the model
+ *                              derives what it can and is then scored
+ *
+ * Neither outer variant is "the right answer": one says what the report
+ * said, the other what the model thinks, and they differ mainly on whether
+ * green ammonia is zero-emission well-to-wake.
  *
  * They are gated DIFFERENTLY, and the reason matters. The original example
  * rides the once-ever stamp. The second was added later, by which point
@@ -59,6 +67,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   const SIMPLE_TEMPLATE_NAME = "Simple corridor (template)";
   const MODERN_EXAMPLE_NAME = "Chilean copper corridor — current model";
+  const STUDY_EXAMPLE_NAME = "Chilean copper corridor — as published";
   const created: unknown[] = [];
 
   const service = getServerSupabase();
@@ -149,6 +158,21 @@ export async function POST(request: NextRequest): Promise<Response> {
   );
   if (modern.error) {
     console.error("[api/corridor/scenarios/seed]", modern.error);
+    return jsonError(500, "db_error", "Could not create the starter projects");
+  }
+
+  // The same corridor again, on the REPORT's own emission accounting, so
+  // every published figure comes back (all six within 1.7%). It answers
+  // "what did the report say?" rather than "what does the model think?" —
+  // a different question, and the pair of examples is the honest way to
+  // show that the answers differ and why.
+  const study = await ensureByName(
+    STUDY_EXAMPLE_NAME,
+    studyChileScenario(),
+    "standard",
+  );
+  if (study.error) {
+    console.error("[api/corridor/scenarios/seed]", study.error);
     return jsonError(500, "db_error", "Could not create the starter projects");
   }
 
