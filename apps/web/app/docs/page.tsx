@@ -771,6 +771,18 @@ export default async function DocsPage() {
               "Multiplies fuel burn: consumption is 2 × corridor length × roundtrips × GJ/nm ÷ the fuel's energy density.",
             ],
             [
+              "Service speed",
+              "kn",
+              "the vessel type's own (optional)",
+              "Corrects the vessel's energy for sailing faster or slower than its DESIGN speed, at the SQUARE of the ratio — GJ per day scales with v³, but nm/day scales with v, so GJ per nm scales with v². Leave unset unless speed is a choice you are modelling: several catalogue rows take their energy from a published study, and that figure is already the burn at that study's speeds, so correcting it again double-counts.",
+            ],
+            [
+              "Port days per round trip",
+              "days",
+              "none (optional)",
+              "Fuel burned alongside at zero miles, from the vessel's port and cargo-system day rates. A distance-only formula cannot express this at all, and it is not always small — GMF's cycle is 24 laden + 7 port + 22 ballast days. Every day rate behind it is a sector ESTIMATE, so the Results panel reports the share of round-trip energy it accounts for and warns past ~10%.",
+            ],
+            [
               "Green vessel CAPEX",
               "$m",
               "derived: type CAPEX × (1 + fuel premium)",
@@ -1094,7 +1106,22 @@ export default async function DocsPage() {
             the single series is the combustion one. The selector renders on
             the Intro tab, Standard view.
           </li>
-
+          <li>
+            <strong>Fossil fleet basis</strong>{" "}— what the fossil
+            counterfactual IS. The reference convention benchmarks fossil
+            vessel CAPEX to <em>zero</em>: the ships are already afloat, so
+            the comparison charges the green corridor for newbuilds and the
+            fossil one for nothing. That is right for{" "}
+            <em>&ldquo;what does switching cost?&rdquo;</em>{" "}and wrong for{" "}
+            <em>&ldquo;what does this trade lane cost, either way?&rdquo;</em>{" "}
+            — a greenfield corridor buys conventional tonnage too. Setting it
+            to <strong>newbuild</strong>{" "}derives fossil vessel CAPEX from
+            the vessel type, with no green-fuel readiness premium (a
+            conventional ship does not pay one). Port and logistics rules stay
+            on the existing-infrastructure basis under both settings: needing
+            new ships is a different claim from needing new terminals.
+            Absent = <strong>existing</strong>, the reference behaviour.
+          </li>
         </ul>
 
         <H id="tab-results">10. Tab 08 — Results</H>

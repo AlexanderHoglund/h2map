@@ -90,6 +90,22 @@
    "placement": "top-level"
   },
   {
+   "path": "cargo.serviceSpeedKn",
+   "type": "number",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "cargo.portDaysPerRoundTrip",
+   "type": "number",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
    "path": "cargo.waccOverride",
    "type": "number, null",
    "required": true,
@@ -980,6 +996,14 @@
   {
    "path": "flags.migratedVesselBenchmarkBurn",
    "type": "boolean",
+   "required": false,
+   "rank": null,
+   "movementPct": null,
+   "placement": "—"
+  },
+  {
+   "path": "flags.fossilFleetBasis",
+   "type": "\"existing\", \"newbuild\"",
    "required": false,
    "rank": null,
    "movementPct": null,

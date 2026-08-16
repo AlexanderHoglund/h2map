@@ -47,7 +47,7 @@ export function workbookScenario(): ScenarioInput {
  * carry: resolution rejects a mismatch outright rather than silently
  * re-pricing them against newer reference data.
  */
-const LIVE_BUNDLE_ID = "2026-08-16-vessel-v2";
+const LIVE_BUNDLE_ID = "2026-08-17-vessel-v3";
 
 export function defaultScenario(): ScenarioInput {
   const input = workbookScenario();

@@ -2,7 +2,7 @@
 
 # Corridor scenario — JSON input template
 
-Schema version **7** · reference bundle `2026-08-16-vessel-v2`
+Schema version **7** · reference bundle `2026-08-17-vessel-v3`
 
 This is the contract for writing a scenario file by hand, for desk
 research or AI-assisted data entry. A file that follows it loads without
@@ -54,7 +54,7 @@ Rule 5 is about that, and it is the one to be careful of.
 
 | Field | Allowed values |
 |---|---|
-| `vessel.typeId` | `bulk-handysize-35k`, `bulk-handymax-58k`, `bulk-ultramax-64k`, `bulk-panamax-76k`, `bulk-kamsarmax-82k`, `bulk-postpanamax-93k`, `bulk-capesize-180k`, `bulk-newcastlemax-210k`, `bulk-vloc-325k`, `tank-small-15k`, `tank-mr1-40k`, `tank-mr2-50k`, `tank-lr1-75k`, `tank-lr2-115k`, `tank-suezmax-160k`, `tank-vlcc-300k`, `chem-imo2-12k`, `chem-imo2-25k`, `chem-imo2-40k`, `cont-feeder-1800`, `cont-handy-2800`, `cont-subpanamax-5000`, `cont-panamax-6400`, `cont-8000`, `cont-neopanamax-13640`, `cont-ulcv-18000`, `cont-ulcv-24000`, `gas-lng-174k`, `gas-vlgc-84k`, `pctc-7000ceu`, `roro-cargo-12k`, `ropax-8k`, `genc-12k`, `genc-25k`, `tanker-35k`, `tanker-80k`, `bulk-60k`, `container-5k`, `container-15k`, `roro-ferry`, `handymax-bulk-58k` |
+| `vessel.typeId` | `bulk-handysize-35k`, `bulk-handymax-58k`, `bulk-ultramax-64k`, `bulk-panamax-76k`, `bulk-kamsarmax-82k`, `bulk-postpanamax-93k`, `bulk-capesize-180k`, `bulk-newcastlemax-210k`, `bulk-vloc-325k`, `tank-small-15k`, `tank-mr1-40k`, `tank-mr2-50k`, `tank-lr1-75k`, `tank-lr2-115k`, `tank-suezmax-160k`, `tank-vlcc-300k`, `chem-imo2-12k`, `chem-imo2-25k`, `chem-imo2-40k`, `cont-feeder-1800`, `cont-handy-2800`, `cont-subpanamax-5000`, `cont-panamax-6400`, `cont-8000`, `cont-neopanamax-13640`, `cont-ulcv-18000`, `cont-ulcv-24000`, `gas-lng-174k`, `gas-vlgc-84k`, `vlac-93k`, `pctc-7000ceu`, `roro-cargo-12k`, `ropax-8k`, `genc-12k`, `genc-25k`, `tanker-35k`, `tanker-80k`, `bulk-60k`, `container-5k`, `container-15k`, `roro-ferry`, `handymax-bulk-58k` |
 | `green.fuelId`, `fossil.fuelId` | `lsfo`, `lng`, `e-ammonia`, `e-methanol`, `biodiesel-hvo`, `lh2` |
 | `cargo.countryId`, `cargo.countryBId` | `denmark`, `netherlands`, `india`, `brazil`, `singapore`, `united-states`, `other` |
 | `*.emissions.n2oScenarioId` | `tested-two-stroke`, `optimised-injection`, `highest-observed` (e-ammonia only) |
@@ -76,6 +76,8 @@ out wrong while still importing cleanly. The model cannot detect it.
 |---|---|---|
 | `cargo.oneWayDistanceNm` | nautical miles, **one way** | > 0 |
 | `cargo.roundtripsPerYear` | roundtrips per vessel per year | > 0 |
+| `cargo.serviceSpeedKn` | knots. **Leave null unless you are modelling a speed CHOICE.** | > 0 |
+| `cargo.portDaysPerRoundTrip` | days alongside per round trip, both calls | ≥ 0 |
 | `cargo.vessels` | ships | integer > 0 |
 | `cargo.unitsPerYear` | cargo units per year (`unit` says which) | ≥ 0 |
 | `cargo.startYear` | calendar year | 2000–2100 |
@@ -112,7 +114,28 @@ not be.
   `wtwGco2PerMj`) — derived from the fuel-emissions dataset. Override only
   with a certified pathway value you can cite.
 - **Fossil port/vessel CAPEX** — 0 by rule (existing infrastructure).
-  Override only when the comparison genuinely builds new fossil assets.
+  Do NOT override to model a greenfield corridor: set
+  `flags.fossilFleetBasis: "newbuild"` instead, which derives the fossil
+  ships from the vessel type. The zero encodes "the ships are already
+  afloat", which is right for "what does switching cost?" and wrong for
+  "what does this trade lane cost, either way?".
+
+## Two inputs that are easy to double-count
+
+- **`cargo.serviceSpeedKn`** corrects a vessel's energy for sailing faster
+  or slower than ITS OWN design speed, at the square of the ratio (GJ per
+  DAY goes with v³, but nm/day goes with v, so GJ per NM goes with v²).
+  It is NOT for re-applying conditions a figure was already measured
+  under. Several catalogue rows take their energy straight from a
+  published study, and that number is already the burn at that study's
+  speeds — correcting it again drops the answer ~26% below the published
+  figure. Leave it null unless the speed is a decision you are modelling.
+- **`cargo.portDaysPerRoundTrip`** adds fuel burned alongside at zero
+  miles. Every port and cargo-system day rate in the catalogue is a sector
+  ESTIMATE, so this is the least-evidenced number you can switch on; the
+  Results panel reports what share of the round trip it accounts for, and
+  warns past ~10%. Note a study figure that is an annual RESIDUAL already
+  contains port load, so adding days on top double-counts it.
 
 ## Minimum viable scenario
 
@@ -136,7 +159,7 @@ Copy this whole object. Replace values; keep every key.
 ```json
 {
   "schemaVersion": 7,
-  "refBundleId": "2026-08-16-vessel-v2",
+  "refBundleId": "2026-08-17-vessel-v3",
   "cargo": {
     "countryId": "other",
     "countryBId": "other",
@@ -164,6 +187,8 @@ Copy this whole object. Replace values; keep every key.
     "unitsPerYear": 1000000,
     "vessels": 5,
     "roundtripsPerYear": 10,
+    "serviceSpeedKn": null,
+    "portDaysPerRoundTrip": null,
     "inflation": 0.02,
     "waccOverride": null
   },
@@ -420,7 +445,8 @@ Copy this whole object. Replace values; keep every key.
     "emissionsBasis": "wellToWake",
     "rateBasis": "nominal",
     "legacyExcelConstruct": null,
-    "migratedVesselBenchmarkBurn": null
+    "migratedVesselBenchmarkBurn": null,
+    "fossilFleetBasis": null
   }
 }
 ```

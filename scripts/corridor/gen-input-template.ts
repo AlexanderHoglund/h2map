@@ -23,7 +23,7 @@ import {
 import { emptyScenario } from "../../apps/web/lib/corridor/scenarioDefaults";
 
 const ROOT = new URL("../../", import.meta.url);
-const BUNDLE_ID = "2026-08-16-vessel-v2";
+const BUNDLE_ID = "2026-08-17-vessel-v3";
 
 const bundle = parseRefBundle(
   JSON.parse(
@@ -124,6 +124,8 @@ const lines: string[] = [
   "|---|---|---|",
   "| `cargo.oneWayDistanceNm` | nautical miles, **one way** | > 0 |",
   "| `cargo.roundtripsPerYear` | roundtrips per vessel per year | > 0 |",
+  "| `cargo.serviceSpeedKn` | knots. **Leave null unless you are modelling a speed CHOICE.** | > 0 |",
+  "| `cargo.portDaysPerRoundTrip` | days alongside per round trip, both calls | ≥ 0 |",
   "| `cargo.vessels` | ships | integer > 0 |",
   "| `cargo.unitsPerYear` | cargo units per year (`unit` says which) | ≥ 0 |",
   "| `cargo.startYear` | calendar year | 2000–2100 |",
@@ -160,7 +162,28 @@ const lines: string[] = [
   "  `wtwGco2PerMj`) — derived from the fuel-emissions dataset. Override only",
   "  with a certified pathway value you can cite.",
   "- **Fossil port/vessel CAPEX** — 0 by rule (existing infrastructure).",
-  "  Override only when the comparison genuinely builds new fossil assets.",
+  "  Do NOT override to model a greenfield corridor: set",
+  "  `flags.fossilFleetBasis: \"newbuild\"` instead, which derives the fossil",
+  "  ships from the vessel type. The zero encodes \"the ships are already",
+  "  afloat\", which is right for \"what does switching cost?\" and wrong for",
+  "  \"what does this trade lane cost, either way?\".",
+  "",
+  "## Two inputs that are easy to double-count",
+  "",
+  "- **`cargo.serviceSpeedKn`** corrects a vessel's energy for sailing faster",
+  "  or slower than ITS OWN design speed, at the square of the ratio (GJ per",
+  "  DAY goes with v³, but nm/day goes with v, so GJ per NM goes with v²).",
+  "  It is NOT for re-applying conditions a figure was already measured",
+  "  under. Several catalogue rows take their energy straight from a",
+  "  published study, and that number is already the burn at that study's",
+  "  speeds — correcting it again drops the answer ~26% below the published",
+  "  figure. Leave it null unless the speed is a decision you are modelling.",
+  "- **`cargo.portDaysPerRoundTrip`** adds fuel burned alongside at zero",
+  "  miles. Every port and cargo-system day rate in the catalogue is a sector",
+  "  ESTIMATE, so this is the least-evidenced number you can switch on; the",
+  "  Results panel reports what share of the round trip it accounts for, and",
+  "  warns past ~10%. Note a study figure that is an annual RESIDUAL already",
+  "  contains port load, so adding days on top double-counts it.",
   "",
   "## Minimum viable scenario",
   "",

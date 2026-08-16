@@ -17,6 +17,8 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `cargo.inflation` | number | yes | #21 | 14.0% | 21.6% | `fossilTotalPvUsdM` | top-level |
 | `cargo.vessels` | integer | yes | #2 | 94.0% | 400.0% | `fossilTotalPvUsdM` | top-level |
 | `cargo.roundtripsPerYear` | number | yes | #31 | 8.6% | 100.0% | `co2AbatedTonnes` | top-level |
+| `cargo.serviceSpeedKn` | number | no | — | — | — | — | — |
+| `cargo.portDaysPerRoundTrip` | number | no | — | — | — | — | — |
 | `cargo.waccOverride` | number, null | yes | #20 | 14.7% | 38.0% | `fossilTotalPvUsdM` | top-level |
 | `cargo.unit` | "tonne", "teu" | no | — | — | — | — | — |
 | `cargo.unitWeightTonnes` | number | no | — | — | — | — | — |
@@ -129,6 +131,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `flags.rateBasis` | "nominal", "real" | no | — | — | — | — | — |
 | `flags.legacyExcelConstruct` | boolean | no | — | — | — | — | — |
 | `flags.migratedVesselBenchmarkBurn` | boolean | no | — | — | — | — | — |
+| `flags.fossilFleetBasis` | "existing", "newbuild" | no | — | — | — | — | — |
 
 Sensitivity sweeps each input across its plausible range (enums across
 every defined option) against ALL SIX headline KPIs — gap, $/cargo unit,
