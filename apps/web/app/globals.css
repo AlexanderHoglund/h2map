@@ -70,6 +70,35 @@
   --viz-delta-down: #2171b5; /* waterfall savings */
   --viz-total: #52514e; /* waterfall anchored totals (neutral) */
 
+  /* Cost NATURE fills for a stacked series: side identity by colour family
+     (green fuel vs fossil), CAPEX vs operating by shade. Each side's pair is
+     one hue at two lightnesses, so the stack reads as "this side, split" and
+     never as four unrelated categories.
+       green-2 / fossil-2 are the operating (lighter) halves.
+     These replaced four raw hexes that were near-misses of the tokens above
+     — #006b00 against --viz-series-green, #4c4b48 against --viz-total,
+     #a6a49d against --viz-baseline — a divergence nothing explained and
+     which put two different greens for "the green side" in adjacent charts.
+     Contrast measured: each pair separates 1.69 (green) and 3.18 (fossil)
+     from its own partner, which is what a stacked bar needs. The lighter
+     halves sit at 2.92 and 2.49 against white — below the 3.0 a lone shape
+     would want, and fine here only because they are always adjacent to
+     their darker partner rather than floating on the page. Stated rather
+     than rounded up. */
+  --viz-series-green-2: #5aa85a; /* green operating */
+  --viz-fossil: #52514e; /* fossil CAPEX — the --viz-total neutral */
+  --viz-fossil-2: #a6a49d; /* fossil operating */
+
+  /* Regulation as a cost CATEGORY, and a priced benchmark line.
+     Deliberately NOT --viz-delta-up: that token means "this got more
+     expensive". Regulation in a stacked bar is a neutral category label and
+     a carbon-price reference is a benchmark, so a reader who has learned
+     "red = worse" from the waterfall must not meet the same red on either.
+     Amber is the app's warning/regulatory hue (--color-warning) and carries
+     no direction. */
+  --viz-carbon: #b45309; /* regulation charge in a cost stack */
+  --viz-reference: #6d6d6d; /* a priced benchmark line (neutral, dashed) */
+
   /* Technical-schematic artwork (the corridor chart on the entry panel, and
      its canvas port at /animate). Deliberately NOT --viz-*: those carry
      data-legibility contracts, these are a draughtsman's palette. `ship` is

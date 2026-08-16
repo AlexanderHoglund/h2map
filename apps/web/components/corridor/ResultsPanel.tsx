@@ -675,13 +675,13 @@ export default function ResultsPanel({
               {refPrice !== null && (
                 <ReferenceLine
                   y={refPrice.usdPerTonne}
-                  stroke="var(--viz-delta-up)"
+                  stroke="var(--viz-reference)"
                   strokeDasharray="4 3"
                   label={{
                     value: `${refPrice.label} $${Math.round(refPrice.usdPerTonne)}`,
                     position: "insideTopRight",
                     fontSize: 10,
-                    fill: "var(--viz-delta-up)",
+                    fill: "var(--viz-reference)",
                   }}
                 />
               )}
@@ -1146,14 +1146,24 @@ function deltaStyle(delta: number): React.CSSProperties | undefined {
 /**
  * Cost-nature fills for the annual chart: side identity (green vs fossil)
  * carried by colour family, nature (CAPEX / operating) by shade, and
- * regulation in a shared carbon accent so the fossil charge is visible.
+ * regulation in a carbon accent so the charge is visible on both sides.
+ *
+ * Every value is a token. These were four raw hexes that near-missed the
+ * tokens they should have been — #006b00 against --viz-series-green
+ * (#008300), #4c4b48 against --viz-total (#52514e), #a6a49d against
+ * --viz-baseline — so "the green side" was one green in this chart and a
+ * different green in the waterfall directly above it. #5cb85c was
+ * Bootstrap 3's success green and appeared in no token file at all.
  */
 const NATURE_FILLS = {
-  gCapex: "#006b00",
-  gOpex: "#5cb85c",
-  fCapex: "#4c4b48",
-  fOpex: "#a6a49d",
-  reg: "var(--viz-delta-up)",
+  gCapex: "var(--viz-series-green)",
+  gOpex: "var(--viz-series-green-2)",
+  fCapex: "var(--viz-fossil)",
+  fOpex: "var(--viz-fossil-2)",
+  // NOT --viz-delta-up: regulation here is a neutral cost CATEGORY, not a
+  // direction. Sharing the "this got more expensive" red made a reader who
+  // had just learned the waterfall read this segment as bad news.
+  reg: "var(--viz-carbon)",
 } as const;
 
 /** Bar dataKey → nature label message key (for the tooltip). */
