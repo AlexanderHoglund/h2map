@@ -154,7 +154,7 @@ Documented inline (see source).
 **Purpose**
 
 EU ETS cost, $m (Calculation r28/r54, transcription §7):
-  vessels × fuelTonnes × combustionEF × phaseIn(cal) × scope × EUA€ × EURUSD / 1e6
+  vessels × fuelTonnes × chargeableEF × phaseIn(cal) × scope × EUA€ × EURUSD / 1e6
 Phase-in by calendar year: 0 before 2024, 0.4 in 2024, 0.7 in 2025, 1.0
 from 2026 (schedule data from the reference bundle).
 
@@ -375,7 +375,7 @@ workbook's flat per-fuel scalars. Factors are computed live from the
 framework (FuelEU Maritime by default, IMO Net-Zero switchable), instead
 of being transcribed Excel cells:
 
-**Boundary (imports)**: `../../../data/fuel-emissions-ref/2026-08-14-seed-3.json`, `./scenario`, `./ref/bundle`
+**Boundary (imports)**: `../../../data/fuel-emissions-ref/2026-08-17-ets-carbon-4.json`, `./scenario`, `./ref/bundle`
 
 **Exports (inputs/outputs)**: `FUEL_EMISSIONS_DATASET`, `EmissionsFramework`, `DerivedFuelFactors`, `deriveFuelFactors`
 
@@ -517,22 +517,6 @@ Documented inline (see source).
 
 The resolution layer — the workbook's `E = IF(D="", F, D)` made explicit.
 
-Precedence: override > (derived | benchmark). "Derived" marks computed
-benchmarks (distance-mode consumption, vessel premium, the fossil ×0.3 / =0
-rules, Purchase-zeroing); in Excel those computations ARE the F benchmark
-cells, so the precedence is identical — the tag only records HOW the
-benchmark was produced, for provenance display.
-
-Two deliberate subtleties, both verbatim from the workbook:
-- Purchase sourcing zeroes production capex/O&M BEFORE the override check
-  (`E16 = IF(D9="Purchase", 0, IF(D16="", F16, D16))`) — an override cannot
-  resurrect production cost on a purchased fuel.
-- Distance-mode consumption divides by the side's RESOLVED LHV (`Fuel!E13`,
-  which is itself overridable), not the table LHV.
-
-The engine never sees this module's `Resolved<>` wrappers — `toSideInputs`
-strips to bare branded scalars.
-
 **Boundary (imports)**: `./ref/bundle`, `./ref/accessors`, `./ref/scale`, `./emissions`
 
 **Exports (inputs/outputs)**: `resolveScenario`, `toSideInputs`
@@ -637,9 +621,9 @@ fuel (e-ammonia at 18,600 MJ/t replaces ~459.3 t of HFO per 1,000 t,
 not 1,000 t — golden fixture F1 exists to catch the tonne-for-tonne
 trap, which overstates avoided emissions 2.4×).
 
-**Boundary (imports)**: `./ref`, `./ref`
+**Boundary (imports)**: `./ref`
 
-**Exports (inputs/outputs)**: `FUELEU_BASELINE_GCO2E_PER_MJ`, `FuelEmissionsInput`, `EmissionParts`, `SideResult`, `BasisResult`, `NotParameterised`, `FuelEmissionsResult`, `evaluateFuelEmissions`, `fuelIntensity`
+**Exports (inputs/outputs)**: `FUELEU_BASELINE_GCO2E_PER_MJ`, `FuelEmissionsInput`, `EmissionParts`, `SideResult`, `BasisResult`, `NotParameterised`, `EtsChargeable`, `FuelEmissionsResult`, `evaluateFuelEmissions`, `fuelIntensity`
 
 **Assumptions**
 
@@ -668,7 +652,7 @@ frameworks, methane slip per engine, pilot-fuel and N2O-slip evidence.
 
 **Boundary (imports)**: `zod`
 
-**Exports (inputs/outputs)**: `refDatasetSchema`, `FuelEmissionsRefDataset`, `RefFuel`, `GwpSetId`, `parseRefDataset`, `getFuel`, `getGwpSet`, `getFramework`, `missingParameters`
+**Exports (inputs/outputs)**: `refDatasetSchema`, `FuelEmissionsRefDataset`, `RefFuel`, `GwpSetId`, `parseRefDataset`, `getFuel`, `getGwpSet`, `getFramework`, `impliedCombustionIntensity`, `carbonBalanceError`, `missingParameters`
 
 **Assumptions**
 

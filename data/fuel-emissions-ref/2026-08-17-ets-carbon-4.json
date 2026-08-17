@@ -1,0 +1,368 @@
+{
+  "$schema": "ref_fuel_emissions.schema.json",
+  "datasetVersion": "2026-08-17-ets-carbon-4",
+  "retrievedDate": "2026-08-17",
+  "status": "SEED — human review required before use. Rows marked verified:false must not drive a headline number without the unverified badge.",
+  "gwpSets": {
+    "AR4": {
+      "co2": 1,
+      "ch4": 25,
+      "n2o": 298,
+      "source": "IPCC AR4 100-yr. The GWP set fixed in FuelEU Maritime Regulation (EU) 2023/1805 Annex II as currently drafted.",
+      "note": "EMSA has indicated FuelEU will move to AR5. Both sets are provided; the engine must never mix them."
+    },
+    "AR5": {
+      "co2": 1,
+      "ch4": 28,
+      "n2o": 265,
+      "source": "IPCC AR5 100-yr. Basis of the IMO LCA Guidelines (MEPC.391(81)) and the expected FuelEU update."
+    },
+    "AR6": {
+      "co2": 1,
+      "ch4": 29.8,
+      "n2o": 273,
+      "source": "IPCC AR6 100-yr. Not used by either framework; provided for sensitivity only.",
+      "verified": false
+    }
+  },
+  "frameworks": {
+    "fueleu": {
+      "name": "FuelEU Maritime",
+      "legalBasis": "Regulation (EU) 2023/1805, Annex II",
+      "basis": "wellToWake",
+      "defaultGwpSet": "AR4",
+      "rfnboCeilingGco2ePerMj": 28.2,
+      "rfnboCeilingSource": "RED Article 28(5): ≥70% GHG saving vs the fossil comparator, giving a maximum WtW of 28.2 gCO2eq/MJ.",
+      "biofuelReferenceEValue": 18,
+      "biofuelReferenceNote": "Sustainable Ships uses 18 gCO2eq/MJ as a standard E-value for compliant high-grade biofuels; near-zero compliance cost to 2050 requires below ~18.53. Actual E-values vary by feedstock and pathway — RED II Annex V/VI.",
+      "missingValueRule": "Annex II cells marked TBM or N/A must be established under Article 10. Absent that, the highest default value in the fuel class and column applies; if the whole column is TBM/N-A, the least favourable fossil pathway applies. Column 9 (Cslip) is excluded from this rule and requires certification under Article 10(5)."
+    },
+    "imo": {
+      "name": "IMO Net-Zero Framework",
+      "legalBasis": "2024 Guidelines on Life Cycle GHG Intensity of Marine Fuels, MEPC.391(81), revising MEPC.376(79)",
+      "basis": "wellToWake",
+      "defaultGwpSet": "AR5",
+      "referenceGfi2008": 93.3,
+      "znzThresholdGco2ePerMj": {
+        "to2034": 19,
+        "from2035": 14
+      },
+      "znzSource": "MEPC 83 approved text: ZNZ threshold at most 19.0 gCO2eq/MJ until end-2034, no greater than 14.0 gCO2eq/MJ from 1 January 2035. The threshold applies to the WtW GHG intensity of the FUEL/energy source itself — 'ZNZs have a GHG Fuel Intensity (GFI) of no more than 19.0 gCO2eq/MJ' (IMO Net-Zero Framework FAQ; Sustainable Ships regulation summary, both retrieved 2026-08-14) — not to the ship's attained blended GFI, which is tested against the reduction ladder.",
+      "status": "Approved at MEPC 83 April 2025; formal adoption targeted MEPC 85 October 2026. Defaults not yet published for all fuels.",
+      "verified": false
+    }
+  },
+  "fuels": [
+    {
+      "id": "hfo",
+      "name": "Heavy fuel oil (RME–RMK, incl. most VLSFO)",
+      "family": "fossil",
+      "imoClass": "residual",
+      "lcvMjPerG": 0.0405,
+      "ttw": {
+        "co2GPerG": 3.114,
+        "ch4GPerG": 0.00005,
+        "n2oGPerG": 0.00018
+      },
+      "wttGco2ePerMj": 13.5,
+      "framework": "fueleu",
+      "verified": true,
+      "derivation": "FuelEU Annex II HFO row, ISO 8217 grades RME–RMK — classification is by viscosity per the Bunker Delivery Note (above 80 cSt), NOT by sulphur, so most VLSFO sold (typically RMG 380) is THIS row. TtW under AR4 = (3.114 + 0.00005×25 + 0.00018×298) / 0.0405 = 78.244 gCO2e/MJ; adding WtT 13.5 gives 91.744 gCO2e/MJ (AR5: 91.601).",
+      "validation": "Reproduces BetterSea's published worked example (7,000 t HFO containership, 91.744 gCO2e/MJ, AR4) to three decimals.",
+      "source": "Regulation (EU) 2023/1805 Annex II, via BetterSea 'How to Calculate GHG Intensity under FuelEU Maritime'; row confirmed against the DG MOVE FuelEU guidance document for shipping companies and the ESSF SAPS WS1 working document, retrieved 2026-08-14",
+      "carbonOrigin": "fossil",
+      "fossilCarbonShare": 1,
+      "etsZeroRated": false,
+      "carbonOriginSource": "Directive 2003/87/EC as amended by (EU) 2023/959 (ETS2/maritime extension); Annex IV Part A: an emission factor of zero applies to biomass meeting the RED sustainability and GHG-saving criteria. RFNBOs meeting the Article 25 threshold are likewise zero-rated. Non-CO2 gases (CH4, N2O) are chargeable from 2026 on their warming effect REGARDLESS of carbon origin.",
+      "carbonOriginNote": "Fossil residual bunker: all combustion CO2 chargeable."
+    },
+    {
+      "id": "lfo",
+      "name": "Light fuel oil (RMA–RMD)",
+      "family": "fossil",
+      "imoClass": "residual",
+      "lcvMjPerG": 0.041,
+      "ttw": {
+        "co2GPerG": 3.151,
+        "ch4GPerG": 0.00005,
+        "n2oGPerG": 0.00018
+      },
+      "wttGco2ePerMj": 13.2,
+      "framework": "fueleu",
+      "verified": true,
+      "derivation": "FuelEU Annex II LFO row, ISO 8217 grades RMA–RMD (residual fuels of 80 cSt or less — classification by viscosity, not sulphur). TtW under AR4 = (3.151 + 0.00005×25 + 0.00018×298) / 0.041 = 78.192 gCO2e/MJ; + WtT 13.2 = 91.392 (AR5: 91.251). Replaces the former 'VLSFO' row, which mixed this row's LCV and WtT with the HFO carbon factor — a combination in neither Annex II row.",
+      "source": "Regulation (EU) 2023/1805 Annex II, confirmed against the DG MOVE FuelEU guidance document for shipping companies and the ESSF SAPS WS1 working document, retrieved 2026-08-14",
+      "carbonOrigin": "fossil",
+      "fossilCarbonShare": 1,
+      "etsZeroRated": false,
+      "carbonOriginSource": "Directive 2003/87/EC as amended by (EU) 2023/959 (ETS2/maritime extension); Annex IV Part A: an emission factor of zero applies to biomass meeting the RED sustainability and GHG-saving criteria. RFNBOs meeting the Article 25 threshold are likewise zero-rated. Non-CO2 gases (CH4, N2O) are chargeable from 2026 on their warming effect REGARDLESS of carbon origin.",
+      "carbonOriginNote": "Fossil residual bunker: all combustion CO2 chargeable."
+    },
+    {
+      "id": "mgo",
+      "name": "Marine gas oil / diesel (DMX–DMB)",
+      "family": "fossil",
+      "imoClass": "distillate",
+      "lcvMjPerG": 0.0427,
+      "ttw": {
+        "co2GPerG": 3.206,
+        "ch4GPerG": 0.00005,
+        "n2oGPerG": 0.00018
+      },
+      "wttGco2ePerMj": 14.4,
+      "framework": "fueleu",
+      "verified": true,
+      "derivation": "FuelEU Annex II MDO/MGO row, ISO 8217 grades DMX–DMB. Used as the default pilot fuel for dual-fuel engines. TtW under AR4 = (3.206 + 0.00005×25 + 0.00018×298) / 0.0427 = 76.368 gCO2e/MJ; + WtT 14.4 = 90.768.",
+      "source": "Regulation (EU) 2023/1805 Annex II, confirmed against the DG MOVE FuelEU guidance document for shipping companies and the ESSF SAPS WS1 working document, retrieved 2026-08-14",
+      "carbonOrigin": "fossil",
+      "fossilCarbonShare": 1,
+      "etsZeroRated": false,
+      "carbonOriginSource": "Directive 2003/87/EC as amended by (EU) 2023/959 (ETS2/maritime extension); Annex IV Part A: an emission factor of zero applies to biomass meeting the RED sustainability and GHG-saving criteria. RFNBOs meeting the Article 25 threshold are likewise zero-rated. Non-CO2 gases (CH4, N2O) are chargeable from 2026 on their warming effect REGARDLESS of carbon origin.",
+      "carbonOriginNote": "Fossil distillate: all combustion CO2 chargeable. Also the default dual-fuel PILOT, which is why a carbon-free main fuel still carries an ETS charge."
+    },
+    {
+      "id": "lng",
+      "name": "Liquefied natural gas (fossil)",
+      "family": "fossil",
+      "lcvMjPerG": 0.0491,
+      "ttw": {
+        "co2GPerG": 2.75,
+        "ch4GPerG": 0,
+        "n2oGPerG": 0.00011
+      },
+      "wttGco2ePerMj": 18.5,
+      "unavailableUnder": [
+        "imo"
+      ],
+      "framework": "fueleu",
+      "verified": false,
+      "requiresEngineType": true,
+      "derivation": "CO2 factor and LCV are engine-independent within a framework — but NOT across them: MEPC.391(81) implies LCV 0.0480 MJ/g for LNG against Annex II's 0.0491 (confirmed via arXiv:2502.07201). Methane slip is NOT — it is set per engine technology at 50% load (Cslip, see methaneSlip.byEngine) and folded into the combustion-CH4 term: per g of fuel, (1−Cslip) combusts and Cslip escapes as CH4 priced at the framework's GWP. WtT 18.5 is the FuelEU default upstream value. Under FuelEU AR4 an Otto dual-fuel medium-speed engine gives TtW ≈ 70.70 and WtW ≈ 89.20 gCO2e/MJ — barely below VLSFO's 90.49; a diesel slow-speed engine gives ≈ 76.08.",
+      "reviewNote": "Not evaluable under the IMO framework: the IMO LCA Guidelines lack a default upstream factor for fossil LNG, where the real range is 18.5–28 gCO2e/MJ — 20–30% of HFO's whole lifecycle intensity (ICCT, April 2025). A missing upstream term flatters LNG substantially, so the IMO path refuses rather than approximates. The FuelEU WtT of 18.5 is carried from the Sustainable Ships table and MUST be checked against the Annex II LNG row before this fuel drives a published figure.",
+      "source": "LCV and CO2 factor via agriportance FuelEU worked example; WtT and Cslip via Sustainable Ships 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero', July 2025; IMO upstream gap per ICCT, April 2025",
+      "carbonOrigin": "fossil",
+      "fossilCarbonShare": 1,
+      "etsZeroRated": false,
+      "carbonOriginSource": "Directive 2003/87/EC as amended by (EU) 2023/959 (ETS2/maritime extension); Annex IV Part A: an emission factor of zero applies to biomass meeting the RED sustainability and GHG-saving criteria. RFNBOs meeting the Article 25 threshold are likewise zero-rated. Non-CO2 gases (CH4, N2O) are chargeable from 2026 on their warming effect REGARDLESS of carbon origin.",
+      "carbonOriginNote": "Fossil: all combustion CO2 chargeable, PLUS methane slip as CH4 from 2026 — the dominant term for an Otto medium-speed engine (3.1% FuelEU / 3.5% IMO)."
+    },
+    {
+      "id": "e-ammonia",
+      "name": "e-Ammonia (RFNBO)",
+      "family": "green",
+      "lcvMjPerG": 0.0186,
+      "ttw": {
+        "co2GPerG": 0,
+        "ch4GPerG": 0,
+        "n2oGPerG": "SEE n2oSlip"
+      },
+      "wttGco2ePerMj": null,
+      "wttRangeGco2ePerMj": [
+        5,
+        28.2
+      ],
+      "defaultCertifiedWttGco2ePerMj": 15,
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "Ammonia contains no carbon, so TtW CO2 is zero by chemistry. The WtT term is entirely determined by the electricity pathway and must come from a certified E-value — there is no single default. The RED ceiling for an RFNBO is 28.2 gCO2eq/MJ; certified renewable pathways typically land 5–15.",
+      "reviewNote": "NEVER default this to zero. A zero WtW ammonia is an assumption, not a certifiable value, and the tool must not offer it.",
+      "source": "RED Article 28(5) ceiling; pathway values from RED Delegated Regulation 2023/1185",
+      "carbonOrigin": "rfnbo",
+      "fossilCarbonShare": 0,
+      "etsZeroRated": true,
+      "carbonOriginSource": "Directive 2003/87/EC as amended by (EU) 2023/959 (ETS2/maritime extension); Annex IV Part A: an emission factor of zero applies to biomass meeting the RED sustainability and GHG-saving criteria. RFNBOs meeting the Article 25 threshold are likewise zero-rated. Non-CO2 gases (CH4, N2O) are chargeable from 2026 on their warming effect REGARDLESS of carbon origin.",
+      "carbonOriginNote": "Carbon-free by chemistry, so fossilCarbonShare has no CO2 to act on and the value is inert. The ETS charge comes from the fossil pilot and, from 2026, N2O slip — which is NOT zero-rated and is the dominant uncertainty (published values span a factor of 37)."
+    },
+    {
+      "id": "e-methanol",
+      "name": "e-Methanol (RFNBO)",
+      "family": "green",
+      "lcvMjPerG": 0.0199,
+      "ttw": {
+        "co2GPerG": 1.375,
+        "ch4GPerG": 0,
+        "n2oGPerG": 0
+      },
+      "wttGco2ePerMj": null,
+      "wttRangeGco2ePerMj": [
+        1,
+        28.2
+      ],
+      "defaultCertifiedWttGco2ePerMj": 15,
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "A certified-pathway fuel like e-ammonia: the user supplies the certified E-value (full WtW under RED accounting — whether the combustion carbon counts depends on the CO2 source, DAC vs point-source capture, which the certificate resolves). The RFNBO ceiling is 28.2 gCO2eq/MJ. On the tank-to-wake basis the chemical stack CO2 (1.375 g/g over LCV 0.0199 = 69.1 gCO2/MJ) is reported — methanol is a carbon molecule regardless of accounting. Combustion CH4/N2O are not fixed by either framework for methanol engines and are far below the CO2 term; carried as nil pending an Annex II methanol row.",
+      "reviewNote": "Dedicated pathway rows (DAC-sourced vs point-source-captured CO2, RED Delegated Regulation 2023/1185) remain to be added; until then the certified E-value must be supplied per project.",
+      "source": "RED Article 28(5) ceiling; pathway values per certificate (RED Delegated Regulation 2023/1185)",
+      "carbonOrigin": "rfnbo",
+      "fossilCarbonShare": 0,
+      "etsZeroRated": true,
+      "carbonOriginSource": "Directive 2003/87/EC as amended by (EU) 2023/959 (ETS2/maritime extension); Annex IV Part A: an emission factor of zero applies to biomass meeting the RED sustainability and GHG-saving criteria. RFNBOs meeting the Article 25 threshold are likewise zero-rated. Non-CO2 gases (CH4, N2O) are chargeable from 2026 on their warming effect REGARDLESS of carbon origin.",
+      "carbonOriginNote": "RFNBO from captured CO2: the stack CO2 (1.375 g/g = 69.1 gCO2/MJ) is real and is what the TtW basis reports, but it is zero-rated under the Directive because the carbon was captured rather than extracted. The ETS charge is therefore the fossil PILOT only. NOTE: this row does not distinguish DAC from fossil point-source capture. A point-source (recycled-carbon) variant is a SEPARATE row still to be authored and would carry fossilCarbonShare 1.0 pending settled treatment — do not assume this row covers it."
+    },
+    {
+      "id": "bio-hvo",
+      "name": "Biodiesel / HVO",
+      "family": "green",
+      "lcvMjPerG": 0.044,
+      "ttw": {
+        "co2GPerG": 0,
+        "ch4GPerG": 0.00005,
+        "n2oGPerG": 0.00018
+      },
+      "wttGco2ePerMj": null,
+      "wttRangeGco2ePerMj": [
+        2,
+        38
+      ],
+      "defaultCertifiedWttGco2ePerMj": 18,
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "A certified-pathway fuel: the E-value comes from the RED II Annex V/VI pathway certificate and varies strongly by feedstock — there is no single default. Combustion CO2 is short-cycle biogenic and nets to zero under both frameworks' E-value accounting; the diesel-family CH4/N2O stack factors are carried from the Annex II distillate family. The 18 gCO2e/MJ reference default is the standard E-value Sustainable Ships uses for compliant high-grade biofuels (see frameworks.fueleu.biofuelReferenceNote).",
+      "reviewNote": "Feedstock-specific Annex V/VI pathway rows remain to be added; until then the certified E-value must be supplied (or the 18 reference default consciously accepted) per project. LCV 0.044 MJ/g is carried from the corridor workbook and MUST be checked against the Annex II biofuel rows.",
+      "source": "RED II Annex V/VI pathway accounting; 18 gCO2e/MJ reference via Sustainable Ships 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero', July 2025; CH4/N2O per Annex II distillate family",
+      "carbonOrigin": "biogenic",
+      "fossilCarbonShare": 0,
+      "etsZeroRated": true,
+      "carbonOriginSource": "Directive 2003/87/EC as amended by (EU) 2023/959 (ETS2/maritime extension); Annex IV Part A: an emission factor of zero applies to biomass meeting the RED sustainability and GHG-saving criteria. RFNBOs meeting the Article 25 threshold are likewise zero-rated. Non-CO2 gases (CH4, N2O) are chargeable from 2026 on their warming effect REGARDLESS of carbon origin.",
+      "carbonOriginNote": "Sustainable biofuel, zero-rated. NOTE ttw.co2GPerG is ALREADY 0 on this row — the biogenic carbon is netted in the data, unlike e-methanol which carries its chemical 1.375. Both conventions coexist in this dataset; fossilCarbonShare 0 is correct for each and must not be read as a second netting."
+    },
+    {
+      "id": "lh2",
+      "name": "Hydrogen (liquid, RFNBO)",
+      "family": "green",
+      "lcvMjPerG": 0.12,
+      "ttw": {
+        "co2GPerG": 0,
+        "ch4GPerG": 0,
+        "n2oGPerG": 0
+      },
+      "wttGco2ePerMj": null,
+      "wttRangeGco2ePerMj": [
+        1,
+        28.2
+      ],
+      "defaultCertifiedWttGco2ePerMj": 10,
+      "framework": "fueleu",
+      "verified": false,
+      "derivation": "Hydrogen contains no carbon or nitrogen, so all combustion terms are zero by chemistry (like e-ammonia minus the N2O slip question — H2 engines' NOx is regulated air pollution, not a GHG accounting term in either framework). The WtT term is entirely the electricity-and-liquefaction pathway and must come from a certified E-value under the RED Article 28(5) RFNBO ceiling of 28.2 gCO2eq/MJ. The 10 gCO2e/MJ default is carried from the corridor workbook's reference table pending a certified-pathway citation.",
+      "reviewNote": "NEVER default this to zero. The 10 gCO2e/MJ prefill is a workbook carry, not a certified value — replace per project from the Proof of Sustainability.",
+      "source": "RED Article 28(5) ceiling; default carried from Green_Corridor_Model_Simplified_30_07.xlsx Data_tables!B20 — to be replaced by a certified pathway citation",
+      "carbonOrigin": "rfnbo",
+      "fossilCarbonShare": 0,
+      "etsZeroRated": true,
+      "carbonOriginSource": "Directive 2003/87/EC as amended by (EU) 2023/959 (ETS2/maritime extension); Annex IV Part A: an emission factor of zero applies to biomass meeting the RED sustainability and GHG-saving criteria. RFNBOs meeting the Article 25 threshold are likewise zero-rated. Non-CO2 gases (CH4, N2O) are chargeable from 2026 on their warming effect REGARDLESS of carbon origin.",
+      "carbonOriginNote": "Carbon-free by chemistry: fossilCarbonShare is inert. ETS charge is the fossil pilot only."
+    }
+  ],
+  "imoFossilWtt": {
+    "legalBasis": "MEPC.391(81), 2024 Guidelines on Life Cycle GHG Intensity of Marine Fuels (adopted 22 March 2024)",
+    "classificationNote": "The IMO bins residual fuels by SULPHUR content, not ISO 8217 viscosity grade — the same physical bunker lands in different bins under the two frameworks. A typical VLSFO at 0.50% S falls in the 0.10–0.50% band (WtT 16.8), while FuelEU files it under the HFO viscosity row (WtT 13.5). Fossil WtT defaults are mandatory under both frameworks, not indicative.",
+    "residualBySulphur": [
+      {
+        "band": "0.10 < S ≤ 0.50%",
+        "maxSulphurPercent": 0.5,
+        "wttGco2ePerMj": 16.8,
+        "label": "Residual fuel oil, 0.10–0.50% S"
+      },
+      {
+        "band": "S > 0.50%",
+        "maxSulphurPercent": null,
+        "wttGco2ePerMj": 14.1,
+        "label": "Residual fuel oil, > 0.50% S"
+      }
+    ],
+    "distillateNote": "No confirmed IMO WtT default for distillates (MGO/MDO) in the verified sources — the FuelEU Annex II value is substituted, disclosed per factor and named in the method line, until the MEPC.391(81) table is checked directly.",
+    "lcvNote": "MEPC.391(81) implies LCV 0.0480 MJ/g for LNG (Annex II: 0.0491) and 0.0463 for LPG — LCVs diverge across frameworks too. Residual/distillate IMO LCVs are unconfirmed and carried from Annex II pending direct verification of the resolution table.",
+    "source": "MEPC.391(81) as cited verbatim in 'Well-to-Tank Carbon Intensity Variability of Fossil Marine Fuels: A Country-Level Assessment' (arXiv:2502.07201, Feb 2025): HFO 0.10<S≤0.50% = 16.8 gCO2e/MJ; HFO >0.50% S = 14.1 gCO2e/MJ. Paragraph-level reference against the resolution text itself still pending; retrieved 2026-08-14.",
+    "verified": false
+  },
+  "methaneSlip": {
+    "note": "Cslip is the fraction of methane escaping combustion, defined at 50% engine load. Both frameworks specify values per engine technology and they differ — engine type must be an explicit input for any LNG calculation.",
+    "source": "Sustainable Ships, 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero', July 2025",
+    "verified": true,
+    "byEngine": [
+      {
+        "engine": "lng-otto-df-medium-speed",
+        "fueleu": 0.031,
+        "imo": 0.035
+      },
+      {
+        "engine": "lng-otto-df-slow-speed",
+        "fueleu": 0.017,
+        "imo": 0.017
+      },
+      {
+        "engine": "lng-diesel-df-slow-speed",
+        "fueleu": 0.002,
+        "imo": 0.0015
+      },
+      {
+        "engine": "lng-lbsi",
+        "fueleu": 0.026,
+        "imo": 0.026
+      },
+      {
+        "engine": "steam-turbine-boiler",
+        "fueleu": 0.0001,
+        "imo": 0.0001
+      }
+    ]
+  },
+  "pilotFuel": {
+    "note": "Ammonia and methanol dual-fuel engines require a fossil pilot for ignition. This puts a floor under the achievable reduction that pure fuel-intensity arithmetic misses.",
+    "verified": true,
+    "defaultShareOfEnergy": 0.05,
+    "range": [
+      0.03,
+      0.08
+    ],
+    "defaultPilotFuelId": "mgo",
+    "derivation": "MAN Energy Solutions: ammonia-mode operation uses around 95% ammonia on an energy basis with 5% pilot fuel (diesel or heavy fuel oil), the same order as methanol- and LPG-fuelled engines. Full engine testing shows similar thermal efficiency in diesel mode and ammonia mode.",
+    "source": "Ammonia Energy Association, 'Emission performance of ammonia-fueled, two-stroke marine engines', citing MAN ES Research Centre Copenhagen and WinGD full-engine testing"
+  },
+  "n2oSlip": {
+    "note": "THE DOMINANT UNCERTAINTY IN AMMONIA'S EMISSIONS PROFILE. Published values span a factor of 37. This must be presented as a range with a sensitivity control, never as a point estimate.",
+    "verified": false,
+    "unit": "gN2O per g NH3",
+    "defaultValue": 0.00022,
+    "range": [
+      0.0000681,
+      0.0025
+    ],
+    "scenarios": [
+      {
+        "id": "tested-two-stroke",
+        "value": 0.0000681,
+        "addsGco2ePerMj": 1,
+        "label": "MAN / WinGD tested two-stroke engines",
+        "derivation": "MAN reports N2O below 5 ppm, WinGD below 3 ppm — described as under 2% of the CO2-equivalent of a fuel-oil engine, and under 1% at full load, i.e. less than 1 gCO2e/MJ.",
+        "source": "Ammonia Energy Association, September 2025, citing MAN ES and WinGD full-engine testing"
+      },
+      {
+        "id": "optimised-injection",
+        "value": 0.00022,
+        "addsGco2ePerMj": 3.23,
+        "label": "Optimised injection strategy (default)",
+        "derivation": "Literature reviewed for MEPC reports 91.2% N2O reduction at 3% diesel energetic ratio with optimised injection, applied to the highest observed value.",
+        "source": "MEPC 83/7/23, Pacific Environment / Clean Shipping Coalition literature review"
+      },
+      {
+        "id": "highest-observed",
+        "value": 0.0025,
+        "addsGco2ePerMj": 36.69,
+        "label": "Highest observed in the literature",
+        "derivation": "Two independent studies reported 0.0025 g N2O/g NH3 as the highest observed emissions. At AR6 GWP 273 over an LCV of 0.0186 MJ/g this adds 36.69 gCO2e/MJ — taking a 15 gCO2e/MJ e-ammonia to 51.69 and failing the ZNZ threshold outright.",
+        "source": "MEPC 83/7/23, Pacific Environment / Clean Shipping Coalition literature review"
+      }
+    ],
+    "reviewNote": "Neither FuelEU Annex II nor the IMO LCA Guidelines currently fixes an ammonia N2O default. Until one exists this parameter carries the unverified badge and the UI must show the range."
+  },
+  "engineEfficiencyRatio": {
+    "note": "Ratio of alternative-fuel engine efficiency to the baseline engine's. Determines whether equal fuel energy delivers equal transport work.",
+    "default": 1,
+    "verified": true,
+    "derivation": "MAN full engine testing indicates similar thermal efficiency in diesel mode and ammonia mode for two-stroke dual-fuel engines, so a ratio of 1.0 is the evidenced default rather than an omission.",
+    "source": "Ammonia Energy Association, September 2025, citing MAN ES Research Centre Copenhagen"
+  }
+}

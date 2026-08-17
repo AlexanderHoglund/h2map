@@ -1219,7 +1219,7 @@
     "fossilPortCapexUsdM": 0
   },
   "fuelEmissions": {
-    "datasetVersion": "2026-08-14-seed-3",
+    "datasetVersion": "2026-08-17-ets-carbon-4",
     "map": {
       "lsfo": "hfo",
       "lng": "lng",

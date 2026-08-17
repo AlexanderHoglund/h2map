@@ -32,7 +32,7 @@ const bundle = parseRefBundle(
 );
 
 const fuelRef = JSON.parse(
-  readFileSync(new URL("data/fuel-emissions-ref/2026-08-14-seed-3.json", ROOT), "utf8"),
+  readFileSync(new URL("data/fuel-emissions-ref/2026-08-17-ets-carbon-4.json", ROOT), "utf8"),
 ) as { n2oSlip: { scenarios: { id: string; label: string }[] } };
 
 /** The complete form of a blank scenario: every field, unset ones null. */

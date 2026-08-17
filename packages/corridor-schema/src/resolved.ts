@@ -97,6 +97,15 @@ export interface FuelParams {
   readonly wtwByFramework?: { readonly fueleu?: GCo2ePerMj; readonly imo?: GCo2ePerMj };
   readonly priceUsdPerTonne: UsdPerTonne;
   readonly combustionEf: TCo2PerTonne;
+  /**
+   * The ETS-chargeable share of `combustionEf` (CO2 only).
+   *
+   * Equals `combustionEf` for a fossil fuel and for any pre-v6 scenario.
+   * For certified biogenic/RFNBO carbon it is the fossil pilot alone,
+   * because the Directive zero-rates captured carbon. ONLY the ETS module
+   * may read this — every other basis wants the full stack factor.
+   */
+  readonly etsChargeableEf: TCo2PerTonne;
   readonly lhv: MjPerTonne;
   readonly wtw: GCo2ePerMj;
   readonly tonnesPerVesselYear: TonnesPerVesselYear;
@@ -234,6 +243,8 @@ export interface ResolvedFuelSide {
   readonly emissionsDerivation?: string;
   readonly priceUsdPerTonne: Resolved<UsdPerTonne>;
   readonly combustionEf: Resolved<TCo2PerTonne>;
+  /** ETS-chargeable combustion CO2 — see `FuelParams.etsChargeableEf`. */
+  readonly etsChargeableEf: Resolved<TCo2PerTonne>;
   readonly lhv: Resolved<MjPerTonne>;
   readonly wtw: Resolved<GCo2ePerMj>;
   readonly tonnesPerVesselYear: Resolved<TonnesPerVesselYear>;

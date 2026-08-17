@@ -35,6 +35,11 @@ function fuel(overrides: Partial<Record<keyof FuelParams, number>> = {}): FuelPa
   return {
     priceUsdPerTonne: usdPerTonne(overrides.priceUsdPerTonne ?? 900),
     combustionEf: tCo2PerTonne(overrides.combustionEf ?? 3),
+    // Fossil fixture: chargeable == stack factor. A green fuel would
+    // differ, which is what etsCarbonOrigin.test.ts covers.
+    etsChargeableEf: tCo2PerTonne(
+      overrides.etsChargeableEf ?? overrides.combustionEf ?? 3,
+    ),
     lhv: mjPerTonne(overrides.lhv ?? 41000),
     wtw: gCo2ePerMj(overrides.wtw ?? 100),
     tonnesPerVesselYear: tonnesPerVesselYear(overrides.tonnesPerVesselYear ?? 1000),

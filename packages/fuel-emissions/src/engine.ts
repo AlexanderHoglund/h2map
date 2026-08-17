@@ -17,7 +17,13 @@
  */
 
 import type { FuelEmissionsRefDataset, RefFuel } from "./ref";
-import { getFramework, getFuel, getGwpSet, missingParameters } from "./ref";
+import {
+  carbonBalanceError,
+  getFramework,
+  getFuel,
+  getGwpSet,
+  missingParameters,
+} from "./ref";
 
 /**
  * FuelEU Maritime's 2020 fleet-average reference intensity, gCO2e/MJ —
@@ -121,6 +127,34 @@ export interface NotParameterised {
   reviewNote?: string;
 }
 
+/**
+ * What the EU ETS actually charges for, per tonne of candidate fuel.
+ *
+ * SEPARATE FROM `tankToWake` ON PURPOSE. The TtW basis reports stack
+ * chemistry — methanol's 1.375 gCO2/g is real and belongs there — and it is
+ * read by FuelEU, the IMO GFI and the abatement delta. ETS asks a narrower
+ * question: how much of that carbon was dug up? Netting the biogenic share
+ * inside `tankToWake` would silently move all four consumers, so the ETS view
+ * is computed alongside it and only the ETS module reads it.
+ *
+ * The split mirrors the Directive: `co2Tco2e` is zero-rateable by carbon
+ * origin; `nonCo2Tco2e` is NOT — CH4 and N2O are charged on warming effect
+ * from 2026 whatever the carbon's provenance, which is why a bio-LNG row
+ * still pays for methane slip and an ammonia row still pays for N2O slip.
+ */
+export interface EtsChargeable {
+  /** Chargeable combustion CO2: candidate CO2 x fossilCarbonShare. */
+  co2Tco2e: number;
+  /** Chargeable CH4 + N2O incl. slip — never zero-rated by carbon origin. */
+  nonCo2Tco2e: number;
+  /** The fossil pilot's own emissions, always chargeable in full. */
+  pilotTco2e: number;
+  /** co2 + nonCo2 + pilot, per the candidate quantity evaluated. */
+  totalTco2e: number;
+  /** The share applied to the candidate's combustion CO2 (1 = fully fossil). */
+  fossilCarbonShare: number;
+}
+
 export interface FuelEmissionsResult {
   notParameterised?: undefined;
   datasetVersion: string;
@@ -162,6 +196,8 @@ export interface FuelEmissionsResult {
     compliantTo2034: boolean;
     compliantFrom2035: boolean;
   };
+  /** What the EU ETS charges for — see `EtsChargeable`. */
+  etsChargeable: EtsChargeable;
   references: {
     imoGfi2008: number;
     fuelEuBaseline: number;
@@ -250,6 +286,24 @@ export function evaluateFuelEmissions(
       notParameterised: true,
       fuelId: candidate.id,
       missing: ["candidateWtwGco2ePerMj (certified pathway E-value)"],
+      reviewNote: candidate.reviewNote,
+    };
+  }
+  // A stated WtW below the row's own stack intensity is only reachable if
+  // the carbon was captured — refuse rather than let the model net it in
+  // one place and charge for it in another. See `carbonBalanceError`.
+  //
+  // ONLY the certified pathway value is a well-to-WAKE figure. A fixed row's
+  // `wttGco2ePerMj` is well-to-TANK — upstream only — so comparing it against
+  // combustion intensity is a category error that refuses every fossil fuel
+  // (LNG: WtT 18.5 against a 57.3 stack). Pass undefined for those; the gate
+  // then no-ops, which is correct because a fixed row states no WtW at all.
+  const imbalance = carbonBalanceError(candidate, input.candidateWtwGco2ePerMj);
+  if (imbalance) {
+    return {
+      notParameterised: true,
+      fuelId: candidate.id,
+      missing: [imbalance],
       reviewNote: candidate.reviewNote,
     };
   }
@@ -409,6 +463,29 @@ export function evaluateFuelEmissions(
   const wellToWake = basisResult("wellToWake");
   const tankToWake = basisResult("tankToWake");
 
+  // --- what the ETS actually charges for ---------------------------------
+  // Built from the TtW parts rather than recomputed, so the two can never
+  // drift: the only difference is the fossil share applied to the CO2 term.
+  //
+  // An UNCLASSIFIED row defaults to 1 — fully chargeable. A green fuel left
+  // unclassified is then over-charged, which is visible; defaulting to 0
+  // would silently under-charge a fossil row, which is not.
+  //
+  // For a pathway fuel on the TtW basis the parts carry `candChemical`, so
+  // the CO2 term here is the real stack carbon (e-methanol's 69.1 gCO2/MJ)
+  // before the share is applied — not the certified WtW value.
+  const etsFossilShare = candidate.fossilCarbonShare ?? 1;
+  const ttwParts = tankToWake.candidate.parts;
+  const etsCo2 = ttwParts.ttwCo2Tco2e * etsFossilShare;
+  const etsNonCo2 = ttwParts.ttwCh4Tco2e + ttwParts.ttwN2oTco2e + ttwParts.n2oSlipTco2e;
+  const etsChargeable: EtsChargeable = {
+    co2Tco2e: etsCo2,
+    nonCo2Tco2e: etsNonCo2,
+    pilotTco2e: ttwParts.pilotTco2e,
+    totalTco2e: etsCo2 + etsNonCo2 + ttwParts.pilotTco2e,
+    fossilCarbonShare: etsFossilShare,
+  };
+
   const imo = ds.frameworks["imo"];
   const znzTo2034 = imo?.znzThresholdGco2ePerMj?.to2034 ?? 19.0;
   const znzFrom2035 = imo?.znzThresholdGco2ePerMj?.from2035 ?? 14.0;
@@ -443,6 +520,7 @@ export function evaluateFuelEmissions(
       compliantTo2034: fuelWtw <= znzTo2034,
       compliantFrom2035: fuelWtw <= znzFrom2035,
     },
+    etsChargeable,
     references: {
       imoGfi2008: imo?.referenceGfi2008 ?? 93.3,
       fuelEuBaseline: FUELEU_BASELINE_GCO2E_PER_MJ,

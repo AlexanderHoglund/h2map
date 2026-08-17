@@ -61,6 +61,46 @@ const fuelSchema = z.object({
    * physical bunker lands in different bins under the two frameworks.
    */
   imoClass: z.enum(["residual", "distillate"]).optional(),
+  /**
+   * WHERE THE CARBON CAME FROM — an EU ETS question, and only an ETS one.
+   *
+   * The ETS Directive assigns an emission factor of ZERO to CO2 from
+   * sustainable biomass and to RFNBOs meeting the GHG-saving threshold.
+   * Every other basis in this dataset is indifferent to carbon origin: the
+   * TtW stack factor is chemistry (methanol is a carbon molecule however it
+   * was made) and the WtW pathway value already nets capture against
+   * combustion. So this field must never be read outside the ETS path.
+   *
+   * "mixed" is for recycled carbon fuels — e-methanol from fossil
+   * point-source CO2 — whose treatment is not settled. Default those to
+   * fossilCarbonShare 1.0 and verified:false: a contested case does not get
+   * the favourable answer by default.
+   */
+  carbonOrigin: z.enum(["fossil", "biogenic", "rfnbo", "mixed"]).optional(),
+  /**
+   * The fraction of the row's combustion CO2 that is ETS-chargeable.
+   *
+   * NOT a duplicate of `carbonOrigin` — that names the provenance, this
+   * prices it, and "mixed" needs a number the enum cannot carry.
+   *
+   * CH4 and N2O are DELIBERATELY out of scope: they are charged on their
+   * warming effect from 2026 regardless of where the carbon came from, so a
+   * bio-LNG row still pays for methane slip and an ammonia row still pays
+   * for N2O slip. Zeroing a fuel wholesale is the error this field exists
+   * to prevent.
+   */
+  fossilCarbonShare: z.number().min(0).max(1).optional(),
+  /**
+   * Convenience flag mirroring `fossilCarbonShare === 0`, kept explicit so a
+   * row can be marked zero-rated with a REASON in `derivation` and so the
+   * validation gate has something to name. Overridable independently for a
+   * row whose certificate says otherwise.
+   */
+  etsZeroRated: z.boolean().optional(),
+  /** Legal basis for the classification above. */
+  carbonOriginSource: z.string().optional(),
+  /** Why this row is classified as it is, and what it does NOT cover. */
+  carbonOriginNote: z.string().optional(),
   framework: z.string().min(1),
   verified: z.boolean(),
   requiresEngineType: z.boolean().optional(),
@@ -187,6 +227,52 @@ export function getFramework(ds: FuelEmissionsRefDataset, id: string) {
   const fw = ds.frameworks[id];
   if (!fw) throw new Error(`fuel-emissions: unknown framework "${id}"`);
   return fw;
+}
+
+/**
+ * The row's combustion CO2 expressed per MJ — what the stack actually emits.
+ *
+ * `lcvMjPerG` is MJ per GRAM and `co2GPerG` is g per gram, so the ratio is
+ * already gCO2 per MJ with no unit scaling.
+ */
+export function impliedCombustionIntensity(fuel: RefFuel): number | null {
+  const co2 = fuel.ttw.co2GPerG;
+  if (co2 === null || fuel.lcvMjPerG <= 0) return null;
+  return co2 / fuel.lcvMjPerG;
+}
+
+/**
+ * Is a stated well-to-wake intensity reachable from the row's own chemistry?
+ *
+ * A fuel cannot emit less over its WHOLE lifecycle than it emits at the stack
+ * alone — unless carbon was captured on the way in, which is exactly what
+ * biogenic and RFNBO carbon means. So a row stating both a low WtW and a high
+ * combustion factor is making a claim that only holds if it is zero-rated,
+ * and stating both WITHOUT the flag is a contradiction rather than a
+ * judgement call.
+ *
+ * e-Methanol is the live case: certified at 15 gCO2e/MJ with a stack
+ * intensity of 69.1. Before the ETS classification landed, the model netted
+ * that carbon in the abatement figure and charged for it in the ETS figure.
+ * This makes stating both unrepresentable rather than merely arguable.
+ *
+ * Returns null when the row is consistent, or a message naming both fields.
+ */
+export function carbonBalanceError(
+  fuel: RefFuel,
+  statedWtwGco2ePerMj: number | null | undefined,
+): string | null {
+  if (fuel.etsZeroRated) return null;
+  const implied = impliedCombustionIntensity(fuel);
+  if (implied === null || statedWtwGco2ePerMj == null) return null;
+  if (statedWtwGco2ePerMj >= implied) return null;
+  return (
+    `fuel "${fuel.id}": stated well-to-wake ${statedWtwGco2ePerMj} gCO2e/MJ is below its own ` +
+    `combustion intensity ${implied.toFixed(1)} gCO2/MJ ` +
+    `(ttw.co2GPerG ${fuel.ttw.co2GPerG} / lcvMjPerG ${fuel.lcvMjPerG}). ` +
+    `That is only reachable if the carbon was captured — set carbonOrigin ` +
+    `and fossilCarbonShare (etsZeroRated) on the row, or correct one of the two figures.`
+  );
 }
 
 /** Fields a fuel is missing for a full WtW evaluation (empty = complete). */

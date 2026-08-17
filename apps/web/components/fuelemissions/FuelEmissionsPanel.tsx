@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Help } from "@/components/ui/Help";
 import { NumberInput } from "@/components/ui/NumberInput";
 import { Select } from "@/components/ui/Select";
-import seedJson from "../../../../data/fuel-emissions-ref/2026-08-14-seed-3.json";
+import seedJson from "../../../../data/fuel-emissions-ref/2026-08-17-ets-carbon-4.json";
 
 /**
  * Fuel Emissions Calculator (client-side, recomputes on keystroke).

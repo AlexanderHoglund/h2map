@@ -45,6 +45,7 @@ function fuelWith(wtw: number): FuelParams {
   return {
     priceUsdPerTonne: usdPerTonne(650),
     combustionEf: tCo2PerTonne(3.114),
+    etsChargeableEf: tCo2PerTonne(3.114), // fossil: chargeable == stack
     lhv: mjPerTonne(40200),
     wtw: gCo2ePerMj(wtw),
     tonnesPerVesselYear: tonnesPerVesselYear(1000),

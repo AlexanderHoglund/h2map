@@ -1,8 +1,19 @@
 /**
  * EU ETS cost, $m (Calculation r28/r54, transcription §7):
- *   vessels × fuelTonnes × combustionEF × phaseIn(cal) × scope × EUA€ × EURUSD / 1e6
+ *   vessels × fuelTonnes × chargeableEF × phaseIn(cal) × scope × EUA€ × EURUSD / 1e6
  * Phase-in by calendar year: 0 before 2024, 0.4 in 2024, 0.7 in 2025, 1.0
  * from 2026 (schedule data from the reference bundle).
+ *
+ * THE FACTOR IS `etsChargeableEf`, NOT `combustionEf`, and the distinction is
+ * the whole point of this module's carbon accounting. ETS prices a fuel by its
+ * FOSSIL carbon: the Directive assigns an emission factor of zero to CO2 from
+ * sustainable biomass and to RFNBOs meeting the GHG-saving threshold. So a
+ * certified e-methanol burning 1.4550 tCO2/t at the stack is chargeable for
+ * 0.0800 — its fossil pilot alone — while every other basis in the model still
+ * sees the full 1.4550.
+ *
+ * The two factors are equal for fossil fuels and for any pre-v6 scenario, so
+ * this changes nothing that was previously right.
  */
 
 import type { CalendarYear } from "@h2map/units";
@@ -23,8 +34,11 @@ export function etsCostUsdM(
   // D3 — maritime ETS covers CH4 + N2O (as CO2e via GWP100) from 2026 when
   // gas coverage is enabled; the workbook counts CO2 only (gases absent).
   const gases = params.gases;
+  // The CH4/N2O terms are added WHOLE, never scaled by carbon origin: they
+  // are charged on warming effect regardless of where the carbon came from,
+  // so bio-LNG still pays for methane slip and ammonia still pays for N2O.
   const co2ePerTonneFuel =
-    fuel.combustionEf +
+    fuel.etsChargeableEf +
     (gases && cal >= gases.fromCalendarYear
       ? gases.ch4TPerTonne * gases.gwpCh4 + gases.n2oTPerTonne * gases.gwpN2o
       : 0);

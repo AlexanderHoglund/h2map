@@ -6,15 +6,18 @@ export {
 export type {
   BasisResult,
   EmissionParts,
+  EtsChargeable,
   FuelEmissionsInput,
   FuelEmissionsResult,
   NotParameterised,
   SideResult,
 } from "./engine";
 export {
+  carbonBalanceError,
   getFramework,
   getFuel,
   getGwpSet,
+  impliedCombustionIntensity,
   missingParameters,
   parseRefDataset,
   refDatasetSchema,

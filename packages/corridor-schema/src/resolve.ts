@@ -136,6 +136,18 @@ function resolveFuelSide(
       ? derived(tCo2PerTonne(fe.combustionEfTco2PerTonne))
       : benchmark(tCo2PerTonne(fuel.combustionEfTco2PerTonne)),
   );
+  // What the EU ETS may charge for, which is NOT the stack factor above for
+  // a certified biogenic or RFNBO fuel. Follows the SAME override slot as
+  // the combustion factor: someone overriding the stack CO2 by hand is
+  // stating what the fuel emits, and the ETS charge has to follow it, or a
+  // typed correction would silently apply to abatement but not to ETS.
+  // Without the v6 path there is no carbon-origin data at all, so the legacy
+  // scalar is charged in full — the pre-v6 behaviour, unchanged.
+  const etsChargeableEf = resolve(o.combustionEfTco2PerTonne, tCo2PerTonne, () =>
+    fe
+      ? derived(tCo2PerTonne(fe.etsChargeableEfTco2PerTonne))
+      : benchmark(tCo2PerTonne(fuel.combustionEfTco2PerTonne)),
+  );
   const lhv = resolve(o.lhvMjPerTonne, mjPerTonne, () =>
     fe
       ? derived(mjPerTonne(fe.lhvMjPerTonne))
@@ -445,6 +457,7 @@ function resolveFuelSide(
   return {
     priceUsdPerTonne: price,
     combustionEf,
+    etsChargeableEf,
     lhv,
     wtw,
     // Override precedence is absolute: an explicit wtw override governs
@@ -823,6 +836,7 @@ export function toSideInputs(
     fuel: {
       priceUsdPerTonne: side.priceUsdPerTonne.value,
       combustionEf: side.combustionEf.value,
+      etsChargeableEf: side.etsChargeableEf.value,
       lhv: side.lhv.value,
       wtw: side.wtw.value,
       ...(side.wtwByFramework ? { wtwByFramework: side.wtwByFramework } : {}),

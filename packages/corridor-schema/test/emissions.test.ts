@@ -61,7 +61,7 @@ describe("refined emission-factor derivation (v6)", () => {
     expect(r.green.lhv.value).toBe(18600);
     // TtW CO2e per tonne incl. slip + pilot combustion (impact study V4).
     expect(r.green.combustionEf.value).toBeCloseTo(0.14, 2);
-    expect(r.green.emissionsDerivation).toMatch(/fuel-emissions 2026-08-14-seed-3/);
+    expect(r.green.emissionsDerivation).toMatch(/fuel-emissions 2026-08-17-ets-carbon-4/);
   });
 
   it("fossil lsfo maps to the Annex II HFO row: 91.744 / 3.169 / 40,500", () => {

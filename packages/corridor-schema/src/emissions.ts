@@ -34,7 +34,7 @@ import {
   type FuelEmissionsRefDataset,
   type FuelEmissionsResult,
 } from "@h2map/fuel-emissions";
-import feSeedJson from "../../../data/fuel-emissions-ref/2026-08-14-seed-3.json";
+import feSeedJson from "../../../data/fuel-emissions-ref/2026-08-17-ets-carbon-4.json";
 import type { FuelEmissionsSideInput } from "./scenario";
 import type { RefBundle } from "./ref/bundle";
 
@@ -49,6 +49,21 @@ export interface DerivedFuelFactors {
   /** Both frameworks where derivable — each module prices with its own. */
   wtwByFramework: { fueleu?: number; imo?: number };
   combustionEfTco2PerTonne: number;
+  /**
+   * The ETS-CHARGEABLE combustion CO2 per tonne, which is NOT
+   * `combustionEfTco2PerTonne` for a certified biogenic or RFNBO fuel.
+   *
+   * The Directive zero-rates captured carbon, so e-methanol's real 1.4550
+   * tCO2/t stack factor is chargeable only for its fossil pilot (0.0800).
+   * Kept as a SEPARATE field rather than netted into `combustionEf`, which
+   * FuelEU, the IMO GFI and the abatement delta all read — netting there
+   * would move four consumers to fix one.
+   *
+   * CO2 ONLY. CH4 and N2O are charged from 2026 regardless of carbon origin
+   * and reach the ETS module through its own `gasCoverage` block; folding
+   * them in here would double-count them.
+   */
+  etsChargeableEfTco2PerTonne: number;
   lhvMjPerTonne: number;
   /** Provenance line for the UI/exports. */
   derivation: string;
@@ -78,7 +93,9 @@ export function deriveFuelFactors(args: {
   const row = ds.fuels.find((f) => f.id === feId);
   if (!row) return null;
 
-  const perFramework = (fw: EmissionsFramework): { wtw: number; ef: number } | null => {
+  const perFramework = (
+    fw: EmissionsFramework,
+  ): { wtw: number; ef: number; etsEf: number } | null => {
     if (side === "fossil") {
       // Baseline role: 1,000 t of the fossil fuel, factors read off the
       // baseline side (the candidate is a fixed probe that cannot move
@@ -102,9 +119,18 @@ export function deriveFuelFactors(args: {
       );
       if ("notParameterised" in r && r.notParameterised) return null;
       const ok = r as FuelEmissionsResult;
+      // The BASELINE role reads baseline outputs, and `etsChargeable` is
+      // computed for the candidate — so it cannot be reused here. The
+      // baseline is a fossil row by construction on this side, so its
+      // chargeable CO2 is its combustion CO2 in full; apply the row's own
+      // share anyway rather than assuming, so a future bio-baseline (bio-LNG
+      // as the incumbent) is priced correctly without a code change.
+      const baseParts = ok.tankToWake.baseline.parts;
+      const baseRow = ds.fuels.find((f) => f.id === feId);
       return {
         wtw: ok.wellToWake.baseline.intensityGco2ePerMj,
         ef: ok.tankToWake.baseline.emissionsTco2e / 1000,
+        etsEf: (baseParts.ttwCo2Tco2e * (baseRow?.fossilCarbonShare ?? 1)) / 1000,
       };
     }
     // Candidate role: certified pathway + slip scenario + pilot blend.
@@ -140,6 +166,11 @@ export function deriveFuelFactors(args: {
     return {
       wtw: ok.znz.blendWtwGco2ePerMj,
       ef: ok.tankToWake.candidate.emissionsTco2e / 1000,
+      // CO2 + pilot, NOT the non-CO2 terms: CH4/N2O reach the ETS module
+      // through its own gasCoverage block, and adding them here would
+      // double-count them. The pilot IS included — it is fossil carbon
+      // burned in the same engine and chargeable in full.
+      etsEf: (ok.etsChargeable.co2Tco2e + ok.etsChargeable.pilotTco2e) / 1000,
     };
   };
 
@@ -154,6 +185,7 @@ export function deriveFuelFactors(args: {
       ...(imo ? { imo: imo.wtw } : {}),
     },
     combustionEfTco2PerTonne: selected.ef,
+    etsChargeableEfTco2PerTonne: selected.etsEf,
     lhvMjPerTonne: row.lcvMjPerG * 1e6,
     derivation:
       `derived from fuel-emissions ${ds.datasetVersion} · ` +

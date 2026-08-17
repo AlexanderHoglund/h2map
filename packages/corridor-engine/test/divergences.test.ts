@@ -55,6 +55,8 @@ const baseInput = (): ScenarioInput => {
 const fuel = (over: Partial<Record<keyof FuelParams, number>> = {}): FuelParams => ({
   priceUsdPerTonne: usdPerTonne(over.priceUsdPerTonne ?? 900),
   combustionEf: tCo2PerTonne(over.combustionEf ?? 3),
+  // Fossil fixture: chargeable == stack factor.
+  etsChargeableEf: tCo2PerTonne(over.etsChargeableEf ?? over.combustionEf ?? 3),
   lhv: mjPerTonne(over.lhv ?? 41000),
   wtw: gCo2ePerMj(over.wtw ?? 100),
   tonnesPerVesselYear: tonnesPerVesselYear(over.tonnesPerVesselYear ?? 1000),

@@ -83,6 +83,10 @@ const arbSide: fc.Arbitrary<SideInputs> = fc
     fuel: {
       priceUsdPerTonne: usdPerTonne(r.price),
       combustionEf: tCo2PerTonne(r.ef),
+      // The generated sides are generic/fossil: the chargeable factor
+      // equals the stack factor, so every existing invariant (ETS is a
+      // summand of the total, zero without params) holds unchanged.
+      etsChargeableEf: tCo2PerTonne(r.ef),
       lhv: mjPerTonne(r.lhv),
       wtw: gCo2ePerMj(r.wtw),
       tonnesPerVesselYear: tonnesPerVesselYear(r.tonnes),

@@ -1805,7 +1805,7 @@ export default async function DocsPage() {
         </div>
         <p className="mt-2 text-neutral-600">
           The reference dataset (
-          <code>data/fuel-emissions-ref/2026-08-14-seed-3.json</code>) carries
+          <code>data/fuel-emissions-ref/2026-08-17-ets-carbon-4.json</code>) carries
           these citations row by row — every factor in the calculator&apos;s
           decomposition table surfaces its own source and derivation in a
           tooltip, and rows pending primary-source verification render with
