@@ -988,17 +988,42 @@ export default async function DocsPage() {
         </F>
         <p className="mt-2">
           Phase-in: 0 before 2024 → 40% (2024) → 70% (2025) → 100% (2026+).
-          Defaults: EUA €80/t, scope 1.0 (fraction of voyages in ETS scope).
-          An optional annual <em>price escalation</em>{" "}(Advanced fold, default
-          0) compounds the EUA price as (1+esc)^(t−1) — 0 keeps the flat
-          nominal price, a falling real price under inflation; the same
-          control exists on the self-designed CO2 price. The optional{" "}
-          <em>gas coverage</em>{" "}block extends the charge from CO2 to CO2e:
-          from its calendar year, per-side CH4 and N2O slip factors enter at
-          their GWPs — material for LNG methane slip and ammonia N2O.
-          Because it prices <em>combustion</em>{" "}emissions, the green
-          side&apos;s cost is tiny (EF 0.1 vs 3.3) — ETS mostly burdens the
-          fossil side, closing the gap.
+          Defaults: EUA €80/t, scope 1.0 — <strong>1.0 for intra-EEA
+          voyages, 0.5 for a voyage between an EEA and a third-country
+          port</strong>{" "}(100% of emissions between EU/EEA ports, 50%
+          between an EEA and a non-EEA port). An optional annual{" "}
+          <em>price escalation</em>{" "}(Advanced fold, default 0) compounds
+          the EUA price as (1+esc)^(t−1) — 0 keeps the flat nominal price, a
+          falling real price under inflation; the same control exists on the
+          self-designed CO2 price.
+        </p>
+        <p className="mt-2">
+          ETS prices combustion CO2e, so it burdens a fuel by its{" "}
+          <strong>fossil</strong>{" "}carbon content. Certified biogenic and
+          RFNBO carbon is zero-rated under the Directive and is flagged as
+          such on the fuel row; a carbon-free fuel then pays only for its
+          fossil pilot fuel. Certified e-methanol burns 1.4550 tCO2/t at the
+          stack but is chargeable for 0.0800 — the 5% MGO pilot alone — while
+          every other basis in the model still sees the full stack factor.
+        </p>
+        <p className="mt-2">
+          From 2026 the charge covers CH4 and N2O as well as CO2, and{" "}
+          <em>gas coverage</em>{" "}is therefore ON by default from that year,
+          with the slip factors and GWPs derived from the selected accounting
+          framework rather than typed. This is material: methane slip is 23%
+          of the ETS charge for an LNG dual-fuel medium-speed Otto engine
+          (3.1% slip under FuelEU, 3.5% under IMO) against 3% for a
+          slow-speed diesel, and ammonia&apos;s N2O slip is the same order as
+          its pilot term. Non-CO2 gases are <strong>not</strong>{" "}zero-rated
+          by carbon origin — bio-LNG still pays for its methane.
+        </p>
+        <p className="mt-2">
+          ETS is a <strong>tank-to-wake</strong>{" "}instrument and is
+          unaffected by the model&apos;s emissions-basis flag — unlike the
+          self-designed scheme, which follows it. Blue, grey and e-ammonia
+          therefore carry the same ETS charge: all three are carbon-free at
+          the stack, and their upstream differences appear in FuelEU, the IMO
+          GFI and the abatement figure instead.
         </p>
 
         <H3>FuelEU Maritime</H3>

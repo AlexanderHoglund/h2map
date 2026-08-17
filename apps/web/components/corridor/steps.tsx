@@ -1500,10 +1500,15 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
                   value={reg.eurUsd}
                   onChange={(v) => update((d) => void (d.regulation.eurUsd = v))}
                 />
+                {/* The likeliest misconfiguration in the whole module: the
+                    1.0/0.5 split is a property of the ROUTE, not a modelling
+                    preference, and leaving it at 1.0 on an extra-EEA corridor
+                    doubles the charge. */}
                 <NumberInput
                   label={t("etsScope")}
                   unit="0–1"
                   step={0.05}
+                  help={t("etsScopeHelp")}
                   value={reg.ets.scope}
                   onChange={(v) => update((d) => void (d.regulation.ets.scope = v))}
                 />

@@ -212,7 +212,8 @@
       "frameworkNote": "Fuel factors derive from the fuel-emissions dataset {dataset}: certified pathway + N2O slip + pilot blend on the green side, framework-resolved rows on the fossil side. Effective values appear in the Energy tab; explicit overrides there still win.",
       "frameworkLegacyNote": "This scenario runs the legacy workbook factors (pre-v6). Pick a framework to upgrade it to the refined method.",
       "wtp": "Cargo owner willingness to pay",
-      "wtpHelp": "What the cargo owner will fund per tonne of CO2e abated. Does NOT reduce the corridor cost - it splits the incremental cost into a customer share and the public funding that remains. 0 = none."
+      "wtpHelp": "What the cargo owner will fund per tonne of CO2e abated. Does NOT reduce the corridor cost - it splits the incremental cost into a customer share and the public funding that remains. 0 = none.",
+      "etsScopeHelp": "1.0 for a voyage between two EEA ports; 0.5 for a voyage between an EEA and a third-country port. The Directive counts 100% of emissions on intra-EEA voyages and 50% on voyages with one leg outside the EEA. Emissions at berth in an EEA port are chargeable at 100% regardless — not modelled separately, so a corridor of extra-EEA voyages understates slightly."
     },
     "results": {
       "heading": "Results",
