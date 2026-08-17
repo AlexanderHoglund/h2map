@@ -142,6 +142,17 @@
   --domain-regulation-text: #a02b93; /* base passes: 6.44:1 */
 }
 
+/* Anchor jumps glide rather than teleport, so a click in the docs sidebar
+   reads as movement through one page instead of a cut to somewhere new.
+   Guarded: someone who has asked their OS for less motion gets the instant
+   jump, which is the accessible default and also what a deep-link paste
+   should do on load. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   /* The technical "+" grid runs across the WHOLE app (a fainter cut of the
      entry panel's texture); white cards sit on top of it. */

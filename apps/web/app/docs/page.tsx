@@ -2,6 +2,8 @@ import Footer from "@/components/shell/Footer";
 import { requireAccess } from "@/lib/server/access";
 import TopBar from "@/components/shell/TopBar";
 import CountryDefaultsTable from "@/components/docs/CountryDefaultsTable";
+import DocsNav from "@/components/docs/DocsNav";
+import { TOC_IDS, TOC_PARTS } from "./toc";
 import countryDefaults from "../../../../data/country-defaults/snapshot.json";
 import fieldReference from "../../../../data/corridor-sensitivity/field-reference.json";
 import sensitivityArtifact from "../../../../data/corridor-sensitivity/sensitivity.json";
@@ -34,8 +36,19 @@ function H({ id, children }: { id: string; children: React.ReactNode }) {
   );
 }
 
-function H3({ children }: { children: React.ReactNode }) {
-  return <h3 className="mt-6 text-sm font-semibold">{children}</h3>;
+/**
+ * Sub-heading. `id` is optional so a future H3 can be added without one, but
+ * every current call site carries one: the left nav links to these, and a nav
+ * that lists some sub-sections while silently omitting others is worse than a
+ * nav that lists none. The ids live in `./toc.ts` — see that file on why they
+ * are explicit rather than slugged from this text.
+ */
+function H3({ id, children }: { id?: string; children: React.ReactNode }) {
+  return (
+    <h3 id={id} className="mt-6 scroll-mt-16 text-sm font-semibold">
+      {children}
+    </h3>
+  );
 }
 
 /** Field table: name / unit / default·benchmark / what it does. */
@@ -125,53 +138,6 @@ const KPI_LABEL: Record<string, string> = {
   co2AbatedTonnes: "CO₂ abated",
 };
 
-const TOC: [string, string][] = [
-  ["overview", "1. Overview & how the model works"],
-  ["workflow", "2. Working with scenarios"],
-  ["tab-intro", "3. Tab 01 — Intro"],
-  ["tab-energy", "4. Tab 02 — Energy"],
-  ["tab-vessels", "5. Tab 03 — Vessels"],
-  ["tab-cargo", "6. Tab 04 — Cargo"],
-  ["tab-ports", "7. Tab 05 — Ports"],
-  ["tab-financing", "8. Tab 06 — Financing"],
-  ["tab-regulation", "9. Tab 07 — Regulation"],
-  ["tab-results", "10. Tab 08 — Results"],
-  ["engine", "11. The engine: formulas"],
-  // v6: the emission method is PART of the corridor model (and also
-  // powers the standalone calculator) — documented inline, not as a
-  // separate part. Anchor ids unchanged (external links keep working).
-  ["fe-overview", "12. The emission method & functional unit"],
-  ["fe-frameworks", "13. Accounting frameworks"],
-  ["fe-calculation", "14. The emission calculation"],
-  ["fe-corrections", "15. Combustion-side corrections"],
-  ["fe-validation", "16. Emission-method validation"],
-  ["fe-limitations", "17. Emission-method limitations"],
-  ["fe-sources", "18. Emission-method sources"],
-  ["reference-data", "19. Reference data"],
-  ["sensitivity", "20. What moves the results"],
-  ["provenance", "21. Provenance, versions & limits"],
-  ["inputs", "22. Complete input inventory"],
-];
-
-/** Part 2 — the LCOH methodology (the engine that prices a build-here site). */
-const TOC_METHOD: [string, string][] = [
-  ["m-overview", "23. Overview & system boundary"],
-  ["m-hydrogen", "24. Hydrogen from electricity"],
-  ["m-profiles", "25. Resource profiles (capacity factors)"],
-  ["m-dispatch", "26. Hourly dispatch"],
-  ["m-degradation", "27. Degradation & stack replacement"],
-  ["m-lcoh", "28. The LCOH formula"],
-  ["m-lcoe", "29. Electricity pricing (LCOE)"],
-  ["m-emissions", "30. Emissions ledger"],
-  ["m-constants", "31. Constants & reference defaults"],
-  ["m-map", "32. The map's configuration"],
-  ["m-costyears", "33. Cost-year projections"],
-  ["m-defaults", "34. Country defaults"],
-  ["m-verification", "35. Verification"],
-  ["m-validation", "36. Validation"],
-  ["m-limitations", "37. Limitations"],
-  ["m-sources", "38. Sources"],
-];
 
 
 export default async function DocsPage() {
@@ -179,7 +145,11 @@ export default async function DocsPage() {
   return (
     <>
       <TopBar />
-      <main className="mx-auto max-w-4xl px-4 py-10 text-sm leading-6 text-neutral-800">
+      {/* The sidebar sits BESIDE the prose, and the prose keeps its measure:
+          `max-w-4xl` stays on <main>, only this container grows. */}
+      <div className="mx-auto flex max-w-7xl gap-8 px-4">
+        <DocsNav parts={TOC_PARTS} ids={TOC_IDS} />
+        <main className="min-w-0 max-w-4xl py-10 text-sm leading-6 text-neutral-800">
         <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
           Green Corridor cost model — documentation &amp; methodology
         </h1>
@@ -199,40 +169,32 @@ export default async function DocsPage() {
           ammonia dual-fuel Handymax bulkers (§21).
         </p>
 
+        {/* Kept as the page's own Contents, and the ONLY navigation below
+            `lg` where the sticky sidebar is hidden. Reads the same tree as the
+            sidebar, so the two can no longer disagree. */}
         <nav className="mt-6 border border-neutral-300 bg-white p-4">
           <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
             Contents
           </p>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
-            Part 1 · The Green Corridor model
-          </p>
-          <ol className="mt-1 grid gap-x-6 gap-y-1 sm:grid-cols-2">
-            {TOC.map(([id, label]) => (
-              <li key={id}>
-                <a
-                  href={`#${id}`}
-                  className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand"
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
-            Part 2 · LCOH methodology
-          </p>
-          <ol className="mt-1 grid gap-x-6 gap-y-1 sm:grid-cols-2">
-            {TOC_METHOD.map(([id, label]) => (
-              <li key={id}>
-                <a
-                  href={`#${id}`}
-                  className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand"
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ol>
+          {TOC_PARTS.map((part) => (
+            <div key={part.title} className="mt-4 first:mt-0">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+                {part.title}
+              </p>
+              <ol className="mt-1 grid gap-x-6 gap-y-1 sm:grid-cols-2">
+                {part.sections.map((s) => (
+                  <li key={s.id}>
+                    <a
+                      href={`#${s.id}`}
+                      className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand"
+                    >
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
         </nav>
 
         <H id="overview">1. Overview &amp; how the model works</H>
@@ -257,7 +219,7 @@ export default async function DocsPage() {
           there is no &ldquo;calculate&rdquo; button and no server round-trip;
           the results panel and the top-bar gap chip are always live.
         </p>
-        <H3>Benchmarks, overrides and the source badges</H3>
+        <H3 id="overview-badges">Benchmarks, overrides and the source badges</H3>
         <p className="mt-2">
           Every numeric input follows one resolution convention:{" "}
           <em>value used = your override if given, else the benchmark</em>. The interface shows where each number comes from with
@@ -501,7 +463,7 @@ export default async function DocsPage() {
           from. Both sides carry the same field set; the interesting choice is
           the green side&apos;s <strong>sourcing</strong>{" "}mode.
         </p>
-        <H3>Sourcing modes (schema v4)</H3>
+        <H3 id="energy-sourcing">Sourcing modes (schema v4)</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Purchase fuel</strong>{" "}— fuel bought at a price:
@@ -539,7 +501,7 @@ export default async function DocsPage() {
           with the named-plant mode migrate to purchase with the contract
           price carried over as a price override — identical numbers.
         </p>
-        <H3>Build-here: from an evaluated site to the cost structure</H3>
+        <H3 id="energy-buildhere">Build-here: from an evaluated site to the cost structure</H3>
         <p className="mt-2">
           The evaluation hands back the LCOH engine&apos;s full cost structure
           (capital, year-1 operating, year-1 hydrogen output, rate, life) and
@@ -623,7 +585,7 @@ export default async function DocsPage() {
             the rendering says so.
           </li>
         </ul>
-        <H3>Build-here acceptance: two Atacama sites (re-validated 2026-08-02)</H3>
+        <H3 id="energy-acceptance">Build-here acceptance: two Atacama sites (re-validated 2026-08-02)</H3>
         <p className="mt-2">
           Both study candidate sites evaluated through the real flow
           (map-mode gated profiles → LCOH engine → scaled to the 59,850 t/yr
@@ -693,7 +655,7 @@ export default async function DocsPage() {
           is what the map is actually for; the level is a screening estimate,
           the ordering is the product.
         </p>
-        <H3>Per-fuel fields (each side)</H3>
+        <H3 id="energy-perfuel">Per-fuel fields (each side)</H3>
         <Fields
           rows={[
             [
@@ -907,7 +869,7 @@ export default async function DocsPage() {
           below. Both are off by default and both leave the golden default
           untouched.
         </p>
-        <H3>Differentiated green financing</H3>
+        <H3 id="fin-differentiated">Differentiated green financing</H3>
         <F>
           financing<sub>t</sub>{" "}= −outstanding<sub>t</sub>{" "}× (baseRate −
           greenRate) &nbsp; (green side only)
@@ -928,7 +890,7 @@ export default async function DocsPage() {
           is allowed and shows as a cost.
         </p>
 
-        <H3>Capital deployment schedule</H3>
+        <H3 id="fin-phasing">Capital deployment schedule</H3>
         <p className="mt-2">
           Off by default (all CAPEX in year 1). The toggle initialises
           both sides at 100% in year 1; the Standard view exposes a
@@ -957,7 +919,7 @@ export default async function DocsPage() {
           with a counted strip if a scenario carries one of them active.
         </p>
 
-        <H3>Emission accounting (v6)</H3>
+        <H3 id="reg-accounting">Emission accounting (v6)</H3>
         <p className="mt-2">
           The tab opens with the{" "}<strong>accounting-framework
           selector</strong>{" "}(visible in both view modes):{" "}
@@ -978,7 +940,7 @@ export default async function DocsPage() {
           only for the Excel golden fixture and the study-calibration test.
         </p>
 
-        <H3>EU ETS (maritime)</H3>
+        <H3 id="reg-ets">EU ETS (maritime)</H3>
         <F>
           EF<sub>CO2e</sub>{" "}= combustion EF{" "}[+ CH4 t/t × GWP<sub>CH4</sub>{" "}
           + N2O t/t × GWP<sub>N2O</sub>, from the gas-coverage year]
@@ -1026,7 +988,7 @@ export default async function DocsPage() {
           GFI and the abatement figure instead.
         </p>
 
-        <H3>FuelEU Maritime</H3>
+        <H3 id="reg-fueleu">FuelEU Maritime</H3>
         <F>
           deficit<sub>t</sub>{" "}= max(0, WTW − baseline × (1 − target(cal)))
           <br />
@@ -1061,7 +1023,7 @@ export default async function DocsPage() {
           compliant fuel earns rather than paying zero.
         </p>
 
-        <H3>IRA 45Z clean fuel credit (green side only)</H3>
+        <H3 id="reg-ira45z">IRA 45Z clean fuel credit (green side only)</H3>
         <F>
           credit<sub>t</sub>{" "}= − vessels × fuel t × (rate $/gal ÷ 122.5 MJ/gal
           × LHV) / 10⁶ &nbsp; (if enabled AND US-produced)
@@ -1075,7 +1037,7 @@ export default async function DocsPage() {
           end-2027. Absent or null both mean &ldquo;no sunset&rdquo;.
         </p>
 
-        <H3>Self-designed regulation</H3>
+        <H3 id="reg-selfdesigned">Self-designed regulation</H3>
         <F>
           cost<sub>t</sub>{" "}= + vessels × t × EF(basis) × CO2 $/t ×
           (1+esc)^(t−1) /10⁶ &nbsp; (both sides)
@@ -1105,7 +1067,7 @@ export default async function DocsPage() {
           module&apos;s reward mechanism matures into a real support channel.
         </p>
 
-        <H3>IMO Net-Zero Framework (provisional)</H3>
+        <H3 id="reg-imo">IMO Net-Zero Framework (provisional)</H3>
         <F>
           attained GFI = the side&apos;s WTW intensity, IMO-accounted
           [gCO2eq/MJ] — v6: the sulphur-binned fossil WtT and AR5 GWP set
@@ -1138,7 +1100,7 @@ export default async function DocsPage() {
           default everywhere.
         </p>
 
-        <H3>Model options</H3>
+        <H3 id="reg-options">Model options</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Emissions basis</strong>{" "}— what &ldquo;CO2 abated&rdquo;
@@ -1180,7 +1142,7 @@ export default async function DocsPage() {
           “Inputs”: every resolved input grouped by tab with its
           provenance).
         </p>
-        <H3>KPI strip</H3>
+        <H3 id="results-kpis">KPI strip</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Incremental cost gap (PV)</strong>{" "}— the headline: total
@@ -1209,7 +1171,7 @@ export default async function DocsPage() {
           quantity with every scheme (and the financing line) removed, so
           the regulation effect is always visible next to the headline.
         </p>
-        <H3>Scenario snapshot strip</H3>
+        <H3 id="results-snapshot">Scenario snapshot strip</H3>
         <p className="mt-2">
           Directly under the KPIs: one compact line stating what corridor the
           numbers describe — route &amp; ports, cargo unit &amp; weight,
@@ -1218,7 +1180,7 @@ export default async function DocsPage() {
           Everything below reads in that context, and an exported screenshot
           is self-describing.
         </p>
-        <H3>Cost bridges (two waterfalls)</H3>
+        <H3 id="results-waterfalls">Cost bridges (two waterfalls)</H3>
         <p className="mt-2">
           The MMMCZCS-style breakdown. Left to right:{" "}
           <strong>Total cost of green corridor*</strong>{" "}(anchored),{" "}
@@ -1244,7 +1206,7 @@ export default async function DocsPage() {
           numbers. A float that <strong>widens</strong>{" "}the gap is coloured
           differently from one that closes it, on the CVD-safe diverging pair.
         </p>
-        <H3>Who pays: the funding split</H3>
+        <H3 id="results-funding">Who pays: the funding split</H3>
         <p className="mt-2">
           Set a{" "}<strong>cargo-owner willingness to pay</strong>{" "}(Financing
           tab, $/tCO2e abated, default 0) and the waterfall continues past the
@@ -1295,7 +1257,7 @@ export default async function DocsPage() {
           lifetime abatement, active basis tagged), so the gross bar reads the
           pre-regulation abatement cost and the final bar the headline $/tCO2.
         </p>
-        <H3>Cost decomposition table</H3>
+        <H3 id="results-decomposition">Cost decomposition table</H3>
         <p className="mt-2">
           The same information as exact numbers: green | fossil | Δ rows for
           CAPEX, operating cost, a{" "}
@@ -1307,7 +1269,7 @@ export default async function DocsPage() {
           the last digit. Green-side-only lines (45Z, financing) show
           &ldquo;—&rdquo; on the fossil side.
         </p>
-        <H3>Charts</H3>
+        <H3 id="results-charts">Charts</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Annual cost, green vs fossil</strong>{" "}— undiscounted
@@ -1329,7 +1291,7 @@ export default async function DocsPage() {
             price).
           </li>
         </ul>
-        <H3>Results by tab</H3>
+        <H3 id="results-bytab">Results by tab</H3>
         <p className="mt-2">
           The bottom band mirrors the input steps — one equal-framed card
           per COST-CARRYING tab (Intro has no card of its own; its identity
@@ -1437,7 +1399,7 @@ export default async function DocsPage() {
           decomposition lines, and the decomposition&apos;s total row equals
           the headline gap to the last digit.
         </p>
-        <H3>Differentiated green financing (flag-gated, default off)</H3>
+        <H3 id="engine-financing">Differentiated green financing (flag-gated, default off)</H3>
         <p className="mt-2">
           <strong>
             The obvious implementation — a lower discount rate on the green
@@ -1479,7 +1441,7 @@ export default async function DocsPage() {
           state. Nothing is tuned to force $250m — a forced match would
           fabricate precision the source does not provide.
         </p>
-        <H3>Capital deployment schedule (flag-gated, default off)</H3>
+        <H3 id="engine-phasing">Capital deployment schedule (flag-gated, default off)</H3>
         <F>
           CAPEX<sub>t</sub>{" "}= Σ component CAPEX × w<sub>t</sub>, &nbsp;Σ w
           = 1 per side (validated by name, never normalised)
@@ -1838,7 +1800,7 @@ export default async function DocsPage() {
         </p>
 
         <H id="reference-data">19. Reference data</H>
-        <H3>Vessel types</H3>
+        <H3 id="ref-vessels">Vessel types</H3>
         <p className="mt-2">
           The catalogue behind the vessel selector, rendered from the
           reference bundle itself (<code>{vesselCatalogue.bundleId}</code>) —
@@ -1896,7 +1858,7 @@ export default async function DocsPage() {
             </tbody>
           </table>
         </div>
-        <H3>
+        <H3 id="ref-fuels">
           Fuels (price $/t · vessel premium · legacy factor columns)
         </H3>
         <p className="mt-2">
@@ -2104,7 +2066,7 @@ export default async function DocsPage() {
           </li>
         </ul>
 
-        <H3>The default scenario: Chilean copper-concentrate corridor</H3>
+        <H3 id="prov-default">The default scenario: Chilean copper-concentrate corridor</H3>
         <p className="mt-2">
           The app opens on a real published case:{" "}
           <em>Chilean Green Corridors — Copper Concentrate Export</em>{" "}
@@ -2164,7 +2126,7 @@ export default async function DocsPage() {
           row). The pre-regulation figures are factor-independent and
           unchanged.
         </p>
-        <H3>The same corridor, four ways</H3>
+        <H3 id="prov-fourways">The same corridor, four ways</H3>
         <p className="mt-2">
           The corridor is seeded four times, because &ldquo;what did the
           report say?&rdquo; and &ldquo;what does the model think?&rdquo; are
@@ -3520,7 +3482,8 @@ export default async function DocsPage() {
           each resource-profile result.
         </p>
 
-      </main>
+        </main>
+      </div>
       <Footer />
     </>
   );
