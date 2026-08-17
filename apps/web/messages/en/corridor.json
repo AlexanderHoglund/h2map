@@ -333,8 +333,15 @@
       },
       "probabilistic": "Probabilistic view",
       "probIntro": "The incremental cost gap shown as a range rather than a single number.",
-      "probCaveat": "Illustrative only — an even ±30% spread around the calculated value, not a modelled uncertainty.",
-      "probCentre": "Central"
+      "probCaveat": "Illustrative only — an even ±30% spread around each calculated value, not a modelled uncertainty. Every figure below is the central value times a fixed factor.",
+      "probKpi": "Metric",
+      "kpi": {
+        "gapPvUsdM": "Incremental cost gap (PV)",
+        "greenTotalPvUsdM": "Green corridor (PV)",
+        "fossilTotalPvUsdM": "Fossil corridor (PV)",
+        "costPerUnitUsd": "Cost per unit of cargo",
+        "costPerTonneCo2Usd": "Cost per tonne CO2 abated"
+      }
     },
     "buildHere": {
       "chip": "cell {cell} · LCOH ${lcoh}/kg ({rate}%) · synthesis {nameplate} kt/yr, scale ×{scale} · {km} km to port",

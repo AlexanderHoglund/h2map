@@ -1003,7 +1003,7 @@ export default function ResultsPanel({
         rest of the tab means, and a distribution rendered alongside it invites
         reading one as a correction of the other.
       */}
-      <ProbabilisticSection gapPvUsdM={result?.summary.gapPvUsdM ?? null} />
+      <ProbabilisticSection summary={result?.summary ?? null} />
     </div>
   );
 }
