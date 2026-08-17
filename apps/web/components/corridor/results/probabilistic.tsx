@@ -35,7 +35,7 @@ import type { ScenarioSummary } from "@h2map/corridor-schema";
 import { Card } from "@/components/ui/Card";
 import { Note, SectionLabel } from "@/components/ui/Stat";
 import { usdMShort } from "@/lib/corridor/format";
-import { GRID_PROPS, X_AXIS_PROPS, Y_AXIS_PROPS } from "./charts";
+import { X_AXIS_PROPS, Y_AXIS_PROPS } from "./charts";
 
 /**
  * Half-width of the illustrated spread, as a fraction of the central value.
@@ -54,14 +54,25 @@ const SIGMAS = 2;
 /** Points across the curve — dense enough to read as a smooth line. */
 const POINTS = 121;
 
-/** Standard-normal z for each percentile shown. */
+/** Standard-normal z for each percentile shown in the table. */
 const PERCENTILES = [
   { p: 5, z: -1.6449 },
+  { p: 10, z: -1.2816 },
   { p: 25, z: -0.6745 },
   { p: 50, z: 0 },
   { p: 75, z: 0.6745 },
+  { p: 90, z: 1.2816 },
   { p: 95, z: 1.6449 },
 ] as const;
+
+/**
+ * The subset that gets its own line on the chart.
+ *
+ * Seven lines on a curve this size is clutter — P10/P90 sit close enough to
+ * P05/P95 that their labels would overlap — so the chart marks the quartiles
+ * and the outer edges, and the table carries the full set.
+ */
+const CHART_MARKS = [5, 25, 50, 75, 95] as const;
 
 /** The KPIs the table covers, with their formatting. */
 const ROWS = [
@@ -102,50 +113,77 @@ export function ProbabilisticSection({ summary }: { summary: ScenarioSummary | n
   const sigma = half / SIGMAS;
   /** The same fixed factor is applied to every KPI — see the header. */
   const factor = (z: number) => 1 + (SPREAD * z) / SIGMAS;
+  const marks = PERCENTILES.filter((q) =>
+    (CHART_MARKS as readonly number[]).includes(q.p),
+  );
 
   return (
     <Card as="section" className="mt-4">
       <SectionLabel>{t("probabilistic")}</SectionLabel>
       <p className="mt-1 text-xs leading-snug text-neutral-500">{t("probIntro")}</p>
 
-      <div className="mt-3 h-56 w-full">
+      <div className="mt-3 h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: 8 }}>
-            <CartesianGrid {...GRID_PROPS} />
+          {/* `top: 28` and the 1.28 y-domain together reserve a band above the
+              peak for the P50 label. The label sits ABOVE the reference line,
+              which runs to the top of the domain — with the old 1.08 domain
+              and an 8px margin it had nowhere to go and was clipped by the
+              card. */}
+          <AreaChart data={data} margin={{ top: 28, right: 12, bottom: 4, left: 12 }}>
+            {/* VERTICAL grid here, the opposite of the shared GRID_PROPS.
+                The shared kit draws horizontal lines keyed to y-ticks, and
+                this chart hides its y-axis — so the default grid rendered
+                nothing at all. On a distribution the x-axis carries all the
+                information, so the useful rules are the vertical ones. */}
+            <CartesianGrid
+              horizontal={false}
+              vertical
+              stroke="var(--viz-grid)"
+            />
             <XAxis
               {...X_AXIS_PROPS}
               dataKey="x"
               type="number"
               domain={[central - half, central + half]}
-              // Ticks at the percentiles the table lists, so the two line up
-              // by eye rather than only by arithmetic.
-              ticks={PERCENTILES.map((q) => central + sigma * q.z)}
+              // Ticks at the marked percentiles, so chart and table line up by
+              // eye rather than only by arithmetic.
+              ticks={marks.map((q) => central + sigma * q.z)}
               tickFormatter={(v: number) => usdMShort(v)}
             />
             {/* Hidden: the height is a shape, not a probability anyone should
                 read a number off. */}
-            <YAxis {...Y_AXIS_PROPS} hide domain={[0, 1.08]} />
+            <YAxis {...Y_AXIS_PROPS} hide domain={[0, 1.28]} />
 
-            {/* P05 and P95 as the visible edges of the likely range, with the
-                central value emphasised between them. */}
-            <ReferenceLine
-              x={central + sigma * -1.6449}
-              stroke="var(--viz-grid)"
-              strokeDasharray="2 3"
-            />
-            <ReferenceLine
-              x={central + sigma * 1.6449}
-              stroke="var(--viz-grid)"
-              strokeDasharray="2 3"
-            />
+            {/* Every percentile the table lists gets its own line, labelled
+                with the band it opens, so the curve can be read without
+                cross-referencing the table. P50 is the emphasised one. */}
+            {marks.filter((q) => q.p !== 50).map((q) => (
+              <ReferenceLine
+                key={q.p}
+                x={central + sigma * q.z}
+                stroke="var(--viz-grid)"
+                strokeDasharray="2 3"
+                label={{
+                  value: `P${q.p}`,
+                  // `insideTop`, not `top`: these labels are lower than the
+                  // P50 one, which keeps the band above the peak clear for
+                  // the central value and stops the P25/P75 labels colliding
+                  // with it as the curve narrows.
+                  position: "insideTop",
+                  fontSize: 10,
+                  fill: "var(--viz-ink-muted)",
+                }}
+              />
+            ))}
             <ReferenceLine
               x={central}
               stroke="var(--viz-reference)"
               strokeDasharray="4 3"
               label={{
-                value: usdMShort(central),
+                value: `P50 ${usdMShort(central)}`,
                 position: "top",
                 fontSize: 11,
+                fontWeight: 500,
                 fill: "var(--viz-ink-secondary)",
               }}
             />
