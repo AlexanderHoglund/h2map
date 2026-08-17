@@ -177,5 +177,20 @@ export interface ScenarioResult {
       readonly co2AbatedTonnesCombustion: number;
       readonly co2AbatedTonnesWellToWake: number;
     };
+    /**
+     * ETS gas coverage switched OFF on a corridor that runs into 2026 or
+     * later, when the Directive already charges CH4 and N2O.
+     *
+     * Present only when the scenario turned it off explicitly — the default
+     * is on, so this cannot fire by omission. It is a disclosure, not an
+     * error: reproducing a pre-2026 case is a legitimate reason to disable
+     * coverage, and the model should say what the run therefore excludes
+     * rather than silently under-charge.
+     */
+    readonly etsGasCoverageDisabled?: {
+      readonly fromCalendarYear: number;
+      /** Horizon years at or after `fromCalendarYear` — the affected span. */
+      readonly affectedYears: number;
+    };
   };
 }

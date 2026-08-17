@@ -274,17 +274,38 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
     // D1 — surface BOTH bases when the non-default one is active (the two
     // differ materially: WTW includes upstream emissions). Absent under Excel
     // defaults so the frozen golden shape is untouched.
-    ...(wellToWake
-      ? {
-          divergences: {
+    ...(() => {
+      // D3 — ETS gas coverage switched off on a corridor running into the
+      // year the Directive starts charging CH4 and N2O. A disclosure, not an
+      // error: a pre-2026 reproduction is a legitimate reason to disable it.
+      const gasOffFrom = resolved.flags.etsGasCoverageDisabledFrom;
+      const affectedYears =
+        gasOffFrom === undefined
+          ? 0
+          : Math.max(
+              0,
+              (resolved.startYear as number) +
+                resolved.horizonYears -
+                Math.max(gasOffFrom, resolved.startYear as number),
+            );
+      const gasNotice =
+        gasOffFrom !== undefined && affectedYears > 0
+          ? { etsGasCoverageDisabled: { fromCalendarYear: gasOffFrom, affectedYears } }
+          : {};
+      const basisNotice = wellToWake
+        ? {
             emissionsBasis: {
               basis: "wellToWake" as const,
               co2AbatedTonnesCombustion: combustionPerYearT * resolved.horizonYears,
               co2AbatedTonnesWellToWake: wtwPerYearT * resolved.horizonYears,
             },
-          },
-        }
-      : {}),
+          }
+        : {};
+      const divergences = { ...basisNotice, ...gasNotice };
+      // Still absent under pure Excel behaviour — the frozen golden shape is
+      // untouched.
+      return Object.keys(divergences).length > 0 ? { divergences } : {};
+    })(),
   };
 }
 export { resolveFirming } from "./firming";

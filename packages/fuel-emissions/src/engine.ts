@@ -153,6 +153,19 @@ export interface EtsChargeable {
   totalTco2e: number;
   /** The share applied to the candidate's combustion CO2 (1 = fully fossil). */
   fossilCarbonShare: number;
+  /**
+   * Non-CO2 gas MASS per tonne of candidate fuel — t of gas, not CO2e.
+   *
+   * Exposed unweighted so a consumer can pair them with its own GWP set: the
+   * ETS module keeps GWPs as separate inputs, and pre-multiplying here would
+   * make a framework switch silently inconsistent. `ch4` includes engine
+   * slip, which dominates for LNG.
+   */
+  ch4TPerTonneFuel: number;
+  n2oTPerTonneFuel: number;
+  /** The GWP set in force for this evaluation (AR4 FuelEU / AR5 IMO). */
+  gwpCh4: number;
+  gwpN2o: number;
 }
 
 export interface FuelEmissionsResult {
@@ -478,12 +491,27 @@ export function evaluateFuelEmissions(
   const ttwParts = tankToWake.candidate.parts;
   const etsCo2 = ttwParts.ttwCo2Tco2e * etsFossilShare;
   const etsNonCo2 = ttwParts.ttwCh4Tco2e + ttwParts.ttwN2oTco2e + ttwParts.n2oSlipTco2e;
+  // Gas MASS per tonne of fuel, recovered by dividing the CO2e terms back
+  // out by their GWPs — so the two can never disagree about the slip or the
+  // GWP set, which two independent calculations eventually would.
+  const candTonnes = candidateMassTonnes || 1;
   const etsChargeable: EtsChargeable = {
     co2Tco2e: etsCo2,
     nonCo2Tco2e: etsNonCo2,
     pilotTco2e: ttwParts.pilotTco2e,
     totalTco2e: etsCo2 + etsNonCo2 + ttwParts.pilotTco2e,
     fossilCarbonShare: etsFossilShare,
+    ch4TPerTonneFuel: gwp.ch4 > 0 ? ttwParts.ttwCh4Tco2e / gwp.ch4 / candTonnes : 0,
+    // The two N2O terms are divided by their OWN GWPs and only then summed:
+    // `n2oSlipGwpOverride` lets the slip carry a different GWP from the row's
+    // combustion N2O, so dividing the sum by one of them would corrupt the
+    // mass exactly when the override is in use.
+    n2oTPerTonneFuel:
+      ((gwp.n2o > 0 ? ttwParts.ttwN2oTco2e / gwp.n2o : 0) +
+        (slipGwp > 0 ? ttwParts.n2oSlipTco2e / slipGwp : 0)) /
+      candTonnes,
+    gwpCh4: gwp.ch4,
+    gwpN2o: gwp.n2o,
   };
 
   const imo = ds.frameworks["imo"];

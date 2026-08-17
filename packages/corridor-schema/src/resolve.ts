@@ -507,20 +507,61 @@ function toSchedule(steps: readonly { fromCalendarYear: number; value: number }[
 function resolveRegulations(
   reg: RegulationInput,
   bundle: RefBundle,
+  /** v6 derived factors per side — the source of the gas-coverage defaults. */
+  derivedBySide: {
+    green: DerivedFuelFactors | null;
+    fossil: DerivedFuelFactors | null;
+  },
 ): { green: SideRegulations; fossil: SideRegulations } {
-  // D3 — ETS gas coverage: shared GWPs/start year, per-side factors.
-  const gasesFor = (side: "green" | "fossil") =>
-    reg.ets.gasCoverage?.enabled
-      ? {
-          gases: {
-            fromCalendarYear: calendarYear(reg.ets.gasCoverage.fromCalendarYear),
-            ch4TPerTonne: reg.ets.gasCoverage[side].ch4TPerTonne,
-            n2oTPerTonne: reg.ets.gasCoverage[side].n2oTPerTonne,
-            gwpCh4: reg.ets.gasCoverage.gwpCh4,
-            gwpN2o: reg.ets.gasCoverage.gwpN2o,
-          },
-        }
-      : {};
+  /**
+   * ETS gas coverage — CH4 and N2O as well as CO2.
+   *
+   * DEFAULTS ON, from the bundle's year. This is not a preference: maritime
+   * ETS accounts for CO2 only in 2024-25, with CH4 and N2O under scope from
+   * 2026, and that is already in force. A corridor starting 2026 or later
+   * that leaves it off understates the fossil side — decisively so for LNG,
+   * where methane slip dominates.
+   *
+   * Three ways it resolves, in precedence order:
+   *   1. an explicit scenario block wins outright, including `enabled: false`
+   *      (a pre-2026 case must stay reproducible);
+   *   2. otherwise the bundle's year plus DERIVED per-side factors;
+   *   3. and absent both — an older bundle carrying no year — nothing, which
+   *      is the CO2-only behaviour those scenarios were computed with.
+   *
+   * The factors are derived, never typed: methane slip is 3.1% under FuelEU
+   * and 3.5% under IMO for the same engine, so a typed value silently
+   * contradicts the framework selector. Same for the GWPs (AR4 25/298 vs AR5
+   * 28/265).
+   */
+  const bundleGasYear = bundle.regulationDefaults.ets.gasCoverageFromCalendarYear;
+  const gasesFor = (side: "green" | "fossil") => {
+    const explicit = reg.ets.gasCoverage;
+    if (explicit) {
+      return explicit.enabled
+        ? {
+            gases: {
+              fromCalendarYear: calendarYear(explicit.fromCalendarYear),
+              ch4TPerTonne: explicit[side].ch4TPerTonne,
+              n2oTPerTonne: explicit[side].n2oTPerTonne,
+              gwpCh4: explicit.gwpCh4,
+              gwpN2o: explicit.gwpN2o,
+            },
+          }
+        : {};
+    }
+    const d = derivedBySide[side];
+    if (bundleGasYear === undefined || !d) return {};
+    return {
+      gases: {
+        fromCalendarYear: calendarYear(bundleGasYear),
+        ch4TPerTonne: d.ch4TPerTonne,
+        n2oTPerTonne: d.n2oTPerTonne,
+        gwpCh4: d.gwpCh4,
+        gwpN2o: d.gwpN2o,
+      },
+    };
+  };
 
   const etsFor = (side: "green" | "fossil") =>
     reg.ets.enabled
@@ -805,7 +846,10 @@ export function resolveScenario(
     },
     green,
     fossil,
-    regulations: resolveRegulations(input.regulation, bundle),
+    regulations: resolveRegulations(input.regulation, bundle, {
+      green: factorsFor("green"),
+      fossil: factorsFor("fossil"),
+    }),
     ...(financing ? { financing } : {}),
     ...(capitalPhasing ? { capitalPhasing } : {}),
     ...(input.regulation.imoNetZero?.enabled &&
@@ -820,6 +864,16 @@ export function resolveScenario(
       ...(emissionsFramework ? { emissionsFramework } : {}),
       emissionsBasis: input.flags?.emissionsBasis ?? "combustion",
       rateBasis: input.flags?.rateBasis ?? "nominal",
+      // Only an EXPLICIT opt-out discloses: the default is on, so this can
+      // never fire by omission, and a bundle with no coverage year has
+      // nothing to disclose against.
+      ...(input.regulation.ets.gasCoverage?.enabled === false &&
+      bundle.regulationDefaults.ets.gasCoverageFromCalendarYear !== undefined
+        ? {
+            etsGasCoverageDisabledFrom:
+              bundle.regulationDefaults.ets.gasCoverageFromCalendarYear,
+          }
+        : {}),
     },
   };
 }

@@ -321,5 +321,11 @@ export interface ResolvedScenario {
     readonly emissionsFramework?: "fueleu" | "imo";
     readonly emissionsBasis: "combustion" | "wellToWake";
     readonly rateBasis: "nominal" | "real";
+    /**
+     * ETS gas coverage was turned off EXPLICITLY, on a bundle that carries a
+     * coverage year. Drives the disclosure in `divergences`; absent when
+     * coverage is on (the default) or when the bundle predates the year.
+     */
+    readonly etsGasCoverageDisabledFrom?: number;
   };
 }

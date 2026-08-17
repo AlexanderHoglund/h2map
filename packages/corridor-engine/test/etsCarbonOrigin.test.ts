@@ -60,12 +60,13 @@ function skagerrak(): ScenarioInput {
   };
   o.vessel = { ...o.vessel, typeId: "cont-feeder-1800" };
   for (const side of ["green", "fossil"] as const) {
+    const cur = o[side]!;
     o[side] = {
-      ...o[side],
+      ...cur,
       // Cleared deliberately: the corrected value must come from the DATASET.
       // A typed factor goes stale silently; a derived one tracks the bundle.
       overrides: {
-        ...(o[side].overrides as Record<string, unknown>),
+        ...(cur.overrides as Record<string, unknown>),
         combustionEfTco2PerTonne: null,
         wtwGco2PerMj: null,
         lhvMjPerTonne: null,
@@ -127,7 +128,8 @@ describe("what the correction moves, and what it must not", () => {
   /** The old behaviour: ETS charged the whole stack factor. */
   const withFullCharge = () => {
     const r = resolved() as unknown as Record<string, Record<string, unknown>>;
-    r.green = { ...r.green, etsChargeableEf: r.green.combustionEf };
+    const g = r.green!;
+    r.green = { ...g, etsChargeableEf: g.combustionEf };
     return evaluateScenario(r as never);
   };
   const before = withFullCharge();

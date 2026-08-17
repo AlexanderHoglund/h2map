@@ -2483,7 +2483,9 @@
     "eurUsd": 1.08,
     "ets": {
       "euaEurPerTonne": 80,
-      "scope": 1
+      "scope": 1,
+      "gasCoverageFromCalendarYear": 2026,
+      "gasCoverageSourceNote": "Directive 2003/87/EC as amended by (EU) 2023/959: maritime ETS accounts for CO2 only in 2024 and 2025, with CH4 and N2O falling under scope from 1 January 2026. Already in force, not prospective — the Commission increased the allowance volume by 2,375,680 units to account for maritime non-CO2 coverage. Material for LNG methane slip (3.1% FuelEU / 3.5% IMO on a dual-fuel medium-speed Otto engine) and for ammonia N2O slip; small but non-zero for liquid fossil fuels (~1.8% of an LSFO corridor's CO2)."
     },
     "fuelEu": {
       "penaltyEurPerTonne": 2400,

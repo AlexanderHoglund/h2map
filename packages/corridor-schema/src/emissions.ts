@@ -64,6 +64,24 @@ export interface DerivedFuelFactors {
    * them in here would double-count them.
    */
   etsChargeableEfTco2PerTonne: number;
+  /**
+   * Non-CO2 combustion gases, tonnes of GAS per tonne of fuel — the ETS
+   * `gasCoverage` factors, derived rather than typed.
+   *
+   * These are per-framework and per-engine facts, not preferences: methane
+   * slip on a dual-fuel medium-speed Otto engine is 3.1% under FuelEU and
+   * 3.5% under IMO, so a typed value silently contradicts the framework
+   * selector above it. `ch4` here INCLUDES engine slip, which for LNG is the
+   * dominant term.
+   *
+   * Mass of gas, NOT CO2e: the GWPs are applied by the ETS module, which
+   * pairs them with the framework's own GWP set.
+   */
+  ch4TPerTonne: number;
+  n2oTPerTonne: number;
+  /** The framework's GWP set (AR4 for FuelEU, AR5 for IMO). */
+  gwpCh4: number;
+  gwpN2o: number;
   lhvMjPerTonne: number;
   /** Provenance line for the UI/exports. */
   derivation: string;
@@ -95,7 +113,15 @@ export function deriveFuelFactors(args: {
 
   const perFramework = (
     fw: EmissionsFramework,
-  ): { wtw: number; ef: number; etsEf: number } | null => {
+  ): {
+    wtw: number;
+    ef: number;
+    etsEf: number;
+    ch4: number;
+    n2o: number;
+    gwpCh4: number;
+    gwpN2o: number;
+  } | null => {
     if (side === "fossil") {
       // Baseline role: 1,000 t of the fossil fuel, factors read off the
       // baseline side (the candidate is a fixed probe that cannot move
@@ -131,6 +157,16 @@ export function deriveFuelFactors(args: {
         wtw: ok.wellToWake.baseline.intensityGco2ePerMj,
         ef: ok.tankToWake.baseline.emissionsTco2e / 1000,
         etsEf: (baseParts.ttwCo2Tco2e * (baseRow?.fossilCarbonShare ?? 1)) / 1000,
+        // Baseline role: 1,000 t of the fossil fuel was evaluated, so the
+        // per-tonne mass is the CO2e term over its own GWP over 1,000.
+        ch4: ok.etsChargeable.gwpCh4 > 0
+          ? baseParts.ttwCh4Tco2e / ok.etsChargeable.gwpCh4 / 1000
+          : 0,
+        n2o: ok.etsChargeable.gwpN2o > 0
+          ? baseParts.ttwN2oTco2e / ok.etsChargeable.gwpN2o / 1000
+          : 0,
+        gwpCh4: ok.etsChargeable.gwpCh4,
+        gwpN2o: ok.etsChargeable.gwpN2o,
       };
     }
     // Candidate role: certified pathway + slip scenario + pilot blend.
@@ -171,6 +207,10 @@ export function deriveFuelFactors(args: {
       // double-count them. The pilot IS included — it is fossil carbon
       // burned in the same engine and chargeable in full.
       etsEf: (ok.etsChargeable.co2Tco2e + ok.etsChargeable.pilotTco2e) / 1000,
+      ch4: ok.etsChargeable.ch4TPerTonneFuel,
+      n2o: ok.etsChargeable.n2oTPerTonneFuel,
+      gwpCh4: ok.etsChargeable.gwpCh4,
+      gwpN2o: ok.etsChargeable.gwpN2o,
     };
   };
 
@@ -186,6 +226,10 @@ export function deriveFuelFactors(args: {
     },
     combustionEfTco2PerTonne: selected.ef,
     etsChargeableEfTco2PerTonne: selected.etsEf,
+    ch4TPerTonne: selected.ch4,
+    n2oTPerTonne: selected.n2o,
+    gwpCh4: selected.gwpCh4,
+    gwpN2o: selected.gwpN2o,
     lhvMjPerTonne: row.lcvMjPerG * 1e6,
     derivation:
       `derived from fuel-emissions ${ds.datasetVersion} · ` +

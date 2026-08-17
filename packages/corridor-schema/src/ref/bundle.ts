@@ -349,7 +349,21 @@ export const refBundleSchema = z.object({
   }),
   regulationDefaults: z.object({
     eurUsd: z.number(),
-    ets: z.object({ euaEurPerTonne: z.number(), scope: z.number() }),
+    ets: z.object({
+      euaEurPerTonne: z.number(),
+      scope: z.number(),
+      /**
+       * The year maritime ETS starts covering CH4 and N2O as well as CO2.
+       *
+       * Reference DATA, not a user preference: it is a date in the Directive,
+       * already in force. Optional so an older bundle still parses — a
+       * scenario resolving against one keeps the CO2-only behaviour, which is
+       * what it was computed with.
+       */
+      gasCoverageFromCalendarYear: z.number().int().optional(),
+      /** Legal basis for the year above. */
+      gasCoverageSourceNote: z.string().optional(),
+    }),
     fuelEu: z.object({
       penaltyEurPerTonne: z.number(),
       vlsfoMjPerTonne: z.number(),
