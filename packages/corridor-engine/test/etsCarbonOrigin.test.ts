@@ -44,13 +44,13 @@ const bundle = parseRefBundle(
  * and are not reproducible here, so what is pinned below is the MECHANISM and
  * the proportion, not its headline numbers.
  */
-function skagerrak(): ScenarioInput {
+function skagerrak(em: Record<string, unknown> = {}): ScenarioInput {
   const s = JSON.parse(JSON.stringify(defaultScenario())) as Record<string, never>;
   const o = s as unknown as Record<string, Record<string, unknown>>;
   o.cargo = {
     ...o.cargo,
     oneWayDistanceNm: 562,
-    startCalendarYear: 2029,
+    startYear: 2029,
     horizonYears: 15,
     unit: "teu",
     unitTonnes: 14,
@@ -74,6 +74,18 @@ function skagerrak(): ScenarioInput {
     };
   }
   (o.green as Record<string, unknown>).fuelId = "e-methanol";
+  // Every field of this block is required-but-nullable, so it is supplied
+  // whole; `em` varies only what a test cares about.
+  (o.green as Record<string, unknown>).emissions = {
+    certifiedWttGco2ePerMj: null,
+    n2oScenarioId: null,
+    pilotShare: null,
+    pilotFuelId: null,
+    engineType: null,
+    sulphurPercent: null,
+    efficiencyRatio: null,
+    ...em,
+  };
   (o.fossil as Record<string, unknown>).fuelId = "lsfo";
   o.discounting = { ...o.discounting, wacc: 0.055 };
   (s as unknown as Record<string, unknown>).inflation = 0.02;
@@ -86,7 +98,8 @@ function skagerrak(): ScenarioInput {
   return migrateScenarioInput(s as never).input;
 }
 
-const resolved = () => resolveScenario(skagerrak(), bundle);
+const resolved = (em: Record<string, unknown> = {}) =>
+  resolveScenario(skagerrak(em), bundle);
 
 describe("the corrected factor reaches ETS", () => {
   it("resolves the green combustion factor as DERIVED, override cleared", () => {
@@ -121,6 +134,47 @@ describe("the corrected factor reaches ETS", () => {
       (r.fossil.combustionEf.value as number) - (r.fossil.etsChargeableEf.value as number);
     expect(nonCo2).toBeGreaterThan(0);
     expect(nonCo2).toBeLessThan(0.1);
+  });
+});
+
+describe("the pilot term is DERIVED at corridor level, not baked in", () => {
+  /**
+   * The failure this guards against is specific and silent: if
+   * `fossilCarbonShare` reaches the dataset but the pilot contribution is
+   * captured as a constant, the reference scenario still reports the right
+   * number and EVERY other scenario is wrong. Both levers must move the
+   * charge, measured through the full resolve + evaluate path rather than on
+   * the fuel-emissions engine alone.
+   */
+  const etsOf = (em: Record<string, unknown> = {}) =>
+    evaluateScenario(resolved(em)).summary.etsGreenPvUsdM;
+  const base = etsOf();
+
+  it("moves with the pilot SHARE", () => {
+    // 0.05 -> 0.08 is a 60% increase in pilot energy, and the charge follows
+    // at +65%: the EF goes 0.0800 -> 0.1321.
+    const at8 = etsOf({ pilotShare: 0.08 });
+    expect(at8).toBeGreaterThan(base * 1.5);
+    expect(at8 / base).toBeCloseTo(1.652, 2);
+    expect(resolved({ pilotShare: 0.08 }).green.etsChargeableEf.value as number).toBeCloseTo(
+      0.1321,
+      4,
+    );
+  });
+
+  it("moves with the pilot FUEL", () => {
+    // HFO differs from MGO in both LCV and carbon factor, so more pilot mass
+    // is needed per MJ and the charge rises slightly.
+    const hfo = etsOf({ pilotFuelId: "hfo" });
+    expect(hfo).not.toBeCloseTo(base, 6);
+    expect(hfo).toBeGreaterThan(base);
+    expect(hfo / base).toBeCloseTo(1.0246, 3);
+  });
+
+  it("falls to zero without a pilot", () => {
+    // The cleanest proof there is no constant: remove the pilot and the
+    // certified RFNBO owes nothing at all.
+    expect(etsOf({ pilotShare: 0 })).toBeCloseTo(0, 9);
   });
 });
 
