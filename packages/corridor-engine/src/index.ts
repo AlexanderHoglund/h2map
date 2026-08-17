@@ -302,18 +302,3 @@ export type {
   BandResult,
   BandSample,
 } from "./band";
-export {
-  MC_KPIS,
-  PERCENTILES,
-  SAMPLED,
-  percentileOf,
-  runMonteCarlo,
-  triangular,
-} from "./monteCarlo";
-export type {
-  KpiDistribution,
-  McContribution,
-  McKpi,
-  McResult,
-  SampledKey,
-} from "./monteCarlo";

@@ -1,273 +1,134 @@
 "use client";
 
 /**
- * The probabilistic section — the corridor as a distribution, not a point.
+ * The probabilistic view — a first, deliberately simple pass.
  *
- * Everything above this in the Results tab is a single number per figure. The
- * bundle's researched production parameters each ship as a sourced
- * {low, central, high} band, so the model already knows how uncertain those
- * inputs are; it simply never showed it. This runs the corridor many times
- * across those bands and reports percentiles.
+ * Everything above this in the Results tab is a single number. This draws that
+ * number as a distribution instead: a symmetric bell centred on the computed
+ * value, with a fixed ±% spread.
  *
- * DELIBERATELY BEHIND A BUTTON, and deliberately last. The deterministic
- * report is what the rest of the tab means, and a distribution rendered
- * alongside it invites reading one as a correction of the other. It is opt-in,
- * it sits below everything, and it says in its own copy what it sampled.
+ * WHAT THIS IS NOT, AND THAT IS THE POINT FOR NOW. It does not sample the
+ * bundle's researched cost ranges, and the shape carries no information the
+ * point estimate does not already have — the spread is an assumption, not a
+ * measurement, so the curve is illustrative. It exists to show the shape of
+ * the answer and to hold the place while the real distribution work is
+ * decided.
  *
- * The run is synchronous: a full resolve + evaluate costs ~0.05 ms, so a few
- * thousand draws finish inside one interaction with no worker and no spinner.
+ * It renders straight from the result with no button and no run step, because
+ * there is nothing to compute: the curve is a closed-form function of one
+ * number, so it costs nothing and cannot go stale against the inputs above.
  */
 
-import React, { useState } from "react";
+import React from "react";
 import { useTranslations } from "next-intl";
 import {
-  Bar,
-  BarChart,
+  Area,
+  AreaChart,
   CartesianGrid,
   ReferenceLine,
   ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import type { ScenarioInput } from "@h2map/corridor-schema";
-import type { McResult, SampledKey } from "@h2map/corridor-engine";
-import { runMonteCarlo } from "@h2map/corridor-engine";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Note, SectionLabel } from "@/components/ui/Stat";
 import { usdMShort } from "@/lib/corridor/format";
-import { DEFAULT_BUNDLE } from "../state";
 import { GRID_PROPS, X_AXIS_PROPS, Y_AXIS_PROPS } from "./charts";
-import { warnIfDominated } from "./guard";
 
-/** Draws per run. 2,000 is stable to the nearest $1m and still sub-200 ms. */
-const RUNS = 2000;
-/** Fixed seed: the same scenario must always produce the same percentiles. */
-const SEED = 1;
-/** Histogram resolution. */
-const BINS = 28;
+/**
+ * Half-width of the illustrated spread, as a fraction of the central value.
+ * A round, honest placeholder — NOT derived from the researched bands.
+ */
+const SPREAD = 0.3;
+/** Points across the curve. Enough to read as smooth at this size. */
+const POINTS = 61;
 
-/** How each KPI is rendered. `usdM` values share the compact $m formatter. */
-const KPI_FORMAT: Record<string, (v: number) => string> = {
-  gapPvUsdM: usdMShort,
-  greenTotalPvUsdM: usdMShort,
-  fossilTotalPvUsdM: usdMShort,
-  costPerUnitUsd: (v) => `$${v.toFixed(0)}/t`,
-  costPerTonneCo2Usd: (v) => `$${v.toFixed(0)}/tCO2e`,
-  co2AbatedTonnes: (v) => `${(v / 1000).toFixed(0)}k t`,
-};
-
-const fmt = (kpi: string, v: number): string =>
-  Number.isFinite(v) ? (KPI_FORMAT[kpi] ?? ((x: number) => x.toFixed(1)))(v) : "—";
-
-/** Equal-width bins over the sampled headline values. */
-function histogram(sorted: readonly number[]): { x: number; n: number }[] {
-  if (sorted.length === 0) return [];
-  const lo = sorted[0]!;
-  const hi = sorted[sorted.length - 1]!;
-  if (!(hi > lo)) return [{ x: lo, n: sorted.length }];
-  const width = (hi - lo) / BINS;
-  const bins = Array.from({ length: BINS }, (_, i) => ({
-    x: lo + width * (i + 0.5),
-    n: 0,
-  }));
-  for (const v of sorted) {
-    const i = Math.min(BINS - 1, Math.floor((v - lo) / width));
-    bins[i]!.n += 1;
-  }
-  return bins;
+/**
+ * A symmetric bell over `central ± SPREAD`.
+ *
+ * A plain Gaussian shape, scaled so the peak is 1: only the SHAPE is shown,
+ * never a density value, so the y-axis stays hidden and no reader can take a
+ * probability off it. Sigma is a third of the half-width, which puts the
+ * drawn range at about ±3 sigma and lets the tails land close to zero inside
+ * the chart rather than being clipped.
+ */
+function curve(central: number): { x: number; y: number }[] {
+  const half = Math.abs(central) * SPREAD;
+  if (!(half > 0)) return [];
+  const sigma = half / 3;
+  return Array.from({ length: POINTS }, (_, i) => {
+    const x = central - half + (2 * half * i) / (POINTS - 1);
+    const z = (x - central) / sigma;
+    return { x, y: Math.exp(-0.5 * z * z) };
+  });
 }
 
-export function ProbabilisticSection({
-  scenario,
-  ready,
-}: {
-  scenario: ScenarioInput;
-  /** False when the scenario cannot be evaluated — the button explains why. */
-  ready: boolean;
-}) {
+export function ProbabilisticSection({ gapPvUsdM }: { gapPvUsdM: number | null }) {
   const t = useTranslations("corridor.results");
-  const [run, setRun] = useState<McResult | null>(null);
-  const [ranFor, setRanFor] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
 
-  // The corridor recomputes on every keystroke, so a completed run goes stale
-  // the moment anything is edited. Say so rather than show numbers that no
-  // longer describe the inputs on screen.
-  const signature = JSON.stringify(scenario);
-  const stale = run !== null && ranFor !== signature;
-
-  const headline = run?.distributions.find((d) => d.kpi === "gapPvUsdM");
-  const bins = run ? histogram(run.headlineSorted) : [];
-
-  // The dominance guard is aimed at the SAMPLED VALUES, not the bin counts.
-  // A healthy distribution is peaked by definition — its modal bin routinely
-  // exceeds 5x the median bin — so guarding the counts would warn on correct
-  // output. Guarding the values catches the case the rule is actually about:
-  // one draw so extreme it sets the axis and flattens everything else.
-  if (run && run.headlineSorted.length > 0) {
-    warnIfDominated("probabilistic-headline", run.headlineSorted, {
-      separated: false,
-    });
+  // Nothing to draw without a finite, non-zero central value — a corridor with
+  // no gap has no spread to illustrate.
+  if (gapPvUsdM === null || !Number.isFinite(gapPvUsdM) || gapPvUsdM === 0) {
+    return null;
   }
+
+  const data = curve(gapPvUsdM);
+  const half = Math.abs(gapPvUsdM) * SPREAD;
 
   return (
     <Card as="section" className="mt-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <SectionLabel>{t("probabilistic")}</SectionLabel>
-        <Button
-          variant="primary"
-          disabled={!ready || busy}
-          onClick={() => {
-            // The run is synchronous (~0.5s for 2,000 draws), so it would
-            // otherwise block the paint and the button would sit unchanged
-            // until results appeared. Flip to a pending label first and let
-            // the browser render one frame before starting.
-            setBusy(true);
-            requestAnimationFrame(() => {
-              setRun(runMonteCarlo(scenario, DEFAULT_BUNDLE, { runs: RUNS, seed: SEED }));
-              setRanFor(signature);
-              setBusy(false);
-            });
-          }}
-        >
-          {busy ? t("probRunning") : run ? t("probRerun") : t("probRun")}
-        </Button>
-      </div>
-
+      <SectionLabel>{t("probabilistic")}</SectionLabel>
       <p className="mt-1 text-xs leading-snug text-neutral-500">
         {t("probIntro")}
       </p>
 
-      {!ready && <Note className="mt-2">{t("probUnavailable")}</Note>}
+      <div className="mt-3 h-48 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 4, right: 8, bottom: 4, left: 8 }}>
+            <CartesianGrid {...GRID_PROPS} />
+            <XAxis
+              {...X_AXIS_PROPS}
+              dataKey="x"
+              type="number"
+              domain={[gapPvUsdM - half, gapPvUsdM + half]}
+              tickFormatter={(v: number) => usdMShort(v)}
+            />
+            {/* Hidden: the height is a shape, not a probability anyone should
+                read a number off. */}
+            <YAxis {...Y_AXIS_PROPS} hide domain={[0, 1.05]} />
+            {/* No tooltip: the curve's height is not a readable quantity, and
+                the axis plus the labelled centre below already carry every
+                number worth taking off this chart. */}
+            <ReferenceLine
+              x={gapPvUsdM}
+              stroke="var(--viz-reference)"
+              strokeDasharray="4 3"
+            />
+            <Area
+              dataKey="y"
+              stroke="var(--viz-anchor)"
+              fill="var(--viz-anchor)"
+              fillOpacity={0.15}
+              strokeWidth={2}
+              isAnimationActive={false}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
 
-      {run?.degenerate && (
-        // Not a failure — the scenario simply overrides the inputs this
-        // samples, so there is nothing to vary. Saying that is far better
-        // than drawing a single-spike histogram, which reads as certainty.
-        <Note className="mt-3">{t("probDegenerate")}</Note>
-      )}
+      <div className="mt-1 flex flex-wrap items-baseline gap-x-4 text-xs tabular-nums text-neutral-600">
+        <span>
+          {t("probCentre")}:{" "}
+          <span className="font-medium text-neutral-900">
+            {usdMShort(gapPvUsdM)}
+          </span>
+        </span>
+        <span className="text-neutral-500">
+          {usdMShort(gapPvUsdM - half)} – {usdMShort(gapPvUsdM + half)}
+        </span>
+      </div>
 
-      {run && !run.degenerate && (
-        <>
-          {stale && <Note className="mt-3">{t("probStale")}</Note>}
-
-          {headline && (
-            <div className="mt-4">
-              <div className="text-xs text-neutral-500">{t("probHeadline")}</div>
-              <div className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                <span className="text-2xl font-semibold tabular-nums text-neutral-900">
-                  {fmt("gapPvUsdM", headline.percentiles[50]!)}
-                </span>
-                <span className="text-sm tabular-nums text-neutral-600">
-                  {t("probRange")}: {fmt("gapPvUsdM", headline.percentiles[5]!)} –{" "}
-                  {fmt("gapPvUsdM", headline.percentiles[95]!)}
-                </span>
-                <span className="text-xs tabular-nums text-neutral-500">
-                  {t("probPoint")}: {fmt("gapPvUsdM", headline.deterministic)}
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className="mt-3 h-56 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={bins} margin={{ top: 4, right: 8, bottom: 4, left: 8 }}>
-                <CartesianGrid {...GRID_PROPS} />
-                <XAxis
-                  {...X_AXIS_PROPS}
-                  dataKey="x"
-                  type="number"
-                  domain={["dataMin", "dataMax"]}
-                  tickFormatter={(v: number) => usdMShort(v)}
-                />
-                <YAxis {...Y_AXIS_PROPS} allowDecimals={false} />
-                <Tooltip
-                  cursor={{ fill: "var(--viz-grid)" }}
-                  formatter={(v) => [`${Number(v)}`, t("probDraws")]}
-                  labelFormatter={(v) => usdMShort(Number(v))}
-                />
-                {headline && (
-                  <ReferenceLine
-                    x={headline.deterministic}
-                    stroke="var(--viz-reference)"
-                    strokeDasharray="4 3"
-                  />
-                )}
-                <Bar dataKey="n" fill="var(--viz-anchor)" isAnimationActive={false} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/*
-            No overflow wrapper and no min-width: unlike the by-tab tables in
-            tables.tsx, which scroll because they sit in ~360px half-width
-            grid cells, this one is in a full-width card with room for all
-            seven columns. A min-width here forced a scrollbar inside the
-            card — a scroller inside the page's scroller — for no gain.
-          */}
-          <div className="mt-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500">
-                  <th className="py-1 pr-3 font-medium">{t("probKpi")}</th>
-                  {[5, 25, 50, 75, 95].map((p) => (
-                    <th key={p} className="py-1 pr-3 text-right font-medium tabular-nums">
-                      P{p}
-                    </th>
-                  ))}
-                  <th className="py-1 text-right font-medium">{t("probPoint")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {run.distributions.map((d) => (
-                  <tr key={d.kpi} className="border-b border-neutral-100 last:border-0">
-                    <td className="py-1 pr-3 text-neutral-700">{t(`kpi.${d.kpi}`)}</td>
-                    {[5, 25, 50, 75, 95].map((p) => (
-                      <td
-                        key={p}
-                        className="py-1 pr-3 text-right tabular-nums text-neutral-800"
-                      >
-                        {fmt(d.kpi, d.percentiles[p]!)}
-                      </td>
-                    ))}
-                    <td className="py-1 text-right tabular-nums text-neutral-500">
-                      {fmt(d.kpi, d.deterministic)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {run.largestDriver && (
-            <p className="mt-3 text-xs leading-snug text-neutral-600">
-              {t("probDriver")}:{" "}
-              <span className="font-medium text-neutral-800">
-                {t(`probParam.${run.largestDriver satisfies SampledKey}`)}
-              </span>
-              {run.contributions.length > 1 && (
-                <>
-                  {" "}
-                  <span className="text-neutral-500">
-                    (
-                    {run.contributions
-                      .map(
-                        (c) =>
-                          `${t(`probParam.${c.key}`)} ${usdMShort(c.swing)}`,
-                      )
-                      .join(" · ")}
-                    )
-                  </span>
-                </>
-              )}
-            </p>
-          )}
-
-          <Note className="mt-3">{t("probCaveat")}</Note>
-        </>
-      )}
+      <Note className="mt-3">{t("probCaveat")}</Note>
     </Card>
   );
 }

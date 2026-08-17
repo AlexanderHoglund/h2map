@@ -1001,9 +1001,9 @@ export default function ResultsPanel({
       {/*
         Last, and deliberately so: the deterministic report above is what the
         rest of the tab means, and a distribution rendered alongside it invites
-        reading one as a correction of the other. Opt-in, below everything.
+        reading one as a correction of the other.
       */}
-      <ProbabilisticSection scenario={scenario} ready={result !== null && !error} />
+      <ProbabilisticSection gapPvUsdM={result?.summary.gapPvUsdM ?? null} />
     </div>
   );
 }
