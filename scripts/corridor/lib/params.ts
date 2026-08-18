@@ -52,6 +52,115 @@ interface Param {
 // Plausible ranges: workbook-informed planning bands. Overrides go through the
 // scenario's own override fields, so the sweep exercises the same resolution
 // path the UI will.
+/**
+ * How a field should be nudged when measuring its LEVERAGE.
+ *
+ * `relative` (the default): ±10% of the field's own value. Right for prices,
+ * quantities, capacities and distances.
+ *
+ * `absolutePp`: ±1 percentage point. Right for rates and fractions, because
+ * ±10% of a 5.5% WACC is 6.05% and nobody reasons about rate uncertainty that
+ * way — a rate moves in points, not in percentages of itself.
+ *
+ * DECLARED BY MEANING, NOT INFERRED FROM RANGE. A range-based rule would
+ * misclassify `regulation.eurUsd` (0.9–1.3, an exchange rate),
+ * `green.efficiencyRatio` (0.8–1.2), `green.combustionEf` (tCO2/t) and every
+ * $m/yr port cost that happens to sit under 1.5 — all of which are ordinary
+ * quantities that move proportionally.
+ */
+export type PerturbationType = "relative" | "absolutePp";
+
+/** The fields that move in percentage points. Everything else is relative. */
+const ABSOLUTE_PP: ReadonlySet<string> = new Set([
+  "cargo.wacc",
+  "cargo.inflation",
+  "financing.greenRate",
+  "financing.baseRate",
+  "financing.debtShare",
+  "regulation.etsScope",
+  "regulation.fuelEuScope",
+  "regulation.imoScope",
+  "regulation.selfCapexSupport",
+  "regulation.selfOpexSupport",
+  "regulation.euaEscalation",
+  "regulation.selfCo2PriceEscalation",
+  "regulation.imoPriceEscalation",
+  "green.pilotShare",
+]);
+
+export const perturbationType = (id: string): PerturbationType =>
+  ABSOLUTE_PP.has(id) ? "absolutePp" : "relative";
+
+/**
+ * Inputs that are NOT independent, and the rule that keeps them physical.
+ *
+ * The one-at-a-time sweep moves each field alone, which for coupled inputs
+ * measures a state the model itself rejects. The clearest case: green and
+ * fossil consumption are energy-matched on any real corridor
+ * (`energyParity.ratio` is exactly 1.000000 at baseline), and moving one side
+ * ±30% drives the ratio to 1.3000 / 0.7692 with `diverged: true`. The sweep
+ * scores that as two independent 21.0% and 41.1% movers.
+ *
+ * A member may belong to MORE THAN ONE group — the burns are both an
+ * energy-demand driver and half of a fuel-cost group — which is why this is a
+ * separate declaration rather than a field on `Param`.
+ *
+ * The group figure is the honest one; the individual figures explain the
+ * mechanism and are reported flagged `coupled`.
+ */
+export interface CouplingGroup {
+  id: string;
+  label: string;
+  /** Sweep ids moved together. */
+  members: readonly string[];
+  /** Why these move together, and what the joint perturbation means. */
+  rationale: string;
+}
+
+export const COUPLING_GROUPS: readonly CouplingGroup[] = [
+  {
+    id: "energy-demand",
+    label: "Delivered energy demand",
+    members: [
+      "cargo.oneWayDistanceNm",
+      "cargo.roundtripsPerYear",
+      "green.fuelTonnesPerVesselYear",
+      "fossil.fuelTonnesPerVesselYear",
+    ],
+    rationale:
+      "Consumption scales with distance x roundtrips, and the two sides stay " +
+      "energy-matched via their LHV ratio. Perturbed together, so the " +
+      "corridor still delivers a physically consistent amount of energy.",
+  },
+  {
+    id: "fuel-cost-green",
+    label: "Green delivered fuel cost",
+    members: ["green.priceUsdPerTonne", "green.fuelTonnesPerVesselYear"],
+    rationale:
+      "Price x consumption is one quantity — the cost of delivered energy. " +
+      "Sweeping them apart double-counts the same exposure.",
+  },
+  {
+    id: "fuel-cost-fossil",
+    label: "Fossil delivered fuel cost",
+    members: ["fossil.priceUsdPerTonne", "fossil.fuelTonnesPerVesselYear"],
+    rationale: "As fuel-cost-green, on the incumbent side.",
+  },
+  {
+    id: "fleet-capital",
+    label: "Fleet capital",
+    members: ["vessel.green.capexUsdM", "vessel.fossil.capexUsdM"],
+    rationale:
+      "Both sides are ordered from the same yard market, so a newbuild price " +
+      "shock moves them together; their SPREAD is the green premium and is a " +
+      "second axis, not this one.",
+  },
+];
+
+/** Groups a sweep id belongs to (possibly none, possibly several). */
+export const groupsFor = (id: string): readonly CouplingGroup[] =>
+  COUPLING_GROUPS.filter((g) => g.members.includes(id));
+
 export const PARAMS: Param[] = [
   { id: "cargo.oneWayDistanceNm", label: "Corridor length (nm)", step: 1, low: 100, high: 5000, ui: true, set: (s, v) => { s.cargo.oneWayDistanceNm = v; } },
   { id: "cargo.horizonYears", label: "Years modelled", step: 1, low: 10, high: 40, ui: true, set: (s, v) => { s.cargo.horizonYears = Math.round(v); } },

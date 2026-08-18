@@ -30,6 +30,11 @@ jobs:
       # top-level input set (≥5% headline movement) no longer matches the
       # committed ui-manifest — the interface must track the model.
       - run: npx tsx scripts/corridor/sensitivity.ts --check
+      # Elasticity drift gate. Regenerate-and-diff, like the docs gate:
+      # the artifact is a pure function of the engine, the bundle and the
+      # archetypes, so any engine change that moves leverage must be
+      # committed rather than discovered later. The full run is ~2s.
+      - run: npx tsx scripts/corridor/elasticity.ts && git diff --exit-code data/corridor-sensitivity/elasticity.json
       # Generated docs must track the code (build-plan 4.3).
       - run: npx tsx scripts/corridor/gen-docs.ts && git diff --exit-code docs/corridor
 

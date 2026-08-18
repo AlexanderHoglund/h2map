@@ -118,7 +118,7 @@ describe("corridor length behaves differently per archetype", () => {
     const at = (factor: number) => {
       const s = JSON.parse(JSON.stringify(input(key))) as ScenarioInput;
       const c = s.cargo as unknown as Record<string, number>;
-      c.oneWayDistanceNm = c.oneWayDistanceNm * factor;
+      c.oneWayDistanceNm = (c.oneWayDistanceNm ?? 0) * factor;
       return evaluateScenario(resolveScenario(s, bundle)).summary.gapPvUsdM;
     };
     return (at(1.1) - at(0.9)) / at(1) / 0.2;

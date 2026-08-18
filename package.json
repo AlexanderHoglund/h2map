@@ -35,6 +35,7 @@
     "rankdiff:costyear": "tsx scripts/rankdiff/measure-costyear.ts",
     "e2e": "playwright test",
     "corridor:docs": "tsx scripts/corridor/gen-docs.ts",
+    "corridor:elasticity": "tsx scripts/corridor/elasticity.ts",
     "corridor:template": "tsx scripts/corridor/gen-input-template.ts",
     "cells:export": "tsx scripts/rankdiff/export-cells.ts",
     "cells:check-cf": "tsx scripts/rankdiff/check-solar-cf.ts",
