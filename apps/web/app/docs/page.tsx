@@ -111,6 +111,10 @@ interface FieldRow {
   required: boolean;
   rank: number | null;
   movementPct: number | null;
+  /** Gap elasticity across the three archetypes, as a range ("0.00–0.29"). */
+  elasticity?: string;
+  /** Coupling groups this field belongs to, if any. */
+  coupled?: string[];
   placement: string;
 }
 const FIELD_ROWS: FieldRow[] = (fieldReference as { rows: FieldRow[] }).rows;
@@ -2399,6 +2403,46 @@ export default async function DocsPage() {
           0.0% — the engine counts vessels and roundtrips, not units.
         </p>
         <p className="mt-2">
+          <strong>Elasticity</strong>{" "}answers a different question from the
+          movement columns beside it, and neither replaces the other. Movement
+          asks <em>how far can this field push the gap across its assumed
+          range</em>; elasticity asks{" "}<em>how hard does it push per unit of
+          itself</em>{" "}— a small standard nudge (±10%, or ±1 percentage point
+          for rates and fractions), normalised. That makes it a property of the
+          model at that point rather than of a range someone chose:{" "}
+          <code>regulation.selfDesigned.otherUsdM</code>{" "}tops the movement
+          ranking at 376% only because it is swept $0–50m.
+        </p>
+        <p className="mt-2">
+          It is reported as a <strong>range across three archetypes</strong>{" "}
+          — Chilean copper (build, deep-sea), Australia–Korea iron ore
+          (purchase, deep-sea) and the Skagerrak green box (contract offtake,
+          short-sea) — because the spread <em>is</em>{" "}the finding. Corridor
+          length measures 0.29 where consumption is derived from geometry and
+          exactly 0.00 where the burn is typed, so a single averaged figure
+          would report it as moderately important everywhere when it is
+          decisive on one corridor and inert on another.
+        </p>
+        <p className="mt-2">
+          <strong>Coupled</strong>{" "}names the fields that are not independent,
+          and whose individual figures therefore overstate them. Green and
+          fossil consumption are energy-matched on any real corridor, so moving
+          one alone describes a state the model itself rejects; moved together
+          the pair measures 0.27 against a naive sum of 0.62. Fleet capital is
+          starker: green vessel CAPEX is <em>+0.25</em>{" "}and fossil{" "}
+          <em>−0.20</em>, so a yard-price shock lifts both sides and the gap
+          barely moves — 0.05 together against 0.46 apart. The group figure is
+          the honest one; the per-field figures explain the mechanism.
+        </p>
+        <p className="mt-2">
+          Both columns are one-at-a-time, so <strong>interactions are
+          invisible</strong>{" "}to them by construction — WACC and horizon
+          compound on a capital-heavy corridor and neither column can say so.
+          Elasticity is also <em>leverage only</em>: multiplying it by a
+          declared, cited uncertainty range is what yields impact, and that
+          exposure data is a separate reference dataset.
+        </p>
+        <p className="mt-2">
           <strong>Placement</strong>{" "}is the UI prominence contract and is
           deliberately narrower than the ranking:{" "}<em>top-level</em>{" "}
           renders prominently (≥5% movers among the interface&apos;s
@@ -2418,6 +2462,8 @@ export default async function DocsPage() {
                 <th className="px-3 py-2 font-medium">Req.</th>
                 <th className="px-3 py-2 font-medium">Rank</th>
                 <th className="px-3 py-2 text-right font-medium">Max gap movement</th>
+                <th className="px-3 py-2 text-right font-medium">Elasticity</th>
+                <th className="px-3 py-2 font-medium">Coupled</th>
                 <th className="px-3 py-2 font-medium">Placement</th>
               </tr>
             </thead>
@@ -2437,6 +2483,12 @@ export default async function DocsPage() {
                   </td>
                   <td className="px-3 py-1.5 text-right tabular-nums">
                     {row.movementPct != null ? `${row.movementPct.toFixed(1)}%` : "—"}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">
+                    {row.elasticity ?? "—"}
+                  </td>
+                  <td className="px-3 py-1.5 font-mono text-[11px] text-neutral-600">
+                    {row.coupled?.length ? row.coupled.join(", ") : "—"}
                   </td>
                   <td className="px-3 py-1.5">{row.placement}</td>
                 </tr>

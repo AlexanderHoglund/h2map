@@ -88,6 +88,53 @@ function fieldReference(): string {
   const manifest = JSON.parse(
     readFileSync(new URL("data/corridor-sensitivity/ui-manifest.json", ROOT), "utf8"),
   ) as { topLevel: string[]; advanced: string[] };
+  /**
+   * LEVERAGE, from the elasticity harness. A different question from the
+   * sweep's movement columns beside it: movement asks how far a field can push
+   * the gap across an assumed range, elasticity asks how hard it pushes per
+   * unit of itself. The table carries both and the methodology section says
+   * why neither replaces the other.
+   */
+  const elasticity = JSON.parse(
+    readFileSync(new URL("data/corridor-sensitivity/elasticity.json", ROOT), "utf8"),
+  ) as {
+    rows: {
+      id: string;
+      coupled: boolean;
+      couplingGroups: string[];
+      scenarios: Record<
+        string,
+        { measurable: boolean; perKpi?: Record<string, { mean: number }> }
+      >;
+    }[];
+  };
+  const elasticityById = new Map(elasticity.rows.map((r) => [r.id, r]));
+  /**
+   * The gap elasticity across archetypes, as a range.
+   *
+   * A RANGE rather than a single number because the spread is the finding:
+   * corridor length measures 0.27 on a deep-sea corridor whose burns derive
+   * from geometry and exactly 0 where they are typed. Collapsing that to a
+   * mean would report a field as "moderately important everywhere" when it is
+   * decisive on one archetype and inert on another.
+   */
+  const elasticityCell = (id: string): string => {
+    const row = elasticityById.get(id);
+    if (!row) return "—";
+    const vs = Object.values(row.scenarios)
+      .filter((s) => s.measurable && s.perKpi)
+      .map((s) => s.perKpi!.gapPvUsdM!.mean);
+    if (vs.length === 0) return "—";
+    const lo = Math.min(...vs);
+    const hi = Math.max(...vs);
+    return lo.toFixed(2) === hi.toFixed(2)
+      ? lo.toFixed(2)
+      : `${lo.toFixed(2)}–${hi.toFixed(2)}`;
+  };
+  const coupledCell = (id: string): string => {
+    const row = elasticityById.get(id);
+    return row?.coupled ? `\`${row.couplingGroups.join("`, `")}\`` : "—";
+  };
   const rank = new Map(sensitivity.ranked.map((r, i) => [r.id, { i: i + 1, r }]));
   const placement = (id: string): string =>
     manifest.topLevel.includes(id) ? "top-level" : manifest.advanced.includes(id) ? "advanced" : "—";
@@ -182,8 +229,8 @@ function fieldReference(): string {
     "(`@h2map/corridor-schema`) joined with the sensitivity artifact and the",
     "ui-manifest. Do not edit by hand — CI fails on drift.",
     "",
-    "| Field | Type | Required | Sensitivity rank | Gap movement | Max across KPIs | Binding KPI | UI placement |",
-    "|---|---|---|---|---|---|---|---|",
+    "| Field | Type | Required | Sensitivity rank | Gap movement | Max across KPIs | Binding KPI | Elasticity (range across archetypes) | Coupled | UI placement |",
+    "|---|---|---|---|---|---|---|---|---|---|",
   ];
   for (const row of rows) {
     const sensId = ALIAS[row.path];
@@ -194,6 +241,8 @@ function fieldReference(): string {
       } | ${hit ? `${(hit.r.relHeadlineMovement * 100).toFixed(1)}%` : "—"} | ${
         hit ? `${(hit.r.maxRelMovement * 100).toFixed(1)}%` : "—"
       } | ${hit ? `\`${hit.r.bindingKpi}\`` : "—"} | ${
+        sensId ? elasticityCell(sensId) : "—"
+      } | ${sensId ? coupledCell(sensId) : "—"} | ${
         sensId ? placement(sensId) : "—"
       } |`,
     );
@@ -230,6 +279,8 @@ function fieldReference(): string {
       movementPct: hit
         ? Number((hit.r.relHeadlineMovement * 100).toFixed(1))
         : null,
+      elasticity: sensId ? elasticityCell(sensId) : "—",
+      coupled: sensId ? (elasticityById.get(sensId)?.couplingGroups ?? []) : [],
       placement: sensId ? placement(sensId) : "—",
     };
   });
