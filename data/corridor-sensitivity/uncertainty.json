@@ -47,6 +47,67 @@
     "cargo.inflation"
    ],
    "skipped": [],
+   "tornado": {
+    "base": 1729.169459250379,
+    "bars": [
+     {
+      "id": "cargo.wacc",
+      "low": 1740.819123655761,
+      "high": 1637.667838479076,
+      "span": 103.15128517668495,
+      "rangeLow": 7.5,
+      "rangeHigh": 13,
+      "unit": "percentage points, nominal",
+      "verified": false,
+      "coupled": false
+     },
+     {
+      "id": "energy-demand",
+      "low": 1752.2177312142824,
+      "high": 1673.8536065370138,
+      "span": 78.36412467726859,
+      "rangeLow": -0.05,
+      "rangeHigh": 0.12,
+      "unit": "fraction of delivered energy",
+      "verified": true,
+      "coupled": true
+     },
+     {
+      "id": "cargo.inflation",
+      "low": 1710.9074246974023,
+      "high": 1788.448738167257,
+      "span": 77.54131346985469,
+      "rangeLow": 1.5,
+      "rangeHigh": 3.5,
+      "unit": "percentage points",
+      "verified": false,
+      "coupled": false
+     },
+     {
+      "id": "fleet-capital",
+      "low": 1721.4551735360938,
+      "high": 1742.0266021075222,
+      "span": 20.57142857142844,
+      "rangeLow": 32,
+      "rangeHigh": 40,
+      "unit": "USD million per ship, conventional newbuild",
+      "verified": true,
+      "coupled": true
+     },
+     {
+      "id": "vessel-opex",
+      "low": 1722.9957147851667,
+      "high": 1737.1071307056538,
+      "span": 14.111415920487161,
+      "rangeLow": 2,
+      "rangeHigh": 2.8,
+      "unit": "USD million per ship per year, excluding fuel",
+      "verified": true,
+      "coupled": true
+     }
+    ],
+    "inapplicable": []
+   },
    "draws": 4000,
    "seed": 20260819,
    "bands": {
@@ -131,6 +192,67 @@
     "cargo.inflation"
    ],
    "skipped": [],
+   "tornado": {
+    "base": 445.884979497755,
+    "bars": [
+     {
+      "id": "cargo.inflation",
+      "low": 422.73383982777295,
+      "high": 521.0344849791577,
+      "span": 98.30064515138474,
+      "rangeLow": 1.5,
+      "rangeHigh": 3.5,
+      "unit": "percentage points",
+      "verified": false,
+      "coupled": false
+     },
+     {
+      "id": "cargo.wacc",
+      "low": 474.46097551688786,
+      "high": 422.29589098299493,
+      "span": 52.16508453389292,
+      "rangeLow": 6,
+      "rangeHigh": 10,
+      "unit": "percentage points, nominal",
+      "verified": false,
+      "coupled": false
+     },
+     {
+      "id": "energy-demand",
+      "low": 439.47589676683765,
+      "high": 461.2667780519587,
+      "span": 21.79088128512103,
+      "rangeLow": -0.05,
+      "rangeHigh": 0.12,
+      "unit": "fraction of delivered energy",
+      "verified": true,
+      "coupled": true
+     },
+     {
+      "id": "vessel-opex",
+      "low": 439.96322460255146,
+      "high": 452.3989098824791,
+      "span": 12.435685279927611,
+      "rangeLow": 2.3,
+      "rangeHigh": 3.35,
+      "unit": "USD million per ship per year, excluding fuel",
+      "verified": false,
+      "coupled": true
+     },
+     {
+      "id": "fleet-capital",
+      "low": 440.2007689714387,
+      "high": 451.5691900240706,
+      "span": 11.368421052631902,
+      "rangeLow": 70,
+      "rangeHigh": 82,
+      "unit": "USD million per ship, conventional newbuild",
+      "verified": true,
+      "coupled": true
+     }
+    ],
+    "inapplicable": []
+   },
    "draws": 4000,
    "seed": 20260819,
    "bands": {
@@ -216,6 +338,72 @@
     "cargo.inflation"
    ],
    "skipped": [],
+   "tornado": {
+    "base": 1890.4902654297439,
+    "bars": [
+     {
+      "id": "cargo.wacc",
+      "low": 1967.96978534236,
+      "high": 1826.1382587608257,
+      "span": 141.83152658153426,
+      "rangeLow": 6,
+      "rangeHigh": 10,
+      "unit": "percentage points, nominal",
+      "verified": false,
+      "coupled": false
+     },
+     {
+      "id": "cargo.inflation",
+      "low": 1869.005129179874,
+      "high": 1960.2318586037431,
+      "span": 91.22672942386907,
+      "rangeLow": 1.5,
+      "rangeHigh": 3.5,
+      "unit": "percentage points",
+      "verified": false,
+      "coupled": false
+     },
+     {
+      "id": "energy-demand",
+      "low": 1902.1592337708778,
+      "high": 1855.483360406346,
+      "span": 46.67587336453175,
+      "rangeLow": -0.06,
+      "rangeHigh": 0.18,
+      "unit": "fraction of delivered energy",
+      "verified": false,
+      "coupled": true
+     },
+     {
+      "id": "fleet-capital",
+      "low": 1888.8027654297439,
+      "high": 1892.7402654297439,
+      "span": 3.9375,
+      "rangeLow": 29,
+      "rangeHigh": 36,
+      "unit": "USD million per ship, conventional newbuild",
+      "verified": false,
+      "coupled": true
+     },
+     {
+      "id": "vessel-opex",
+      "low": 1889.0484468465647,
+      "high": 1892.6529933045153,
+      "span": 3.604546457950619,
+      "rangeLow": 1.9,
+      "rangeHigh": 2.9,
+      "unit": "USD million per ship per year, excluding fuel",
+      "verified": false,
+      "coupled": true
+     }
+    ],
+    "inapplicable": [
+     {
+      "id": "green.priceUsdPerTonne",
+      "reason": "no effect on this scenario"
+     }
+    ]
+   },
    "draws": 4000,
    "seed": 20260819,
    "bands": {

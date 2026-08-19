@@ -3,6 +3,8 @@ import { requireAccess } from "@/lib/server/access";
 import TopBar from "@/components/shell/TopBar";
 import CountryDefaultsTable from "@/components/docs/CountryDefaultsTable";
 import DocsNav from "@/components/docs/DocsNav";
+import DocsTornado from "@/components/docs/DocsTornado";
+import uncertaintyArtifact from "../../../../data/corridor-sensitivity/uncertainty.json";
 import { TOC_IDS, TOC_PARTS } from "./toc";
 import countryDefaults from "../../../../data/country-defaults/snapshot.json";
 import fieldReference from "../../../../data/corridor-sensitivity/field-reference.json";
@@ -115,9 +117,27 @@ interface FieldRow {
   elasticity?: string;
   /** Coupling groups this field belongs to, if any. */
   coupled?: string[];
+  /** Measurement tier: measured / swept only (+reason) / not swept. */
+  status?: string;
   placement: string;
 }
 const FIELD_ROWS: FieldRow[] = (fieldReference as { rows: FieldRow[] }).rows;
+
+/**
+ * The three measurement tiers, counted from the data rather than written down,
+ * so the summary can never disagree with the table under it.
+ *
+ * The distinction matters and a bare "—" cell hides it: a field can be outside
+ * the sweep entirely, inside it but unperturbable on these archetypes, or
+ * measured and found to move nothing. Those are three different claims and
+ * only the last one is a finding.
+ */
+const FIELD_TIERS = {
+  total: FIELD_ROWS.length,
+  measured: FIELD_ROWS.filter((r) => r.status === "measured").length,
+  sweptOnly: FIELD_ROWS.filter((r) => r.status?.startsWith("swept only")).length,
+  notSwept: FIELD_ROWS.filter((r) => r.status === "not swept").length,
+};
 
 /**
  * EVERY swept input, from the same generated artifact §22 reads, so the two
@@ -1770,6 +1790,19 @@ export default async function DocsPage() {
         </ul>
 
         <H id="fe-sources">18. Emission-method source references</H>
+        <p className="mt-2">
+          <strong>What is measured, and what merely exists.</strong>{" "}Of{" "}
+          {FIELD_TIERS.total}{" "}scenario fields, {FIELD_TIERS.measured}{" "}
+          carry an elasticity, {FIELD_TIERS.sweptOnly}{" "}are swept but not
+          perturbable on these three archetypes, and {FIELD_TIERS.notSwept}{" "}
+          are outside the sweep entirely — selectors, ids, toggles and
+          descriptive fields with no numeric range to move. The{" "}
+          <strong>Status</strong>{" "}column says which, and why. A dash in the
+          elasticity column alone cannot distinguish{" "}
+          <em>we did not look</em>{" "}from{" "}
+          <em>we looked and it does not move</em>, and only the second is a
+          finding.
+        </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-xs">
             <thead>
@@ -2113,6 +2146,18 @@ export default async function DocsPage() {
           <em>not</em>{" "}that it does not matter &mdash; an incomplete honest
           table beats a complete invented one.
         </p>
+
+        <p className="mt-2">
+          The three reference corridors, drawn from the committed artifact with
+          the same builder the results panel uses:
+        </p>
+        <DocsTornado
+          results={
+            (uncertaintyArtifact as { results: Parameters<typeof DocsTornado>[0]["results"] })
+              .results
+          }
+          headlineKpi={(uncertaintyArtifact as { headlineKpi: string }).headlineKpi}
+        />
 
         <H3 id="impact-monte-carlo">The uncertainty band</H3>
         <p className="mt-2">
@@ -2623,6 +2668,7 @@ export default async function DocsPage() {
                 <th className="px-3 py-2 text-right font-medium">Max gap movement</th>
                 <th className="px-3 py-2 text-right font-medium">Elasticity</th>
                 <th className="px-3 py-2 font-medium">Coupled</th>
+                <th className="px-3 py-2 font-medium">Status</th>
                 <th className="px-3 py-2 font-medium">Placement</th>
               </tr>
             </thead>
@@ -2648,6 +2694,15 @@ export default async function DocsPage() {
                   </td>
                   <td className="px-3 py-1.5 font-mono text-[11px] text-neutral-600">
                     {row.coupled?.length ? row.coupled.join(", ") : "—"}
+                  </td>
+                  <td
+                    className={`px-3 py-1.5 text-[11px] leading-snug ${
+                      row.status === "measured"
+                        ? "font-medium text-neutral-800"
+                        : "text-neutral-500"
+                    }`}
+                  >
+                    {row.status ?? "—"}
                   </td>
                   <td className="px-3 py-1.5">{row.placement}</td>
                 </tr>

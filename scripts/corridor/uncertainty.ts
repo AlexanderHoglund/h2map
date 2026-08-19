@@ -32,7 +32,7 @@ import {
 import { evaluateScenario, runUncertainty, type SampledInput } from "@h2map/corridor-engine";
 import { KPIS } from "./lib/params";
 import { ARCHETYPES } from "./lib/archetypes";
-import { APPLIERS, toApplied } from "../../apps/web/lib/corridor/tornado";
+import { APPLIERS, buildTornado, toApplied } from "../../apps/web/lib/corridor/tornado";
 
 const ROOT = new URL("../../", import.meta.url);
 const OUT_DIR = new URL("data/corridor-sensitivity/", ROOT);
@@ -99,10 +99,30 @@ function main(): void {
       draws: DRAWS,
       seed: SEED,
     });
+    // The TORNADO for this archetype, from the very same builder the results
+    // panel uses — so the documentation cannot draw a different picture from
+    // the app. Spans are two full engine evaluations per input; nothing here
+    // is an approximation of the live panel, it IS the live panel's function.
+    const tornado = buildTornado(input, bundle, uncertainty, HEADLINE, archetype.key);
     return {
       archetype: { key: archetype.key, id: archetype.id, label: archetype.label },
       sampledInputs: inputs.map((i) => i.id),
       skipped,
+      tornado: {
+        base: tornado.base,
+        bars: tornado.bars.map((b) => ({
+          id: b.id,
+          low: b.low,
+          high: b.high,
+          span: b.span,
+          rangeLow: b.rangeLow,
+          rangeHigh: b.rangeHigh,
+          unit: b.unit,
+          verified: b.verified,
+          coupled: b.coupled,
+        })),
+        inapplicable: tornado.inapplicable,
+      },
       ...r,
     };
   });

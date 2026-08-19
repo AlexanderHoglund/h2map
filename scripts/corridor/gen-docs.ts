@@ -107,8 +107,20 @@ function fieldReference(): string {
         { measurable: boolean; perKpi?: Record<string, { mean: number }> }
       >;
     }[];
+    unperturbable?: { id: string; reason: string }[];
   };
   const elasticityById = new Map(elasticity.rows.map((r) => [r.id, r]));
+  /**
+   * Why a swept field carries no elasticity — verbatim from the harness.
+   *
+   * Without this the table shows "—" for three different situations that mean
+   * quite different things: not swept at all, swept but unperturbable, and
+   * measured as zero. A reader cannot tell "we did not look" from "we looked
+   * and it does not move", which is the distinction the whole section is for.
+   */
+  const unperturbableById = new Map(
+    (elasticity.unperturbable ?? []).map((u) => [u.id, u.reason]),
+  );
   /**
    * The gap elasticity across archetypes, as a range.
    *
@@ -131,6 +143,24 @@ function fieldReference(): string {
       ? lo.toFixed(2)
       : `${lo.toFixed(2)}–${hi.toFixed(2)}`;
   };
+  /**
+   * Which measurement tier a field is in. Three states, and they are NOT
+   * interchangeable:
+   *   measured    — an elasticity exists on at least one archetype
+   *   swept only  — in the sweep, but no elasticity, with a stated reason
+   *   not swept   — outside the sweep entirely (selectors, ids, toggles)
+   */
+  const statusCell = (sensId: string | undefined): string => {
+    if (!sensId) return "not swept";
+    if (elasticityCell(sensId) !== "—") return "measured";
+    const why = unperturbableById.get(sensId);
+    if (!why) return "swept only";
+    // The reason's first clause is the tier; the rest is detail the
+    // artifact keeps in full.
+    const head = why.split(" — ")[0] ?? why;
+    return `swept only — ${head.split(" (")[0] ?? head}`;
+  };
+
   const coupledCell = (id: string): string => {
     const row = elasticityById.get(id);
     return row?.coupled ? `\`${row.couplingGroups.join("`, `")}\`` : "—";
@@ -229,8 +259,8 @@ function fieldReference(): string {
     "(`@h2map/corridor-schema`) joined with the sensitivity artifact and the",
     "ui-manifest. Do not edit by hand — CI fails on drift.",
     "",
-    "| Field | Type | Required | Sensitivity rank | Gap movement | Max across KPIs | Binding KPI | Elasticity (range across archetypes) | Coupled | UI placement |",
-    "|---|---|---|---|---|---|---|---|---|---|",
+    "| Field | Type | Required | Sensitivity rank | Gap movement | Max across KPIs | Binding KPI | Elasticity (range across archetypes) | Coupled | Status | UI placement |",
+    "|---|---|---|---|---|---|---|---|---|---|---|",
   ];
   for (const row of rows) {
     const sensId = ALIAS[row.path];
@@ -242,7 +272,7 @@ function fieldReference(): string {
         hit ? `${(hit.r.maxRelMovement * 100).toFixed(1)}%` : "—"
       } | ${hit ? `\`${hit.r.bindingKpi}\`` : "—"} | ${
         sensId ? elasticityCell(sensId) : "—"
-      } | ${sensId ? coupledCell(sensId) : "—"} | ${
+      } | ${sensId ? coupledCell(sensId) : "—"} | ${statusCell(sensId)} | ${
         sensId ? placement(sensId) : "—"
       } |`,
     );
@@ -281,6 +311,7 @@ function fieldReference(): string {
         : null,
       elasticity: sensId ? elasticityCell(sensId) : "—",
       coupled: sensId ? (elasticityById.get(sensId)?.couplingGroups ?? []) : [],
+      status: statusCell(sensId),
       placement: sensId ? placement(sensId) : "—",
     };
   });

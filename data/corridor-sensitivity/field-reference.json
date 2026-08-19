@@ -9,6 +9,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -19,6 +20,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -29,6 +31,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -39,6 +42,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -51,6 +55,7 @@
    "coupled": [
     "energy-demand"
    ],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -61,6 +66,7 @@
    "movementPct": 4.9,
    "elasticity": "0.00–2.71",
    "coupled": [],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -71,6 +77,7 @@
    "movementPct": 18.7,
    "elasticity": "0.16–0.40",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -81,6 +88,7 @@
    "movementPct": 0,
    "elasticity": "0.00",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -91,6 +99,7 @@
    "movementPct": 14,
    "elasticity": "0.04–0.21",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -101,6 +110,7 @@
    "movementPct": 93.8,
    "elasticity": "0.00–0.65",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -113,6 +123,7 @@
    "coupled": [
     "energy-demand"
    ],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -123,6 +134,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -133,6 +145,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -143,6 +156,7 @@
    "movementPct": 14.6,
    "elasticity": "0.11–0.23",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -153,6 +167,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -163,6 +178,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -173,6 +189,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -183,6 +200,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -193,6 +211,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -203,6 +222,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -213,6 +233,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -223,6 +244,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -233,6 +255,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -243,6 +266,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -253,6 +277,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -263,6 +288,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -273,6 +299,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -285,6 +312,7 @@
    "coupled": [
     "fleet-capital"
    ],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -297,6 +325,7 @@
    "coupled": [
     "vessel-opex"
    ],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -309,6 +338,7 @@
    "coupled": [
     "fleet-capital"
    ],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -321,6 +351,7 @@
    "coupled": [
     "vessel-opex"
    ],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -331,6 +362,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -341,6 +373,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -351,6 +384,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -363,6 +397,7 @@
    "coupled": [
     "fuel-cost-green"
    ],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -373,6 +408,7 @@
    "movementPct": 1.6,
    "elasticity": "0.00–0.17",
    "coupled": [],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -383,6 +419,7 @@
    "movementPct": 3.4,
    "elasticity": "0.00–2.39",
    "coupled": [],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -393,6 +430,7 @@
    "movementPct": 0.2,
    "elasticity": "0.01–0.27",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -406,6 +444,7 @@
     "energy-demand",
     "fuel-cost-green"
    ],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -416,6 +455,7 @@
    "movementPct": 32.8,
    "elasticity": "0.00–0.64",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -426,6 +466,7 @@
    "movementPct": 26.5,
    "elasticity": "0.00–0.43",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -436,6 +477,7 @@
    "movementPct": 10.7,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "top-level"
   },
   {
@@ -446,6 +488,7 @@
    "movementPct": 8.8,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "top-level"
   },
   {
@@ -456,6 +499,7 @@
    "movementPct": 4.2,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "advanced"
   },
   {
@@ -466,6 +510,7 @@
    "movementPct": 10.6,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -476,6 +521,7 @@
    "movementPct": 0,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -486,6 +532,7 @@
    "movementPct": 0.5,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — enum",
    "placement": "—"
   },
   {
@@ -496,6 +543,7 @@
    "movementPct": 0.1,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -506,6 +554,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -516,6 +565,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -526,6 +576,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -536,6 +587,7 @@
    "movementPct": 0,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -546,6 +598,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -556,6 +609,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -566,6 +620,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -578,6 +633,7 @@
    "coupled": [
     "fuel-cost-fossil"
    ],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -588,6 +644,7 @@
    "movementPct": 0.5,
    "elasticity": "0.00–0.02",
    "coupled": [],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -598,6 +655,7 @@
    "movementPct": 0.6,
    "elasticity": "0.06–0.79",
    "coupled": [],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -608,6 +666,7 @@
    "movementPct": 1.7,
    "elasticity": "0.06–2.62",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -621,6 +680,7 @@
     "energy-demand",
     "fuel-cost-fossil"
    ],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -631,6 +691,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -641,6 +702,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -651,6 +713,7 @@
    "movementPct": 17.9,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -661,6 +724,7 @@
    "movementPct": 13.2,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -671,6 +735,7 @@
    "movementPct": 7.2,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -681,6 +746,7 @@
    "movementPct": 13.2,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -691,6 +757,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -701,6 +768,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -711,6 +779,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -721,6 +790,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -731,6 +801,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -741,6 +812,7 @@
    "movementPct": 0,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -751,6 +823,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -761,6 +834,7 @@
    "movementPct": 1.2,
    "elasticity": "0.00–0.02",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -771,6 +845,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -781,6 +856,7 @@
    "movementPct": 3.4,
    "elasticity": "0.00–0.02",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -791,6 +867,7 @@
    "movementPct": 1.2,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -801,6 +878,7 @@
    "movementPct": 2.3,
    "elasticity": "0.00–0.02",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -811,6 +889,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -821,6 +900,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -831,6 +911,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -841,6 +922,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -851,6 +933,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -861,6 +944,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -871,6 +955,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -881,6 +966,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -891,6 +977,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -901,6 +988,7 @@
    "movementPct": 3.5,
    "elasticity": "0.00",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -911,6 +999,7 @@
    "movementPct": 0.2,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — no declared value path",
    "placement": "—"
   },
   {
@@ -921,6 +1010,7 @@
    "movementPct": 1.3,
    "elasticity": "0.00",
    "coupled": [],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -931,6 +1021,7 @@
    "movementPct": 3.5,
    "elasticity": "0.00",
    "coupled": [],
+   "status": "measured",
    "placement": "top-level"
   },
   {
@@ -941,6 +1032,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -951,6 +1043,7 @@
    "movementPct": 89.3,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — no declared value path",
    "placement": "—"
   },
   {
@@ -961,6 +1054,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -971,6 +1065,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -981,6 +1076,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -991,6 +1087,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1001,6 +1098,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1011,6 +1109,7 @@
    "movementPct": 5.2,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — no declared value path",
    "placement": "—"
   },
   {
@@ -1021,6 +1120,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1031,6 +1131,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1041,6 +1142,7 @@
    "movementPct": 12.6,
    "elasticity": "0.05–0.85",
    "coupled": [],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -1051,6 +1153,7 @@
    "movementPct": 10.7,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -1061,6 +1164,7 @@
    "movementPct": 19.4,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -1071,6 +1175,7 @@
    "movementPct": 29,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -1081,6 +1186,7 @@
    "movementPct": 32.3,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -1091,6 +1197,7 @@
    "movementPct": 376.4,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -1101,6 +1208,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1111,6 +1219,7 @@
    "movementPct": 3.1,
    "elasticity": "0.44",
    "coupled": [],
+   "status": "measured",
    "placement": "—"
   },
   {
@@ -1121,6 +1230,7 @@
    "movementPct": 4.5,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — no declared value path",
    "placement": "—"
   },
   {
@@ -1131,6 +1241,7 @@
    "movementPct": 5.3,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -1141,6 +1252,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1151,6 +1263,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1161,6 +1274,7 @@
    "movementPct": 14.7,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "top-level"
   },
   {
@@ -1171,6 +1285,7 @@
    "movementPct": 18.4,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -1181,6 +1296,7 @@
    "movementPct": 7.4,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -1191,6 +1307,7 @@
    "movementPct": 10.1,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — not measurable on any archetype",
    "placement": "—"
   },
   {
@@ -1201,6 +1318,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1211,6 +1329,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1221,6 +1340,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1231,6 +1351,7 @@
    "movementPct": 3,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — no declared value path",
    "placement": "advanced"
   },
   {
@@ -1241,6 +1362,7 @@
    "movementPct": 3,
    "elasticity": "—",
    "coupled": [],
+   "status": "swept only — no declared value path",
    "placement": "advanced"
   },
   {
@@ -1251,6 +1373,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1261,6 +1384,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1271,6 +1395,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1281,6 +1406,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   },
   {
@@ -1291,6 +1417,7 @@
    "movementPct": null,
    "elasticity": "—",
    "coupled": [],
+   "status": "not swept",
    "placement": "—"
   }
  ]
