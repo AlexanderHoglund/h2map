@@ -84,7 +84,7 @@ export interface TornadoResult {
  *   points    — divide by 100, then set (a rate)
  */
 type Apply = (s: ScenarioInput, value: number) => void;
-type ApplyKind = "fraction" | "absolute" | "points" | "relativeToBand";
+export type ApplyKind = "fraction" | "absolute" | "points" | "relativeToBand";
 
 const setPath = (s: ScenarioInput, path: string, value: number): void => {
   const keys = path.split(".");
@@ -124,7 +124,14 @@ const scalePath =
  * drives `energyParity.diverged` true, which the model treats as a physically
  * inconsistent corridor.
  */
-const APPLIERS: Record<string, { kind: ApplyKind; apply: Apply }> = {
+/**
+ * EXPORTED so the Monte Carlo samples through exactly the same appliers.
+ * The unit semantics (percentage points) and the level semantics (a band
+ * shape applied to the scenario's own level) were each the site of a real
+ * defect; two copies would eventually disagree about one of them, and the
+ * tornado and the band would quietly describe different corridors.
+ */
+export const APPLIERS: Record<string, { kind: ApplyKind; apply: Apply }> = {
   "energy-demand": {
     kind: "fraction",
     apply: (s, f) => {
@@ -198,7 +205,11 @@ const APPLIERS: Record<string, { kind: ApplyKind; apply: Apply }> = {
  * of the market", which is the shape that transfers to a scenario sitting at
  * a different level.
  */
-const toApplied = (kind: ApplyKind, bound: number, row: UncertaintyRow): number => {
+export const toApplied = (
+  kind: ApplyKind,
+  bound: number,
+  row: UncertaintyRow,
+): number => {
   if (kind === "points") return bound / 100;
   if (kind === "relativeToBand") {
     const centre = row.mode ?? (row.low + row.high) / 2;

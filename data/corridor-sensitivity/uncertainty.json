@@ -1,0 +1,294 @@
+{
+ "generatedBy": "scripts/corridor/uncertainty.ts",
+ "refBundleId": "2026-08-18-fuel-v4",
+ "uncertaintyDatasetVersion": "2026-08-19-uncertainty-v1",
+ "draws": 4000,
+ "seed": 20260819,
+ "headlineKpi": "gapPvUsdM",
+ "note": "SUMMARY ONLY — the draws are never committed. Every declared range is sampled in the same draw, so interactions are in the sample by construction; `importance` is a signed Spearman rank correlation against the headline KPI, which is the interaction-aware ranking neither the sweep nor the elasticity artifact can produce. Reproducible from the committed seed: CI regenerates and diffs.",
+ "kpis": [
+  {
+   "id": "gapPvUsdM",
+   "label": "Cost gap (PV $m)"
+  },
+  {
+   "id": "costPerUnitUsd",
+   "label": "$ per cargo unit"
+  },
+  {
+   "id": "costPerTonneCo2Usd",
+   "label": "$ per tCO2 abated"
+  },
+  {
+   "id": "greenTotalPvUsdM",
+   "label": "Green total (PV $m)"
+  },
+  {
+   "id": "fossilTotalPvUsdM",
+   "label": "Fossil total (PV $m)"
+  },
+  {
+   "id": "co2AbatedTonnes",
+   "label": "Lifetime CO2 abated (t)"
+  }
+ ],
+ "results": [
+  {
+   "archetype": {
+    "key": "A",
+    "id": "chile-copper",
+    "label": "Chile copper concentrate (build, deep-sea)"
+   },
+   "sampledInputs": [
+    "energy-demand",
+    "fleet-capital",
+    "vessel-opex",
+    "cargo.wacc",
+    "cargo.inflation"
+   ],
+   "skipped": [],
+   "draws": 4000,
+   "seed": 20260819,
+   "bands": {
+    "gapPvUsdM": {
+     "p10": 1652.6667057876791,
+     "p50": 1690.3144570846246,
+     "p90": 1730.2560290582999,
+     "mean": 1691.2599125882305,
+     "deterministic": 1729.169459250379
+    },
+    "costPerUnitUsd": {
+     "p10": 66.77441235505775,
+     "p50": 68.2955336195808,
+     "p90": 69.90933450740606,
+     "mean": 68.33373384194886,
+     "deterministic": 69.86543269698501
+    },
+    "costPerTonneCo2Usd": {
+     "p10": 1117.2675600128332,
+     "p50": 1194.3791085047005,
+     "p90": 1260.7122413461275,
+     "mean": 1191.786461340766,
+     "deterministic": 1244.8459513095004
+    },
+    "greenTotalPvUsdM": {
+     "p10": 2734.033928898104,
+     "p50": 2833.587835814721,
+     "p90": 2933.365470987965,
+     "mean": 2834.5543626554963,
+     "deterministic": 2926.8930897247906
+    },
+    "fossilTotalPvUsdM": {
+     "p10": 1071.8964413108774,
+     "p50": 1142.3677706059125,
+     "p90": 1212.156214614978,
+     "mean": 1143.2944500672613,
+     "deterministic": 1197.7236304744115
+    },
+    "co2AbatedTonnes": {
+     "p10": 1360222.4728769884,
+     "p50": 1414978.9922877466,
+     "p90": 1490868.8695158185,
+     "mean": 1421169.4336375494,
+     "deterministic": 1389063.006094369
+    }
+   },
+   "importance": [
+    {
+     "id": "cargo.wacc",
+     "rankCorrelation": -0.7301197485699843
+    },
+    {
+     "id": "energy-demand",
+     "rankCorrelation": -0.4607895282368455
+    },
+    {
+     "id": "cargo.inflation",
+     "rankCorrelation": 0.4230520828157552
+    },
+    {
+     "id": "fleet-capital",
+     "rankCorrelation": 0.11739661164978824
+    },
+    {
+     "id": "vessel-opex",
+     "rankCorrelation": 0.10234123970882748
+    }
+   ],
+   "degenerate": false
+  },
+  {
+   "archetype": {
+    "key": "B",
+    "id": "australia-korea-iron",
+    "label": "Australia-Korea iron ore (purchase, deep-sea)"
+   },
+   "sampledInputs": [
+    "energy-demand",
+    "fleet-capital",
+    "vessel-opex",
+    "cargo.wacc",
+    "cargo.inflation"
+   ],
+   "skipped": [],
+   "draws": 4000,
+   "seed": 20260819,
+   "bands": {
+    "gapPvUsdM": {
+     "p10": 440.60852906094965,
+     "p50": 469.9292932265763,
+     "p90": 506.97094007204026,
+     "mean": 472.1543997774307,
+     "deterministic": 445.884979497755
+    },
+    "costPerUnitUsd": {
+     "p10": 2.914077573154429,
+     "p50": 3.1079979710752403,
+     "p90": 3.352982407883864,
+     "mean": 3.1227142842422606,
+     "deterministic": 2.948974732128009
+    },
+    "costPerTonneCo2Usd": {
+     "p10": 195.5951260742894,
+     "p50": 209.92981593534296,
+     "p90": 226.49511698686092,
+     "mean": 210.49638461827493,
+     "deterministic": 203.226084780546
+    },
+    "greenTotalPvUsdM": {
+     "p10": 1979.5968853873985,
+     "p50": 2104.629191113265,
+     "p90": 2228.1005142888266,
+     "mean": 2105.4581131166237,
+     "deterministic": 2024.2992740726067
+    },
+    "fossilTotalPvUsdM": {
+     "p10": 1532.1178670034865,
+     "p50": 1633.6583059171744,
+     "p90": 1731.7656829453488,
+     "mean": 1633.3037133391986,
+     "deterministic": 1578.4142945748517
+    },
+    "co2AbatedTonnes": {
+     "p10": 2148480.383082444,
+     "p50": 2234968.667275442,
+     "p90": 2354837.2297718306,
+     "mean": 2244746.510288542,
+     "deterministic": 2194034.1958525875
+    }
+   },
+   "importance": [
+    {
+     "id": "cargo.inflation",
+     "rankCorrelation": 0.829480543967534
+    },
+    {
+     "id": "cargo.wacc",
+     "rankCorrelation": -0.47906733012920816
+    },
+    {
+     "id": "energy-demand",
+     "rankCorrelation": 0.2111063138191446
+    },
+    {
+     "id": "vessel-opex",
+     "rankCorrelation": 0.11245411546588222
+    },
+    {
+     "id": "fleet-capital",
+     "rankCorrelation": 0.08380597142537322
+    }
+   ],
+   "degenerate": false
+  },
+  {
+   "archetype": {
+    "key": "C",
+    "id": "skagerrak-green-box",
+    "label": "Skagerrak green box (contract offtake, short-sea)"
+   },
+   "sampledInputs": [
+    "energy-demand",
+    "green.priceUsdPerTonne",
+    "fleet-capital",
+    "vessel-opex",
+    "cargo.wacc",
+    "cargo.inflation"
+   ],
+   "skipped": [],
+   "draws": 4000,
+   "seed": 20260819,
+   "bands": {
+    "gapPvUsdM": {
+     "p10": 1860.3618867683263,
+     "p50": 1908.8937519868414,
+     "p90": 1957.0749984624363,
+     "mean": 1909.1272496770225,
+     "deterministic": 1890.4902654297439
+    },
+    "costPerUnitUsd": {
+     "p10": 574.1857675210883,
+     "p50": 589.1647382675436,
+     "p90": 604.0354933526038,
+     "mean": 589.2368054558727,
+     "deterministic": 583.484649823995
+    },
+    "costPerTonneCo2Usd": {
+     "p10": 3424.203219161791,
+     "p50": 3730.4116375649064,
+     "p90": 3979.007993608191,
+     "mean": 3715.211580816861,
+     "deterministic": 3812.9898687689033
+    },
+    "greenTotalPvUsdM": {
+     "p10": 2228.063605583943,
+     "p50": 2294.16875997036,
+     "p90": 2359.0365402275156,
+     "mean": 2293.7609048584654,
+     "deterministic": 2257.2205063000997
+    },
+    "fossilTotalPvUsdM": {
+     "p10": 360.6469564386046,
+     "p50": 384.13034097123284,
+     "p90": 409.65091108212766,
+     "mean": 384.63365518143803,
+     "deterministic": 366.73024087035594
+    },
+    "co2AbatedTonnes": {
+     "p10": 484682.9551171904,
+     "p50": 511674.92887774506,
+     "p90": 552329.8006969903,
+     "mean": 515202.21322545887,
+     "deterministic": 495802.59337015357
+    }
+   },
+   "importance": [
+    {
+     "id": "cargo.wacc",
+     "rankCorrelation": -0.7998740234296264
+    },
+    {
+     "id": "cargo.inflation",
+     "rankCorrelation": 0.5031633588227099
+    },
+    {
+     "id": "energy-demand",
+     "rankCorrelation": -0.2578601698037606
+    },
+    {
+     "id": "fleet-capital",
+     "rankCorrelation": 0.02010875788179737
+    },
+    {
+     "id": "green.priceUsdPerTonne",
+     "rankCorrelation": 0.019024047251502953
+    },
+    {
+     "id": "vessel-opex",
+     "rankCorrelation": 0.018615711413481964
+    }
+   ],
+   "degenerate": false
+  }
+ ]
+}

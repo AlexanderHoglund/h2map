@@ -98,6 +98,37 @@ four, and it reports 27 sources against 28 citation entries (one document is
 cited twice in the same row for two different figures). The flags and entries
 are what the model reads.
 
+## 5. What the Monte Carlo added (Phase 4)
+
+Sampling every declared range in the same draw surfaced one thing the tornado
+could not, because it is a property of the *joint* sample rather than of any
+single bar.
+
+**On archetype A the deterministic gap sits at the 99th percentile of its own
+uncertainty band** — P10 $1,652.7m, P50 $1,690.3m, P90 $1,730.3m against a
+point estimate of $1,729.2m.
+
+That is not a sampler fault. Archetype A discounts at **8%** while the
+researched WACC range for its region is **7.5 / 10 / 13** — so nearly every
+draw discounts harder than the scenario does, and since the model discounts
+*cost* flows a higher WACC yields a **smaller** gap. The band lands below the
+point estimate because the scenario's own discount rate is optimistic relative
+to the research.
+
+Two consequences worth holding together:
+
+- It is the same directional trap recorded in §"One directional note" below,
+  now visible as a distribution rather than an argument.
+- The WACC row driving it is `verified: false` and uses an **Indian solar
+  proxy for Chile** — which the research itself flags as the weakest row in
+  the file. So the finding is real but its magnitude rests on the shakiest
+  input in the dataset. Replacing that row is the highest-value follow-up
+  precisely because of this.
+
+The rank-correlation ranking (interaction-aware, which neither the sweep nor
+the elasticity artifact can produce) puts WACC first on A and C at −0.73 and
+−0.80, and **inflation** first on B at +0.83.
+
 ## The research's own follow-ups
 
 Named as the cheapest remaining wins, in its order:

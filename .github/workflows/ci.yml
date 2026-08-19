@@ -35,6 +35,11 @@ jobs:
       # archetypes, so any engine change that moves leverage must be
       # committed rather than discovered later. The full run is ~2s.
       - run: npx tsx scripts/corridor/elasticity.ts && git diff --exit-code data/corridor-sensitivity/elasticity.json
+      # Monte Carlo drift gate. Same regenerate-and-diff contract: the run is
+      # seeded and the seed is committed, so the artifact is reproducible
+      # bit-for-bit and any engine change that moves the band must be
+      # committed rather than found later. ~2s for 3 x 4,000 draws.
+      - run: npx tsx scripts/corridor/uncertainty.ts && git diff --exit-code data/corridor-sensitivity/uncertainty.json
       # Generated docs must track the code (build-plan 4.3).
       - run: npx tsx scripts/corridor/gen-docs.ts && git diff --exit-code docs/corridor
 

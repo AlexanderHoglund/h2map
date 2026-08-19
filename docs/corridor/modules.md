@@ -100,11 +100,6 @@ Documented inline (see source).
 
 Green Corridor engine — pure scenario evaluation.
 
-`evaluateScenario(resolved)`: builds the timeline, runs the SAME
-`evaluateSide` for green and fossil, and assembles the summary
-(Calculation rows 64–85 + Output unit metrics). No I/O, no clock, no
-randomness — enforced by the package's eslint boundary.
-
 **Boundary (imports)**: `@h2map/corridor-schema`, `./timeline`, `./side`, `./reporting`
 
 **Exports (inputs/outputs)**: `CORRIDOR_ENGINE_VERSION`, `evaluateScenario`
@@ -340,6 +335,26 @@ modeled — the workbook's guard `IF(idx <= horizon, …, 0)` becomes
 **Assumptions**
 
 Documented inline (see source).
+
+### `@h2map/corridor-engine/uncertainty.ts`
+
+**Purpose**
+
+Monte Carlo over the DECLARED uncertainty — the band, and what drives it.
+
+**Boundary (imports)**: `@h2map/corridor-schema`
+
+**Exports (inputs/outputs)**: `UNCERTAINTY_PERCENTILES`, `SampledInput`, `KpiBand`, `InputImportance`, `UncertaintyResult`, `triangular`, `uniform`, `percentileOf`, `spearman`, `runUncertainty`
+
+**Assumptions**
+
+Restored and rewritten from the sampler deleted in 60600e0 (recoverable at
+224ec5c). The PRNG, the triangular draw and `percentileOf` are that module's
+verbatim — including the endpoint-ordering guard, which is load-bearing and
+was written against a real inverted band in the reference data. What is new
+is the INPUT: it samples the researched uncertainty dataset and applies
+coupling groups inside each draw, rather than sampling the bundle's own
+production bands.
 
 ### `@h2map/corridor-schema/complete.ts`
 

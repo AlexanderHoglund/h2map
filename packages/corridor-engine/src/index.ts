@@ -316,6 +316,20 @@ export type {
   FirmingStrategy,
 } from "./firming";
 export { BAND_DRIVERS, computeBand } from "./band";
+export {
+  UNCERTAINTY_PERCENTILES,
+  percentileOf,
+  runUncertainty,
+  spearman,
+  triangular,
+  uniform,
+} from "./uncertainty";
+export type {
+  InputImportance,
+  KpiBand,
+  SampledInput,
+  UncertaintyResult,
+} from "./uncertainty";
 export type {
   BandContribution,
   BandDriver,
