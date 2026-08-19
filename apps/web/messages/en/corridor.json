@@ -100,7 +100,7 @@
       "distanceHelp": "The one-way sailing distance between the ports, in nautical miles. It drives the fuel burned per roundtrip - the dominant physical lever in the model. Once both ports have coordinates, the routed shipping-lane distance is offered for adoption."
     },
     "vessel": {
-      "type": "Vessel type (shared by both corridors)",
+      "type": "Vessel type (same class for both fleets)",
       "vessels": "Number of vessels",
       "roundtrips": "Roundtrips per year (per vessel)",
       "energyBasis": "Energy use {gj} GJ/nm, measured at {kn} kn service speed. Steaming slower burns less per mile (roughly with the square of speed); the figure is meaningless without the speed it was measured at.",
