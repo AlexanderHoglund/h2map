@@ -708,7 +708,7 @@ export default async function DocsPage() {
               "Fuel consumption",
               "t/vessel/yr",
               "default: 5,700 green / 2,638 fossil (study)",
-              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV, with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example on the workbook baseline (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 2.334 GJ/nm, 9,500 nm × 3) implies 7,152.6 and 3,284.9 — that scenario states its burns as overrides instead, to reproduce the study.",
+              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV, with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 2.334 GJ/nm, 9,500 nm × 3) implies 7,152.6 and 3,284.9 — that scenario states its burns as overrides instead, to reproduce the study.",
             ],
             [
               "CO2 emission factor, combustion",
@@ -753,11 +753,10 @@ export default async function DocsPage() {
           10 × $35m = $350m.
         </p>
         <p className="mt-2">
-          <strong>This changed in schema v7, and it was a correctness
-          fix.</strong>{" "}The cells used to be fleet totals that the engine
-          never multiplied by vessel count — but the benchmark underneath
-          them has always been per-ship (type CAPEX × (1 + premium)). So the
-          field and the value offered by &ldquo;restore&rdquo; were different
+          <strong>These cells are PER SHIP.</strong>{" "}The benchmark
+          underneath them is per-ship (type CAPEX × (1 + premium)) and the
+          engine multiplies by vessel count. Reading them as fleet totals
+          makes the field and the value offered by &ldquo;restore&rdquo; different
           dimensions, and restoring a ten-ship fleet&apos;s green CAPEX cut
           it by an order of magnitude in silence, on what the sweep ranks as
           a top-five mover. Making the field per-ship puts it in the same
@@ -771,7 +770,7 @@ export default async function DocsPage() {
               "Vessel type",
               "—",
               "Handymax bulk (58k dwt), default",
-              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. 35 researched classes from Handysize bulk to 174k-m³ LNG carrier (§19). Seven superseded classes from the original workbook are retained so scenarios pinning them still resolve, but are hidden from the picker — they carry pre-research energy figures (the retired Handymax reads 3.2 GJ/nm against this one's 2.334).",
+              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. 35 researched classes from Handysize bulk to 174k-m³ LNG carrier (§19). Seven superseded classes are retained so scenarios pinning them still resolve, but are hidden from the picker — they carry pre-research energy figures (the retired Handymax reads 3.2 GJ/nm against this one's 2.334).",
             ],
             [
               "Number of vessels",
@@ -970,8 +969,8 @@ export default async function DocsPage() {
           (the selector moves the reported intensities, abatement and the
           self-designed CO2 price), and explicit factor overrides in the
           Energy tab always win. Scenarios saved before v6 auto-upgrade to
-          FuelEU accounting on open; the legacy workbook scalars survive
-          only for the Excel golden fixture and the study-calibration test.
+          FuelEU accounting on open. A scenario that predates the refined
+          method keeps its own stored factors, so its numbers never move.
         </p>
 
         <H3 id="reg-ets">EU ETS (maritime)</H3>
@@ -1485,7 +1484,7 @@ export default async function DocsPage() {
         </F>
         <p className="mt-2">
           By default every capital dollar lands in year 1 at a discount
-          factor of exactly 1.0 — the reference workbook&apos;s convention,
+          factor of exactly 1.0 — the reference convention,
           and the most conservative PV treatment. Phasing spreads each
           side&apos;s CAPEX over the first N years by explicit shares:
           later capital discounts more, so its present value falls and
@@ -1651,8 +1650,8 @@ export default async function DocsPage() {
           pilot&apos;s emissions ride the green fuel&apos;s factors while
           its ENERGY is not added to the corridor&apos;s tonnage. Where the
           method cannot honestly price a combination (LNG as a baseline;
-          LNG under IMO) the corridor falls back to the legacy workbook
-          scalar with disclosed provenance — never a silent zero.
+          LNG under IMO) the corridor falls back to the stored per-fuel
+          factor with disclosed provenance — never a silent zero.
         </p>
         <p className="mt-2">
           Both bases are always computed (well-to-wake and tank-to-wake,
@@ -1850,9 +1849,9 @@ export default async function DocsPage() {
         <H3 id="ref-vessels">Vessel types</H3>
         <p className="mt-2">
           The catalogue behind the vessel selector, rendered from the
-          reference bundle itself (<code>{vesselCatalogue.bundleId}</code>) —
-          this table used to be hand-copied and went quietly stale whenever
-          the data changed. <strong>CAPEX and OPEX are PER SHIP</strong>; the
+          reference bundle itself (<code>{vesselCatalogue.bundleId}</code>),
+          so it cannot go stale when the data changes.{" "}
+          <strong>CAPEX and OPEX are PER SHIP</strong>; the
           engine multiplies both by the vessel count. GJ/nm is a
           <em>service-speed</em>{" "}figure and means little without the speed
           beside it. Rows marked <em>retired</em>{" "}are superseded classes
@@ -1919,7 +1918,7 @@ export default async function DocsPage() {
           at 0.50%&nbsp;S). The table&apos;s emission scalars apply only to
           legacy scenarios and underivable combinations (LNG as a baseline),
           always with disclosed provenance. Prices and premiums remain the
-          workbook benchmarks.
+          stored benchmarks.
         </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
@@ -1969,40 +1968,78 @@ export default async function DocsPage() {
 
         <H id="sensitivity">20. What moves the results</H>
         <p className="mt-2">
-          A one-at-a-time sweep from the workbook baseline — each input
-          across its plausible range, enums across every defined option —
-          against <strong>all six headline outputs</strong>: the cost gap,
-          $/cargo unit, $/tCO₂ abated, green total, fossil total and lifetime
-          CO₂ abated. Parameters whose module is off in the baseline are
-          swept with the module SWITCHED ON, so their figures read as
-          &ldquo;the module enabled at the range ends&rdquo; — which is why
-          support and credit levers can outrank every physical input. The
-          baseline runs the app&apos;s own defaults (well-to-wake emissions,
-          distance-derived consumption), not the workbook&apos;s
-          combustion-basis flags.
+          Every numeric input is moved across its plausible range, one at a
+          time, and every option of every selector is tried. The effect is
+          measured on <strong>all six headline outputs</strong>: the cost gap,
+          cost per cargo unit, cost per tonne of CO&#8322; abated, the green
+          and fossil totals, and lifetime CO&#8322; abated.
         </p>
         <p className="mt-2">
-          <strong>Why more than the gap.</strong>{" "}This section used to
-          measure movement of the gap alone, which made every driver of every
-          other headline output invisible. The N₂O slip scenario moved the
-          gap 1.7% and ranked nowhere, while moving $/tCO₂ by 102.7% and
-          avoided emissions by half — §15 calls it the model&apos;s dominant
-          uncertainty. Cargo throughput measured exactly 0.0% on the gap
-          while being the sole divisor of $/cargo unit, the study&apos;s own
-          headline figure. <strong>Gap movement</strong>{" "}is kept as the
-          primary ranking for continuity; <strong>max across KPIs</strong>{" "}
-          decides field placement, and the <strong>binding KPI</strong>{" "}
-          column names the output responsible, so a field&apos;s prominence is
-          traceable to what it actually moves.
+          Where a scheme is switched off by default &mdash; self-designed
+          regulation, the IMO framework, 45Z, the FuelEU credit, differentiated
+          financing &mdash; it is <strong>switched on</strong>{" "}for its own
+          sweep. Those figures therefore read as &ldquo;this scheme, enabled,
+          at the ends of its range&rdquo;, which is why a support lever can
+          outrank a physical input: $0&ndash;50m/yr of public money over twenty
+          years genuinely is that large.
+        </p>
+
+        <H3 id="sensitivity-columns">How to read the table</H3>
+        <div className="my-3 overflow-x-auto">
+          <table className="w-full border border-neutral-300 text-[13px]">
+            <thead>
+              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 font-medium">Column</th>
+                <th className="px-3 py-2 font-medium">What it tells you</th>
+              </tr>
+            </thead>
+            <tbody className="align-top">
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2 font-medium">Gap movement</td>
+                <td className="px-3 py-2">
+                  How far the <em>cost gap</em>{" "}moves when this input is
+                  taken to the ends of its range, as a percentage of the gap
+                  itself. 40% means the gap changes by four tenths of its own
+                  value. Use it to answer: <em>if I am wrong about this, how
+                  wrong is my headline number?</em>
+                </td>
+              </tr>
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2 font-medium">Max across KPIs</td>
+                <td className="px-3 py-2">
+                  The same measurement, but taking whichever of the six
+                  outputs moves <em>most</em>. An input can leave the gap
+                  untouched and still dominate another answer &mdash; cargo
+                  throughput moves the gap 0.0% and is the sole divisor of cost
+                  per cargo unit. Use it to answer:{" "}
+                  <em>does this input matter to anything I care about?</em>
+                </td>
+              </tr>
+              <tr className="border-b border-neutral-200 last:border-0">
+                <td className="px-3 py-2 font-medium">Binding KPI</td>
+                <td className="px-3 py-2">
+                  <em>Which</em>{" "}output produced that maximum. It names what
+                  the input actually drives, so a high ranking is never a bare
+                  assertion: the N&#8322;O slip scenario moves the gap 1.7% and
+                  cost per tonne of CO&#8322; by 102.7%, and this column is
+                  what tells you so.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2">
+          The table is ranked by gap movement because the gap is the
+          model&apos;s headline. Field prominence in the form is decided by{" "}
+          <strong>max across KPIs</strong>{" "}instead &mdash; an input that
+          drives any output deserves to be visible, not only one that drives
+          the gap.
         </p>
         <p className="mt-2">
-          <strong>Every swept input</strong>{" "}is listed below, ranked by gap
-          movement, from the same generated artifact §22 reads. It used to show
-          only the top ten, which put three of the inputs the uncertainty work
-          later identified as carrying the most risk — WACC, inflation and the
-          green fuel price — below the fold of a section titled &ldquo;what
-          moves the results&rdquo;. A field absent from this table was not
-          swept at all, and §22 says why for each one.
+          <strong>Every swept input is listed below.</strong>{" "}A field absent
+          from this table was not swept at all; &sect;22 lists all
+          {" "}scenario fields and says which of the three measurement tiers
+          each falls into, and why.
         </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
@@ -2577,34 +2614,33 @@ export default async function DocsPage() {
           </p>
         </div>
         <p className="mt-2">
-          Every field a scenario carries — rendered directly from the
-          GENERATED field reference (the zod validation schema joined with
-          the sensitivity sweep, §20; CI regenerates and fails on drift, so
-          this table cannot desync from the model).{" "}
-          <em>Required&nbsp;=&nbsp;no</em>{" "}marks optional additions that
-          older scenarios may omit; <em>nullable</em>{" "}override fields use{" "}
-          <code>null</code>{" "}to mean &ldquo;use the benchmark&rdquo;.
+          Every field a scenario can carry. The table is generated from the
+          model itself — the same definitions that validate an imported file,
+          joined to the measurements in §20 — and rebuilt on every change, so
+          it cannot fall out of step with the model it describes.{" "}
+          <em>Required&nbsp;=&nbsp;no</em>{" "}marks a field older scenarios may
+          leave out; an override field set to <code>null</code>{" "}means
+          &ldquo;use the model&apos;s own value&rdquo;.
         </p>
         <p className="mt-2">
-          <strong>Rank, gap movement, max across KPIs and binding
-          KPI</strong>{" "}come from the one-at-a-time sweep (§20): each input
-          is moved across its plausible range — enums across every option —
-          and the movement of all six headline outputs is recorded. Rank and
-          the gap column preserve the historical ranking; PLACEMENT follows
-          the max across KPIs, and the binding KPI names which output
-          produced it. Inputs whose module is off in the
-          baseline (self-designed regulation, IMO NZF, 45Z, the FuelEU
-          credit, financing) are swept{" "}
-          <em>with the module switched on</em>, so their figures read as
-          &ldquo;the module enabled at the range ends&rdquo; — e.g. the
-          self-designed &ldquo;other support&rdquo; tops the table because
-          $0–50m/yr over a 20-year horizon IS that large. Fields still
-          showing &ldquo;—&rdquo; are selectors, toggles, descriptive
-          fields, mode-dependent values the sweep cannot move (fossil
-          production costs are zeroed under purchase sourcing), or the
-          build-here surface with its dedicated evaluate flow;{" "}
+          <strong>Rank, gap movement, max across KPIs</strong>{" "}and{" "}
+          <strong>binding KPI</strong>{" "}are the sweep&apos;s measurements —
+          §20 explains what each one answers. Ranking follows gap movement;
+          form placement follows max across KPIs.
+        </p>
+        <p className="mt-2">
+          Some entries read &ldquo;—&rdquo; in the movement columns, and the{" "}
+          <strong>Status</strong>{" "}column says which of three reasons
+          applies. Most are simply not the kind of field a sweep can move: a
+          selector, a toggle, an id, or a value that only exists in one
+          sourcing mode (fossil production costs are zero when the fuel is
+          bought rather than built). One case is worth knowing about because
+          it looks like an error and is not:{" "}
           <code>cargo.unitsPerYear</code>{" "}is swept and measures exactly
-          0.0% — the engine counts vessels and roundtrips, not units.
+          0.0% on the gap, because the engine counts vessels and roundtrips
+          rather than cargo units — yet it is the sole divisor of cost per
+          cargo unit, so its <em>max across KPIs</em>{" "}is large. That is the
+          case the two movement columns exist to separate.
         </p>
         <p className="mt-2">
           <strong>Elasticity</strong>{" "}answers a different question from the
@@ -3546,7 +3582,7 @@ export default async function DocsPage() {
         <p className="mt-2">
           <strong>Known divergence.</strong>{" "}The Green Corridor model keeps
           its <em>own</em>{" "}seven-row country list (kebab-case ids, all
-          marked unverified, from the source workbook) and does not read these
+          marked unverified) and does not read these
           profiles: a country outside those seven resolves to the{" "}
           <code>other</code>{" "}row at 8%. So an enriched profile improves the
           Calculator and the map&apos;s risk-adjusted layer, but not yet the
