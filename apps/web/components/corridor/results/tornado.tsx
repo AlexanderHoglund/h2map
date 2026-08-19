@@ -63,6 +63,20 @@ const KPI_FORMAT: Record<TornadoKpi, (v: number) => string> = {
   co2AbatedTonnes: (v) => `${(v / 1000).toFixed(0)}k t`,
 };
 
+/**
+ * A dataset id as an i18n message key.
+ *
+ * next-intl reserves "." for NESTING, so a key of `cargo.wacc` is read as
+ * `cargo` -> `wacc` and the provider throws INVALID_KEY at the root layout —
+ * taking the whole app down, not just this panel. The ids themselves keep
+ * their dots: they are the join between the uncertainty dataset, the sweep
+ * parameters and the coupling groups, and renaming them there would break
+ * that contract to satisfy a message-format quirk. So they are slugified at
+ * the lookup boundary instead, and `tornado.test.ts` asserts every id has a
+ * key under its slugified name.
+ */
+const messageKey = (id: string): string => id.replace(/\./g, "-");
+
 /** The declared range in its own units — "$70–82m", "−5%…+12%". */
 function rangeLabel(low: number, high: number, unit: string): string {
   if (unit.startsWith("fraction of")) {
@@ -129,7 +143,7 @@ export function TornadoSection({ scenario }: { scenario: ScenarioInput | null })
             <div key={b.id}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 text-xs">
                 <span className="font-medium text-neutral-800">
-                  {t(`tornadoRow.${b.id}`)}
+                  {t(`tornadoRow.${messageKey(b.id)}`)}
                   {b.coupled && (
                     <span className="ml-1.5 font-normal text-neutral-500">
                       {t("tornadoCoupled")}
@@ -174,7 +188,7 @@ export function TornadoSection({ scenario }: { scenario: ScenarioInput | null })
       {tornado.inapplicable.length > 0 && (
         <Note className="mt-3">
           {t("tornadoInapplicable")}:{" "}
-          {tornado.inapplicable.map((i) => `${t(`tornadoRow.${i.id}`)} (${i.reason})`).join("; ")}
+          {tornado.inapplicable.map((i) => `${t(`tornadoRow.${messageKey(i.id)}`)} (${i.reason})`).join("; ")}
         </Note>
       )}
 

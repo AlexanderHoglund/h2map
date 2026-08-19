@@ -177,11 +177,38 @@ describe("the panel cannot crash on a missing label", () => {
       readFileSync(`${ROOT}apps/web/messages/en/corridor.json`, "utf8"),
     ) as { corridor: { results: Record<string, Record<string, string>> } };
     const results = messages.corridor.results;
+    // Ids are slugified at the lookup boundary: next-intl reserves "." for
+    // NESTING, so a key of `cargo.wacc` is read as `cargo` -> `wacc` and the
+    // provider throws INVALID_KEY at the ROOT LAYOUT — taking the whole app
+    // down, not just this panel. That is exactly what shipped, and it is why
+    // the second assertion below exists.
+    const messageKey = (id: string) => id.replace(/\./g, "-");
     for (const id of new Set(uncertainty.rows.map((r) => r.id))) {
-      expect(results.tornadoRow?.[id], `tornadoRow.${id}`).toBeDefined();
+      expect(results.tornadoRow?.[messageKey(id)], `tornadoRow.${messageKey(id)}`).toBeDefined();
     }
     for (const k of TORNADO_KPIS) {
       expect(results.kpi?.[k], `kpi.${k}`).toBeDefined();
     }
+  });
+
+  it("has no message key containing a dot, anywhere in the file", () => {
+    // THE REGRESSION GUARD, and deliberately global rather than scoped to the
+    // tornado: a dotted key is read as nesting and throws INVALID_KEY from
+    // the root layout, so ONE bad key anywhere breaks every page. Scoping
+    // this to the keys I happened to add would leave the next author to
+    // rediscover it the same way.
+    const raw = JSON.parse(
+      readFileSync(`${ROOT}apps/web/messages/en/corridor.json`, "utf8"),
+    ) as unknown;
+    const offenders: string[] = [];
+    const walk = (node: unknown, path: string): void => {
+      if (node === null || typeof node !== "object") return;
+      for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
+        if (k.includes(".")) offenders.push(`${path}${k}`);
+        walk(v, `${path}${k}.`);
+      }
+    };
+    walk(raw, "");
+    expect(offenders).toEqual([]);
   });
 });
