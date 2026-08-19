@@ -862,12 +862,12 @@ export default async function DocsPage() {
               "Cargo unit",
               "tonne | TEU",
               "by vessel type",
-              "What one cargo unit IS. Defaults to tonne for tankers/bulk/Ro-Ro and TEU for container vessels. Switching writes the weight: TEU sets it to the ~14 t benchmark, tonne pins it to 1 (and the weight field hides).",
+              "What one cargo unit IS. Defaults to tonne for tankers/bulk/Ro-Ro and TEU for container vessels. Switching writes the weight: TEU sets it to the 10 t benchmark, tonne pins it to 1 (and the weight field hides).",
             ],
             [
               "Weight per unit",
               "t",
-              "1 (tonne) / 14 (TEU)",
+              "1 (tonne) / 10 (TEU)",
               "Renders only for TEU; used to derive cost per tonne of cargo. A stored tonne scenario with a different weight still computes with its stored value — nothing is rewritten on load.",
             ],
             [

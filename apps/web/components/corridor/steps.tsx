@@ -416,9 +416,9 @@ export function CargoTabStep({ model, viewMode, revealStandard }: StepProps) {
             d.cargo.unit = v as "tonne" | "teu";
             // The user's own switch sets the weight — a visible consequence,
             // never a load-time rewrite. Tonne pins it to 1 by definition;
-            // TEU reveals the field on its ~14 t benchmark (the previous
+            // TEU reveals the field on its 10 t benchmark (the previous
             // value was the tonne pin, meaningless for TEU).
-            d.cargo.unitWeightTonnes = v === "teu" ? 14 : 1;
+            d.cargo.unitWeightTonnes = v === "teu" ? 10 : 1;
           })
         }
       />
@@ -431,7 +431,7 @@ export function CargoTabStep({ model, viewMode, revealStandard }: StepProps) {
           unit="t"
           step={0.5}
           help={t("unitWeightHelp")}
-          value={scenario.cargo.unitWeightTonnes ?? 14}
+          value={scenario.cargo.unitWeightTonnes ?? 10}
           onChange={(v) => update((d) => void (d.cargo.unitWeightTonnes = Math.max(0.01, v)))}
         />
       ) : (

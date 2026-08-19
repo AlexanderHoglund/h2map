@@ -76,7 +76,7 @@
       "unitTonne": "Tonne",
       "unitTeu": "TEU (container)",
       "unitWeight": "Weight per unit",
-      "unitWeightHelp": "What one cargo unit weighs. Used to derive cost per tonne of cargo; the model itself counts units.",
+      "unitWeightHelp": "What one cargo unit weighs. TEU defaults to 10 t; tonne is 1 by definition. Used to derive cost per tonne of cargo; the model itself counts units.",
       "routedPrefix": "routed:",
       "routedAdopt": "use this",
       "routedHelp": "Routed over the maritime shipping-lane network ({graph}), {via}, one-way. Indicative - screening grade, within roughly 5-10% of published tables.",
