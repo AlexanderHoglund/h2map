@@ -153,7 +153,22 @@ export const COUPLING_GROUPS: readonly CouplingGroup[] = [
     rationale:
       "Both sides are ordered from the same yard market, so a newbuild price " +
       "shock moves them together; their SPREAD is the green premium and is a " +
-      "second axis, not this one.",
+      "second axis, not this one. NOTE the researched caveat: over a 15-year " +
+      "horizon yard prices across CLASSES do not move together (Ultramax -27% " +
+      "and Kamsarmax -19% from 2007 to 2024 while the aggregate index moved " +
+      "2.6%), so this group couples the two SIDES of one class, never two " +
+      "classes — see docs/corridor/input-uncertainty-findings.md.",
+  },
+  {
+    id: "vessel-opex",
+    label: "Fleet operating cost",
+    members: ["vessel.green.opexUsdMPerYear", "vessel.fossil.opexUsdMPerYear"],
+    rationale:
+      "Same reasoning as fleet-capital: one hull class crewed, insured and " +
+      "maintained in one market, so an operating-cost move lifts both sides " +
+      "together. The disclosed peer spread that sizes this range is itself " +
+      "deadweight-normalised, which is why it measures management efficiency " +
+      "rather than class.",
   },
 ];
 

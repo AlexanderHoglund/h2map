@@ -1,6 +1,7 @@
 {
  "generatedBy": "scripts/corridor/elasticity.ts",
  "refBundleId": "2026-08-18-fuel-v4",
+ "uncertaintyDatasetVersion": "2026-08-19-uncertainty-v1",
  "relativeStep": 0.1,
  "absolutePpStep": 0.01,
  "asymmetryFlagThreshold": 0.2,
@@ -126,7 +127,8 @@
        "mean": 1,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -167,7 +169,8 @@
        "mean": 1.000000000000004,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -208,7 +211,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -258,7 +262,8 @@
        "mean": 1,
        "asymmetric": true
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -299,7 +304,8 @@
        "mean": 1.0000000000000004,
        "asymmetric": true
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -340,7 +346,8 @@
        "mean": 0.9999999999999989,
        "asymmetric": true
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -390,7 +397,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -431,7 +439,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -472,7 +481,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -522,6 +532,18 @@
        "mean": 0,
        "asymmetric": false
       }
+     },
+     "exposure": {
+      "low": 7.5,
+      "mode": 10,
+      "high": 13,
+      "unit": "percentage points, nominal",
+      "distribution": "triangular",
+      "basisType": "market-range",
+      "verified": false,
+      "uncertaintyBasis": "Utility-scale renewable project WACCs in a large emerging market run 8-10% nominal in 2026 having fallen from 14-15% in 2010 as offtake contracts standardised, with higher-risk project categories at 10-12%; the band is set slightly wider at both ends to span the range between a strongly-rated upper-middle-income sovereign such as Chile and a weaker one. INDIA IS A PROXY, NOT CHILE: Chile is a stronger sovereign credit and would plausibly finance nearer the OECD band, so this row should be replaced with Chile-specific project-finance evidence before it drives a published figure.",
+      "relativeHalfWidth": 0.275,
+      "impact": 0.029004343634878364
      }
     },
     "B": {
@@ -563,6 +585,18 @@
        "mean": 0,
        "asymmetric": false
       }
+     },
+     "exposure": {
+      "low": 6,
+      "mode": 7.5,
+      "high": 10,
+      "unit": "percentage points, nominal",
+      "distribution": "triangular",
+      "basisType": "market-range",
+      "verified": false,
+      "uncertaintyBasis": "Published 2026 cost-of-capital work for OECD energy infrastructure gives real WACCs of 6.5-7.5% for unregulated electricity and gas transmission and 7.0-7.5% for utility-scale solar and onshore wind, which at a 2% inflation assumption is roughly 8.5-9.6% nominal; a 2026 US midstream energy assessment gives 9.8% nominal. The band is set below those figures at its lower end because shipping assets are mobile, liquid collateral that supports cheaper senior debt than fixed energy infrastructure.",
+      "relativeHalfWidth": 0.26666666666666666,
+      "impact": 0.06204823005272941
      }
     },
     "C": {
@@ -604,6 +638,18 @@
        "mean": 0,
        "asymmetric": false
       }
+     },
+     "exposure": {
+      "low": 6,
+      "mode": 7.5,
+      "high": 10,
+      "unit": "percentage points, nominal",
+      "distribution": "triangular",
+      "basisType": "market-range",
+      "verified": false,
+      "uncertaintyBasis": "Published 2026 cost-of-capital work for OECD energy infrastructure gives real WACCs of 6.5-7.5% for unregulated electricity and gas transmission and 7.0-7.5% for utility-scale solar and onshore wind, which at a 2% inflation assumption is roughly 8.5-9.6% nominal; a 2026 US midstream energy assessment gives 9.8% nominal. The band is set below those figures at its lower end because shipping assets are mobile, liquid collateral that supports cheaper senior debt than fixed energy infrastructure.",
+      "relativeHalfWidth": 0.26666666666666666,
+      "impact": 0.03980221504468805
      }
     }
    }
@@ -654,6 +700,18 @@
        "mean": 0,
        "asymmetric": false
       }
+     },
+     "exposure": {
+      "low": 1.5,
+      "mode": 2.2,
+      "high": 3.5,
+      "unit": "percentage points",
+      "distribution": "triangular",
+      "basisType": "expert-judgement",
+      "verified": false,
+      "uncertaintyBasis": "Anchored on published central-bank target bands across the corridor set - 2% symmetric for the euro area and 2-3% for Australia - widened to reflect that a 15-year average smooths single-year shocks but that the 2021-23 episode demonstrates sustained overshoots are possible. No inflation-swap forward curve or historical dispersion study of 15-year realised averages was retrieved.",
+      "relativeHalfWidth": 0.45454545454545453,
+      "impact": 0.01960082878046525
      }
     },
     "B": {
@@ -695,6 +753,18 @@
        "mean": 0,
        "asymmetric": false
       }
+     },
+     "exposure": {
+      "low": 1.5,
+      "mode": 2.2,
+      "high": 3.5,
+      "unit": "percentage points",
+      "distribution": "triangular",
+      "basisType": "expert-judgement",
+      "verified": false,
+      "uncertaintyBasis": "Anchored on published central-bank target bands across the corridor set - 2% symmetric for the euro area and 2-3% for Australia - widened to reflect that a 15-year average smooths single-year shocks but that the 2021-23 episode demonstrates sustained overshoots are possible. No inflation-swap forward curve or historical dispersion study of 15-year realised averages was retrieved.",
+      "relativeHalfWidth": 0.45454545454545453,
+      "impact": 0.09636345522102036
      }
     },
     "C": {
@@ -736,6 +806,18 @@
        "mean": 0,
        "asymmetric": false
       }
+     },
+     "exposure": {
+      "low": 1.5,
+      "mode": 2.2,
+      "high": 3.5,
+      "unit": "percentage points",
+      "distribution": "triangular",
+      "basisType": "expert-judgement",
+      "verified": false,
+      "uncertaintyBasis": "Anchored on published central-bank target bands across the corridor set - 2% symmetric for the euro area and 2-3% for Australia - widened to reflect that a 15-year average smooths single-year shocks but that the 2021-23 episode demonstrates sustained overshoots are possible. No inflation-swap forward curve or historical dispersion study of 15-year realised averages was retrieved.",
+      "relativeHalfWidth": 0.45454545454545453,
+      "impact": 0.02109242424260468
      }
     }
    }
@@ -786,7 +868,8 @@
        "mean": 0.9999999999999984,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -827,7 +910,8 @@
        "mean": 1.2500000000000007,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -868,7 +952,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -920,7 +1005,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -961,7 +1047,8 @@
        "mean": 1.6666666666666672,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -1002,7 +1089,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -1054,7 +1142,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -1095,7 +1184,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -1136,7 +1226,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -1144,8 +1235,10 @@
    "id": "vessel.green.opexUsdMPerYear",
    "label": "Green vessel OPEX ($m/yr)",
    "perturbationType": "relative",
-   "coupled": false,
-   "couplingGroups": [],
+   "coupled": true,
+   "couplingGroups": [
+    "vessel-opex"
+   ],
    "scenarios": {
     "A": {
      "measurable": true,
@@ -1186,7 +1279,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -1227,7 +1321,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -1268,7 +1363,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -1324,7 +1420,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": false,
@@ -1381,7 +1478,8 @@
        "mean": 0.31802493813033444,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -1422,7 +1520,8 @@
        "mean": 0.31802493813033517,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -1463,7 +1562,8 @@
        "mean": 0.2575308047398813,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -1513,7 +1613,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -1554,7 +1655,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -1595,7 +1697,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -1645,7 +1748,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -1686,7 +1790,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -1727,7 +1832,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -1777,7 +1883,8 @@
        "mean": 0.3180249381303353,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -1818,7 +1925,8 @@
        "mean": 0.31802493813033517,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -1859,7 +1967,8 @@
        "mean": 0.2575308047398813,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -1911,7 +2020,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -1952,7 +2062,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -1993,7 +2104,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -2043,7 +2155,8 @@
        "mean": 1.318024938130332,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -2084,7 +2197,8 @@
        "mean": 1.3180249381303328,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -2125,7 +2239,8 @@
        "mean": 1.2575308047398825,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -2175,7 +2290,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -2216,7 +2332,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -2257,7 +2374,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -2307,7 +2425,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -2348,7 +2467,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -2389,7 +2509,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -2439,7 +2560,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -2480,7 +2602,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -2521,7 +2644,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -2571,7 +2695,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -2612,7 +2737,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -2653,7 +2779,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -2703,7 +2830,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -2744,7 +2872,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -2785,7 +2914,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -2835,7 +2965,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -2876,7 +3007,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -2917,7 +3049,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -2969,7 +3102,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -3010,7 +3144,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -3051,7 +3186,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -3059,8 +3195,10 @@
    "id": "vessel.fossil.opexUsdMPerYear",
    "label": "Fossil vessel OPEX ($m/yr)",
    "perturbationType": "relative",
-   "coupled": false,
-   "couplingGroups": [],
+   "coupled": true,
+   "couplingGroups": [
+    "vessel-opex"
+   ],
    "scenarios": {
     "A": {
      "measurable": true,
@@ -3101,7 +3239,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -3142,7 +3281,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -3183,7 +3323,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -3233,7 +3374,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -3274,7 +3416,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -3315,7 +3458,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -3365,7 +3509,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -3406,7 +3551,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -3447,7 +3593,8 @@
        "mean": 0.2575308047398813,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -3500,7 +3647,8 @@
        "mean": 1.3180249381303373,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -3541,7 +3689,8 @@
        "mean": 1.3180249381303337,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -3582,7 +3731,8 @@
        "mean": 1.2575308047398779,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -3632,7 +3782,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -3673,7 +3824,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -3714,7 +3866,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -3764,7 +3917,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -3805,7 +3959,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -3846,7 +4001,8 @@
        "mean": 1.2575308047398779,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -3896,7 +4052,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -3937,7 +4094,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -3978,7 +4136,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -4028,7 +4187,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -4069,7 +4229,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -4110,7 +4271,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -4164,7 +4326,8 @@
        "mean": 0,
        "asymmetric": false
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": false,
@@ -4219,6 +4382,18 @@
        "mean": 1
       }
      },
+     "exposure": {
+      "low": -0.05,
+      "mode": 0,
+      "high": 0.12,
+      "unit": "fraction of delivered energy",
+      "distribution": "triangular",
+      "basisType": "measurement",
+      "verified": true,
+      "uncertaintyBasis": "London maritime arbitration customarily allows a margin of 0.5 knots on speed and 5% on fuel consumption where the warranty is qualified by 'about', which fixes the symmetric contractual tolerance; the upside is skewed because performance warranties apply only on good-weather days (Beaufort 4 / Douglas Sea State 3 or better) and therefore exclude heavy-weather passages and progressive hull fouling between dry-dockings, both of which raise realised annual consumption above the warranted figure.",
+      "relativeHalfWidth": 0.08499999999999999,
+      "impact": 0.022659469336001763
+     },
      "parityHeld": true
     },
     "B": {
@@ -4255,6 +4430,18 @@
        "mean": 1.0000000000000029
       }
      },
+     "exposure": {
+      "low": -0.05,
+      "mode": 0,
+      "high": 0.12,
+      "unit": "fraction of delivered energy",
+      "distribution": "triangular",
+      "basisType": "measurement",
+      "verified": true,
+      "uncertaintyBasis": "London maritime arbitration customarily allows a margin of 0.5 knots on speed and 5% on fuel consumption where the warranty is qualified by 'about', which fixes the symmetric contractual tolerance; the upside is skewed because performance warranties apply only on good-weather days (Beaufort 4 / Douglas Sea State 3 or better) and therefore exclude heavy-weather passages and progressive hull fouling between dry-dockings, both of which raise realised annual consumption above the warranted figure.",
+      "relativeHalfWidth": 0.08499999999999999,
+      "impact": 0.02443554087610871
+     },
      "parityHeld": true
     },
     "C": {
@@ -4290,6 +4477,18 @@
        "down": 1.0000000000000018,
        "mean": 1.0000000000000007
       }
+     },
+     "exposure": {
+      "low": -0.06,
+      "mode": 0,
+      "high": 0.18,
+      "unit": "fraction of delivered energy",
+      "distribution": "triangular",
+      "basisType": "expert-judgement",
+      "verified": false,
+      "uncertaintyBasis": "Widened from the deep-sea range because a short-sea feeder spends a materially larger share of its annual energy in port, manoeuvring and pilotage - none of which falls inside the good-weather sea-passage envelope that the +/-5% charter-party tolerance describes. The widening is a judgement, not a measurement: no source quantifying the port-energy share of a 1,800 TEU feeder's annual consumption was found.",
+      "relativeHalfWidth": 0.12,
+      "impact": 0.012344912380154694
      },
      "parityHeld": true
     }
@@ -4337,7 +4536,8 @@
        "down": -0.3180249381303311,
        "mean": 0.31802493813033444
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -4372,7 +4572,8 @@
        "down": -0.3180249381303341,
        "mean": 0.31802493813033517
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -4407,7 +4608,8 @@
        "down": -0.2575308047398807,
        "mean": 0.2575308047398813
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -4453,7 +4655,8 @@
        "down": 1.3180249381303355,
        "mean": 1.3180249381303373
       }
-     }
+     },
+     "exposure": null
     },
     "B": {
      "measurable": true,
@@ -4488,7 +4691,8 @@
        "down": 1.3180249381303295,
        "mean": 1.3180249381303337
       }
-     }
+     },
+     "exposure": null
     },
     "C": {
      "measurable": true,
@@ -4523,7 +4727,8 @@
        "down": 1.2575308047398825,
        "mean": 1.2575308047398779
       }
-     }
+     },
+     "exposure": null
     }
    }
   },
@@ -4534,7 +4739,7 @@
     "vessel.green.capexUsdM",
     "vessel.fossil.capexUsdM"
    ],
-   "rationale": "Both sides are ordered from the same yard market, so a newbuild price shock moves them together; their SPREAD is the green premium and is a second axis, not this one.",
+   "rationale": "Both sides are ordered from the same yard market, so a newbuild price shock moves them together; their SPREAD is the green premium and is a second axis, not this one. NOTE the researched caveat: over a 15-year horizon yard prices across CLASSES do not move together (Ultramax -27% and Kamsarmax -19% from 2007 to 2024 while the aggregate index moved 2.6%), so this group couples the two SIDES of one class, never two classes — see docs/corridor/input-uncertainty-findings.md.",
    "scenarios": {
     "A": {
      "measurable": true,
@@ -4569,6 +4774,18 @@
        "down": 0,
        "mean": 0
       }
+     },
+     "exposure": {
+      "low": 32,
+      "mode": 35,
+      "high": 40,
+      "unit": "USD million per ship, conventional newbuild",
+      "distribution": "triangular",
+      "basisType": "quote-spread",
+      "verified": true,
+      "uncertaintyBasis": "Five reported 2026 Supramax/Ultramax newbuilding contracts span USD 33.5m to USD 39.2m, with the spread driven almost entirely by build country: Chinese yards cluster at USD 33.5-35m and the one Japanese order (Nihon Shipyard/Imabari) sits at USD 39.2m, a 17% premium for the same deadweight.",
+      "relativeHalfWidth": 0.11428571428571428,
+      "impact": 0.005948355281600507
      }
     },
     "B": {
@@ -4604,6 +4821,18 @@
        "down": 0,
        "mean": 0
       }
+     },
+     "exposure": {
+      "low": 70,
+      "mode": 76,
+      "high": 82,
+      "unit": "USD million per ship, conventional newbuild",
+      "distribution": "triangular",
+      "basisType": "quote-spread",
+      "verified": true,
+      "uncertaintyBasis": "Reported 2026 Newcastlemax and large Capesize contracts cluster USD 73.5-78.25m, with a 2024 assessed value of USD 69.63m for 180,000 dwt setting the floor of the recent cycle; the model's current USD 80.5m point sits above every conventional contract found.",
+      "relativeHalfWidth": 0.07894736842105263,
+      "impact": 0.01274815431710371
      }
     },
     "C": {
@@ -4639,6 +4868,170 @@
        "down": 0,
        "mean": 0
       }
+     },
+     "exposure": {
+      "low": 29,
+      "mode": 32,
+      "high": 36,
+      "unit": "USD million per ship, conventional newbuild",
+      "distribution": "triangular",
+      "basisType": "quote-spread",
+      "verified": false,
+      "uncertaintyBasis": "One reported 2026 feeder programme prices three 1,800 TEU vessels at USD 93-99m in total, i.e. USD 31-33m each, and the source itself expresses the figure as a range rather than a contract price; the band is widened modestly at both ends because this is a single datapoint.",
+      "relativeHalfWidth": 0.109375,
+      "impact": 0.0010413965287213033
+     }
+    }
+   }
+  },
+  {
+   "id": "vessel-opex",
+   "label": "Fleet operating cost",
+   "members": [
+    "vessel.green.opexUsdMPerYear",
+    "vessel.fossil.opexUsdMPerYear"
+   ],
+   "rationale": "Same reasoning as fleet-capital: one hull class crewed, insured and maintained in one market, so an operating-cost move lifts both sides together. The disclosed peer spread that sizes this range is itself deadweight-normalised, which is why it measures management efficiency rather than class.",
+   "scenarios": {
+    "A": {
+     "measurable": true,
+     "perKpi": {
+      "gapPvUsdM": {
+       "up": 0.02397236664381549,
+       "down": 0.0239723666438076,
+       "mean": 0.023972366643811544
+      },
+      "costPerUnitUsd": {
+       "up": 0.02397236664381516,
+       "down": 0.023972366643807023,
+       "mean": 0.02397236664381109
+      },
+      "costPerTonneCo2Usd": {
+       "up": 0.023972366643814195,
+       "down": 0.02397236664380872,
+       "mean": 0.023972366643811457
+      },
+      "greenTotalPvUsdM": {
+       "up": 0.11330043973783573,
+       "down": 0.11330043973783108,
+       "mean": 0.11330043973783341
+      },
+      "fossilTotalPvUsdM": {
+       "up": 0.24226456127452384,
+       "down": 0.24226456127452384,
+       "mean": 0.24226456127452384
+      },
+      "co2AbatedTonnes": {
+       "up": 0,
+       "down": 0,
+       "mean": 0
+      }
+     },
+     "exposure": {
+      "low": 2,
+      "mode": 2.35,
+      "high": 2.8,
+      "unit": "USD million per ship per year, excluding fuel",
+      "distribution": "triangular",
+      "basisType": "market-range",
+      "verified": true,
+      "uncertaintyBasis": "Four listed dry bulk owners with similar average fleet deadweight disclosed daily operating expenses spanning USD 5,180 to USD 6,805 per vessel in Q2 2026 - a 31% cross-sectional spread between well-run public operators - to which a dry-dock accrual of roughly USD 450-800/day must be added, since the disclosed figures report dry docking separately.",
+      "relativeHalfWidth": 0.17021276595744678,
+      "impact": 0.004080402832989198
+     }
+    },
+    "B": {
+     "measurable": true,
+     "perKpi": {
+      "gapPvUsdM": {
+       "up": 0.07437305345091871,
+       "down": 0.07437305345090851,
+       "mean": 0.0743730534509136
+      },
+      "costPerUnitUsd": {
+       "up": 0.07437305345091907,
+       "down": 0.07437305345090701,
+       "mean": 0.07437305345091305
+      },
+      "costPerTonneCo2Usd": {
+       "up": 0.07437305345091894,
+       "down": 0.07437305345090775,
+       "mean": 0.07437305345091334
+      },
+      "greenTotalPvUsdM": {
+       "up": 0.13105503850298958,
+       "down": 0.13105503850298733,
+       "mean": 0.13105503850298844
+      },
+      "fossilTotalPvUsdM": {
+       "up": 0.1470670866893893,
+       "down": 0.1470670866893893,
+       "mean": 0.1470670866893893
+      },
+      "co2AbatedTonnes": {
+       "up": 0,
+       "down": 0,
+       "mean": 0
+      }
+     },
+     "exposure": {
+      "low": 2.3,
+      "mode": 2.8,
+      "high": 3.35,
+      "unit": "USD million per ship per year, excluding fuel",
+      "distribution": "triangular",
+      "basisType": "market-range",
+      "verified": false,
+      "uncertaintyBasis": "Same disclosed operator band as the Supramax row, shifted upward by a class premium of roughly 1.15-1.25x. Vessel operating cost scales far more weakly than deadweight because crew - about 42% of the total - is essentially flat between the classes (both carry some 20-22 seafarers, and minimum safe manning steps by gross tonnage are small). Only hull-and-machinery insurance (tracking a 2.2x hull value), lubricants (tracking engine power) and repairs scale materially, giving a weighted ratio near 1.24x against a deadweight ratio of 3.6x. No operator publishes opex split by class, so the premium is inferred from cost structure, not measured.",
+      "relativeHalfWidth": 0.18750000000000006,
+      "impact": 0.013944947522046305
+     }
+    },
+    "C": {
+     "measurable": true,
+     "perKpi": {
+      "gapPvUsdM": {
+       "up": 0.004385347549725958,
+       "down": 0.004385347549724755,
+       "mean": 0.004385347549725357
+      },
+      "costPerUnitUsd": {
+       "up": 0.004385347549726247,
+       "down": 0.004385347549724298,
+       "mean": 0.004385347549725272
+      },
+      "costPerTonneCo2Usd": {
+       "up": 0.004385347549727015,
+       "down": 0.00438534754972463,
+       "mean": 0.0043853475497258225
+      },
+      "greenTotalPvUsdM": {
+       "up": 0.029382886891720347,
+       "down": 0.02938288689171833,
+       "mean": 0.02938288689171934
+      },
+      "fossilTotalPvUsdM": {
+       "up": 0.15824492094045142,
+       "down": 0.15824492094045606,
+       "mean": 0.15824492094045373
+      },
+      "co2AbatedTonnes": {
+       "up": 0,
+       "down": 0,
+       "mean": 0
+      }
+     },
+     "exposure": {
+      "low": 1.9,
+      "mode": 2.3,
+      "high": 2.9,
+      "unit": "USD million per ship per year, excluding fuel",
+      "distribution": "triangular",
+      "basisType": "expert-judgement",
+      "verified": false,
+      "uncertaintyBasis": "No listed feeder container owner discloses technical operating cost separately: the largest pure feeder owner guides on USD 8,510 per vessel-day but that figure bundles voyage expenditure, G&A and ship management alongside OPEX, so it bounds the answer from above without giving it. The band is the dry bulk range widened at both ends.",
+      "relativeHalfWidth": 0.2173913043478261,
+      "impact": 0.0009533364238533385
      }
     }
    }

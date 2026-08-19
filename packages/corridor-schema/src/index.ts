@@ -75,6 +75,15 @@ export type { ScaleCorrection } from "./ref/scale";
 export type { DerivedVessel, VesselSource } from "./ref/vesselDerivation";
 export type { RefBundle, RefCountry, RefFuel, RefVesselType } from "./ref/bundle";
 export { getCountry, getFuel, getVesselType } from "./ref/accessors";
+export {
+  parseUncertaintyDataset,
+  uncertaintyDatasetSchema,
+  uncertaintyBasisTypes,
+  uncertaintyDistributions,
+  uncertaintyFor,
+  unresolvedUncertaintyIds,
+} from "./ref/uncertainty";
+export type { UncertaintyDataset, UncertaintyRow } from "./ref/uncertainty";
 export { resolveScenario, toSideInputs } from "./resolve";
 export {
   getSynthesisBenchmark,

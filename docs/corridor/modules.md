@@ -497,6 +497,20 @@ Sources / rationale:
 - Shipping $/t·km: planning-level deep-sea bulk/gas-carrier freight
   magnitudes; LH2 markedly higher (boil-off, cryo tonnage scarcity).
 
+### `@h2map/corridor-schema/ref\uncertainty.ts`
+
+**Purpose**
+
+Input-uncertainty reference data — the EXPOSURE half of impact.
+
+**Boundary (imports)**: `zod`
+
+**Exports (inputs/outputs)**: `uncertaintyDistributions`, `uncertaintyBasisTypes`, `uncertaintyDatasetSchema`, `UncertaintyRow`, `UncertaintyDataset`, `parseUncertaintyDataset`, `uncertaintyFor`, `unresolvedUncertaintyIds`
+
+**Assumptions**
+
+Documented inline (see source).
+
 ### `@h2map/corridor-schema/ref\vesselDerivation.ts`
 
 **Purpose**

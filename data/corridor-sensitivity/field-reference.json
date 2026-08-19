@@ -294,7 +294,9 @@
    "rank": 7,
    "movementPct": 42.4,
    "elasticity": "0.04–0.59",
-   "coupled": [],
+   "coupled": [
+    "vessel-opex"
+   ],
    "placement": "top-level"
   },
   {
@@ -316,7 +318,9 @@
    "rank": 9,
    "movementPct": 33.6,
    "elasticity": "0.03–0.52",
-   "coupled": [],
+   "coupled": [
+    "vessel-opex"
+   ],
    "placement": "—"
   },
   {

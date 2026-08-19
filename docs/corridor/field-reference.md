@@ -34,9 +34,9 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `cargo.routedDistance.via` | string, null | yes | — | — | — | — | — | — | — |
 | `vessel.typeId` | string | yes | — | — | — | — | — | — | — |
 | `vessel.green.capexUsdMPerShip` | number, null | yes | #6 | 56.7% | 56.7% | `gapPvUsdM` | 0.05–0.79 | `fleet-capital` | top-level |
-| `vessel.green.opexUsdMPerShipPerYear` | number, null | yes | #7 | 42.4% | 42.4% | `costPerTonneCo2Usd` | 0.04–0.59 | — | top-level |
+| `vessel.green.opexUsdMPerShipPerYear` | number, null | yes | #7 | 42.4% | 42.4% | `costPerTonneCo2Usd` | 0.04–0.59 | `vessel-opex` | top-level |
 | `vessel.fossil.capexUsdMPerShip` | number, null | yes | #5 | 59.7% | 262.7% | `fossilTotalPvUsdM` | 0.04–0.63 | `fleet-capital` | — |
-| `vessel.fossil.opexUsdMPerShipPerYear` | number, null | yes | #9 | 33.6% | 147.7% | `fossilTotalPvUsdM` | 0.03–0.52 | — | — |
+| `vessel.fossil.opexUsdMPerShipPerYear` | number, null | yes | #9 | 33.6% | 147.7% | `fossilTotalPvUsdM` | 0.03–0.52 | `vessel-opex` | — |
 | `green.fuelId` | string | yes | — | — | — | — | — | — | — |
 | `green.sourcing` | "purchase", "build-plant", "build-here" | yes | — | — | — | — | — | — | — |
 | `green.buildHere` | object, null | no | — | — | — | — | — | — | — |

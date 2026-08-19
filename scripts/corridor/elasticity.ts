@@ -33,7 +33,14 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { readFileSync } from "node:fs";
-import { parseRefBundle, type ScenarioInput } from "@h2map/corridor-schema";
+import {
+  parseRefBundle,
+  parseUncertaintyDataset,
+  uncertaintyFor,
+  unresolvedUncertaintyIds,
+  type ScenarioInput,
+  type UncertaintyRow,
+} from "@h2map/corridor-schema";
 import { evaluateScenario } from "@h2map/corridor-engine";
 import { resolveScenario, migrateScenarioInput } from "@h2map/corridor-schema";
 import {
@@ -55,6 +62,23 @@ const OUT_PATH = new URL("elasticity.json", OUT_DIR);
 
 const bundle = parseRefBundle(
   JSON.parse(readFileSync(new URL("data/corridor-ref/2026-08-18-fuel-v4.json", ROOT), "utf8")),
+);
+
+/**
+ * The DECLARED uncertainty — the exposure half of impact.
+ *
+ * Loaded here rather than computed: leverage is a property of the model and
+ * this file measures it; exposure is a fact about the world and is researched,
+ * cited and versioned. Multiplying them is the only reason either number is
+ * interesting on its own.
+ */
+const uncertainty = parseUncertaintyDataset(
+  JSON.parse(
+    readFileSync(
+      new URL("data/input-uncertainty-ref/2026-08-19-uncertainty-v1.json", ROOT),
+      "utf8",
+    ),
+  ),
 );
 
 /** ±10% for ordinary quantities. */
@@ -231,7 +255,76 @@ function elasticityOf(base: KpiVector, moved: KpiVector, fraction: number): PerK
 
 const mean = (a: number, b: number) => (a + b) / 2;
 
+
+/**
+ * IMPACT = leverage x exposure, per archetype.
+ *
+ * Leverage is dimensionless (a % move in the input per % move in the KPI), so
+ * exposure has to be dimensionless too before they can multiply. The RELATIVE
+ * half-width of the declared range is that: (high - low) / 2 expressed against
+ * the value the range is about.
+ *
+ * Two units need care, and getting either wrong would silently scale a whole
+ * archetype:
+ *   - a range already expressed as a FRACTION of the quantity (energy-demand
+ *     is "+/-x of delivered energy") is its own relative width;
+ *   - a range in PERCENTAGE POINTS (WACC, inflation) divides by its own
+ *     central value, matching how `nudges` perturbs those fields.
+ * Everything else divides by its mode, or by the midpoint when no mode exists.
+ */
+function relativeHalfWidth(row: UncertaintyRow): number | null {
+  const half = (row.high - row.low) / 2;
+  if (!Number.isFinite(half) || half <= 0) return null;
+  if (row.unit.startsWith("fraction of")) return half;
+  const centre = row.mode ?? (row.low + row.high) / 2;
+  if (!Number.isFinite(centre) || centre === 0) return null;
+  return Math.abs(half / centre);
+}
+
+/** The declared uncertainty for one id on one archetype, if any. */
+function exposureFor(id: string, archetypeKey: string): UncertaintyRow | null {
+  const rows = uncertaintyFor(uncertainty, archetypeKey).filter((r) => r.id === id);
+  return rows[0] ?? null;
+}
+
+/** The `exposure` block published beside each scenario's elasticity. */
+function exposureBlock(
+  id: string,
+  archetypeKey: string,
+  gapElasticity: number | null,
+): Record<string, unknown> | null {
+  const row = exposureFor(id, archetypeKey);
+  if (!row) return null;
+  const width = relativeHalfWidth(row);
+  return {
+    low: row.low,
+    ...(row.mode === undefined ? {} : { mode: row.mode }),
+    high: row.high,
+    unit: row.unit,
+    distribution: row.distribution,
+    basisType: row.basisType,
+    verified: row.verified,
+    uncertaintyBasis: row.uncertaintyBasis,
+    relativeHalfWidth: width,
+    // The product. Null when either half is missing — never zero, which would
+    // read as "measured, and it does not matter".
+    impact: width === null || gapElasticity === null ? null : Math.abs(gapElasticity) * width,
+  };
+}
+
 function main(): void {
+  // A row whose id joins to nothing parses perfectly and is silently excluded
+  // from every impact figure — invisible to a build, a typecheck and a lint.
+  // Fail loudly instead.
+  const knownIds = [...PARAMS.map((p) => p.id), ...COUPLING_GROUPS.map((g) => g.id)];
+  const unresolved = unresolvedUncertaintyIds(uncertainty, knownIds);
+  if (unresolved.length > 0) {
+    console.error(
+      `elasticity: uncertainty rows join to nothing: ${unresolved.join(", ")}`,
+    );
+    process.exit(1);
+  }
+
   const scenarios = ARCHETYPES.map((a) => {
     const input = migrateScenarioInput(JSON.parse(JSON.stringify(a.build()))).input;
     return {
@@ -289,7 +382,12 @@ function main(): void {
         const asym = m === 0 ? 0 : Math.abs(Math.abs(u) - Math.abs(d)) / m;
         perKpi[id] = { up: u, down: d, mean: m, asymmetric: asym > ASYMMETRY_FLAG };
       }
-      perScenario[s.archetype.key] = { measurable: true, perKpi };
+      const exposure = exposureBlock(
+        p.id,
+        s.archetype.key,
+        perKpi.gapPvUsdM?.mean ?? null,
+      );
+      perScenario[s.archetype.key] = { measurable: true, perKpi, exposure };
       measured++;
     }
     if (measured === 0) {
@@ -345,7 +443,12 @@ function main(): void {
         applyAll(1)(probe);
         parityHeld = !evaluateScenario(resolveScenario(probe, bundle)).energyParity.diverged;
       }
-      perScenario[s.archetype.key] = { measurable: true, perKpi, ...(parityHeld === null ? {} : { parityHeld }) };
+      perScenario[s.archetype.key] = {
+        measurable: true,
+        perKpi,
+        exposure: exposureBlock(g.id, s.archetype.key, perKpi.gapPvUsdM?.mean ?? null),
+        ...(parityHeld === null ? {} : { parityHeld }),
+      };
     }
     return {
       id: g.id,
@@ -363,6 +466,7 @@ function main(): void {
       {
         generatedBy: "scripts/corridor/elasticity.ts",
         refBundleId: bundle.bundleId,
+        uncertaintyDatasetVersion: uncertainty.datasetVersion,
         relativeStep: RELATIVE_STEP,
         absolutePpStep: ABSOLUTE_PP_STEP,
         asymmetryFlagThreshold: ASYMMETRY_FLAG,
