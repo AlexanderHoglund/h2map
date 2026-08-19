@@ -42,7 +42,7 @@ Rule 5 is about that, and it is the one to be careful of.
 
 | Don't | Why |
 |---|---|
-| Set `schemaVersion` to anything else | It pins the shape. A LOWER number is migrated on load (your file is reinterpreted); a higher one is rejected. |
+| Set `schemaVersion` to anything else | It pins the shape. Files with a lower version are upgraded on load; only the current version is written. A higher version is rejected. |
 | Change `refBundleId` | It pins the reference data (vessel table, fuels, countries). Bundles are immutable; an unknown id is an error. |
 | Use `0` to mean "no override" | `0` is a real value. Use `null`. |
 | Fill both a price override and production CAPEX/OPEX on a `purchase` side | Purchase forces production lines to zero — the CAPEX you wrote is discarded, which looks like a bug. |
@@ -53,14 +53,14 @@ Rule 5 is about that, and it is the one to be careful of.
 
 ## Allowed id values
 
-> `vessel.typeId` lists the 35 current classes only. The catalogue also
-> still resolves seven retired ids from the original workbook (`tanker-35k`,
-> `tanker-80k`, `bulk-60k`, `container-5k`, `container-15k`, `roro-ferry`,
-> `handymax-bulk-58k`) so older saved scenarios keep working. **Do not use them
-> for new work.** They pre-date the study-sourced energy figures and several are
-> superseded by a researched row for the same ship: `handymax-bulk-58k` carries
-> 3.200 GJ/nm against `bulk-handymax-58k`'s 2.334, so picking the retired id
-> overstates the burn by 37% while looking entirely plausible.
+> `vessel.typeId` lists the 35 current classes only. Seven vessel ids
+> are retired: `tanker-35k`, `tanker-80k`, `bulk-60k`, `container-5k`,
+> `container-15k`, `roro-ferry`, `handymax-bulk-58k`. They still resolve so
+> older files keep working, but **do not use them for new scenarios** — their
+> energy figures are superseded (up to ~37% different burn for the same
+> class: `handymax-bulk-58k` carries 3.200 GJ/nm against
+> `bulk-handymax-58k`'s 2.334, so picking the retired id overstates the burn
+> while looking entirely plausible).
 
 | Field | Allowed values |
 |---|---|

@@ -77,7 +77,7 @@ function fieldReference(): string {
     ranked: {
       id: string;
       label: string;
-      /** Movement of the GAP — kept as §20's primary column for continuity. */
+      /** How far the field can push the headline cost gap across its swept range. */
       relHeadlineMovement: number;
       /** Max across all headline KPIs — what determines UI placement. */
       maxRelMovement: number;
@@ -223,8 +223,7 @@ function fieldReference(): string {
     "cargo.inflation": "cargo.inflation",
     "cargo.vessels": "cargo.vessels",
     "cargo.roundtripsPerYear": "cargo.roundtripsPerYear",
-    // v7: schema path is per-ship; the sweep param id keeps its historical
-    // name so §20's ranking stays comparable across schema versions.
+    // Alias: these sweep param ids map to the per-ship schema paths.
     "vessel.green.capexUsdMPerShip": "vessel.green.capexUsdM",
     "vessel.green.opexUsdMPerShipPerYear": "vessel.green.opexUsdMPerYear",
     // Docs-only sweep extension (2026-08-13) — every remaining numeric.
@@ -299,15 +298,33 @@ function fieldReference(): string {
     "",
     "Sensitivity sweeps each input across its plausible range (enums across",
     "every defined option) against ALL SIX headline KPIs — gap, $/cargo unit,",
-    "$/tCO2 abated, green total, fossil total, lifetime CO2 abated. **Gap",
-    "movement** is how far the field can push the headline cost gap, as a",
-    "percentage of the gap; **max across KPIs** determines placement, and",
-    "**binding KPI** names the output that produced it, so a field's",
-    "prominence is traceable to what it actually moves. Baseline is the",
-    "frozen reference scenario on the app's default posture (well-to-wake,",
-    "distance-derived burns); module",
+    "$/tCO2 abated, green total, fossil total, lifetime CO2 abated.",
+    "",
+    "What each column means:",
+    "",
+    "- **Sensitivity rank** — the field's position when every swept input is",
+    "  ordered by gap movement (#1 moves the gap most).",
+    "- **Gap movement** — how far the field can push the headline cost gap",
+    "  across its swept range, as a percentage of the gap.",
+    "- **Max across KPIs** — the largest movement across all six headline",
+    "  KPIs; this determines UI placement.",
+    "- **Binding KPI** — the output that produced the max, so a field's",
+    "  prominence is traceable to what it actually moves.",
+    "- **Elasticity (range across archetypes)** — the % change in the gap per",
+    "  1% nudge of the field (±1 percentage point for rates). Reported as a",
+    "  range across the three reference corridors because the value depends",
+    "  on the scenario.",
+    "- **Coupled** — fields that move together in one group so a shared shock",
+    "  is not double-counted; the group name is listed.",
+    "- **Status** — `measured` = swept and elasticity measured; `swept only —",
+    "  …` = swept, but no per-unit elasticity exists (the suffix says why);",
+    "  `not swept` = no numeric impact path; `choice — impact from options` =",
+    "  a selector swept across every option.",
+    "",
+    "Baseline is the frozen reference scenario on the app's defaults",
+    "(well-to-wake accounting, consumption derived from distance); module",
     "sweeps run with the module enabled — see",
-    "`data/corridor-sensitivity/sensitivity.json`). Placement reflects the",
+    "`data/corridor-sensitivity/sensitivity.json`. Placement reflects the",
     "FROZEN ui-flagged subset: `top-level` renders prominently in the wizard,",
     "`advanced` behind the Standard view, `—` = not part of the UI prominence",
     "contract (docs-ranked only, dedicated control, or descriptive).",
@@ -408,8 +425,8 @@ function modulesDoc(): string {
     "## Worked examples",
     "",
     "`fixtures/golden/corridor/` doubles as the worked-example set: the input is",
-    "the workbook's default scenario, the expected file is the workbook's own",
-    "cached values (20 years × both sides), and the engine must reproduce them",
+    "the default reference scenario, the expected file is the frozen reference",
+    "results (20 years × both sides), and the engine must reproduce them",
     "at 1e-9 (`npm run test:golden`).",
     "",
     "## Modules",

@@ -9,8 +9,8 @@ the engine imports nothing else and performs no I/O.
 ## Worked examples
 
 `fixtures/golden/corridor/` doubles as the worked-example set: the input is
-the workbook's default scenario, the expected file is the workbook's own
-cached values (20 years × both sides), and the engine must reproduce them
+the default reference scenario, the expected file is the frozen reference
+results (20 years × both sides), and the engine must reproduce them
 at 1e-9 (`npm run test:golden`).
 
 ## Modules
