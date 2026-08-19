@@ -1998,6 +1998,147 @@ export default async function DocsPage() {
           measuring more outputs can reveal movement, never hide it.
         </p>
 
+        <H3 id="impact-leverage-exposure">Impact: leverage &times; exposure</H3>
+        <p className="mt-2">
+          The sweep above answers <em>how far can this input push the result
+          across its plausible range</em>. That places fields in the form
+          well, and it is the wrong question for ranking risk, for three
+          reasons visible in its own table.
+        </p>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            <strong>Range arbitrariness.</strong>{" "}
+            <code>selfDesigned.otherUsdM</code>{" "}tops the table at 376%
+            because it is swept $0&ndash;50m. That is a choice about the
+            sweep, not a property of the model &mdash; two inputs with
+            identical influence score differently if their assumed ranges
+            differ.
+          </li>
+          <li>
+            <strong>Coupled inputs double-count.</strong>{" "}Green and fossil
+            fuel consumption score 21.0% and 41.1% independently, but they are
+            energy-matched on any real corridor. Moving one alone drives{" "}
+            <code>energyParity</code>{" "}to 1.30 with{" "}
+            <code>diverged: true</code>{" "}&mdash; the model itself rejects
+            the state being measured.
+          </li>
+          <li>
+            <strong>One-at-a-time sees no interactions.</strong>{" "}WACC and
+            horizon compound on a capital-heavy corridor and no sweep of this
+            shape can see it.
+          </li>
+        </ul>
+        <p className="mt-2">
+          So impact is separated into its two factors and multiplied.{" "}
+          <strong>Leverage</strong>{" "}is a property of the model &mdash; an{" "}
+          <em>elasticity</em>, measured by a small standard nudge (&plusmn;10%,
+          or &plusmn;1 percentage point for rates and fractions) and
+          normalised, so it cannot inherit an assumed range.{" "}
+          <strong>Exposure</strong>{" "}is a property of the world &mdash; a
+          researched, cited range held in a versioned reference dataset.
+          Neither is interesting alone: a field can have enormous leverage and
+          be known precisely, or be a coin-flip that barely matters.
+        </p>
+        <p className="mt-2">
+          Both are measured across <strong>three archetypes</strong>, because
+          elasticity is scenario-dependent and one baseline hides that:
+          Chilean copper (build, deep-sea), Australia&ndash;Korea iron ore
+          (purchase, deep-sea) and the Skagerrak green box (contract offtake,
+          short-sea). Corridor length measures <strong>0.29</strong>{" "}where
+          consumption is derived from geometry and exactly{" "}
+          <strong>0.00</strong>{" "}where the burn is typed &mdash; the same
+          field, decisive on one corridor and inert on another. &sect;22
+          reports the range across archetypes rather than an average for
+          exactly that reason.
+        </p>
+        <p className="mt-2">
+          <strong>Coupling groups</strong>{" "}fix the double-count by moving
+          members together. On the Chilean archetype{" "}
+          <code>energy-demand</code>{" "}measures <strong>0.267</strong>{" "}
+          against a naive sum of parts of 0.621 &mdash; the one-at-a-time view
+          overstates by 2.3&times;. Fleet capital is starker: green vessel
+          CAPEX is <em>+0.25</em>{" "}and fossil <em>&minus;0.20</em>, so a
+          yard-price shock lifts both sides and the gap barely moves &mdash;{" "}
+          <strong>0.05</strong>{" "}together against 0.46 apart. The group
+          figure is the honest one; the per-field figures explain the
+          mechanism.
+        </p>
+
+        <H3 id="impact-tornado">The tornado on the results tab</H3>
+        <p className="mt-2">
+          The Results tab draws a tornado for the scenario in front of you,
+          not for a reference corridor. Each bar is{" "}
+          <strong>two full engine evaluations</strong>{" "}at the declared low
+          and high &mdash; never an elasticity multiplied by a range width,
+          because the elasticity artifact already flags asymmetric fields, so
+          the model is known to be non-linear in places where extrapolation
+          would silently lie.
+        </p>
+        <p className="mt-2">
+          Bars sort by span and are labelled in the input&apos;s own units as
+          well as the KPI&apos;s, and each carries its{" "}
+          <strong>cited basis on screen</strong>. That is the point of the
+          panel: when someone challenges a range &mdash; and they will &mdash;
+          the leverage is the model&apos;s, the range is declared and cited,
+          and changing the range rescales the bar. Coupled groups render as
+          one bar. A range that cannot act on your scenario is{" "}
+          <em>reported with a reason</em>{" "}rather than dropped, because a
+          silently missing bar reads as &ldquo;this does not matter
+          here&rdquo; &mdash; on a corridor that builds its own fuel there is
+          no merchant price to move, which is a different statement from the
+          price being unimportant.
+        </p>
+        <p className="mt-2">
+          Ranges without a defensible basis are recorded as{" "}
+          <code>unquantified</code>{" "}and excluded from impact entirely. An
+          input absent from the chart means nobody has stated a range for it,{" "}
+          <em>not</em>{" "}that it does not matter &mdash; an incomplete honest
+          table beats a complete invented one.
+        </p>
+
+        <H3 id="impact-monte-carlo">The uncertainty band</H3>
+        <p className="mt-2">
+          The tornado moves one input at a time, so it cannot see
+          interactions. A seeded Monte Carlo samples every declared range in
+          the same draw and reports where the answer actually lands, plus a
+          signed <strong>rank correlation</strong>{" "}per input &mdash; an
+          importance ranking that survives interaction and non-linearity,
+          which neither the sweep nor the elasticity can produce.
+        </p>
+        <F>
+          A P10 1652.7 &middot; P50 1690.3 &middot; P90 1730.3 &mdash; top
+          driver WACC (&minus;0.73)
+          <br />
+          B P10 &nbsp;440.6 &middot; P50 &nbsp;469.9 &middot; P90 &nbsp;507.0
+          &mdash; top driver inflation (+0.83)
+          <br />
+          C P10 1860.4 &middot; P50 1908.9 &middot; P90 1957.1 &mdash; top
+          driver WACC (&minus;0.80)
+        </F>
+        <p className="mt-2">
+          <strong>The negative sign on WACC is not an error.</strong>{" "}The
+          model discounts <em>cost</em>{" "}flows, so a higher discount rate
+          produces a <em>smaller</em>{" "}gap. It is also why the Chilean
+          archetype&apos;s deterministic result sits at the 99th percentile of
+          its own band: that scenario discounts at 8% while the researched
+          range for its region is centred on 10%, so nearly every draw
+          discounts harder than the scenario does. The band is the model
+          saying the scenario&apos;s own discount rate is optimistic relative
+          to the research &mdash; and the row driving it is among the least
+          verified in the dataset, which is recorded rather than smoothed
+          over.
+        </p>
+        <p className="mt-2">
+          Everything here is <strong>deterministic and CI-gated</strong>. The
+          seed is committed with the artifact, the whole run takes about two
+          seconds, and CI regenerates and diffs it exactly as it does the
+          generated docs &mdash; so an engine change that moves the band has
+          to be committed rather than discovered later. Only the summary is
+          stored; the draws are reproducible from the seed and are never
+          committed.
+        </p>
+
+
         <H id="provenance">21. Provenance, versions &amp; limits</H>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>

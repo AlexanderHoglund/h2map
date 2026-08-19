@@ -31,6 +31,22 @@ export default function DocsNav({
   ids: readonly string[];
 }) {
   const [active, setActive] = useState<string | null>(null);
+  /**
+   * A section the reader has opened by hand, which overrides the scroll-spy.
+   *
+   * Without this, children were reachable ONLY by scrolling to their parent:
+   * the expansion followed the observer and nothing else, so a reader could
+   * see that "9. Regulation" existed but had no way to open it and jump
+   * straight to "FuelEU Maritime". Null = follow the scroll, which is the
+   * behaviour once you start reading again.
+   */
+  const [opened, setOpened] = useState<string | null>(null);
+  /**
+   * Set when the reader collapses a section by hand, so the scroll-spy does
+   * not immediately re-open the very section they just closed. Cleared as
+   * soon as they open something else or scroll into a different section.
+   */
+  const [collapsed, setCollapsed] = useState<string | null>(null);
 
   useEffect(() => {
     const seen = new Map<string, boolean>();
@@ -62,6 +78,12 @@ export default function DocsNav({
   const activeSection = parts
     .flatMap((p) => p.sections)
     .find((s) => s.id === active || (s.children ?? []).some((c) => c.id === active));
+  /**
+   * Hand-opened wins; otherwise whatever you are reading is open — unless the
+   * reader just collapsed that very section, in which case it stays shut.
+   */
+  const spyId = activeSection?.id ?? null;
+  const openId = opened ?? (collapsed !== null && collapsed === spyId ? null : spyId);
 
   return (
     <nav
@@ -76,23 +98,56 @@ export default function DocsNav({
           <ul className="space-y-0.5">
             {part.sections.map((s) => {
               const isActive = s.id === active;
-              const isOpen = activeSection?.id === s.id;
+              const isOpen = openId === s.id;
+              const hasChildren = (s.children ?? []).length > 0;
               return (
                 <li key={s.id}>
-                  <a
-                    href={`#${s.id}`}
-                    aria-current={isActive ? "location" : undefined}
-                    className={`block border-l-2 py-1 pl-3 text-[13px] leading-snug transition-colors ${
-                      isActive
-                        ? "border-brand font-medium text-brand-deep"
-                        : "border-transparent text-neutral-600 hover:border-neutral-300 hover:text-neutral-900"
+                  <div
+                    className={`flex items-stretch border-l-2 ${
+                      isActive ? "border-brand" : "border-transparent"
                     }`}
                   >
-                    {s.label}
-                  </a>
-                  {/* Only the active section expands: 38 sections plus every
-                      sub-heading is 65 links, which is a wall rather than a
-                      navigation. */}
+                    <a
+                      href={`#${s.id}`}
+                      aria-current={isActive ? "location" : undefined}
+                      className={`min-w-0 flex-1 py-1 pl-3 text-[13px] leading-snug transition-colors ${
+                        isActive
+                          ? "font-medium text-brand-deep"
+                          : "text-neutral-600 hover:text-neutral-900"
+                      }`}
+                    >
+                      {s.label}
+                    </a>
+                    {/* A SEPARATE control, so clicking the label still
+                        navigates. Making the whole row a toggle would have
+                        cost the section link, which is the common case. */}
+                    {hasChildren && (
+                      <button
+                        type="button"
+                        aria-expanded={isOpen}
+                        aria-label={`${isOpen ? "Collapse" : "Expand"} ${s.label}`}
+                        onClick={() => {
+                          if (isOpen) {
+                            setOpened(null);
+                            setCollapsed(s.id);
+                          } else {
+                            setOpened(s.id);
+                            setCollapsed(null);
+                          }
+                        }}
+                        className="shrink-0 px-2 text-neutral-400 transition-colors hover:text-neutral-800"
+                      >
+                        <span
+                          aria-hidden
+                          className={`block text-[10px] leading-none transition-transform ${
+                            isOpen ? "rotate-90" : ""
+                          }`}
+                        >
+                          &#9654;
+                        </span>
+                      </button>
+                    )}
+                  </div>
                   {isOpen && s.children && (
                     <ul className="mb-1 space-y-0.5">
                       {s.children.map((c) => {

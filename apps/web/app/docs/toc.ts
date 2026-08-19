@@ -118,7 +118,15 @@ export const TOC_PARTS: readonly TocPart[] = [
           { id: "ref-fuels", label: "Fuels" },
         ],
       },
-      { id: "sensitivity", label: "20. What moves the results" },
+      {
+        id: "sensitivity",
+        label: "20. What moves the results",
+        children: [
+          { id: "impact-leverage-exposure", label: "Impact: leverage x exposure" },
+          { id: "impact-tornado", label: "The tornado" },
+          { id: "impact-monte-carlo", label: "The uncertainty band" },
+        ],
+      },
       {
         id: "provenance",
         label: "21. Provenance, versions & limits",
