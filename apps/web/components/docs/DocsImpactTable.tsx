@@ -4,9 +4,9 @@
  * §20's impact ranking, sortable by tab.
  *
  * The docs page is server-rendered; this island exists because re-ranking is
- * interaction. The tabs pick the basis — the larger of the two impacts, the
- * cost gap alone, or the CO₂ abatement cost alone — and the table sorts by
- * the active tab, renumbering as it goes. The DATA never changes with the
+ * interaction. The tabs pick the basis — the CO₂ abatement cost (default) or
+ * the cost gap — and the table sorts by the active tab, renumbering as it
+ * goes. The DATA never changes with the
  * tab: both figures stay visible on every row, only the order moves, so the
  * reader cannot lose sight of the divergences the two-column design exists
  * to show.
