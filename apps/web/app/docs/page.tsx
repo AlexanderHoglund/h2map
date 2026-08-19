@@ -1994,26 +1994,27 @@ export default async function DocsPage() {
             </thead>
             <tbody className="align-top">
               <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2 font-medium">Cost gap impact</td>
-                <td className="px-3 py-2">
-                  How far the <em>cost gap</em>{" "}moves when this input is
-                  pushed across its plausible range, as a percentage of the gap
-                  itself. 40% means the gap changes by four tenths of its own
-                  value. Use it to answer: <em>if I am wrong about this, how
-                  wrong is my headline number?</em>
-                </td>
-              </tr>
-              <tr className="border-b border-neutral-200">
                 <td className="px-3 py-2 font-medium">
                   CO&#8322; abatement cost impact
                 </td>
                 <td className="px-3 py-2">
-                  The same measurement on the{" "}
-                  <em>cost per tonne of CO&#8322; abated</em>{" "}&mdash; the
-                  figure funders and policy comparisons quote. The two columns
-                  rank very differently: corridor length moves the gap 76.6%
-                  and the abatement cost 366%, because distance changes the
-                  fuel bill <em>and</em>{" "}the tonnes abated at once.
+                  How far the <em>cost per tonne of CO&#8322; abated</em>{" "}
+                  &mdash; the figure funders and policy comparisons quote &mdash;
+                  moves when this input is pushed across its plausible range,
+                  as a percentage of the figure itself. 40% means it changes by
+                  four tenths of its own value. Use it to answer:{" "}
+                  <em>if I am wrong about this, how wrong is my number?</em>
+                </td>
+              </tr>
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2 font-medium">Cost gap impact</td>
+                <td className="px-3 py-2">
+                  The same measurement on the <em>cost gap</em>{" "}&mdash; the
+                  headline dollar difference between running green and running
+                  fossil. The two columns rank very differently: corridor
+                  length moves the abatement cost 366% but the gap only 76.6%,
+                  because distance changes the fuel bill <em>and</em>{" "}the
+                  tonnes abated at once.
                 </td>
               </tr>
               <tr className="border-b border-neutral-200 last:border-0">
@@ -2162,8 +2163,12 @@ export default async function DocsPage() {
         </p>
 
         <p className="mt-2">
-          The three reference corridors, drawn from the committed artifact with
-          the same builder the results panel uses:
+          The three reference corridors, drawn from the committed artifact
+          with the same builder the results panel uses. The bars measure the{" "}
+          <strong>cost gap</strong>{" "}&mdash; unlike the ranking table above,
+          which defaults to the abatement cost, a tornado is drawn for one
+          output at a time, and the gap in dollars is the one a bar chart can
+          carry across three corridors:
         </p>
         <DocsTornado
           results={

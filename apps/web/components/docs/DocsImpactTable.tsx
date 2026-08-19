@@ -82,13 +82,13 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
             <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
               <th className="px-3 py-2 font-medium">#</th>
               <th className="px-3 py-2 font-medium">Input</th>
-              <th className={`px-3 py-2 text-right font-medium${activeCol("gap")}`}>
-                Cost gap impact
-              </th>
               <th
                 className={`px-3 py-2 text-right font-medium${activeCol("abatement")}`}
               >
                 CO&#8322; abatement cost impact
+              </th>
+              <th className={`px-3 py-2 text-right font-medium${activeCol("gap")}`}>
+                Cost gap impact
               </th>
             </tr>
           </thead>
@@ -104,11 +104,11 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
                     </span>
                   )}
                 </td>
-                <td className={cell("gap")}>
-                  {(row.gap * 100).toFixed(1)}%
-                </td>
                 <td className={cell("abatement")}>
                   {(row.abatement * 100).toFixed(1)}%
+                </td>
+                <td className={cell("gap")}>
+                  {(row.gap * 100).toFixed(1)}%
                 </td>
               </tr>
             ))}
