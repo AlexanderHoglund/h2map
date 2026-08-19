@@ -3,6 +3,7 @@ import { requireAccess } from "@/lib/server/access";
 import TopBar from "@/components/shell/TopBar";
 import CountryDefaultsTable from "@/components/docs/CountryDefaultsTable";
 import DocsNav from "@/components/docs/DocsNav";
+import DocsImpactTable from "@/components/docs/DocsImpactTable";
 import DocsTornado from "@/components/docs/DocsTornado";
 import uncertaintyArtifact from "../../../../data/corridor-sensitivity/uncertainty.json";
 import { TOC_IDS, TOC_PARTS } from "./toc";
@@ -2030,8 +2031,10 @@ export default async function DocsPage() {
           </table>
         </div>
         <p className="mt-2">
-          The table is ranked by the <strong>larger of the two impacts</strong>,
-          so an input that matters to either answer ranks where it belongs. A
+          By default the table is ranked by the{" "}
+          <strong>larger of the two impacts</strong>, so an input that matters
+          to either answer ranks where it belongs; the tabs above it re-rank
+          by one output alone. A
           0.0% is a measurement, not a gap in coverage &mdash; cargo unit choice
           really cannot move either figure, and the table says so instead of
           omitting it. The other four measured outputs (per-unit cost, both
@@ -2044,41 +2047,7 @@ export default async function DocsPage() {
           {" "}scenario fields and says which of the three measurement tiers
           each falls into, and why.
         </p>
-        <div className="my-3 overflow-x-auto">
-          <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
-            <thead>
-              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
-                <th className="px-3 py-2 font-medium">#</th>
-                <th className="px-3 py-2 font-medium">Input</th>
-                <th className="px-3 py-2 text-right font-medium">Cost gap impact</th>
-                <th className="px-3 py-2 text-right font-medium">
-                  CO&#8322; abatement cost impact
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {SENSITIVITY_ROWS.map((row, i) => (
-                <tr key={row.id} className="border-b border-neutral-200 last:border-0">
-                  <td className="px-3 py-1.5">{i + 1}</td>
-                  <td className="px-3 py-1.5">
-                    {row.label}
-                    {row.isChoice && (
-                      <span className="ml-1.5 text-[11px] text-neutral-500">
-                        (choice)
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-3 py-1.5 text-right">
-                    {(row.gap * 100).toFixed(1)}%
-                  </td>
-                  <td className="px-3 py-1.5 text-right">
-                    {(row.abatement * 100).toFixed(1)}%
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DocsImpactTable rows={SENSITIVITY_ROWS} />
         <p className="mt-2">
           The top of the ranking is a mix of decisions and dials. The vessel
           class is the single biggest lever (446% &mdash; the hull sets the
