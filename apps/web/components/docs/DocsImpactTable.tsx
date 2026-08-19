@@ -23,7 +23,7 @@ export interface ImpactRow {
 }
 
 const TABS = [
-  { key: "max", label: "Largest impact" },
+  { key: "max", label: "Larger of the two" },
   { key: "gap", label: "Cost gap" },
   { key: "abatement", label: "CO₂ abatement cost" },
 ] as const;
@@ -46,6 +46,16 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
 
   const activeCol = (k: "gap" | "abatement"): string =>
     tab === k ? " text-neutral-800" : "";
+
+  // The figure each row is ranked by is BOLD, so the sort key is always a
+  // number the reader can see: on the per-KPI tabs that is the whole active
+  // column; on "larger of the two" it is whichever cell won for that row.
+  const isSortCell = (row: ImpactRow, k: "gap" | "abatement"): boolean =>
+    tab === k || (tab === "max" && valueOf(row, k) === valueOf(row, "max"));
+  const cell = (row: ImpactRow, k: "gap" | "abatement"): string =>
+    `px-3 py-1.5 text-right${
+      isSortCell(row, k) ? " font-medium text-neutral-900" : " text-neutral-600"
+    }`;
 
   return (
     <div className="my-3">
@@ -99,10 +109,10 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
                     </span>
                   )}
                 </td>
-                <td className="px-3 py-1.5 text-right">
+                <td className={cell(row, "gap")}>
                   {(row.gap * 100).toFixed(1)}%
                 </td>
-                <td className="px-3 py-1.5 text-right">
+                <td className={cell(row, "abatement")}>
                   {(row.abatement * 100).toFixed(1)}%
                 </td>
               </tr>

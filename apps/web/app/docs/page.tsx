@@ -2031,10 +2031,11 @@ export default async function DocsPage() {
           </table>
         </div>
         <p className="mt-2">
-          By default the table is ranked by the{" "}
-          <strong>larger of the two impacts</strong>, so an input that matters
-          to either answer ranks where it belongs; the tabs above it re-rank
-          by one output alone. A
+          The tabs pick which figure the table is ranked by, and that figure
+          is shown <strong>in bold</strong>{" "}on every row. The default,{" "}
+          <em>larger of the two</em>, ranks each input by whichever of its two
+          figures is bigger — there is no third number behind it — so an input
+          that matters to either answer ranks where it belongs. A
           0.0% is a measurement, not a gap in coverage &mdash; cargo unit choice
           really cannot move either figure, and the table says so instead of
           omitting it. The other four measured outputs (per-unit cost, both
