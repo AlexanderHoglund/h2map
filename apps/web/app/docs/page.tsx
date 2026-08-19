@@ -2188,24 +2188,19 @@ export default async function DocsPage() {
           mechanism.
         </p>
 
-        <H3 id="impact-tornado">The tornado on the results tab</H3>
+        <H3 id="impact-tornado">The tornado</H3>
         <p className="mt-2">
-          The Results tab draws a tornado for the scenario in front of you,
-          not for a reference corridor. Each bar is{" "}
-          <strong>two full engine evaluations</strong>{" "}at the declared low
-          and high &mdash; never an elasticity multiplied by a range width,
-          because the elasticity artifact already flags asymmetric fields, so
-          the model is known to be non-linear in places where extrapolation
-          would silently lie.
+          Each bar is <strong>two full engine evaluations</strong>{" "}at the
+          declared low and high &mdash; never an elasticity multiplied by a
+          range width, because the model is non-linear in places where
+          extrapolation would silently lie.
         </p>
         <p className="mt-2">
-          Bars sort by span and are labelled in the input&apos;s own units as
-          well as the KPI&apos;s, and each carries its{" "}
-          <strong>cited basis on screen</strong>. That is the point of the
-          panel: when someone challenges a range &mdash; and they will &mdash;
-          the leverage is the model&apos;s, the range is declared and cited,
-          and changing the range rescales the bar. Coupled groups render as
-          one bar. A range that cannot act on your scenario is{" "}
+          Bars sort by span, and every range is declared and cited: when
+          someone challenges a range &mdash; and they will &mdash; the
+          leverage is the model&apos;s, the range has a named basis, and
+          changing the range rescales the bar. Coupled groups render as one
+          bar. A range that cannot act on a corridor is{" "}
           <em>reported with a reason</em>{" "}rather than dropped, because a
           silently missing bar reads as &ldquo;this does not matter
           here&rdquo; &mdash; on a corridor that builds its own fuel there is
@@ -2222,8 +2217,8 @@ export default async function DocsPage() {
         </p>
 
         <p className="mt-2">
-          The three reference corridors, drawn from the committed artifact
-          with the same builder the results panel uses. The bars measure the{" "}
+          The three reference corridors, drawn from the committed artifact.
+          The bars measure the{" "}
           <strong>cost gap</strong>{" "}&mdash; unlike the ranking table above,
           which defaults to the abatement cost, a tornado is drawn for one
           output at a time, and the gap in dollars is the one a bar chart can

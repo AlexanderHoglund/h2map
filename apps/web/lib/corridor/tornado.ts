@@ -12,7 +12,7 @@
  * elasticity artifact already flags asymmetric fields, so the non-linearity is
  * known to exist rather than hypothetical.
  *
- * Pure: no React, no I/O. The panel renders what this returns.
+ * Pure: no React, no I/O. The documentation renders what this returns.
  */
 
 import {
@@ -221,7 +221,7 @@ export const toApplied = (
 /**
  * The declared range in its own units — "$70–82m", "−5%…+12%".
  *
- * Shared by the results panel and the documentation so the same researched
+ * Shared across the documentation's renderers so the same researched
  * range can never print two different ways.
  */
 export function rangeLabel(low: number, high: number, unit: string): string {

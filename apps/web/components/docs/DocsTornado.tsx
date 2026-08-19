@@ -6,10 +6,9 @@
  * the bar as one column among the others, so the reader moves from the
  * ranking to the tornado without relearning how to read.
  *
- * The spans come from `uncertainty.json`, which computes them with the SAME
- * `buildTornado` the results panel calls — so the documentation cannot draw a
- * different picture from the app, and CI regenerates and diffs the artifact
- * like any other generated output.
+ * The spans come from `uncertainty.json`, computed by `buildTornado` in
+ * lib/corridor/tornado — the tested implementation the Monte Carlo shares —
+ * and CI regenerates and diffs the artifact like any other generated output.
  *
  * A SERVER COMPONENT: no hooks, no state, no interactivity. The docs page is
  * server-rendered and this is a pure function of committed data, so it stays

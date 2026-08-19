@@ -45,7 +45,6 @@ import {
 import type { WfStep } from "./results/charts";
 import { warnIfDominated } from "./results/guard";
 import { ProbabilisticSection } from "./results/probabilistic";
-import { TornadoSection } from "./results/tornado";
 
 /**
  * The full results report (its own tab), in two bands: RESULTS & DIAGRAMS
@@ -1004,11 +1003,6 @@ export default function ResultsPanel({
         rest of the tab means, and a distribution rendered alongside it invites
         reading one as a correction of the other.
       */}
-      {/* Impact = leverage x exposure, on the scenario in front of you.
-          Sits above the probabilistic curve: it names WHICH inputs carry the
-          uncertainty, which is the question a reader has before "how wide is
-          the answer". */}
-      <TornadoSection scenario={result ? scenario : null} />
       <ProbabilisticSection summary={result?.summary ?? null} />
     </div>
   );
