@@ -4334,6 +4334,141 @@
      "reason": "module off or field absent on this archetype"
     }
    }
+  },
+  {
+   "id": "cargo.unitWeightTonnes",
+   "label": "Cargo unit weight (t/unit)",
+   "perturbationType": "relative",
+   "coupled": false,
+   "couplingGroups": [],
+   "scenarios": {
+    "A": {
+     "measurable": true,
+     "perKpi": {
+      "gapPvUsdM": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "costPerUnitUsd": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "costPerTonneCo2Usd": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "greenTotalPvUsdM": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "fossilTotalPvUsdM": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "co2AbatedTonnes": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      }
+     },
+     "exposure": null
+    },
+    "B": {
+     "measurable": true,
+     "perKpi": {
+      "gapPvUsdM": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "costPerUnitUsd": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "costPerTonneCo2Usd": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "greenTotalPvUsdM": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "fossilTotalPvUsdM": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "co2AbatedTonnes": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      }
+     },
+     "exposure": null
+    },
+    "C": {
+     "measurable": true,
+     "perKpi": {
+      "gapPvUsdM": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "costPerUnitUsd": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "costPerTonneCo2Usd": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "greenTotalPvUsdM": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "fossilTotalPvUsdM": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      },
+      "co2AbatedTonnes": {
+       "up": 0,
+       "down": 0,
+       "mean": 0,
+       "asymmetric": false
+      }
+     },
+     "exposure": null
+    }
+   }
   }
  ],
  "groups": [
@@ -5152,6 +5287,46 @@
   },
   {
    "id": "green.n2oScenarioId",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "green.fuelId",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "fossil.fuelId",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "vessel.typeId",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "green.sourcing",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "fossil.sourcing",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "cargo.countryId",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "regulation.emissions.framework",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "flags.emissionsBasis",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "green.emissions.engineType",
+   "reason": "enum — see discreteImpact in sensitivity.json"
+  },
+  {
+   "id": "cargo.unit",
    "reason": "enum — see discreteImpact in sensitivity.json"
   }
  ]

@@ -73,3 +73,54 @@ describe("the extracted parameter table still describes the committed artifact",
     expect(KPIS.map((k) => k.id)).toEqual(artifact.kpis.map((k) => k.id));
   });
 });
+
+describe("choice option lists match the bundle catalogue", () => {
+  // The option lists are literals in params.ts; the catalogue is data. An
+  // option added to the bundle but absent from the sweep would silently
+  // vanish from the impact ranking — these fail loudly instead.
+  const bundle = JSON.parse(
+    readFileSync(`${ROOT}data/corridor-ref/2026-08-18-fuel-v4.json`, "utf8"),
+  ) as {
+    fuels: { id: string; family: string }[];
+    vesselTypes: { id: string; deprecated?: boolean }[];
+    countries: { id: string }[];
+  };
+  const options = (id: string) =>
+    [...(PARAMS.find((p) => p.id === id)?.options ?? [])].sort();
+
+  it("green fuels", () => {
+    expect(options("green.fuelId")).toEqual(
+      bundle.fuels.filter((f) => f.family === "green").map((f) => f.id).sort(),
+    );
+  });
+
+  it("fossil fuels", () => {
+    expect(options("fossil.fuelId")).toEqual(
+      bundle.fuels.filter((f) => f.family === "fossil").map((f) => f.id).sort(),
+    );
+  });
+
+  it("non-retired vessel classes", () => {
+    expect(options("vessel.typeId")).toEqual(
+      bundle.vesselTypes.filter((v) => !v.deprecated).map((v) => v.id).sort(),
+    );
+  });
+
+  it("countries", () => {
+    expect(options("cargo.countryId")).toEqual(
+      bundle.countries.map((c) => c.id).sort(),
+    );
+  });
+
+  it("engine types match the fuel-emissions dataset", () => {
+    const fe = JSON.parse(
+      readFileSync(
+        `${ROOT}data/fuel-emissions-ref/2026-08-17-ets-carbon-4.json`,
+        "utf8",
+      ),
+    ) as { methaneSlip: { byEngine: { engine: string }[] } };
+    expect(options("green.emissions.engineType")).toEqual(
+      fe.methaneSlip.byEngine.map((e) => e.engine).sort(),
+    );
+  });
+});

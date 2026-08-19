@@ -155,6 +155,11 @@ function fieldReference(): string {
     if (elasticityCell(sensId) !== "—") return "measured";
     const why = unperturbableById.get(sensId);
     if (!why) return "swept only";
+    // A CHOICE (enum) row is measured — every option evaluated, impact = the
+    // largest movement across them — it just has no per-unit elasticity,
+    // because "10% more fuel choice" is not a thing. "swept only — enum"
+    // would read as unmeasured beside a 446% movement figure.
+    if (why.startsWith("enum")) return "choice — impact from options";
     // The reason's first clause is the tier; the rest is detail the
     // artifact keeps in full.
     const head = why.split(" — ")[0] ?? why;
@@ -172,6 +177,19 @@ function fieldReference(): string {
   // Sensitivity ids don't share every path spelling with the schema; map the
   // known aliases (see scripts/corridor/sensitivity.ts PARAMS).
   const ALIAS: Record<string, string> = {
+    // Choices (2026-08-19): sweep id == schema path, one entry each so the
+    // orphan guard stays satisfied.
+    "green.fuelId": "green.fuelId",
+    "fossil.fuelId": "fossil.fuelId",
+    "vessel.typeId": "vessel.typeId",
+    "green.sourcing": "green.sourcing",
+    "fossil.sourcing": "fossil.sourcing",
+    "cargo.countryId": "cargo.countryId",
+    "regulation.emissions.framework": "regulation.emissions.framework",
+    "flags.emissionsBasis": "flags.emissionsBasis",
+    "green.emissions.engineType": "green.emissions.engineType",
+    "cargo.unit": "cargo.unit",
+    "cargo.unitWeightTonnes": "cargo.unitWeightTonnes",
     "financing.greenRate": "financing.greenRate",
     "financing.baseRate": "financing.baseRate",
     "financing.debtShare": "financing.debtShare",
@@ -282,11 +300,12 @@ function fieldReference(): string {
     "Sensitivity sweeps each input across its plausible range (enums across",
     "every defined option) against ALL SIX headline KPIs — gap, $/cargo unit,",
     "$/tCO2 abated, green total, fossil total, lifetime CO2 abated. **Gap",
-    "movement** is kept as the primary column for continuity with earlier",
-    "versions; **max across KPIs** is determines placement, and **binding",
-    "KPI** names the output that produced it, so a field's prominence is",
-    "traceable to what it actually moves. Baseline is the workbook fixture on",
-    "the app's default posture (well-to-wake, distance-derived burns); module",
+    "movement** is how far the field can push the headline cost gap, as a",
+    "percentage of the gap; **max across KPIs** determines placement, and",
+    "**binding KPI** names the output that produced it, so a field's",
+    "prominence is traceable to what it actually moves. Baseline is the",
+    "frozen reference scenario on the app's default posture (well-to-wake,",
+    "distance-derived burns); module",
     "sweeps run with the module enabled — see",
     "`data/corridor-sensitivity/sensitivity.json`). Placement reflects the",
     "FROZEN ui-flagged subset: `top-level` renders prominently in the wizard,",

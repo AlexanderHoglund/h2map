@@ -47,6 +47,17 @@ interface Param {
    */
   ui?: boolean;
   set?: (s: ScenarioInput, v: number) => void;
+  /**
+   * "current" = evaluate this param against the CURRENT reference bundle,
+   * with its own baseline, instead of the frozen sweep bundle.
+   *
+   * The choice params need this: the frozen bundle predates the researched
+   * vessel catalogue and the modern fuels, so their options do not exist
+   * there. Movement is measured against a base computed on the SAME bundle,
+   * so the figure is "this choice, on today's data" — never a bundle change
+   * disguised as a choice.
+   */
+  bundle?: "current";
 }
 
 // Plausible ranges: workbook-informed planning bands. Overrides go through the
@@ -280,6 +291,156 @@ export const PARAMS: Param[] = [
         n2oScenarioId: v,
       };
     },
+  },
+
+  // -------------------------------------------------------------------------
+  // CHOICES (2026-08-19): the discrete inputs. A choice's impact is the
+  // largest KPI movement across the options it offers — read as "how much
+  // does this decision change the answer", not a ±range. All docs-only: no
+  // ui flag, so ui-manifest.json and the placement contract are untouched.
+  //
+  // The sweep baseline carries NO typed overrides (asserted against the
+  // fixture), so switching a fuel or a hull re-derives every benchmark from
+  // the bundle row — the choice is measured clean, not through a mask of
+  // typed values.
+  //
+  // Option lists are literals; drift guards in sweepParams.test.ts assert
+  // each one matches the bundle catalogue, so an option added to the data but
+  // absent here fails loudly.
+  // -------------------------------------------------------------------------
+  {
+    id: "green.fuelId",
+    bundle: "current",
+    label: "Green fuel choice",
+    step: 3,
+    options: ["e-ammonia", "e-methanol", "biodiesel-hvo", "lh2"],
+    setOption: (s, v) => { s.green.fuelId = v; },
+  },
+  {
+    id: "fossil.fuelId",
+    bundle: "current",
+    label: "Fossil fuel choice",
+    step: 3,
+    options: ["lsfo", "lng"],
+    setOption: (s, v) => { s.fossil.fuelId = v; },
+  },
+  {
+    id: "vessel.typeId",
+    bundle: "current",
+    label: "Vessel class choice",
+    step: 2,
+    // Every non-retired class. Large movement is legitimate: the hull sets
+    // the energy-per-mile figure and the per-ship CAPEX/OPEX benchmarks, so
+    // this is the model's biggest single decision and should rank like it.
+    options: [
+      "bulk-handysize-35k", "bulk-handymax-58k", "bulk-ultramax-64k",
+      "bulk-panamax-76k", "bulk-kamsarmax-82k", "bulk-postpanamax-93k",
+      "bulk-capesize-180k", "bulk-newcastlemax-210k", "bulk-vloc-325k",
+      "tank-small-15k", "tank-mr1-40k", "tank-mr2-50k", "tank-lr1-75k",
+      "tank-lr2-115k", "tank-suezmax-160k", "tank-vlcc-300k",
+      "chem-imo2-12k", "chem-imo2-25k", "chem-imo2-40k",
+      "cont-feeder-1800", "cont-handy-2800", "cont-subpanamax-5000",
+      "cont-panamax-6400", "cont-8000", "cont-neopanamax-13640",
+      "cont-ulcv-18000", "cont-ulcv-24000",
+      "gas-lng-174k", "gas-vlgc-84k", "vlac-93k", "pctc-7000ceu",
+      "roro-cargo-12k", "ropax-8k", "genc-12k", "genc-25k",
+    ],
+    setOption: (s, v) => { s.vessel.typeId = v; },
+  },
+  {
+    id: "green.sourcing",
+    bundle: "current",
+    label: "Green fuel sourcing choice",
+    step: 3,
+    // build-here is deliberately absent: it requires an evaluated site from
+    // the map flow, which the sweep cannot supply.
+    options: ["purchase", "build-plant"],
+    setOption: (s, v) => { s.green.sourcing = v as "purchase" | "build-plant"; },
+  },
+  {
+    id: "fossil.sourcing",
+    bundle: "current",
+    label: "Fossil fuel sourcing choice",
+    step: 3,
+    options: ["purchase", "build-plant"],
+    setOption: (s, v) => { s.fossil.sourcing = v as "purchase" | "build-plant"; },
+  },
+  {
+    id: "cargo.countryId",
+    bundle: "current",
+    label: "Country choice (WACC benchmark)",
+    step: 1,
+    // Bites only when no WACC override is typed — the country row supplies
+    // the discount-rate benchmark, itself flagged unverified in the bundle.
+    options: ["denmark", "netherlands", "india", "brazil", "singapore", "united-states", "other"],
+    setOption: (s, v) => { s.cargo.countryId = v; },
+  },
+  {
+    id: "regulation.emissions.framework",
+    bundle: "current",
+    label: "Emission accounting framework",
+    step: 5,
+    options: ["fueleu", "imo"],
+    setOption: (s, v) => { s.regulation.emissions = { framework: v as "fueleu" | "imo" }; },
+  },
+  {
+    id: "flags.emissionsBasis",
+    bundle: "current",
+    label: "Emissions basis (abatement accounting)",
+    step: 5,
+    options: ["combustion", "wellToWake"],
+    setOption: (s, v) => {
+      s.flags = { ...(s.flags ?? {}), emissionsBasis: v as "combustion" | "wellToWake" };
+    },
+  },
+  {
+    id: "green.emissions.engineType",
+    bundle: "current",
+    label: "Engine type (methane slip)",
+    step: 3,
+    // Near-zero on this baseline and honestly so: per-engine slip only bites
+    // for an LNG candidate, and the baseline's green fuel is ammonia. The
+    // row still belongs here — absence would read as "not measured".
+    options: [
+      "lng-otto-df-medium-speed", "lng-otto-df-slow-speed",
+      "lng-diesel-df-slow-speed", "lng-lbsi", "steam-turbine-boiler",
+    ],
+    setOption: (s, v) => {
+      s.green.emissions = {
+        ...{
+          certifiedWttGco2ePerMj: null,
+          n2oScenarioId: null,
+          pilotShare: null,
+          pilotFuelId: null,
+          engineType: null,
+          sulphurPercent: null,
+          efficiencyRatio: null,
+        },
+        ...(s.green.emissions ?? {}),
+        engineType: v,
+      };
+    },
+  },
+  {
+    id: "cargo.unit",
+    bundle: "current",
+    label: "Cargo unit choice (tonne vs TEU)",
+    step: 1,
+    // Measures 0.0% on every KPI, and honestly: the unit is a LABEL for the
+    // per-unit denominator — `unitsPerYear` is the count either way, so no
+    // headline output can move. Kept so the table can say so.
+    options: ["tonne", "teu"],
+    setOption: (s, v) => { s.cargo.unit = v as "tonne" | "teu"; },
+  },
+  {
+    id: "cargo.unitWeightTonnes",
+    label: "Cargo unit weight (t/unit)",
+    step: 1,
+    // Inert on a tonne-denominated baseline (weight only converts TEU
+    // counts); measured anyway so the table can SAY that rather than omit it.
+    low: 10,
+    high: 28,
+    set: (s, v) => { s.cargo.unitWeightTonnes = v; },
   },
 ];
 

@@ -183,6 +183,7 @@ const PARAM_VALUE_PATH: Record<string, string> = {
   "fossil.efficiencyRatio": "fossil.emissions.efficiencyRatio",
   "fossil.sulphurPercent": "fossil.emissions.sulphurPercent",
   "cargo.startYear": "cargo.startYear",
+  "cargo.unitWeightTonnes": "cargo.unitWeightTonnes",
 };
 
 /**

@@ -140,37 +140,35 @@ const FIELD_TIERS = {
 };
 
 /**
- * EVERY swept input, from the same generated artifact §22 reads, so the two
- * can never contradict each other.
+ * EVERY swept input, ranked by the LARGER of its two impacts — on the cost
+ * gap and on the CO₂ abatement cost. These are the two figures the model
+ * exists to produce, and the two rankings diverge sharply (corridor length:
+ * 76.6% on the gap, 366% on abatement cost), so both are shown per row.
  *
- * This used to be `.slice(0, 10)`. The truncation was invisible to the reader
- * — no caption, no count, nothing saying 51 of 61 rows were omitted — under a
- * heading that promises what moves the results. Real movers were hidden by
- * it: WACC at 14.6%, inflation at 14.0% and the green fuel price at 13.7% all
- * sat below the cut, and those are three of the six inputs the uncertainty
- * work went on to identify as carrying the most risk.
+ * From the same generated artifact §22 reads; the two tables cannot
+ * contradict each other.
  */
 const SENSITIVITY_ROWS = (
   sensitivityArtifact as {
     ranked: {
       id: string;
       label: string;
-      relHeadlineMovement: number;
-      maxRelMovement: number;
-      bindingKpi: string;
+      options?: unknown;
+      range: readonly (string | number)[];
+      movementByKpi: Record<string, number>;
     }[];
   }
-).ranked;
+).ranked
+  .map((r) => ({
+    id: r.id,
+    label: r.label,
+    /** A choice (fuel, hull, sourcing…): impact is across its options. */
+    isChoice: typeof r.range[0] === "string",
+    gap: r.movementByKpi.gapPvUsdM ?? 0,
+    abatement: r.movementByKpi.costPerTonneCo2Usd ?? 0,
+  }))
+  .sort((a, b) => Math.max(b.gap, b.abatement) - Math.max(a.gap, a.abatement));
 
-/** KPI ids → the names §20 shows in its binding column. */
-const KPI_LABEL: Record<string, string> = {
-  gapPvUsdM: "cost gap",
-  costPerUnitUsd: "$/cargo unit",
-  costPerTonneCo2Usd: "$/tCO₂",
-  greenTotalPvUsdM: "green total",
-  fossilTotalPvUsdM: "fossil total",
-  co2AbatedTonnes: "CO₂ abated",
-};
 
 
 
@@ -1995,45 +1993,50 @@ export default async function DocsPage() {
             </thead>
             <tbody className="align-top">
               <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2 font-medium">Gap movement</td>
+                <td className="px-3 py-2 font-medium">Cost gap impact</td>
                 <td className="px-3 py-2">
                   How far the <em>cost gap</em>{" "}moves when this input is
-                  taken to the ends of its range, as a percentage of the gap
+                  pushed across its plausible range, as a percentage of the gap
                   itself. 40% means the gap changes by four tenths of its own
                   value. Use it to answer: <em>if I am wrong about this, how
                   wrong is my headline number?</em>
                 </td>
               </tr>
               <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2 font-medium">Max across KPIs</td>
+                <td className="px-3 py-2 font-medium">
+                  CO&#8322; abatement cost impact
+                </td>
                 <td className="px-3 py-2">
-                  The same measurement, but taking whichever of the six
-                  outputs moves <em>most</em>. An input can leave the gap
-                  untouched and still dominate another answer &mdash; cargo
-                  throughput moves the gap 0.0% and is the sole divisor of cost
-                  per cargo unit. Use it to answer:{" "}
-                  <em>does this input matter to anything I care about?</em>
+                  The same measurement on the{" "}
+                  <em>cost per tonne of CO&#8322; abated</em>{" "}&mdash; the
+                  figure funders and policy comparisons quote. The two columns
+                  rank very differently: corridor length moves the gap 76.6%
+                  and the abatement cost 366%, because distance changes the
+                  fuel bill <em>and</em>{" "}the tonnes abated at once.
                 </td>
               </tr>
               <tr className="border-b border-neutral-200 last:border-0">
-                <td className="px-3 py-2 font-medium">Binding KPI</td>
+                <td className="px-3 py-2 font-medium">(choice)</td>
                 <td className="px-3 py-2">
-                  <em>Which</em>{" "}output produced that maximum. It names what
-                  the input actually drives, so a high ranking is never a bare
-                  assertion: the N&#8322;O slip scenario moves the gap 1.7% and
-                  cost per tonne of CO&#8322; by 102.7%, and this column is
-                  what tells you so.
+                  Rows marked <em>choice</em>{" "}are decisions, not dials &mdash;
+                  which fuel, which hull, buy or build. Their impact is the
+                  biggest change across the options you could pick, so read it
+                  as <em>&ldquo;how much does this decision matter&rdquo;</em>,
+                  not as a &plusmn;range on one number. Choices are evaluated
+                  against the current reference data.
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         <p className="mt-2">
-          The table is ranked by gap movement because the gap is the
-          model&apos;s headline. Field prominence in the form is decided by{" "}
-          <strong>max across KPIs</strong>{" "}instead &mdash; an input that
-          drives any output deserves to be visible, not only one that drives
-          the gap.
+          The table is ranked by the <strong>larger of the two impacts</strong>,
+          so an input that matters to either answer ranks where it belongs. A
+          0.0% is a measurement, not a gap in coverage &mdash; cargo unit choice
+          really cannot move either figure, and the table says so instead of
+          omitting it. The other four measured outputs (per-unit cost, both
+          side totals, tonnes abated) still decide field placement in the form
+          &mdash; &sect;22 carries those details per field.
         </p>
         <p className="mt-2">
           <strong>Every swept input is listed below.</strong>{" "}A field absent
@@ -2047,24 +2050,29 @@ export default async function DocsPage() {
               <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
                 <th className="px-3 py-2 font-medium">#</th>
                 <th className="px-3 py-2 font-medium">Input</th>
-                <th className="px-3 py-2 text-right font-medium">Gap movement</th>
-                <th className="px-3 py-2 text-right font-medium">Max across KPIs</th>
-                <th className="px-3 py-2 font-medium">Binding KPI</th>
+                <th className="px-3 py-2 text-right font-medium">Cost gap impact</th>
+                <th className="px-3 py-2 text-right font-medium">
+                  CO&#8322; abatement cost impact
+                </th>
               </tr>
             </thead>
             <tbody>
               {SENSITIVITY_ROWS.map((row, i) => (
                 <tr key={row.id} className="border-b border-neutral-200 last:border-0">
                   <td className="px-3 py-1.5">{i + 1}</td>
-                  <td className="px-3 py-1.5">{row.label}</td>
-                  <td className="px-3 py-1.5 text-right">
-                    {(row.relHeadlineMovement * 100).toFixed(1)}%
+                  <td className="px-3 py-1.5">
+                    {row.label}
+                    {row.isChoice && (
+                      <span className="ml-1.5 text-[11px] text-neutral-500">
+                        (choice)
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 py-1.5 text-right">
-                    {(row.maxRelMovement * 100).toFixed(1)}%
+                    {(row.gap * 100).toFixed(1)}%
                   </td>
-                  <td className="px-3 py-1.5 text-neutral-600">
-                    {KPI_LABEL[row.bindingKpi] ?? row.bindingKpi}
+                  <td className="px-3 py-1.5 text-right">
+                    {(row.abatement * 100).toFixed(1)}%
                   </td>
                 </tr>
               ))}
@@ -2072,18 +2080,17 @@ export default async function DocsPage() {
           </table>
         </div>
         <p className="mt-2">
-          Among the always-on physical inputs, distance dominates because it
-          drives the green fuel bill through derived consumption, and the
-          fossil fleet&apos;s CAPEX/OPEX mirror the green pair with opposite
-          sign. The named EU scheme parameters (ETS price/scope, FuelEU
-          penalty/scope) move the gap by only a few percent under defaults —
-          they matter far more at high carbon prices or late start years.
-          Field PROMINENCE in the form is decided over a frozen subset of
-          this sweep (≥5% movement on the binding KPI → top-level), plus
-          explicit hiding for structure-dependent fields — §22 lists the
-          placement and the binding KPI per field. Moving to the full KPI set
-          promoted nine fields and demoted none, which is the expected shape:
-          measuring more outputs can reveal movement, never hide it.
+          The top of the ranking is a mix of decisions and dials. The vessel
+          class is the single biggest lever (446% &mdash; the hull sets the
+          energy-per-mile figure and the per-ship costs), followed by public
+          support levers, corridor length and the green fuel choice. Some
+          inputs matter to one answer and not the other: the N&#8322;O slip
+          scenario barely touches the gap (0.5%) and doubles the abatement
+          cost (100.5%), while vessel count does the reverse &mdash; which is
+          why both columns are shown. The named EU scheme parameters (ETS
+          price and scope, FuelEU penalty and scope) move either figure by
+          only a few percent under defaults; they matter far more at high
+          carbon prices or late start years.
         </p>
 
         <H3 id="impact-leverage-exposure">Impact: leverage &times; exposure</H3>
@@ -2623,10 +2630,14 @@ export default async function DocsPage() {
           &ldquo;use the model&apos;s own value&rdquo;.
         </p>
         <p className="mt-2">
-          <strong>Rank, gap movement, max across KPIs</strong>{" "}and{" "}
-          <strong>binding KPI</strong>{" "}are the sweep&apos;s measurements —
-          §20 explains what each one answers. Ranking follows gap movement;
-          form placement follows max across KPIs.
+          <strong>Rank</strong>{" "}and{" "}<strong>Max gap movement</strong>{" "}
+          come from the same sweep behind §20: movement is how far the field
+          can push the headline cost gap across its assumed range, as a
+          percentage of the gap, and rank orders every swept field by that
+          figure. §20 shows each input&apos;s impact on the cost gap and the
+          CO&#8322; abatement cost side by side; this table carries the gap
+          figure so the measurement sits next to the field&apos;s definition.
+          Form placement follows the largest movement across all six KPIs.
         </p>
         <p className="mt-2">
           Some entries read &ldquo;—&rdquo; in the movement columns, and the{" "}
@@ -2639,8 +2650,10 @@ export default async function DocsPage() {
           <code>cargo.unitsPerYear</code>{" "}is swept and measures exactly
           0.0% on the gap, because the engine counts vessels and roundtrips
           rather than cargo units — yet it is the sole divisor of cost per
-          cargo unit, so its <em>max across KPIs</em>{" "}is large. That is the
-          case the two movement columns exist to separate.
+          cargo unit, so it dominates that KPI while leaving the gap
+          untouched. That is why a 0.0% here does not mean the field does
+          nothing, and why placement follows all six KPIs rather than the
+          gap alone.
         </p>
         <p className="mt-2">
           <strong>Elasticity</strong>{" "}answers a different question from the

@@ -19,7 +19,7 @@
  * is safe to run per-PR in CI.
  */
 import { readFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
-import { parseRefBundle } from "@h2map/corridor-schema";
+import { parseRefBundle, type ScenarioInput } from "@h2map/corridor-schema";
 // The parameter table, the six KPIs and the evaluator live in ./lib/params so
 // the elasticity harness can run the SAME parameters against other scenarios.
 // This script keeps its own baseline posture and its own artifacts.
@@ -40,6 +40,20 @@ const TOP_LEVEL_THRESHOLD = 0.05; // ±5% headline movement
 const bundle = parseRefBundle(
   JSON.parse(readFileSync(new URL("data/corridor-ref/2026-07-30-excel-v1.json", ROOT), "utf8")),
 );
+/**
+ * The bundle the app ships TODAY. Choice params (fuel, vessel class, sourcing
+ * …) evaluate against this with their own baseline: their options are the
+ * modern catalogue, which the frozen sweep bundle predates. Every numeric
+ * param stays on the frozen bundle so the placement contract and every
+ * historical figure are untouched.
+ */
+const bundleCurrent = parseRefBundle(
+  JSON.parse(readFileSync(new URL("data/corridor-ref/2026-08-18-fuel-v4.json", ROOT), "utf8")),
+);
+/** Repin: resolveScenario refuses a scenario pinned to a different bundle. */
+const repinCurrent = (s: { refBundleId?: string }): void => {
+  s.refBundleId = bundleCurrent.bundleId;
+};
 /**
  * THE SWEEP BASELINE.
  *
@@ -94,12 +108,13 @@ const baseRaw = (() => {
 function main(): void {
   const checkMode = process.argv.includes("--check");
   const base = kpisForScenario(baseRaw, bundle);
+  const baseCurrent = kpisForScenario(baseRaw, bundleCurrent, repinCurrent);
 
   /** Relative movement of every KPI between a param's sampled settings. */
-  const movementOf = (samples: KpiVector[]) => {
+  const movementOf = (samples: KpiVector[], against: KpiVector) => {
     const per = {} as Record<KpiId, number>;
     for (const { id } of KPIS) {
-      const b = base[id];
+      const b = against[id];
       let worst = 0;
       for (const v of samples) {
         // Relative to the BASELINE value of that KPI, so KPIs on wildly
@@ -116,13 +131,20 @@ function main(): void {
     // Numeric params sample their endpoints; enum params sample every
     // defined option, so a categorical driver can rank instead of being
     // skipped as "—".
+    const useCurrent = p.bundle === "current";
+    const b = useCurrent ? bundleCurrent : bundle;
+    const pre = useCurrent ? repinCurrent : undefined;
+    const wrap = (edit: (s: ScenarioInput) => void) => (s: ScenarioInput) => {
+      pre?.(s);
+      edit(s);
+    };
     const samples = p.options
-      ? p.options.map((o) => kpisForScenario(baseRaw, bundle, (s) => p.setOption!(s, o)))
+      ? p.options.map((o) => kpisForScenario(baseRaw, b, wrap((s) => p.setOption!(s, o))))
       : [
-          kpisForScenario(baseRaw, bundle, (s) => p.set!(s, p.low!)),
-          kpisForScenario(baseRaw, bundle, (s) => p.set!(s, p.high!)),
+          kpisForScenario(baseRaw, b, wrap((s) => p.set!(s, p.low!))),
+          kpisForScenario(baseRaw, b, wrap((s) => p.set!(s, p.high!))),
         ];
-    const per = movementOf(samples);
+    const per = movementOf(samples, useCurrent ? baseCurrent : base);
     // Placement comes from the MAX across KPIs; the KPI that produced it is
     // recorded so a field's prominence is traceable to the output it moves.
     let binding: KpiId = "gapPvUsdM";
