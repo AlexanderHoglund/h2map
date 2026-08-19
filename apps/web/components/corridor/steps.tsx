@@ -597,22 +597,28 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
         {vesselField("green", "opex")}
       </Section>
       {/* Fossil fleet costs are benchmarked and rank below the sensitivity
-          threshold — Simplified runs them on their defaults. */}
+          threshold — Simplified runs them on their defaults. With nothing
+          overridden the section renders NOTHING, not an empty heading: the
+          strip only speaks when Simplified is hiding a set value. */}
       {viewMode === "standard" ? (
         <Section title={t("fossil")}>
           {vesselField("fossil", "capex")}
           {vesselField("fossil", "opex")}
         </Section>
       ) : (
-        <Section title={t("fossil")}>
-          <AdvancedHiddenStrip
-            count={
-              (scenario.vessel.fossil.capexUsdMPerShip != null ? 1 : 0) +
-              (scenario.vessel.fossil.opexUsdMPerShipPerYear != null ? 1 : 0)
-            }
-            onReveal={revealStandard}
-          />
-        </Section>
+        (scenario.vessel.fossil.capexUsdMPerShip != null ? 1 : 0) +
+          (scenario.vessel.fossil.opexUsdMPerShipPerYear != null ? 1 : 0) >
+          0 && (
+          <Section title={t("fossil")}>
+            <AdvancedHiddenStrip
+              count={
+                (scenario.vessel.fossil.capexUsdMPerShip != null ? 1 : 0) +
+                (scenario.vessel.fossil.opexUsdMPerShipPerYear != null ? 1 : 0)
+              }
+              onReveal={revealStandard}
+            />
+          </Section>
+        )
       )}
     </div>
   );
