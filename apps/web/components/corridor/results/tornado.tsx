@@ -29,7 +29,7 @@ import { parseUncertaintyDataset } from "@h2map/corridor-schema";
 import { Card } from "@/components/ui/Card";
 import { Note, SectionLabel } from "@/components/ui/Stat";
 import { usdMShort } from "@/lib/corridor/format";
-import { buildTornado, TORNADO_KPIS, type TornadoKpi } from "@/lib/corridor/tornado";
+import { buildTornado, rangeLabel, TORNADO_KPIS, type TornadoKpi } from "@/lib/corridor/tornado";
 import { DEFAULT_BUNDLE } from "../state";
 import uncertaintyJson from "../../../../../data/input-uncertainty-ref/2026-08-19-uncertainty-v1.json";
 
@@ -76,18 +76,6 @@ const KPI_FORMAT: Record<TornadoKpi, (v: number) => string> = {
  * key under its slugified name.
  */
 const messageKey = (id: string): string => id.replace(/\./g, "-");
-
-/** The declared range in its own units — "$70–82m", "−5%…+12%". */
-function rangeLabel(low: number, high: number, unit: string): string {
-  if (unit.startsWith("fraction of")) {
-    const pct = (v: number) => `${v > 0 ? "+" : ""}${(v * 100).toFixed(0)}%`;
-    return `${pct(low)}…${pct(high)}`;
-  }
-  if (unit.startsWith("percentage points")) return `${low}–${high}%`;
-  if (unit.startsWith("USD million")) return `$${low}–${high}m`;
-  if (unit.startsWith("USD per tonne")) return `$${low}–${high}/t`;
-  return `${low}–${high}`;
-}
 
 export function TornadoSection({ scenario }: { scenario: ScenarioInput | null }) {
   const t = useTranslations("corridor.results");

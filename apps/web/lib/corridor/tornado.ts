@@ -219,6 +219,23 @@ export const toApplied = (
 };
 
 /**
+ * The declared range in its own units — "$70–82m", "−5%…+12%".
+ *
+ * Shared by the results panel and the documentation so the same researched
+ * range can never print two different ways.
+ */
+export function rangeLabel(low: number, high: number, unit: string): string {
+  if (unit.startsWith("fraction of")) {
+    const pct = (v: number) => `${v > 0 ? "+" : ""}${(v * 100).toFixed(0)}%`;
+    return `${pct(low)}…${pct(high)}`;
+  }
+  if (unit.startsWith("percentage points")) return `${low}–${high}%`;
+  if (unit.startsWith("USD million")) return `$${low}–${high}m`;
+  if (unit.startsWith("USD per tonne")) return `$${low}–${high}/t`;
+  return `${low}–${high}`;
+}
+
+/**
  * Build the tornado for one scenario.
  *
  * `archetypeKey` selects which scoped ranges apply. A range scoped to another
