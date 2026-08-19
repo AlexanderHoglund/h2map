@@ -256,6 +256,7 @@ export default function BuildHerePanel({
               key={key}
               label={t(`component.${key}`)}
               unit={capex ? "$m" : "$m/yr"}
+              help={t(`componentHelp.${key}`)}
               override={c.overrideUsdM}
               effective={comp(c)}
               source={c.overrideUsdM !== null ? "override" : "derived"}

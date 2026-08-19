@@ -28,7 +28,8 @@ export function NumberField({
   label: string;
   unit?: string;
   step?: number | "any";
-  help?: string;
+  /** REQUIRED pedagogic explanation — see ui/NumberInput. */
+  help: string;
   disabled?: boolean;
   /** Called when the user types into the field (used to decouple linked fields). */
   onUserEdit?: () => void;
@@ -42,14 +43,14 @@ export function NumberField({
   const errorId = `${inputId}-error`;
 
   return (
-    <div className={className}>
+    <div className={`group/field ${className ?? ""}`}>
       <div className="flex items-center justify-between gap-2">
         <label
           htmlFor={inputId}
           className="flex items-center gap-1 text-xs font-medium text-neutral-600"
         >
           {label}
-          {help ? <Help text={help} /> : null}
+          <Help text={help} />
         </label>
         {labelAction}
       </div>
@@ -100,19 +101,20 @@ export function SelectField({
   name: Name;
   label: string;
   options: [string, string][];
-  help?: string;
+  /** REQUIRED pedagogic explanation — see ui/NumberInput. */
+  help: string;
   className?: string;
 }) {
   const { register } = useFormContext<CalculatorValues>();
   const id = `field-${name.replace(/\./g, "-")}`;
   return (
-    <div className={className}>
+    <div className={`group/field ${className ?? ""}`}>
       <label
         htmlFor={id}
         className="flex items-center gap-1 text-xs font-medium text-neutral-600"
       >
         {label}
-        {help ? <Help text={help} /> : null}
+        <Help text={help} />
       </label>
       <select
         id={id}
@@ -136,11 +138,12 @@ export function CheckboxField({
 }: {
   name: Name;
   label: string;
-  help?: string;
+  /** REQUIRED pedagogic explanation — see ui/NumberInput. */
+  help: string;
 }) {
   const { register } = useFormContext<CalculatorValues>();
   return (
-    <label className="flex cursor-pointer items-center gap-2 text-sm">
+    <label className="group/field flex cursor-pointer items-center gap-2 text-sm">
       <input
         type="checkbox"
         {...register(name)}
@@ -148,7 +151,7 @@ export function CheckboxField({
       />
       <span className="flex items-center gap-1">
         {label}
-        {help ? <Help text={help} /> : null}
+        <Help text={help} />
       </span>
     </label>
   );

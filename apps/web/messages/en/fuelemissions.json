@@ -79,6 +79,11 @@
     "intensityHelp": "Candidate vs baseline GHG intensity in gCO2e/MJ, on the selected basis. References: IMO 2008 fleet average {gfi}; FuelEU 2020 baseline {feu}.",
     "footer": "Dataset {version} - every factor carries its citation (tooltips); estimates from framework defaults and your inputs, not compliance advice.",
     "footerDocs": "Methodology & sources",
-    "equivalentHelp": "The energy-equivalence line: masses are converted through each fuel's energy density (MJ/t). Tonne-for-tonne comparison overstates avoided emissions by more than 2x for ammonia."
+    "equivalentHelp": "The energy-equivalence line: masses are converted through each fuel's energy density (MJ/t). Tonne-for-tonne comparison overstates avoided emissions by more than 2x for ammonia.",
+    "candidateHelp": "The green fuel (or LNG) being compared against the fossil baseline. Its energy content and emission factors come from the selected framework's dataset.",
+    "quantityHelp": "The amount of the starting fuel. The tool finds how much of the other fuel delivers the same propulsion energy — and what each of them emits.",
+    "directionHelp": "Which way the question runs: start from a fossil quantity and find the green equivalent, or start from a green quantity and find the fossil it replaces.",
+    "basisHelp": "Well-to-wake counts emissions from producing the fuel through burning it; tank-to-wake counts only the ship's exhaust. Frameworks differ in which one they regulate.",
+    "pilotFuelHelp": "The conventional fuel injected alongside ammonia or methanol to keep combustion stable. It adds its own emissions in proportion to its energy share."
   }
 }

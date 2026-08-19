@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { useTranslations } from "next-intl";
+import { Help } from "@/components/ui/Help";
 import { ProvenanceBadge } from "./ProvenanceBadge";
 
 /**
@@ -32,7 +33,8 @@ export default function SelectField({
   /** The reference default the badge and restore line compare against. */
   benchmark: number;
   onChange: (next: number) => void;
-  help?: string;
+  /** REQUIRED pedagogic explanation — see NumberInput. */
+  help: string;
   /** Names the reference default the badge compares against. */
   citation?: string;
 }) {
@@ -42,10 +44,14 @@ export default function SelectField({
   const listed = options.includes(value) ? options : [value, ...options];
 
   return (
-    <div>
+    <div className="group/field">
       <div className="flex items-center justify-between gap-2">
-        <label htmlFor={id} className="text-xs font-medium text-neutral-600">
+        <label
+          htmlFor={id}
+          className="flex items-center gap-1.5 text-xs font-medium text-neutral-600"
+        >
           {label}
+          <Help text={help} />
         </label>
         <ProvenanceBadge
           label={t(overridden ? "override" : "benchmark")}
@@ -66,7 +72,6 @@ export default function SelectField({
       <select
         id={id}
         value={value}
-        title={help}
         onChange={(e) => onChange(Number(e.target.value))}
         className={`mt-1 w-full rounded-md border bg-white px-2.5 py-1.5 text-sm tabular-nums outline-none transition-colors focus:ring-2 ${
           overridden

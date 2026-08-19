@@ -54,18 +54,20 @@ export default function RoutedDistanceField({
   const shown = draft ?? (isDerived ? formatSig(value) : String(value));
 
   return (
-    <div>
+    <div className="group/field">
       <div className="flex items-center justify-between gap-2">
         <label
           htmlFor={id}
           className="flex items-center gap-1.5 text-xs font-medium text-neutral-600"
         >
           {label}
-          {routed ? (
-            <Help
-              text={t("routedHelp", { graph: routed.graphVersion, via: viaLabel })}
-            />
-          ) : null}
+          <Help
+            text={
+              routed
+                ? `${t("distanceHelp")} ${t("routedHelp", { graph: routed.graphVersion, via: viaLabel })}`
+                : t("distanceHelp")
+            }
+          />
         </label>
         <span
           className={`px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${

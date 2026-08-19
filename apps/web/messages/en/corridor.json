@@ -89,7 +89,15 @@
       "portBLon": "Port B longitude",
       "portBCoordsHelp": "With Port A's coordinates, these let the corridor route over the maritime shipping-lane network - the drawing and the routed distance benchmark.",
       "portALon": "Port A longitude",
-      "portCoordsHelp": "Functional for build-here: the plant→port logistics leg computes from these coordinates. Leave untouched otherwise."
+      "portCoordsHelp": "Functional for build-here: the plant→port logistics leg computes from these coordinates. Leave untouched otherwise.",
+      "routeTypeHelp": "Point-to-point compares two named ports; single point anchors the corridor at one port when the far end is not decided yet. It only controls whether the second port's details appear below.",
+      "startYearHelp": "The year the corridor starts operating. Regulation phases in over time (ETS coverage, FuelEU targets), so a later start meets stricter rules from day one.",
+      "horizonHelp": "How many years of operation the comparison covers. Costs are summed over this window, so a longer horizon gives fuel bills and support schemes more years to weigh against the up-front ships.",
+      "portNameHelp": "A display name for this port. It labels the map and exports — it does not change any cost.",
+      "unitsHelp": "How many cargo units the corridor delivers per year. Ships and roundtrips drive the costs, so this mainly sets the denominator of cost per unit shipped.",
+      "unitHelp": "What one unit of cargo is — a tonne, or a TEU container. It names the per-unit figures; choosing TEU reveals the weight per container.",
+      "inflationHelp": "How fast costs rise each year. Future fuel, crew and maintenance bills grow at this rate before discounting brings them back to today's money.",
+      "distanceHelp": "The one-way sailing distance between the ports, in nautical miles. It drives the fuel burned per roundtrip - the dominant physical lever in the model. Once both ports have coordinates, the routed shipping-lane distance is offered for adoption."
     },
     "vessel": {
       "type": "Vessel type (shared by both corridors)",
@@ -103,7 +111,11 @@
       "capex": "CAPEX per ship (year 1)",
       "capexGreenHelp": "Per-ship figure, multiplied by the vessel count for the fleet total. Benchmark = vessel type × (1 + green-fuel readiness premium), the same single-hull basis — so restoring the benchmark no longer changes the dimension.",
       "capexFossilHelp": "Per-ship figure, multiplied by the vessel count. Benchmark 0 — existing baseline fleet, so no newbuild capital; override when the comparison builds new fossil tonnage too.",
-      "opex": "OPEX per ship (excluding fuel)"
+      "opex": "OPEX per ship (excluding fuel)",
+      "typeHelp": "The ship class both sides of the comparison sail. It sets the energy needed per nautical mile and the benchmark price and running cost per ship — the single most decisive choice in the model.",
+      "vesselsHelp": "How many ships the corridor runs. Every ship adds its full purchase and running cost on both sides, and together with roundtrips it sets how much fuel is burned.",
+      "roundtripsHelp": "Voyages per ship per year. More roundtrips burn more fuel without adding ships, shifting the cost balance from capital toward fuel.",
+      "opexHelp": "The yearly cost of running one ship — crew, maintenance, insurance — before fuel. Fuel is priced separately from consumption and fuel price."
     },
     "fuel": {
       "green": "Green fuel",
@@ -132,7 +144,14 @@
       "pilotShare": "Pilot fuel share of energy",
       "pilotShareHelp": "Dual-fuel engines burn a fossil pilot for ignition - around 5% of energy (MAN ES / WinGD). Its emissions ride the green side's derived factors; its energy is not added to the tonnage bookkeeping (documented approximation).",
       "sulphur": "Sulphur content",
-      "sulphurHelp": "Mass % sulphur. The IMO bins residual fuels by sulphur (MEPC.391(81)): 0.10-0.50% carries WtT 16.8 gCO2e/MJ, above 0.50% carries 14.1. Only consulted under IMO accounting."
+      "sulphurHelp": "Mass % sulphur. The IMO bins residual fuels by sulphur (MEPC.391(81)): 0.10-0.50% carries WtT 16.8 gCO2e/MJ, above 0.50% carries 14.1. Only consulted under IMO accounting.",
+      "typeHelp": "The fuel this side burns. Its price benchmark, energy content and emission factors travel with it, so changing the fuel changes cost and emissions at once.",
+      "sourcingHelp": "Where the fuel comes from: bought at a market price, or produced in a plant you finance — then the plant's capital and running costs replace the purchase price. Build here derives those plant costs from a site evaluated on the map.",
+      "priceHelp": "What one tonne of this fuel costs to buy. The yearly fuel bill is this price times consumption, so on most corridors it is one of the biggest levers.",
+      "combustionEfHelp": "Tonnes of CO₂ released by burning one tonne of this fuel — a physical property of its chemistry. It drives the emissions bill and any carbon price on it.",
+      "lhvHelp": "The energy in one tonne of this fuel (lower heating value). A fuel with less energy per tonne needs more tonnes for the same voyage — the main reason green fuels weigh more than the oil they replace.",
+      "prodCapexHelp": "The one-off cost of building the production plant, when this fuel is produced rather than bought. Zero when purchasing.",
+      "prodOpexHelp": "The yearly cost of running that production plant. Zero when purchasing."
     },
     "port": {
       "green": "Green port",
@@ -141,7 +160,11 @@
       "storageOpex": "Port storage — OPEX",
       "bargeCapex": "Port barge — CAPEX (year 1)",
       "bargeOpex": "Port barge — OPEX",
-      "fossilNote": "Fossil benchmarks assume existing infrastructure: CAPEX 0, OPEX at 30% of a new green facility."
+      "fossilNote": "Fossil benchmarks assume existing infrastructure: CAPEX 0, OPEX at 30% of a new green facility.",
+      "storageCapexHelp": "The one-off cost of the tanks and loading equipment this fuel needs at the port. Ammonia and hydrogen need refrigerated or pressurised storage, which is why the green side usually costs more here.",
+      "storageOpexHelp": "The yearly cost of running that port storage.",
+      "bargeCapexHelp": "The one-off cost of the bunkering barges that carry fuel from the terminal to the ship.",
+      "bargeOpexHelp": "The yearly cost of running those barges."
     },
     "regulation": {
       "financing": "Financing",
@@ -213,7 +236,31 @@
       "frameworkLegacyNote": "This scenario runs the legacy workbook factors (pre-v6). Pick a framework to upgrade it to the refined method.",
       "wtp": "Cargo owner willingness to pay",
       "wtpHelp": "What the cargo owner will fund per tonne of CO2e abated. Does NOT reduce the corridor cost - it splits the incremental cost into a customer share and the public funding that remains. 0 = none.",
-      "etsScopeHelp": "1.0 for a voyage between two EEA ports; 0.5 for a voyage between an EEA and a third-country port. The Directive counts 100% of emissions on intra-EEA voyages and 50% on voyages with one leg outside the EEA. Emissions at berth in an EEA port are chargeable at 100% regardless — not modelled separately, so a corridor of extra-EEA voyages understates slightly."
+      "etsScopeHelp": "1.0 for a voyage between two EEA ports; 0.5 for a voyage between an EEA and a third-country port. The Directive counts 100% of emissions on intra-EEA voyages and 50% on voyages with one leg outside the EEA. Emissions at berth in an EEA port are chargeable at 100% regardless — not modelled separately, so a corridor of extra-EEA voyages understates slightly.",
+      "emissionsBasisHelp": "Combustion counts only what leaves the ship's funnel; well-to-wake adds producing and transporting the fuel. Well-to-wake is what EU regulation prices, and the default.",
+      "rateBasisHelp": "Whether the discount rate is nominal (costs grow with inflation before discounting) or real (inflation netted out). Keep it consistent with how your WACC was quoted.",
+      "etsIncludeHelp": "Adds the EU carbon market: every tonne of CO₂ pays the allowance price over the covered share of the route. Fossil emissions cost money, which works in the green side's favour.",
+      "euaHelp": "The price of one EU emission allowance — what emitting one tonne of CO₂ costs under the ETS.",
+      "eurUsdHelp": "The exchange rate converting the euro-denominated EU schemes into the model's dollars.",
+      "fuelEuIncludeHelp": "Adds FuelEU Maritime: a penalty when the energy used is more carbon-intensive than the falling EU target. Fossil fuel misses the target and pays; compliant green fuel can even earn a tradable credit.",
+      "penaltyHelp": "The penalty per tonne of VLSFO-equivalent energy that misses the FuelEU intensity target. The regulation fixes it at €2,400; it is editable so you can test other levels.",
+      "fuelEuScopeHelp": "The share of the route's energy FuelEU covers: 1.0 for voyages within the EEA, 0.5 for voyages into or out of it. A property of the route, not a preference.",
+      "vlsfoHelp": "The energy assumed in one tonne of VLSFO — the unit the penalty is quoted in. A regulatory constant, shown rather than hidden.",
+      "baselineHelp": "The reference carbon intensity the FuelEU targets are cut from (91.16 gCO₂e/MJ, the 2020 fleet average). Each target year is a percentage below this number.",
+      "iraIncludeHelp": "Adds the US 45Z clean fuel credit: a payment per gallon-equivalent of qualifying fuel — available only while the fuel is produced in the United States.",
+      "usProducedHelp": "45Z only pays for fuel made in the United States. Switched off, the corridor's fuel does not qualify and the credit is zero.",
+      "rateHelp": "The credit paid per gallon-equivalent of qualifying clean fuel. $1 is the statutory base rate.",
+      "imoIncludeHelp": "Adds the IMO's net-zero framework: a global price on emissions above the IMO intensity target, with an optional reward for zero-emission fuels.",
+      "imoScopeHelp": "The share of the route's emissions the IMO framework covers. It applies globally, so 1.0 is the normal value.",
+      "finToggleHelp": "Models the green side borrowing at its own interest rate — cheaper green debt becomes an explicit yearly saving line in the comparison, never a changed discount rate.",
+      "phasingToggleHelp": "Spreads each side's capital spending over the first years instead of all at once. Later spending counts for less after discounting, so phasing lowers the present cost of capital.",
+      "phasingWeightHelp": "The share of this side's total capital spent in this year. The years together must sum to exactly 1.",
+      "selfIncludeHelp": "A support scheme you design yourself — a carbon price, per-kilogram support, capital or operating subsidies, or a lump sum — to find what level of support closes the gap.",
+      "co2PriceHelp": "Your scheme's price per tonne of CO₂, charged on fossil emissions — a carbon tax at whatever level you choose.",
+      "supportHelp": "Support paid per kilogram of green fuel — the shape of production incentives such as hydrogen auction premiums.",
+      "capexSupportHelp": "The fraction of green capital costs covered by grants: 0.3 means 30% of the ships and plant are paid by the scheme.",
+      "opexSupportHelp": "The fraction of green operating costs covered each year.",
+      "otherHelp": "Any other yearly support, in dollars — port-fee waivers, tax breaks, a grant spread over the years. The catch-all for money that fits no other box."
     },
     "results": {
       "heading": "Results",
@@ -397,6 +444,13 @@
         "firmMultiplier": "the firm-power price step (1.6–2.2×)",
         "scaleExponent": "the scale exponent (0.6–0.7)",
         "foak": "the first-of-a-kind premium (1.0–1.4×)"
+      },
+      "componentHelp": {
+        "h2Capital": "The one-off cost of the electrolysis plant and its power supply at this site, derived from the map evaluation. Override it to test your own quote.",
+        "synthCapital": "The one-off cost of the synthesis step that turns hydrogen into the shipping fuel — the ammonia or methanol plant.",
+        "h2Operating": "The yearly cost of running the hydrogen plant, dominated by electricity.",
+        "synthOperating": "The yearly cost of running the synthesis plant.",
+        "logisticsOperating": "The yearly cost of moving the finished fuel from the plant to the port."
       }
     },
     "scenarioBar": {

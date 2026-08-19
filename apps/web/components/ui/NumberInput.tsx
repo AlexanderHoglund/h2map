@@ -27,7 +27,12 @@ export function NumberInput({
   unit?: string;
   /** Accepted for call-site compatibility; the text input has no stepper. */
   step?: number | "any";
-  help?: string;
+  /**
+   * REQUIRED: the pedagogic "what is this field" answer, shown by the "?"
+   * that fades in on hover. Every input in the app must be able to explain
+   * itself; the type makes an unexplained field a compile error.
+   */
+  help: string;
 }) {
   const id = useId();
   const [draft, setDraft] = useState<string | null>(null);
@@ -35,13 +40,13 @@ export function NumberInput({
   const shown = draft ?? (value === null ? "" : String(value));
 
   return (
-    <div>
+    <div className="group/field">
       <label
         htmlFor={id}
         className="flex items-center gap-1 text-xs font-medium text-neutral-600"
       >
         {label}
-        {help ? <Help text={help} /> : null}
+        <Help text={help} />
       </label>
       <div className="mt-1 flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 transition-colors duration-150 ease-out focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/40">
         <input

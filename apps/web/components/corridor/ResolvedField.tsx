@@ -43,7 +43,8 @@ export default function ResolvedField({
   /** The benchmark that an override replaces (always shown when overridden). */
   benchmark: number;
   onChange: (next: number | null) => void;
-  help?: string;
+  /** REQUIRED pedagogic explanation — see NumberInput. */
+  help: string;
   /**
    * Force the amber badge on. Normally unnecessary — the badge is derived
    * from `provenance.verified === false` — but kept for the WACC field,
@@ -114,14 +115,14 @@ export default function ResolvedField({
   // — dimmed labels/notes fail WCAG contrast (axe), and the note must stay
   // readable ("forced to 0 under this sourcing" is information, not chrome).
   return (
-    <div>
+    <div className="group/field">
       <div className="flex items-center justify-between gap-2">
         <label
           htmlFor={id}
           className="flex items-center gap-1.5 text-xs font-medium text-neutral-600"
         >
           {label}
-          {help ? <Help text={help} /> : null}
+          <Help text={help} />
         </label>
         <ProvenanceBadge
           label={t(source)}

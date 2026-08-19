@@ -150,6 +150,7 @@ export default function FuelEmissionsPanel() {
     <>
       <Select
         label={t("candidate")}
+        help={t("candidateHelp")}
         value={candidateFuelId}
         options={ds.fuels
           .filter((f) => f.family === "green" || f.id === "lng")
@@ -220,6 +221,7 @@ export default function FuelEmissionsPanel() {
       label={t("quantityOf", {
         fuel: direction === "candidate" ? candidateRow.name : baselineName,
       })}
+      help={t("quantityHelp")}
       unit="t"
       step={100}
       value={quantityTonnes}
@@ -257,7 +259,7 @@ export default function FuelEmissionsPanel() {
             candidateQty: fmt1(ok.candidateMassTonnes),
             candidate: candidateRow.name,
           })}
-      <Help text={t("equivalentHelp")} />
+      <Help reveal={false} text={t("equivalentHelp")} />
     </p>
   ) : null;
 
@@ -270,6 +272,7 @@ export default function FuelEmissionsPanel() {
           <div className="min-w-0 flex-1">
             <Select
               label={t("direction")}
+              help={t("directionHelp")}
               value={direction}
               options={[
                 { value: "baseline", label: t("directionReverse") },
@@ -298,6 +301,7 @@ export default function FuelEmissionsPanel() {
         />
         <Select
           label={t("basis")}
+          help={t("basisHelp")}
           value={basis}
           options={[
             { value: "wellToWake", label: t("basisWtw") },
@@ -334,6 +338,7 @@ export default function FuelEmissionsPanel() {
           />
           <Select
             label={t("pilotFuel")}
+            help={t("pilotFuelHelp")}
             value={pilotFuelId}
             options={ds.fuels
               .filter((f) => f.family === "fossil" && f.id !== "lng")
@@ -463,6 +468,7 @@ export default function FuelEmissionsPanel() {
                 <dt className="text-neutral-500">
                   {t("detailIntensity", { fuel: candidateRow.name })}
                   <Help
+                    reveal={false}
                     text={t("intensityHelp", {
                       gfi: String(ok.references.imoGfi2008),
                       feu: String(ok.references.fuelEuBaseline),
@@ -486,7 +492,7 @@ export default function FuelEmissionsPanel() {
                   {frameworkId === "imo"
                     ? t("attainedGfi", { share: fmt1(pilotShare * 100) })
                     : t("blendLabel")}
-                  <Help text={t("blendHelp")} />
+                  <Help reveal={false} text={t("blendHelp")} />
                 </dt>
                 <dd className="font-medium tabular-nums text-neutral-800">
                   {fmt2(ok.znz.blendWtwGco2ePerMj)} gCO2e/MJ
@@ -505,6 +511,7 @@ export default function FuelEmissionsPanel() {
                       <dt className="text-neutral-500">
                         {t("rfnboRow", { threshold: fmt1(rfnboCeiling) })}
                         <Help
+                          reveal={false}
                           text={`${t("rfnboHelp")} ${
                             ds.frameworks["fueleu"]?.rfnboCeilingSource ?? ""
                           }`}
@@ -543,7 +550,7 @@ export default function FuelEmissionsPanel() {
                   <div key={testid} className="flex items-baseline justify-between gap-2">
                     <dt className="text-neutral-500">
                       {t(labelKey, { threshold: fmt1(threshold) })}
-                      {testid === "znz-2034" && <Help text={t("znzHelp")} />}
+                      {testid === "znz-2034" && <Help reveal={false} text={t("znzHelp")} />}
                     </dt>
                     <dd
                       data-testid={testid}
@@ -648,6 +655,7 @@ export default function FuelEmissionsPanel() {
                             </span>
                           )}
                           <Help
+                            reveal={false}
                             text={
                               substituted
                                 ? `${t("imoSubstitutionRow", { factors: subs.join(", ") })} ${source}`

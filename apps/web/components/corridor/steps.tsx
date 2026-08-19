@@ -156,6 +156,7 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
         <SelectField
           key="start"
           label={t("startYear")}
+          help={t("startYearHelp")}
           value={scenario.cargo.startYear}
           options={START_YEARS}
           benchmark={CARGO_DEFAULTS.startYear}
@@ -170,6 +171,7 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
         <SelectField
           key="horizon"
           label={t("horizon")}
+          help={t("horizonHelp")}
           value={scenario.cargo.horizonYears}
           options={HORIZON_YEARS}
           benchmark={CARGO_DEFAULTS.horizonYears}
@@ -191,6 +193,7 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
         <Select
           key="emissionsBasis"
           label={tr("emissionsBasis")}
+          help={tr("emissionsBasisHelp")}
           value={scenario.flags?.emissionsBasis ?? "combustion"}
           options={[
             { value: "combustion", label: tr("basisCombustion") },
@@ -215,6 +218,7 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
       <div className="grid gap-3 sm:grid-cols-2">
         <Select
           label={t("routeType")}
+          help={t("routeTypeHelp")}
           value={scenario.cargo.routeType}
           options={[
             { value: "point-to-point", label: "Point-to-point" },
@@ -243,6 +247,7 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
             />
             <TextInput
               label={twoPorts ? t("portA") : t("singlePort")}
+              help={t("portNameHelp")}
               value={scenario.cargo.portAName ?? ""}
               onChange={(v) => update((d) => void (d.cargo.portAName = v || undefined))}
             />
@@ -288,12 +293,14 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
               </p>
               <Select
                 label={t("countryB")}
+                help={t("countryHelp")}
                 value={scenario.cargo.countryBId ?? scenario.cargo.countryId}
                 options={CORRIDOR_COUNTRIES}
                 onChange={(v) => update((d) => void (d.cargo.countryBId = v))}
               />
               <TextInput
                 label={t("portB")}
+                help={t("portNameHelp")}
                 value={scenario.cargo.portBName ?? ""}
                 onChange={(v) => update((d) => void (d.cargo.portBName = v || undefined))}
               />
@@ -384,6 +391,7 @@ export function CargoTabStep({ model, viewMode, revealStandard }: StepProps) {
         <NumberInput
           key="units"
           label={t("units")}
+          help={t("unitsHelp")}
           unit="units/yr"
           value={scenario.cargo.unitsPerYear}
           onChange={(v) => update((d) => void (d.cargo.unitsPerYear = v))}
@@ -397,6 +405,7 @@ export function CargoTabStep({ model, viewMode, revealStandard }: StepProps) {
     <Section title={ts("cargo")}>
       <Select
         label={t("unit")}
+        help={t("unitHelp")}
         value={cargoUnit}
         options={[
           { value: "tonne", label: t("unitTonne") },
@@ -470,7 +479,7 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
             ? side === "green"
               ? t("capexGreenHelp")
               : t("capexFossilHelp")
-            : undefined
+            : t("opexHelp")
         }
           provenance={{
           ...vesselCite,
@@ -517,6 +526,7 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
       <div className="grid gap-3 sm:grid-cols-2">
         <Select
           label={t("type")}
+          help={t("typeHelp")}
           value={scenario.vessel.typeId}
           options={bundle.vesselTypes
             // Retired classes stay IN the bundle so saved scenarios keep
@@ -535,12 +545,14 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
         />
         <NumberInput
           label={t("vessels")}
+          help={t("vesselsHelp")}
           step={1}
           value={scenario.cargo.vessels}
           onChange={(v) => update((d) => void (d.cargo.vessels = Math.max(1, Math.round(v))))}
         />
         <NumberInput
           label={t("roundtrips")}
+          help={t("roundtripsHelp")}
           step={1}
           value={scenario.cargo.roundtripsPerYear}
           onChange={(v) => update((d) => void (d.cargo.roundtripsPerYear = v))}
@@ -679,11 +691,11 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
     label: string,
     unit: string,
     opts: {
-      help?: string;
+      help: string;
       disabled?: boolean;
       disabledNote?: string;
       provenance?: { citation?: string; verified?: boolean; derivation?: string };
-    } = {},
+    },
   ) => (
     <ResolvedField
       key={`${side}-${key}`}
@@ -708,6 +720,7 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
             id: `${side}.priceUsdPerTonne`,
             overridden: s.overrides.priceUsdPerTonne !== null,
             node: overrideField("priceUsdPerTonne", "priceUsdPerTonne", t("price"), "$/t", {
+              help: t("priceHelp"),
               provenance: { ...fuelCite, derivation: plantMode ? tp("priceZero") : undefined },
             }),
           },
@@ -739,14 +752,17 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
         "combustionEf",
         t("combustionEf"),
         "t CO2/t",
-        { provenance: feCite },
+        { help: t("combustionEfHelp"), provenance: feCite },
       ),
     },
     {
       id: `${side}.lhv`,
       hidden: true,
       overridden: s.overrides.lhvMjPerTonne !== null,
-      node: overrideField("lhvMjPerTonne", "lhv", t("lhv"), "MJ/t", { provenance: feCite }),
+      node: overrideField("lhvMjPerTonne", "lhv", t("lhv"), "MJ/t", {
+        help: t("lhvHelp"),
+        provenance: feCite,
+      }),
     },
     {
       id: `${side}.wtwGco2PerMj`,
@@ -861,6 +877,7 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
             hidden: side === "fossil",
             overridden: s.overrides.prodCapexUsdM !== null,
             node: overrideField("prodCapexUsdM", "prodCapexUsdM", t("prodCapex"), "$m", {
+              help: t("prodCapexHelp"),
               disabled: prodZeroed,
               disabledNote: t("prodZeroNote"),
             }),
@@ -874,7 +891,7 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
               "prodOpexUsdMPerYear",
               t("prodOpex"),
               "$m/yr",
-              { disabled: prodZeroed, disabledNote: t("prodZeroNote") },
+              { help: t("prodOpexHelp"), disabled: prodZeroed, disabledNote: t("prodZeroNote") },
             ),
           },
         ]),
@@ -884,6 +901,7 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
     <Section title={t(side)}>
       <Select
         label={t("type")}
+        help={t("typeHelp")}
         value={s.fuelId}
         // Each side offers only its own family — a fossil corridor burning
         // e-ammonia would silently collapse the comparison (resolve.ts
@@ -901,6 +919,7 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
         <div data-field-id={`${side}.sourcing`}>
           <Select
             label={t("sourcing")}
+            help={t("sourcingHelp")}
             value={s.sourcing}
             options={[
               { value: "purchase", label: t("sourcingPurchase") },
@@ -975,11 +994,13 @@ function PortSide({ model, viewMode, revealStandard, side }: StepProps & { side:
       | "bargeOpexUsdMPerYear",
     label: string,
     unit: string,
+    help: string,
   ) => (
     <ResolvedField
       key={`${side}-${key}`}
       label={label}
       unit={unit}
+      help={help}
       override={scenario[side].overrides[key]}
       effective={r[key].value}
       source={r[key].source}
@@ -996,14 +1017,14 @@ function PortSide({ model, viewMode, revealStandard, side }: StepProps & { side:
           {t("fossilNote")}
         </p>
       )}
-      {field("portStorageCapexUsdM", t("storageCapex"), "$m")}
-      {field("portStorageOpexUsdMPerYear", t("storageOpex"), "$m/yr")}
+      {field("portStorageCapexUsdM", t("storageCapex"), "$m", t("storageCapexHelp"))}
+      {field("portStorageOpexUsdMPerYear", t("storageOpex"), "$m/yr", t("storageOpexHelp"))}
       {/* The barge pair sits below the sensitivity threshold — Simplified
           runs it on the benchmarks. */}
       {viewMode === "standard" ? (
         <>
-          {field("bargeCapexUsdM", t("bargeCapex"), "$m")}
-          {field("bargeOpexUsdMPerYear", t("bargeOpex"), "$m/yr")}
+          {field("bargeCapexUsdM", t("bargeCapex"), "$m", t("bargeCapexHelp"))}
+          {field("bargeOpexUsdMPerYear", t("bargeOpex"), "$m/yr", t("bargeOpexHelp"))}
         </>
       ) : (
         <AdvancedHiddenStrip
@@ -1096,6 +1117,7 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
         ) : null}
         <NumberInput
           label={tc("inflation")}
+          help={tc("inflationHelp")}
           unit="fraction"
           step={0.005}
           value={scenario.cargo.inflation}
@@ -1107,6 +1129,7 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
         {!simple ? (
           <Select
             label={t("rateBasis")}
+            help={t("rateBasisHelp")}
             value={scenario.flags?.rateBasis ?? "nominal"}
             options={[
               { value: "nominal", label: t("rateNominal") },
@@ -1166,6 +1189,7 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
         <div className="sm:col-span-2 border-t border-neutral-200 pt-3">
           <SwitchRow
             label={t("finToggle")}
+            help={t("finToggleHelp")}
             checked={scenario.financing?.enabled ?? false}
             onChange={(v) =>
               update((d) => {
@@ -1275,6 +1299,7 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
         <div className="sm:col-span-2 border-t border-neutral-200 pt-3">
           <SwitchRow
             label={t("phasingToggle")}
+            help={t("phasingToggleHelp")}
             checked={phasing?.enabled ?? false}
             onChange={(v) =>
               update((d) => {
@@ -1353,6 +1378,7 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
                             )}
                             unit="0–1"
                             step={0.05}
+                            help={t("phasingWeightHelp")}
                             value={w}
                             onChange={(v) =>
                               update((d) => {
@@ -1480,6 +1506,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
         <div className="sm:col-span-2">
           <SwitchRow
             label={t("include")}
+            help={t("etsIncludeHelp")}
             checked={reg.ets.enabled}
             onChange={(v) => update((d) => void (d.regulation.ets.enabled = v))}
           />
@@ -1490,12 +1517,14 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
               <>
                 <NumberInput
                   label={t("eua")}
+                  help={t("euaHelp")}
                   unit="€/t CO2"
                   value={reg.ets.euaEurPerTonne}
                   onChange={(v) => update((d) => void (d.regulation.ets.euaEurPerTonne = v))}
                 />
                 <NumberInput
                   label={t("eurUsd")}
+                  help={t("eurUsdHelp")}
                   step={0.01}
                   value={reg.eurUsd}
                   onChange={(v) => update((d) => void (d.regulation.eurUsd = v))}
@@ -1541,6 +1570,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
         <div className="sm:col-span-2">
           <SwitchRow
             label={t("include")}
+            help={t("fuelEuIncludeHelp")}
             checked={reg.fuelEu.enabled}
             onChange={(v) => update((d) => void (d.regulation.fuelEu.enabled = v))}
           />
@@ -1551,6 +1581,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
               <>
                 <NumberInput
                   label={t("penalty")}
+                  help={t("penaltyHelp")}
                   unit="€/t VLSFO-eq"
                   value={reg.fuelEu.penaltyEurPerTonne}
                   onChange={(v) =>
@@ -1559,6 +1590,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
                 />
                 <NumberInput
                   label={t("fuelEuScope")}
+                  help={t("fuelEuScopeHelp")}
                   unit="0–1"
                   step={0.05}
                   value={reg.fuelEu.scope}
@@ -1570,12 +1602,14 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
               <>
                 <NumberInput
                   label={t("vlsfo")}
+                  help={t("vlsfoHelp")}
                   unit="MJ/t"
                   value={reg.fuelEu.vlsfoMjPerTonne}
                   onChange={(v) => update((d) => void (d.regulation.fuelEu.vlsfoMjPerTonne = v))}
                 />
                 <NumberInput
                   label={t("baseline")}
+                  help={t("baselineHelp")}
                   unit="gCO2e/MJ"
                   step={0.01}
                   value={reg.fuelEu.baselineGco2PerMj}
@@ -1595,6 +1629,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
         <div className="sm:col-span-2">
           <SwitchRow
             label={t("include")}
+            help={t("iraIncludeHelp")}
             checked={reg.ira45z.enabled}
             onChange={(v) => update((d) => void (d.regulation.ira45z.enabled = v))}
           />
@@ -1604,6 +1639,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
             <div className="sm:col-span-2">
               <SwitchRow
                 label={t("usProduced")}
+                help={t("usProducedHelp")}
                 checked={reg.ira45z.usProduced}
                 onChange={(v) => update((d) => void (d.regulation.ira45z.usProduced = v))}
               />
@@ -1611,6 +1647,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
             {!simple && (
               <NumberInput
                 label={t("rate")}
+                help={t("rateHelp")}
                 unit="$/gal-eq"
                 step={0.05}
                 value={reg.ira45z.creditUsdPerGallon}
@@ -1628,6 +1665,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
         <div className="sm:col-span-2">
           <SwitchRow
             label={t("include")}
+            help={t("imoIncludeHelp")}
             checked={reg.imoNetZero?.enabled ?? false}
             onChange={(v) =>
               update(
@@ -1649,6 +1687,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
               <>
                 <NumberInput
                   label={t("imoScope")}
+                  help={t("imoScopeHelp")}
                   unit="0–1"
                   step={0.05}
                   value={reg.imoNetZero.scope}
@@ -1708,6 +1747,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
         <div className="sm:col-span-2">
           <SwitchRow
             label={t("include")}
+            help={t("selfIncludeHelp")}
             checked={reg.selfDesigned.enabled}
             onChange={(v) => update((d) => void (d.regulation.selfDesigned.enabled = v))}
           />
@@ -1716,6 +1756,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
           <>
             <NumberInput
               label={t("co2Price")}
+              help={t("co2PriceHelp")}
               unit="$/t CO2"
               value={reg.selfDesigned.co2PriceUsdPerTonne}
               onChange={(v) =>
@@ -1726,6 +1767,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
               <>
                 <NumberInput
                   label={t("support")}
+                  help={t("supportHelp")}
                   unit="$/kg"
                   step={0.05}
                   value={reg.selfDesigned.supportUsdPerKg}
@@ -1735,6 +1777,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
                 />
                 <NumberInput
                   label={t("capexSupport")}
+                  help={t("capexSupportHelp")}
                   unit="0–1"
                   step={0.05}
                   value={reg.selfDesigned.capexSupport}
@@ -1744,6 +1787,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
                 />
                 <NumberInput
                   label={t("opexSupport")}
+                  help={t("opexSupportHelp")}
                   unit="0–1"
                   step={0.05}
                   value={reg.selfDesigned.opexSupport}
@@ -1753,6 +1797,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
                 />
                 <NumberInput
                   label={t("other")}
+                  help={t("otherHelp")}
                   unit="$m/yr"
                   value={reg.selfDesigned.otherUsdM}
                   onChange={(v) => update((d) => void (d.regulation.selfDesigned.otherUsdM = v))}

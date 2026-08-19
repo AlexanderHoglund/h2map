@@ -15,17 +15,18 @@ export function TextInput({
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
-  help?: string;
+  /** REQUIRED pedagogic explanation — see NumberInput. */
+  help: string;
 }) {
   const id = useId();
   return (
-    <div>
+    <div className="group/field">
       <label
         htmlFor={id}
         className="flex items-center gap-1 text-xs font-medium text-neutral-600"
       >
         {label}
-        {help ? <Help text={help} /> : null}
+        <Help text={help} />
       </label>
       <input
         id={id}

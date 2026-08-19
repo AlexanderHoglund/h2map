@@ -1,5 +1,7 @@
 "use client";
 
+import { Help } from "./Help";
+
 /**
  * Accessible on/off switch (role="switch"). Pass `label` for a standalone
  * aria-label, or wrap in a <label> and omit it.
@@ -38,14 +40,20 @@ export function SwitchRow({
   label,
   checked,
   onChange,
+  help,
 }: {
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
+  /** REQUIRED pedagogic explanation — see NumberInput. */
+  help: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-3 text-sm font-medium">
-      {label}
+    <label className="group/field flex cursor-pointer items-center justify-between gap-3 text-sm font-medium">
+      <span className="flex items-center gap-1.5">
+        {label}
+        <Help text={help} />
+      </span>
       <Switch checked={checked} onChange={onChange} />
     </label>
   );
