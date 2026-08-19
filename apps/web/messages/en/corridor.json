@@ -341,7 +341,23 @@
         "greenTotalPvUsdM": "Green corridor (PV)",
         "fossilTotalPvUsdM": "Fossil corridor (PV)",
         "costPerUnitUsd": "Cost per unit of cargo",
-        "costPerTonneCo2Usd": "Cost per tonne CO2 abated"
+        "costPerTonneCo2Usd": "Cost per tonne CO2 abated",
+        "co2AbatedTonnes": "CO2 abated over lifetime"
+      },
+      "tornado": "What drives this corridor",
+      "tornadoKpiLabel": "Measured against",
+      "tornadoIntro": "Each bar re-runs the whole model at the two ends of a researched range. Bar length is what that uncertainty is worth on THIS scenario — a wide range on a field the corridor barely uses moves nothing.",
+      "tornadoCoupled": "(moved together)",
+      "tornadoUnverified": "unverified range",
+      "tornadoInapplicable": "Declared but not applicable here",
+      "tornadoCaveat": "Ranges are researched and cited; the model supplies the leverage. Inputs with no declared range are absent from this chart entirely — absence means nobody has stated a range, not that the input does not matter.",
+      "tornadoRow": {
+        "energy-demand": "Fuel consumption (delivered energy)",
+        "green.priceUsdPerTonne": "Green fuel price",
+        "fleet-capital": "Vessel CAPEX",
+        "vessel-opex": "Vessel OPEX",
+        "cargo.wacc": "Discount rate (WACC)",
+        "cargo.inflation": "Inflation"
       }
     },
     "buildHere": {
