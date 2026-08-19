@@ -119,8 +119,18 @@ interface FieldRow {
 }
 const FIELD_ROWS: FieldRow[] = (fieldReference as { rows: FieldRow[] }).rows;
 
-/** §20's top-10 — same generated artifact, so it can never contradict §22. */
-const SENSITIVITY_TOP10 = (
+/**
+ * EVERY swept input, from the same generated artifact §22 reads, so the two
+ * can never contradict each other.
+ *
+ * This used to be `.slice(0, 10)`. The truncation was invisible to the reader
+ * — no caption, no count, nothing saying 51 of 61 rows were omitted — under a
+ * heading that promises what moves the results. Real movers were hidden by
+ * it: WACC at 14.6%, inflation at 14.0% and the green fuel price at 13.7% all
+ * sat below the cut, and those are three of the six inputs the uncertainty
+ * work went on to identify as carrying the most risk.
+ */
+const SENSITIVITY_ROWS = (
   sensitivityArtifact as {
     ranked: {
       id: string;
@@ -130,7 +140,7 @@ const SENSITIVITY_TOP10 = (
       bindingKpi: string;
     }[];
   }
-).ranked.slice(0, 10);
+).ranked;
 
 /** KPI ids → the names §20 shows in its binding column. */
 const KPI_LABEL: Record<string, string> = {
@@ -1950,8 +1960,16 @@ export default async function DocsPage() {
           primary ranking for continuity; <strong>max across KPIs</strong>{" "}
           decides field placement, and the <strong>binding KPI</strong>{" "}
           column names the output responsible, so a field&apos;s prominence is
-          traceable to what it actually moves. The top ten by gap movement,
-          rendered from the same generated artifact as §22:
+          traceable to what it actually moves.
+        </p>
+        <p className="mt-2">
+          <strong>Every swept input</strong>{" "}is listed below, ranked by gap
+          movement, from the same generated artifact §22 reads. It used to show
+          only the top ten, which put three of the inputs the uncertainty work
+          later identified as carrying the most risk — WACC, inflation and the
+          green fuel price — below the fold of a section titled &ldquo;what
+          moves the results&rdquo;. A field absent from this table was not
+          swept at all, and §22 says why for each one.
         </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
@@ -1965,7 +1983,7 @@ export default async function DocsPage() {
               </tr>
             </thead>
             <tbody>
-              {SENSITIVITY_TOP10.map((row, i) => (
+              {SENSITIVITY_ROWS.map((row, i) => (
                 <tr key={row.id} className="border-b border-neutral-200 last:border-0">
                   <td className="px-3 py-1.5">{i + 1}</td>
                   <td className="px-3 py-1.5">{row.label}</td>
