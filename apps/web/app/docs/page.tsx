@@ -141,10 +141,11 @@ const FIELD_TIERS = {
 };
 
 /**
- * EVERY swept input, ranked by the LARGER of its two impacts — on the cost
- * gap and on the CO₂ abatement cost. These are the two figures the model
- * exists to produce, and the two rankings diverge sharply (corridor length:
- * 76.6% on the gap, 366% on abatement cost), so both are shown per row.
+ * EVERY swept input with its two impacts — on the cost gap and on the CO₂
+ * abatement cost. These are the two figures the model exists to produce, and
+ * the two rankings diverge sharply (corridor length: 76.6% on the gap, 366%
+ * on abatement cost), so both are shown per row; `DocsImpactTable` ranks by
+ * the tab the reader picks (abatement cost by default).
  *
  * From the same generated artifact §22 reads; the two tables cannot
  * contradict each other.
@@ -167,8 +168,7 @@ const SENSITIVITY_ROWS = (
     isChoice: typeof r.range[0] === "string",
     gap: r.movementByKpi.gapPvUsdM ?? 0,
     abatement: r.movementByKpi.costPerTonneCo2Usd ?? 0,
-  }))
-  .sort((a, b) => Math.max(b.gap, b.abatement) - Math.max(a.gap, a.abatement));
+  }));
 
 
 
@@ -2031,11 +2031,9 @@ export default async function DocsPage() {
           </table>
         </div>
         <p className="mt-2">
-          The tabs pick which figure the table is ranked by, and that figure
-          is shown <strong>in bold</strong>{" "}on every row. The default,{" "}
-          <em>larger of the two</em>, ranks each input by whichever of its two
-          figures is bigger — there is no third number behind it — so an input
-          that matters to either answer ranks where it belongs. A
+          The tabs pick which figure the table is ranked by — the{" "}
+          <strong>CO&#8322; abatement cost</strong>{" "}by default — and the
+          ranking column is shown in bold. A
           0.0% is a measurement, not a gap in coverage &mdash; cargo unit choice
           really cannot move either figure, and the table says so instead of
           omitting it. The other four measured outputs (per-unit cost, both
@@ -2050,14 +2048,16 @@ export default async function DocsPage() {
         </p>
         <DocsImpactTable rows={SENSITIVITY_ROWS} />
         <p className="mt-2">
-          The top of the ranking is a mix of decisions and dials. The vessel
-          class is the single biggest lever (446% &mdash; the hull sets the
-          energy-per-mile figure and the per-ship costs), followed by public
-          support levers, corridor length and the green fuel choice. Some
-          inputs matter to one answer and not the other: the N&#8322;O slip
-          scenario barely touches the gap (0.5%) and doubles the abatement
-          cost (100.5%), while vessel count does the reverse &mdash; which is
-          why both columns are shown. The named EU scheme parameters (ETS
+          The top of the ranking is a mix of support levers, geometry and
+          decisions: self-designed public support (376% &mdash; $0&ndash;50m/yr
+          over twenty years genuinely is that large), corridor length (366%
+          &mdash; distance changes the fuel bill <em>and</em>{" "}the tonnes
+          abated at once) and the vessel class (186% here, and the biggest
+          lever of all on the cost gap at 446%). Some inputs matter to one
+          answer and not the other: the N&#8322;O slip scenario doubles the
+          abatement cost (100.5%) while barely touching the gap (0.5%), and
+          vessel count does the reverse &mdash; switch tabs to see the other
+          ranking. The named EU scheme parameters (ETS
           price and scope, FuelEU penalty and scope) move either figure by
           only a few percent under defaults; they matter far more at high
           carbon prices or late start years.

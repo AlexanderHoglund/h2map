@@ -23,38 +23,33 @@ export interface ImpactRow {
 }
 
 const TABS = [
-  { key: "max", label: "Larger of the two" },
-  { key: "gap", label: "Cost gap" },
   { key: "abatement", label: "CO₂ abatement cost" },
+  { key: "gap", label: "Cost gap" },
 ] as const;
 type TabKey = (typeof TABS)[number]["key"];
 
 const valueOf = (r: ImpactRow, k: TabKey): number =>
-  k === "gap" ? r.gap : k === "abatement" ? r.abatement : Math.max(r.gap, r.abatement);
+  k === "gap" ? r.gap : r.abatement;
 
 export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
-  const [tab, setTab] = useState<TabKey>("max");
+  const [tab, setTab] = useState<TabKey>("abatement");
+  const other: TabKey = tab === "gap" ? "abatement" : "gap";
   const sorted = useMemo(
     () =>
       [...rows].sort(
         (a, b) =>
-          valueOf(b, tab) - valueOf(a, tab) ||
-          valueOf(b, "max") - valueOf(a, "max"),
+          valueOf(b, tab) - valueOf(a, tab) || valueOf(b, other) - valueOf(a, other),
       ),
-    [rows, tab],
+    [rows, tab, other],
   );
 
-  const activeCol = (k: "gap" | "abatement"): string =>
-    tab === k ? " text-neutral-800" : "";
+  const activeCol = (k: TabKey): string => (tab === k ? " text-neutral-800" : "");
 
-  // The figure each row is ranked by is BOLD, so the sort key is always a
-  // number the reader can see: on the per-KPI tabs that is the whole active
-  // column; on "larger of the two" it is whichever cell won for that row.
-  const isSortCell = (row: ImpactRow, k: "gap" | "abatement"): boolean =>
-    tab === k || (tab === "max" && valueOf(row, k) === valueOf(row, "max"));
-  const cell = (row: ImpactRow, k: "gap" | "abatement"): string =>
+  // The column the table is ranked by is BOLD, so the sort key is always a
+  // number the reader can see.
+  const cell = (k: TabKey): string =>
     `px-3 py-1.5 text-right${
-      isSortCell(row, k) ? " font-medium text-neutral-900" : " text-neutral-600"
+      tab === k ? " font-medium text-neutral-900" : " text-neutral-600"
     }`;
 
   return (
@@ -109,10 +104,10 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
                     </span>
                   )}
                 </td>
-                <td className={cell(row, "gap")}>
+                <td className={cell("gap")}>
                   {(row.gap * 100).toFixed(1)}%
                 </td>
-                <td className={cell(row, "abatement")}>
+                <td className={cell("abatement")}>
                   {(row.abatement * 100).toFixed(1)}%
                 </td>
               </tr>
