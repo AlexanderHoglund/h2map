@@ -8,6 +8,7 @@ import { TextInput } from "@/components/ui/TextInput";
 import { SwitchRow } from "@/components/ui/Switch";
 import { Section, Advanced } from "@/components/ui/Card";
 import ResolvedField from "./ResolvedField";
+import { sourceLabel } from "@/lib/corridor/provenance";
 import SelectField from "./SelectField";
 import CorridorRouteMap from "./CorridorRouteMap";
 import RoutedDistanceField from "./RoutedDistanceField";
@@ -459,7 +460,7 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
 
   const vesselRow = bundle.vesselTypes.find((v) => v.id === scenario.vessel.typeId);
   const vesselCite = vesselRow
-    ? { citation: `${bundle.bundleId} \u2014 ${vesselRow.sourceNote}`, verified: vesselRow.verified }
+    ? { citation: sourceLabel(vesselRow.sourceNote) ?? tp("vesselTable"), verified: vesselRow.verified }
     : undefined;
 
   const vesselField = (
@@ -636,11 +637,11 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
   const s = scenario[side];
   const fuelRow = bundle.fuels.find((f) => f.id === s.fuelId);
   const fuelCite = fuelRow
-    ? { citation: `${bundle.bundleId} \u2014 ${fuelRow.sourceNote}`, verified: fuelRow.verified }
+    ? { citation: sourceLabel(fuelRow.sourceNote) ?? tp("fuelTable"), verified: fuelRow.verified }
     : undefined;
   const vesselRow = bundle.vesselTypes.find((v) => v.id === scenario.vessel.typeId);
   const vesselCite = vesselRow
-    ? { citation: `${bundle.bundleId} \u2014 ${vesselRow.sourceNote}`, verified: vesselRow.verified }
+    ? { citation: sourceLabel(vesselRow.sourceNote) ?? tp("vesselTable"), verified: vesselRow.verified }
     : undefined;
   const r = resolved[side];
   const b = benchmarks[side];
@@ -985,7 +986,7 @@ function PortSide({ model, viewMode, revealStandard, side }: StepProps & { side:
   if (!resolved || !benchmarks) return null;
   const fuelRow = bundle.fuels.find((f) => f.id === scenario[side].fuelId);
   const portProvenance = {
-    citation: fuelRow ? `${bundle.bundleId} \u2014 ${fuelRow.sourceNote}` : undefined,
+    citation: fuelRow ? sourceLabel(fuelRow.sourceNote) ?? tp("fuelTable") : undefined,
     verified: fuelRow?.verified,
     derivation: side === "fossil" ? tp("portFossil") : undefined,
   };
@@ -1112,7 +1113,7 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
             provenance={
               countryRow
                 ? {
-                    citation: `${bundle.bundleId} \u2014 ${countryRow.sourceNote}`,
+                    citation: sourceLabel(countryRow.sourceNote) ?? tc("countryHelp"),
                     verified: countryRow.verified,
                   }
                 : undefined
@@ -1490,11 +1491,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
           }
         />
         <p className="sm:col-span-2 text-[11px] leading-snug text-neutral-500">
-          {reg.emissions
-            ? t("frameworkNote", {
-                dataset: FUEL_EMISSIONS_DATASET.datasetVersion,
-              })
-            : t("frameworkLegacyNote")}
+          {reg.emissions ? t("frameworkNote") : t("frameworkLegacyNote")}
         </p>
       </Section>
       {/* Silent-active safety net ONLY: the section appears when a scheme

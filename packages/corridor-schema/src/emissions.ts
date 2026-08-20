@@ -231,8 +231,11 @@ export function deriveFuelFactors(args: {
     gwpCh4: selected.gwpCh4,
     gwpN2o: selected.gwpN2o,
     lhvMjPerTonne: row.lcvMjPerG * 1e6,
-    derivation:
-      `derived from fuel-emissions ${ds.datasetVersion} · ` +
-      `${framework === "imo" ? "IMO Net-Zero (AR5)" : "FuelEU Maritime (AR4)"} · ${row.name}`,
+    // User-facing: the badge shows this after "Derived:". Names the
+    // accounting rulebook and the fuel — never the dataset version, which
+    // means nothing to a reader (the bundle pin keeps full traceability).
+    derivation: `${
+      framework === "imo" ? "IMO Net-Zero accounting (AR5)" : "FuelEU Maritime accounting (AR4)"
+    } · ${row.name}`,
   };
 }

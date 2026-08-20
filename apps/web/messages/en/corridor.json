@@ -235,7 +235,7 @@
       "frameworkFuelEu": "FuelEU Maritime (Annex II, AR4)",
       "frameworkImo": "IMO Net-Zero (MEPC.391(81), AR5)",
       "frameworkHelp": "Which rulebook's official emission values the corridor reports with: FuelEU Maritime (EU) or the IMO's. The same physical fuel carries different official numbers under each, so this changes the reported intensity and abatement. The FuelEU and IMO pricing modules always price with their own rulebook regardless.",
-      "frameworkNote": "Fuel factors derive from the fuel-emissions dataset {dataset}: certified pathway + N2O slip + pilot blend on the green side, framework-resolved rows on the fossil side. Effective values appear in the Energy tab; explicit overrides there still win.",
+      "frameworkNote": "Fuel factors derive live from the chosen framework: the certified pathway plus combustion effects on the green side, the framework's official rows on the fossil side. Effective values appear in the Energy tab; your overrides there still win.",
       "frameworkLegacyNote": "This scenario runs its stored emission factors. Pick a framework to derive them live from the fuel-emissions dataset instead.",
       "wtp": "Cargo owner willingness to pay",
       "wtpHelp": "What the cargo owner will fund per tonne of CO2e abated. Does NOT reduce the corridor cost - it splits the incremental cost into a customer share and the public funding that remains. 0 = none.",
@@ -554,12 +554,14 @@
       "footnote": "Deleting a project is permanent. Share links are read-only and can be revoked at any time."
     },
     "provenance": {
-      "yearsDefault": "MMMCZCS Chilean copper study default [S]",
-      "consumption": "distance x 2 x roundtrips x vessel GJ/nm / fuel LHV (distance mode); vessel-table benchmark otherwise",
-      "vesselCapexGreen": "vessel-type CAPEX x (1 + the fuel's vessel CAPEX premium)",
-      "vesselFossil": "existing-fleet rule: fossil vessel CAPEX 0",
-      "portFossil": "existing-infrastructure rule: CAPEX 0, OPEX at 30% of a new green facility",
-      "priceZero": "no merchant price under build sourcing - production cost is CAPEX + O&M"
+      "yearsDefault": "default from the reference study (a Chilean copper corridor)",
+      "consumption": "derived from the route: 2 × distance × roundtrips × the vessel's energy per mile, divided by the fuel's energy content; the vessel-table benchmark otherwise",
+      "vesselCapexGreen": "the vessel class price × (1 + the fuel's readiness premium)",
+      "vesselFossil": "0 by rule: the fossil fleet already exists, so no new-build capital",
+      "portFossil": "existing infrastructure: no new capital; running cost at 30% of a new green facility",
+      "priceZero": "no purchase price when building: production is paid through plant capital and running costs",
+      "fuelTable": "the fuel reference table",
+      "vesselTable": "the vessel reference table"
     },
     "tabStatusReason": {
       "portShare": "port days account for a material share of round-trip energy, on estimated day rates",
