@@ -449,8 +449,7 @@ export default async function DocsPage() {
           pins $1,762.21m; CO2 abated of{" "}
           <strong>1,118,236 t</strong>{" "}against the variant&apos;s
           study-exact 1,450,095 (a WtW=0 green ammonia is not a certifiable
-          value; certified 15 +
-          N2O slip + 5% pilot gives a 22.14 blend); and $1,627/tCO2 against
+          value; the derived blend is 22.14 gCO2e/MJ, §15); and $1,627/tCO2 against
           the variant&apos;s $1,215. Under the current default the green side
           also pays the self-designed CO2 price
           ($60.75m PV; fossil $253.71m on the Annex II 91.744/40,500
@@ -799,18 +798,14 @@ export default async function DocsPage() {
         <H id="tab-vessels">7. Tab 03 — Vessels</H>
         <p className="mt-2">
           The ships that serve the corridor. One vessel type is shared by
-          both sides. <strong>The CAPEX/OPEX cells are PER SHIP</strong>{" "}
-          and the vessel count multiplies them into the fleet total, along
-          with fuel burn and every regulation term. The default scenario
-          costs both fleets as newbuilds: green 10 × $44m = $440m, fossil
-          10 × $35m = $350m.
-        </p>
-        <p className="mt-2">
-          <strong>These cells are PER SHIP.</strong>{" "}Enter per-ship costs;
-          the engine multiplies by vessel count. The benchmark underneath
-          them is per-ship too (type CAPEX × (1 + premium)), so the field and
-          the value offered by &ldquo;restore&rdquo; are always the same
-          dimension.
+          both sides. <strong>The CAPEX/OPEX cells are PER SHIP</strong>{" "}—
+          enter per-ship costs, and the vessel count multiplies them into
+          the fleet total, along with fuel burn and every regulation term.
+          The benchmark underneath each cell is per-ship too (type CAPEX ×
+          (1 + premium)), so the field and the value offered by
+          &ldquo;restore&rdquo; are always the same dimension. The default
+          scenario costs both fleets as newbuilds: green 10 × $44m = $440m,
+          fossil 10 × $35m = $350m.
         </p>
         <Fields
           rows={[
@@ -950,36 +945,26 @@ export default async function DocsPage() {
           scenario&apos;s results untouched.
         </p>
         <H3 id="fin-differentiated">Differentiated green financing</H3>
-        <F>
-          financing<sub>t</sub>{" "}= −outstanding<sub>t</sub>{" "}× (baseRate −
-          greenRate) &nbsp; (green side only)
-        </F>
         <p className="mt-2">
-          Off by default. The toggle initialises concrete values: base rate =
-          the corridor&apos;s current discount rate, green rate 6%, full debt,
-          tenor min(15, horizon), amortizing. The five parameters (green
-          rate, base rate, debt share, tenor, amortizing/bullet structure)
-          sit behind the Standard view; the green rate stays visible — it is
-          sensitivity top-level — and is a negotiation
-          outcome, not a market observable — concessional structures
-          typically land 0.5–2.5pp below the commercial base rate. The line
-          is an explicit interest saving on debt-financed green capital,
-          shown as its own float in the cost bridge and its own row in the
-          decomposition — deliberately NOT a per-side discount rate, which
-          would invert the benefit (§3). A negative spread (green premium)
-          is allowed and shows as a cost.
+          Off by default. The module prices concessional green debt as an
+          explicit interest saving on the green side&apos;s debt-financed
+          capital — its own float in the cost bridge, its own row in the
+          decomposition. The toggle initialises concrete values (base rate =
+          the corridor&apos;s current discount rate, green rate 6%, full
+          debt, tenor min(15, horizon), amortizing); the green rate stays
+          visible — a negotiation outcome, not a market observable — and the
+          other parameters sit behind the Standard view. The arithmetic, and
+          why this is deliberately NOT a per-side discount rate, is below.
         </p>
 
         <H3 id="fin-phasing">Capital deployment schedule</H3>
         <p className="mt-2">
-          Off by default (all CAPEX in year 1). The toggle initialises
-          both sides at 100% in year 1; the Standard view exposes a
-          deployment-years selector (1–5), per-side share rows and a
-          30/40/30 preset matching the reference study&apos;s build
-          profile. Shares must sum to 1 per side — the form shows a live
-          amber warning and the model refuses to compute rather than
-          silently rescaling. The green financing drawdown follows the
-          same schedule (§3).
+          Off by default (all CAPEX in year 1). Phasing spreads each
+          side&apos;s CAPEX over the first 1–5 years by explicit shares,
+          with a 30/40/30 preset matching the reference study&apos;s build
+          profile; shares must sum to 1 per side, and the model refuses to
+          compute rather than silently rescaling. The green financing
+          drawdown follows the same schedule; the arithmetic is below.
         </p>
 
 
@@ -1837,9 +1822,9 @@ export default async function DocsPage() {
           <strong>The emission columns below are stored fallbacks.</strong>{" "}
           Combustion EF, LHV and WtW
           derive per scenario from the fuel-emissions dataset under the
-          selected accounting framework (§15–§30): green fuels as certified
-          pathway + N2O slip + pilot blend (e-ammonia ≈ 22.14 gCO2e/MJ under
-          FuelEU at the defaults), fossil fuels from the Annex II row under
+          selected accounting framework: green fuels as the derived blend
+          intensity (e-ammonia ≈ 22.14 gCO2e/MJ under
+          FuelEU at the defaults, §15), fossil fuels from the Annex II row under
           FuelEU (91.744) or the MEPC.391(81) sulphur band under IMO (94.90
           at 0.50%&nbsp;S). The table&apos;s emission scalars apply only to
           scenarios that pin them and to underivable combinations (LNG as a
@@ -2127,14 +2112,11 @@ export default async function DocsPage() {
           0.134 at 12% — a larger spread than the resource gap between two good
           sites — so an optional <em>risk-adjusted</em>{" "}layer instead applies
           each cell&rsquo;s country cost of capital, matched by
-          point-in-polygon against the Natural Earth boundaries. Two tiers
-          supply it, and the layer records which: a{" "}
-          <strong>researched</strong>{" "}rate (<code>wacc_curated</code>) where
-          an enriched profile has one, otherwise the transparent World Bank
-          income-group <em>heuristic</em>{" "}(<code>wacc_suggestion</code>, 0.06
-          OECD-high → 0.12 low-income) — a bracket, not a measurement, and
-          labelled as such wherever it appears. Curated wins — the same rule
-          the Calculator applies.
+          point-in-polygon against the Natural Earth boundaries. The rate
+          comes from the same two-tier country supply the Calculator uses — a
+          researched rate where an enriched profile has one, else the
+          income-group heuristic (§28) — and the layer records which tier
+          served each cell.
         </p>
         <F>df₀ = 1 ; df_t = df_(t−1) / (1 + r) ; annuity A = Σ_(t=1..N) df_t</F>
         <p className="mt-2">
@@ -2981,9 +2963,7 @@ export default async function DocsPage() {
             LNG evaluates under FuelEU per engine technology, but its WtT
             of 18.5 gCO2e/MJ is carried from a secondary table pending
             verification against the Annex II LNG row; under the IMO
-            framework it refuses — the IMO guidelines lack a default
-            upstream factor (ICCT) and FuelEU&apos;s value is never
-            borrowed. e-Methanol evaluates as a
+            framework it refuses (§14). e-Methanol evaluates as a
             certified-pathway fuel (the user supplies the E-value per
             project, range 1–28.2 gCO2e/MJ), but the dedicated DAC-sourced
             and point-source-captured pathway rows from RED Delegated
@@ -3039,21 +3019,14 @@ export default async function DocsPage() {
             weak and terrain-driven.
           </li>
           <li>
-            <strong>Wind model tiers.</strong>{" "}On the map the Open-Meteo path
-            DOES apply an air-density correction and per-site IEC turbine-class
-            selection (these cells are tagged as air-density-corrected, and the
-            selected class is recorded). The NASA POWER fallback does not: a generic
-            curve with fixed &alpha;&nbsp;=&nbsp;1/7 shear. That is a real
-            modelling difference, so those cells are outlined on the map and
-            named in the cell drawer rather than rendered as if they were
-            comparable. Measured 2026-08-15 over ready cells: 58% improved,
-            1.3% fallback — and for <strong>37%, provenance is
-            unrecorded</strong>.
-            Those are deliberately not flagged, since asserting either tier
-            would be false, but the drawer reports their provenance as
-            unrecorded rather than leaving the reader to assume. Each cell is
-            stamped as it is refreshed on the regular re-seed schedule, so
-            the unrecorded share shrinks on its own.
+            <strong>Wind model tiers.</strong>{" "}Not every cell is built by
+            the improved wind path (&sect;20): fallback cells use a generic
+            curve with fixed shear and neither the density nor the class
+            correction, and some older cells do not record which path built
+            them. Both facts are surfaced rather than smoothed over —
+            fallback cells are outlined on the map and named in the cell
+            drawer, and an unrecorded provenance is reported as unrecorded
+            rather than asserted either way.
           </li>
           <li>
             Cost-year 2040/2050 figures are extrapolations, not IEA-published
@@ -3453,47 +3426,13 @@ export default async function DocsPage() {
           gap alone.
         </p>
         <p className="mt-2">
-          <strong>Elasticity</strong>{" "}answers a different question from the
-          movement columns beside it, and neither replaces the other. Movement
-          asks <em>how far can this field push the gap across its assumed
-          range</em>; elasticity asks{" "}<em>how hard does it push per unit of
-          itself</em>{" "}— a small standard nudge (±10%, or ±1 percentage point
-          for rates and fractions), normalised. That makes it a property of the
-          model at that point rather than of a range someone chose:{" "}
-          <code>regulation.selfDesigned.otherUsdM</code>{" "}tops the movement
-          ranking at 376% only because it is swept $0–50m.
-        </p>
-        <p className="mt-2">
-          It is reported as a <strong>range across three archetypes</strong>{" "}
-          (three reference corridors used for measurement) — Chilean copper
-          (build, deep-sea), Australia–Korea iron ore
-          (purchase, deep-sea) and the Skagerrak green box (contract offtake,
-          short-sea) — because the spread <em>is</em>{" "}the finding. Corridor
-          length measures 0.29 where consumption is derived from geometry and
-          exactly 0.00 where the burn is typed, so a single averaged figure
-          would report it as moderately important everywhere when it is
-          decisive on one corridor and inert on another.
-        </p>
-        <p className="mt-2">
-          <strong>Coupled</strong>{" "}names the fields that are not independent,
-          and whose individual figures therefore overstate them. Green and
-          fossil consumption are energy-matched on any real corridor, so moving
-          one alone describes a state the model itself rejects; moved together
-          the pair measures 0.27 against a naive sum of 0.62. Fleet capital is
-          starker: green vessel CAPEX is <em>+0.25</em>{" "}and fossil{" "}
-          <em>−0.20</em>, so a yard-price shock lifts both sides and the gap
-          barely moves — 0.05 together against 0.46 apart. The group figure is
-          the honest one; the per-field figures explain the mechanism.
-        </p>
-        <p className="mt-2">
-          Both columns move one input at a time, so combined effects are not
-          captured — <strong>interactions are
-          invisible</strong>{" "}by construction: the discount rate (WACC) and
-          the horizon
-          compound on a capital-heavy corridor and neither column can say so.
-          Elasticity is also <em>leverage only</em>: multiplying it by a
-          declared, cited uncertainty range is what yields impact, and that
-          exposure data is a separate reference dataset.
+          The <strong>Elasticity</strong>{" "}and <strong>Coupled</strong>{" "}
+          columns carry the leverage measurements defined in §29: elasticity
+          is the model&apos;s response to a small standard nudge, reported as
+          a range across the three archetypes because the spread is the
+          finding, and coupled fields are grouped because their individual
+          figures overstate them — §29 explains both mechanisms and their
+          limits (one input at a time; interactions invisible).
         </p>
         <p className="mt-2">
           <strong>Placement</strong>{" "}says where the field appears in the
