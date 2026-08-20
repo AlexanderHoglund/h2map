@@ -442,7 +442,7 @@ export default async function DocsPage() {
           <strong>The table above is the study-calibration variant — the
           study&apos;s own emission accounting, reproduced exactly.</strong>{" "}
           The current default scenario derives its factors from the emission
-          method (§15–§30__DONE__) instead, and the two variants therefore differ
+          method (§15–§30) instead, and the two variants therefore differ
           deliberately: the current default computes a post-regulation gap
           of{" "}
           <strong>$1,819.48m</strong>{" "}where the study-calibration variant
@@ -723,42 +723,16 @@ export default async function DocsPage() {
           </table>
         </div>
         <p className="mt-2">
-          <strong>Reconciliation.</strong>{" "}
-          The study&apos;s fitted block ($1,100m / $72m/yr) annuitized at the
-          corridor&apos;s 8% over 25 years is <strong>$3,071/t</strong>.
-          Build-here computes{" "}
-          <strong>$2,707/t at María Elena — a residual of $364/t (11.8%)</strong>{" "}
-          — and $2,808/t at La Negra, a residual of $263/t (8.6%). Both sit
-          inside the ~20% threshold set for validating build-here
-          for screening use, and the study&apos;s figure falls inside La
-          Negra&apos;s reported range ($2,297–$3,140).
-        </p>
-        <p className="mt-2">
-          The model prices explicitly what a bottom-up estimate must not
-          assume away:{" "}
-          <strong>electricity</strong>{" "}— the site cannot run a synthesis loop
-          on unbuffered daytime solar (27.6% duty vs the 85% Haber-Bosch needs),
-          so a firm-power step is charged;{" "}
-          <strong>project-level cost</strong>{" "}— the electrolyser island is
-          costed on IEA&apos;s installed basis, which explicitly includes EPC
-          and
-          contingency, and synthesis is anchored to a real project&apos;s
-          balance sheet rather than an unanchored reference scale; and{" "}
-          <strong>FOAK</strong>{" "}— a corridor plant is costed as
-          first-of-a-kind (×1.25) by default rather than nth-of-a-kind.
-        </p>
-        <p className="mt-2">
-          <strong>What the remaining ~10% is, stated rather than tuned.</strong>{" "}
-          Three things are still unmodelled and each would move the number in
-          the same direction: differentiated (dual-WACC) green financing and a
-          scenario-level synergy adjustment, which the study quantifies at
-          ≈$250m each; and terminal/residual plant value at the 15-year
-          horizon, deliberately off so the study reproduction holds. The
-          consortium&apos;s plant-cost breakdown (their Figure 3) would replace
-          the NEOM-scaled calibration with a direct one and remains the
-          highest-value outstanding input. A ~10% residual on a screening
-          estimate whose own reported range spans ±15% is not a discrepancy
-          worth tuning.
+          <strong>Reconciliation.</strong>{" "}Build-here lands within ~12%
+          of the study: $2,707/t at María Elena and $2,808/t at La Negra
+          against <strong>$3,071/t</strong>{" "}for the study&apos;s fitted
+          block ($1,100m / $72m/yr) annuitized at the corridor&apos;s 8% —
+          inside the ~20% screening threshold, with the study&apos;s figure
+          falling inside La Negra&apos;s reported range. The residual has
+          three known unmodelled items, each of which would move the number
+          the same way: differentiated green financing and a scenario-level
+          synergy adjustment (which the study quantifies at ≈$250m each),
+          and terminal plant value at the 15-year horizon.
         </p>
         <p className="mt-2">
           <strong>Site-to-site is the point.</strong>{" "}La Negra costs $100/t
@@ -1105,7 +1079,7 @@ export default async function DocsPage() {
           row and 94.90 under the IMO&apos;s 0.10–0.50%-sulphur band
           (MEPC.391(81)), and each framework fixes its own GWP set (AR4 vs
           AR5). Green fuels derive as certified pathway WtT + N2O slip +
-          pilot blend from the fuel-emissions dataset (§15–§30__DONE__). Two rules
+          pilot blend from the fuel-emissions dataset (§15–§30). Two rules
           keep it honest: the FuelEU and IMO <em>compliance modules</em>{" "}
           each price with their OWN framework regardless of this selection
           (the selector moves the reported intensities, abatement and the
@@ -1504,99 +1478,44 @@ export default async function DocsPage() {
         <p className="mt-2">
           The platform sits behind a sign-in: request access on the home page
           (granted automatically once you confirm your email), or sign in
-          with an existing account. Teaching and trial accounts are
-          time-limited — at the end of the access period the platform locks
-          with a contact screen, your saved scenarios are kept, and an
-          extension restores everything exactly as it was.
+          with an existing account. Time-limited accounts keep their saved
+          scenarios past expiry; an extension restores everything as it was.
         </p>
         <p className="mt-2">
-          <strong>Projects first.</strong>{" "}The platform always opens on the
-          Projects tab; the input tabs unlock once a project is selected or
-          created. Every account starts with five projects: the{" "}
-          <em>Example — Chilean copper corridor</em>{" "}(the published reference
-          case, a Standard project, created once — deleted, it stays gone);
-          three further Standard views of that same corridor — each takes
-          fewer figures from the published report and lets the model derive
-          more —{" "}
-          <em>… — as published</em>{" "}(the report&apos;s own emission
-          accounting, reproducing all six published figures),{" "}
-          <em>… — current model</em>{" "}(the study&apos;s asserted burns and
-          fleet costs released, so the model derives them) and{" "}
-          <em>… — benchmarks only</em>{" "}(nothing asserted at all: every
-          figure a bundle benchmark or derived from the route);
-          and{" "}
-          <em>Simple corridor (template)</em>{" "}(a blank purchase-sourced
-          Simplified template — generic route, benchmark costs, every scheme
-          off — kept available for every account: deleting it brings the
-          template back on the next visit, and edits to it are yours to
-          keep).
-        </p>
-        <p className="mt-2">
-          <strong>The three named variants are refreshed on every
-          visit</strong>{" "}so they always reflect the current model; rename
-          a copy to keep your edits.
-          The original{" "}<em>Example — Chilean copper corridor</em>{" "}
-          and the Simplified template are both left alone, because those are
-          places people work rather than mirrors of a shipped definition.
-          Creating a new project asks for a name and its level —{" "}
-          <strong>Simplified or Standard</strong>. The level is stored on the
-          project and is a ONE-WAY ladder: a Simplified project can be
-          upgraded to Standard from the header (permanent — it unlocks
-          every field), a Standard project never becomes Simplified. A
-          Simplified project works purchase-sourced fuel against the
-          self-designed scheme only; Standard opens plant construction,
-          map-sited production and the EU/IMO/US regulation modules.
+          <strong>Projects first.</strong>{" "}The app opens on the Projects
+          tab; the input tabs unlock once a project is selected or created.
+          Every account starts with five projects: the Chilean example, its
+          three published-case variants (§35 explains what each one asserts)
+          and a blank Simplified template. A project is{" "}
+          <strong>Simplified or Standard</strong>{" "}— a one-way ladder:
+          Simplified works purchase-sourced fuel against the self-designed
+          scheme only and can be upgraded permanently to Standard, which
+          opens plant construction, map-sited production and the EU/IMO/US
+          regulation modules. Every change autosaves locally in your browser
+          as the working copy of the current project, and the app asks
+          before discarding unsaved changes.
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>Draft autosave</strong>{" "}— every change is saved locally
-            in your browser as the working copy of the current project; the
-            entry screen&apos;s button reads{" "}<em>Resume draft</em>{" "}when
-            one exists, and the Projects tab&apos;s &ldquo;Currently
-            editing&rdquo; card continues it. Opening or creating another
-            project replaces the working copy — the app asks before
-            discarding unsaved changes (Import and Reset carry their own
-            confirmations).
+            <strong>Save / Duplicate</strong>{" "}— Save stores the scenario
+            to your account and updates the open project (or creates one
+            when none is open); Duplicate makes a copy. The URL carries the
+            project id, so a bookmark reopens it. Renaming, share-link
+            management and delete live on the Projects tab.
           </li>
           <li>
-            <strong>Save / Duplicate</strong>{" "}— the scenario bar stores the
-            current scenario to your account (server-validated, with the
-            engine and reference-data versions pinned). Save updates the
-            open project — or creates one when none is open; Duplicate makes
-            a copy named &ldquo;… (copy)&rdquo;. The URL then carries the
-            project id, so a bookmark reopens it. The bar leads with the
-            project identity (a mono PROJECT eyebrow + the name field + an
-            amber &ldquo;unsaved&rdquo; badge for drafts) on every working
-            tab.
+            <strong>Share</strong>{" "}— creates a read-only link anyone can
+            open without an account; revoking it kills the link. Shared
+            views show the stored results, offer an explicit recompute when
+            the save predates the current model, and a signed-in viewer can
+            open the scenario as their own draft.
           </li>
           <li>
-            <strong>The Projects tab</strong>{" "}— all management lives on
-            tab 00: open (loading under a newer schema or engine is
-            announced, never silent — stale rows carry an &ldquo;older
-            engine&rdquo; badge), rename in place, share-link copy/revoke,
-            and <strong>delete</strong>{" "}(with confirmation). Each row
-            shows the project&apos;s Simplified/Standard level as a chip.
-          </li>
-          <li>
-            <strong>Share</strong>{" "}— creates a read-only link
-            (/corridor/s/…) anyone can open without an account; the
-            unguessable token is the access, and revoking it kills the link.
-            Shared views show the stored results; when the saved row predates
-            the current engine or reference bundle, an explicit
-            recompute-under-current-model option appears (with a gap
-            preview), and any signed-in viewer can open the shared scenario
-            as their own draft.
-          </li>
-          <li>
-            <strong>Export / Import JSON</strong>{" "}— the scenario bar downloads
-            the scenario as a versioned JSON file in the COMPLETE form: every
-            field of the form is always present, in a fixed order — fields
-            you have not set are explicit{" "}<code>null</code>{" "}(port
-            coordinates, country B, the financing and phasing blocks…), so
-            the file documents the entire input surface. Import accepts the
-            same complete form and older partial exports alike; files carry
-            a schema version, older files are migrated on load, and the
-            working copy takes the imported file&apos;s name.
+            <strong>Export / Import JSON</strong>{" "}— downloads the
+            scenario as a versioned file with every field present and unset
+            fields explicit{" "}<code>null</code>, so the file documents the
+            entire input surface. Import accepts the same complete form and
+            older partial exports alike; older files are migrated on load.
           </li>
           <li>
             <strong>Status marks</strong>{" "}— every tab carries one of four
@@ -1615,19 +1534,9 @@ export default async function DocsPage() {
             one-way Upgrade button on Simplified projects).
           </li>
           <li>
-            <strong>Reset</strong>{" "}— starts a NEW unsaved draft at the
-            reference defaults (with confirmation): it also detaches the
-            workspace from the open project — the saved row itself is
-            untouched.
-          </li>
-          <li>
-            <strong>Navigation</strong>{" "}— nine tabs in the top bar:
-            Projects (00), seven input steps (01–07) and Results (08). The
-            input steps stay DISABLED until a project is selected or created;
-            after that they are free navigation, and Back/Next at the bottom
-            of each form walks them in order. The Results tab (§12) holds the
-            full report; a compact live summary stays docked on every input
-            tab.
+            <strong>Reset</strong>{" "}— starts a new unsaved draft at the
+            reference defaults (with confirmation) and detaches the
+            workspace from the open project; the saved row is untouched.
           </li>
         </ul>
 
@@ -1741,14 +1650,16 @@ export default async function DocsPage() {
           E<sub>pilot</sub>×intensity<sub>pilot</sub>) &nbsp;[tCO2e]
         </F>
         <p className="mt-2">
-          The tool runs BOTH directions: a direction dropdown leads the
+          The tool runs BOTH directions. A direction dropdown leads the
           form (default &ldquo;From fossil to zero / near-zero (ZNZ)
-          fuel&rdquo;), which is ordered so the fuel you start from comes
+          fuel&rdquo;), ordered so the fuel you start from comes
           first; in that default direction the required ZNZ mass leads the
           results, and a one-sentence method line (functional unit,
           framework citation, GWP set, certified value, pilot, dataset
-          version) closes them for citation. In reverse,
-          the quantity is the baseline mass;
+          version) closes them for citation.
+        </p>
+        <p className="mt-2">
+          In reverse, the quantity is the baseline mass:
           the engine derives E<sub>base</sub>{" "}= quantity × LCV
           <sub>base</sub>, then E<sub>cand</sub>{" "}= E<sub>base</sub>{" "}/
           efficiencyRatio × (1 − pilotShare) and the required candidate
@@ -1768,7 +1679,10 @@ export default async function DocsPage() {
           fossil WtW is the framework&apos;s own row (91.744 FuelEU /
           94.90 IMO at 0.50%&nbsp;S); LHV is the dataset LCV. Both
           frameworks&apos; WtW values ride along so each compliance module
-          prices with its own accounting. One documented approximation: the
+          prices with its own accounting.
+        </p>
+        <p className="mt-2">
+          One documented approximation: the
           pilot&apos;s emissions ride the green fuel&apos;s factors while
           its ENERGY is not added to the corridor&apos;s tonnage. Where the
           method cannot honestly price a combination (LNG as a baseline;
@@ -1780,11 +1694,6 @@ export default async function DocsPage() {
           shown together), and each side decomposes exhaustively into
           WtT + TtW(CO2, CH4·GWP, N2O·GWP) + pilot + N2O slip, summing
           exactly to the side total.
-        </p>
-        <p className="mt-2">
-          The blend
-          intensity (candidate emissions over TOTAL delivered energy) is
-          the attained-GFI analogue.
         </p>
         <p className="mt-2">
           ZNZ eligibility is a DIFFERENT test:
@@ -1928,7 +1837,7 @@ export default async function DocsPage() {
           <strong>The emission columns below are stored fallbacks.</strong>{" "}
           Combustion EF, LHV and WtW
           derive per scenario from the fuel-emissions dataset under the
-          selected accounting framework (§15–§30__DONE__): green fuels as certified
+          selected accounting framework (§15–§30): green fuels as certified
           pathway + N2O slip + pilot blend (e-ammonia ≈ 22.14 gCO2e/MJ under
           FuelEU at the defaults), fossil fuels from the Annex II row under
           FuelEU (91.744) or the MEPC.391(81) sulphur band under IMO (94.90
@@ -2049,89 +1958,46 @@ export default async function DocsPage() {
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>Solar PV — PVGIS (authoritative):</strong>{" "}the JRC PVGIS
-            model (an hourly series for a 1 kWp system at
-            14% system loss) returns hourly PV power in watts;
-            capacity factor = power / 1000. Mounting is fixed at optimal tilt, or
-            single-/dual-axis tracking. If PVGIS is unavailable, a labeled
-            low-fidelity fallback is used (GHI/1000 × 0.9).
+            <strong>Solar PV — PVGIS.</strong>{" "}The JRC PVGIS model (an
+            hourly series for a 1 kWp system at 14% system loss) returns
+            hourly PV power in watts; capacity factor = power / 1000.
+            Mounting is fixed at optimal tilt, or single-/dual-axis tracking.
+            PVGIS resolves its own radiation database per cell —
+            Meteosat-derived SARAH3 where the satellite disc reaches, ERA5
+            reanalysis everywhere else. ERA5 is not a degraded tier: for most
+            of the world it is the only database PVGIS has, and where both
+            exist they agree closely and in no fixed direction. Its real
+            caveat is resolution — a ~31 km grid is coarse for coastlines
+            and mountains — a reason to treat single cells carefully, not to
+            apply a bias correction without a citable basis.
           </li>
           <li>
-            <strong>PV pathway on the map.</strong>{" "}PVGIS auto-resolves the
-            radiation database per cell and runs its own tilt-aware PV model on
-            it. Where PVGIS cannot serve a cell at all we drop the crude GHI
-            proxy rather than substitute it: that proxy is a categorically
-            different model, so adjacent hexes would stop being comparable and
-            a seam would appear in the surface. Such a cell is left blank
-            (<strong>no-data</strong>). The provider and radiation database
-            are recorded per cell (see the data-source tiers below).
+            <strong>No silent substitute on the map.</strong>{" "}Where PVGIS
+            cannot serve a cell, the crude GHI proxy (GHI/1000 × 0.9, a
+            labeled low-fidelity fallback used only off the map) is{" "}
+            <em>not</em>{" "}substituted: it is a categorically different
+            model, so adjacent hexes would stop being comparable and a seam
+            would appear in the surface. Such a cell is left blank
+            (<strong>no-data</strong>).
           </li>
           <li>
-            <strong>Which radiation database serves a cell is a question of
-            longitude, not latitude.</strong>{" "}PVGIS v5_3 offers exactly two
-            — <code>PVGIS-ERA5</code>{" "}and <code>PVGIS-SARAH3</code>{" "}
-            (NSRDB was dropped after v5_2 and is now rejected everywhere,
-            including over the United States). SARAH3 is derived from
-            Meteosat, so it covers the prime disc only. Measured across the
-            whole 3,264-row PV cache: SARAH3 serves 50% of cells in the
-            +0..30° longitude band and 92% in the +30..60° band. It serves{" "}
-            <strong>0% of every
-            other band</strong>{" "}— the Americas, Asia-Pacific and Oceania
-            are ERA5 in their entirety. Latitude predicts nothing by
-            comparison (+45..60° is 68% SARAH3, +15..30° is 0%).
+            <strong>Wind — hourly reanalysis (Open-Meteo, ERA5).</strong>{" "}
+            Hourly wind speed at 10 m and 100 m is extrapolated to hub height
+            (120 or 160 m) with a per-hour power-law shear exponent, then
+            converted through a digitized turbine power curve. On the map
+            this path also applies the air-density correction and per-site
+            IEC turbine-class selection below. A small share of cells is
+            served by the fallback provider (NASA POWER: fixed shear
+            α = 1/7, generic curve, neither correction) — a real modelling
+            difference, so those cells are flagged rather than hidden.
           </li>
           <li>
-            <strong>ERA5 is not a degraded tier.</strong>{" "}For most of the
-            map it is the only database PVGIS has, and where both exist they
-            agree closely and in no fixed direction (Turkana SARAH3 0.203 vs
-            ERA5 0.194; Namibia 0.221 vs 0.224; Ouarzazate 0.217 vs 0.217).
-            So{" "}
-            <code>pv_db_tier</code>{" "}is recorded and shown for transparency
-            but does <em>not</em>{" "}change how a cell is drawn. The real
-            caveat is resolution: ERA5&apos;s ~31 km grid is coarse for
-            coastlines and mountains, which is a reason to treat single cells
-            carefully, not a reason to apply a bias correction — and no
-            correction is applied without a citable basis.
-          </li>
-          <li>
-            <strong>Wind — Open-Meteo (ERA5, primary):</strong>{" "}hourly wind
-            speed at 10 m and 100 m is extrapolated to hub height (120 or 160 m)
-            with a per-hour power-law shear exponent, then converted through a
-            digitized turbine power curve. On the map this path also applies
-            the air-density correction and per-site IEC turbine-class
-            selection. NASA POWER (fixed shear α = 1/7, generic curve, neither
-            correction) is the fallback and currently serves{" "}
-            <strong>2.2% of cells</strong>. That is a real modelling
-            difference, so — symmetrically with the PV no-data policy above —
-            those cells are <strong>flagged rather than hidden</strong>:{" "}
-            <code>wind_fidelity</code>{" "}is recorded per cell, rendered
-            distinguishably, and shown in the cell drawer. Flagging rather than
-            masking is the right trade here because the value is real and the
-            population is small; masking 2.2% of otherwise-good cells would
-            lose more than it protects.
-          </li>
-          <li>
-            <strong>Data-source tiers (per-cell provenance).</strong>{" "}Every
-            cell records where its numbers came from, and the export schema
-            carries the same fields:{" "}<code>pv_provider</code>,{" "}
-            <code>pv_dataset_version</code>{" "}(which encodes the radiation
-            database, the mounting geometry and the year span),{" "}
-            <code>pv_db_tier</code>{" "}(<code>satellite</code>{" "}|{" "}
-            <code>era5</code>),{" "}<code>wind_provider</code>,{" "}
-            <code>wind_dataset_version</code>{" "}(hub height, IEC turbine
-            class, air-density flag) and{" "}<code>wind_fidelity</code>{" "}
-            (<code>improved</code>{" "}|{" "}<code>fallback</code>).{" "}
-            <code>pv_db_tier</code>{" "}is transparency, not a quality ranking —
-            see the coverage note above;{" "}<code>wind_fidelity</code>{" "}is a
-            genuine fidelity distinction. Cached profiles also carry a model
-            generation in their dataset version, and the cache refuses to serve
-            a superseded generation, so one map never mixes two models.{" "}
-            <strong>Some cells&apos; solar profiles are still being
-            rebuilt</strong>{" "}(1,918 of 6,160 ready cells rebuilt as of
-            2026-08-15; re-fetching is rate-limited by the upstream providers,
-            and seeded-over-water cells — where PVGIS answers{" "}
-            <em>location over the sea</em>{" "}— never convert). Cross-cell
-            comparisons of solar values carry this caveat until they are.
+            <strong>Provenance is mixed, and recorded per cell.</strong>{" "}
+            Every cell records which provider, radiation database and wind
+            model produced its numbers — the export schema carries the same
+            fields, and the cell drawer shows them — so a value can always be
+            traced to the model that made it, and cells built by different
+            pathways are never presented as interchangeable.
           </li>
         </ul>
         <p className="mt-3 font-medium">Wind-speed extrapolation to hub height</p>
@@ -2608,28 +2474,10 @@ export default async function DocsPage() {
           unverified rather than being quietly presented as solid.
         </p>
         <p className="mt-2">
-          <strong>Cost of capital is stored REAL, and says so.</strong>{" "}The
-          engine discounts constant-USD cashflows with no escalation term, so
-          it needs a real rate — but most published surveys quote{" "}
-          <em>nominal</em>. Indonesia&apos;s 9.4% from the IEA Cost of Capital
-          Observatory is nominal, local currency; deflated by Bank
-          Indonesia&apos;s 2.5% target through the exact Fisher relation it
-          becomes <strong>6.73% real</strong>, which is what the model uses.
-          Consuming the nominal figure directly would have overstated LCOH by
-          about 7.7%. Every stored rate records its basis, currency,
-          publication year and the technology it was measured for; a rate
-          without a declared basis is never consumed.
-        </p>
-        <p className="mt-2">
-          Two caveats travel with that number rather than being resolved. It
-          is a <strong>solar-PV</strong>{" "}cost of capital borrowed for a
-          hydrogen project, which carries offtake risk a contracted PPA does
-          not — if anything it understates hydrogen&apos;s true cost of
-          capital. And the literature genuinely disagrees: an Indonesian PV
-          study uses a <em>real</em>{" "}9.5%, deceptively close to the
-          IEA&apos;s nominal 9.4% but meaning something quite different. This
-          is why the model records number, basis, technology and year rather
-          than quietly picking one figure.
+          Cost of capital is stored on a <strong>real</strong>{" "}basis, with
+          its currency, publication year and the technology it was measured
+          for recorded alongside — §23 explains why the basis matters and how
+          nominal survey rates are converted at the boundary.
         </p>
         <p className="mt-2">
           <strong>Curated always beats the automated refresh.</strong>{" "}The
@@ -3219,16 +3067,50 @@ export default async function DocsPage() {
 
         {/* 29 */}
         <H id="provenance">35. Provenance, versions &amp; limits</H>
+        <p className="mt-2">
+          The defaults reproduce the study — the MMMCZCS Chilean
+          copper-concentrate corridor — exactly; every departure from it is
+          opt-in and listed here. The seven numbered divergences (D1–D7) are
+          those deliberate departures:
+        </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>Regression pinning</strong>{" "}— the engine is held to a
-            frozen reference case at 10⁻⁹ relative tolerance across every
-            summary figure and all 20 years of every per-year line. That
-            reference case is a small worked example, not the Chilean
-            corridor headline: its gap is $166.95m,
-            green total $205.60m, fossil $38.64m, $377/unit. Any change that
-            moves a number has to be deliberate.
+            <strong>D1 — emissions basis</strong>: CO2 abated (and $/tCO2)
+            can count well-to-wake lifecycle emissions instead of the
+            study&apos;s combustion-only basis (§11).
           </li>
+          <li>
+            <strong>D2 — FuelEU over-compliance credit</strong>: a compliance
+            surplus can earn revenue instead of being floored at zero, with
+            the RFNBO multiplier (§11).
+          </li>
+          <li>
+            <strong>D3 — ETS gas coverage</strong>: the maritime ETS charge
+            can cover CH4 and N2O from 2026 — material for LNG methane slip
+            and ammonia N2O — instead of CO2 alone (§11).
+          </li>
+          <li>
+            <strong>D4 — sourcing modes</strong>: green fuel can be
+            purchased, built as a dedicated plant, or built at an evaluated
+            map site, rather than the study&apos;s one fixed construct (§6).
+          </li>
+          <li>
+            <strong>D5 — 45Z sunset</strong>: the credit can end after 2027
+            as legislated; the study runs it with no sunset (§11).
+          </li>
+          <li>
+            <strong>D6 — rate basis</strong>: costs can be discounted on a
+            real basis, deflating the OPEX escalation, instead of the
+            study&apos;s nominal convention (§10).
+          </li>
+          <li>
+            <strong>D7 — production-country WACC</strong>: a build-here plant
+            is financed at the production country&apos;s cost of capital, a
+            deliberately separate number from the corridor&apos;s discount
+            rate (§6).
+          </li>
+        </ul>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Source behaviours preserved</strong>{" "}— the
             construct-mode double count (never
@@ -3239,27 +3121,12 @@ export default async function DocsPage() {
             45Z sunset, and cargo throughput deliberately not linked to fuel
             burn. <strong>Stated-burn scenarios also survive</strong>: a
             scenario carrying an explicit tonnage override
-            (<code>fuelTonnesPerVesselYear</code>) keeps its exact tonnage,
-            carries a visible OVERRIDE badge
-            against the distance-derived benchmark, and a dismissable note on
-            load shows both figures side by side. That flat tonnage ignores
+            (<code>fuelTonnesPerVesselYear</code>) keeps its exact tonnage
+            with a visible OVERRIDE badge
+            against the distance-derived benchmark. That flat tonnage ignores
             which fuel is in the tank, so such scenarios often burn the same
             mass on both sides and compare very unequal delivered energy;
-            the parity check (§3) says so. The numbered divergences (D1–D7)
-            are the model&apos;s deliberate, opt-in departures from the
-            study — the MMMCZCS Chilean copper-concentrate study — with
-            defaults that reproduce it: D1 emissions
-            basis, D2 FuelEU over-compliance credit, D4 sourcing modes, D5
-            45Z sunset, D6 real rate basis, D7 production-country WACC on a
-            build-here plant.
-          </li>
-          <li>
-            <strong>Schema versioning</strong>{" "}— scenarios carry a schema
-            version (<strong>currently 7</strong>); older exports are migrated
-            on load to the current version, and only the current version is
-            ever written. Nothing is silently stripped: a fully-populated
-            scenario survives export and re-import unchanged — imports, saves
-            and shares preserve every field.
+            the parity check (§3) says so.
           </li>
           <li>
             <strong>Output contract</strong>{" "}— module outputs appear only
@@ -3295,100 +3162,56 @@ export default async function DocsPage() {
         <p className="mt-2">
           The corridor is seeded four times, because &ldquo;what did the
           report say?&rdquo; and &ldquo;what does the model think?&rdquo; are
-          different questions with different answers, and showing only one of
-          them would be a choice disguised as a fact. The four differ in{" "}
-          <em>how much study knowledge each one asserts</em>, from 27
-          overridden fields down to none — which is why the last row of the
-          table below is the one to read first.
+          different questions with different answers. The four variants
+          differ in <em>how much study knowledge each one asserts</em>, from
+          27 overridden fields down to none.
         </p>
         <p className="mt-2">
-          <em>Chilean copper corridor — as published</em>{" "}adopts the
-          report&apos;s own emission accounting and brings every published
-          figure back, all six within 1.7%. It lands bit-identical to the
-          study-calibration variant ($1,762.21m / 1,450,095 t / $1,215 per tCO2)
-          while resolving against the <em>current</em>{" "}vessel catalogue
-          rather than the 2026-07-30 bundle the study-calibration variant
-          uses — the same answers out
-          of two different reference datasets, which is what distinguishes a
+          <em>As published</em>{" "}adopts the report&apos;s own emission
+          accounting and brings every published figure back, all six within
+          1.7%. It lands bit-identical to the shipped default ($1,762.21m /
+          1,450,095 t / $1,215 per tCO2) while resolving against the{" "}
+          <em>current</em>{" "}vessel catalogue rather than the dated
+          reference bundle the default pins — the same answers out of two
+          different reference datasets, which is what distinguishes a
           reproduction from a coincidence.
         </p>
         <p className="mt-2">
-          <em>Chilean copper corridor — current model</em>{" "}goes the other
-          way. The shipped default reproduces the study by{" "}
-          <em>asserting its answers</em>: the fuel burns, the fossil fleet cost
-          and a $280/t regulatory proxy are all typed in. That is how you prove
-          an engine can hit a published total, but it also means almost nothing
-          downstream can move — the researched vessel catalogue, the derived
-          consumption chain and the structured IMO module are all bypassed. So
-          this variant releases those overrides. Consumption derives from the
-          researched Handymax (2.334 GJ/nm) and the corridor&apos;s own
-          geometry; the fossil counterfactual is priced from the catalogue as a
-          newbuild fleet; regulation comes from the draft-MEPC-83 ladder
-          instead of a fitted flat price; and green financing appears as its
-          own line, where the study&apos;s waterfall puts it.
+          <em>Default</em>{" "}— the shipped scenario — reproduces the study
+          by <em>asserting its answers</em>: the fuel burns, the fossil fleet
+          cost and a $280/t regulatory proxy are all typed in. That is how
+          you prove an engine can hit a published total. It departs from the
+          report on exactly two figures — CO2 abated and the regulatory
+          benefit, both −23% — and both trace to one number: the report
+          treats green ammonia as zero well-to-wake, while the emission
+          method derives a 22.14 gCO2e/MJ blend (§15) and holds that a zero
+          is not a certifiable value.
         </p>
         <p className="mt-2">
-          <em>Chilean copper corridor — benchmarks only</em>{" "}is the strict
-          case: <strong>zero overridden fields</strong>. Every figure is a
-          bundle benchmark or derived from the route — no burn, no plant cost,
-          no fleet price is typed in, and the $280/t self-designed proxy is off
+          <em>Current model</em>{" "}releases those overrides and lets the
+          model derive what the default asserts. Consumption derives from the
+          researched Handymax (2.334 GJ/nm) and the corridor&apos;s own
+          geometry; the fossil counterfactual is priced from the catalogue as
+          a newbuild fleet; regulation comes from the structured IMO module
+          (the draft-MEPC-83 ladder) instead of the fitted flat price; and
+          green financing appears as its own line, where the study&apos;s
+          waterfall puts it (§10 holds the arithmetic). Capital phasing
+          stays off: the study states no deployment schedule, so any weights
+          would be invented.
+        </p>
+        <p className="mt-2">
+          <em>Benchmarks only</em>{" "}is the strict case:{" "}
+          <strong>zero overridden fields</strong>. Every figure is a
+          reference-data benchmark or derived from the route — no burn, no
+          plant cost, no fleet price is typed in, and the $280/t proxy is off
           too, because a fitted input is an assertion even when it is not an
           override. It answers what this route costs if you know only the
-          route — which makes it the one variant that reads the benchmark
-          data directly.
-        </p>
-        <p className="mt-2">
-          <strong>What the fuel benchmarks are.</strong>{" "}Every fuel row
-          comes from bundle{" "}<code>2026-08-18-fuel-v4</code>: researched
-          figures carrying real provenance — publication,
-          publisher, year, locator, URL, the figure as printed and the
-          conversion applied — stored in{" "}
-          <code>docs/corridor/research/</code>{" "}so a number can be walked
-          back to its page without leaving the repository.
-        </p>
-        <p className="mt-2">
-          Two consequences worth knowing. Production capex is{" "}
-          <strong>$/tonne-per-annum at a stated reference size</strong>, scale-
-          corrected against the corridor&apos;s own demand: a 15 kt/yr
-          corridor and a 600 kt/yr one are charged very different plant
-          costs. And{" "}
-          <strong>13 of 30 researched blocks are verified; 17 are not</strong>,
-          and the unverified ones show as unverified. Bunkering is verified for
-          no fuel because no public bunker-vessel operating-cost benchmark
-          exists for any of them, and every liquid-hydrogen block is
-          extrapolation because nothing at bunker scale has been built.
-          Rounding those up would present unverified figures as solid.
-        </p>
-        <p className="mt-2">
-          <strong>It lands 24% below the study, and that gap is the
-          output.</strong>{" "}The plant benchmark scales with the
-          corridor&apos;s own demand: at this corridor&apos;s 60 kt/yr the
-          benchmark plant costs $827m, and the gap is $1,520m.
-        </p>
-        <p className="mt-2">
-          <strong>The benchmarks-only variant closes on the study and
-          stops.</strong>{" "}76% of the
-          published figure, not 100%, and nothing was tuned to get there —
-          landing exactly on $2,000m would have meant something was. The
-          residual is scale, first-of-a-kind execution and site quality: the
-          researched plant scaled to this corridor is $827m against the
-          study&apos;s fitted $1,100m, which the research note predicted at
-          roughly 35% below on its own arithmetic before any of it was built.
-          Note the one figure that barely moves — CO2 abated at −4%, the same
-          as the current-model variant, because both derive their burns and
-          neither depends on what the plant cost.
-        </p>
-        <p className="mt-2">
-          <strong>What separates the first three is one number.</strong>{" "}Every
-          cost input is shared, and the shipped default already reproduces the
-          report on green NPV, fossil NPV, the gap and cost per cargo tonne. It
-          diverges on exactly two figures — CO2 abated (−23%) and the
-          regulatory benefit (−23%) — and both trace to the green well-to-wake
-          factor: the report treats green ammonia as zero, the refined method
-          derives 22.14 gCO2e/MJ (certified 15 + N2O slip + 5% pilot fuel) and
-          holds that a zero is not a certifiable value. The as-published
-          variant is therefore the report&apos;s accounting, not the
-          model&apos;s best estimate, and should not be read as one.
+          route, and it lands 24% below the study: the researched plant
+          benchmark, scale-corrected to this corridor&apos;s 60 kt/yr, costs
+          $827m against the study&apos;s fitted $1,100m. That residual is
+          scale, first-of-a-kind execution and site quality — nothing was
+          tuned to close it, because landing exactly on $2,000m would have
+          meant something was.
         </p>
         <p className="mt-2">
           The table below compares all four against the report&apos;s own
@@ -3435,92 +3258,24 @@ export default async function DocsPage() {
           </table>
         </div>
         <p className="mt-2">
-          <strong>Deriving the burn lands closer to the study than asserting
-          it did.</strong>{" "}CO2 abated moves from −23% to −4.2% and cost per
-          cargo tonne from +1.6% to −0.06%, with nothing tuned — the model is
-          not being fitted to the study here, it is being let go and then
-          scored. That is independent corroboration of the vessel catalogue,
-          and it is only visible once the overrides come off. Delivered-energy
-          parity also becomes exact by construction (ratio 1.000) rather than
-          by the coincidence the asserted pair relies on: the study&apos;s
-          5,700/2,638 tonnages happen to sit 0.03% from the ammonia/LSFO LHV
-          ratio, which nothing enforced.
-        </p>
-        <p className="mt-2">
-          <strong>Why the $280/t proxy is off in this variant.</strong>{" "}In
-          short: with the financing line on, the fitted proxy counts part of
-          the same benefit twice. The proxy is calibrated to reproduce the
-          study&apos;s ≈$250m regulatory benefit as one flat price, while the
-          study&apos;s own
-          waterfall carries financing and regulation as two separate floats —
-          so keeping it alongside the financing line double-counts, and net
-          regulation reaches −$435.6m against the
-          study&apos;s ≈$250m. The structured IMO module gives −$320.9m from
-          bundle-parameterised trajectories and is fitted to nothing. Financing
-          is bounds, not a target: amortizing yields $195.9m and bullet
-          $312.5m, and the study&apos;s ≈$250m sits between them; this variant
-          ships the conservative end.
-        </p>
-        <p className="mt-2">
-          The residual is stated rather than tuned. The green side is unmoved
-          because its plant CAPEX/OPEX are still the study&apos;s fitted
-          figures — nothing has replaced them as a source — and the CO2 gap is
-          an accounting disagreement, not an arithmetic one: the study&apos;s
-          1.45 Mt assumes a WtW=0 green ammonia, which is not certifiable under
-          the refined method. Capital phasing stays off for the same reason: it
-          would move the gap another ≈$122m, but the study states no deployment
-          schedule, so any weights would be invented. Both projects are seeded
-          together and neither disturbs the other; the study-calibration
-          variant above is
-          unaffected, since it resolves against the 2026-07-30 bundle.
-        </p>
-        <p className="mt-2">
-          The study-calibration variant&apos;s displayed headline (gap
-          $1,762.21m, $71/t,
-          $1,215/tCO2) is the
-          post-regulation figure; the pre-regulation gap ($2,012.44m — the
-          study&apos;s $2,000m quantity) shows directly beneath it and in the
-          decomposition&apos;s &ldquo;Subtotal before regulation&rdquo; row.
-          The regulatory line matches because the self-designed CO2 price now
-          follows the model&apos;s emissions basis (well-to-wake here) — it
-          prices the same series it reports. Known missing concepts the study
-          quantifies that the model cannot yet hold: differentiated green
-          financing (dual WACC, ≈$250m here) and a scenario-level synergy
-          adjustment (≈$250m).
-        </p>
-        <p className="mt-2">
-          <strong>Finding — the $280/t proxy vs the structured IMO
-          module:</strong>{" "}replacing the calibrated self-designed proxy
-          with the actual draft-MEPC-83 structure yields a net regulatory
-          effect of only ≈$86m (vs the proxy&apos;s $250m): LSFO at 91.16
-          gCO2eq/MJ sits <em>below</em>{" "}the base-target ladder until
-          ≈2032, so most of its deficit is priced in the tier-1 $100 band,
-          not at a flat $280 on every tonne. Not tuned away — either the
-          study&apos;s $250m anticipates post-2030 price escalation /
-          stricter parameters, or the flat-price proxy overstates the draft
-          framework&apos;s near-term charge. The green side&apos;s
-          reward-eligible surplus (≈0.9 MtCO2e over the horizon under the
-          report&apos;s zero-WtW treatment) is the upside the study flags, reported
-          unpriced. Under derived factors the IMO
-          module prices the fossil side with IMO&apos;s own accounting
-          (94.90, sulphur-binned) — net effect ≈$100.4m — and the ZNZ
-          surplus is ≈0.56 MtCO2e: the report&apos;s zero-WtW treatment
-          overstates the reward basis ~1.6×.
+          <strong>What the comparison proves.</strong>{" "}Deriving the burn
+          lands closer to the study than asserting it did — CO2 abated moves
+          from −23% to −4.2% and cost per cargo tonne from +1.6% to −0.06%,
+          with nothing tuned: the model is let go and then scored, which is
+          independent corroboration of the vessel catalogue. Delivered-energy
+          parity becomes exact by construction (ratio 1.000) rather than by
+          coincidence. The residuals that remain are stated rather than
+          tuned: the green plant costs are still the study&apos;s fitted
+          figures because nothing has replaced them as a source, and the CO2
+          gap is an accounting disagreement, not an arithmetic one. The
+          as-published variant is therefore the report&apos;s accounting,
+          not the model&apos;s best estimate, and should not be read as one.
         </p>
 
         <H id="fe-sources">36. Emission-method source references</H>
         <p className="mt-2">
-          <strong>What is measured, and what merely exists.</strong>{" "}Of{" "}
-          {FIELD_TIERS.total}{" "}scenario fields, {FIELD_TIERS.measured}{" "}
-          carry an elasticity, {FIELD_TIERS.sweptOnly}{" "}are swept but not
-          perturbable on these three archetypes, and {FIELD_TIERS.notSwept}{" "}
-          are outside the sweep entirely — selectors, ids, toggles and
-          descriptive fields with no numeric range to move. The{" "}
-          <strong>Status</strong>{" "}column says which, and why. A dash in the
-          elasticity column alone cannot distinguish{" "}
-          <em>we did not look</em>{" "}from{" "}
-          <em>we looked and it does not move</em>, and only the second is a
-          finding.
+          Every factor the emission method uses is anchored to a named
+          published source; the table lists each source and what it anchors.
         </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-xs">
@@ -3679,7 +3434,12 @@ export default async function DocsPage() {
         <p className="mt-2">
           Some entries read &ldquo;—&rdquo; in the movement columns, and the{" "}
           <strong>Status</strong>{" "}column says which of three reasons
-          applies. Most are simply not the kind of field a sweep can move: a
+          applies: of {FIELD_TIERS.total}{" "}scenario fields,{" "}
+          {FIELD_TIERS.measured}{" "}carry an elasticity,{" "}
+          {FIELD_TIERS.sweptOnly}{" "}are swept but not perturbable on the
+          three archetypes, and {FIELD_TIERS.notSwept}{" "}are outside the
+          sweep entirely. Most of the last group are simply not the kind of
+          field a sweep can move: a
           selector, a toggle, an id, or a value that only exists in one
           sourcing mode (fossil production costs are zero when the fuel is
           bought rather than built). One case is worth knowing about because
