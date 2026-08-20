@@ -25,6 +25,7 @@ export default function SelectField({
   onChange,
   help,
   citation,
+  docsId,
 }: {
   label: string;
   value: number;
@@ -37,6 +38,8 @@ export default function SelectField({
   help: string;
   /** Names the reference default the badge compares against. */
   citation?: string;
+  /** Docs section id — the badge popover links to /docs#<id>. */
+  docsId?: string;
 }) {
   const t = useTranslations("corridor.field");
   const id = useId();
@@ -55,6 +58,8 @@ export default function SelectField({
         </label>
         <ProvenanceBadge
           label={t(overridden ? "override" : "benchmark")}
+          docsId={citation ? docsId : undefined}
+          docsLabel={t("provDocs")}
           className={
             overridden
               ? "bg-brand-tint text-brand-deep"

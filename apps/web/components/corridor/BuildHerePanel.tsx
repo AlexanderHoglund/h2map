@@ -261,6 +261,7 @@ export default function BuildHerePanel({
               effective={comp(c)}
               source={c.overrideUsdM !== null ? "override" : "derived"}
               benchmark={c.derivedUsdM}
+              provenance={{ derivation: t("derivedFrom"), docsId: "energy-buildhere" }}
               onChange={(v) => setOverride(key, v)}
             />
           );

@@ -13,10 +13,17 @@ export function ProvenanceBadge({
   label,
   className,
   provenance,
+  docsId,
+  docsLabel,
 }: {
   label: string;
   className: string;
   provenance?: string;
+  /** Docs section id — renders a "read the method" link in the popover.
+   *  Reachable because the popover is a child of the hover wrapper: moving
+   *  the pointer into it keeps the popover open. */
+  docsId?: string;
+  docsLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const tooltipId = useId();
@@ -57,6 +64,16 @@ export function ProvenanceBadge({
           className="absolute right-0 top-full z-20 mt-1.5 w-64 rounded-md border border-neutral-300 bg-white/95 px-2.5 py-1.5 text-left text-xs font-normal normal-case tracking-normal text-neutral-600 shadow-md backdrop-blur"
         >
           {provenance}
+          {docsId ? (
+            <a
+              href={`/docs#${docsId}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 block font-medium text-brand underline underline-offset-2"
+            >
+              {docsLabel ?? "Read the method"} →
+            </a>
+          ) : null}
         </div>
       ) : null}
     </span>

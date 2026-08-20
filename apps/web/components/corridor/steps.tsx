@@ -162,6 +162,7 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
           options={START_YEARS}
           benchmark={CARGO_DEFAULTS.startYear}
           citation={tp("yearsDefault")}
+          docsId="tab-intro"
           onChange={(v) => update((d) => void (d.cargo.startYear = v))}
         />
       ),
@@ -177,6 +178,7 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
           options={HORIZON_YEARS}
           benchmark={CARGO_DEFAULTS.horizonYears}
           citation={tp("yearsDefault")}
+          docsId="tab-intro"
           onChange={(v) => update((d) => void (d.cargo.horizonYears = v))}
         />
       ),
@@ -460,7 +462,11 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
 
   const vesselRow = bundle.vesselTypes.find((v) => v.id === scenario.vessel.typeId);
   const vesselCite = vesselRow
-    ? { citation: sourceLabel(vesselRow.sourceNote) ?? tp("vesselTable"), verified: vesselRow.verified }
+    ? {
+        citation: sourceLabel(vesselRow.sourceNote) ?? tp("vesselTable"),
+        verified: vesselRow.verified,
+        docsId: "tab-vessels",
+      }
     : undefined;
 
   const vesselField = (
@@ -637,11 +643,19 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
   const s = scenario[side];
   const fuelRow = bundle.fuels.find((f) => f.id === s.fuelId);
   const fuelCite = fuelRow
-    ? { citation: sourceLabel(fuelRow.sourceNote) ?? tp("fuelTable"), verified: fuelRow.verified }
+    ? {
+        citation: sourceLabel(fuelRow.sourceNote) ?? tp("fuelTable"),
+        verified: fuelRow.verified,
+        docsId: "ref-fuels",
+      }
     : undefined;
   const vesselRow = bundle.vesselTypes.find((v) => v.id === scenario.vessel.typeId);
   const vesselCite = vesselRow
-    ? { citation: sourceLabel(vesselRow.sourceNote) ?? tp("vesselTable"), verified: vesselRow.verified }
+    ? {
+        citation: sourceLabel(vesselRow.sourceNote) ?? tp("vesselTable"),
+        verified: vesselRow.verified,
+        docsId: "energy-perfuel",
+      }
     : undefined;
   const r = resolved[side];
   const b = benchmarks[side];
@@ -655,7 +669,7 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
     return feId ? FUEL_EMISSIONS_DATASET.fuels.find((f) => f.id === feId) : undefined;
   })();
   const feCite = r.emissionsDerivation
-    ? { ...fuelCite, derivation: r.emissionsDerivation }
+    ? { ...fuelCite, derivation: r.emissionsDerivation, docsId: "fe-calculation" }
     : fuelCite;
   const setEm = (patch: Partial<NonNullable<ScenarioInput["green"]["emissions"]>>) =>
     update((d) => {
@@ -987,6 +1001,7 @@ function PortSide({ model, viewMode, revealStandard, side }: StepProps & { side:
   const fuelRow = bundle.fuels.find((f) => f.id === scenario[side].fuelId);
   const portProvenance = {
     citation: fuelRow ? sourceLabel(fuelRow.sourceNote) ?? tp("fuelTable") : undefined,
+    docsId: "tab-ports",
     verified: fuelRow?.verified,
     derivation: side === "fossil" ? tp("portFossil") : undefined,
   };
@@ -1115,6 +1130,7 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
                 ? {
                     citation: sourceLabel(countryRow.sourceNote) ?? tc("countryHelp"),
                     verified: countryRow.verified,
+                    docsId: "tab-financing",
                   }
                 : undefined
             }

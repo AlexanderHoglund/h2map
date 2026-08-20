@@ -63,7 +63,13 @@ export default function ResolvedField({
    * `derivation` is the short formula behind a derived value. The badge
    * assembles the right sentence for its source.
    */
-  provenance?: { citation?: string; verified?: boolean; derivation?: string };
+  provenance?: {
+    citation?: string;
+    verified?: boolean;
+    derivation?: string;
+    /** Docs section id — the badge popover links to /docs#<id>. */
+    docsId?: string;
+  };
 }) {
   const t = useTranslations("corridor.field");
   const id = useId();
@@ -128,6 +134,8 @@ export default function ResolvedField({
           label={t(source)}
           className={badgeStyles[source]}
           provenance={provenanceText}
+          docsId={provenanceText ? provenance?.docsId : undefined}
+          docsLabel={t("provDocs")}
         />
       </div>
       <div

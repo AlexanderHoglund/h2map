@@ -55,7 +55,8 @@
       "provBenchmark": "Reference benchmark:",
       "provDerived": "Derived:",
       "provOverride": "Your value - replaces the benchmark {benchmark}",
-      "provUnverified": "unverified"
+      "provUnverified": "unverified",
+      "provDocs": "Read the method"
     },
     "cargo": {
       "country": "Country",
@@ -454,7 +455,8 @@
         "h2Operating": "The yearly cost of running the hydrogen plant, dominated by electricity.",
         "synthOperating": "The yearly cost of running the synthesis plant.",
         "logisticsOperating": "The yearly cost of moving the finished fuel from the plant to the port."
-      }
+      },
+      "derivedFrom": "Decomposed from the evaluated site’s cost structure"
     },
     "scenarioBar": {
       "projectEyebrow": "Project",
