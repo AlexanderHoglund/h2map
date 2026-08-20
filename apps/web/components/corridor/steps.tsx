@@ -925,7 +925,7 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
         <div data-field-id={`${side}.sourcing`}>
           <Select
             label={t("sourcing")}
-            help={t("sourcingHelp")}
+            help={t(side === "green" ? "sourcingGreenHelp" : "sourcingFossilHelp")}
             value={s.sourcing}
             options={[
               { value: "purchase", label: t("sourcingPurchase") },
