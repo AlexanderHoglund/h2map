@@ -2,10 +2,11 @@
  * Live elasticity — "what moves it most", measured on the scenario in front
  * of you.
  *
- * Neither of the two existing views answers that question. The §29 endpoint
- * sweep multiplies the model by an ASSUMED RANGE, so a generous range buys a
- * high rank; the tornado multiplies it by researched uncertainty, which is a
- * different (also useful) question. This module gives every input the SAME
+ * Neither of the two other measurements answers that question. The offline
+ * range sweep behind §29 and §38 multiplies the model by an ASSUMED RANGE, so
+ * a generous range buys a high rank; the uncertainty tornado multiplies it by
+ * researched uncertainty, which is a different (also useful) question. This
+ * module gives every input the SAME
  * standard nudge and reports the signed response, so the ranking is a
  * property of the model at the user's own point and nothing else:
  *

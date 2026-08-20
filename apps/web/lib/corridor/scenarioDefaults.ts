@@ -13,9 +13,9 @@ export function workbookScenario(): ScenarioInput {
 
 /**
  * THE FROZEN REFERENCE CORRIDOR — the 500 nm corridor every §29 measurement
- * describes, published as a loadable preset so "open the app, set the input
- * to the endpoint shown, and the result is the number in the cell" is one
- * click instead of a transcription exercise.
+ * describes, published as a loadable preset so reproducing a documented
+ * figure (nudge an input, read the effect) is one click instead of a
+ * transcription exercise.
  *
  * It is the SWEEP BASELINE posture exactly: the frozen workbook fixture
  * (Denmark, 500 nm, 20 years, one vessel, burns derived) with the app's

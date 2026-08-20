@@ -151,13 +151,14 @@ describe("the corridor-length row's signed figures obey their own arithmetic", (
 });
 
 describe("the absolute dollar display is the signed data's own arithmetic", () => {
-  // §29's endpoint table (demoted below the elasticity lead table, but still
-  // the section's range reference) shows the KPI values the model computes at
-  // the swept endpoints — numbers a reader reproduces by typing the endpoint
-  // into the app. Those absolutes and the signed relative movements describe the SAME
-  // sweep, so each must be recoverable from the other against the artifact's
-  // own baseline; a regenerated artifact that violates this mixed up its
-  // baseline, and the docs table would show dollars the app cannot print.
+  // The endpoint table no longer renders in §29 (the elasticity view leads,
+  // and the tornado now draws it), but the ARTIFACT's contract stands: the
+  // absolute endpoint dollars and the signed relative movements describe the
+  // SAME sweep, so each must be recoverable from the other against the
+  // artifact's own baseline. §29's leverage × exposure prose and §38's
+  // movement column still quote this data; a regenerated artifact that
+  // violates this mixed up its baseline, and the docs would quote dollars
+  // the app cannot print.
   it("reproduces base × (1 + signed) at both endpoints of every numeric row", () => {
     for (const r of artifact.ranked) {
       if (!r.signedByKpi) continue;
@@ -187,7 +188,7 @@ describe("the absolute dollar display is the signed data's own arithmetic", () =
   });
 
   it("records a worst option that IS the movement figure, per choice and KPI", () => {
-    // A choice cell reads "lh2: $X". The named option must be one the
+    // §29's choices table reads "lh2: $X". The named option must be one the
     // choice offers, and its distance from that choice's own baseline must be
     // exactly the relative movement the ranking uses — the dollar display and
     // the rank order can never disagree.
@@ -206,18 +207,17 @@ describe("the absolute dollar display is the signed data's own arithmetic", () =
   });
 
   it("pins the dollars §29 quotes for corridor length and other support", () => {
-    // The prose walks the reader through reproducing these by hand: distance
-    // to 100 nm / 5,000 nm on the reference corridor, and other support to
-    // $50m/yr. If a regeneration moves them, the docs' worked examples lie.
+    // §29's leverage × exposure bullets walk the reader through reproducing
+    // these by hand: distance to 100 nm / 5,000 nm on the reference corridor,
+    // and other support to $50m/yr. If a regeneration moves them, the docs'
+    // worked examples lie. (The endpoint table that once rendered the full
+    // set is gone; only the figures the prose still quotes are pinned.)
     const dist = artifact.ranked.find((r) => r.id === "cargo.oneWayDistanceNm")!;
     expect(dist.absoluteByKpi!.gapPvUsdM.atLow.toFixed(1)).toBe("156.1");
-    expect(dist.absoluteByKpi!.gapPvUsdM.atHigh.toFixed(1)).toBe("295.7");
     expect(Math.round(dist.absoluteByKpi!.costPerTonneCo2Usd.atLow)).toBe(11677);
     expect(Math.round(dist.absoluteByKpi!.costPerTonneCo2Usd.atHigh)).toBe(443);
     const support = artifact.ranked.find((r) => r.id === "regulation.selfOtherUsdM")!;
     expect(support.absoluteByKpi!.gapPvUsdM.atHigh.toFixed(1)).toBe("-462.9");
-    // The saving-per-tonne footnote's worked number.
-    expect(Math.round(support.absoluteByKpi!.costPerTonneCo2Usd.atHigh)).toBe(-6928);
     // The coupled-double-count bullet quotes both consumption rows.
     const greenBurn = artifact.ranked.find((r) => r.id === "green.fuelTonnesPerVesselYear")!;
     expect(greenBurn.absoluteByKpi!.gapPvUsdM.atLow.toFixed(1)).toBe("150.3");

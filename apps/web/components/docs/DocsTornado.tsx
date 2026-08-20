@@ -1,189 +1,146 @@
 /**
- * The tornado, rendered in the documentation for all three archetypes.
+ * §29's tornado: the lead elasticity table, drawn as a picture.
  *
- * §20 ranks inputs in a table; this keeps the SAME table structure — the same
- * header styling, the same column discipline, one row per input — and adds
- * the bar as one column among the others, so the reader moves from the
- * ranking to the tornado without relearning how to read.
+ * One horizontal signed bar per ±10%-family input on the frozen 500 nm
+ * reference corridor, read from the SAME `referenceCorridor` block of the
+ * elasticity artifact the lead table renders — same entries, same order —
+ * so the picture and the table can never disagree. Bar length is |effect of
+ * the input +10% on the CO₂ abatement cost|; direction is the sign, with a
+ * bar reaching LEFT of the zero line meaning the input LOWERS the cost.
+ * Coupled groups are one bar (their members are unranked detail and never
+ * drawn); the ±1pp rate family renders in its own labeled sub-block because
+ * the two nudge families never share an ordering.
  *
- * The spans come from `uncertainty.json`, computed by `buildTornado` in
- * lib/corridor/tornado — the tested implementation the Monte Carlo shares —
- * and CI regenerates and diffs the artifact like any other generated output.
+ * A SERVER COMPONENT: no hooks, no state, no interactivity — a pure
+ * function of committed data, like the table above it.
  *
- * A SERVER COMPONENT: no hooks, no state, no interactivity. The docs page is
- * server-rendered and this is a pure function of committed data, so it stays
- * that way rather than becoming another client island.
- *
- * Bars are plain divs rather than a chart library. The axis is one shared
- * linear scale per archetype so bar LENGTH is comparable within a corridor —
- * the three corridors differ by an order of magnitude in absolute gap, so a
- * scale shared across all three would flatten two of them into invisibility.
+ * Bars are plain divs rather than a chart library. The scale is one shared
+ * linear axis across both families, symmetric around zero, so bar LENGTH is
+ * comparable everywhere on the figure even though the two families' RANKS
+ * are not.
  */
 
-import { rangeLabel } from "@/lib/corridor/tornado";
-
-const LABELS: Record<string, string> = {
-  "energy-demand": "Fuel consumption",
-  "green.priceUsdPerTonne": "Green fuel price",
-  "fleet-capital": "Vessel CAPEX",
-  "vessel-opex": "Vessel OPEX",
-  "cargo.wacc": "Discount rate (WACC)",
-  "cargo.inflation": "Inflation",
-};
-
-interface Bar {
-  id: string;
-  low: number;
-  high: number;
-  span: number;
-  rangeLow: number;
-  rangeHigh: number;
-  unit: string;
-  verified: boolean;
-  coupled: boolean;
-}
-interface Result {
-  archetype: { key: string; label: string };
-  tornado: { base: number; bars: Bar[]; inapplicable: { id: string; reason: string }[] };
-  importance: { id: string; rankCorrelation: number }[];
-  bands: Record<string, { p10: number; p50: number; p90: number; deterministic: number }>;
-}
-
-const m = (v: number) => `$${Math.round(v).toLocaleString("en-US")}m`;
-const mPair = (a: number, b: number) => {
-  const lo = Math.min(a, b);
-  const hi = Math.max(a, b);
-  return `$${Math.round(lo).toLocaleString("en-US")}–${Math.round(hi).toLocaleString("en-US")}m`;
-};
+import type { ElasticityBlock, ElasticityEntry } from "./DocsElasticityTable";
+import { effectPercent } from "./format";
 
 const TH = "px-3 py-2 font-medium";
 
-export default function DocsTornado({
-  results,
-  headlineKpi,
+/** The signed cell the bars visualize: effect of +10% (or +1pp) on the
+ *  abatement cost, as a fraction (−0.092 renders as −9.2%). */
+const effectOf = (e: ElasticityEntry) => e.perKpi.costPerTonneCo2Usd.effect;
+
+function BarRows({
+  entries,
+  scale,
 }: {
-  results: Result[];
-  headlineKpi: string;
+  entries: ElasticityEntry[];
+  /** |effect| that spans half the track — the largest bar on the figure. */
+  scale: number;
 }) {
   return (
-    <div className="my-4 space-y-6">
-      {results.map((r) => {
-        const bars = r.tornado.bars;
-        if (bars.length === 0) return null;
-        const lo = Math.min(...bars.map((b) => Math.min(b.low, b.high)), r.tornado.base);
-        const hi = Math.max(...bars.map((b) => Math.max(b.low, b.high)), r.tornado.base);
-        const pad = (hi - lo) * 0.08 || 1;
-        const a0 = lo - pad;
-        const a1 = hi + pad;
-        const pct = (v: number) => ((v - a0) / (a1 - a0)) * 100;
-        const band = r.bands[headlineKpi];
-        const corr = new Map(r.importance.map((i) => [i.id, i.rankCorrelation]));
-
+    <tbody className="tabular-nums">
+      {entries.map((e) => {
+        const effect = effectOf(e);
+        // Half-track percentage: 50% is the zero line, 100% the scale max.
+        const half = (Math.abs(effect) / scale) * 50;
+        const c = e.perKpi.costPerTonneCo2Usd;
+        // An effect the cell prints as 0.0% draws NO bar — a minimum
+        // visible width would show a direction the printed number denies.
+        const drawn = effectPercent(effect) !== "0.0%";
         return (
-          <div key={r.archetype.key}>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
-              {r.archetype.key} · {r.archetype.label}
-            </p>
-            <p className="mt-0.5 text-[11px] text-neutral-500">
-              Baseline gap {m(r.tornado.base)}
-              {band && (
-                <>
-                  {" · "}Monte Carlo P10–P90 {mPair(band.p10, band.p90)}
-                </>
+          <tr key={e.id} className="border-b border-neutral-200 last:border-0">
+            <td className="whitespace-nowrap px-3 py-1.5">
+              {e.label}
+              {e.group && e.memberLabels && (
+                <span className="ml-1.5 text-[11px] text-neutral-500">
+                  (one bar: {e.memberLabels.join(", ").toLowerCase()} move
+                  together)
+                </span>
               )}
-            </p>
-            <div className="mt-2 overflow-x-auto">
-              <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
-                <thead>
-                  <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
-                    <th className={TH}>Input</th>
-                    <th className={`${TH} whitespace-nowrap`}>Researched range</th>
-                    <th className={`${TH} w-full min-w-50`}>
-                      Effect on the cost gap
-                    </th>
-                    <th className={`${TH} whitespace-nowrap text-right`}>
-                      Gap at the ends
-                    </th>
-                    <th className={`${TH} text-right`}>ρ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bars.map((b) => {
-                    const left = Math.min(pct(b.low), pct(b.high));
-                    const width = Math.abs(pct(b.high) - pct(b.low));
-                    const rho = corr.get(b.id);
-                    return (
-                      <tr
-                        key={b.id}
-                        className="border-b border-neutral-200 last:border-0"
-                      >
-                        <td className="whitespace-nowrap px-3 py-1.5">
-                          {LABELS[b.id] ?? b.id}
-                          {b.coupled && (
-                            <span className="ml-1.5 text-[11px] text-neutral-500">
-                              (coupled)
-                            </span>
-                          )}
-                          {!b.verified && (
-                            <span
-                              className="ml-1 text-amber-700"
-                              title="range recorded as unverified"
-                            >
-                              *
-                            </span>
-                          )}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-1.5 text-neutral-600">
-                          {rangeLabel(b.rangeLow, b.rangeHigh, b.unit)}
-                        </td>
-                        <td className="px-3 py-1.5">
-                          <span className="relative block h-4 w-full bg-neutral-100">
-                            {/* The baseline, so the reader can see which
-                                direction each range pushes — WACC pushes
-                                DOWN, which is the counterintuitive one worth
-                                seeing rather than being told. */}
-                            <span
-                              className="absolute inset-y-0 w-px bg-neutral-400"
-                              style={{ left: `${pct(r.tornado.base)}%` }}
-                            />
-                            <span
-                              className="absolute inset-y-0.5 bg-brand"
-                              style={{
-                                left: `${left}%`,
-                                width: `${Math.max(width, 0.5)}%`,
-                              }}
-                            />
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-1.5 text-right text-neutral-600">
-                          {mPair(b.low, b.high)}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-1.5 text-right text-neutral-500">
-                          {rho !== undefined ? rho.toFixed(2) : "—"}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {r.tornado.inapplicable.map((i) => (
-                    <tr
-                      key={i.id}
-                      className="border-b border-neutral-200 text-neutral-500 last:border-0"
-                    >
-                      <td className="whitespace-nowrap px-3 py-1.5">
-                        {LABELS[i.id] ?? i.id}
-                      </td>
-                      <td colSpan={4} className="px-3 py-1.5 italic">
-                        not applicable — {i.reason}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+            </td>
+            <td className="w-full min-w-50 px-3 py-1.5">
+              <span className="relative block h-4 w-full bg-neutral-100">
+                {/* The zero line: no effect. A bar grows left of it when the
+                    nudged input LOWERS the abatement cost — the direction a
+                    reader should see, not be told. */}
+                <span className="absolute inset-y-0 left-1/2 w-px bg-neutral-400" />
+                {drawn && (
+                  <span
+                    className="absolute inset-y-0.5 bg-brand"
+                    style={
+                      effect < 0
+                        ? { right: "50%", width: `${Math.max(half, 0.5)}%` }
+                        : { left: "50%", width: `${Math.max(half, 0.5)}%` }
+                    }
+                  />
+                )}
+              </span>
+            </td>
+            <td
+              className="whitespace-nowrap px-3 py-1.5 text-right text-neutral-600"
+              title={`elasticity ${c.value.toFixed(2)} (up ${c.up.toFixed(2)}, down ${c.down.toFixed(2)})`}
+            >
+              {c.nonlinear && (
+                <span className="mr-0.5 text-neutral-500" aria-label="curved response">
+                  ≈
+                </span>
+              )}
+              {effectPercent(effect)}
+            </td>
+          </tr>
         );
       })}
+    </tbody>
+  );
+}
+
+function Head({ nudge }: { nudge: string }) {
+  return (
+    <thead>
+      <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+        <th className={TH}>Input</th>
+        <th className={`${TH} w-full min-w-50`}>
+          Effect of {nudge} on the abatement cost
+        </th>
+        <th className={`${TH} whitespace-nowrap text-right`}>Effect</th>
+      </tr>
+    </thead>
+  );
+}
+
+export default function DocsTornado({ block }: { block: ElasticityBlock }) {
+  // The artifact stores entries in the lead table's display order already;
+  // the filters only split the nudge families and drop the unranked
+  // group-member detail — exactly what DocsElasticityTable does.
+  const relative = block.entries.filter(
+    (e) => e.kind === "relative" && !e.detailOnly,
+  );
+  const rates = block.entries.filter(
+    (e) => e.kind === "absolutePp" && !e.detailOnly,
+  );
+  const scale =
+    Math.max(...[...relative, ...rates].map((e) => Math.abs(effectOf(e)))) || 1;
+
+  return (
+    <div className="my-4">
       <div className="overflow-x-auto">
+        <table className="w-full border border-neutral-300 text-[13px]">
+          <Head nudge="+10%" />
+          <BarRows entries={relative} scale={scale} />
+        </table>
+      </div>
+      <p className="mb-1 mt-3 text-xs font-medium text-neutral-700">
+        Rates and fractions &mdash; nudged +1 percentage point, in their own
+        block. The bars share the figure&apos;s scale, so lengths compare;
+        the rankings never mix.
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full border border-neutral-300 text-[13px]">
+          <Head nudge="+1pp" />
+          <BarRows entries={rates} scale={scale} />
+        </table>
+      </div>
+      <div className="mt-3 overflow-x-auto">
         <table className="w-full border border-neutral-300 text-[13px]">
           <thead>
             <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
@@ -194,44 +151,27 @@ export default function DocsTornado({
           <tbody className="align-top text-neutral-700">
             <tr className="border-b border-neutral-200">
               <td className="whitespace-nowrap px-3 py-2 font-medium">
-                Researched range
+                Effect of +10% / +1pp
               </td>
               <td className="px-3 py-2">
-                The declared, cited range in the input&apos;s own units.{" "}
-                <em>(coupled)</em>{" "}means the range moves a group of fields
-                together; <span className="text-amber-700">*</span>{" "}means the
-                range&apos;s basis is recorded as unverified.
-              </td>
-            </tr>
-            <tr className="border-b border-neutral-200">
-              <td className="whitespace-nowrap px-3 py-2 font-medium">
-                Effect on the cost gap
-              </td>
-              <td className="px-3 py-2">
-                The bar runs between <strong>two full engine evaluations</strong>,
-                one at each end of the range, on one shared scale per corridor —
-                so bar length compares within a corridor. The vertical rule is
-                the corridor&apos;s own result; a bar reaching left of it means
-                that end of the range <em>lowers</em>{" "}the gap.
-              </td>
-            </tr>
-            <tr className="border-b border-neutral-200">
-              <td className="whitespace-nowrap px-3 py-2 font-medium">
-                Gap at the ends
-              </td>
-              <td className="px-3 py-2">
-                The same pair of evaluations as dollar figures — where the gap
-                lands at the two ends of the range.
+                The bar: how the CO&#8322; abatement cost responds when the
+                input is nudged up &mdash; the lead table&apos;s abatement
+                column, drawn. The vertical rule is zero; a bar left of it
+                means the nudge <em>lowers</em>{" "}the cost. One shared
+                linear scale across the whole figure, so lengths compare
+                between the blocks even though the rankings do not.
               </td>
             </tr>
             <tr className="border-b border-neutral-200 last:border-0">
-              <td className="whitespace-nowrap px-3 py-2 font-medium">ρ</td>
+              <td className="whitespace-nowrap px-3 py-2 font-medium">
+                Effect
+              </td>
               <td className="px-3 py-2">
-                The Monte Carlo&apos;s signed rank correlation with the gap —
-                how strongly this input drives the answer when{" "}
-                <em>everything</em>{" "}varies at once. Negative on the discount
-                rate because the model discounts cost flows, so a higher rate
-                yields a smaller gap.
+                The same number, printed. <em>(one bar)</em>{" "}marks a
+                coupling group whose members move together; &asymp; marks a
+                curved response where the up- and down-nudges disagree and
+                the figure is a central estimate (hover for both one-sided
+                elasticities).
               </td>
             </tr>
           </tbody>

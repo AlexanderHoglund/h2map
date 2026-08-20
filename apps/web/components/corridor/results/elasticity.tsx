@@ -3,9 +3,9 @@
 /**
  * "What moves this corridor" — the signed elasticity ranking, live.
  *
- * The third of the three views, and the only one computed on the scenario in
- * front of the user: the §29 endpoint sweep answers "where does my number
- * land at the ends of an assumed range", the tornado answers "what is the
+ * The only view computed on the scenario in front of the user: the offline
+ * range sweep behind §29 and §38 answers "how far does an assumed range push
+ * the number", the tornado answers "what is the
  * researched uncertainty worth here", and THIS answers "which input moves the
  * output most per equal-sized change" — a property of the model at the
  * user's own point, inheriting no range from anybody.

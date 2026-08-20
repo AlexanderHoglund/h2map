@@ -3,13 +3,11 @@ import { requireAccess } from "@/lib/server/access";
 import TopBar from "@/components/shell/TopBar";
 import CountryDefaultsTable from "@/components/docs/CountryDefaultsTable";
 import DocsNav from "@/components/docs/DocsNav";
-import DocsImpactTable from "@/components/docs/DocsImpactTable";
 import DocsElasticityTable, {
   type ElasticityBlock,
 } from "@/components/docs/DocsElasticityTable";
 import { usdM, usdPerT } from "@/components/docs/format";
 import DocsTornado from "@/components/docs/DocsTornado";
-import uncertaintyArtifact from "../../../../data/corridor-sensitivity/uncertainty.json";
 import elasticityArtifact from "../../../../data/corridor-sensitivity/elasticity.json";
 import { TOC_IDS, TOC_PARTS } from "./toc";
 import countryDefaults from "../../../../data/country-defaults/snapshot.json";
@@ -146,21 +144,14 @@ const FIELD_TIERS = {
 };
 
 /**
- * EVERY swept input with its two impacts — on the cost gap and on the CO₂
- * abatement cost. These are the two figures the model exists to produce, and
- * the two rankings diverge sharply (corridor length swings the abatement
- * cost from $11,677/t at 100 nm to $443/t at 5,000 nm while the gap moves
- * only $156.1m → $295.7m), so both are shown per row; `DocsImpactTable`
- * ranks by the tab the reader picks (the cost gap by default) using the
- * artifact's relative-movement metrics, and DISPLAYS the absolute values
- * the model computes at the swept endpoints (`absoluteByKpi`) — dollars a
- * reader can reproduce by typing the endpoint into the app — never a
- * percentage against a baseline the reader cannot see. Choice rows display
- * the worst option (`worstOptionByKpi`): the option that moves the figure
+ * The choice rows §29 renders under the lead table, from the range-sweep
+ * artifact (the sweep itself still runs offline and backs §38's movement
+ * column). A choice (fuel, hull, sourcing…) has no proportional nudge, so
+ * its impact is `worstOptionByKpi`: the option that moves the figure
  * furthest from that choice's own baseline, by name.
  *
- * From the same generated artifact §38 reads; the two tables cannot
- * contradict each other.
+ * From the same generated artifact §38 reads; the two cannot contradict
+ * each other.
  */
 const SENSITIVITY_ROWS = (
   sensitivityArtifact as {
@@ -170,11 +161,6 @@ const SENSITIVITY_ROWS = (
       options?: unknown;
       range: readonly (string | number)[];
       movementByKpi: Record<string, number>;
-      /** Absolute endpoint values; null for choices (options, not endpoints). */
-      absoluteByKpi: {
-        gapPvUsdM: { atLow: number; atHigh: number };
-        costPerTonneCo2Usd: { atLow: number; atHigh: number };
-      } | null;
       /** Worst option per figure, with its own baseline; null for numerics. */
       worstOptionByKpi: {
         gapPvUsdM: { option: string; value: number; base: number };
@@ -188,16 +174,9 @@ const SENSITIVITY_ROWS = (
     label: r.label,
     /** A choice (fuel, hull, sourcing…): impact is across its options. */
     isChoice: typeof r.range[0] === "string",
-    low: typeof r.range[0] === "number" ? r.range[0] : null,
-    high:
-      typeof r.range[r.range.length - 1] === "number"
-        ? (r.range[r.range.length - 1] as number)
-        : null,
     optionCount: typeof r.range[0] === "string" ? r.range.length : 0,
     gap: r.movementByKpi.gapPvUsdM ?? 0,
     abatement: r.movementByKpi.costPerTonneCo2Usd ?? 0,
-    gapValues: r.absoluteByKpi?.gapPvUsdM ?? null,
-    abatementValues: r.absoluteByKpi?.costPerTonneCo2Usd ?? null,
     gapWorst: r.worstOptionByKpi?.gapPvUsdM ?? null,
     abatementWorst: r.worstOptionByKpi?.costPerTonneCo2Usd ?? null,
   }));
@@ -217,7 +196,7 @@ const ELASTICITY_BLOCK = (
  * The choices block under the lead table: decisions, not dials. A
  * categorical input has no proportional nudge, so it can never appear in an
  * elasticity ranking — its impact is the sweep's worst option-to-option
- * move, reused here from the same rows the endpoint table renders.
+ * move.
  */
 const CHOICE_ROWS = SENSITIVITY_ROWS.filter((r) => r.isChoice).sort(
   (a, b) => b.abatement - a.abatement || b.gap - a.gap,
@@ -2647,19 +2626,17 @@ export default async function DocsPage() {
 
 <H id="sensitivity">29. What moves the results</H>
         <p className="mt-2">
-          &ldquo;What moves the results&rdquo; is <strong>three different
+          &ldquo;What moves the results&rdquo; is <strong>two different
           questions</strong>, and this section answers each with its own
-          view. The <em>elasticity view</em>{" "}(the lead table below) asks
-          which input moves an output most <em>per equal-sized change</em>
-          {" "}&mdash; a property of the model at one scenario, inheriting no
-          assumed range. The{" "}
-          <em>endpoint view</em>{" "}(a compact reference further down) asks
-          where the number lands at the ends of each input&apos;s{" "}
-          <em>plausible range</em>{" "}&mdash; the model times an assumption.
-          And{" "}
-          <em>leverage &times; exposure</em>{" "}(tornado and uncertainty
-          band) asks where the <em>risk</em>{" "}is &mdash; the model times
-          the researched state of the world. They rank inputs differently{" "}
+          view. The <em>elasticity view</em>{" "}(the lead table below, and
+          the tornado that draws it) asks which input moves an output most{" "}
+          <em>per equal-sized change</em>{" "}&mdash; a property of the model
+          at one scenario, inheriting no assumed range. And{" "}
+          <em>leverage &times; exposure</em>{" "}(closed out by the
+          Monte Carlo uncertainty band) asks where to spend diligence &mdash;
+          the model times the researched state of the world, because a field
+          can have enormous leverage and be known precisely. They rank inputs
+          differently{" "}
           <strong>by design</strong>; which one to trust depends on which
           question you are asking.
         </p>
@@ -2682,20 +2659,9 @@ export default async function DocsPage() {
                 </td>
                 <td className="px-3 py-2">The model alone, at my point</td>
                 <td className="px-3 py-2">
-                  The lead table below; live in the Results tab (&ldquo;What
-                  moves this corridor&rdquo;); &sect;38&apos;s Elasticity
-                  column
-                </td>
-              </tr>
-              <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2 font-medium">Endpoints</td>
-                <td className="px-3 py-2">
-                  If I am wrong about this input, where does my number land?
-                </td>
-                <td className="px-3 py-2">Model &times; assumed range</td>
-                <td className="px-3 py-2">
-                  The endpoint reference under &ldquo;The endpoint
-                  view&rdquo; below
+                  The lead table below, drawn as the tornado; live in the
+                  Results tab (&ldquo;What moves this corridor&rdquo;);
+                  &sect;38&apos;s Elasticity column
                 </td>
               </tr>
               <tr className="border-b border-neutral-200 last:border-0">
@@ -2703,10 +2669,13 @@ export default async function DocsPage() {
                   Leverage &times; exposure
                 </td>
                 <td className="px-3 py-2">
-                  Where is the risk, given the researched uncertainty?
+                  Where should diligence go, given the researched uncertainty?
                 </td>
                 <td className="px-3 py-2">Model &times; the world (cited ranges)</td>
-                <td className="px-3 py-2">The tornado and the uncertainty band</td>
+                <td className="px-3 py-2">
+                  The leverage &times; exposure figures and the uncertainty
+                  band
+                </td>
               </tr>
             </tbody>
           </table>
@@ -2723,8 +2692,9 @@ export default async function DocsPage() {
           <strong>&minus;9.2%</strong>{" "}means{" "}
           <em>a 10% longer corridor lowers the CO&#8322; abatement cost by
           9.2%</em>. Because every input gets an equal-sized nudge, the
-          ranking cannot be bought by a generous assumed range (the endpoint
-          view&apos;s known flaw &mdash; see the list below); because the
+          ranking cannot be bought by a generous assumed range (a range
+          sweep&apos;s known flaw &mdash; the leverage &times; exposure
+          section below takes it apart); because the
           number is signed, an input that closes the gap can never be
           confused with one that widens it.
         </p>
@@ -2819,76 +2789,22 @@ export default async function DocsPage() {
           </table>
         </div>
 
-        <H3 id="sensitivity-columns">
-          The endpoint view: where does my number land at the ends of the
-          plausible range
-        </H3>
-        <p className="mt-2">
-          Every numeric input is moved across its plausible range, one at a
-          time, and every option of every selector is tried. The effect is
-          measured on <strong>all six headline outputs</strong>: the cost gap,
-          cost per cargo unit, cost per tonne of CO&#8322; abated, the green
-          and fossil totals, and lifetime CO&#8322; abated. This is the
-          reference to consult when you distrust one input:{" "}
-          <strong>each row is a reproducible experiment</strong>{" "}&mdash;
-          the two cells are the model&apos;s own outputs at the ends of the
-          range, so open the app, set the input to the endpoint shown, and
-          the result is the number in the cell. Nothing here is a percentage
-          of an invisible reference.
-        </p>
-        <p className="mt-2">
-          Where a scheme is switched off by default &mdash; self-designed
-          regulation, the IMO framework, 45Z, the FuelEU credit, differentiated
-          financing &mdash; it is <strong>switched on</strong>{" "}for its own
-          sweep. Those figures therefore read as &ldquo;this scheme, enabled,
-          at the ends of its range&rdquo;, which is why a support lever can
-          outrank a physical input: $0&ndash;50m/yr of public money over twenty
-          years genuinely is that large.
-        </p>
-        <p className="mt-2">
-          The abatement cost needs care when reading: it divides the gap by
-          the tonnes abated, so any input that also changes the tonnes moves
-          the denominator of its own measurement. Corridor length shows the
-          effect at full size &mdash; its gap moves modestly ($156.1m at
-          100&nbsp;nm, $295.7m at 5,000&nbsp;nm) while its abatement cost
-          swings from $11,677/t down to $443/t, a denominator artifact the
-          flaw list below takes apart, not a physical response. A row that
-          reads <em>no change</em>{" "}is a measurement, not a gap in
-          coverage &mdash; the input was swept and the figure did not move.{" "}
-          <strong>Every swept input is listed below</strong>; a field absent
-          from this table was not swept at all, and &sect;38 says which of
-          the three measurement tiers each scenario field falls into, and
-          why.
-        </p>
-        <DocsImpactTable rows={SENSITIVITY_ROWS} />
-        <p className="mt-2">
-          The top of the ranking is a mix of decisions, support levers and
-          geometry: the vessel class is the biggest lever of all on the gap
-          (picking a 24,000&nbsp;TEU container ship lifts it to $765.9m from
-          that choice&apos;s $140.2m baseline); self-designed public support
-          at $50m/yr takes the gap from $167.5m to{" "}
-          <em>minus</em>{" "}$462.9m &mdash; twenty years of that much public
-          money makes the green corridor outright cheaper than fossil; and a
-          FuelEU credit worth &euro;2,400/t nearly closes it, at $17.9m.
-          Some inputs matter to one answer and not the other: the N&#8322;O
-          slip scenario barely touches the gap ($168.3m at its worst) yet
-          doubles the abatement cost to $5,024/t, and vessel count does the
-          reverse.
-        </p>
-
         <H3 id="impact-leverage-exposure">Impact: leverage &times; exposure</H3>
         <p className="mt-2">
-          The sweep above answers <em>how far can this input push the result
-          across its plausible range</em>. That places fields in the form
-          well, and it is the wrong question for ranking risk, for four
-          reasons visible in its own table.
+          A natural first measurement is a <strong>range sweep</strong>:
+          move every input across its plausible range, one at a time, and
+          rank by <em>how far the result moves</em>. The model runs exactly
+          that sweep offline &mdash; it places fields in the form, feeds the
+          choices table above and &sect;38&apos;s movement column &mdash;
+          and it is the wrong question for ranking risk, for four reasons
+          visible in its own results.
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Range arbitrariness.</strong>{" "}
             Self-designed &ldquo;other support&rdquo;
-            (<code>regulation.selfDesigned.otherUsdM</code>) tops the gap
-            ranking because it is swept $0&ndash;50m/yr &mdash; enough public
+            (<code>regulation.selfDesigned.otherUsdM</code>) tops the
+            sweep&apos;s gap ranking because it is swept $0&ndash;50m/yr &mdash; enough public
             money to carry the gap from $167.5m to &minus;$462.9m. That is a
             choice about the sweep, not a property of the model &mdash; two
             inputs with identical influence rank differently if their assumed
@@ -2937,8 +2853,9 @@ export default async function DocsPage() {
         <p className="mt-2">
           Both are measured across <strong>three archetypes</strong>, because
           elasticity is scenario-dependent and one baseline hides that:
-          Chilean copper (build, deep-sea), Australia&ndash;Korea iron ore
-          (purchase, deep-sea) and the Skagerrak green box (contract offtake,
+          Chilean copper (A &mdash; build, deep-sea), Australia&ndash;Korea
+          iron ore (B &mdash; purchase, deep-sea) and the Skagerrak green box
+          (C &mdash; contract offtake,
           short-sea). Corridor length measures <strong>0.29</strong>{" "}on
           archetype B &mdash; the purchase corridor, whose burns are derived
           from geometry &mdash; and exactly{" "}
@@ -2964,53 +2881,39 @@ export default async function DocsPage() {
 
         <H3 id="impact-tornado">The tornado</H3>
         <p className="mt-2">
-          Each bar is <strong>two full engine evaluations</strong>{" "}at the
-          declared low and high &mdash; never an elasticity multiplied by a
-          range width, because the model is non-linear in places where
-          extrapolation would silently lie.
+          The tornado is <strong>the lead table drawn as a picture</strong>:
+          the same &plusmn;10%-family inputs, the same frozen 500&nbsp;nm
+          reference corridor, the same order. Each bar is the effect of the
+          input 10% higher on the CO&#8322; abatement cost &mdash; length is
+          the size of the effect, direction is its sign: a bar reaching{" "}
+          <em>left</em>{" "}of the zero line means the nudge{" "}
+          <em>lowers</em>{" "}the cost.
+          Nothing new is computed for it: the bars and the table read the
+          same measured block of the elasticity artifact, so the two can
+          never disagree.
         </p>
         <p className="mt-2">
-          Bars sort by span, and every range is declared and cited: when
-          someone challenges a range &mdash; and they will &mdash; the
-          leverage is the model&apos;s, the range has a named basis, and
-          changing the range rescales the bar. Coupled groups render as one
-          bar. A range that cannot act on a corridor is{" "}
-          <em>reported with a reason</em>{" "}rather than dropped, because a
-          silently missing bar reads as &ldquo;this does not matter
-          here&rdquo; &mdash; on a corridor that builds its own fuel there is
-          no merchant price to move, which is a different statement from the
-          price being unimportant.
+          What the picture adds is proportion and direction at a glance: the
+          top bar (fossil WTW intensity, &minus;15.0%) is over half again
+          the length of the energy-demand bar (&minus;9.2%), and both point{" "}
+          <em>left</em>{" "}&mdash; a dirtier fossil baseline and a longer
+          corridor both <em>lower</em>{" "}the abatement cost, the
+          counterintuitive reads worth seeing rather than being told. Coupled groups stay one bar;
+          the &plusmn;1pp rates keep their own labeled block below, because
+          the two nudge families never share an ordering.
         </p>
-        <p className="mt-2">
-          Ranges without a defensible basis are recorded as{" "}
-          <code>unquantified</code>{" "}— a declared absence — and excluded
-          from impact entirely. An
-          input absent from the chart means nobody has stated a range for it,{" "}
-          <em>not</em>{" "}that it does not matter &mdash; an incomplete honest
-          table beats a complete invented one.
-        </p>
-
-        <p className="mt-2">
-          The three reference corridors, drawn from the same measured
-          results. The bars measure the{" "}
-          <strong>cost gap</strong>{" "}&mdash; the same output the endpoint
-          table above ranks by. A tornado is drawn for one
-          output at a time, and the gap in dollars is the one a bar chart can
-          carry across three corridors:
-        </p>
-        <DocsTornado
-          results={
-            (uncertaintyArtifact as { results: Parameters<typeof DocsTornado>[0]["results"] })
-              .results
-          }
-          headlineKpi={(uncertaintyArtifact as { headlineKpi: string }).headlineKpi}
-        />
+        <DocsTornado block={ELASTICITY_BLOCK} />
 
         <H3 id="impact-monte-carlo">The uncertainty band</H3>
         <p className="mt-2">
-          The tornado moves one input at a time, so it cannot see
-          interactions. A seeded Monte Carlo samples every declared range in
-          the same draw and reports where the answer actually lands, plus a
+          Elasticity &mdash; table and tornado alike &mdash; moves one input
+          at a time, so it cannot see interactions, and it says nothing
+          about how uncertain each input actually is. A seeded Monte Carlo
+          samples every researched, cited range (the exposure dataset above;
+          a range without a defensible basis is recorded as{" "}
+          <code>unquantified</code>{" "}and excluded rather than invented) in
+          the same draw on each of the three archetypes, and reports where
+          the answer actually lands, plus a
           signed <strong>rank correlation</strong>{" "}per input &mdash; an
           importance ranking that survives interaction and non-linearity,
           which neither the sweep nor the elasticity can produce.
