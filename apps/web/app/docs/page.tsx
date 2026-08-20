@@ -398,13 +398,18 @@ export default async function DocsPage() {
             working copy takes the imported file&apos;s name.
           </li>
           <li>
-            <strong>Completion dots</strong>{" "}— every tab carries a
-            validation-derived indicator (never visit-derived): ✓ complete,
-            ▲ running on an unverified top-level benchmark (today exactly
-            the country WACC), ✕ a fault that blocks results — landing on a
-            flagged tab focuses the offending control. The header also keeps
-            a live gap chip and the project&apos;s Simplified/Standard level
-            badge (with the one-way Upgrade button on Simplified projects).
+            <strong>Status marks</strong>{" "}— every tab carries one of four
+            marks: <strong>○</strong>{" "}not yet reviewed (you have not
+            opened and left this tab for this project),{" "}
+            <strong>▲</strong>{" "}worth checking (an unverified reference
+            value in use, or one of the model&apos;s own cautions — a warning
+            is never hidden by moving on), <strong>✕</strong>{" "}a fault that
+            blocks results, and <strong>✓</strong>{" "}reviewed with nothing
+            flagged. Hovering the mark says why; landing on a flagged tab
+            focuses the offending control. Reviewed marks are remembered per
+            project on this browser. The header also keeps a live gap chip
+            and the project&apos;s Simplified/Standard level badge (with the
+            one-way Upgrade button on Simplified projects).
           </li>
           <li>
             <strong>Reset</strong>{" "}— starts a NEW unsaved draft at the

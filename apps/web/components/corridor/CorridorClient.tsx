@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -185,23 +185,52 @@ export default function CorridorClient() {
   // the ?s= deep link) or the user explicitly continues the local draft.
   const chosen = projectChosen || projects.currentId !== null;
 
+  // Reviewed tabs, per project: green is EARNED by moving on, never granted
+  // at load. Browser-local, keyed by project id, so reopening a project
+  // restores the marks and switching projects resets them. localStorage is
+  // the store; `visitBump` only invalidates the memoized read after a write.
+  const visitKey = `corridor-tabvisits-${projects.currentId ?? "draft"}`;
+  const [visitBump, setVisitBump] = useState(0);
+  const visitedTabs = useMemo<ReadonlySet<string>>(() => {
+    void visitBump;
+    try {
+      const raw = localStorage.getItem(visitKey);
+      return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+    } catch {
+      return new Set();
+    }
+  }, [visitKey, visitBump]);
+  const markVisited = (tab: View) => {
+    if (tab === "projects" || visitedTabs.has(tab)) return;
+    try {
+      localStorage.setItem(visitKey, JSON.stringify([...visitedTabs, tab]));
+    } catch {
+      /* best-effort */
+    }
+    setVisitBump((b) => b + 1);
+  };
+
   const goTo = (key: View) => {
     // The input tabs unlock only once a project is selected or created.
     if (!chosen && key !== "projects") return;
+    // Leaving a tab is what "reviewed" means — pressing Next or clicking
+    // another tab marks the one being left, never the one being opened.
+    if (entered && key !== view) markVisited(view);
     setEntered(true);
     setView(key);
   };
 
   const gap = model.result?.summary.gapPvUsdM;
 
-  // Per-tab completion state (validation-derived) + focus-the-fault: landing
-  // on a tab whose indicator is red or amber puts focus on the offending
-  // control, so the dot navigates AND points.
-  const statuses = tabStatuses(model);
+  // Per-tab status (blue → ▲/✕ → green) + focus-the-fault: landing on a tab
+  // whose indicator is red or amber puts focus on the offending control, so
+  // the dot navigates AND points.
+  const statuses = tabStatuses(model, visitedTabs);
   const blockedTab = firstBlockedTab(statuses);
   useEffect(() => {
     const status = statuses[view];
-    if (status.state === "green" || !status.targetFieldId) return;
+    if (status.state === "green" || status.state === "blue" || !status.targetFieldId)
+      return;
     const id = requestAnimationFrame(() => {
       document
         .querySelector<HTMLElement>(
@@ -304,25 +333,36 @@ export default function CorridorClient() {
                   <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-600">
                     {String(i).padStart(2, "0")}
                   </span>
-                  {/* Completion dot: validation-derived, never visit-derived.
-                      Shape + colour together — ✓/▲/✕ read without colour. */}
+                  {/* Status mark: blue ○ until reviewed, ▲/✕ from the model,
+                      ✓ only for reviewed-and-clean. Shape + colour together —
+                      the glyphs read without colour. */}
                   {entered && !locked && (
                     <span
                       role="img"
                       aria-label={`${label}: ${t(`tabStatus.${statuses[key].state}`)}`}
+                      title={[
+                        t(`tabStatus.${statuses[key].state}`),
+                        ...statuses[key].reasonKeys
+                          .filter((r) => r !== "blocked")
+                          .map((r) => t(`tabStatusReason.${r}`)),
+                      ].join(" — ")}
                       className={`text-[10px] font-bold leading-none ${
                         statuses[key].state === "red"
                           ? "text-danger"
                           : statuses[key].state === "amber"
                             ? "text-warning"
-                            : "text-success"
+                            : statuses[key].state === "blue"
+                              ? "text-brand"
+                              : "text-success"
                       }`}
                     >
                       {statuses[key].state === "red"
                         ? "✕"
                         : statuses[key].state === "amber"
                           ? "▲"
-                          : "✓"}
+                          : statuses[key].state === "blue"
+                            ? "○"
+                            : "✓"}
                     </span>
                   )}
                 </span>
@@ -607,7 +647,7 @@ export default function CorridorClient() {
                   size="md"
                   className="px-3 py-1.5 font-normal"
                   disabled={stepIndex === 0}
-                  onClick={() => setView(STEPS[stepIndex - 1] ?? view)}
+                  onClick={() => goTo(STEPS[stepIndex - 1] ?? view)}
                 >
                   {t("nav.back")}
                 </Button>
@@ -616,7 +656,7 @@ export default function CorridorClient() {
                   size="md"
                   className="px-3 py-1.5"
                   onClick={() =>
-                    setView(stepIndex < STEPS.length - 1 ? STEPS[stepIndex + 1]! : "results")
+                    goTo(stepIndex < STEPS.length - 1 ? STEPS[stepIndex + 1]! : "results")
                   }
                 >
                   {stepIndex < STEPS.length - 1 ? t("nav.next") : t("results.heading")}
