@@ -129,7 +129,7 @@
       "combustionEf": "CO2 emission factor, combustion",
       "lhv": "Energy density, LHV",
       "wtw": "GHG intensity, well-to-wake",
-      "wtwHelp": "The climate intensity of running the ship on this fuel, from production to exhaust (gCO₂e/MJ) — an operational figure, not the fuel alone. On the green side the engine also burns a small fossil pilot for ignition, so the model combines the fuel's certified production value, its combustion effects (N₂O slip) and the pilot's share into one number. On the fossil side it is the chosen framework's official value. Type a value only to pin your own.",
+      "wtwHelp": "The climate intensity of running the ship on this fuel, from production to exhaust (gCO₂e/MJ) — an operational figure, not the fuel alone. The model combines the fuel's certified production value with whatever operating on it adds — for example combustion slip, or a small fossil ignition pilot where the engine needs one. On the fossil side it is the chosen framework's official value. Type a value only to pin your own.",
       "consumption": "Fuel consumption",
       "consumptionHelp": "How much fuel one ship burns per year, in tonnes. The benchmark comes from the vessel class, or is derived from distance and roundtrips; override it to pin your own tonnage.",
       "prodCapex": "Fuel production CAPEX (year 1)",
