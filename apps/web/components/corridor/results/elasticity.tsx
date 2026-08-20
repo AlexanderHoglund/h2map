@@ -225,23 +225,24 @@ export function ElasticitySection({ scenario }: { scenario: ScenarioInput | null
 
       {/* Not measurable here ≠ does not matter — say which and why. */}
       {unmeasured.length > 0 && (
-        <Note className="mt-3">
-          <details>
-            <summary className="cursor-pointer">
-              {t("elasticityUnmeasured")} ({unmeasured.length})
-            </summary>
-            <p className="mt-1 leading-snug">
-              {unmeasured
-                .map(
-                  (s) =>
-                    `${t(`elasticityRow.${messageKey(s.id)}`)} (${t(
-                      `elasticityReason.${s.reason}`,
-                    )})`,
-                )
-                .join("; ")}
-            </p>
-          </details>
-        </Note>
+        {/* A <details> cannot live inside Note's <p> (invalid HTML nesting →
+            hydration error), so the disclosure IS the note: same visual
+            classes, flow content allowed. */}
+        <details className="mt-3 bg-warning/10 px-2 py-1.5 text-xs leading-snug text-warning">
+          <summary className="cursor-pointer">
+            {t("elasticityUnmeasured")} ({unmeasured.length})
+          </summary>
+          <div className="mt-1 leading-snug">
+            {unmeasured
+              .map(
+                (s) =>
+                  `${t(`elasticityRow.${messageKey(s.id)}`)} (${t(
+                    `elasticityReason.${s.reason}`,
+                  )})`,
+              )
+              .join("; ")}
+          </div>
+        </details>
       )}
     </Card>
   );
