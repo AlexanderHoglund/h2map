@@ -167,6 +167,57 @@ function main(): void {
             costPerTonneCo2Usd: signed("costPerTonneCo2Usd"),
           };
         })();
+    /**
+     * ABSOLUTE KPI values behind the docs table's dollar display — ADDITIVE,
+     * nothing above reads them, so placement, ranking order and both frozen
+     * fixtures are untouched. A percentage against a baseline the reader
+     * cannot see is not reproducible; the value the model computes at the
+     * endpoint is — type the endpoint into the app on the reference corridor
+     * and this is the number it shows.
+     *
+     * Numeric rows record the two headline KPIs at the swept endpoints.
+     * Choice rows record, per KPI, the option that moved it furthest from
+     * that row's own baseline (the same argmax `movementByKpi` took, so the
+     * dollar display can never disagree with the ranking) plus that baseline
+     * — a choice row's base is the CURRENT bundle's for current-bundle
+     * choices, not the frozen sweep baseline, and the display must not mix
+     * the two.
+     */
+    const absoluteByKpi = p.options
+      ? null
+      : {
+          gapPvUsdM: {
+            atLow: samples[0]!.gapPvUsdM,
+            atHigh: samples[1]!.gapPvUsdM,
+          },
+          costPerTonneCo2Usd: {
+            atLow: samples[0]!.costPerTonneCo2Usd,
+            atHigh: samples[1]!.costPerTonneCo2Usd,
+          },
+        };
+    const worstOptionByKpi = p.options
+      ? (() => {
+          const worst = (id: KpiId) => {
+            let at = 0;
+            for (let i = 1; i < samples.length; i++) {
+              if (
+                Math.abs(samples[i]![id] - against[id]) >
+                Math.abs(samples[at]![id] - against[id])
+              )
+                at = i;
+            }
+            return {
+              option: p.options![at]!,
+              value: samples[at]![id],
+              base: against[id],
+            };
+          };
+          return {
+            gapPvUsdM: worst("gapPvUsdM"),
+            costPerTonneCo2Usd: worst("costPerTonneCo2Usd"),
+          };
+        })()
+      : null;
     // Placement comes from the MAX across KPIs; the KPI that produced it is
     // recorded so a field's prominence is traceable to the output it moves.
     let binding: KpiId = "gapPvUsdM";
@@ -190,6 +241,8 @@ function main(): void {
       bindingKpi: binding,
       maxRelMovement: per[binding],
       signedByKpi,
+      absoluteByKpi,
+      worstOptionByKpi,
     };
   }).sort((a, b) => b.maxAbsDeltaUsdM - a.maxAbsDeltaUsdM);
 

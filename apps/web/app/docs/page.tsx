@@ -143,12 +143,16 @@ const FIELD_TIERS = {
 /**
  * EVERY swept input with its two impacts — on the cost gap and on the CO₂
  * abatement cost. These are the two figures the model exists to produce, and
- * the two rankings diverge sharply (corridor length: 76.6% on the gap; on
- * abatement cost its endpoints read +366% at 100 nm and −82.3% at 5,000 nm),
- * so both are shown per row; `DocsImpactTable` ranks by the tab the reader
- * picks (the cost gap by default) and renders numeric rows SIGNED in both
- * columns from `signedByKpi` — an endpoint pair, or one signed extreme when
- * an endpoint rounds to zero — never a max-abs figure that hides direction.
+ * the two rankings diverge sharply (corridor length swings the abatement
+ * cost from $11,677/t at 100 nm to $443/t at 5,000 nm while the gap moves
+ * only $156.1m → $295.7m), so both are shown per row; `DocsImpactTable`
+ * ranks by the tab the reader picks (the cost gap by default) using the
+ * artifact's relative-movement metrics, and DISPLAYS the absolute values
+ * the model computes at the swept endpoints (`absoluteByKpi`) — dollars a
+ * reader can reproduce by typing the endpoint into the app — never a
+ * percentage against a baseline the reader cannot see. Choice rows display
+ * the worst option (`worstOptionByKpi`): the option that moves the figure
+ * furthest from that choice's own baseline, by name.
  *
  * From the same generated artifact §38 reads; the two tables cannot
  * contradict each other.
@@ -161,10 +165,15 @@ const SENSITIVITY_ROWS = (
       options?: unknown;
       range: readonly (string | number)[];
       movementByKpi: Record<string, number>;
-      /** Signed endpoint movements; null for choices (options, not endpoints). */
-      signedByKpi: {
+      /** Absolute endpoint values; null for choices (options, not endpoints). */
+      absoluteByKpi: {
         gapPvUsdM: { atLow: number; atHigh: number };
         costPerTonneCo2Usd: { atLow: number; atHigh: number };
+      } | null;
+      /** Worst option per figure, with its own baseline; null for numerics. */
+      worstOptionByKpi: {
+        gapPvUsdM: { option: string; value: number; base: number };
+        costPerTonneCo2Usd: { option: string; value: number; base: number };
       } | null;
     }[];
   }
@@ -174,10 +183,18 @@ const SENSITIVITY_ROWS = (
     label: r.label,
     /** A choice (fuel, hull, sourcing…): impact is across its options. */
     isChoice: typeof r.range[0] === "string",
+    low: typeof r.range[0] === "number" ? r.range[0] : null,
+    high:
+      typeof r.range[r.range.length - 1] === "number"
+        ? (r.range[r.range.length - 1] as number)
+        : null,
+    optionCount: typeof r.range[0] === "string" ? r.range.length : 0,
     gap: r.movementByKpi.gapPvUsdM ?? 0,
     abatement: r.movementByKpi.costPerTonneCo2Usd ?? 0,
-    gapSigned: r.signedByKpi?.gapPvUsdM ?? null,
-    abatementSigned: r.signedByKpi?.costPerTonneCo2Usd ?? null,
+    gapValues: r.absoluteByKpi?.gapPvUsdM ?? null,
+    abatementValues: r.absoluteByKpi?.costPerTonneCo2Usd ?? null,
+    gapWorst: r.worstOptionByKpi?.gapPvUsdM ?? null,
+    abatementWorst: r.worstOptionByKpi?.costPerTonneCo2Usd ?? null,
   }));
 
 
@@ -2632,53 +2649,48 @@ export default async function DocsPage() {
             <tbody className="align-top">
               <tr className="border-b border-neutral-200">
                 <td className="px-3 py-2 font-medium">
-                  CO&#8322; abatement cost impact
+                  CO&#8322; abatement cost ($/t)
                 </td>
                 <td className="px-3 py-2">
-                  How far the <em>cost per tonne of CO&#8322; abated</em>{" "}
-                  &mdash; the figure funders and policy comparisons quote &mdash;
-                  moves when this input is pushed across its plausible range,
-                  as a percentage of the figure itself. Numeric inputs show a{" "}
-                  <strong>signed pair</strong>{" "}&mdash; the movement at the
-                  two ends of the swept range, most negative first &mdash; or a
-                  single signed extreme (e.g. &minus;376.4%) when the other
-                  endpoint rounds to zero. A minus
-                  sign means that end of the range pulls the figure{" "}
-                  <em>below</em>{" "}the reference case; the row below works
-                  through which end produces which figure for corridor length.
-                  Use it to answer:{" "}
-                  <em>
-                    if I am wrong about this, in which direction and how far is
-                    my number off?
-                  </em>
+                  What the model computes for the{" "}
+                  <em>cost per tonne of CO&#8322; abated</em>{" "}&mdash; the
+                  figure funders and policy comparisons quote &mdash; at the
+                  two ends of the input&apos;s plausible range, on the
+                  reference corridor. Read &ldquo;$11,677/t &rarr;
+                  $443/t&rdquo; on the corridor-length row as: set the length
+                  to 100&nbsp;nm and the app shows $11,677 per tonne; set it
+                  to 5,000&nbsp;nm and it shows $443. The swept range sits
+                  beside each input&apos;s name, and a green &darr; means the
+                  figure <em>falls</em>{" "}as the input rises. Use it to
+                  answer: <em>if I am wrong about this input, where does my
+                  number land?</em>
                 </td>
               </tr>
               <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2 font-medium">Cost gap impact</td>
+                <td className="px-3 py-2 font-medium">Cost gap ($m)</td>
                 <td className="px-3 py-2">
-                  The same measurement, with the same signed rendering, on the{" "}
-                  <em>cost gap</em>{" "}&mdash; the
-                  headline dollar difference between running green and running
-                  fossil. The two columns rank very differently, and not
-                  because distance-like inputs push the abatement cost harder:
-                  corridor length&apos;s 366% is the 100&nbsp;nm end of the
-                  swept range measured against the 500&nbsp;nm reference case,
-                  and the far end reads &minus;82.3%. Near an operating point
-                  the coupling <em>suppresses</em>{" "}the response &mdash;
-                  longer voyages also abate more tonnes, so where the
-                  gap&apos;s elasticity to distance is +0.63 the abatement
-                  cost&apos;s is &minus;0.37.
+                  The same two endpoint readings for the <em>cost gap</em>{" "}
+                  &mdash; the headline dollar difference between running green
+                  and running fossil. The two columns rank very differently,
+                  and corridor length shows why: its gap moves modestly
+                  ($156.1m at 100&nbsp;nm, $295.7m at 5,000&nbsp;nm) while
+                  its abatement cost swings from $11,677/t down to $443/t,
+                  because longer voyages cost more <em>and</em>{" "}abate far
+                  more tonnes &mdash; the tonnes move faster than the
+                  dollars.
                 </td>
               </tr>
               <tr className="border-b border-neutral-200 last:border-0">
                 <td className="px-3 py-2 font-medium">(choice)</td>
                 <td className="px-3 py-2">
                   Rows marked <em>choice</em>{" "}are decisions, not dials &mdash;
-                  which fuel, which hull, buy or build. Their impact is the
-                  biggest change across the options you could pick, so read it
-                  as <em>&ldquo;how much does this decision matter&rdquo;</em>,
-                  not as a &plusmn;range on one number. Choices are evaluated
-                  against the current reference data.
+                  which fuel, which hull, buy or build. The cell names the
+                  option that moves the figure furthest and the value it
+                  produces, so read it as{" "}
+                  <em>&ldquo;how much does this decision matter&rdquo;</em>,
+                  not as a range on one number. Choices are evaluated against
+                  the current reference data, each against its own baseline
+                  &mdash; the arrow&apos;s direction is measured from there.
                 </td>
               </tr>
             </tbody>
@@ -2687,24 +2699,23 @@ export default async function DocsPage() {
         <p className="mt-2">
           The tabs pick which figure the table is ranked by — the{" "}
           <strong>cost gap</strong>{" "}by default — and the
-          ranking column is shown in bold. Every figure is measured on the
-          frozen 500&nbsp;nm reference corridor against its own baseline (cost
-          gap $167.5m, abatement cost $2,506/t) &mdash; not on the scenario
-          open in the app. Numeric rows carry{" "}
-          <strong>one sign convention across both columns</strong>: the signed
-          endpoint pair, or a single signed extreme when the other endpoint
-          rounds to zero, so a fall never masquerades as an unsigned magnitude.
-          The abatement cost needs that care most: it divides the gap
-          by the tonnes abated, and any input that also changes the tonnes
-          moves the denominator of its own measurement. Only{" "}
-          <em>choice</em>{" "}rows show an unsigned single figure &mdash;
-          options have no low or high end. A
-          0.0% is a measurement, not a gap in coverage &mdash; the input was
-          swept and measured at zero: cargo unit choice
-          really cannot move either figure, and the table says so instead of
-          omitting it. The other four measured outputs (per-unit cost, both
-          side totals, tonnes abated) still decide field placement in the form
-          &mdash; &sect;38 carries those details per field.
+          ranking column is shown in bold. Every value is the model&apos;s own
+          output on the frozen 500&nbsp;nm reference corridor, whose baseline
+          reads a cost gap of $167.5m and an abatement cost of $2,506/t.
+          Nothing in the table is a percentage of an invisible reference:{" "}
+          <strong>each row is a reproducible experiment</strong>{" "}&mdash;
+          open the app, set the input to the endpoint shown, and the result is
+          the number in the cell. The abatement cost still needs care when
+          reading: it divides the gap by the tonnes abated, and any input that
+          also changes the tonnes moves the denominator of its own
+          measurement &mdash; which is why corridor length&apos;s abatement
+          figure balloons at the short end. A row that reads{" "}
+          <em>no change</em>{" "}is a measurement, not a gap in coverage
+          &mdash; the input was swept and the figure did not move: cargo unit
+          choice really cannot move either figure, and the table says so
+          instead of omitting it. The other four measured outputs (per-unit
+          cost, both side totals, tonnes abated) still decide field placement
+          in the form &mdash; &sect;38 carries those details per field.
         </p>
         <p className="mt-2">
           <strong>Every swept input is listed below.</strong>{" "}A field absent
@@ -2715,23 +2726,25 @@ export default async function DocsPage() {
         <DocsImpactTable rows={SENSITIVITY_ROWS} />
         <p className="mt-2">
           The top of the ranking is a mix of decisions, support levers and
-          geometry: the vessel class (446% &mdash; the biggest lever of all on
-          the gap), self-designed public support (&minus;376.4% &mdash; a fall,
-          because $0&ndash;50m/yr over twenty
-          years genuinely cuts the gap by that much), vessel count (+93.8%)
-          and the FuelEU credit surplus value (&minus;89.3%, also a
-          gap-closer). Corridor length moves
-          the gap 76.6%, almost all of it at the far end of its range; its
-          abatement-cost pair reads +366% at 100&nbsp;nm and &minus;82.3% at
-          5,000&nbsp;nm &mdash; a denominator artifact the flaw list below
-          takes apart, not a physical response. Some inputs matter to one
-          answer and not the other: the N&#8322;O slip scenario barely touches
-          the gap (0.5%) yet doubles the abatement cost (100.5%), and vessel
-          count does the reverse &mdash; switch tabs to see the other
-          ranking. The named EU scheme parameters (ETS
-          price and scope, FuelEU penalty and scope) move either figure by
-          only a few percent under defaults; they matter far more at high
-          carbon prices or late start years.
+          geometry: the vessel class is the biggest lever of all on the gap
+          (picking a 24,000&nbsp;TEU container ship lifts it to $765.9m from
+          that choice&apos;s $140.2m baseline); self-designed public support
+          at $50m/yr takes the gap from $167.5m to{" "}
+          <em>minus</em>{" "}$462.9m &mdash; twenty years of that much public
+          money makes the green corridor outright cheaper than fossil; a
+          fifth vessel pushes the gap to $324.5m; and a FuelEU credit worth
+          &euro;2,400/t nearly closes it, at $17.9m. Corridor length moves
+          the gap modestly ($156.1m at 100&nbsp;nm, $295.7m at
+          5,000&nbsp;nm), but its abatement cost swings from $11,677/t to
+          $443/t across the same range &mdash; a denominator artifact the
+          flaw list below takes apart, not a physical response. Some inputs
+          matter to one answer and not the other: the N&#8322;O slip
+          scenario barely touches the gap ($168.3m at its worst) yet doubles
+          the abatement cost to $5,024/t, and vessel count does the reverse
+          &mdash; switch tabs to see the other ranking. The named EU scheme
+          parameters (ETS price and scope, FuelEU penalty and scope) move
+          the gap by under $10m each under defaults; they matter far more at
+          high carbon prices or late start years.
         </p>
 
         <H3 id="impact-leverage-exposure">Impact: leverage &times; exposure</H3>
@@ -2745,16 +2758,18 @@ export default async function DocsPage() {
           <li>
             <strong>Range arbitrariness.</strong>{" "}
             Self-designed &ldquo;other support&rdquo;
-            (<code>regulation.selfDesigned.otherUsdM</code>) tops the table
-            at 376%
-            because it is swept $0&ndash;50m. That is a choice about the
-            sweep, not a property of the model &mdash; two inputs with
-            identical influence score differently if their assumed ranges
-            differ.
+            (<code>regulation.selfDesigned.otherUsdM</code>) tops the gap
+            ranking because it is swept $0&ndash;50m/yr &mdash; enough public
+            money to carry the gap from $167.5m to &minus;$462.9m. That is a
+            choice about the sweep, not a property of the model &mdash; two
+            inputs with identical influence rank differently if their assumed
+            ranges differ.
           </li>
           <li>
             <strong>Coupled inputs double-count.</strong>{" "}Green and fossil
-            fuel consumption score 21.0% and 41.1% independently, but they are
+            fuel consumption each move the gap tens of millions on their own
+            ($150.3m&ndash;$202.5m and $165.5m&ndash;$98.6m across their
+            ranges), but they are
             energy-matched on any real corridor. Moving one alone makes the
             parity check report the ratio (1.30) and flag it as
             diverged &mdash; the model itself rejects
@@ -2771,10 +2786,10 @@ export default async function DocsPage() {
             input that changes the tonnes moves the denominator of its own
             measurement. Corridor length is the worked example: from the
             500&nbsp;nm reference case, the 100&nbsp;nm endpoint cuts the
-            tonnes abated to a fifth while the gap falls only 6.8%, so the
-            ratio balloons to +366%; the 5,000&nbsp;nm endpoint reads
-            &minus;82.3%. A largest-absolute-movement figure kept the +366%
-            and discarded both the sign and the far end. The sweep also holds
+            tonnes abated to a fifth while the gap barely falls ($156.1m
+            against the $167.5m baseline), so the ratio balloons to
+            $11,677/t; the 5,000&nbsp;nm endpoint reads $443/t. The sweep
+            also holds
             roundtrips fixed as distance moves &mdash; longer voyages, same
             count, not a redeployed fleet.
           </li>

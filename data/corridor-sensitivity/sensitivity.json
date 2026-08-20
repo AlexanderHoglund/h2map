@@ -69,7 +69,18 @@
      "atLow": 0,
      "atHigh": -3.764398560245693
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": -462.92360765475206
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": -6927.605002995821
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "vessel.typeId",
@@ -126,7 +137,20 @@
    },
    "bindingKpi": "co2AbatedTonnes",
    "maxRelMovement": 4.468749999999999,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "cont-ulcv-24000",
+     "value": 765.8791698686166,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "vlac-93k",
+     "value": 5994.996849495354,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "cargo.vessels",
@@ -159,7 +183,18 @@
      "atLow": 0,
      "atHigh": -0.6124901640520554
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 324.4601806672553
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 971.1027623977919
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.fuelEuCreditSurplusValue",
@@ -192,7 +227,18 @@
      "atLow": 0,
      "atHigh": -0.8932384822497778
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 17.87818430611437
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 267.54522127523194
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.fuelId",
@@ -218,7 +264,20 @@
    },
    "bindingKpi": "costPerTonneCo2Usd",
    "maxRelMovement": 0.7662484780228088,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "biodiesel-hvo",
+     "value": 33.0142518164989,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "biodiesel-hvo",
+     "value": 490.5419137566613,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "cargo.oneWayDistanceNm",
@@ -251,7 +310,18 @@
      "atLow": 3.6596116724040266,
      "atHigh": -0.8234126262909054
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 156.05884597680816,
+     "atHigh": 295.7115709698045
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 11677.024289469642,
+     "atHigh": 442.52937733562203
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "vessel.fossil.capexUsdM",
@@ -284,7 +354,18 @@
      "atLow": -0.0895741278215622,
      "atHigh": -0.5971608521437467
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 152.459068425216,
+     "atHigh": 67.45906842521603
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2281.5345506472927,
+     "atHigh": 1009.5181412059202
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.sourcing",
@@ -308,7 +389,20 @@
    },
    "bindingKpi": "gapPvUsdM",
    "maxRelMovement": 0.513684322586311,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "purchase",
+     "value": 68.19713903736357,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "purchase",
+     "value": 1020.5632933233097,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "vessel.green.capexUsdM",
@@ -341,7 +435,18 @@
      "atLow": -0.05971608521437485,
      "atHigh": 0.5673028095365594
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 157.459068425216,
+     "atHigh": 262.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2356.3590453203146,
+     "atHigh": 3927.673433453776
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "vessel.green.opexUsdMPerYear",
@@ -374,7 +479,18 @@
      "atLow": -0.0353323043706916,
      "atHigh": 0.42398765244830167
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 161.5423536499838,
+     "atHigh": 238.45964572800284
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2417.4649960301285,
+     "atHigh": 3568.5244983011307
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "fossil.fuelTonnesPerVesselYear",
@@ -407,7 +523,18 @@
      "atLow": -0.1236480470996356,
      "atHigh": -0.8922100567505699
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 165.49105308917632,
+     "atHigh": 98.64201602950587
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2196.1450351638678,
+     "atHigh": 270.12246383930295
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "vessel.fossil.opexUsdMPerYear",
@@ -440,7 +567,18 @@
      "atLow": 0.03533230437069178,
      "atHigh": -0.3356568915215721
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 173.37578320044824,
+     "atHigh": 111.25027806050976
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2594.55107330259,
+     "atHigh": 1664.849167622165
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.prodCapexUsdM",
@@ -473,7 +611,18 @@
      "atLow": -0.3284384686790607,
      "atHigh": 0.32843846867906107
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 112.45906842521602,
+     "atHigh": 222.45906842521606
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 1682.9385932631176,
+     "atHigh": 3329.0774760696013
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.selfOpexSupport",
@@ -506,7 +655,18 @@
      "atLow": 0,
      "atHigh": -0.32340456016721897
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 113.3020420551468
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 1695.5536084395683
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.selfCapexSupport",
@@ -539,7 +699,18 @@
      "atLow": 0,
      "atHigh": -0.2896230132897173
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 118.95906842521599
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 1780.2104363380458
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.prodOpexUsdMPerYear",
@@ -572,7 +743,18 @@
      "atLow": -0.26499228278018816,
      "atHigh": 0.26499228278018894
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 123.08370761097429,
+     "atHigh": 211.83442923945785
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 1841.9352448946277,
+     "atHigh": 3170.0808244380923
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "cargo.countryId",
@@ -601,7 +783,20 @@
    },
    "bindingKpi": "fossilTotalPvUsdM",
    "maxRelMovement": 0.36017146348186024,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "brazil",
+     "value": 124.29850746664209,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "brazil",
+     "value": 1860.1146019604685,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "fossil.fuelId",
@@ -625,7 +820,20 @@
    },
    "bindingKpi": "fossilTotalPvUsdM",
    "maxRelMovement": 0.2973923952846989,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "lng",
+     "value": 128.89088655712283,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "lng",
+     "value": 2170.296485627175,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "green.fuelTonnesPerVesselYear",
@@ -658,7 +866,18 @@
      "atLow": -0.22477674468325978,
      "atHigh": 0.7860278692120887
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 150.3060506679106,
+     "atHigh": 202.54282262907515
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 1942.7157064839612,
+     "atHigh": 4475.800190383531
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.selfSupportUsdPerKg",
@@ -691,7 +910,18 @@
      "atLow": 0,
      "atHigh": -0.19429153859332532
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 134.92318836947584
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2019.1118778837968
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "cargo.horizonYears",
@@ -724,7 +954,18 @@
      "atLow": 0.6695979043540194,
      "atHigh": -0.4064645572078207
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 139.7946548539084,
+     "atHigh": 198.78578465465267
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 4184.025762973288,
+     "atHigh": 1487.4045884964564
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "financing.baseRate",
@@ -757,7 +998,18 @@
      "atLow": 0.03675826550734115,
      "atHigh": -0.18379132753670654
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 173.6145733240021,
+     "atHigh": 136.68154393128538
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2598.124543368155,
+     "atHigh": 2045.425491157376
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "port.fossilStorageCapexUsdM",
@@ -790,7 +1042,18 @@
      "atLow": 0,
      "atHigh": -0.1791482556431242
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 137.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2057.061066628227
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.emissions.framework",
@@ -814,7 +1077,20 @@
    },
    "bindingKpi": "co2AbatedTonnes",
    "maxRelMovement": 0.05077946992966021,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "imo",
+     "value": 140.21893790807266,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "imo",
+     "value": 1996.9577771179156,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "fossil.sourcing",
@@ -838,7 +1114,20 @@
    },
    "bindingKpi": "gapPvUsdM",
    "maxRelMovement": 0,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "purchase",
+     "value": 140.23224461947797,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "purchase",
+     "value": 2098.561368103208,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "flags.emissionsBasis",
@@ -862,7 +1151,20 @@
    },
    "bindingKpi": "co2AbatedTonnes",
    "maxRelMovement": 0.015699445241705936,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "combustion",
+     "value": 140.23224461947797,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "combustion",
+     "value": 2066.1243618222256,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "green.emissions.engineType",
@@ -889,7 +1191,20 @@
    },
    "bindingKpi": "gapPvUsdM",
    "maxRelMovement": 0,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "lng-otto-df-medium-speed",
+     "value": 140.23224461947797,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "lng-otto-df-medium-speed",
+     "value": 2098.561368103208,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "cargo.unit",
@@ -913,7 +1228,20 @@
    },
    "bindingKpi": "gapPvUsdM",
    "maxRelMovement": 0,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "tonne",
+     "value": 140.23224461947797,
+     "base": 140.23224461947797
+    },
+    "costPerTonneCo2Usd": {
+     "option": "tonne",
+     "value": 2098.561368103208,
+     "base": 2098.561368103208
+    }
+   }
   },
   {
    "id": "financing.greenRate",
@@ -946,7 +1274,18 @@
      "atLow": -0.14703306202936567,
      "atHigh": 0.0735165310146832
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 142.8370488300714,
+     "atHigh": 179.77007822278836
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2137.5419998591715,
+     "atHigh": 2690.2410520699536
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "cargo.wacc",
@@ -979,7 +1318,18 @@
      "atLow": 0.09433784151380004,
      "atHigh": -0.14648012824518983
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 183.25679548236263,
+     "atHigh": 142.92964260647034
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2742.4194234730235,
+     "atHigh": 2138.9276563649546
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "cargo.inflation",
@@ -1012,7 +1362,18 @@
      "atLow": -0.07067340794553847,
      "atHigh": 0.14020038982410996
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 155.62416536822087,
+     "atHigh": 190.93689509801357
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2328.8999065175863,
+     "atHigh": 2857.351338028934
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.priceUsdPerTonne",
@@ -1045,7 +1406,18 @@
      "atLow": -0.09118014031146221,
      "atHigh": 0.1367702104671944
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 152.19012706977804,
+     "atHigh": 190.3624804583731
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2277.5098704438287,
+     "atHigh": 2848.755281000157
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "port.fossilStorageOpexUsdMPerYear",
@@ -1078,7 +1450,18 @@
      "atLow": 0,
      "atHigh": -0.1324961413900941
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 145.27138801809514
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2173.971639780493
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "port.fossilBargeOpexUsdMPerYear",
@@ -1111,7 +1494,18 @@
      "atLow": 0,
      "atHigh": -0.1324961413900941
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 145.27138801809514
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2173.971639780493
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.selfCo2PriceUsdPerTonne",
@@ -1144,7 +1538,18 @@
      "atLow": 0,
      "atHigh": -0.12577427273969066
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 146.39702588036835
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2190.816696626376
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "port.storageCapexUsdM",
@@ -1177,7 +1582,18 @@
      "atLow": -0.07165930225724965,
      "atHigh": 0.10748895338587437
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 155.459068425216,
+     "atHigh": 185.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2326.429247451106,
+     "atHigh": 2775.376215489238
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.selfCo2PriceEscalation",
@@ -1210,7 +1626,18 @@
      "atLow": -0.0704335927342267,
      "atHigh": -0.1068411319283028
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 155.66432460010134,
+     "atHigh": 149.56755200300682
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2329.500885363969,
+     "atHigh": 2238.2632996211837
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "port.bargeOpexUsdMPerYear",
@@ -1243,7 +1670,18 @@
      "atLow": -0.026499228278018604,
      "atHigh": 0.1059969131120757
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 163.02153234379188,
+     "atHigh": 185.20921275091274
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2439.6007556891864,
+     "atHigh": 2771.6371505750526
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "financing.tenorYears",
@@ -1276,7 +1714,18 @@
      "atLow": -0.032431453310739,
      "atHigh": -0.1007631212485893
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 162.02812746612375,
+     "atHigh": 150.58537000931017
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2424.73455209374,
+     "atHigh": 2253.4948432193337
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "port.storageOpexUsdMPerYear",
@@ -1309,7 +1758,18 @@
      "atLow": -0.0441653804633644,
      "atHigh": 0.08833076092672972
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 160.06317495617577,
+     "atHigh": 182.25085536329664
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2395.329236371071,
+     "atHigh": 2727.365631256937
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "cargo.roundtripsPerYear",
@@ -1342,7 +1802,18 @@
      "atLow": 0.9149029181010067,
      "atHigh": -0.457451459050503
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 160.33392939496116,
+     "atHigh": 181.70934648572586
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 4798.7620983671795,
+     "atHigh": 1359.6310028159496
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "financing.debtShare",
@@ -1375,7 +1846,18 @@
      "atLow": 0,
      "atHigh": -0.0735165310146832
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 155.14805862764365
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2321.7750172627643
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "port.fossilBargeCapexUsdM",
@@ -1408,7 +1890,18 @@
      "atLow": 0,
      "atHigh": -0.07165930225724965
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 155.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2326.429247451106
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.imoPriceEscalation",
@@ -1441,7 +1934,18 @@
      "atLow": -0.031422730659146525,
      "atHigh": -0.05310316695646733
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 162.19704722165886,
+     "atHigh": 158.56646155625728
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2427.262419163381,
+     "atHigh": 2372.9310716072227
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.ira45zCreditUsdPerGallon",
@@ -1474,7 +1978,18 @@
      "atLow": 0,
      "atHigh": -0.05162603739765508
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 158.81382029611933
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2376.6327701498494
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "cargo.startYear",
@@ -1507,7 +2022,18 @@
      "atLow": 0.010711323897957667,
      "atHigh": -0.04939765856593473
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 169.25277674676875,
+     "atHigh": 159.18698253937768
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2532.8506984165547,
+     "atHigh": 2382.217105406421
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.imoRewardUsdPerTonneCo2e",
@@ -1540,7 +2066,18 @@
      "atLow": -0.031422730659146525,
      "atHigh": -0.04451571705308941
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 162.19704722165886,
+     "atHigh": 160.00450791722514
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2427.262419163381,
+     "atHigh": 2394.4512900623827
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "port.bargeCapexUsdM",
@@ -1573,7 +2110,18 @@
      "atLow": -0.029858042607187336,
      "atHigh": 0.04180125965006212
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 162.459068425216,
+     "atHigh": 174.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2431.183539993337,
+     "atHigh": 2610.7623272085893
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.fuelEuPenalty",
@@ -1606,7 +2154,18 @@
      "atLow": 0.017560503596783367,
      "atHigh": -0.035121007193566735
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 170.399733998611,
+     "atHigh": 161.577737278426
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2550.0147977726856,
+     "atHigh": 2417.9945084537057
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.fuelEuScope",
@@ -1639,7 +2198,18 @@
      "atLow": 0.035121007193566735,
      "atHigh": 0
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 173.340399572006,
+     "atHigh": 167.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2594.021560879012,
+     "atHigh": 2506.008034666359
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.euaEurPerTonne",
@@ -1672,7 +2242,18 @@
      "atLow": 0.011376185457906949,
      "atHigh": -0.03412855637371939
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 169.36411384422956,
+     "atHigh": 161.7439321681755
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2534.5168468277284,
+     "atHigh": 2420.4815981822544
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.lhvMjPerTonne",
@@ -1705,7 +2286,18 @@
      "atLow": 0.03354167231996579,
      "atHigh": -0.023589747565689337
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 173.0759256253413,
+     "atHigh": 163.50875127347967
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2590.0637349963395,
+     "atHigh": 2446.8919377309903
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "fossil.priceUsdPerTonne",
@@ -1738,7 +2330,18 @@
      "atLow": 0.030778362918469256,
      "atHigh": -0.032034622629427155
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 172.6131844071961,
+     "atHigh": 162.09458036233877
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2583.13885943392,
+     "atHigh": 2425.7290129695098
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.imoScope",
@@ -1771,7 +2374,18 @@
      "atLow": 0,
      "atHigh": -0.031422730659146525
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 162.19704722165886
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2427.262419163381
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "capitalPhasing.years",
@@ -1804,7 +2418,18 @@
      "atLow": 0,
      "atHigh": -0.029725374473305543
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 162.48128490732557
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2431.516007402789
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.etsScope",
@@ -1837,7 +2462,18 @@
      "atLow": 0.022752370915813353,
      "atHigh": 0
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 171.26915926324307,
+     "atHigh": 167.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2563.0256589890964,
+     "atHigh": 2506.008034666359
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "fossil.wtwGco2PerMj",
@@ -1870,7 +2506,18 @@
      "atLow": 0.22391870413875242,
      "atHigh": -0.12029924809513956
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 170.3759179857173,
+     "atHigh": 164.78608274219891
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 3067.150106350152,
+     "atHigh": 2204.5371523756176
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.combustionEf",
@@ -1903,7 +2550,18 @@
      "atLow": -0.0012549754989936402,
      "atHigh": 0.015531813435469352
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.24891139725804,
+     "atHigh": 170.06001143407394
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2502.8630559825715,
+     "atHigh": 2544.930883928584
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.fuelEuBaselineGco2PerMj",
@@ -1936,7 +2594,18 @@
      "atLow": -0.013064869137042497,
      "atHigh": 0.007382105474534879
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 165.2712376104295,
+     "atHigh": 168.6952689309983
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2473.267367637066,
+     "atHigh": 2524.507650298298
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.eurUsd",
@@ -1969,7 +2638,18 @@
      "atLow": 0.009645563018230167,
      "atHigh": -0.011789021466725114
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 169.07430542268554,
+     "atHigh": 165.48488987275334
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2530.1798930889245,
+     "atHigh": 2476.4646521498917
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.euaEscalation",
@@ -2002,7 +2682,18 @@
      "atLow": 0,
      "atHigh": -0.011760834620509857
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 165.4896100157624
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2476.535288612979
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "fossil.lhvMjPerTonne",
@@ -2035,7 +2726,18 @@
      "atLow": -0.005670539612317365,
      "atHigh": 0.005011174541117794
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 166.50948514426904,
+     "atHigh": 168.29823504558775
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2491.797616836998,
+     "atHigh": 2518.5660783295157
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.n2oScenarioId",
@@ -2060,7 +2762,20 @@
    },
    "bindingKpi": "costPerTonneCo2Usd",
    "maxRelMovement": 1.0046948438584913,
-   "signedByKpi": null
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "highest-observed",
+     "value": 168.3396794935801,
+     "base": 167.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "option": "highest-observed",
+     "value": 5023.781385763601,
+     "base": 2506.008034666359
+    }
+   }
   },
   {
    "id": "fossil.combustionEf",
@@ -2093,7 +2808,18 @@
      "atLow": 0.00473362578634943,
      "atHigh": -0.002975862465033777
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 168.25175698967163,
+     "atHigh": 166.96073326905986
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2517.8705389200545,
+     "atHigh": 2498.5504994189223
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.wtwGco2PerMj",
@@ -2126,7 +2852,18 @@
      "atLow": -0.23292802806269072,
      "atHigh": 0.3476468114585191
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 167.76116614306966
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 1922.288524842265,
+     "atHigh": 3377.2137374075487
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "regulation.fuelEuVlsfoMjPerTonne",
@@ -2159,7 +2896,18 @@
      "atLow": -0.001801077291977637,
      "atHigh": 0.001633535218305362
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.1574616997396,
+     "atHigh": 167.73261871111322
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2501.494520501608,
+     "atHigh": 2510.1016870483427
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.pilotShare",
@@ -2192,7 +2940,18 @@
      "atLow": -0.05052606205832808,
      "atHigh": 0.03298118090628939
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.24891139725804,
+     "atHigh": 167.59612735649307
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2379.3893171881377,
+     "atHigh": 2588.659139010305
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.certifiedWttGco2ePerMj",
@@ -2225,7 +2984,18 @@
      "atLow": -0.12009000853558038,
      "atHigh": 0.21975751624501957
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 167.46141361236522
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2205.061508393043,
+     "atHigh": 3056.722136054701
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "fossil.sulphurPercent",
@@ -2258,7 +3028,18 @@
      "atLow": -0.048327646003200844,
      "atHigh": -0.011850586326467457
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.45869527273567,
+     "atHigh": 167.45869527273567
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2384.898565485826,
+     "atHigh": 2476.3103701167242
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "cargo.unitsPerYear",
@@ -2291,7 +3072,18 @@
      "atLow": 0,
      "atHigh": 0
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 167.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2506.008034666359
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "green.efficiencyRatio",
@@ -2324,7 +3116,18 @@
      "atLow": 0,
      "atHigh": 0
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 167.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2506.008034666359
+    }
+   },
+   "worstOptionByKpi": null
   },
   {
    "id": "cargo.unitWeightTonnes",
@@ -2357,7 +3160,18 @@
      "atLow": 0,
      "atHigh": 0
     }
-   }
+   },
+   "absoluteByKpi": {
+    "gapPvUsdM": {
+     "atLow": 167.459068425216,
+     "atHigh": 167.459068425216
+    },
+    "costPerTonneCo2Usd": {
+     "atLow": 2506.008034666359,
+     "atHigh": 2506.008034666359
+    }
+   },
+   "worstOptionByKpi": null
   }
  ]
 }

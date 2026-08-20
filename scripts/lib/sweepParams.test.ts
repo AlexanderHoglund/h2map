@@ -21,19 +21,30 @@ import { KPIS, PARAMS } from "../corridor/lib/params";
 const artifact = JSON.parse(
   readFileSync(`${ROOT}data/corridor-sensitivity/sensitivity.json`, "utf8"),
 ) as {
-  baseKpis: { gapPvUsdM: number };
+  baseKpis: { gapPvUsdM: number; costPerTonneCo2Usd: number };
   ranked: {
     id: string;
     range: readonly (string | number)[];
     gapAtLow: number;
     gapAtHigh: number;
+    movementByKpi: Record<string, number>;
     signedByKpi: {
       gapPvUsdM: { atLow: number; atHigh: number };
       costPerTonneCo2Usd: { atLow: number; atHigh: number };
     } | null;
+    absoluteByKpi: {
+      gapPvUsdM: { atLow: number; atHigh: number };
+      costPerTonneCo2Usd: { atLow: number; atHigh: number };
+    } | null;
+    worstOptionByKpi: {
+      gapPvUsdM: { option: string; value: number; base: number };
+      costPerTonneCo2Usd: { option: string; value: number; base: number };
+    } | null;
   }[];
   kpis: { id: string }[];
 };
+
+const HEADLINE = ["gapPvUsdM", "costPerTonneCo2Usd"] as const;
 
 describe("the extracted parameter table still describes the committed artifact", () => {
   it("sweeps a non-trivial number of parameters", () => {
@@ -136,6 +147,74 @@ describe("the corridor-length row's signed figures obey their own arithmetic", (
     const s = row.signedByKpi!.gapPvUsdM;
     expect(s.atLow).toBeCloseTo((row.gapAtLow - base) / base, 9);
     expect(s.atHigh).toBeCloseTo((row.gapAtHigh - base) / base, 9);
+  });
+});
+
+describe("the absolute dollar display is the signed data's own arithmetic", () => {
+  // §29's table now shows the KPI values the model computes at the swept
+  // endpoints — numbers a reader reproduces by typing the endpoint into the
+  // app. Those absolutes and the signed relative movements describe the SAME
+  // sweep, so each must be recoverable from the other against the artifact's
+  // own baseline; a regenerated artifact that violates this mixed up its
+  // baseline, and the docs table would show dollars the app cannot print.
+  it("reproduces base × (1 + signed) at both endpoints of every numeric row", () => {
+    for (const r of artifact.ranked) {
+      if (!r.signedByKpi) continue;
+      expect(r.absoluteByKpi, r.id).not.toBeNull();
+      for (const kpi of HEADLINE) {
+        const base = artifact.baseKpis[kpi];
+        expect(r.absoluteByKpi![kpi].atLow, `${r.id} ${kpi} atLow`).toBeCloseTo(
+          base * (1 + r.signedByKpi[kpi].atLow),
+          9,
+        );
+        expect(r.absoluteByKpi![kpi].atHigh, `${r.id} ${kpi} atHigh`).toBeCloseTo(
+          base * (1 + r.signedByKpi[kpi].atHigh),
+          9,
+        );
+      }
+    }
+  });
+
+  it("agrees exactly with the historical gap endpoint columns", () => {
+    // gapAtLow/gapAtHigh predate absoluteByKpi and are kept for continuity;
+    // both must be the same evaluation, byte for byte.
+    for (const r of artifact.ranked) {
+      if (!r.absoluteByKpi) continue;
+      expect(r.absoluteByKpi.gapPvUsdM.atLow, r.id).toBe(r.gapAtLow);
+      expect(r.absoluteByKpi.gapPvUsdM.atHigh, r.id).toBe(r.gapAtHigh);
+    }
+  });
+
+  it("records a worst option that IS the movement figure, per choice and KPI", () => {
+    // A choice cell reads "e.g. lh2: $X". The named option must be one the
+    // choice offers, and its distance from that choice's own baseline must be
+    // exactly the relative movement the ranking uses — the dollar display and
+    // the rank order can never disagree.
+    for (const r of artifact.ranked) {
+      if (r.signedByKpi) continue;
+      expect(r.worstOptionByKpi, r.id).not.toBeNull();
+      for (const kpi of HEADLINE) {
+        const w = r.worstOptionByKpi![kpi];
+        expect(r.range, `${r.id} ${kpi}`).toContain(w.option);
+        expect(
+          Math.abs(w.value - w.base) / w.base,
+          `${r.id} ${kpi}`,
+        ).toBeCloseTo(r.movementByKpi[kpi]!, 9);
+      }
+    }
+  });
+
+  it("pins the dollars §29 quotes for corridor length and other support", () => {
+    // The prose walks the reader through reproducing these by hand: distance
+    // to 100 nm / 5,000 nm on the reference corridor, and other support to
+    // $50m/yr. If a regeneration moves them, the docs' worked examples lie.
+    const dist = artifact.ranked.find((r) => r.id === "cargo.oneWayDistanceNm")!;
+    expect(dist.absoluteByKpi!.gapPvUsdM.atLow.toFixed(1)).toBe("156.1");
+    expect(dist.absoluteByKpi!.gapPvUsdM.atHigh.toFixed(1)).toBe("295.7");
+    expect(Math.round(dist.absoluteByKpi!.costPerTonneCo2Usd.atLow)).toBe(11677);
+    expect(Math.round(dist.absoluteByKpi!.costPerTonneCo2Usd.atHigh)).toBe(443);
+    const support = artifact.ranked.find((r) => r.id === "regulation.selfOtherUsdM")!;
+    expect(support.absoluteByKpi!.gapPvUsdM.atHigh.toFixed(1)).toBe("-462.9");
   });
 });
 

@@ -1,40 +1,63 @@
 "use client";
 
 /**
- * §20's impact ranking, sortable by tab.
+ * §29's impact ranking, sortable by tab.
  *
  * The docs page is server-rendered; this island exists because re-ranking is
  * interaction. The tabs pick the basis — the cost gap (default) or the CO₂
  * abatement cost — and the table sorts by the active tab, renumbering as it
- * goes. Numeric rows render SIGNED in BOTH columns — an endpoint pair, or a
- * single signed extreme when one endpoint rounds to zero — rather than a
- * max-abs percentage that hides which end of the range produced it, or which
- * direction it moved. One row, one sign convention: an unsigned magnitude
- * must never sit next to a signed pair, because "376.4%" beside
- * "−376.4% … 0.0%" reads as a rise when the movement is a fall. Choices
- * (options, not endpoints) keep the unsigned single figure. The DATA never
- * changes with the tab: both figures stay visible on every row, only the
- * order moves, so the reader cannot lose sight of the divergences the
- * two-column design exists to show.
+ * goes. The RANKING is the same relative-movement metric it has always been;
+ * only the display moved from arithmetic to evidence. A percentage against a
+ * baseline the reader cannot see ("−376.4%") means nothing, so each cell now
+ * states the absolute value the model computes at the two ends of the input's
+ * swept range on the reference corridor — set the input to the endpoint in
+ * the app and this is the number it shows. Choices (options, not endpoints)
+ * name the option that moves the figure furthest from that choice's own
+ * baseline and the value it produces. Direction stays visible — ↓ (green)
+ * when the value falls, ↑ when it rises — and the DATA never changes with
+ * the tab: both columns stay on every row, only the order moves, so the
+ * reader cannot lose sight of the divergences the two-column design exists
+ * to show.
  */
 
 import { useMemo, useState } from "react";
 
-/** Signed relative movement at the two swept endpoints of a numeric input. */
-export interface SignedPair {
+/** Absolute KPI values at the two swept endpoints of a numeric input. */
+export interface EndpointValues {
   atLow: number;
   atHigh: number;
+}
+
+/**
+ * The option that moved a KPI furthest, the value it produced, and the
+ * baseline it moved from — a choice's OWN baseline (most choices are
+ * evaluated on the current reference data), not necessarily the frozen
+ * sweep baseline.
+ */
+export interface WorstOption {
+  option: string;
+  value: number;
+  base: number;
 }
 
 export interface ImpactRow {
   id: string;
   label: string;
   isChoice: boolean;
+  /** Swept endpoints, for the input cell; null for choices. */
+  low: number | null;
+  high: number | null;
+  /** How many options a choice offers; 0 for numeric inputs. */
+  optionCount: number;
+  /** Relative movement metrics — the SORT keys only, never displayed. */
   gap: number;
   abatement: number;
-  /** Signed endpoint movements; null for choices (options, not endpoints). */
-  gapSigned: SignedPair | null;
-  abatementSigned: SignedPair | null;
+  /** Absolute values at the endpoints; null for choices. */
+  gapValues: EndpointValues | null;
+  abatementValues: EndpointValues | null;
+  /** Worst option per figure; null for numeric inputs. */
+  gapWorst: WorstOption | null;
+  abatementWorst: WorstOption | null;
 }
 
 const TABS = [
@@ -46,21 +69,70 @@ type TabKey = (typeof TABS)[number]["key"];
 const valueOf = (r: ImpactRow, k: TabKey): number =>
   k === "gap" ? r.gap : r.abatement;
 
-const pct = (v: number): string => `${(v * 100).toFixed(1)}%`;
-/** "−82.3%" / "+366.0%" — the sign is the information; a true zero is bare. */
-const signedPct = (v: number): string => {
-  const mag = (Math.abs(v) * 100).toFixed(1);
-  return mag === "0.0" ? "0.0%" : `${v < 0 ? "−" : "+"}${mag}%`;
+const MINUS = "−";
+/** "$167.5m" / "−$462.9m"; a magnitude that rounds to zero drops its sign. */
+const usdM = (v: number): string => {
+  const mag = Math.abs(v).toFixed(1);
+  return `${v < 0 && mag !== "0.0" ? MINUS : ""}$${mag}m`;
 };
-// Rendered as a span, most negative first — corridor length reads
-// "−82.3% … +366.0%", not "+366.0% … −82.3%", because a reader scans it as
-// a range of outcomes; which end of the INPUT range produced which figure
-// is the prose's job (§29 works the corridor-length case).
-const signedPair = (s: SignedPair): string => {
-  const [lo, hi] =
-    s.atLow <= s.atHigh ? [s.atLow, s.atHigh] : [s.atHigh, s.atLow];
-  return `${signedPct(lo)} … ${signedPct(hi)}`;
+/** "$2,506/t" / "−$6,928/t" — whole dollars; the cents are noise here. */
+const usdPerT = (v: number): string => {
+  const mag = Math.round(Math.abs(v));
+  return `${v < 0 && mag !== 0 ? MINUS : ""}$${mag.toLocaleString("en-US")}/t`;
 };
+const fmt = (k: TabKey) => (k === "gap" ? usdM : usdPerT);
+
+/** Swept endpoints in the input's own units; calendar years stay ungrouped. */
+const inputValue = (n: number): string =>
+  Number.isInteger(n) && n >= 1900 && n <= 2100
+    ? String(n)
+    : n.toLocaleString("en-US", { maximumFractionDigits: 4 });
+
+/** Direction of travel; a fall is green because both figures are costs. */
+function Arrow({ falls }: { falls: boolean }) {
+  return falls ? (
+    <span className="text-green-700" aria-label="falls">
+      ↓
+    </span>
+  ) : (
+    <span className="text-red-700" aria-label="rises">
+      ↑
+    </span>
+  );
+}
+
+/**
+ * A numeric cell: the model's output at the low endpoint → at the high
+ * endpoint. Endpoints that round to the same figure are a measured
+ * no-change, said outright rather than rendered as a pair of equal numbers.
+ */
+function EndpointsCell({ v, k }: { v: EndpointValues; k: TabKey }) {
+  const f = fmt(k);
+  const lo = f(v.atLow);
+  const hi = f(v.atHigh);
+  if (lo === hi) return <>no change ({lo})</>;
+  return (
+    <>
+      {lo} {"→"} {hi} <Arrow falls={v.atHigh < v.atLow} />
+    </>
+  );
+}
+
+/**
+ * A choice cell: the option that moves the figure furthest, and the value
+ * it produces — direction measured against that choice's own baseline.
+ */
+function WorstCell({ w, k }: { w: WorstOption; k: TabKey }) {
+  const f = fmt(k);
+  const val = f(w.value);
+  if (val === f(w.base)) return <>no option moves it ({val})</>;
+  return (
+    <>
+      e.g. <code className="text-[12px]">{w.option}</code>: {val}{" "}
+      <Arrow falls={w.value < w.base} />
+    </>
+  );
+}
 
 export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
   const [tab, setTab] = useState<TabKey>("gap");
@@ -76,29 +148,13 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
 
   const activeCol = (k: TabKey): string => (tab === k ? " text-neutral-800" : "");
 
-  // The column the table is ranked by is BOLD, so the sort key is always a
-  // number the reader can see.
+  // The column the table is ranked by is BOLD, so the reader can see which
+  // figure ordered the rows even though the sort key itself (relative
+  // movement) is not printed.
   const cell = (k: TabKey): string =>
     `px-3 py-1.5 text-right${
       tab === k ? " font-medium text-neutral-900" : " text-neutral-600"
     }`;
-
-  // One row, one sign convention: wherever signed endpoint data exists it is
-  // rendered signed in BOTH columns — the pair when both endpoints survive
-  // rounding, a single signed extreme when one endpoint is 0.0 after
-  // rounding (a pair whose other half is zero says nothing the sign alone
-  // does not). Only choices (null signed) show an unsigned magnitude.
-  const isZero = (v: number): boolean => (Math.abs(v) * 100).toFixed(1) === "0.0";
-  const signedCell = (s: SignedPair): string => {
-    if (isZero(s.atLow) && isZero(s.atHigh)) return "0.0%";
-    if (isZero(s.atLow)) return signedPct(s.atHigh);
-    if (isZero(s.atHigh)) return signedPct(s.atLow);
-    return signedPair(s);
-  };
-  const abatementCell = (r: ImpactRow): string =>
-    r.abatementSigned ? signedCell(r.abatementSigned) : pct(r.abatement);
-  const gapCell = (r: ImpactRow): string =>
-    r.gapSigned ? signedCell(r.gapSigned) : pct(r.gap);
 
   return (
     <div className="my-3">
@@ -125,15 +181,17 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
         ))}
       </div>
       <p className="mt-1.5 text-xs text-neutral-500">
-        All figures are measured on the frozen 500&nbsp;nm reference corridor,
-        relative to its baseline (cost gap $167.5m, abatement cost $2,506/t)
-        &mdash; not the scenario open in the app.
+        Every value is what the model computes on the frozen 500&nbsp;nm
+        reference corridor (baseline: cost gap $167.5m, abatement cost
+        $2,506/t) &mdash; not on the scenario open in the app. Set the input
+        to the endpoint shown and the app prints the value in the cell.
       </p>
       {tab === "abatement" && (
         <p className="mt-1.5 text-xs text-neutral-500">
-          Worst-case endpoint movement; for inputs that also change the tonnes
-          abated, the figure is dominated by the short end of the swept range
-          — see the flaw list under &ldquo;Impact: leverage &times;
+          The abatement cost divides the gap by the tonnes abated, so an
+          input that also changes the tonnes moves the denominator of its own
+          measurement &mdash; the short end of a distance-like range can
+          balloon. See the flaw list under &ldquo;Impact: leverage &times;
           exposure&rdquo;.
         </p>
       )}
@@ -146,10 +204,10 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
               <th
                 className={`px-3 py-2 text-right font-medium${activeCol("abatement")}`}
               >
-                CO&#8322; abatement cost impact
+                CO&#8322; abatement cost ($/t)
               </th>
               <th className={`px-3 py-2 text-right font-medium${activeCol("gap")}`}>
-                Cost gap impact
+                Cost gap ($m)
               </th>
             </tr>
           </thead>
@@ -164,9 +222,26 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
                       (choice)
                     </span>
                   )}
+                  <span className="ml-1.5 whitespace-nowrap text-[11px] text-neutral-500">
+                    {row.isChoice
+                      ? `· ${row.optionCount} options`
+                      : `· ${inputValue(row.low!)} → ${inputValue(row.high!)}`}
+                  </span>
                 </td>
-                <td className={cell("abatement")}>{abatementCell(row)}</td>
-                <td className={cell("gap")}>{gapCell(row)}</td>
+                <td className={cell("abatement")}>
+                  {row.abatementValues ? (
+                    <EndpointsCell v={row.abatementValues} k="abatement" />
+                  ) : (
+                    <WorstCell w={row.abatementWorst!} k="abatement" />
+                  )}
+                </td>
+                <td className={cell("gap")}>
+                  {row.gapValues ? (
+                    <EndpointsCell v={row.gapValues} k="gap" />
+                  ) : (
+                    <WorstCell w={row.gapWorst!} k="gap" />
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
