@@ -1482,11 +1482,13 @@ export default async function DocsPage() {
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>Save / Duplicate</strong>{" "}— Save stores the scenario
-            to your account and updates the open project (or creates one
-            when none is open); Duplicate makes a copy. The URL carries the
-            project id, so a bookmark reopens it. Renaming, share-link
-            management and delete live on the Projects tab.
+            <strong>Saving</strong>{" "}— an open project saves itself: every
+            change is written to your account moments after you make it, and
+            only a failure is reported. The Save button remains for two
+            explicit acts — turning an unsaved draft into a project, and
+            Duplicate for a copy. The URL carries the project id, so a
+            bookmark reopens it. Renaming, share-link management and delete
+            live on the Projects tab.
           </li>
           <li>
             <strong>Share</strong>{" "}— creates a read-only link anyone can

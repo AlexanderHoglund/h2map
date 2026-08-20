@@ -160,7 +160,10 @@ export function useProjects(
   }, [refresh]);
 
   const save = useCallback(
-    async ({ duplicate = false }: { duplicate?: boolean } = {}) => {
+    async ({
+      duplicate = false,
+      silent = false,
+    }: { duplicate?: boolean; silent?: boolean } = {}) => {
       if (!session) return;
       setBusy(true);
       try {
@@ -186,8 +189,10 @@ export function useProjects(
         if (duplicate) setName(row.name);
         window.history.replaceState(null, "", `/corridor?s=${row.id}`);
         await refresh();
-        flash(t("saved"));
+        if (!silent) flash(t("saved"));
       } catch (err) {
+        // Failures always surface, autosave or not — silence only covers
+        // the success toast.
         flash(`${t("saveFailed")}: ${String(err).slice(0, 120)}`);
       } finally {
         setBusy(false);
@@ -195,6 +200,18 @@ export function useProjects(
     },
     [authedFetch, currentId, flash, model, name, refresh, session, t],
   );
+
+  // AUTOSAVE: an open project follows the draft — no Save click needed.
+  // Debounced so a burst of keystrokes becomes one PUT; only ever updates
+  // the CURRENT project (it never creates one implicitly — turning a local
+  // draft into a project stays an explicit act). Success is silent; a
+  // failure still flashes.
+  useEffect(() => {
+    if (!session || !currentId || busy) return;
+    if (normalizeScenarioJson(model.scenario) === savedSnapshotRef.current) return;
+    const id = setTimeout(() => void save({ silent: true }), 1500);
+    return () => clearTimeout(id);
+  }, [model.scenario, session, currentId, busy, save]);
 
   const load = useCallback(
     async (id: string) => {
