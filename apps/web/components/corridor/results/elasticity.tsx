@@ -223,11 +223,9 @@ export function ElasticitySection({ scenario }: { scenario: ScenarioInput | null
         {t("elasticityNonlinearNote")}
       </p>
 
-      {/* Not measurable here ≠ does not matter — say which and why. */}
+      {/* Not measurable here ≠ does not matter — say which and why. The
+          disclosure IS the note (a <details> cannot nest in Note's <p>). */}
       {unmeasured.length > 0 && (
-        {/* A <details> cannot live inside Note's <p> (invalid HTML nesting →
-            hydration error), so the disclosure IS the note: same visual
-            classes, flow content allowed. */}
         <details className="mt-3 bg-warning/10 px-2 py-1.5 text-xs leading-snug text-warning">
           <summary className="cursor-pointer">
             {t("elasticityUnmeasured")} ({unmeasured.length})
