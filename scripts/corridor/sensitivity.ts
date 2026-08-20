@@ -144,7 +144,29 @@ function main(): void {
           kpisForScenario(baseRaw, b, wrap((s) => p.set!(s, p.low!))),
           kpisForScenario(baseRaw, b, wrap((s) => p.set!(s, p.high!))),
         ];
-    const per = movementOf(samples, useCurrent ? baseCurrent : base);
+    const against = useCurrent ? baseCurrent : base;
+    const per = movementOf(samples, against);
+    /**
+     * Signed per-endpoint movement of the two headline KPIs — numeric params
+     * only (a choice has options, not a low and a high; it stays null).
+     * ADDITIVE: nothing above reads it, so placement, ranking order and both
+     * frozen fixtures are untouched. The sign is the point: max-abs hid that
+     * corridor length's abatement figure (366%) is entirely the 100 nm
+     * endpoint against the 500 nm baseline, while the 5,000 nm endpoint reads
+     * −82% — a fact about the short end of the range, not a ± band.
+     */
+    const signedByKpi = p.options
+      ? null
+      : (() => {
+          const signed = (id: KpiId) => ({
+            atLow: (samples[0]![id] - against[id]) / Math.abs(against[id]),
+            atHigh: (samples[1]![id] - against[id]) / Math.abs(against[id]),
+          });
+          return {
+            gapPvUsdM: signed("gapPvUsdM"),
+            costPerTonneCo2Usd: signed("costPerTonneCo2Usd"),
+          };
+        })();
     // Placement comes from the MAX across KPIs; the KPI that produced it is
     // recorded so a field's prominence is traceable to the output it moves.
     let binding: KpiId = "gapPvUsdM";
@@ -167,6 +189,7 @@ function main(): void {
       movementByKpi: per,
       bindingKpi: binding,
       maxRelMovement: per[binding],
+      signedByKpi,
     };
   }).sort((a, b) => b.maxAbsDeltaUsdM - a.maxAbsDeltaUsdM);
 

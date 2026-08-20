@@ -143,9 +143,12 @@ const FIELD_TIERS = {
 /**
  * EVERY swept input with its two impacts — on the cost gap and on the CO₂
  * abatement cost. These are the two figures the model exists to produce, and
- * the two rankings diverge sharply (corridor length: 76.6% on the gap, 366%
- * on abatement cost), so both are shown per row; `DocsImpactTable` ranks by
- * the tab the reader picks (abatement cost by default).
+ * the two rankings diverge sharply (corridor length: 76.6% on the gap; on
+ * abatement cost its endpoints read +366% at 100 nm and −82.3% at 5,000 nm),
+ * so both are shown per row; `DocsImpactTable` ranks by the tab the reader
+ * picks (the cost gap by default — near-linear, so one percentage is a fair
+ * summary; the abatement cost is a ratio, so numeric rows carry the SIGNED
+ * endpoint pair from `signedByKpi` instead of a max-abs figure).
  *
  * From the same generated artifact §38 reads; the two tables cannot
  * contradict each other.
@@ -158,6 +161,11 @@ const SENSITIVITY_ROWS = (
       options?: unknown;
       range: readonly (string | number)[];
       movementByKpi: Record<string, number>;
+      /** Signed endpoint movements; null for choices (options, not endpoints). */
+      signedByKpi: {
+        gapPvUsdM: { atLow: number; atHigh: number };
+        costPerTonneCo2Usd: { atLow: number; atHigh: number };
+      } | null;
     }[];
   }
 ).ranked
@@ -168,6 +176,8 @@ const SENSITIVITY_ROWS = (
     isChoice: typeof r.range[0] === "string",
     gap: r.movementByKpi.gapPvUsdM ?? 0,
     abatement: r.movementByKpi.costPerTonneCo2Usd ?? 0,
+    gapSigned: r.signedByKpi?.gapPvUsdM ?? null,
+    abatementSigned: r.signedByKpi?.costPerTonneCo2Usd ?? null,
   }));
 
 
@@ -2628,9 +2638,17 @@ export default async function DocsPage() {
                   How far the <em>cost per tonne of CO&#8322; abated</em>{" "}
                   &mdash; the figure funders and policy comparisons quote &mdash;
                   moves when this input is pushed across its plausible range,
-                  as a percentage of the figure itself. 40% means it changes by
-                  four tenths of its own value. Use it to answer:{" "}
-                  <em>if I am wrong about this, how wrong is my number?</em>
+                  as a percentage of the figure itself. Numeric inputs show a{" "}
+                  <strong>signed pair</strong>{" "}&mdash; the movement at the
+                  two ends of the swept range, most negative first. A minus
+                  sign means that end of the range pulls the figure{" "}
+                  <em>below</em>{" "}the reference case; the row below works
+                  through which end produces which figure for corridor length.
+                  Use it to answer:{" "}
+                  <em>
+                    if I am wrong about this, in which direction and how far is
+                    my number off?
+                  </em>
                 </td>
               </tr>
               <tr className="border-b border-neutral-200">
@@ -2638,10 +2656,15 @@ export default async function DocsPage() {
                 <td className="px-3 py-2">
                   The same measurement on the <em>cost gap</em>{" "}&mdash; the
                   headline dollar difference between running green and running
-                  fossil. The two columns rank very differently: corridor
-                  length moves the abatement cost 366% but the gap only 76.6%,
-                  because distance changes the fuel bill <em>and</em>{" "}the
-                  tonnes abated at once.
+                  fossil. The two columns rank very differently, and not
+                  because distance-like inputs push the abatement cost harder:
+                  corridor length&apos;s 366% is the 100&nbsp;nm end of the
+                  swept range measured against the 500&nbsp;nm reference case,
+                  and the far end reads &minus;82.3%. Near an operating point
+                  the coupling <em>suppresses</em>{" "}the response &mdash;
+                  longer voyages also abate more tonnes, so where the
+                  gap&apos;s elasticity to distance is +0.63 the abatement
+                  cost&apos;s is &minus;0.37.
                 </td>
               </tr>
               <tr className="border-b border-neutral-200 last:border-0">
@@ -2660,8 +2683,13 @@ export default async function DocsPage() {
         </div>
         <p className="mt-2">
           The tabs pick which figure the table is ranked by — the{" "}
-          <strong>CO&#8322; abatement cost</strong>{" "}by default — and the
-          ranking column is shown in bold. A
+          <strong>cost gap</strong>{" "}by default — and the
+          ranking column is shown in bold. The gap is the default because it
+          responds near-linearly across the swept ranges, so a single
+          percentage summarises it fairly; the abatement cost divides the gap
+          by the tonnes abated, and any input that also changes the tonnes
+          moves the denominator of its own measurement, which is why that
+          column shows both signed endpoints instead of one number. A
           0.0% is a measurement, not a gap in coverage &mdash; the input was
           swept and measured at zero: cargo unit choice
           really cannot move either figure, and the table says so instead of
@@ -2677,15 +2705,18 @@ export default async function DocsPage() {
         </p>
         <DocsImpactTable rows={SENSITIVITY_ROWS} />
         <p className="mt-2">
-          The top of the ranking is a mix of support levers, geometry and
-          decisions: self-designed public support (376% &mdash; $0&ndash;50m/yr
-          over twenty years genuinely is that large), corridor length (366%
-          &mdash; distance changes the fuel bill <em>and</em>{" "}the tonnes
-          abated at once) and the vessel class (186% here, and the biggest
-          lever of all on the cost gap at 446%). Some inputs matter to one
-          answer and not the other: the N&#8322;O slip scenario doubles the
-          abatement cost (100.5%) while barely touching the gap (0.5%), and
-          vessel count does the reverse &mdash; switch tabs to see the other
+          The top of the ranking is a mix of decisions, support levers and
+          geometry: the vessel class (446% &mdash; the biggest lever of all on
+          the gap), self-designed public support (376% &mdash; $0&ndash;50m/yr
+          over twenty years genuinely is that large), vessel count (93.8%)
+          and the FuelEU credit surplus value (89.3%). Corridor length moves
+          the gap 76.6%, almost all of it at the far end of its range; its
+          abatement-cost pair reads +366% at 100&nbsp;nm and &minus;82.3% at
+          5,000&nbsp;nm &mdash; a denominator artifact the flaw list below
+          takes apart, not a physical response. Some inputs matter to one
+          answer and not the other: the N&#8322;O slip scenario barely touches
+          the gap (0.5%) yet doubles the abatement cost (100.5%), and vessel
+          count does the reverse &mdash; switch tabs to see the other
           ranking. The named EU scheme parameters (ETS
           price and scope, FuelEU penalty and scope) move either figure by
           only a few percent under defaults; they matter far more at high
@@ -2696,7 +2727,7 @@ export default async function DocsPage() {
         <p className="mt-2">
           The sweep above answers <em>how far can this input push the result
           across its plausible range</em>. That places fields in the form
-          well, and it is the wrong question for ranking risk, for three
+          well, and it is the wrong question for ranking risk, for four
           reasons visible in its own table.
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
@@ -2723,6 +2754,19 @@ export default async function DocsPage() {
             horizon compound on a capital-heavy corridor and no sweep of this
             shape can see it.
           </li>
+          <li>
+            <strong>Ratio outputs amplify through the denominator.</strong>{" "}
+            The abatement cost is the gap divided by the tonnes abated, so an
+            input that changes the tonnes moves the denominator of its own
+            measurement. Corridor length is the worked example: from the
+            500&nbsp;nm reference case, the 100&nbsp;nm endpoint cuts the
+            tonnes abated to a fifth while the gap falls only 6.8%, so the
+            ratio balloons to +366%; the 5,000&nbsp;nm endpoint reads
+            &minus;82.3%. A largest-absolute-movement figure kept the +366%
+            and discarded both the sign and the far end. The sweep also holds
+            roundtrips fixed as distance moves &mdash; longer voyages, same
+            count, not a redeployed fleet.
+          </li>
         </ul>
         <p className="mt-2">
           So impact is separated into its two factors and multiplied.{" "}
@@ -2740,12 +2784,14 @@ export default async function DocsPage() {
           elasticity is scenario-dependent and one baseline hides that:
           Chilean copper (build, deep-sea), Australia&ndash;Korea iron ore
           (purchase, deep-sea) and the Skagerrak green box (contract offtake,
-          short-sea). Corridor length measures <strong>0.29</strong>{" "}where
-          consumption is derived from geometry and exactly{" "}
-          <strong>0.00</strong>{" "}where the burn is typed &mdash; the same
-          field, decisive on one corridor and inert on another. &sect;38
-          reports the range across archetypes rather than an average for
-          exactly that reason.
+          short-sea). Corridor length measures <strong>0.29</strong>{" "}on
+          archetype B &mdash; the purchase corridor, whose burns are derived
+          from geometry &mdash; and exactly{" "}
+          <strong>0.00</strong>{" "}where the burn is typed: the same
+          field, decisive on one corridor and inert on another. The value is
+          scenario-dependent through and through &mdash; a corridor where 63%
+          of the gap scales with distance measures ~0.63 &mdash; which is why
+          &sect;38 reports the range across archetypes rather than an average.
         </p>
         <p className="mt-2">
           <strong>Coupling groups</strong>{" "}fix the double-count by moving
@@ -2792,8 +2838,8 @@ export default async function DocsPage() {
         <p className="mt-2">
           The three reference corridors, drawn from the same measured
           results. The bars measure the{" "}
-          <strong>cost gap</strong>{" "}&mdash; unlike the ranking table above,
-          which defaults to the abatement cost, a tornado is drawn for one
+          <strong>cost gap</strong>{" "}&mdash; the same output the ranking
+          table above ranks by, by default. A tornado is drawn for one
           output at a time, and the gap in dollars is the one a bar chart can
           carry across three corridors:
         </p>
@@ -3422,11 +3468,13 @@ export default async function DocsPage() {
           it looks like an error and is not:{" "}
           <code>cargo.unitsPerYear</code>{" "}is swept and measures exactly
           0.0% on the gap, because the engine counts vessels and roundtrips
-          rather than cargo units — yet it is the sole divisor of cost per
-          cargo unit, so it dominates that KPI while leaving the gap
-          untouched. That is why a 0.0% here does not mean the field does
-          nothing, and why placement follows all six KPIs rather than the
-          gap alone.
+          rather than cargo units. Its whole effect is the denominator
+          mechanism from §29&apos;s flaw list: it divides cost per cargo
+          unit, so it dominates that ratio while leaving the gap untouched
+          — the same way corridor length dominates the abatement cost by
+          moving the tonnes abated. That is why a 0.0% here does not mean
+          the field does nothing, and why placement follows all six KPIs
+          rather than the gap alone.
         </p>
         <p className="mt-2">
           The <strong>Elasticity</strong>{" "}and <strong>Coupled</strong>{" "}

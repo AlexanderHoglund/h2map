@@ -21,7 +21,14 @@ import { KPIS, PARAMS } from "../corridor/lib/params";
 const artifact = JSON.parse(
   readFileSync(`${ROOT}data/corridor-sensitivity/sensitivity.json`, "utf8"),
 ) as {
-  ranked: { id: string; range: readonly (string | number)[] }[];
+  ranked: {
+    id: string;
+    range: readonly (string | number)[];
+    signedByKpi: {
+      gapPvUsdM: { atLow: number; atHigh: number };
+      costPerTonneCo2Usd: { atLow: number; atHigh: number };
+    } | null;
+  }[];
   kpis: { id: string }[];
 };
 
@@ -71,6 +78,18 @@ describe("the extracted parameter table still describes the committed artifact",
 
   it("keeps the six KPIs in the artifact's order", () => {
     expect(KPIS.map((k) => k.id)).toEqual(artifact.kpis.map((k) => k.id));
+  });
+
+  it("records opposite-signed abatement endpoints for corridor length", () => {
+    // The honesty fix behind the signed display: the abatement cost RISES
+    // toward the short end of the distance range (+366% at 100 nm) and FALLS
+    // toward the far end (−82% at 5,000 nm). A max-abs figure collapsed that
+    // into "366%" — if these endpoints ever stop disagreeing in sign, the
+    // docs' whole ratio-amplification explanation is stale.
+    const row = artifact.ranked.find((r) => r.id === "cargo.oneWayDistanceNm")!;
+    const s = row.signedByKpi!.costPerTonneCo2Usd;
+    expect(s.atLow).toBeGreaterThan(0);
+    expect(s.atHigh).toBeLessThan(0);
   });
 });
 
