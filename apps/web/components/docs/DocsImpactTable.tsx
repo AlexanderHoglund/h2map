@@ -6,13 +6,16 @@
  * The docs page is server-rendered; this island exists because re-ranking is
  * interaction. The tabs pick the basis — the cost gap (default) or the CO₂
  * abatement cost — and the table sorts by the active tab, renumbering as it
- * goes. The gap is the default because it responds near-linearly across the
- * swept ranges; the abatement cost is a ratio whose denominator many inputs
- * also move, so its figures are shown as SIGNED endpoint pairs for numeric
- * rows rather than a single max-abs percentage that hides which end of the
- * range produced it. The DATA never changes with the tab: both figures stay
- * visible on every row, only the order moves, so the reader cannot lose
- * sight of the divergences the two-column design exists to show.
+ * goes. Numeric rows render SIGNED in BOTH columns — an endpoint pair, or a
+ * single signed extreme when one endpoint rounds to zero — rather than a
+ * max-abs percentage that hides which end of the range produced it, or which
+ * direction it moved. One row, one sign convention: an unsigned magnitude
+ * must never sit next to a signed pair, because "376.4%" beside
+ * "−376.4% … 0.0%" reads as a rise when the movement is a fall. Choices
+ * (options, not endpoints) keep the unsigned single figure. The DATA never
+ * changes with the tab: both figures stay visible on every row, only the
+ * order moves, so the reader cannot lose sight of the divergences the
+ * two-column design exists to show.
  */
 
 import { useMemo, useState } from "react";
@@ -80,16 +83,22 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
       tab === k ? " font-medium text-neutral-900" : " text-neutral-600"
     }`;
 
-  // Abatement is a ratio: numeric rows always show the signed endpoint pair.
-  // The gap keeps the single figure unless the endpoints disagree in sign —
-  // then a max-abs percentage would hide a direction change, so the pair
-  // renders there too.
+  // One row, one sign convention: wherever signed endpoint data exists it is
+  // rendered signed in BOTH columns — the pair when both endpoints survive
+  // rounding, a single signed extreme when one endpoint is 0.0 after
+  // rounding (a pair whose other half is zero says nothing the sign alone
+  // does not). Only choices (null signed) show an unsigned magnitude.
+  const isZero = (v: number): boolean => (Math.abs(v) * 100).toFixed(1) === "0.0";
+  const signedCell = (s: SignedPair): string => {
+    if (isZero(s.atLow) && isZero(s.atHigh)) return "0.0%";
+    if (isZero(s.atLow)) return signedPct(s.atHigh);
+    if (isZero(s.atHigh)) return signedPct(s.atLow);
+    return signedPair(s);
+  };
   const abatementCell = (r: ImpactRow): string =>
-    r.abatementSigned ? signedPair(r.abatementSigned) : pct(r.abatement);
+    r.abatementSigned ? signedCell(r.abatementSigned) : pct(r.abatement);
   const gapCell = (r: ImpactRow): string =>
-    r.gapSigned && r.gapSigned.atLow * r.gapSigned.atHigh < 0
-      ? signedPair(r.gapSigned)
-      : pct(r.gap);
+    r.gapSigned ? signedCell(r.gapSigned) : pct(r.gap);
 
   return (
     <div className="my-3">
@@ -115,6 +124,11 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
           </button>
         ))}
       </div>
+      <p className="mt-1.5 text-xs text-neutral-500">
+        All figures are measured on the frozen 500&nbsp;nm reference corridor,
+        relative to its baseline (cost gap $167.5m, abatement cost $2,506/t)
+        &mdash; not the scenario open in the app.
+      </p>
       {tab === "abatement" && (
         <p className="mt-1.5 text-xs text-neutral-500">
           Worst-case endpoint movement; for inputs that also change the tonnes

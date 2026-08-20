@@ -21,9 +21,12 @@ import { KPIS, PARAMS } from "../corridor/lib/params";
 const artifact = JSON.parse(
   readFileSync(`${ROOT}data/corridor-sensitivity/sensitivity.json`, "utf8"),
 ) as {
+  baseKpis: { gapPvUsdM: number };
   ranked: {
     id: string;
     range: readonly (string | number)[];
+    gapAtLow: number;
+    gapAtHigh: number;
     signedByKpi: {
       gapPvUsdM: { atLow: number; atHigh: number };
       costPerTonneCo2Usd: { atLow: number; atHigh: number };
@@ -90,6 +93,49 @@ describe("the extracted parameter table still describes the committed artifact",
     const s = row.signedByKpi!.costPerTonneCo2Usd;
     expect(s.atLow).toBeGreaterThan(0);
     expect(s.atHigh).toBeLessThan(0);
+  });
+});
+
+describe("the corridor-length row's signed figures obey their own arithmetic", () => {
+  // The gap is near-affine in distance: gap(d) ≈ fixed + slope·d. That
+  // decomposition, derived from the row's OWN endpoints, puts hard floors
+  // under both signed columns — the abatement cost cannot fall further than
+  // the fixed share of the baseline gap allows (at infinite distance the
+  // ratio tends to the variable part alone), and the gap cannot fall further
+  // than the variable share (at zero distance only the fixed part remains).
+  // A regenerated artifact that violates either floor mixed up its baseline
+  // or its sign convention, which is exactly the bug class the signed
+  // display exists to prevent.
+  const row = artifact.ranked.find((r) => r.id === "cargo.oneWayDistanceNm")!;
+  const [lo, hi] = row.range as readonly [number, number];
+  const base = artifact.baseKpis.gapPvUsdM;
+  const slope = (row.gapAtHigh - row.gapAtLow) / (hi - lo);
+  const fixed = row.gapAtLow - slope * lo;
+  const fixedShare = fixed / base;
+
+  it("splits the baseline gap into meaningful fixed and variable parts", () => {
+    // Anti-vacuity: shares outside (0, 1) would make the floors trivial.
+    expect(fixedShare).toBeGreaterThan(0);
+    expect(fixedShare).toBeLessThan(1);
+  });
+
+  it("bounds the abatement fall by the fixed share of the gap", () => {
+    const s = row.signedByKpi!.costPerTonneCo2Usd;
+    expect(s.atHigh).toBeGreaterThanOrEqual(-fixedShare - 0.01);
+  });
+
+  it("bounds the gap fall by the variable share", () => {
+    const s = row.signedByKpi!.gapPvUsdM;
+    expect(s.atLow).toBeGreaterThanOrEqual(-(1 - fixedShare) - 0.01);
+  });
+
+  it("back-solves both signed gap endpoints from one swept range", () => {
+    // Both columns of a row must describe the SAME sweep: the signed gap
+    // endpoints must be exactly the relative movements the row's absolute
+    // gap endpoints imply against the artifact's own baseline.
+    const s = row.signedByKpi!.gapPvUsdM;
+    expect(s.atLow).toBeCloseTo((row.gapAtLow - base) / base, 9);
+    expect(s.atHigh).toBeCloseTo((row.gapAtHigh - base) / base, 9);
   });
 });
 

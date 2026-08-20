@@ -146,9 +146,9 @@ const FIELD_TIERS = {
  * the two rankings diverge sharply (corridor length: 76.6% on the gap; on
  * abatement cost its endpoints read +366% at 100 nm and −82.3% at 5,000 nm),
  * so both are shown per row; `DocsImpactTable` ranks by the tab the reader
- * picks (the cost gap by default — near-linear, so one percentage is a fair
- * summary; the abatement cost is a ratio, so numeric rows carry the SIGNED
- * endpoint pair from `signedByKpi` instead of a max-abs figure).
+ * picks (the cost gap by default) and renders numeric rows SIGNED in both
+ * columns from `signedByKpi` — an endpoint pair, or one signed extreme when
+ * an endpoint rounds to zero — never a max-abs figure that hides direction.
  *
  * From the same generated artifact §38 reads; the two tables cannot
  * contradict each other.
@@ -2640,7 +2640,9 @@ export default async function DocsPage() {
                   moves when this input is pushed across its plausible range,
                   as a percentage of the figure itself. Numeric inputs show a{" "}
                   <strong>signed pair</strong>{" "}&mdash; the movement at the
-                  two ends of the swept range, most negative first. A minus
+                  two ends of the swept range, most negative first &mdash; or a
+                  single signed extreme (e.g. &minus;376.4%) when the other
+                  endpoint rounds to zero. A minus
                   sign means that end of the range pulls the figure{" "}
                   <em>below</em>{" "}the reference case; the row below works
                   through which end produces which figure for corridor length.
@@ -2654,7 +2656,8 @@ export default async function DocsPage() {
               <tr className="border-b border-neutral-200">
                 <td className="px-3 py-2 font-medium">Cost gap impact</td>
                 <td className="px-3 py-2">
-                  The same measurement on the <em>cost gap</em>{" "}&mdash; the
+                  The same measurement, with the same signed rendering, on the{" "}
+                  <em>cost gap</em>{" "}&mdash; the
                   headline dollar difference between running green and running
                   fossil. The two columns rank very differently, and not
                   because distance-like inputs push the abatement cost harder:
@@ -2684,12 +2687,18 @@ export default async function DocsPage() {
         <p className="mt-2">
           The tabs pick which figure the table is ranked by — the{" "}
           <strong>cost gap</strong>{" "}by default — and the
-          ranking column is shown in bold. The gap is the default because it
-          responds near-linearly across the swept ranges, so a single
-          percentage summarises it fairly; the abatement cost divides the gap
+          ranking column is shown in bold. Every figure is measured on the
+          frozen 500&nbsp;nm reference corridor against its own baseline (cost
+          gap $167.5m, abatement cost $2,506/t) &mdash; not on the scenario
+          open in the app. Numeric rows carry{" "}
+          <strong>one sign convention across both columns</strong>: the signed
+          endpoint pair, or a single signed extreme when the other endpoint
+          rounds to zero, so a fall never masquerades as an unsigned magnitude.
+          The abatement cost needs that care most: it divides the gap
           by the tonnes abated, and any input that also changes the tonnes
-          moves the denominator of its own measurement, which is why that
-          column shows both signed endpoints instead of one number. A
+          moves the denominator of its own measurement. Only{" "}
+          <em>choice</em>{" "}rows show an unsigned single figure &mdash;
+          options have no low or high end. A
           0.0% is a measurement, not a gap in coverage &mdash; the input was
           swept and measured at zero: cargo unit choice
           really cannot move either figure, and the table says so instead of
@@ -2707,9 +2716,11 @@ export default async function DocsPage() {
         <p className="mt-2">
           The top of the ranking is a mix of decisions, support levers and
           geometry: the vessel class (446% &mdash; the biggest lever of all on
-          the gap), self-designed public support (376% &mdash; $0&ndash;50m/yr
-          over twenty years genuinely is that large), vessel count (93.8%)
-          and the FuelEU credit surplus value (89.3%). Corridor length moves
+          the gap), self-designed public support (&minus;376.4% &mdash; a fall,
+          because $0&ndash;50m/yr over twenty
+          years genuinely cuts the gap by that much), vessel count (+93.8%)
+          and the FuelEU credit surplus value (&minus;89.3%, also a
+          gap-closer). Corridor length moves
           the gap 76.6%, almost all of it at the far end of its range; its
           abatement-cost pair reads +366% at 100&nbsp;nm and &minus;82.3% at
           5,000&nbsp;nm &mdash; a denominator artifact the flaw list below
