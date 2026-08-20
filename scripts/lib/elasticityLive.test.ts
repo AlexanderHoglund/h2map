@@ -13,7 +13,10 @@ import {
   LIVE_PARAMS,
   type ElasticityKpi,
 } from "../../apps/web/lib/corridor/elasticityLive";
-import { emptyScenario, workbookScenario } from "../../apps/web/lib/corridor/scenarioDefaults";
+import {
+  emptyScenario,
+  referenceCorridorScenario,
+} from "../../apps/web/lib/corridor/scenarioDefaults";
 import { ARCHETYPES } from "../corridor/lib/archetypes";
 import { COUPLING_GROUPS, PARAMS, perturbationType } from "../corridor/lib/params";
 
@@ -47,12 +50,16 @@ const bundleFrozen = parseRefBundle(
 /** The user corridor: the Simplified starter template, as the app builds it. */
 const user = computeLiveElasticity(emptyScenario(), bundleCurrent)!;
 
-/** The reference corridor: the sweep's own baseline posture, frozen bundle. */
-const referenceScenario = (): ScenarioInput => {
-  const raw = workbookScenario();
-  raw.flags = { ...(raw.flags ?? {}), emissionsBasis: "wellToWake" };
-  return migrateScenarioInput(JSON.parse(JSON.stringify(raw))).input;
-};
+/**
+ * The reference corridor: the sweep's own baseline posture, frozen bundle —
+ * via the SAME builder the seed route publishes as the "Reference corridor
+ * (docs baseline)" preset, so the corridor users load is the corridor these
+ * numbers pin.
+ */
+const referenceScenario = (): ScenarioInput =>
+  migrateScenarioInput(
+    JSON.parse(JSON.stringify(referenceCorridorScenario())),
+  ).input;
 const reference = computeLiveElasticity(referenceScenario(), bundleFrozen)!;
 
 const entry = (r: typeof user, id: string) => r.entries.find((e) => e.id === id);
@@ -117,6 +124,24 @@ describe("acceptance 3 — the reference corridor, end to end", () => {
     // the plan defines measures −0.924 on the same corridor.
     expect(val(reference, "cargo.oneWayDistanceNm", "costPerTonneCo2Usd")).toBeCloseTo(-0.924, 2);
     expect(val(reference, "cargo.oneWayDistanceNm", "gapPvUsdM")).toBeCloseTo(0.085, 2);
+  });
+});
+
+describe("the loadable preset IS the corridor §29 measured", () => {
+  it("reproduces the sweep artifact's baseline KPIs exactly", () => {
+    // The seed route publishes referenceCorridorScenario() as "Reference
+    // corridor (docs baseline)". If this drifts from the sweep's own
+    // baseline, the preset stops being the corridor whose endpoint dollars
+    // and elasticities the docs print.
+    const artifact = JSON.parse(
+      readFileSync(`${ROOT}data/corridor-sensitivity/sensitivity.json`, "utf8"),
+    ) as { baseKpis: Record<string, number> };
+    const summary = evaluateScenario(
+      resolveScenario(referenceScenario(), bundleFrozen),
+    ).summary;
+    for (const kpi of ELASTICITY_KPIS) {
+      expect(summary[kpi], kpi).toBeCloseTo(artifact.baseKpis[kpi]!, 9);
+    }
   });
 });
 

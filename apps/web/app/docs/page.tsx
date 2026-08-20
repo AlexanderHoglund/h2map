@@ -2922,7 +2922,7 @@ export default async function DocsPage() {
           <li>
             <strong>Coupled inputs double-count.</strong>{" "}Green and fossil
             fuel consumption each move the gap tens of millions on their own
-            ($150.3m&ndash;$202.5m and $165.5m&ndash;$98.6m across their
+            ($150.3m&ndash;$202.5m and $170.6m&ndash;$98.6m across their
             ranges), but they are
             energy-matched on any real corridor. Moving one alone makes the
             parity check report the ratio (1.30) and flag it as

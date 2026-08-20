@@ -215,6 +215,33 @@ describe("the absolute dollar display is the signed data's own arithmetic", () =
     expect(Math.round(dist.absoluteByKpi!.costPerTonneCo2Usd.atHigh)).toBe(443);
     const support = artifact.ranked.find((r) => r.id === "regulation.selfOtherUsdM")!;
     expect(support.absoluteByKpi!.gapPvUsdM.atHigh.toFixed(1)).toBe("-462.9");
+    // The saving-per-tonne footnote's worked number.
+    expect(Math.round(support.absoluteByKpi!.costPerTonneCo2Usd.atHigh)).toBe(-6928);
+    // The coupled-double-count bullet quotes both consumption rows.
+    const greenBurn = artifact.ranked.find((r) => r.id === "green.fuelTonnesPerVesselYear")!;
+    expect(greenBurn.absoluteByKpi!.gapPvUsdM.atLow.toFixed(1)).toBe("150.3");
+    expect(greenBurn.absoluteByKpi!.gapPvUsdM.atHigh.toFixed(1)).toBe("202.5");
+    const fossilBurn = artifact.ranked.find((r) => r.id === "fossil.fuelTonnesPerVesselYear")!;
+    expect(fossilBurn.absoluteByKpi!.gapPvUsdM.atLow.toFixed(1)).toBe("170.6");
+    expect(fossilBurn.absoluteByKpi!.gapPvUsdM.atHigh.toFixed(1)).toBe("98.6");
+  });
+
+  it("brackets each sweep's own baseline: the range fixes hold", () => {
+    // The three rows §29's open items named: a sweep whose range excludes
+    // its own baseline shows two endpoint dollars the baseline sits outside
+    // of, and the reader has no anchor. Fossil consumption now brackets the
+    // derived 1,185 t/vessel/yr; fossil CAPEX starts at the already-afloat
+    // fleet's $0; sulphur starts at the IMO accounting default 0.5 %S (its
+    // own module-on baseline — the framework flip is documented in §29).
+    const base = artifact.baseKpis.gapPvUsdM;
+    const fossilBurn = artifact.ranked.find((r) => r.id === "fossil.fuelTonnesPerVesselYear")!;
+    expect(fossilBurn.gapAtLow).toBeGreaterThan(base);
+    expect(fossilBurn.gapAtHigh).toBeLessThan(base);
+    const fossilCapex = artifact.ranked.find((r) => r.id === "vessel.fossil.capexUsdM")!;
+    expect(fossilCapex.range[0]).toBe(0);
+    expect(fossilCapex.gapAtLow).toBeCloseTo(base, 9);
+    const sulphur = artifact.ranked.find((r) => r.id === "fossil.sulphurPercent")!;
+    expect(sulphur.range[0]).toBe(0.5);
   });
 });
 

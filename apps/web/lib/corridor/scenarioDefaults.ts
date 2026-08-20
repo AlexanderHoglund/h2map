@@ -12,6 +12,32 @@ export function workbookScenario(): ScenarioInput {
 }
 
 /**
+ * THE FROZEN REFERENCE CORRIDOR — the 500 nm corridor every §29 measurement
+ * describes, published as a loadable preset so "open the app, set the input
+ * to the endpoint shown, and the result is the number in the cell" is one
+ * click instead of a transcription exercise.
+ *
+ * It is the SWEEP BASELINE posture exactly: the frozen workbook fixture
+ * (Denmark, 500 nm, 20 years, one vessel, burns derived) with the app's
+ * actual well-to-wake accounting — the same two-line construction
+ * `scripts/corridor/sensitivity.ts` documents at length. On the frozen
+ * 2026-07-30 bundle it reads a cost gap of $167.5m and an abatement cost of
+ * $2,506/t (pinned by sweepParams.test.ts against the artifact, and by
+ * elasticityLive.test.ts against this very builder).
+ *
+ * CAVEAT, and the reason the seeded project name says "docs baseline": the
+ * scenario stays pinned to the frozen bundle, and OPENING it in the app
+ * re-pins to the live catalogue like any old save — benchmark-driven
+ * figures move with the re-cost, so the app's numbers will sit near, not
+ * on, the frozen table. The docs figures are the frozen-bundle ones.
+ */
+export function referenceCorridorScenario(): ScenarioInput {
+  const input = workbookScenario();
+  input.flags = { ...(input.flags ?? {}), emissionsBasis: "wellToWake" };
+  return input;
+}
+
+/**
  * APP DEFAULT: the Chilean copper-concentrate green corridor — populated
  * from "Chilean Green Corridors — Copper Concentrate Export" (MMMCZCS,
  * 11 Sep 2025; consortium: Sumitomo, Interacid, NYK, Codelco, MMMCZCS).

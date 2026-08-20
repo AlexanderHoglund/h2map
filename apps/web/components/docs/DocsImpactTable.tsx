@@ -120,7 +120,12 @@ function EndpointsCell({ v, k }: { v: EndpointValues; k: TabKey }) {
 
 /**
  * A choice cell: the option that moves the figure furthest, and the value
- * it produces — direction measured against that choice's own baseline.
+ * it produces — direction measured against that choice's own baseline,
+ * WHICH IS STATED IN THE CELL. Two baselines coexist in this table: numeric
+ * rows move from the frozen sweep baseline ($167.5m / $2,506/t), while
+ * choices are evaluated on the current reference data from their own
+ * baseline (e.g. $140.2m). Leaving the second number implicit made every
+ * choice arrow look measured from the frozen figure, which it is not.
  */
 function WorstCell({ w, k }: { w: WorstOption; k: TabKey }) {
   const f = fmt(k);
@@ -129,7 +134,10 @@ function WorstCell({ w, k }: { w: WorstOption; k: TabKey }) {
   return (
     <>
       e.g. <code className="text-[12px]">{w.option}</code>: {val}{" "}
-      <Arrow falls={w.value < w.base} />
+      <Arrow falls={w.value < w.base} />{" "}
+      <span className="whitespace-nowrap text-[11px] text-neutral-500">
+        from its own {f(w.base)}
+      </span>
     </>
   );
 }
@@ -137,6 +145,15 @@ function WorstCell({ w, k }: { w: WorstOption; k: TabKey }) {
 export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
   const [tab, setTab] = useState<TabKey>("gap");
   const other: TabKey = tab === "gap" ? "abatement" : "gap";
+  // Any negative $/t on display earns the saving-per-tonne footnote —
+  // computed from the data rather than toggled by hand, so the note can
+  // never linger after a regeneration removes the last negative cell.
+  const hasNegativePerTonne = rows.some(
+    (r) =>
+      (r.abatementValues &&
+        (r.abatementValues.atLow < 0 || r.abatementValues.atHigh < 0)) ||
+      (r.abatementWorst && r.abatementWorst.value < 0),
+  );
   const sorted = useMemo(
     () =>
       [...rows].sort(
@@ -247,6 +264,15 @@ export default function DocsImpactTable({ rows }: { rows: ImpactRow[] }) {
           </tbody>
         </table>
       </div>
+      {hasNegativePerTonne && (
+        <p className="mt-1.5 text-xs text-neutral-500">
+          A negative $/t is a <strong>saving per tonne</strong>: at that
+          setting the green corridor is outright cheaper than fossil, so each
+          abated tonne of CO&#8322; saves money instead of costing it
+          (&minus;$6,928/t under $50m/yr of other support: the corridor
+          banks $6,928 per tonne it abates).
+        </p>
+      )}
     </div>
   );
 }

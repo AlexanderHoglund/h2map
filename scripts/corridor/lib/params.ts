@@ -228,11 +228,18 @@ export const PARAMS: Param[] = [
   // baseline, the same semantics as financing.greenRate above.
   // -------------------------------------------------------------------------
   { id: "cargo.startYear", label: "Start year (calendar anchoring)", step: 1, low: 2025, high: 2035, set: (s, v) => { s.cargo.startYear = Math.round(v); } },
-  { id: "vessel.fossil.capexUsdM", label: "Fossil vessel CAPEX ($m)", step: 2, low: 15, high: 100, set: (s, v) => { s.vessel.fossil.capexUsdMPerShip = v; } },
+  // Low end 0, NOT a plausible newbuild price: the reference corridor's
+  // fossil fleet is already afloat (resolved CAPEX $0/ship), and a sweep
+  // whose range excludes its own baseline shows two endpoint dollars the
+  // baseline sits outside of — the reader has no anchor. 0 IS the baseline.
+  { id: "vessel.fossil.capexUsdM", label: "Fossil vessel CAPEX ($m)", step: 2, low: 0, high: 100, set: (s, v) => { s.vessel.fossil.capexUsdMPerShip = v; } },
   { id: "vessel.fossil.opexUsdMPerYear", label: "Fossil vessel OPEX ($m/yr)", step: 2, low: 0.8, high: 5, set: (s, v) => { s.vessel.fossil.opexUsdMPerShipPerYear = v; } },
   { id: "green.combustionEf", label: "Green combustion EF (tCO2/t)", step: 3, low: 0, high: 1, set: (s, v) => { s.green.overrides.combustionEfTco2PerTonne = v; } },
   { id: "green.lhvMjPerTonne", label: "Green energy density, LHV (MJ/t)", step: 3, low: 16000, high: 21000, set: (s, v) => { s.green.overrides.lhvMjPerTonne = v; } },
-  { id: "fossil.fuelTonnesPerVesselYear", label: "Fossil fuel consumption (t/vessel/yr)", step: 3, low: 1300, high: 5200, set: (s, v) => { s.fossil.overrides.fuelTonnesPerVesselYear = v; } },
+  // Low 1,000, not the green side's 1,300: the reference corridor's derived
+  // fossil burn is 1,185 t/vessel/yr (energy-denser fuel), which the old
+  // range excluded — every endpoint dollar sat on one side of the baseline.
+  { id: "fossil.fuelTonnesPerVesselYear", label: "Fossil fuel consumption (t/vessel/yr)", step: 3, low: 1000, high: 5200, set: (s, v) => { s.fossil.overrides.fuelTonnesPerVesselYear = v; } },
   { id: "fossil.combustionEf", label: "Fossil combustion EF (tCO2/t)", step: 3, low: 2.5, high: 3.5, set: (s, v) => { s.fossil.overrides.combustionEfTco2PerTonne = v; } },
   { id: "fossil.lhvMjPerTonne", label: "Fossil energy density, LHV (MJ/t)", step: 3, low: 38000, high: 43000, set: (s, v) => { s.fossil.overrides.lhvMjPerTonne = v; } },
   { id: "port.bargeOpexUsdMPerYear", label: "Green port barge OPEX ($m/yr)", step: 4, low: 0, high: 1.5, set: (s, v) => { s.green.overrides.bargeOpexUsdMPerYear = v; } },
@@ -259,7 +266,15 @@ export const PARAMS: Param[] = [
   { id: "green.certifiedWttGco2ePerMj", label: "Green certified pathway WtT (gCO2e/MJ)", step: 3, low: 5, high: 28.2, set: (s, v) => { s.green.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, ...(s.green.emissions ?? {}), certifiedWttGco2ePerMj: v }; } },
   { id: "green.pilotShare", label: "Pilot fuel share of energy (0–1)", step: 3, low: 0, high: 0.08, set: (s, v) => { s.green.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, ...(s.green.emissions ?? {}), pilotShare: v }; } },
   { id: "green.efficiencyRatio", label: "Engine efficiency ratio (green vs fossil)", step: 3, low: 0.8, high: 1.2, set: (s, v) => { s.green.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, ...(s.green.emissions ?? {}), efficiencyRatio: v }; } },
-  { id: "fossil.sulphurPercent", label: "Fossil sulphur content (% S, IMO accounting)", step: 3, low: 0.1, high: 3, set: (s, v) => { s.regulation.emissions = { framework: "imo" }; s.fossil.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, sulphurPercent: v }; } },
+  // Low end 0.5 = the IMO accounting DEFAULT, so the row's low endpoint IS
+  // its own (module-on) baseline. The old 0.1 low was a dead point anyway:
+  // IMO's fossil WtT defaults are binned by sulphur band and 0.1 lands in
+  // the same band as 0.5, so the sweep measured the identical state under a
+  // label that suggested it had reached a cleaner fuel. This row still flips
+  // the accounting framework to IMO for its own sweep (the field does not
+  // exist under FuelEU accounting), which is why both endpoint dollars sit
+  // below the FuelEU-accounted baseline — the module-on caveat above.
+  { id: "fossil.sulphurPercent", label: "Fossil sulphur content (% S, IMO accounting; 0.5 = default)", step: 3, low: 0.5, high: 3, set: (s, v) => { s.regulation.emissions = { framework: "imo" }; s.fossil.emissions = { ...{ certifiedWttGco2ePerMj: null, n2oScenarioId: null, pilotShare: null, pilotFuelId: null, engineType: null, sulphurPercent: null, efficiencyRatio: null }, sulphurPercent: v }; } },
   { id: "financing.baseRate", label: "Base cost of debt (module on, green 6%)", step: 5, low: 0.05, high: 0.11, set: (s, v) => { s.financing = { enabled: true, greenRate: 0.06, baseRate: v, debtShare: 1, tenorYears: 15, structure: "amortizing" }; } },
   { id: "financing.debtShare", label: "Debt share of green CAPEX (module on)", step: 5, low: 0, high: 1, set: (s, v) => { s.financing = { enabled: true, greenRate: 0.06, baseRate: 0.08, debtShare: v, tenorYears: 15, structure: "amortizing" }; } },
   { id: "financing.tenorYears", label: "Loan tenor (yr, module on)", step: 5, low: 5, high: 25, set: (s, v) => { s.financing = { enabled: true, greenRate: 0.06, baseRate: 0.08, debtShare: 1, tenorYears: Math.round(v), structure: "amortizing" }; } },

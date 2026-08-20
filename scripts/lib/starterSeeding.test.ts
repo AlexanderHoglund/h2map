@@ -73,7 +73,7 @@ describe("starter seeding reaches existing users", () => {
     expect(route).toMatch(/if \(lookupError\) return \{ error: null \};/);
   });
 
-  it("resets ONLY the three reference examples, never the template", () => {
+  it("resets ONLY the reference examples, never the template", () => {
     // ensureByName overwrites when `reset` is set, so this decides whose
     // work can be destroyed. The examples are reference material whose whole
     // value is showing what the model CURRENTLY says — a copy left at an
@@ -83,12 +83,17 @@ describe("starter seeding reaches existing users", () => {
     const calls = [
       ...route.matchAll(/ensureByName\(\s*([A-Z_]+),[\s\S]*?\);/g),
     ];
-    expect(calls.length, "expected four ensureByName call sites").toBe(4);
+    expect(calls.length, "expected five ensureByName call sites").toBe(5);
     const resetting = calls
       .filter((m) => /\btrue,/.test(m[0]))
       .map((m) => m[1]);
     expect(resetting.sort()).toEqual(
-      ["BENCHMARK_EXAMPLE_NAME", "MODERN_EXAMPLE_NAME", "STUDY_EXAMPLE_NAME"].sort(),
+      [
+        "BENCHMARK_EXAMPLE_NAME",
+        "MODERN_EXAMPLE_NAME",
+        "REFERENCE_EXAMPLE_NAME",
+        "STUDY_EXAMPLE_NAME",
+      ].sort(),
     );
     expect(resetting).not.toContain("SIMPLE_TEMPLATE_NAME");
   });

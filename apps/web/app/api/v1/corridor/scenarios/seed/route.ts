@@ -11,6 +11,7 @@ import {
   defaultScenario,
   emptyScenario,
   modernChileScenario,
+  referenceCorridorScenario,
   studyChileScenario,
 } from "@/lib/corridor/scenarioDefaults";
 
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   const MODERN_EXAMPLE_NAME = "Chilean copper corridor — current model";
   const STUDY_EXAMPLE_NAME = "Chilean copper corridor — as published";
   const BENCHMARK_EXAMPLE_NAME = "Chilean copper corridor — benchmarks only";
+  const REFERENCE_EXAMPLE_NAME = "Reference corridor (docs baseline)";
   const created: unknown[] = [];
 
   const service = getServerSupabase();
@@ -219,6 +221,22 @@ export async function POST(request: NextRequest): Promise<Response> {
   );
   if (benchmark.error) {
     console.error("[api/corridor/scenarios/seed]", benchmark.error);
+    return jsonError(500, "db_error", "Could not create the starter projects");
+  }
+
+  // The frozen 500 nm reference corridor — the scenario every §29
+  // measurement (endpoint dollars, elasticities, sweep ranks) describes,
+  // loadable so "type the endpoint into the app" starts from the corridor
+  // the docs actually measured. Reference material like the Chilean
+  // examples: ensured by name, refreshed on every seed call.
+  const reference = await ensureByName(
+    REFERENCE_EXAMPLE_NAME,
+    referenceCorridorScenario(),
+    "standard",
+    true, // reference material — refresh it, do not leave a stale copy
+  );
+  if (reference.error) {
+    console.error("[api/corridor/scenarios/seed]", reference.error);
     return jsonError(500, "db_error", "Could not create the starter projects");
   }
 

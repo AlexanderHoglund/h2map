@@ -328,10 +328,10 @@
    "label": "Fossil vessel CAPEX ($m)",
    "step": 2,
    "range": [
-    15,
+    0,
     100
    ],
-   "gapAtLow": 152.459068425216,
+   "gapAtLow": 167.459068425216,
    "gapAtHigh": 67.45906842521603,
    "maxAbsDeltaUsdM": 99.99999999999997,
    "relHeadlineMovement": 0.5971608521437467,
@@ -347,21 +347,21 @@
    "maxRelMovement": 2.6270754940649517,
    "signedByKpi": {
     "gapPvUsdM": {
-     "atLow": -0.08957412782156203,
+     "atLow": 0,
      "atHigh": -0.5971608521437467
     },
     "costPerTonneCo2Usd": {
-     "atLow": -0.0895741278215622,
+     "atLow": 0,
      "atHigh": -0.5971608521437467
     }
    },
    "absoluteByKpi": {
     "gapPvUsdM": {
-     "atLow": 152.459068425216,
+     "atLow": 167.459068425216,
      "atHigh": 67.45906842521603
     },
     "costPerTonneCo2Usd": {
-     "atLow": 2281.5345506472927,
+     "atLow": 2506.008034666359,
      "atHigh": 1009.5181412059202
     }
    },
@@ -497,10 +497,10 @@
    "label": "Fossil fuel consumption (t/vessel/yr)",
    "step": 3,
    "range": [
-    1300,
+    1000,
     5200
    ],
-   "gapAtLow": 165.49105308917632,
+   "gapAtLow": 170.63328670915098,
    "gapAtHigh": 98.64201602950587,
    "maxAbsDeltaUsdM": 68.81705239571014,
    "relHeadlineMovement": 0.4109484965064314,
@@ -516,21 +516,21 @@
    "maxRelMovement": 4.464809477916507,
    "signedByKpi": {
     "gapPvUsdM": {
-     "atLow": -0.011752217151014202,
+     "atLow": 0.018955188953248724,
      "atHigh": -0.4109484965064314
     },
     "costPerTonneCo2Usd": {
-     "atLow": -0.1236480470996356,
+     "atLow": 0.28322416578360576,
      "atHigh": -0.8922100567505699
     }
    },
    "absoluteByKpi": {
     "gapPvUsdM": {
-     "atLow": 165.49105308917632,
+     "atLow": 170.63328670915098,
      "atHigh": 98.64201602950587
     },
     "costPerTonneCo2Usd": {
-     "atLow": 2196.1450351638678,
+     "atLow": 3215.770069731752,
      "atHigh": 270.12246383930295
     }
    },
@@ -2999,10 +2999,10 @@
   },
   {
    "id": "fossil.sulphurPercent",
-   "label": "Fossil sulphur content (% S, IMO accounting)",
+   "label": "Fossil sulphur content (% S, IMO accounting; 0.5 = default)",
    "step": 3,
    "range": [
-    0.1,
+    0.5,
     3
    ],
    "gapAtLow": 167.45869527273567,
