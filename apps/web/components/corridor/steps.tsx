@@ -774,7 +774,7 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
       id: `${side}.wtwGco2PerMj`,
       overridden: s.overrides.wtwGco2PerMj !== null,
       node: overrideField("wtwGco2PerMj", "wtw", t("wtw"), "gCO2e/MJ", {
-        help: t("wtwHelp"),
+        help: t(side === "green" ? "wtwGreenHelp" : "wtwFossilHelp"),
         provenance: feCite,
       }),
     },

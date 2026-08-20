@@ -129,7 +129,6 @@
       "combustionEf": "CO2 emission factor, combustion",
       "lhv": "Energy density, LHV",
       "wtw": "GHG intensity, well-to-wake",
-      "wtwHelp": "The climate intensity of running the ship on this fuel, from production to exhaust (gCO₂e/MJ) — an operational figure, not the fuel alone. The model combines the fuel's certified production value with whatever operating on it adds — for example combustion slip, or a small fossil ignition pilot where the engine needs one. On the fossil side it is the chosen framework's official value. Type a value only to pin your own.",
       "consumption": "Fuel consumption",
       "consumptionHelp": "How much fuel one ship burns per year, in tonnes. The benchmark comes from the vessel class, or is derived from distance and roundtrips; override it to pin your own tonnage.",
       "prodCapex": "Fuel production CAPEX (year 1)",
@@ -151,7 +150,9 @@
       "combustionEfHelp": "Tonnes of CO₂ released by burning one tonne of this fuel — a physical property of its chemistry. It drives the emissions bill and any carbon price on it.",
       "lhvHelp": "The energy in one tonne of this fuel (lower heating value). A fuel with less energy per tonne needs more tonnes for the same voyage — the main reason green fuels weigh more than the oil they replace.",
       "prodCapexHelp": "The one-off cost of building the production plant, when this fuel is produced rather than bought. Zero when purchasing.",
-      "prodOpexHelp": "The yearly cost of running that production plant. Zero when purchasing."
+      "prodOpexHelp": "The yearly cost of running that production plant. Zero when purchasing.",
+      "wtwGreenHelp": "The climate intensity of running the ship on this fuel, from production to exhaust (gCO₂e/MJ) — an operational figure, not the fuel alone. The model combines the fuel's certified production value with whatever operating on it adds — for example combustion slip, or a small fossil ignition pilot where the engine needs one. Type a value only to pin your own.",
+      "wtwFossilHelp": "The climate intensity of this fuel from production to exhaust (gCO₂e/MJ). For fossil fuels it is the chosen framework's official value — FuelEU and the IMO each publish their own number for the same fuel. Type a value only to pin your own."
     },
     "port": {
       "green": "Green port",
