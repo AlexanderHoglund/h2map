@@ -3427,16 +3427,16 @@ export default async function DocsPage() {
           limits (one input at a time; interactions invisible).
         </p>
         <p className="mt-2">
-          <strong>Placement</strong>{" "}says where the field appears in the
-          interface; it is decided by the measured movement across all six
+          <strong>Placement</strong>{" "}says which view mode shows the
+          field; it is decided by the measured movement across all six
           outputs, and is deliberately narrower than the ranking:{" "}
-          <em>top-level</em>{" "}
-          renders prominently (fields moving a headline output by ≥5%),{" "}
-          <em>advanced</em>{" "}renders behind the
-          Standard view, and &ldquo;—&rdquo; means the field&apos;s
-          visibility is decided by its section&apos;s own controls — a field
-          can be a large documented mover while living behind a module
-          toggle or a dedicated control.
+          <em>Simplified + Standard</em>{" "}means the field renders
+          prominently in both view modes (it moves a headline output by
+          ≥5%); <em>Standard only</em>{" "}means Simplified runs it on its
+          benchmark and you must switch to Standard to edit it; and{" "}
+          <em>with its section</em>{" "}means visibility follows the
+          field&apos;s own section — a module toggle or a dedicated control —
+          rather than the view mode.
         </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-xs">
@@ -3486,7 +3486,13 @@ export default async function DocsPage() {
                   >
                     {row.status ?? "—"}
                   </td>
-                  <td className="px-3 py-1.5">{row.placement}</td>
+                  <td className="whitespace-nowrap px-3 py-1.5">
+                    {row.placement === "top-level"
+                      ? "Simplified + Standard"
+                      : row.placement === "advanced"
+                        ? "Standard only"
+                        : "with its section"}
+                  </td>
                 </tr>
               ))}
             </tbody>
