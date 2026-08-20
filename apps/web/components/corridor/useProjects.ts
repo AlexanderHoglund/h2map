@@ -73,10 +73,20 @@ export const DEFAULT_PROJECT_NAME = "Mejillones–Japan copper corridor";
 
 /** Canonical JSON for dirty-comparison: migration-normalized key order. */
 function normalizeScenarioJson(scenario: unknown): string {
-  return JSON.stringify(
-    repinToCurrentBundle(migrateScenarioInput(JSON.parse(JSON.stringify(scenario))).input)
-      .input,
-  );
+  try {
+    return JSON.stringify(
+      repinToCurrentBundle(migrateScenarioInput(JSON.parse(JSON.stringify(scenario))).input)
+        .input,
+    );
+  } catch {
+    // A MID-EDIT draft can be schema-invalid (a required field typed to 0, a
+    // phasing sum ≠ 1) and migration ends in a hard zod parse. This runs in
+    // render (isDirty) — throwing here used to collapse the whole workspace
+    // into the error boundary while the user was still typing. Raw JSON is
+    // enough: an invalid draft never equals a stored snapshot, so it simply
+    // reads as dirty until the field is repaired.
+    return JSON.stringify(scenario);
+  }
 }
 
 export function useProjects(
@@ -208,10 +218,15 @@ export function useProjects(
   // failure still flashes.
   useEffect(() => {
     if (!session || !currentId || busy) return;
+    // A schema-invalid draft (a zeroed required field mid-edit) would be
+    // rejected by the API's own validation — autosaving it just flashes a
+    // failure every debounce while the field is already red. Hold the save
+    // until the draft is valid again; the next valid keystroke saves.
+    if (model.invalidFields.length > 0) return;
     if (normalizeScenarioJson(model.scenario) === savedSnapshotRef.current) return;
     const id = setTimeout(() => void save({ silent: true }), 1500);
     return () => clearTimeout(id);
-  }, [model.scenario, session, currentId, busy, save]);
+  }, [model.scenario, model.invalidFields, session, currentId, busy, save]);
 
   const load = useCallback(
     async (id: string) => {

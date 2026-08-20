@@ -20,6 +20,7 @@ export function NumberInput({
   onChange,
   unit,
   help,
+  invalid,
 }: {
   label: string;
   value: number | null;
@@ -33,6 +34,12 @@ export function NumberInput({
    * itself; the type makes an unexplained field a compile error.
    */
   help: string;
+  /**
+   * The committed value violates a model rule (schema-required > 0, a sum
+   * constraint). The field stays exactly where it is and turns red — an
+   * invalid value must never hide or unmount the control that carries it.
+   */
+  invalid?: boolean;
 }) {
   const id = useId();
   const [draft, setDraft] = useState<string | null>(null);
@@ -48,11 +55,18 @@ export function NumberInput({
         {label}
         <Help text={help} />
       </label>
-      <div className="mt-1 flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 transition-colors duration-150 ease-out focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/40">
+      <div
+        className={`mt-1 flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1.5 transition-colors duration-150 ease-out focus-within:ring-2 ${
+          invalid
+            ? "border-red-500 focus-within:ring-red-500/30"
+            : "border-neutral-300 focus-within:border-brand focus-within:ring-brand/40"
+        }`}
+      >
         <input
           id={id}
           type="text"
           inputMode="decimal"
+          aria-invalid={invalid ? true : undefined}
           value={shown}
           onChange={(e) => {
             const text = e.target.value;

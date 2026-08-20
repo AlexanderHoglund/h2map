@@ -5,6 +5,7 @@ import {
   migrateScenarioInput,
   parseRefBundle,
   resolveScenario,
+  scenarioInputSchema,
   type RefBundle,
   type ResolvedScenario,
   type ScenarioInput,
@@ -314,6 +315,13 @@ export interface CorridorModel {
   result: ScenarioResult | null;
   /** Human-readable reason when the scenario cannot evaluate. */
   error: string | null;
+  /**
+   * Dot-paths of fields the scenario schema rejects
+   * ("cargo.roundtripsPerYear", "capitalPhasing.green.weights"). The form
+   * uses these to turn the offending field red in place — a schema-invalid
+   * value must never make the field (or its whole tab) disappear.
+   */
+  invalidFields: string[];
   hadDraft: boolean;
 }
 
@@ -374,10 +382,24 @@ export function useCorridorModel(): CorridorModel {
   }, []);
 
   const evaluated = useMemo(() => {
+    // Schema-level faults as dot-paths, computed on every change: a value
+    // the schema rejects (a zeroed required field, a phasing sum ≠ 1) must
+    // light the field red IN PLACE — the same rejection an API save would
+    // return, surfaced at the keystroke instead of at save time.
+    const parsed = scenarioInputSchema.safeParse(scenario);
+    const invalidFields = parsed.success
+      ? []
+      : [...new Set(parsed.error.issues.map((i) => i.path.join(".")))];
     try {
       const resolved = resolveScenario(scenario, DEFAULT_BUNDLE);
       const benchmarks = resolveScenario(clearOverrides(scenario), DEFAULT_BUNDLE);
-      return { resolved, benchmarks, result: evaluateScenario(resolved), error: null };
+      return {
+        resolved,
+        benchmarks,
+        result: evaluateScenario(resolved),
+        error: null,
+        invalidFields,
+      };
     } catch (err) {
       // Form-support fallback: build-here without a picked site cannot
       // evaluate (no numbers are shown), but the FORM must stay alive so
@@ -397,6 +419,7 @@ export function useCorridorModel(): CorridorModel {
           benchmarks,
           result: null,
           error: err instanceof Error ? err.message : String(err),
+          invalidFields,
         };
       } catch {
         return {
@@ -404,10 +427,27 @@ export function useCorridorModel(): CorridorModel {
           benchmarks: null,
           result: null,
           error: err instanceof Error ? err.message : String(err),
+          invalidFields,
         };
       }
     }
   }, [scenario]);
+
+  // A scenario that stops resolving mid-edit (a phasing weight typed to 0
+  // breaks the sum-to-1 rule and resolution throws) must not unmount the
+  // form under the user's cursor — the steps bail out without `resolved`.
+  // Keep the LAST GOOD resolution and serve it for FIELD DISPLAY only:
+  // `result` stays null, the error still blocks the Results tab and turns
+  // the offending tab red, and the invalid field lights up via
+  // `invalidFields`. Guarded setState-in-render is React's documented
+  // "state from previous renders" pattern (refs may not be read in render).
+  const [lastGood, setLastGood] = useState<{
+    resolved: ResolvedScenario;
+    benchmarks: ResolvedScenario;
+  } | null>(null);
+  if (evaluated.resolved && evaluated.benchmarks && evaluated.resolved !== lastGood?.resolved) {
+    setLastGood({ resolved: evaluated.resolved, benchmarks: evaluated.benchmarks });
+  }
 
   return {
     bundle: DEFAULT_BUNDLE,
@@ -417,6 +457,8 @@ export function useCorridorModel(): CorridorModel {
     load,
     pickSite,
     ...evaluated,
+    resolved: evaluated.resolved ?? lastGood?.resolved ?? null,
+    benchmarks: evaluated.benchmarks ?? lastGood?.benchmarks ?? null,
     hadDraft: init.hadDraft,
   };
 }

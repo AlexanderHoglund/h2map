@@ -45,7 +45,10 @@ const ERROR_MATCHERS: readonly [RegExp, InputTab | "projects", string | undefine
   [/fuelId|fuel price|double-count/i, "energy", "green.sourcing"],
   [/vessel/i, "vessels", undefined],
   [/port/i, "ports", undefined],
-  [/financing|capitalPhasing/i, "financing", undefined],
+  // The phasing sum rule throws by name; the target focuses the offending
+  // weights grid (steps.tsx tags the out-of-sum side with this id).
+  [/capitalPhasing/i, "financing", "capitalPhasing"],
+  [/financing/i, "financing", undefined],
   [/regulation/i, "regulation", undefined],
   // A bundle-pin mismatch is a property of the loaded project, not of any
   // input tab.

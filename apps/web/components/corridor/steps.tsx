@@ -562,6 +562,7 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
           help={t("roundtripsHelp")}
           step={1}
           value={scenario.cargo.roundtripsPerYear}
+          invalid={model.invalidFields.includes("cargo.roundtripsPerYear")}
           onChange={(v) => update((d) => void (d.cargo.roundtripsPerYear = v))}
         />
       </div>
@@ -1388,7 +1389,15 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
                   const sum = weights.reduce((a, b) => a + b, 0);
                   const bad = Math.abs(sum - 1) > 1e-6;
                   return (
-                    <div key={sideKey} className="sm:col-span-2">
+                    // A broken sum BLOCKS evaluation (resolution throws by
+                    // name), so it wears red, not amber — on every weight
+                    // field and on the line naming the rule. The id lets
+                    // the red financing tab focus the offending grid.
+                    <div
+                      key={sideKey}
+                      className="sm:col-span-2"
+                      data-field-id={bad ? "capitalPhasing" : undefined}
+                    >
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                         {weights.map((w, i) => (
                           <NumberInput
@@ -1403,6 +1412,7 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
                             step={0.05}
                             help={t("phasingWeightHelp")}
                             value={w}
+                            invalid={bad}
                             onChange={(v) =>
                               update((d) => {
                                 if (!d.capitalPhasing) return;
@@ -1416,7 +1426,7 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
                         ))}
                       </div>
                       {bad && (
-                        <p className="mt-1 text-[11px] font-medium text-amber-700">
+                        <p className="mt-1 text-xs font-medium text-red-600">
                           {t("phasingSumBad", {
                             side: tRes(sideKey === "green" ? "sideGreen" : "sideFossil"),
                             sum: sum.toFixed(2),
@@ -1546,6 +1556,7 @@ export function RegulationStep({ model, viewMode, revealStandard }: StepProps) {
                   help={t("eurUsdHelp")}
                   step={0.01}
                   value={reg.eurUsd}
+                  invalid={model.invalidFields.includes("regulation.eurUsd")}
                   onChange={(v) => update((d) => void (d.regulation.eurUsd = v))}
                 />
                 {/* The likeliest misconfiguration in the whole module: the
