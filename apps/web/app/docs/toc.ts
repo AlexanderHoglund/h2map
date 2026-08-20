@@ -36,41 +36,50 @@ export interface TocPart {
 
 export const TOC_PARTS: readonly TocPart[] = [
   {
-    title: "Part 1 · The Green Corridor model",
+    title: "Part A · The model in ten minutes",
     sections: [
       {
         id: "overview",
         label: "1. Overview & how the model works",
         children: [{ id: "overview-badges", label: "Benchmarks, overrides & badges" }],
       },
-      { id: "workflow", label: "2. Working with scenarios" },
-      { id: "tab-intro", label: "3. Tab 01 — Intro" },
+      { id: "fe-overview", label: "2. The emission method & functional unit" },
+      { id: "engine", label: "3. The engine: formulas" },
+      { id: "prov-default", label: "4. The default scenario" },
+    ],
+  },
+  {
+    title: "Part B · Building a scenario, tab by tab",
+    sections: [
+      { id: "tab-intro", label: "5. Tab 01 — Intro" },
       {
         id: "tab-energy",
-        label: "4. Tab 02 — Energy",
+        label: "6. Tab 02 — Energy",
         children: [
           { id: "energy-sourcing", label: "Sourcing modes" },
           { id: "energy-buildhere", label: "Build-here: site to cost structure" },
-          { id: "energy-acceptance", label: "Build-here acceptance" },
+          { id: "energy-acceptance", label: "Build-here worked example" },
           { id: "energy-perfuel", label: "Per-fuel fields" },
         ],
       },
-      { id: "tab-vessels", label: "5. Tab 03 — Vessels" },
-      { id: "tab-cargo", label: "6. Tab 04 — Cargo" },
-      { id: "tab-ports", label: "7. Tab 05 — Ports" },
+      { id: "tab-vessels", label: "7. Tab 03 — Vessels" },
+      { id: "tab-cargo", label: "8. Tab 04 — Cargo" },
+      { id: "tab-ports", label: "9. Tab 05 — Ports" },
       {
         id: "tab-financing",
-        label: "8. Tab 06 — Financing",
+        label: "10. Tab 06 — Financing",
         children: [
           { id: "fin-differentiated", label: "Differentiated green financing" },
           { id: "fin-phasing", label: "Capital deployment schedule" },
+          { id: "engine-financing", label: "Financing: the arithmetic" },
+          { id: "engine-phasing", label: "Phasing: the arithmetic" },
         ],
       },
       {
         id: "tab-regulation",
-        label: "9. Tab 07 — Regulation",
+        label: "11. Tab 07 — Regulation",
         children: [
-          { id: "reg-accounting", label: "Emission accounting (v6)" },
+          { id: "reg-accounting", label: "Emission accounting" },
           { id: "reg-ets", label: "EU ETS (maritime)" },
           { id: "reg-fueleu", label: "FuelEU Maritime" },
           { id: "reg-ira45z", label: "IRA 45Z clean fuel credit" },
@@ -81,7 +90,7 @@ export const TOC_PARTS: readonly TocPart[] = [
       },
       {
         id: "tab-results",
-        label: "10. Tab 08 — Results",
+        label: "12. Tab 08 — Results",
         children: [
           { id: "results-kpis", label: "KPI strip" },
           { id: "results-snapshot", label: "Scenario snapshot strip" },
@@ -92,35 +101,42 @@ export const TOC_PARTS: readonly TocPart[] = [
           { id: "results-bytab", label: "Results by tab" },
         ],
       },
-      {
-        id: "engine",
-        label: "11. The engine: formulas",
-        children: [
-          { id: "engine-financing", label: "Differentiated green financing" },
-          { id: "engine-phasing", label: "Capital deployment schedule" },
-        ],
-      },
-      // v6: the emission method is PART of the corridor model (and also
-      // powers the standalone calculator) — documented inline, not as a
-      // separate part. Anchor ids unchanged (external links keep working).
-      { id: "fe-overview", label: "12. The emission method & functional unit" },
-      { id: "fe-frameworks", label: "13. Accounting frameworks" },
-      { id: "fe-calculation", label: "14. The emission calculation" },
-      { id: "fe-corrections", label: "15. Combustion-side corrections" },
-      { id: "fe-validation", label: "16. Emission-method validation & regression" },
-      { id: "fe-limitations", label: "17. Emission-method limitations & open items" },
-      { id: "fe-sources", label: "18. Emission-method sources" },
+      { id: "workflow", label: "13. Getting started: accounts & sharing" },
+    ],
+  },
+  {
+    title: "Part C · Where the numbers come from",
+    sections: [
+      { id: "fe-frameworks", label: "14. Accounting frameworks" },
+      { id: "fe-calculation", label: "15. The emission calculation" },
+      { id: "fe-corrections", label: "16. Combustion-side corrections" },
       {
         id: "reference-data",
-        label: "19. Reference data",
+        label: "17. Reference data",
         children: [
           { id: "ref-vessels", label: "Vessel types" },
           { id: "ref-fuels", label: "Fuels" },
         ],
       },
+      { id: "m-overview", label: "18. LCOH: overview & system boundary" },
+      { id: "m-hydrogen", label: "19. Hydrogen from electricity" },
+      { id: "m-profiles", label: "20. Resource profiles (capacity factors)" },
+      { id: "m-dispatch", label: "21. Hourly dispatch" },
+      { id: "m-degradation", label: "22. Degradation & stack replacement" },
+      { id: "m-lcoh", label: "23. The LCOH formula" },
+      { id: "m-lcoe", label: "24. Electricity pricing (LCOE)" },
+      { id: "m-emissions", label: "25. Emissions ledger" },
+      { id: "m-map", label: "26. The map's configuration" },
+      { id: "m-costyears", label: "27. Cost-year projections" },
+      { id: "m-defaults", label: "28. Country defaults" },
+    ],
+  },
+  {
+    title: "Part D · How much to trust it",
+    sections: [
       {
         id: "sensitivity",
-        label: "20. What moves the results",
+        label: "29. What moves the results",
         children: [
           { id: "sensitivity-columns", label: "How to read the table" },
           { id: "impact-leverage-exposure", label: "Impact: leverage x exposure" },
@@ -128,36 +144,25 @@ export const TOC_PARTS: readonly TocPart[] = [
           { id: "impact-monte-carlo", label: "The uncertainty band" },
         ],
       },
+      { id: "fe-validation", label: "30. Emission-method validation" },
+      { id: "m-verification", label: "31. LCOH verification" },
+      { id: "m-validation", label: "32. LCOH validation" },
+      { id: "fe-limitations", label: "33. Emission-method limitations" },
+      { id: "m-limitations", label: "34. LCOH limitations" },
       {
         id: "provenance",
-        label: "21. Provenance, versions & limits",
-        children: [
-          { id: "prov-default", label: "The default scenario" },
-          { id: "prov-fourways", label: "The same corridor, four ways" },
-        ],
+        label: "35. Provenance & limits",
+        children: [{ id: "prov-fourways", label: "The same corridor, four ways" }],
       },
-      { id: "inputs", label: "22. Complete input inventory" },
+      { id: "fe-sources", label: "36. Emission-method sources" },
+      { id: "m-sources", label: "37. LCOH sources" },
     ],
   },
   {
-    title: "Part 2 · LCOH methodology",
+    title: "Appendix · Reference material",
     sections: [
-      { id: "m-overview", label: "23. Overview & system boundary" },
-      { id: "m-hydrogen", label: "24. Hydrogen from electricity" },
-      { id: "m-profiles", label: "25. Resource profiles (capacity factors)" },
-      { id: "m-dispatch", label: "26. Hourly dispatch" },
-      { id: "m-degradation", label: "27. Degradation & stack replacement" },
-      { id: "m-lcoh", label: "28. The LCOH formula" },
-      { id: "m-lcoe", label: "29. Electricity pricing (LCOE)" },
-      { id: "m-emissions", label: "30. Emissions ledger" },
-      { id: "m-constants", label: "31. Constants & reference defaults" },
-      { id: "m-map", label: "32. The map's configuration" },
-      { id: "m-costyears", label: "33. Cost-year projections" },
-      { id: "m-defaults", label: "34. Country defaults" },
-      { id: "m-verification", label: "35. Verification" },
-      { id: "m-validation", label: "36. Validation" },
-      { id: "m-limitations", label: "37. Limitations" },
-      { id: "m-sources", label: "38. Sources" },
+      { id: "inputs", label: "38. Complete input inventory" },
+      { id: "m-constants", label: "39. Constants & reference defaults" },
     ],
   },
 ];

@@ -89,7 +89,7 @@ function Fields({
 }
 
 /**
- * §22 renders the GENERATED field reference (gen-docs writes the JSON next
+ * §38 renders the GENERATED field reference (gen-docs writes the JSON next
  * to the markdown twin; CI fails on drift) — the table cannot desync from
  * the schema or the sweep. TYPE_OVERLAY adds display-only richer type
  * labels; unknown paths fall through to the generated type string.
@@ -147,7 +147,7 @@ const FIELD_TIERS = {
  * on abatement cost), so both are shown per row; `DocsImpactTable` ranks by
  * the tab the reader picks (abatement cost by default).
  *
- * From the same generated artifact §22 reads; the two tables cannot
+ * From the same generated artifact §38 reads; the two tables cannot
  * contradict each other.
  */
 const SENSITIVITY_ROWS = (
@@ -199,7 +199,7 @@ export default async function DocsPage() {
           <strong>Chilean copper-concentrate green corridor</strong>{" "}
           (MMMCZCS, Sep 2025 — Sumitomo, Interacid, NYK, Codelco, MMMCZCS):
           Mejillones → Japan, 25 Mt of concentrate over 15 years on ten
-          ammonia dual-fuel Handymax bulkers (§21).
+          ammonia dual-fuel Handymax bulkers (§35).
         </p>
 
         {/* Kept as the page's own Contents, and the ONLY navigation below
@@ -230,7 +230,20 @@ export default async function DocsPage() {
           ))}
         </nav>
 
-        <H id="overview">1. Overview &amp; how the model works</H>
+                {/* ===================== PART A — THE MODEL IN TEN MINUTES ===================== */}
+        <div className="mt-16 border-t-2 border-neutral-300 pt-8">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-deep">
+            Part A
+          </p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">
+            The model in ten minutes
+          </h2>
+          <p className="mt-2 text-neutral-600">
+            The whole model in four short sections: what it compares, the one unit everything rests on, the formulas, and the published case it ships with.
+          </p>
+        </div>
+
+<H id="overview">1. Overview &amp; how the model works</H>
         <p className="mt-2">
           The model compares two configurations of the <em>same</em>{" "}corridor —
           same route, same cargo, same schedule — differing only in the fuel
@@ -285,13 +298,13 @@ export default async function DocsPage() {
           essential to describing a corridor — the structural choices (route,
           countries and ports, fuels, vessel type, cargo, horizon, module
           toggles) plus the fields whose sensitivity sweep moves the headline
-          gap by ≥5% (§20).{" "}
+          gap by ≥5% (§29).{" "}
           <strong>Standard</strong>{" "}shows everything. Every hidden field
           keeps its default or benchmark value — the mode never changes a
           number — and each section shows a counted strip naming how many
           hidden settings are in effect, one click from review. Which fields
           appear prominently is decided by the measured sensitivity results
-          (§20), not by editorial judgement. Simplified additionally fixes
+          (§29), not by editorial judgement. Simplified additionally fixes
           the STRUCTURE: fuel is purchase-sourced (the sourcing selector and
           the map-sited build flow are Standard capabilities) and regulation
           is the self-designed scheme alone (toggle + CO2 price; the
@@ -299,138 +312,165 @@ export default async function DocsPage() {
           any that a scenario carries active).
         </p>
 
-        <H id="workflow">2. Accounts &amp; working with scenarios</H>
+        <H id="fe-overview">2. The emission method &amp; functional unit</H>
         <p className="mt-2">
-          The platform sits behind a sign-in: request access on the home page
-          (granted automatically once you confirm your email), or sign in
-          with an existing account. Teaching and trial accounts are
-          time-limited — at the end of the access period the platform locks
-          with a contact screen, your saved scenarios are kept, and an
-          extension restores everything exactly as it was.
+          <strong>A tonne of green fuel does not replace a tonne of fossil
+          fuel.</strong>{" "}e-Ammonia carries 18,600 MJ/t against
+          HFO&apos;s 40,500 (the Annex II residual row covering most
+          VLSFO sold), so 1,000 t of e-ammonia replaces about 459.3 t of
+          HFO — not 1,000 t. A calculator comparing tonne-for-tonne
+          overstates avoided emissions by more than 2× for ammonia (3,437
+          vs the correct 1,427 tCO2e on the reference case). The functional
+          unit is therefore{" "}
+          <strong>energy delivered on board (MJ)</strong>{" "}and every
+          comparison runs through it — a hand-computed regression case guards
+          exactly this trap.
         </p>
-        <p className="mt-2">
-          <strong>Projects first.</strong>{" "}The platform always opens on the
-          Projects tab; the input tabs unlock once a project is selected or
-          created. Every account starts with five projects: the{" "}
-          <em>Example — Chilean copper corridor</em>{" "}(the published reference
-          case, a Standard project, created once — deleted, it stays gone);
-          three further Standard views of that same corridor — each takes
-          fewer figures from the published report and lets the model derive
-          more —{" "}
-          <em>… — as published</em>{" "}(the report&apos;s own emission
-          accounting, reproducing all six published figures),{" "}
-          <em>… — current model</em>{" "}(the study&apos;s asserted burns and
-          fleet costs released, so the model derives them) and{" "}
-          <em>… — benchmarks only</em>{" "}(nothing asserted at all: every
-          figure a bundle benchmark or derived from the route);
-          and{" "}
-          <em>Simple corridor (template)</em>{" "}(a blank purchase-sourced
-          Simplified template — generic route, benchmark costs, every scheme
-          off — kept available for every account: deleting it brings the
-          template back on the next visit, and edits to it are yours to
-          keep).
-        </p>
-        <p className="mt-2">
-          <strong>The three named variants are refreshed on every
-          visit</strong>{" "}so they always reflect the current model; rename
-          a copy to keep your edits.
-          The original{" "}<em>Example — Chilean copper corridor</em>{" "}
-          and the Simplified template are both left alone, because those are
-          places people work rather than mirrors of a shipped definition.
-          Creating a new project asks for a name and its level —{" "}
-          <strong>Simplified or Standard</strong>. The level is stored on the
-          project and is a ONE-WAY ladder: a Simplified project can be
-          upgraded to Standard from the header (permanent — it unlocks
-          every field), a Standard project never becomes Simplified. A
-          Simplified project works purchase-sourced fuel against the
-          self-designed scheme only; Standard opens plant construction,
-          map-sited production and the EU/IMO/US regulation modules.
-        </p>
-        <ul className="mt-2 list-disc space-y-1.5 pl-5">
-          <li>
-            <strong>Draft autosave</strong>{" "}— every change is saved locally
-            in your browser as the working copy of the current project; the
-            entry screen&apos;s button reads{" "}<em>Resume draft</em>{" "}when
-            one exists, and the Projects tab&apos;s &ldquo;Currently
-            editing&rdquo; card continues it. Opening or creating another
-            project replaces the working copy — the app asks before
-            discarding unsaved changes (Import and Reset carry their own
-            confirmations).
-          </li>
-          <li>
-            <strong>Save / Duplicate</strong>{" "}— the scenario bar stores the
-            current scenario to your account (server-validated, with the
-            engine and reference-data versions pinned). Save updates the
-            open project — or creates one when none is open; Duplicate makes
-            a copy named &ldquo;… (copy)&rdquo;. The URL then carries the
-            project id, so a bookmark reopens it. The bar leads with the
-            project identity (a mono PROJECT eyebrow + the name field + an
-            amber &ldquo;unsaved&rdquo; badge for drafts) on every working
-            tab.
-          </li>
-          <li>
-            <strong>The Projects tab</strong>{" "}— all management lives on
-            tab 00: open (loading under a newer schema or engine is
-            announced, never silent — stale rows carry an &ldquo;older
-            engine&rdquo; badge), rename in place, share-link copy/revoke,
-            and <strong>delete</strong>{" "}(with confirmation). Each row
-            shows the project&apos;s Simplified/Standard level as a chip.
-          </li>
-          <li>
-            <strong>Share</strong>{" "}— creates a read-only link
-            (/corridor/s/…) anyone can open without an account; the
-            unguessable token is the access, and revoking it kills the link.
-            Shared views show the stored results; when the saved row predates
-            the current engine or reference bundle, an explicit
-            recompute-under-current-model option appears (with a gap
-            preview), and any signed-in viewer can open the shared scenario
-            as their own draft.
-          </li>
-          <li>
-            <strong>Export / Import JSON</strong>{" "}— the scenario bar downloads
-            the scenario as a versioned JSON file in the COMPLETE form: every
-            field of the form is always present, in a fixed order — fields
-            you have not set are explicit{" "}<code>null</code>{" "}(port
-            coordinates, country B, the financing and phasing blocks…), so
-            the file documents the entire input surface. Import accepts the
-            same complete form and older partial exports alike; files carry
-            a schema version, older files are migrated on load, and the
-            working copy takes the imported file&apos;s name.
-          </li>
-          <li>
-            <strong>Status marks</strong>{" "}— every tab carries one of four
-            marks: <strong>○</strong>{" "}not yet reviewed (you have not
-            opened and left this tab for this project),{" "}
-            <strong>▲</strong>{" "}worth checking (one of the model&apos;s own
-            cautions, such as the two sides no longer delivering the same
-            energy — a warning is never hidden by moving on; unverified
-            reference values are flagged on the field itself, not on the
-            tab), <strong>✕</strong>{" "}a fault that
-            blocks results, and <strong>✓</strong>{" "}reviewed with nothing
-            flagged. Hovering the mark says why; landing on a flagged tab
-            focuses the offending control. Reviewed marks are remembered per
-            project on this browser. The header also keeps a live gap chip
-            and the project&apos;s Simplified/Standard level badge (with the
-            one-way Upgrade button on Simplified projects).
-          </li>
-          <li>
-            <strong>Reset</strong>{" "}— starts a NEW unsaved draft at the
-            reference defaults (with confirmation): it also detaches the
-            workspace from the open project — the saved row itself is
-            untouched.
-          </li>
-          <li>
-            <strong>Navigation</strong>{" "}— nine tabs in the top bar:
-            Projects (00), seven input steps (01–07) and Results (08). The
-            input steps stay DISABLED until a project is selected or created;
-            after that they are free navigation, and Back/Next at the bottom
-            of each form walks them in order. The Results tab (§10) holds the
-            full report; a compact live summary stays docked on every input
-            tab.
-          </li>
-        </ul>
 
-        <H id="tab-intro">3. Tab 01 — Intro</H>
+        <H id="engine">3. The engine: formulas</H>
+        <p className="mt-2">
+          One pure function evaluates a side; the green/fossil asymmetries are
+          data, not code branches. Per modelled year t (idx 1…horizon, cal =
+          start year + t − 1, infl = (1+inflation)^(t−1)):
+        </p>
+        <F>
+          CAPEX<sub>t</sub>{" "}= (fuelProd + storage + barge + vessel) ×
+          w<sub>t</sub>, &nbsp;w = deployment weights (default w₁ = 1: all
+          capital in year 1)
+          <br />
+          OPEX<sub>t</sub>{" "}= fuel purchase + prod O&amp;M + storage O&amp;M +
+          barge O&amp;M + vessel O&amp;M &nbsp;(each × infl)
+          <br />
+          fuel purchase<sub>t</sub>{" "}= vessels × fuel t/yr × price $/t / 10⁶ ×
+          infl
+          <br />
+          total<sub>t</sub>{" "}= CAPEX<sub>t</sub>{" "}+ OPEX<sub>t</sub>{" "}+ ETS
+          <sub>t</sub>{" "}+ FuelEU<sub>t</sub>{" "}+ 45Z<sub>t</sub>{" "}+ self
+          <sub>t</sub>{" "}[+ IMO<sub>t</sub>][+ financing<sub>t</sub>]
+          <br />
+          PV<sub>t</sub>{" "}= total<sub>t</sub>{" "}× df<sub>t</sub>, &nbsp;df
+          <sub>t</sub>{" "}= 1/(1+WACC)^(t−1) &nbsp;(df₁ = 1 exactly)
+        </F>
+        <F>
+          CO2 abated<sub>t</sub>{" "}= vessels × (fossil t × fossil EF − green t ×
+          green EF) &nbsp;[active basis factors]
+          <br />
+          $/unit = gap × 10⁶ / (units per year × horizon)
+          <br />
+          $/tCO2 = gap × 10⁶ / Σ CO2 abated
+        </F>
+        <p className="mt-2">
+          Derived benchmarks (the DERIVED badges): fuel consumption{" "}
+          <code className="mx-1">
+            2 × nm × roundtrips × GJ/nm × 1000 / LHV
+          </code>
+          , always — there is no alternative basis, only an override; green
+          vessel CAPEX per ship{" "}
+          <code className="mx-1">type CAPEX × (1 + premium)</code>; fossil
+          vessel/storage/barge CAPEX = 0 and logistics OPEX × 0.3
+          (existing-infrastructure rules). Purchase-type sourcing forces
+          production lines to zero with precedence over overrides.
+        </p>
+        <p className="mt-2">
+          <strong>Delivered-energy parity.</strong>{" "}CO₂ abated is a{" "}
+          <em>mass</em>{" "}comparison — fossil tonnes × EF minus green tonnes
+          × EF — so it only describes the same transport work when the two
+          burns carry equal energy. The derived chain guarantees that: both
+          sides solve one geometry against their own LHV, so the ratio is
+          exactly 1.000. Overriding only one side&apos;s
+          burn makes the sides carry different delivered energy, which is why
+          the model
+          computes green MJ against fossil MJ and raises an amber note past
+          ±5% divergence, on the Results Energy card and the CO₂-abated
+          figure itself. Nothing is clamped or rescaled — you may have reason
+          to compare unequal work, and the model&apos;s job is to say that you
+          are.
+        </p>
+        <p className="mt-2">
+          The costs decompose exactly: the per-year lines sum to the total
+          by construction, the waterfall&apos;s Δ terms are differences of the
+          decomposition lines, and the decomposition&apos;s total row equals
+          the headline gap to the last digit.
+        </p>
+        <H id="prov-default">4. The default scenario — the Chilean copper-concentrate corridor</H>
+        <p className="mt-2">
+          The app opens on a real published case:{" "}
+          <em>Chilean Green Corridors — Copper Concentrate Export</em>{" "}
+          (MMMCZCS, 11 September 2025; consortium Sumitomo, Interacid, NYK,
+          Codelco, MMMCZCS). Mejillones → Japan/South Korea, 25 Mt of copper
+          concentrate over 15 years, ten ammonia dual-fuel Handymax bulkers,
+          60 kt/yr of green ammonia produced in the Atacama from 2030. Every
+          default value is provenance-tagged in the scenario source: stated
+          in the study [S], derived from stated values [D], fitted to
+          reconcile the study&apos;s published totals [F], or assumption [A].
+          The fitted CAPEX/OPEX blocks reconcile to the published totals but
+          are not sourced line-by-line. How the model reproduces the study
+          with these inputs:
+        </p>
+        <div className="my-3 overflow-x-auto">
+          <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
+            <thead>
+              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 font-medium">Metric</th>
+                <th className="px-3 py-2 text-right font-medium">Study</th>
+                <th className="px-3 py-2 text-right font-medium">Model</th>
+                <th className="px-3 py-2 text-right font-medium">Δ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(
+                [
+                  ["Green corridor NPV", "$2,850m", "$2,850.66m", "+0.02%"],
+                  ["Fossil corridor NPV (ex-regulation)", "$850m", "$838.22m", "−1.4%"],
+                  ["Gap NPV (pre-regulation)", "$2,000m", "$2,012.44m", "+0.6%"],
+                  ["Incremental cost per cargo tonne (pre-reg.)", "$80/t", "$81.31/t", "+1.6%"],
+                  ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "1,450,095 t", "exact"],
+                  ["Regulatory benefit (IMO NZF proxy)", "≈$250m", "$250.23m", "≈exact"],
+                ] as const
+              ).map(([metric, study, model, delta]) => (
+                <tr key={metric} className="border-b border-neutral-200 last:border-0">
+                  <td className="px-3 py-1.5">{metric}</td>
+                  <td className="px-3 py-1.5 text-right">{study}</td>
+                  <td className="px-3 py-1.5 text-right">{model}</td>
+                  <td className="px-3 py-1.5 text-right">{delta}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2">
+          <strong>The table above is the study-calibration variant — the
+          study&apos;s own emission accounting, reproduced exactly.</strong>{" "}
+          The current default scenario derives its factors from the emission
+          method (§15–§30__DONE__) instead, and the two variants therefore differ
+          deliberately: the current default computes a post-regulation gap
+          of{" "}
+          <strong>$1,819.48m</strong>{" "}where the study-calibration variant
+          pins $1,762.21m; CO2 abated of{" "}
+          <strong>1,118,236 t</strong>{" "}against the variant&apos;s
+          study-exact 1,450,095 (a WtW=0 green ammonia is not a certifiable
+          value; certified 15 +
+          N2O slip + 5% pilot gives a 22.14 blend); and $1,627/tCO2 against
+          the variant&apos;s $1,215. Under the current default the green side
+          also pays the self-designed CO2 price
+          ($60.75m PV; fossil $253.71m on the Annex II 91.744/40,500
+          row). The pre-regulation figures are factor-independent and
+          identical in both.
+        </p>
+                {/* ===================== PART B — BUILDING A SCENARIO, TAB BY TAB ===================== */}
+        <div className="mt-16 border-t-2 border-neutral-300 pt-8">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-deep">
+            Part B
+          </p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">
+            Building a scenario, tab by tab
+          </h2>
+          <p className="mt-2 text-neutral-600">
+            Every tab of the wizard in order — what each field is, what the model does with it, and where the numbers come from when you type nothing.
+          </p>
+        </div>
+
+<H id="tab-intro">5. Tab 01 — Intro</H>
         <p className="mt-2">
           Defines the trade lane: route, countries, ports and the model
           horizon. Each end of the corridor is its own boxed group — country
@@ -470,13 +510,13 @@ export default async function DocsPage() {
               "Corridor length, one-way",
               "nm",
               "9,500 (default)",
-              "One-way distance; drives fuel consumption (×2 per roundtrip) — among the strongest inputs in the model (§20). With both ports pinned, the model also computes an INDICATIVE sea route on the maritime network (canal transits labelled Panama/Suez) and shows it as a derived benchmark: adoption is an explicit click, never automatic, and a typed distance diverging >15% from the routed figure gets an amber note.",
+              "One-way distance; drives fuel consumption (×2 per roundtrip) — among the strongest inputs in the model (§29). With both ports pinned, the model also computes an INDICATIVE sea route on the maritime network (canal transits labelled Panama/Suez) and shows it as a derived benchmark: adoption is an explicit click, never automatic, and a typed distance diverging >15% from the routed figure gets an amber note.",
             ],
             [
               "Model start year",
               "year",
               "2030 (default)",
-              "Calendar year of year 1. Matters for the regulation schedules: the ETS phase-in, the FuelEU target ladder and the IMO trajectories are calendar-anchored (§9).",
+              "Calendar year of year 1. Matters for the regulation schedules: the ETS phase-in, the FuelEU target ladder and the IMO trajectories are calendar-anchored (§11).",
             ],
             [
               "Years modelled",
@@ -494,14 +534,14 @@ export default async function DocsPage() {
         />
         <p className="mt-2 text-neutral-600">
           The financial frame — discount rate (WACC), inflation and the rate
-          basis — lives on the Financing tab (§8); the cargo identity on the
-          Cargo tab (§6). In an exported scenario file these fields are
+          basis — lives on the Financing tab (§10); the cargo identity on the
+          Cargo tab (§8). In an exported scenario file these fields are
           stored under{" "}
           <code>cargo.*</code>{" "}— the field names inside the file do not
           follow the tab that renders them.
         </p>
 
-        <H id="tab-energy">4. Tab 02 — Energy</H>
+        <H id="tab-energy">6. Tab 02 — Energy</H>
         <p className="mt-2">
           The heart of the comparison: what each side burns and where it comes
           from. Both sides carry the same field set; the interesting choice is
@@ -735,7 +775,7 @@ export default async function DocsPage() {
               "Fuel type",
               "—",
               "green: e-Ammonia · fossil: LSFO",
-              "Selects the fuel's benchmark bundle: price, emission factors, energy density, production/storage/barge costs, vessel premium (§19).",
+              "Selects the fuel's benchmark bundle: price, emission factors, energy density, production/storage/barge costs, vessel premium (§17).",
             ],
             [
               "Fuel price",
@@ -782,7 +822,7 @@ export default async function DocsPage() {
           ]}
         />
 
-        <H id="tab-vessels">5. Tab 03 — Vessels</H>
+        <H id="tab-vessels">7. Tab 03 — Vessels</H>
         <p className="mt-2">
           The ships that serve the corridor. One vessel type is shared by
           both sides. <strong>The CAPEX/OPEX cells are PER SHIP</strong>{" "}
@@ -804,7 +844,7 @@ export default async function DocsPage() {
               "Vessel type",
               "—",
               "Handymax bulk (58k dwt), default",
-              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. 35 researched classes from Handysize bulk to 174k-m³ LNG carrier (§19). Some retired classes are hidden from the picker but still resolve if a saved scenario names one; they carry older energy figures, so do not use them for new work.",
+              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. 35 researched classes from Handysize bulk to 174k-m³ LNG carrier (§17). Some retired classes are hidden from the picker but still resolve if a saved scenario names one; they carry older energy figures, so do not use them for new work.",
             ],
             [
               "Number of vessels",
@@ -857,7 +897,7 @@ export default async function DocsPage() {
           ]}
         />
 
-        <H id="tab-cargo">6. Tab 04 — Cargo</H>
+        <H id="tab-cargo">8. Tab 04 — Cargo</H>
         <p className="mt-2">
           Deliberately thin: the cargo identity only. The engine counts
           units — throughput feeds the per-unit figures and lifetime cargo,
@@ -881,12 +921,12 @@ export default async function DocsPage() {
               "Annual cargo throughput",
               "units/yr",
               "1,650,000 (default)",
-              "Only feeds the per-unit figures and lifetime cargo — the sweep measures exactly 0.0% headline movement (§20). Standard view only.",
+              "Only feeds the per-unit figures and lifetime cargo — the sweep measures exactly 0.0% headline movement (§29). Standard view only.",
             ],
           ]}
         />
 
-        <H id="tab-ports">7. Tab 05 — Ports</H>
+        <H id="tab-ports">9. Tab 05 — Ports</H>
         <p className="mt-2">
           Shore-side infrastructure per side: bunkering storage and the barge
           (or pipeline) that moves fuel to the ship. The fossil side assumes
@@ -923,12 +963,12 @@ export default async function DocsPage() {
           ]}
         />
 
-        <H id="tab-financing">8. Tab 06 — Financing</H>
+        <H id="tab-financing">10. Tab 06 — Financing</H>
         <p className="mt-2">
           Everything about the cost of money. The corridor discount rate
           (WACC, with its unverified-benchmark badge — the amber tab dot
           lives here), the inflation rate (stored under{" "}
-          <code>cargo.*</code>{" "}in the scenario file, §3) and the{" "}
+          <code>cargo.*</code>{" "}in the scenario file, §5) and the{" "}
           <strong>rate basis</strong>{" "}— nominal (inflation escalates
           costs, the nominal WACC discounts them) or real (deflates the OPEX
           escalation) — then the two optional modules
@@ -952,7 +992,7 @@ export default async function DocsPage() {
           is an explicit interest saving on debt-financed green capital,
           shown as its own float in the cost bridge and its own row in the
           decomposition — deliberately NOT a per-side discount rate, which
-          would invert the benefit (§11). A negative spread (green premium)
+          would invert the benefit (§3). A negative spread (green premium)
           is allowed and shows as a cost.
         </p>
 
@@ -965,11 +1005,80 @@ export default async function DocsPage() {
           profile. Shares must sum to 1 per side — the form shows a live
           amber warning and the model refuses to compute rather than
           silently rescaling. The green financing drawdown follows the
-          same schedule (§11).
+          same schedule (§3).
         </p>
 
 
-        <H id="tab-regulation">9. Tab 07 — Regulation</H>
+        <H3 id="engine-financing">Differentiated green financing (flag-gated, default off)</H3>
+        <p className="mt-2">
+          <strong>
+            The obvious implementation — a lower discount rate on the green
+            side — is wrong, and wrong in the interesting direction.
+          </strong>{" "}
+          This is a cost model: the discount rate expresses time preference
+          over costs, so lowering it makes future costs LARGER in present
+          value. On the reference corridor, green operating cost of $112.00m/yr
+          inflated at 2% discounts to $1,160.7m at 8% but $1,301.2m at 6% —
+          &quot;cheap green financing&quot; implemented as a rate swap makes
+          the green corridor $140.6m WORSE, the exact inversion of the benefit
+          it is meant to represent. No per-side discount rate exists anywhere
+          in this code, and none should be added.
+        </p>
+        <F>
+          cumdraw<sub>t</sub>{" "}= Σ<sub>k≤t</sub>{" "}CAPEX<sub>k</sub>{" "}×
+          debtShare
+          <br />
+          outstanding<sub>t</sub>{" "}(amortizing) = min(cumdraw<sub>t</sub>, P ×
+          (T − t + 1) / T), &nbsp;P = Σ CAPEX × debtShare
+          <br />
+          outstanding<sub>t</sub>{" "}(bullet) = cumdraw<sub>t</sub>{" "}(t ≤ T,
+          else 0)
+          <br />
+          financing<sub>t</sub>{" "}= −outstanding<sub>t</sub>{" "}× (baseRate −
+          greenRate)
+        </F>
+        <p className="mt-2">
+          The line is an explicit interest saving (or, with a negative Δr, a
+          premium — never clamped) on debt-financed green capital, discounted
+          at the corridor rate like every other line. It sits OUTSIDE the
+          pre-regulation subtotal and inside the net-effect band of the
+          waterfall, as its own float — where the MMMCZCS study&apos;s own
+          waterfall places it. Calibration against that study is BOUNDS, not a target:
+          with green CAPEX $1,690m, Δr = 2pp, full debt, tenor 15, the
+          amortizing structure yields $195.9m and bullet $312.5m; the
+          study&apos;s ≈$250m lies between them, consistent with partial
+          amortization or a grace period whose structure the study does not
+          state. Nothing is tuned to force $250m — a forced match would
+          fabricate precision the source does not provide.
+        </p>
+        <H3 id="engine-phasing">Capital deployment schedule (flag-gated, default off)</H3>
+        <F>
+          CAPEX<sub>t</sub>{" "}= Σ component CAPEX × w<sub>t</sub>, &nbsp;Σ w
+          = 1 per side (validated by name, never normalised)
+          <br />
+          cumdraw<sub>t</sub>{" "}follows the same weights — the financing
+          line&apos;s outstanding balance tracks the phased drawdown
+        </F>
+        <p className="mt-2">
+          By default every capital dollar lands in year 1 at a discount
+          factor of exactly 1.0 — the reference convention,
+          and the most conservative PV treatment. Phasing spreads each
+          side&apos;s CAPEX over the first N years by explicit shares:
+          later capital discounts more, so its present value falls and
+          never rises (r ≥ 0). A worked example — these are the phased
+          example&apos;s own figures, not the default headline: at 30/40/30
+          on both sides
+          of the reference corridor (PV factor 0.92757) the green CAPEX PV
+          is $1,567.6m, fossil $333.9m, the pre-regulation gap $1,916.1m
+          and the headline gap $1,665.9m; phasing the green side alone
+          moves the gap by −$122.4m. Weights that do not sum to 1 are
+          rejected naming the exact field — a schedule that silently
+          rescaled would misstate the capital program. No new output
+          fields: phasing re-times existing lines, so the shape of the
+          results is unchanged by construction.
+        </p>
+
+        <H id="tab-regulation">11. Tab 07 — Regulation</H>
         <p className="mt-2">
           Five schemes, each with its own toggle. All monetary terms use the
           EUR/USD rate (default 1.08) where the scheme is euro-denominated,
@@ -996,7 +1105,7 @@ export default async function DocsPage() {
           row and 94.90 under the IMO&apos;s 0.10–0.50%-sulphur band
           (MEPC.391(81)), and each framework fixes its own GWP set (AR4 vs
           AR5). Green fuels derive as certified pathway WtT + N2O slip +
-          pilot blend from the fuel-emissions dataset (§12–§18). Two rules
+          pilot blend from the fuel-emissions dataset (§15–§30__DONE__). Two rules
           keep it honest: the FuelEU and IMO <em>compliance modules</em>{" "}
           each price with their OWN framework regardless of this selection
           (the selector moves the reported intensities, abatement and the
@@ -1069,7 +1178,7 @@ export default async function DocsPage() {
         <p className="mt-2">
           WTW here is always the{" "}
           <em>FuelEU-accounted</em>{" "}intensity: when the emission method
-          derives both frameworks&apos; values (§13), this module reads the
+          derives both frameworks&apos; values (§14), this module reads the
           FuelEU one regardless of the framework selected for display —
           FuelEU compliance is never priced with IMO numbers, or vice
           versa.
@@ -1135,7 +1244,7 @@ export default async function DocsPage() {
         <F>
           attained GFI = the side&apos;s WTW intensity, IMO-accounted
           [gCO2eq/MJ] — the sulphur-binned fossil WtT and AR5 GWP set
-          when derived (§13); falls back to the single WTW scalar on
+          when derived (§14); falls back to the single WTW scalar on
           scenarios that pin stored factors
           <br />
           base / direct target<sub>t</sub> = 93.3 × (1 − ladder(cal))
@@ -1172,7 +1281,7 @@ export default async function DocsPage() {
             convention) or well-to-wake (lifecycle, the app&apos;s default for
             new scenarios). Under well-to-wake the results report BOTH
             tonnages side by
-            side (§10); under the combustion default
+            side (§12); under the combustion default
             the single series is the combustion one. The selector renders on
             the Intro tab, Standard view.
           </li>
@@ -1194,7 +1303,7 @@ export default async function DocsPage() {
           </li>
         </ul>
 
-        <H id="tab-results">10. Tab 08 — Results</H>
+        <H id="tab-results">12. Tab 08 — Results</H>
         <p className="mt-2">
           The full report. Every element recomputes on every keystroke; a
           compact summary of the same numbers stays docked on the input tabs.
@@ -1391,175 +1500,151 @@ export default async function DocsPage() {
           </li>
         </ul>
 
-        <H id="engine">11. The engine: formulas</H>
+        <H id="workflow">13. Getting started: accounts, saving &amp; sharing</H>
         <p className="mt-2">
-          One pure function evaluates a side; the green/fossil asymmetries are
-          data, not code branches. Per modelled year t (idx 1…horizon, cal =
-          start year + t − 1, infl = (1+inflation)^(t−1)):
-        </p>
-        <F>
-          CAPEX<sub>t</sub>{" "}= (fuelProd + storage + barge + vessel) ×
-          w<sub>t</sub>, &nbsp;w = deployment weights (default w₁ = 1: all
-          capital in year 1)
-          <br />
-          OPEX<sub>t</sub>{" "}= fuel purchase + prod O&amp;M + storage O&amp;M +
-          barge O&amp;M + vessel O&amp;M &nbsp;(each × infl)
-          <br />
-          fuel purchase<sub>t</sub>{" "}= vessels × fuel t/yr × price $/t / 10⁶ ×
-          infl
-          <br />
-          total<sub>t</sub>{" "}= CAPEX<sub>t</sub>{" "}+ OPEX<sub>t</sub>{" "}+ ETS
-          <sub>t</sub>{" "}+ FuelEU<sub>t</sub>{" "}+ 45Z<sub>t</sub>{" "}+ self
-          <sub>t</sub>{" "}[+ IMO<sub>t</sub>][+ financing<sub>t</sub>]
-          <br />
-          PV<sub>t</sub>{" "}= total<sub>t</sub>{" "}× df<sub>t</sub>, &nbsp;df
-          <sub>t</sub>{" "}= 1/(1+WACC)^(t−1) &nbsp;(df₁ = 1 exactly)
-        </F>
-        <F>
-          CO2 abated<sub>t</sub>{" "}= vessels × (fossil t × fossil EF − green t ×
-          green EF) &nbsp;[active basis factors]
-          <br />
-          $/unit = gap × 10⁶ / (units per year × horizon)
-          <br />
-          $/tCO2 = gap × 10⁶ / Σ CO2 abated
-        </F>
-        <p className="mt-2">
-          Derived benchmarks (the DERIVED badges): fuel consumption{" "}
-          <code className="mx-1">
-            2 × nm × roundtrips × GJ/nm × 1000 / LHV
-          </code>
-          , always — there is no alternative basis, only an override; green
-          vessel CAPEX per ship{" "}
-          <code className="mx-1">type CAPEX × (1 + premium)</code>; fossil
-          vessel/storage/barge CAPEX = 0 and logistics OPEX × 0.3
-          (existing-infrastructure rules). Purchase-type sourcing forces
-          production lines to zero with precedence over overrides.
+          The platform sits behind a sign-in: request access on the home page
+          (granted automatically once you confirm your email), or sign in
+          with an existing account. Teaching and trial accounts are
+          time-limited — at the end of the access period the platform locks
+          with a contact screen, your saved scenarios are kept, and an
+          extension restores everything exactly as it was.
         </p>
         <p className="mt-2">
-          <strong>Delivered-energy parity.</strong>{" "}CO₂ abated is a{" "}
-          <em>mass</em>{" "}comparison — fossil tonnes × EF minus green tonnes
-          × EF — so it only describes the same transport work when the two
-          burns carry equal energy. The derived chain guarantees that: both
-          sides solve one geometry against their own LHV, so the ratio is
-          exactly 1.000. Overriding only one side&apos;s
-          burn makes the sides carry different delivered energy, which is why
-          the model
-          computes green MJ against fossil MJ and raises an amber note past
-          ±5% divergence, on the Results Energy card and the CO₂-abated
-          figure itself. Nothing is clamped or rescaled — you may have reason
-          to compare unequal work, and the model&apos;s job is to say that you
-          are.
+          <strong>Projects first.</strong>{" "}The platform always opens on the
+          Projects tab; the input tabs unlock once a project is selected or
+          created. Every account starts with five projects: the{" "}
+          <em>Example — Chilean copper corridor</em>{" "}(the published reference
+          case, a Standard project, created once — deleted, it stays gone);
+          three further Standard views of that same corridor — each takes
+          fewer figures from the published report and lets the model derive
+          more —{" "}
+          <em>… — as published</em>{" "}(the report&apos;s own emission
+          accounting, reproducing all six published figures),{" "}
+          <em>… — current model</em>{" "}(the study&apos;s asserted burns and
+          fleet costs released, so the model derives them) and{" "}
+          <em>… — benchmarks only</em>{" "}(nothing asserted at all: every
+          figure a bundle benchmark or derived from the route);
+          and{" "}
+          <em>Simple corridor (template)</em>{" "}(a blank purchase-sourced
+          Simplified template — generic route, benchmark costs, every scheme
+          off — kept available for every account: deleting it brings the
+          template back on the next visit, and edits to it are yours to
+          keep).
         </p>
         <p className="mt-2">
-          The costs decompose exactly: the per-year lines sum to the total
-          by construction, the waterfall&apos;s Δ terms are differences of the
-          decomposition lines, and the decomposition&apos;s total row equals
-          the headline gap to the last digit.
+          <strong>The three named variants are refreshed on every
+          visit</strong>{" "}so they always reflect the current model; rename
+          a copy to keep your edits.
+          The original{" "}<em>Example — Chilean copper corridor</em>{" "}
+          and the Simplified template are both left alone, because those are
+          places people work rather than mirrors of a shipped definition.
+          Creating a new project asks for a name and its level —{" "}
+          <strong>Simplified or Standard</strong>. The level is stored on the
+          project and is a ONE-WAY ladder: a Simplified project can be
+          upgraded to Standard from the header (permanent — it unlocks
+          every field), a Standard project never becomes Simplified. A
+          Simplified project works purchase-sourced fuel against the
+          self-designed scheme only; Standard opens plant construction,
+          map-sited production and the EU/IMO/US regulation modules.
         </p>
-        <H3 id="engine-financing">Differentiated green financing (flag-gated, default off)</H3>
-        <p className="mt-2">
-          <strong>
-            The obvious implementation — a lower discount rate on the green
-            side — is wrong, and wrong in the interesting direction.
-          </strong>{" "}
-          This is a cost model: the discount rate expresses time preference
-          over costs, so lowering it makes future costs LARGER in present
-          value. On the reference corridor, green operating cost of $112.00m/yr
-          inflated at 2% discounts to $1,160.7m at 8% but $1,301.2m at 6% —
-          &quot;cheap green financing&quot; implemented as a rate swap makes
-          the green corridor $140.6m WORSE, the exact inversion of the benefit
-          it is meant to represent. No per-side discount rate exists anywhere
-          in this code, and none should be added.
-        </p>
-        <F>
-          cumdraw<sub>t</sub>{" "}= Σ<sub>k≤t</sub>{" "}CAPEX<sub>k</sub>{" "}×
-          debtShare
-          <br />
-          outstanding<sub>t</sub>{" "}(amortizing) = min(cumdraw<sub>t</sub>, P ×
-          (T − t + 1) / T), &nbsp;P = Σ CAPEX × debtShare
-          <br />
-          outstanding<sub>t</sub>{" "}(bullet) = cumdraw<sub>t</sub>{" "}(t ≤ T,
-          else 0)
-          <br />
-          financing<sub>t</sub>{" "}= −outstanding<sub>t</sub>{" "}× (baseRate −
-          greenRate)
-        </F>
-        <p className="mt-2">
-          The line is an explicit interest saving (or, with a negative Δr, a
-          premium — never clamped) on debt-financed green capital, discounted
-          at the corridor rate like every other line. It sits OUTSIDE the
-          pre-regulation subtotal and inside the net-effect band of the
-          waterfall, as its own float — where the MMMCZCS study&apos;s own
-          waterfall places it. Calibration against that study is BOUNDS, not a target:
-          with green CAPEX $1,690m, Δr = 2pp, full debt, tenor 15, the
-          amortizing structure yields $195.9m and bullet $312.5m; the
-          study&apos;s ≈$250m lies between them, consistent with partial
-          amortization or a grace period whose structure the study does not
-          state. Nothing is tuned to force $250m — a forced match would
-          fabricate precision the source does not provide.
-        </p>
-        <H3 id="engine-phasing">Capital deployment schedule (flag-gated, default off)</H3>
-        <F>
-          CAPEX<sub>t</sub>{" "}= Σ component CAPEX × w<sub>t</sub>, &nbsp;Σ w
-          = 1 per side (validated by name, never normalised)
-          <br />
-          cumdraw<sub>t</sub>{" "}follows the same weights — the financing
-          line&apos;s outstanding balance tracks the phased drawdown
-        </F>
-        <p className="mt-2">
-          By default every capital dollar lands in year 1 at a discount
-          factor of exactly 1.0 — the reference convention,
-          and the most conservative PV treatment. Phasing spreads each
-          side&apos;s CAPEX over the first N years by explicit shares:
-          later capital discounts more, so its present value falls and
-          never rises (r ≥ 0). A worked example — these are the phased
-          example&apos;s own figures, not the default headline: at 30/40/30
-          on both sides
-          of the reference corridor (PV factor 0.92757) the green CAPEX PV
-          is $1,567.6m, fossil $333.9m, the pre-regulation gap $1,916.1m
-          and the headline gap $1,665.9m; phasing the green side alone
-          moves the gap by −$122.4m. Weights that do not sum to 1 are
-          rejected naming the exact field — a schedule that silently
-          rescaled would misstate the capital program. No new output
-          fields: phasing re-times existing lines, so the shape of the
-          results is unchanged by construction.
-        </p>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            <strong>Draft autosave</strong>{" "}— every change is saved locally
+            in your browser as the working copy of the current project; the
+            entry screen&apos;s button reads{" "}<em>Resume draft</em>{" "}when
+            one exists, and the Projects tab&apos;s &ldquo;Currently
+            editing&rdquo; card continues it. Opening or creating another
+            project replaces the working copy — the app asks before
+            discarding unsaved changes (Import and Reset carry their own
+            confirmations).
+          </li>
+          <li>
+            <strong>Save / Duplicate</strong>{" "}— the scenario bar stores the
+            current scenario to your account (server-validated, with the
+            engine and reference-data versions pinned). Save updates the
+            open project — or creates one when none is open; Duplicate makes
+            a copy named &ldquo;… (copy)&rdquo;. The URL then carries the
+            project id, so a bookmark reopens it. The bar leads with the
+            project identity (a mono PROJECT eyebrow + the name field + an
+            amber &ldquo;unsaved&rdquo; badge for drafts) on every working
+            tab.
+          </li>
+          <li>
+            <strong>The Projects tab</strong>{" "}— all management lives on
+            tab 00: open (loading under a newer schema or engine is
+            announced, never silent — stale rows carry an &ldquo;older
+            engine&rdquo; badge), rename in place, share-link copy/revoke,
+            and <strong>delete</strong>{" "}(with confirmation). Each row
+            shows the project&apos;s Simplified/Standard level as a chip.
+          </li>
+          <li>
+            <strong>Share</strong>{" "}— creates a read-only link
+            (/corridor/s/…) anyone can open without an account; the
+            unguessable token is the access, and revoking it kills the link.
+            Shared views show the stored results; when the saved row predates
+            the current engine or reference bundle, an explicit
+            recompute-under-current-model option appears (with a gap
+            preview), and any signed-in viewer can open the shared scenario
+            as their own draft.
+          </li>
+          <li>
+            <strong>Export / Import JSON</strong>{" "}— the scenario bar downloads
+            the scenario as a versioned JSON file in the COMPLETE form: every
+            field of the form is always present, in a fixed order — fields
+            you have not set are explicit{" "}<code>null</code>{" "}(port
+            coordinates, country B, the financing and phasing blocks…), so
+            the file documents the entire input surface. Import accepts the
+            same complete form and older partial exports alike; files carry
+            a schema version, older files are migrated on load, and the
+            working copy takes the imported file&apos;s name.
+          </li>
+          <li>
+            <strong>Status marks</strong>{" "}— every tab carries one of four
+            marks: <strong>○</strong>{" "}not yet reviewed (you have not
+            opened and left this tab for this project),{" "}
+            <strong>▲</strong>{" "}worth checking (one of the model&apos;s own
+            cautions, such as the two sides no longer delivering the same
+            energy — a warning is never hidden by moving on; unverified
+            reference values are flagged on the field itself, not on the
+            tab), <strong>✕</strong>{" "}a fault that
+            blocks results, and <strong>✓</strong>{" "}reviewed with nothing
+            flagged. Hovering the mark says why; landing on a flagged tab
+            focuses the offending control. Reviewed marks are remembered per
+            project on this browser. The header also keeps a live gap chip
+            and the project&apos;s Simplified/Standard level badge (with the
+            one-way Upgrade button on Simplified projects).
+          </li>
+          <li>
+            <strong>Reset</strong>{" "}— starts a NEW unsaved draft at the
+            reference defaults (with confirmation): it also detaches the
+            workspace from the open project — the saved row itself is
+            untouched.
+          </li>
+          <li>
+            <strong>Navigation</strong>{" "}— nine tabs in the top bar:
+            Projects (00), seven input steps (01–07) and Results (08). The
+            input steps stay DISABLED until a project is selected or created;
+            after that they are free navigation, and Back/Next at the bottom
+            of each form walks them in order. The Results tab (§12) holds the
+            full report; a compact live summary stays docked on every input
+            tab.
+          </li>
+        </ul>
 
-        {/* ================= PART 3 — FUEL EMISSIONS ================= */}
-        {/* ============== THE EMISSION METHOD (§19–§18) ============== */}
-        <div className="mt-12 border-t border-neutral-300 pt-6">
-          <p className="text-neutral-600">
-            <strong>The emission method (§19–§18)</strong>{" "}— how every
-            gCO2e in the model is produced. This ONE method serves
-            two surfaces: the corridor engine derives its per-fuel factors
-            from it (under the framework selected in Tab 07), and the
-            standalone{" "}
-            <a href="/fuelemissionscalculator" className="text-brand underline">
-              Fuel Emissions Calculator
-            </a>{" "}
-            exposes it interactively. Four load-bearing decisions: the
-            functional unit, the accounting framework, the combustion-side
-            corrections, and the refusal to default what has no defensible
-            default.
+                {/* ===================== PART C — WHERE THE NUMBERS COME FROM ===================== */}
+        <div className="mt-16 border-t-2 border-neutral-300 pt-8">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-deep">
+            Part C
+          </p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">
+            Where the numbers come from
+          </h2>
+          <p className="mt-2 text-neutral-600">
+            The sources behind the benchmarks: the emission accounting, the reference tables, and the LCOH method that prices a build-here site.
           </p>
         </div>
 
-        <H id="fe-overview">12. The emission method &amp; functional unit</H>
-        <p className="mt-2">
-          <strong>A tonne of green fuel does not replace a tonne of fossil
-          fuel.</strong>{" "}e-Ammonia carries 18,600 MJ/t against
-          HFO&apos;s 40,500 (the Annex II residual row covering most
-          VLSFO sold), so 1,000 t of e-ammonia replaces about 459.3 t of
-          HFO — not 1,000 t. A calculator comparing tonne-for-tonne
-          overstates avoided emissions by more than 2× for ammonia (3,437
-          vs the correct 1,427 tCO2e on the reference case). The functional
-          unit is therefore{" "}
-          <strong>energy delivered on board (MJ)</strong>{" "}and every
-          comparison runs through it — a hand-computed regression case guards
-          exactly this trap.
-        </p>
-
-        <H id="fe-frameworks">13. Accounting frameworks</H>
+<H id="fe-frameworks">14. Accounting frameworks</H>
         <p className="mt-2">
           The same fuel has different official values under different
           frameworks, so &ldquo;the&rdquo; emission factor does not exist —
@@ -1634,7 +1719,7 @@ export default async function DocsPage() {
           accounting.
         </p>
 
-        <H id="fe-calculation">14. The emission calculation</H>
+        <H id="fe-calculation">15. The emission calculation</H>
         <F>
           E<sub>cand</sub>{" "}= quantity × LCV<sub>cand</sub>{" "}&nbsp;[MJ]
           &nbsp;·&nbsp; E<sub>total</sub>{" "}= E<sub>cand</sub>{" "}/ (1 −
@@ -1727,7 +1812,7 @@ export default async function DocsPage() {
           decision-relevant fact on the screen.
         </p>
 
-        <H id="fe-corrections">15. Combustion-side corrections</H>
+        <H id="fe-corrections">16. Combustion-side corrections</H>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Pilot fuel</strong>{" "}— ammonia and methanol dual-fuel
@@ -1774,126 +1859,7 @@ export default async function DocsPage() {
           </li>
         </ul>
 
-        <H id="fe-validation">16. Emission-method validation &amp; regression</H>
-        <p className="mt-2">
-          The reference cases were computed BY HAND from the reference
-          dataset, so they are independent of the
-          implementation — if the engine disagrees, the engine is wrong.
-          The method
-          reproduces BetterSea&apos;s published FuelEU worked example (7,000
-          t HFO → 78.244 TtW / 91.744 WtW gCO2e/MJ under AR4) to three
-          decimals, exercising the exact Annex II arithmetic. Guaranteed
-          properties: the decomposition is exhaustive, results are linear in
-          quantity, a GWP-set switch moves only CH4/N2O-bearing
-          terms, avoided(X&nbsp;vs&nbsp;X)&nbsp;=&nbsp;0 for
-          every parameterised fuel, and every refusal path refuses rather
-          than guessing. Reproducing
-          GCMD&apos;s published GFI calculator as an independent cross-check
-          remains an open item.
-        </p>
-
-        <H id="fe-limitations">17. Emission-method limitations &amp; open items</H>
-        <ul className="mt-2 list-disc space-y-1.5 pl-5">
-          <li>
-            &ldquo;VLSFO&rdquo; is not an Annex II fuel class — residual
-            fuels are classed by ISO 8217 viscosity grade (80 cSt splits
-            LFO from HFO), not sulphur, so most VLSFO sold (typically RMG
-            380) is the HFO row. The baseline menu therefore offers the
-            Annex II classes directly — HFO (RME–RMK), LFO (RMA–RMD),
-            MDO/MGO (DMX–DMB) — loaded atomically from one row each and
-            confirmed against the DG MOVE FuelEU guidance document and the
-            ESSF SAPS WS1 working document; factors are never mixed across
-            rows.
-          </li>
-          <li>
-            The IMO fossil WtT bands (16.8 / 14.1) and the LNG LCV
-            divergence (0.0480 vs Annex II&apos;s 0.0491) are confirmed via
-            a paper citing MEPC.391(81) verbatim (arXiv:2502.07201);
-            paragraph-level verification against the resolution text
-            itself, the IMO distillate WtT, and the IMO residual LCVs
-            remain open — the last two are carried from Annex II as
-            disclosed substitutions.
-          </li>
-          <li>
-            LNG evaluates under FuelEU per engine technology, but its WtT
-            of 18.5 gCO2e/MJ is carried from a secondary table pending
-            verification against the Annex II LNG row; under the IMO
-            framework it refuses — the IMO guidelines lack a default
-            upstream factor (ICCT) and FuelEU&apos;s value is never
-            borrowed. e-Methanol evaluates as a
-            certified-pathway fuel (the user supplies the E-value per
-            project, range 1–28.2 gCO2e/MJ), but the dedicated DAC-sourced
-            and point-source-captured pathway rows from RED Delegated
-            Regulation 2023/1185 remain to be added, and its combustion
-            CH4/N2O are carried as nil pending an Annex II methanol row.
-          </li>
-          <li>
-            Out of scope by design: cost (the corridor model prices),
-            fleets and voyages (quantity is the unit), FuelEU/IMO
-            compliance-balance arithmetic (pooling, banking, penalties),
-            blue/grey ammonia and the bio-fuel pathways (research rows
-            pending), non-marine fuels.
-          </li>
-        </ul>
-
-        <H id="fe-sources">18. Emission-method source references</H>
-        <p className="mt-2">
-          <strong>What is measured, and what merely exists.</strong>{" "}Of{" "}
-          {FIELD_TIERS.total}{" "}scenario fields, {FIELD_TIERS.measured}{" "}
-          carry an elasticity, {FIELD_TIERS.sweptOnly}{" "}are swept but not
-          perturbable on these three archetypes, and {FIELD_TIERS.notSwept}{" "}
-          are outside the sweep entirely — selectors, ids, toggles and
-          descriptive fields with no numeric range to move. The{" "}
-          <strong>Status</strong>{" "}column says which, and why. A dash in the
-          elasticity column alone cannot distinguish{" "}
-          <em>we did not look</em>{" "}from{" "}
-          <em>we looked and it does not move</em>, and only the second is a
-          finding.
-        </p>
-        <div className="my-3 overflow-x-auto">
-          <table className="w-full border border-neutral-300 text-xs">
-            <thead>
-              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
-                <th className="px-3 py-2 font-medium">Source</th>
-                <th className="px-3 py-2 font-medium">What it anchors</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(
-                [
-                  ["Regulation (EU) 2023/1805, Annex II (FuelEU Maritime)", "Default LCVs, WtT factors, TtW CO2/CH4/N2O per fuel; the AR4 GWP basis; the VLSFO reference energy content; the missing-value rule (Article 10)."],
-                  ["RED II Article 28(5) + Delegated Regulation (EU) 2023/1185", "The RFNBO ceiling of 28.2 gCO2eq/MJ (≥70% saving vs the fossil comparator) and certified pathway E-values for e-fuels."],
-                  ["IMO: 2024 LCA Guidelines, MEPC.391(81) rev. MEPC.376(79)", "The global framework's default-value structure, the AR5 GWP basis, and the 93.3 gCO2eq/MJ 2008 reference GFI."],
-                  ["MEPC 83 approved Net-Zero Framework text (April 2025) + IMO Net-Zero Framework FAQ", "ZNZ thresholds: at most 19.0 gCO2eq/MJ to end-2034, 14.0 from 1 January 2035 — applying to the fuel/energy source's own WtW intensity, not the ship's attained GFI (FAQ wording verified 2026-08-14). Adoption targeted MEPC 85 (October 2026) — provisional."],
-                  ["MEPC 83/7/23 — Pacific Environment / Clean Shipping Coalition", "The ammonia N2O literature range (6.81×10⁻⁵ to 2.5×10⁻³ g N2O/g NH3) and the optimised-injection reduction figure behind the default scenario."],
-                  ["BetterSea, 'How to Calculate GHG Intensity under FuelEU Maritime'", "The published worked example (7,000 t HFO containership, 91.744 gCO2e/MJ under AR4) reproduced to three decimals as a hand-computed reference case."],
-                  ["European Commission DG MOVE, FuelEU guidance document for shipping companies", "Verbatim reproduction of the Annex II table used to confirm the HFO / LFO / MDO-MGO rows (retrieved 2026-08-14)."],
-                  ["ESSF SAPS WS1 working document", "Second independent reproduction of the Annex II table — cross-check for the same three rows (retrieved 2026-08-14)."],
-                  ["Sustainable Ships, 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero' (July 2025)", "Per-engine methane-slip values under both frameworks (Otto MS/SS, Diesel SS, LBSI, steam) and the biofuel reference E-value note."],
-                  ["Ammonia Energy Association (September 2025), citing MAN ES Research Centre Copenhagen and WinGD", "The ~95/5 ammonia/pilot energy split, tested two-stroke N2O emission levels, and the efficiency-ratio 1.0 evidence."],
-                  ["'Well-to-Tank Carbon Intensity Variability of Fossil Marine Fuels' (arXiv:2502.07201, Feb 2025)", "Verbatim citation of MEPC.391(81) fossil WtT defaults — HFO 0.10–0.50% S = 16.8, >0.50% S = 14.1 gCO2e/MJ — and the IMO LNG LCV of 0.0480 MJ/g (retrieved 2026-08-14)."],
-                  ["ICCT (April 2025)", "The missing IMO default upstream factor for fossil LNG and the real 18.5–28 gCO2e/MJ range — the reason LNG refuses under the IMO framework."],
-                  ["GCMD GFI calculator (post-MEPC 83)", "Planned independent cross-check (e-ammonia case) — open item, not yet reproduced."],
-                ] as const
-              ).map(([src, anchors]) => (
-                <tr key={src} className="border-b border-neutral-200 align-top last:border-0">
-                  <td className="px-3 py-1.5 font-medium">{src}</td>
-                  <td className="px-3 py-1.5 text-neutral-600">{anchors}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-2 text-neutral-600">
-          The reference dataset (
-          <code>data/fuel-emissions-ref/2026-08-17-ets-carbon-4.json</code>) carries
-          these citations row by row — every factor in the calculator&apos;s
-          decomposition table surfaces its own source and derivation in a
-          tooltip, and rows pending primary-source verification render with
-          the unverified badge.
-        </p>
-
-        <H id="reference-data">19. Reference data</H>
+        <H id="reference-data">17. Reference data</H>
         <H3 id="ref-vessels">Vessel types</H3>
         <p className="mt-2">
           The catalogue behind the vessel selector, rendered from the
@@ -1962,7 +1928,7 @@ export default async function DocsPage() {
           <strong>The emission columns below are stored fallbacks.</strong>{" "}
           Combustion EF, LHV and WtW
           derive per scenario from the fuel-emissions dataset under the
-          selected accounting framework (§12–§18): green fuels as certified
+          selected accounting framework (§15–§30__DONE__): green fuels as certified
           pathway + N2O slip + pilot blend (e-ammonia ≈ 22.14 gCO2e/MJ under
           FuelEU at the defaults), fossil fuels from the Annex II row under
           FuelEU (91.744) or the MEPC.391(81) sulphur band under IMO (94.90
@@ -2026,7 +1992,771 @@ export default async function DocsPage() {
           $1/gal at 122.5 MJ/gal.
         </p>
 
-        <H id="sensitivity">20. What moves the results</H>
+        <H id="m-overview">18. Overview &amp; system boundary</H>
+        <p className="mt-2">
+          LCOH is the constant price per kilogram of hydrogen that exactly pays
+          off every discounted cost of the project over its life. The system
+          boundary is the <strong>electrolyzer outlet</strong>: production of
+          hydrogen from electricity and water only. Compression, storage,
+          conversion (ammonia, e-fuels), and transport are outside the boundary
+          and not costed.
+        </p>
+        <p className="mt-2">
+          One representative meteorological year of hourly generation is
+          dispatched to the electrolyzer and repeated over the project life;
+          costs and hydrogen are discounted to present value; LCOH is their
+          ratio, decomposed into seven components that sum to it exactly.
+        </p>
+
+        {/* 15 */}
+        <H id="m-hydrogen">19. Hydrogen from electricity</H>
+        <p className="mt-2">
+          Hydrogen output is electricity consumed by the electrolyzer times its
+          efficiency, divided by the lower heating value (LHV) of hydrogen:
+        </p>
+        <F>
+          H₂ [kg] = E_consumed [kWh] × η_LHV ÷ 33.33 [kWh/kg]
+        </F>
+        <p className="mt-2">
+          η<sub>LHV</sub>{" "}is the system efficiency on an LHV basis (default
+          60%), so producing 1 kg needs ≈ 33.33 / 0.60 ≈ 55.6 kWh. The
+          electricity for water desalination and pumping is tracked for
+          emissions only, never for cost (§25).
+        </p>
+        <p className="mt-2">
+          <strong>Water: 9 litres per kg is a stoichiometric floor, not plant
+          demand.</strong>{" "}It is what the electrolysis reaction itself
+          consumes — the theoretical minimum, and the figure the source
+          methodology specifies. A real plant withdraws more, because
+          purification rejects part of the feed and cooling consumes more
+          again: published total consumption runs 15–25 L/kg, and RMI puts it
+          at 20–30 L/kg. For <em>cost</em>{" "}this barely matters — even at
+          30 L/kg and a dear water price the line is a few cents per kg
+          against an LCOH of several dollars. For <em>volume</em>{" "}it matters
+          a great deal, since reported water use and the desalination
+          electricity in the emissions ledger both scale linearly with it.
+          When siting against a local water budget, multiply the reported
+          volume by 2–3×.
+        </p>
+
+        {/* 16 */}
+        <H id="m-profiles">20. Resource profiles (capacity factors)</H>
+        <p className="mt-2">
+          Each location gets an 8760-hour <strong>capacity-factor</strong>{" "}
+          profile (kWh generated per kW installed, per hour, 0–1) for solar and
+          wind, built as a Typical Meteorological Year (TMY) from roughly a
+          decade of data and cached per 0.1° grid cell.
+        </p>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            <strong>Solar PV — PVGIS (authoritative):</strong>{" "}the JRC PVGIS
+            model (an hourly series for a 1 kWp system at
+            14% system loss) returns hourly PV power in watts;
+            capacity factor = power / 1000. Mounting is fixed at optimal tilt, or
+            single-/dual-axis tracking. If PVGIS is unavailable, a labeled
+            low-fidelity fallback is used (GHI/1000 × 0.9).
+          </li>
+          <li>
+            <strong>PV pathway on the map.</strong>{" "}PVGIS auto-resolves the
+            radiation database per cell and runs its own tilt-aware PV model on
+            it. Where PVGIS cannot serve a cell at all we drop the crude GHI
+            proxy rather than substitute it: that proxy is a categorically
+            different model, so adjacent hexes would stop being comparable and
+            a seam would appear in the surface. Such a cell is left blank
+            (<strong>no-data</strong>). The provider and radiation database
+            are recorded per cell (see the data-source tiers below).
+          </li>
+          <li>
+            <strong>Which radiation database serves a cell is a question of
+            longitude, not latitude.</strong>{" "}PVGIS v5_3 offers exactly two
+            — <code>PVGIS-ERA5</code>{" "}and <code>PVGIS-SARAH3</code>{" "}
+            (NSRDB was dropped after v5_2 and is now rejected everywhere,
+            including over the United States). SARAH3 is derived from
+            Meteosat, so it covers the prime disc only. Measured across the
+            whole 3,264-row PV cache: SARAH3 serves 50% of cells in the
+            +0..30° longitude band and 92% in the +30..60° band. It serves{" "}
+            <strong>0% of every
+            other band</strong>{" "}— the Americas, Asia-Pacific and Oceania
+            are ERA5 in their entirety. Latitude predicts nothing by
+            comparison (+45..60° is 68% SARAH3, +15..30° is 0%).
+          </li>
+          <li>
+            <strong>ERA5 is not a degraded tier.</strong>{" "}For most of the
+            map it is the only database PVGIS has, and where both exist they
+            agree closely and in no fixed direction (Turkana SARAH3 0.203 vs
+            ERA5 0.194; Namibia 0.221 vs 0.224; Ouarzazate 0.217 vs 0.217).
+            So{" "}
+            <code>pv_db_tier</code>{" "}is recorded and shown for transparency
+            but does <em>not</em>{" "}change how a cell is drawn. The real
+            caveat is resolution: ERA5&apos;s ~31 km grid is coarse for
+            coastlines and mountains, which is a reason to treat single cells
+            carefully, not a reason to apply a bias correction — and no
+            correction is applied without a citable basis.
+          </li>
+          <li>
+            <strong>Wind — Open-Meteo (ERA5, primary):</strong>{" "}hourly wind
+            speed at 10 m and 100 m is extrapolated to hub height (120 or 160 m)
+            with a per-hour power-law shear exponent, then converted through a
+            digitized turbine power curve. On the map this path also applies
+            the air-density correction and per-site IEC turbine-class
+            selection. NASA POWER (fixed shear α = 1/7, generic curve, neither
+            correction) is the fallback and currently serves{" "}
+            <strong>2.2% of cells</strong>. That is a real modelling
+            difference, so — symmetrically with the PV no-data policy above —
+            those cells are <strong>flagged rather than hidden</strong>:{" "}
+            <code>wind_fidelity</code>{" "}is recorded per cell, rendered
+            distinguishably, and shown in the cell drawer. Flagging rather than
+            masking is the right trade here because the value is real and the
+            population is small; masking 2.2% of otherwise-good cells would
+            lose more than it protects.
+          </li>
+          <li>
+            <strong>Data-source tiers (per-cell provenance).</strong>{" "}Every
+            cell records where its numbers came from, and the export schema
+            carries the same fields:{" "}<code>pv_provider</code>,{" "}
+            <code>pv_dataset_version</code>{" "}(which encodes the radiation
+            database, the mounting geometry and the year span),{" "}
+            <code>pv_db_tier</code>{" "}(<code>satellite</code>{" "}|{" "}
+            <code>era5</code>),{" "}<code>wind_provider</code>,{" "}
+            <code>wind_dataset_version</code>{" "}(hub height, IEC turbine
+            class, air-density flag) and{" "}<code>wind_fidelity</code>{" "}
+            (<code>improved</code>{" "}|{" "}<code>fallback</code>).{" "}
+            <code>pv_db_tier</code>{" "}is transparency, not a quality ranking —
+            see the coverage note above;{" "}<code>wind_fidelity</code>{" "}is a
+            genuine fidelity distinction. Cached profiles also carry a model
+            generation in their dataset version, and the cache refuses to serve
+            a superseded generation, so one map never mixes two models.{" "}
+            <strong>Some cells&apos; solar profiles are still being
+            rebuilt</strong>{" "}(1,918 of 6,160 ready cells rebuilt as of
+            2026-08-15; re-fetching is rate-limited by the upstream providers,
+            and seeded-over-water cells — where PVGIS answers{" "}
+            <em>location over the sea</em>{" "}— never convert). Cross-cell
+            comparisons of solar values carry this caveat until they are.
+          </li>
+        </ul>
+        <p className="mt-3 font-medium">Wind-speed extrapolation to hub height</p>
+        <F>
+          α = ln(v₁₀₀ / v₁₀) / ln(100 / 10), clamped to [0.05, 0.40]
+          <br />
+          v_hub = v₁₀₀ × (z_hub / 100)^α
+        </F>
+        <p className="mt-2">
+          Wind capacity factor = P<sub>turbine</sub>(v<sub>hub</sub>) / P
+          <sub>rated</sub>, where P<sub>turbine</sub>{" "}is linear interpolation on
+          the reference 5.6 MW power curve (cut-in 3 m/s, rated ≈ 12 m/s,
+          cut-out 25 m/s). The turbine sets the profile <em>shape</em>{" "}only;
+          installed capacity scales linearly.
+        </p>
+        <p className="mt-2">
+          <strong>Air-density correction (improved mode).</strong>{" "}A power curve
+          is defined at sea-level density ρ₀ = 1.225 kg/m³; thinner air at
+          elevation produces less power at a given speed. The lookup can be
+          normalised (IEC 61400-12) using the site elevation and hourly air
+          temperature:
+        </p>
+        <F>
+          ρ = p(z) / (287.05 · T_hour) , p(z) = 101325·(1 − 0.0065·z/288.15)^5.25588
+          <br />
+          v_eq = v_hub · (ρ / 1.225)^(1/3) ; CF = P_turbine(v_eq) / P_rated
+        </F>
+        <p className="mt-2">
+          Without it, wind is overstated ~22–33% at 2500–4000 m — biasing
+          against exactly the high-elevation high-resource sites the map exists
+          to surface. Reference profiles apply no correction.
+        </p>
+        <p className="mt-2">
+          <strong>Turbine-class selection (improved mode).</strong>{" "}One
+          mid-market machine applied everywhere penalises low-wind sites, where
+          a developer would deploy a lower IEC wind class — same generator,
+          larger rotor, so a lower <em>specific power</em>{" "}(rated kW per m² of
+          swept area) that reaches rated power at a lower wind speed and yields
+          far more energy in light winds. The improved path selects the class
+          from the site&rsquo;s annual-mean hub-height speed (IEC classes are
+          defined on wind speed, so the <em>uncorrected</em>{" "}mean is used):
+          ≥9.5 m/s → Class I (rated ≈12.5 m/s), 7.5–9.5 → Class II (≈11.5),
+          &lt;7.5 → Class III (≈10.5, largest rotor). The three curves are
+          repositioned from the digitised generic curve; the selected class is
+          exposed as a per-cell diagnostic. Reference mode keeps the single
+          generic curve.
+        </p>
+        <p className="mt-3 font-medium">Typical Meteorological Year</p>
+        <p className="mt-2">
+          For each calendar month, the source year whose daily-mean
+          distribution is closest to the long-term distribution is selected
+          (Finkelstein–Schafer statistic — the mean absolute difference between
+          the month&apos;s empirical cumulative distribution and the pooled
+          long-term one), and the twelve selected months are stitched into one
+          8760-hour year. Leap days are trimmed; provider gaps are
+          linearly interpolated; a year with &gt; 5% missing hours is dropped.
+        </p>
+
+        {/* 17 */}
+        <H id="m-dispatch">21. Hourly dispatch</H>
+        <p className="mt-2">
+          Each hour, renewables serve the electrolyzer first; the grid/PPA (if
+          configured) tops up the shortfall up to its hourly cap and the
+          electrolyzer&apos;s capacity. Available renewable power is{" "}
+          <code>CF × capacity</code>{" "}per source. If total available renewable
+          power exceeds the electrolyzer demand, both sources are scaled down
+          pro-rata by the same factor:
+        </p>
+        <F>
+          s = min(1, electrolyzer_kW / (availPV + availWind))
+          <br />
+          consumed_source = avail_source × s ; curtailed_source = avail_source ×
+          (1 − s)
+        </F>
+        <p className="mt-2">
+          Pro-rata scaling guarantees, per source,{" "}
+          <code>generated = consumed + curtailed</code>{" "}exactly. Because the TMY
+          repeats, the 8760-hour dispatch is computed once; only per-year scalar
+          quantities (efficiency, hydrogen) change over the project life.
+        </p>
+
+        {/* 18 */}
+        <H id="m-degradation">22. Degradation &amp; stack replacement</H>
+        <p className="mt-2">
+          Electrolyzer efficiency degrades geometrically each year (reference
+          mode; d = degradation rate, default 1%/yr):
+        </p>
+        <F>η_t = η₀ × (1 − d)^t , for operating years t = 1 … N</F>
+        <p className="mt-2">
+          The stack is replaced whenever cumulative operating hours (hours with
+          load &gt; 0) cross a multiple of its rated life (default 50 000 h —
+          IEA&apos;s economic optimum); each replacement is a capital event costing
+          a fraction of electrolyzer CAPEX (default 13%, which holds the event
+          at ~$300/kW). A replacement falling in the final operating year
+          is skipped. In reference mode efficiency is not reset on replacement.
+        </p>
+
+        {/* 19 */}
+        <H id="m-lcoh">23. The LCOH formula</H>
+        <p className="mt-2">
+          All cashflows are discounted with the project discount rate r
+          (default 8%). Investment occurs at year 0 (undiscounted); production
+          and operating costs occur in years 1 … N:
+        </p>
+        <p className="mt-2">
+          <strong>The rate is REAL, and this matters more than it looks.</strong>{" "}
+          Costs here are constant-USD — there is no inflation or escalation
+          term anywhere in the engine — which makes this a real DCF, so it
+          must be given a real rate. Most published cost-of-capital surveys
+          quote <em>nominal</em>, and the two are indistinguishable at the
+          point of use: both are plausible numbers in the same range, so
+          feeding a nominal rate in fails silently and simply makes hydrogen
+          look dearer. Measured at one cell, a nominal 9.4% consumed as real
+          overstated LCOH by 7.7%. Rates entering the model therefore declare
+          their basis, currency, publication year and the technology they were
+          measured for, and are converted at the boundary via the exact Fisher
+          relation r_real = (1 + r_nominal) / (1 + i) − 1 — not the r − i
+          approximation, which is 18 bp adrift at these values and compounds
+          across a 20-year horizon.
+        </p>
+        <p className="mt-2">
+          <strong>Financing layers.</strong>{" "}The map&rsquo;s default surface
+          applies a single uniform r = 8% everywhere, so it ranks{" "}
+          <em>resource</em>, not project cost — it is labelled{" "}
+          &ldquo;resource-driven, uniform financing&rdquo; on the map itself.
+          The capital-recovery factor over 20 yr swings from 0.087 at 6% to
+          0.134 at 12% — a larger spread than the resource gap between two good
+          sites — so an optional <em>risk-adjusted</em>{" "}layer instead applies
+          each cell&rsquo;s country cost of capital, matched by
+          point-in-polygon against the Natural Earth boundaries. Two tiers
+          supply it, and the layer records which: a{" "}
+          <strong>researched</strong>{" "}rate (<code>wacc_curated</code>) where
+          an enriched profile has one, otherwise the transparent World Bank
+          income-group <em>heuristic</em>{" "}(<code>wacc_suggestion</code>, 0.06
+          OECD-high → 0.12 low-income) — a bracket, not a measurement, and
+          labelled as such wherever it appears. Curated wins — the same rule
+          the Calculator applies.
+        </p>
+        <F>df₀ = 1 ; df_t = df_(t−1) / (1 + r) ; annuity A = Σ_(t=1..N) df_t</F>
+        <p className="mt-2">
+          LCOH is defined as the <strong>sum of per-component quotients</strong>
+          — each component&apos;s discounted USD divided by discounted hydrogen
+          — so the decomposition sums to LCOH exactly by construction:
+        </p>
+        <F>
+          PV_H₂ = Σ_(t=1..N) H₂_t × df_t
+          <br />
+          LCOH = Σ_components ( PV_component / PV_H₂ )
+        </F>
+        <p className="mt-2">
+          The seven components — each row is the numerator of its PV term; the
+          denominator is discounted hydrogen throughout:
+        </p>
+        <div className="mt-2 overflow-x-auto">
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-neutral-300 text-left">
+                <th className="py-1.5 pr-3">Component</th>
+                <th className="py-1.5">Discounted USD (numerator)</th>
+              </tr>
+            </thead>
+            <tbody className="align-top">
+              {[
+                ["Electrolyzer CAPEX", "CAPEX_kW × capacity_kW (at t = 0)"],
+                ["Electrolyzer OPEX", "opex_fraction × CAPEX × A"],
+                [
+                  "Stack replacements",
+                  "Σ over replacement years of (replacement_cost × df_t)",
+                ],
+                [
+                  "PV electricity",
+                  "LCOE mode: (E_consumed/1000 × price) × A · CAPEX mode: CAPEX + OPEX × A",
+                ],
+                ["Wind electricity", "same as PV electricity, wind source"],
+                ["Grid electricity", "(E_grid/1000 × grid_price) × A"],
+                [
+                  "Water",
+                  "Σ_t (water_m³_t × unit_cost × df_t), unit_cost = price + transport × dist/100",
+                ],
+              ].map(([c, f]) => (
+                <tr
+                  key={c}
+                  className="border-b border-neutral-100"
+                >
+                  <td className="py-1.5 pr-3 font-medium">{c}</td>
+                  <td className="py-1.5 font-mono text-[12px] text-neutral-600">
+                    {f}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 20 */}
+        <H id="m-lcoe">24. Electricity pricing (LCOE)</H>
+        <p className="mt-2">
+          Renewable electricity is priced one of two ways per source. In{" "}
+          <strong>LCOE mode</strong>{" "}a flat price per MWh is charged on{" "}
+          <em>consumed</em>{" "}energy only (curtailed energy is free). In{" "}
+          <strong>CAPEX mode</strong>{" "}the electricity cost is <em>derived</em>{" "}
+          from the plant&apos;s build cost and its own generation — so a better
+          resource yields cheaper electricity:
+        </p>
+        <F>
+          LCOE = ( CAPEX + OPEX_per_year × A ) / ( (E_generated / 1000) × A )
+          [USD/MWh]
+        </F>
+        <p className="mt-2">
+          The reported <em>mix</em>{" "}LCOE is the consumed-energy-weighted average
+          of the active sources:
+        </p>
+        <F>
+          LCOE_mix = ( E_PV·LCOE_PV + E_wind·LCOE_wind + E_grid·price_grid ) /
+          E_consumed
+        </F>
+        <p className="mt-2">
+          The interactive Calculator lets you choose either mode. The world map
+          uses CAPEX mode so that resource quality drives the map (§26).
+        </p>
+        <p className="mt-2">
+          Do not multiply <code>LCOE_mix</code>{" "}by consumed energy to
+          recover the electricity cost — it under-counts by the utilization
+          ratio: in CAPEX mode the electricity component charges the full
+          plant CAPEX regardless of curtailment, while{" "}
+          <code>LCOE_mix</code>{" "}is per MWh{" "}
+          <em>generated</em>. The engine therefore also reports an{" "}
+          <strong>effective cost per consumed MWh</strong>{" "}(discounted
+          electricity cost ÷ discounted consumed MWh), which reconciles to the
+          electricity components exactly, and per-source utilization
+          (E_consumed / E_generated).
+        </p>
+
+        {/* 21 */}
+        <H id="m-emissions">25. Emissions ledger</H>
+        <p className="mt-2">
+          Emissions are tracked separately from cost. Grid electricity consumed
+          by the electrolyzer, plus the electricity attributable to water
+          (desalination 3.75 kWh/m³ if applicable; pumping 0.40 kWh/m³ per 100 m
+          of lift), are multiplied by the grid emission factor:
+        </p>
+        <F>
+          CO₂e_t [t] = ( E_grid + water_m³_t × water_elec_kWh/m³ ) / 1000 ×
+          grid_EF [tCO₂/MWh]
+        </F>
+        <p className="mt-2">
+          A renewables-only plant has a grid factor of 0 (water electricity is
+          assumed drawn from the same clean supply), so its hydrogen emission
+          factor is 0 kgCO₂e/kg. Water and desalination electricity never enter
+          the cost side.
+        </p>
+        <p className="mt-2">
+          This ledger is <strong>operational only</strong>, measured against the
+          annual-average grid emission factor. It is <strong>not an RFNBO /
+          RED II compliance assessment</strong>{" "}— that additionally requires
+          additionality and geographic (same bidding zone) and temporal
+          (monthly, then hourly) correlation against defined comparators, with a
+          3.38 kgCO₂e/kg threshold. Because dispatch is hourly, the engine does
+          report the <strong>hourly renewable-matched fraction</strong>{" "}(share
+          of consumption served hour-by-hour by the project&apos;s own
+          renewables), which is the figure a compliance-minded reader wants — but
+          a 0 here means operationally clean, not RFNBO-compliant.
+        </p>
+
+        {/* 22 */}
+        <H id="m-map">26. The map&apos;s configuration</H>
+        <p className="mt-2">
+          Every hexagon on the Explorer is computed with a fixed reference
+          configuration so cells are comparable: a 100 MW electrolyzer at the
+          reference defaults, no grid, and a fixed 200 MW total of renewables
+          whose PV share is swept over {"{0, 25, 50, 75, 100}"}%. The lowest-cost
+          mix is the <em>Best combination</em>{" "}layer; PV-only and wind-only give
+          the <em>Solar only</em>{" "}and <em>Wind only</em>{" "}layers.
+        </p>
+        <p className="mt-2">
+          <strong>Best-achievable layer (oversizing sweep).</strong>{" "}The fixed
+          2:1 point is one arbitrary design; the true optimum also depends on the
+          renewable-to-electrolyser <em>ratio</em>, which is strongly
+          profile-dependent — flat wind wants a lower ratio than peaky solar — so
+          the cheapest mix can swap between two cells. An optional layer sweeps ratio ∈ {"{1.25, 1.5, 2.0, 2.5, 3.0}"} ×
+          PV share ∈ {"{0, 12.5, …, 100}"}% (45 configurations) and reports the
+          minimum LCOH plus the winning ratio and mix as per-cell diagnostics.
+          The fixed-2:1 layer is kept as a comparable fixed design point.
+        </p>
+        <p className="mt-2">
+          Unlike the flat-30 reference, the map prices electricity in{" "}
+          <strong>CAPEX mode</strong>{" "}so each cell&apos;s cost reflects its own
+          capacity factor. Generation costs are IRENA{" "}
+          <em>Renewable Power Generation Costs in 2024</em>{" "}global
+          weighted-average total installed cost — solar 691 USD/kWp + 1.5%
+          OPEX, onshore wind 1,041 USD/kW + 2.5% OPEX. Each cost pack carries
+          its generation-cost
+          basis year so a vintage mismatch is visible in the data rather than
+          inferred (see §27). The OPEX fractions were checked against the same
+          edition: with IRENA&apos;s own CAPEX, ~25-year life and
+          region-weighted real WACC they reproduce its published LCOE of 43
+          and 34 USD/MWh to within a few percent.
+        </p>
+        <p className="mt-2">
+          <strong>Colour domain and the non-viability ceiling.</strong>{" "}Colours
+          use a fixed per-layer domain of{" "}
+          <strong>3.5&ndash;14 USD/kg</strong>, never rescaled to the viewport,
+          so a colour means the same LCOH everywhere on that layer and across
+          layers. Both bounds are deliberate: nothing on Earth produces below
+          ~3.5 at today&apos;s costs, and real cells run to ~15.5 (Indonesia&apos;s
+          res-3 solar layer — H3 hex grid resolution 3, cells roughly 100 km
+          across — measures 9.34&ndash;15.48). Values outside the
+          domain pin to their end&apos;s own reserved colour rather than
+          extrapolating. Above{" "}<strong>25 USD/kg</strong>{" "}(configurable) a
+          cell is drawn in a neutral grey instead of a ramp colour: past that
+          point the number has stopped being a price and become a verdict —
+          Atacama wind at CF&nbsp;0.02 computes 770&ndash;1,003 USD/kg, which is
+          &ldquo;this technology does not work here&rdquo;, not &ldquo;expensive&rdquo;.
+        </p>
+        <p className="mt-2">
+          <strong>Sweep persistence.</strong>{" "}The best-achievable and
+          risk-adjusted-WACC layers arrive slightly later than the base
+          layers: a freshly added cell shows the base layers immediately and
+          gains the optional layers once the scheduled recompute pass reaches
+          it. At the last census 4,544 of 5,993 ready
+          cells carried them; the remainder are cells seeded since the last
+          pass, which the scheduled job fills as it re-fetches. Measured on that
+          population, the fixed 2:1 design point costs a median 2.5 % against
+          free sizing, and it favours <em>solar</em>: solar-led cells gain a
+          mean 2.63 % from sweeping the ratio, wind-led cells 4.21 %, because
+          flat wind saturates the electrolyser at a lower ratio (mean optimum
+          1.57&times;) than peaky solar does (2.18&times;).
+        </p>
+
+        {/* 24 */}
+        <H id="m-costyears">27. Cost-year projections (2030 / 2040 / 2050)</H>
+        <p className="mt-2">
+          The cost-year buttons re-price each cell with future technology costs.
+          The <strong>resource is held constant</strong>{" "}— same capacity factors
+          — so the change is purely the techno-economic cost-down. Absolute
+          values, with the multiplier on the 2024 base in brackets. This table
+          is <strong>generated from the engine&apos;s own cost packs</strong>,
+          not transcribed. <em>Driver</em>{" "}is the cost input that changes;
+          ×N is the multiplier against the 2024 base.
+        </p>
+        <div className="mt-2 overflow-x-auto">
+          <table className="w-full border-collapse text-[13px] tabular-nums">
+            <thead>
+              <tr className="border-b border-neutral-300 text-left">
+                <th className="py-1.5 pr-3">Driver</th>
+                {costPacks.years.map((y) => (
+                  <th key={y} className="py-1.5 pr-3">
+                    {y}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {costPacks.rows.map((r) => (
+                <tr key={r.driver} className="border-b border-neutral-100">
+                  <td className="py-1.5 pr-3 font-medium">
+                    {r.driver}
+                    <span className="ml-1 text-neutral-500">({r.unit})</span>
+                  </td>
+                  {r.values.map((v, i) => (
+                    <td key={costPacks.years[i]} className="py-1.5 pr-3">
+                      {v}
+                      {i > 0 && (
+                        <span className="ml-1 text-[11px] text-neutral-400">
+                          ×{r.multipliers[i]}
+                        </span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-xs text-neutral-500">
+          OPEX is held flat across years at{" "}
+          {(costPacks.opex.solarFraction * 100).toFixed(1)}% of CAPEX per year
+          for solar and {(costPacks.opex.windFraction * 100).toFixed(1)}% for
+          wind. Generation-cost basis year: {costPacks.costBasisYear}.
+        </p>
+        <p className="mt-2">
+          <strong>Two drivers, two sources, each internally consistent.</strong>{" "}
+          The <strong>electrolyser</strong>{" "}trajectory comes from the IEA
+          Global Hydrogen Review 2025 Assumptions Annex (system CAPEX 2000–2600
+          → 1400–1820 USD/kW by 2030, midpoints 2300 → 1610). The{" "}
+          <strong>generation</strong>{" "}trajectory comes from IRENA{" "}
+          <em>Renewable Power Generation Costs in 2024</em>: solar PV total
+          installed cost falls ~40% over the coming decade, onshore wind ~20%
+          and then <em>stabilises</em>{" "}at USD 850–1,000/kW. Wind is therefore
+          floored at 850, which is why its 2040 and 2050 figures are equal —
+          that is the projection reaching the level the source describes, not a
+          stuck value. Both are applied globally, not per region.
+        </p>
+        <p className="mt-2">
+          Each source publishes a decade horizon, so <strong>2040 and 2050 are
+          extrapolated</strong>{" "}and are labeled &quot;projected&quot;
+          throughout the UI. Scenario for the electrolyser line: IEA Announced
+          Pledges (APS).
+        </p>
+        <p className="mt-2">
+          <strong>Durability trajectory.</strong>{" "}Stack life and degradation
+          improve alongside CAPEX across the cost years — durability is a
+          primary learning-curve target. These durability figures are a{" "}
+          <em>documented extrapolation</em>{" "}along the IEA/DOE direction, not
+          IEA-published values; the 50,000 h starting point is IEA&apos;s stated
+          economic optimum (up to 95,000 h technically achievable). Because
+          solar CAPEX falls faster than wind, the cheapest PV/wind mix{" "}
+          <strong>flips</strong>{" "}in some cells between cost years — shifting
+          toward solar by 2050.
+        </p>
+        <p className="mt-2">
+          <strong>Stack replacement is a step, not a curve.</strong>{" "}A
+          replacement happens when cumulative operating hours cross a multiple
+          of the stack life, so the <em>count</em>{" "}of replacements over the
+          20-year life is an integer that jumps (roughly: 20-year operating
+          hours ÷ stack life, rounded down). At 6,719 operating hours a
+          year, a 50,000 h stack is replaced in years 8 and 15 — two events;
+          the same cell at 40,000 h would be replaced in years 6, 12 and 18 —
+          three. Because each cost year has a different stack life, the
+          boundaries fall at different operating-hour thresholds: a 50,000 h
+          stack adds its second replacement at about 5,500 h/yr, a 75,000 h
+          stack at about 8,000 h/yr. A cell can therefore sit on one side of a
+          boundary in 2024 and the other in 2030.
+        </p>
+        <p className="mt-2">
+          <strong>Why this shows up in the rankings.</strong>{" "}Measured, the
+          largest such step is about <strong>1.4% of LCOH</strong>{" "}— small in
+          absolute terms, but the top of the solar ranking is packed far more
+          tightly than that. Median gap between adjacent cells in the top 50:{" "}
+          <strong>0.049%</strong>{" "}for solar·2030, 0.096% for solar·2024,
+          0.190% for wind·2030. So a single boundary crossing moves a cell
+          roughly 29 ranks in solar·2030, 15 in solar·2024 and 7 in wind·2030.
+          That is why rank churn concentrates in one layer-year rather than
+          appearing everywhere: solar·2030 has the least rank resolution to
+          lose, not the most instability. Read the <em>values</em>{" "}rather
+          than the ordinal positions when cells are this close — a top-50
+          ordering separated by half a tenth of a percent is not a meaningful
+          ranking, and the map&apos;s colour bins deliberately do not resolve
+          it either.
+        </p>
+
+        {/* 25 */}
+        <H id="m-defaults">28. Country defaults &amp; enriched profiles</H>
+        <p className="mt-2">
+          The Calculator&apos;s country selector fills a grid emission factor
+          and a cost of capital for every country. Two tiers supply them, and
+          the table below shows which tier each country is on and what it
+          actually carries.
+        </p>
+        <p className="mt-2">
+          <strong>Regional heuristic (the default, 172 countries).</strong>{" "}
+          Grid emission factors come from Our World in Data&apos;s
+          carbon-intensity-of-electricity dataset (built on Ember + the Energy
+          Institute), latest year, converted gCO₂/kWh ÷ 1000 → tCO₂/MWh — a
+          real measurement, refreshed automatically. The WACC is a{" "}
+          <em>suggestion</em>{" "}from a transparent World Bank income-group
+          heuristic (high-income OECD 6%, high-income non-OECD 7%,
+          upper-middle 8%, lower-middle 10%, low 12%, fallback 9%): a bracket,
+          not a country estimate, because per-country cost-of-capital data is
+          proprietary. Countries are matched to ISO2 via Natural Earth
+          boundaries.
+        </p>
+        <p className="mt-2">
+          <strong>Enriched profile.</strong>{" "}A researched country carries
+          real cost and finance inputs — cost of capital, country risk
+          premium, industrial electricity price, water price, land and
+          labour, and per-technology CAPEX overrides — each carrying its
+          source, the <em>publication year</em>{" "}of the figure (not merely
+          when it was retrieved), and a <em>basis</em>{" "}saying what kind of
+          quantity it is. Curation is <em>per field</em>: a profile may
+          research the cost of capital and still let the automated grid factor
+          keep updating, and any field it leaves empty falls back to the model
+          default. A value the research could not confirm ships marked
+          unverified rather than being quietly presented as solid.
+        </p>
+        <p className="mt-2">
+          <strong>Cost of capital is stored REAL, and says so.</strong>{" "}The
+          engine discounts constant-USD cashflows with no escalation term, so
+          it needs a real rate — but most published surveys quote{" "}
+          <em>nominal</em>. Indonesia&apos;s 9.4% from the IEA Cost of Capital
+          Observatory is nominal, local currency; deflated by Bank
+          Indonesia&apos;s 2.5% target through the exact Fisher relation it
+          becomes <strong>6.73% real</strong>, which is what the model uses.
+          Consuming the nominal figure directly would have overstated LCOH by
+          about 7.7%. Every stored rate records its basis, currency,
+          publication year and the technology it was measured for; a rate
+          without a declared basis is never consumed.
+        </p>
+        <p className="mt-2">
+          Two caveats travel with that number rather than being resolved. It
+          is a <strong>solar-PV</strong>{" "}cost of capital borrowed for a
+          hydrogen project, which carries offtake risk a contracted PPA does
+          not — if anything it understates hydrogen&apos;s true cost of
+          capital. And the literature genuinely disagrees: an Indonesian PV
+          study uses a <em>real</em>{" "}9.5%, deceptively close to the
+          IEA&apos;s nominal 9.4% but meaning something quite different. This
+          is why the model records number, basis, technology and year rather
+          than quietly picking one figure.
+        </p>
+        <p className="mt-2">
+          <strong>Curated always beats the automated refresh.</strong>{" "}The
+          ingest runs every three hours; on an enriched country it writes only
+          the fields the profile leaves empty and never touches its
+          citations. The heuristic WACC keeps refreshing underneath a
+          researched one so the comparison stays visible — the table shows
+          both.
+        </p>
+        <p className="mt-2">
+          <strong>Which field reaches which surface.</strong>{" "}The three
+          columns of the table below are the three surfaces a country value
+          feeds: the Calculator form, the map&apos;s country coloring
+          (choropleth), and the Corridor model. A country
+          field only matters where something consumes it, and not every field
+          reaches every surface — the map prices generation from CAPEX, so an
+          electricity <em>price</em>{" "}has nothing to act on there.
+        </p>
+        <div className="mt-2 overflow-x-auto">
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-neutral-300 text-left">
+                <th className="py-1.5 pr-3">Field</th>
+                <th className="py-1.5 pr-3">Calculator</th>
+                <th className="py-1.5 pr-3">Map (choropleth)</th>
+                <th className="py-1.5">Corridor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                [
+                  "Cost of capital (curated, else heuristic)",
+                  "Discount rate",
+                  "Risk-adjusted layer only",
+                  "No — see divergence below",
+                ],
+                [
+                  "Grid emission factor",
+                  "Grid emissions",
+                  "Not used (no grid import)",
+                  "No",
+                ],
+                [
+                  "Industrial electricity price",
+                  "Grid import price — only when the grid is enabled",
+                  "No — generation is CAPEX-priced",
+                  "No",
+                ],
+                [
+                  "Industrial water price",
+                  "Water cost",
+                  "No — held at the model default",
+                  "No",
+                ],
+                [
+                  "Country risk premium",
+                  "Informational only",
+                  "No",
+                  "No",
+                ],
+              ].map((r) => (
+                <tr key={r[0]} className="border-b border-neutral-100">
+                  <td className="py-1.5 pr-3 font-medium">{r[0]}</td>
+                  <td className="py-1.5 pr-3">{r[1]}</td>
+                  <td className="py-1.5 pr-3">{r[2]}</td>
+                  <td className="py-1.5">{r[3]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2">
+          The electricity row is the one that surprises. It is a{" "}
+          <strong>retail industrial tariff</strong>, so it prices grid
+          <em>imports</em>{" "}— and the calculator&apos;s PV and wind slots are{" "}
+          <em>captive</em>{" "}generation with their own LCOE or CAPEX pricing.
+          Applying a national retail tariff to a dedicated renewable plant
+          would be wrong, so it is deliberately not done; with the grid
+          switched off (the default) the field has no effect at all, and the
+          citation list says so rather than showing a number that never
+          reaches the result. Worth knowing that renewable PPAs in Indonesia
+          price <em>below</em>{" "}retail industrial power, which is the
+          relevant comparison for a captive project. A single national price
+          also glosses over the eastern-Indonesia premium — acceptable for
+          screening, but eastern Indonesia is exactly where the best solar
+          cells are.
+        </p>
+        <p className="mt-2">
+          The table below lists every country&apos;s working values: the grid
+          emission factor, the cost of capital in use (an enriched value shows
+          the heuristic it replaced beside it), electricity and water prices,
+          and the basis — enriched profile or regional heuristic, as defined
+          in the two tiers above.
+        </p>
+        <CountryDefaultsTable snapshot={countryDefaults} />
+        <p className="mt-2 text-neutral-600">
+          The table renders a committed snapshot of the live values
+          (<code>data/country-defaults/snapshot.json</code>) — so the
+          published values are dated and traceable rather than depending on a
+          live query.
+        </p>
+        <p className="mt-2">
+          <strong>Known divergence.</strong>{" "}The Green Corridor model keeps
+          its <em>own</em>{" "}seven-row country list (its own ids, all
+          marked unverified) and does not read these
+          profiles: a country outside those seven resolves to the{" "}
+          <code>other</code>{" "}row at 8%. An enriched profile therefore
+          improves the
+          Calculator and the map&apos;s risk-adjusted layer, but not the
+          corridor&apos;s discount rate.
+        </p>
+
+        {/* 26 */}
+                {/* ===================== PART D — HOW MUCH TO TRUST IT ===================== */}
+        <div className="mt-16 border-t-2 border-neutral-300 pt-8">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-deep">
+            Part D
+          </p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">
+            How much to trust it
+          </h2>
+          <p className="mt-2 text-neutral-600">
+            What moves the results, how the model is tested against published work, and where its limits are.
+          </p>
+        </div>
+
+<H id="sensitivity">29. What moves the results</H>
         <p className="mt-2">
           Every numeric input is moved across its plausible range, one at a
           time, and every option of every selector is tried. The effect is
@@ -2101,11 +2831,11 @@ export default async function DocsPage() {
           really cannot move either figure, and the table says so instead of
           omitting it. The other four measured outputs (per-unit cost, both
           side totals, tonnes abated) still decide field placement in the form
-          &mdash; &sect;22 carries those details per field.
+          &mdash; &sect;38 carries those details per field.
         </p>
         <p className="mt-2">
           <strong>Every swept input is listed below.</strong>{" "}A field absent
-          from this table was not swept at all; &sect;22 lists all
+          from this table was not swept at all; &sect;38 lists all
           {" "}scenario fields and says which of the three measurement tiers
           each falls into, and why.
         </p>
@@ -2177,7 +2907,7 @@ export default async function DocsPage() {
           short-sea). Corridor length measures <strong>0.29</strong>{" "}where
           consumption is derived from geometry and exactly{" "}
           <strong>0.00</strong>{" "}where the burn is typed &mdash; the same
-          field, decisive on one corridor and inert on another. &sect;22
+          field, decisive on one corridor and inert on another. &sect;38
           reports the range across archetypes rather than an average for
           exactly that reason.
         </p>
@@ -2279,7 +3009,216 @@ export default async function DocsPage() {
         </p>
 
 
-        <H id="provenance">21. Provenance, versions &amp; limits</H>
+        <H id="fe-validation">30. Emission-method validation &amp; regression</H>
+        <p className="mt-2">
+          The reference cases were computed BY HAND from the reference
+          dataset, so they are independent of the
+          implementation — if the engine disagrees, the engine is wrong.
+          The method
+          reproduces BetterSea&apos;s published FuelEU worked example (7,000
+          t HFO → 78.244 TtW / 91.744 WtW gCO2e/MJ under AR4) to three
+          decimals, exercising the exact Annex II arithmetic. Guaranteed
+          properties: the decomposition is exhaustive, results are linear in
+          quantity, a GWP-set switch moves only CH4/N2O-bearing
+          terms, avoided(X&nbsp;vs&nbsp;X)&nbsp;=&nbsp;0 for
+          every parameterised fuel, and every refusal path refuses rather
+          than guessing. Reproducing
+          GCMD&apos;s published GFI calculator as an independent cross-check
+          remains an open item.
+        </p>
+
+        <H id="m-verification">31. Verification</H>
+        <p className="mt-2">
+          Verification shows the code computes what the method specifies — it is
+          not empirical grounding. Analytical cases reproduce hand-derived LCOH
+          to ≤ 1e-6 (e.g. PV at CF ≡ 1, LCOE 30 USD/MWh, no degradation → 2.507
+          USD/kg via the standard annuity); monotonicity,
+          energy closure and mass balance hold as guaranteed properties; full
+          runs are pinned against frozen references at 1e-12.
+          These say nothing about whether the assumptions match reality — that is
+          validation, below.
+        </p>
+
+        {/* 27 */}
+        <H id="m-validation">32. Validation</H>
+        <p className="mt-2">
+          <strong>Chilean 47-project parity</strong>{" "}(Tabla 3-1, Motor de Cálculo
+          LCOH, April 2024) is the one empirical comparison, and n = 32 with
+          inferred coordinates is thin — the tool&apos;s job is screening, so the
+          metrics that matter are shortlist fidelity, not a single global
+          correlation:
+        </p>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            <strong>Rank fidelity: Spearman ρ = 0.85; Kendall τ_b = 0.66</strong>{" "}
+            with a bootstrap 95% confidence interval of roughly [0.53, 0.78].
+          </li>
+          <li>
+            <strong>⚠ The level is not like-for-like.</strong>{" "}The
+            published column is a <em>2022</em>{" "}cost basis; the engine
+            runs IEA&apos;s <em>2024</em>{" "}installed CAPEX ($2,300/kW).
+            Mean computed is 6.16 vs 4.51 published — that gap is a vintage
+            difference, not a bias estimate. Read this comparison as a
+            screening-fidelity measure until a same-vintage published dataset
+            is available.
+          </li>
+          <li>
+            <strong>Precision@5 = @10 = 1.0</strong>{" "}and top-decile retention
+            1.0: the model identifies the cheapest sites — what a user actually
+            shortlists — exactly. The discordance sits among the middle of the
+            distribution, not the top.
+          </li>
+          <li>
+            <strong>A same-vintage −0.21 offset is structural, not
+            geolocation.</strong>{" "}On a same-vintage comparison
+            (2022 basis vs the 2022 column) the model ran 4.30 vs 4.51 USD/kg.
+            Coordinate inference is symmetric noise (a sensitivity run perturbing
+            inferred coordinates ±0.2° moves a site&apos;s LCOH in either
+            direction, so it can&apos;t produce a one-directional offset); the
+            consistent gap traced to a baseline assumption differing from the
+            study (efficiency, electrolyser CAPEX, discount rate, or oversizing
+            ratio). A baseline
+            cause may not be uniform across geographies.
+          </li>
+          <li>
+            <strong>One benchmark is thin for a global tool.</strong>{" "}A second
+            published dataset with fully disclosed assumptions and coordinates
+            (e.g. an IEA/IRENA or national green-hydrogen cost study) is the
+            outstanding validation work; the comparison is dataset-agnostic,
+            so a new dataset can be added when a comparably-specified source is
+            obtained.
+          </li>
+          <li>
+            <strong>This set cannot adjudicate a solar-versus-wind bias
+            outside Chile.</strong>{" "}Worth stating plainly, because it is the
+            question the map is most often used to answer. The 32 sites sit in
+            one country, in a resource regime — Atacama solar and Magallanes
+            wind — that is close to the global extreme for both technologies,
+            and the comparison validates <em>total</em>{" "}LCOH per site rather
+            than the two single-technology layers against each other. So it
+            says nothing about whether the solar or the wind layer is
+            systematically high or low in, say, maritime Southeast Asia, where
+            both the resource physics and the data pathway (ERA5 rather than
+            SARAH3, and a wind field whose within-hex spread exceeds its mean
+            — §34) are different. A finding of the form &ldquo;wind beats
+            solar here&rdquo; in an un-benchmarked region rests on the model
+            alone, not on this validation.
+          </li>
+        </ul>
+
+        {/* 28 */}
+        <H id="fe-limitations">33. Emission-method limitations &amp; open items</H>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            &ldquo;VLSFO&rdquo; is not an Annex II fuel class — residual
+            fuels are classed by ISO 8217 viscosity grade (80 cSt splits
+            LFO from HFO), not sulphur, so most VLSFO sold (typically RMG
+            380) is the HFO row. The baseline menu therefore offers the
+            Annex II classes directly — HFO (RME–RMK), LFO (RMA–RMD),
+            MDO/MGO (DMX–DMB) — loaded atomically from one row each and
+            confirmed against the DG MOVE FuelEU guidance document and the
+            ESSF SAPS WS1 working document; factors are never mixed across
+            rows.
+          </li>
+          <li>
+            The IMO fossil WtT bands (16.8 / 14.1) and the LNG LCV
+            divergence (0.0480 vs Annex II&apos;s 0.0491) are confirmed via
+            a paper citing MEPC.391(81) verbatim (arXiv:2502.07201);
+            paragraph-level verification against the resolution text
+            itself, the IMO distillate WtT, and the IMO residual LCVs
+            remain open — the last two are carried from Annex II as
+            disclosed substitutions.
+          </li>
+          <li>
+            LNG evaluates under FuelEU per engine technology, but its WtT
+            of 18.5 gCO2e/MJ is carried from a secondary table pending
+            verification against the Annex II LNG row; under the IMO
+            framework it refuses — the IMO guidelines lack a default
+            upstream factor (ICCT) and FuelEU&apos;s value is never
+            borrowed. e-Methanol evaluates as a
+            certified-pathway fuel (the user supplies the E-value per
+            project, range 1–28.2 gCO2e/MJ), but the dedicated DAC-sourced
+            and point-source-captured pathway rows from RED Delegated
+            Regulation 2023/1185 remain to be added, and its combustion
+            CH4/N2O are carried as nil pending an Annex II methanol row.
+          </li>
+          <li>
+            Out of scope by design: cost (the corridor model prices),
+            fleets and voyages (quantity is the unit), FuelEU/IMO
+            compliance-balance arithmetic (pooling, banking, penalties),
+            blue/grey ammonia and the bio-fuel pathways (research rows
+            pending), non-marine fuels.
+          </li>
+        </ul>
+
+        <H id="m-limitations">34. Limitations</H>
+        <ul className="mt-2 list-disc space-y-1.5 pl-5">
+          <li>
+            No compression, storage, transport, or downstream conversion — the
+            boundary is the electrolyzer outlet.
+          </li>
+          <li>
+            One representative year repeated; no inter-annual variability,
+            battery buffering, or part-load efficiency curve. Oversizing is
+            swept on the map&apos;s
+            best-achievable layer (&sect;26), though the headline layers stay at
+            the fixed 2:1 design point.
+          </li>
+          <li>
+            <strong>Map cells use one representative coordinate per H3
+            hexagon — and for wind that is sometimes not enough.</strong>{" "}A
+            res-3 hex covers roughly 12,000 km², computed from a single
+            centroid. Measured against the finer res-4 cells already seeded
+            inside their parents, the wind capacity factor varies a lot{" "}
+            <em>within</em>{" "}a hex everywhere: mean spread 0.061 CF across
+            Indonesian hexes, 0.266 across Chilean ones. Note the direction —
+            the absolute spread is <em>larger</em>{" "}in Chile, so this is a
+            property of the resolution, not of any one region.
+          </li>
+          <li>
+            What differs is the spread <em>relative to the value</em>. Chilean
+            hexes average 0.15–0.42 CF, so a hex value still ranks a region
+            usefully. Indonesian hexes cluster at 0.02–0.07, where a spread of
+            0.061 <strong>exceeds the mean</strong>: the number stops being a
+            weak estimate of a site and becomes uninformative about it.
+            Indonesian wind is a ridge-siting problem, not a regional average
+            — which is why a hand-picked coordinate can imply CF 0.20–0.25
+            while the hex 65 km away reports 0.044, and <em>both are
+            right</em>. Cells below 12% wind CF therefore carry an explicit
+            note in the cell drawer telling the reader to treat the figure as
+            a typical unsited location. The threshold is on the data, not on a
+            region list, because the same condition holds anywhere wind is
+            weak and terrain-driven.
+          </li>
+          <li>
+            <strong>Wind model tiers.</strong>{" "}On the map the Open-Meteo path
+            DOES apply an air-density correction and per-site IEC turbine-class
+            selection (these cells are tagged as air-density-corrected, and the
+            selected class is recorded). The NASA POWER fallback does not: a generic
+            curve with fixed &alpha;&nbsp;=&nbsp;1/7 shear. That is a real
+            modelling difference, so those cells are outlined on the map and
+            named in the cell drawer rather than rendered as if they were
+            comparable. Measured 2026-08-15 over ready cells: 58% improved,
+            1.3% fallback — and for <strong>37%, provenance is
+            unrecorded</strong>.
+            Those are deliberately not flagged, since asserting either tier
+            would be false, but the drawer reports their provenance as
+            unrecorded rather than leaving the reader to assume. Each cell is
+            stamped as it is refreshed on the regular re-seed schedule, so
+            the unrecorded share shrinks on its own.
+          </li>
+          <li>
+            Cost-year 2040/2050 figures are extrapolations, not IEA-published
+            values.
+          </li>
+          <li>
+            Estimates are indicative, not investment-grade; they compare
+            locations and technologies on a consistent basis.
+          </li>
+        </ul>
+
+        {/* 29 */}
+        <H id="provenance">35. Provenance, versions &amp; limits</H>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
             <strong>Regression pinning</strong>{" "}— the engine is held to a
@@ -2306,7 +3245,7 @@ export default async function DocsPage() {
             load shows both figures side by side. That flat tonnage ignores
             which fuel is in the tank, so such scenarios often burn the same
             mass on both sides and compare very unequal delivered energy;
-            the parity check (§11) says so. The numbered divergences (D1–D7)
+            the parity check (§3) says so. The numbered divergences (D1–D7)
             are the model&apos;s deliberate, opt-in departures from the
             study — the MMMCZCS Chilean copper-concentrate study — with
             defaults that reproduce it: D1 emissions
@@ -2352,71 +3291,6 @@ export default async function DocsPage() {
           </li>
         </ul>
 
-        <H3 id="prov-default">The default scenario: Chilean copper-concentrate corridor</H3>
-        <p className="mt-2">
-          The app opens on a real published case:{" "}
-          <em>Chilean Green Corridors — Copper Concentrate Export</em>{" "}
-          (MMMCZCS, 11 September 2025; consortium Sumitomo, Interacid, NYK,
-          Codelco, MMMCZCS). Mejillones → Japan/South Korea, 25 Mt of copper
-          concentrate over 15 years, ten ammonia dual-fuel Handymax bulkers,
-          60 kt/yr of green ammonia produced in the Atacama from 2030. Every
-          default value is provenance-tagged in the scenario source: stated
-          in the study [S], derived from stated values [D], fitted to
-          reconcile the study&apos;s published totals [F], or assumption [A].
-          The fitted CAPEX/OPEX blocks reconcile to the published totals but
-          are not sourced line-by-line. How the model reproduces the study
-          with these inputs:
-        </p>
-        <div className="my-3 overflow-x-auto">
-          <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
-            <thead>
-              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
-                <th className="px-3 py-2 font-medium">Metric</th>
-                <th className="px-3 py-2 text-right font-medium">Study</th>
-                <th className="px-3 py-2 text-right font-medium">Model</th>
-                <th className="px-3 py-2 text-right font-medium">Δ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(
-                [
-                  ["Green corridor NPV", "$2,850m", "$2,850.66m", "+0.02%"],
-                  ["Fossil corridor NPV (ex-regulation)", "$850m", "$838.22m", "−1.4%"],
-                  ["Gap NPV (pre-regulation)", "$2,000m", "$2,012.44m", "+0.6%"],
-                  ["Incremental cost per cargo tonne (pre-reg.)", "$80/t", "$81.31/t", "+1.6%"],
-                  ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "1,450,095 t", "exact"],
-                  ["Regulatory benefit (IMO NZF proxy)", "≈$250m", "$250.23m", "≈exact"],
-                ] as const
-              ).map(([metric, study, model, delta]) => (
-                <tr key={metric} className="border-b border-neutral-200 last:border-0">
-                  <td className="px-3 py-1.5">{metric}</td>
-                  <td className="px-3 py-1.5 text-right">{study}</td>
-                  <td className="px-3 py-1.5 text-right">{model}</td>
-                  <td className="px-3 py-1.5 text-right">{delta}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-2">
-          <strong>The table above is the study-calibration variant — the
-          study&apos;s own emission accounting, reproduced exactly.</strong>{" "}
-          The current default scenario derives its factors from the emission
-          method (§12–§18) instead, and the two variants therefore differ
-          deliberately: the current default computes a post-regulation gap
-          of{" "}
-          <strong>$1,819.48m</strong>{" "}where the study-calibration variant
-          pins $1,762.21m; CO2 abated of{" "}
-          <strong>1,118,236 t</strong>{" "}against the variant&apos;s
-          study-exact 1,450,095 (a WtW=0 green ammonia is not a certifiable
-          value; certified 15 +
-          N2O slip + 5% pilot gives a 22.14 blend); and $1,627/tCO2 against
-          the variant&apos;s $1,215. Under the current default the green side
-          also pays the self-designed CO2 price
-          ($60.75m PV; fossil $253.71m on the Annex II 91.744/40,500
-          row). The pre-regulation figures are factor-independent and
-          identical in both.
-        </p>
         <H3 id="prov-fourways">The same corridor, four ways</H3>
         <p className="mt-2">
           The corridor is seeded four times, because &ldquo;what did the
@@ -2634,7 +3508,121 @@ export default async function DocsPage() {
           overstates the reward basis ~1.6×.
         </p>
 
-        <H id="inputs">22. Complete input inventory</H>
+        <H id="fe-sources">36. Emission-method source references</H>
+        <p className="mt-2">
+          <strong>What is measured, and what merely exists.</strong>{" "}Of{" "}
+          {FIELD_TIERS.total}{" "}scenario fields, {FIELD_TIERS.measured}{" "}
+          carry an elasticity, {FIELD_TIERS.sweptOnly}{" "}are swept but not
+          perturbable on these three archetypes, and {FIELD_TIERS.notSwept}{" "}
+          are outside the sweep entirely — selectors, ids, toggles and
+          descriptive fields with no numeric range to move. The{" "}
+          <strong>Status</strong>{" "}column says which, and why. A dash in the
+          elasticity column alone cannot distinguish{" "}
+          <em>we did not look</em>{" "}from{" "}
+          <em>we looked and it does not move</em>, and only the second is a
+          finding.
+        </p>
+        <div className="my-3 overflow-x-auto">
+          <table className="w-full border border-neutral-300 text-xs">
+            <thead>
+              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 font-medium">Source</th>
+                <th className="px-3 py-2 font-medium">What it anchors</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(
+                [
+                  ["Regulation (EU) 2023/1805, Annex II (FuelEU Maritime)", "Default LCVs, WtT factors, TtW CO2/CH4/N2O per fuel; the AR4 GWP basis; the VLSFO reference energy content; the missing-value rule (Article 10)."],
+                  ["RED II Article 28(5) + Delegated Regulation (EU) 2023/1185", "The RFNBO ceiling of 28.2 gCO2eq/MJ (≥70% saving vs the fossil comparator) and certified pathway E-values for e-fuels."],
+                  ["IMO: 2024 LCA Guidelines, MEPC.391(81) rev. MEPC.376(79)", "The global framework's default-value structure, the AR5 GWP basis, and the 93.3 gCO2eq/MJ 2008 reference GFI."],
+                  ["MEPC 83 approved Net-Zero Framework text (April 2025) + IMO Net-Zero Framework FAQ", "ZNZ thresholds: at most 19.0 gCO2eq/MJ to end-2034, 14.0 from 1 January 2035 — applying to the fuel/energy source's own WtW intensity, not the ship's attained GFI (FAQ wording verified 2026-08-14). Adoption targeted MEPC 85 (October 2026) — provisional."],
+                  ["MEPC 83/7/23 — Pacific Environment / Clean Shipping Coalition", "The ammonia N2O literature range (6.81×10⁻⁵ to 2.5×10⁻³ g N2O/g NH3) and the optimised-injection reduction figure behind the default scenario."],
+                  ["BetterSea, 'How to Calculate GHG Intensity under FuelEU Maritime'", "The published worked example (7,000 t HFO containership, 91.744 gCO2e/MJ under AR4) reproduced to three decimals as a hand-computed reference case."],
+                  ["European Commission DG MOVE, FuelEU guidance document for shipping companies", "Verbatim reproduction of the Annex II table used to confirm the HFO / LFO / MDO-MGO rows (retrieved 2026-08-14)."],
+                  ["ESSF SAPS WS1 working document", "Second independent reproduction of the Annex II table — cross-check for the same three rows (retrieved 2026-08-14)."],
+                  ["Sustainable Ships, 'Emission Properties for EU ETS, FuelEU and IMO Net-Zero' (July 2025)", "Per-engine methane-slip values under both frameworks (Otto MS/SS, Diesel SS, LBSI, steam) and the biofuel reference E-value note."],
+                  ["Ammonia Energy Association (September 2025), citing MAN ES Research Centre Copenhagen and WinGD", "The ~95/5 ammonia/pilot energy split, tested two-stroke N2O emission levels, and the efficiency-ratio 1.0 evidence."],
+                  ["'Well-to-Tank Carbon Intensity Variability of Fossil Marine Fuels' (arXiv:2502.07201, Feb 2025)", "Verbatim citation of MEPC.391(81) fossil WtT defaults — HFO 0.10–0.50% S = 16.8, >0.50% S = 14.1 gCO2e/MJ — and the IMO LNG LCV of 0.0480 MJ/g (retrieved 2026-08-14)."],
+                  ["ICCT (April 2025)", "The missing IMO default upstream factor for fossil LNG and the real 18.5–28 gCO2e/MJ range — the reason LNG refuses under the IMO framework."],
+                  ["GCMD GFI calculator (post-MEPC 83)", "Planned independent cross-check (e-ammonia case) — open item, not yet reproduced."],
+                ] as const
+              ).map(([src, anchors]) => (
+                <tr key={src} className="border-b border-neutral-200 align-top last:border-0">
+                  <td className="px-3 py-1.5 font-medium">{src}</td>
+                  <td className="px-3 py-1.5 text-neutral-600">{anchors}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-neutral-600">
+          The reference dataset (
+          <code>data/fuel-emissions-ref/2026-08-17-ets-carbon-4.json</code>) carries
+          these citations row by row — every factor in the calculator&apos;s
+          decomposition table surfaces its own source and derivation in a
+          tooltip, and rows pending primary-source verification render with
+          the unverified badge.
+        </p>
+
+        <H id="m-sources">37. Sources</H>
+        <ul className="mt-2 space-y-2">
+          <li>
+            <strong>Methodology:</strong>{" "}«Motor de Cálculo LCOH — Principales
+            características», Ministerio de Energía de Chile / Centro de Energía
+            FCFM U. de Chile / USACH / PUC, April 2024.
+          </li>
+          <li>
+            <strong>Solar:</strong>{" "}PVGIS © European Commission, Joint Research
+            Centre —{" "}
+            <a
+              href="https://re.jrc.ec.europa.eu/pvg_tools/"
+              className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand"
+            >
+              re.jrc.ec.europa.eu
+            </a>
+            .
+          </li>
+          <li>
+            <strong>Wind &amp; weather:</strong>{" "}Open-Meteo.com (CC BY 4.0),
+            based on ERA5 (Copernicus Climate Change Service); NASA POWER (NASA
+            Langley Research Center) fallback.
+          </li>
+          <li>
+            <strong>Renewable CAPEX:</strong>{" "}IRENA, Renewable Power Generation
+            Costs 2023.
+          </li>
+          <li>
+            <strong>Cost projections:</strong>{" "}IEA, Global Hydrogen Review 2025
+            — Assumptions Annex (Announced Pledges Scenario).
+          </li>
+          <li>
+            <strong>Grid emission factors:</strong>{" "}Our World in Data (Ember +
+            Energy Institute), carbon intensity of electricity.
+          </li>
+          <li>
+            <strong>Boundaries:</strong>{" "}Natural Earth (public domain).
+            Basemap © CARTO, map data © OpenStreetMap contributors.
+          </li>
+        </ul>
+        <p className="mt-6 text-xs text-neutral-500">
+          Non-commercial use. Provider attributions are also shown inline with
+          each resource-profile result.
+        </p>
+        {/* ===================== APPENDIX — REFERENCE MATERIAL ===================== */}
+        <div className="mt-16 border-t-2 border-neutral-300 pt-8">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-deep">
+            Appendix
+          </p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">
+            Reference material
+          </h2>
+          <p className="mt-2 text-neutral-600">
+            Every field a scenario can carry, and the constants the methodology uses.
+          </p>
+        </div>
+
+<H id="inputs">38. Complete input inventory</H>
         <div className="mt-3 border border-brand/40 bg-brand-tint px-4 py-3">
           <p className="text-sm font-medium text-brand-deep">
             Writing a scenario file by hand?
@@ -2667,7 +3655,7 @@ export default async function DocsPage() {
         <p className="mt-2">
           Every field a scenario can carry. The table is generated from the
           model itself — the same definitions that validate an imported file,
-          joined to the measurements in §20 — and rebuilt on every change, so
+          joined to the measurements in §29 — and rebuilt on every change, so
           it cannot fall out of step with the model it describes. In the
           table, <strong>#</strong>{" "}is the row number,{" "}
           <strong>Field</strong>{" "}is the dot-path the field uses in a
@@ -2680,10 +3668,10 @@ export default async function DocsPage() {
         </p>
         <p className="mt-2">
           <strong>Rank</strong>{" "}and{" "}<strong>Max gap movement</strong>{" "}
-          come from the same sweep behind §20: movement is how far the field
+          come from the same sweep behind §29: movement is how far the field
           can push the headline cost gap across its assumed range, as a
           percentage of the gap, and rank orders every swept field by that
-          figure. §20 shows each input&apos;s impact on the cost gap and the
+          figure. §29 shows each input&apos;s impact on the cost gap and the
           CO&#8322; abatement cost side by side; this table carries the gap
           figure so the measurement sits next to the field&apos;s definition.
           Form placement follows the largest movement across all six KPIs.
@@ -2848,433 +3836,7 @@ export default async function DocsPage() {
           same generator from the same artifacts, so the two cannot drift
           apart from the model.
         </p>
-        {/* ===================== PART 2 — LCOH METHODOLOGY ===================== */}
-        <div className="mt-16 border-t-2 border-neutral-300 pt-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand-deep">
-            Part 2
-          </p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight text-neutral-900">
-            LCOH methodology
-          </h2>
-          <p className="mt-2 text-neutral-600">
-            How Thaduberg estimates the levelized cost of hydrogen (LCOH) — the
-            method, every formula, and the data sources behind it. This is the
-            engine that prices a <strong>build-here</strong>{" "}site (§4): pick a
-            cell on the map, and the number handed back to the corridor is
-            produced exactly as described below. It re-implements the published
-            Chilean methodology «Motor de Cálculo LCOH» (Ministerio de Energía
-            de Chile, April 2024); resource data and cost projections are
-            layered on top.
-          </p>
-        </div>
-
-        {/* 14 */}
-        <H id="m-overview">23. Overview &amp; system boundary</H>
-        <p className="mt-2">
-          LCOH is the constant price per kilogram of hydrogen that exactly pays
-          off every discounted cost of the project over its life. The system
-          boundary is the <strong>electrolyzer outlet</strong>: production of
-          hydrogen from electricity and water only. Compression, storage,
-          conversion (ammonia, e-fuels), and transport are outside the boundary
-          and not costed.
-        </p>
-        <p className="mt-2">
-          One representative meteorological year of hourly generation is
-          dispatched to the electrolyzer and repeated over the project life;
-          costs and hydrogen are discounted to present value; LCOH is their
-          ratio, decomposed into seven components that sum to it exactly.
-        </p>
-
-        {/* 15 */}
-        <H id="m-hydrogen">24. Hydrogen from electricity</H>
-        <p className="mt-2">
-          Hydrogen output is electricity consumed by the electrolyzer times its
-          efficiency, divided by the lower heating value (LHV) of hydrogen:
-        </p>
-        <F>
-          H₂ [kg] = E_consumed [kWh] × η_LHV ÷ 33.33 [kWh/kg]
-        </F>
-        <p className="mt-2">
-          η<sub>LHV</sub>{" "}is the system efficiency on an LHV basis (default
-          60%), so producing 1 kg needs ≈ 33.33 / 0.60 ≈ 55.6 kWh. The
-          electricity for water desalination and pumping is tracked for
-          emissions only, never for cost (§30).
-        </p>
-        <p className="mt-2">
-          <strong>Water: 9 litres per kg is a stoichiometric floor, not plant
-          demand.</strong>{" "}It is what the electrolysis reaction itself
-          consumes — the theoretical minimum, and the figure the source
-          methodology specifies. A real plant withdraws more, because
-          purification rejects part of the feed and cooling consumes more
-          again: published total consumption runs 15–25 L/kg, and RMI puts it
-          at 20–30 L/kg. For <em>cost</em>{" "}this barely matters — even at
-          30 L/kg and a dear water price the line is a few cents per kg
-          against an LCOH of several dollars. For <em>volume</em>{" "}it matters
-          a great deal, since reported water use and the desalination
-          electricity in the emissions ledger both scale linearly with it.
-          When siting against a local water budget, multiply the reported
-          volume by 2–3×.
-        </p>
-
-        {/* 16 */}
-        <H id="m-profiles">25. Resource profiles (capacity factors)</H>
-        <p className="mt-2">
-          Each location gets an 8760-hour <strong>capacity-factor</strong>{" "}
-          profile (kWh generated per kW installed, per hour, 0–1) for solar and
-          wind, built as a Typical Meteorological Year (TMY) from roughly a
-          decade of data and cached per 0.1° grid cell.
-        </p>
-        <ul className="mt-2 list-disc space-y-1.5 pl-5">
-          <li>
-            <strong>Solar PV — PVGIS (authoritative):</strong>{" "}the JRC PVGIS
-            model (an hourly series for a 1 kWp system at
-            14% system loss) returns hourly PV power in watts;
-            capacity factor = power / 1000. Mounting is fixed at optimal tilt, or
-            single-/dual-axis tracking. If PVGIS is unavailable, a labeled
-            low-fidelity fallback is used (GHI/1000 × 0.9).
-          </li>
-          <li>
-            <strong>PV pathway on the map.</strong>{" "}PVGIS auto-resolves the
-            radiation database per cell and runs its own tilt-aware PV model on
-            it. Where PVGIS cannot serve a cell at all we drop the crude GHI
-            proxy rather than substitute it: that proxy is a categorically
-            different model, so adjacent hexes would stop being comparable and
-            a seam would appear in the surface. Such a cell is left blank
-            (<strong>no-data</strong>). The provider and radiation database
-            are recorded per cell (see the data-source tiers below).
-          </li>
-          <li>
-            <strong>Which radiation database serves a cell is a question of
-            longitude, not latitude.</strong>{" "}PVGIS v5_3 offers exactly two
-            — <code>PVGIS-ERA5</code>{" "}and <code>PVGIS-SARAH3</code>{" "}
-            (NSRDB was dropped after v5_2 and is now rejected everywhere,
-            including over the United States). SARAH3 is derived from
-            Meteosat, so it covers the prime disc only. Measured across the
-            whole 3,264-row PV cache: SARAH3 serves 50% of cells in the
-            +0..30° longitude band and 92% in the +30..60° band. It serves{" "}
-            <strong>0% of every
-            other band</strong>{" "}— the Americas, Asia-Pacific and Oceania
-            are ERA5 in their entirety. Latitude predicts nothing by
-            comparison (+45..60° is 68% SARAH3, +15..30° is 0%).
-          </li>
-          <li>
-            <strong>ERA5 is not a degraded tier.</strong>{" "}For most of the
-            map it is the only database PVGIS has, and where both exist they
-            agree closely and in no fixed direction (Turkana SARAH3 0.203 vs
-            ERA5 0.194; Namibia 0.221 vs 0.224; Ouarzazate 0.217 vs 0.217).
-            So{" "}
-            <code>pv_db_tier</code>{" "}is recorded and shown for transparency
-            but does <em>not</em>{" "}change how a cell is drawn. The real
-            caveat is resolution: ERA5&apos;s ~31 km grid is coarse for
-            coastlines and mountains, which is a reason to treat single cells
-            carefully, not a reason to apply a bias correction — and no
-            correction is applied without a citable basis.
-          </li>
-          <li>
-            <strong>Wind — Open-Meteo (ERA5, primary):</strong>{" "}hourly wind
-            speed at 10 m and 100 m is extrapolated to hub height (120 or 160 m)
-            with a per-hour power-law shear exponent, then converted through a
-            digitized turbine power curve. On the map this path also applies
-            the air-density correction and per-site IEC turbine-class
-            selection. NASA POWER (fixed shear α = 1/7, generic curve, neither
-            correction) is the fallback and currently serves{" "}
-            <strong>2.2% of cells</strong>. That is a real modelling
-            difference, so — symmetrically with the PV no-data policy above —
-            those cells are <strong>flagged rather than hidden</strong>:{" "}
-            <code>wind_fidelity</code>{" "}is recorded per cell, rendered
-            distinguishably, and shown in the cell drawer. Flagging rather than
-            masking is the right trade here because the value is real and the
-            population is small; masking 2.2% of otherwise-good cells would
-            lose more than it protects.
-          </li>
-          <li>
-            <strong>Data-source tiers (per-cell provenance).</strong>{" "}Every
-            cell records where its numbers came from, and the export schema
-            carries the same fields:{" "}<code>pv_provider</code>,{" "}
-            <code>pv_dataset_version</code>{" "}(which encodes the radiation
-            database, the mounting geometry and the year span),{" "}
-            <code>pv_db_tier</code>{" "}(<code>satellite</code>{" "}|{" "}
-            <code>era5</code>),{" "}<code>wind_provider</code>,{" "}
-            <code>wind_dataset_version</code>{" "}(hub height, IEC turbine
-            class, air-density flag) and{" "}<code>wind_fidelity</code>{" "}
-            (<code>improved</code>{" "}|{" "}<code>fallback</code>).{" "}
-            <code>pv_db_tier</code>{" "}is transparency, not a quality ranking —
-            see the coverage note above;{" "}<code>wind_fidelity</code>{" "}is a
-            genuine fidelity distinction. Cached profiles also carry a model
-            generation in their dataset version, and the cache refuses to serve
-            a superseded generation, so one map never mixes two models.{" "}
-            <strong>Some cells&apos; solar profiles are still being
-            rebuilt</strong>{" "}(1,918 of 6,160 ready cells rebuilt as of
-            2026-08-15; re-fetching is rate-limited by the upstream providers,
-            and seeded-over-water cells — where PVGIS answers{" "}
-            <em>location over the sea</em>{" "}— never convert). Cross-cell
-            comparisons of solar values carry this caveat until they are.
-          </li>
-        </ul>
-        <p className="mt-3 font-medium">Wind-speed extrapolation to hub height</p>
-        <F>
-          α = ln(v₁₀₀ / v₁₀) / ln(100 / 10), clamped to [0.05, 0.40]
-          <br />
-          v_hub = v₁₀₀ × (z_hub / 100)^α
-        </F>
-        <p className="mt-2">
-          Wind capacity factor = P<sub>turbine</sub>(v<sub>hub</sub>) / P
-          <sub>rated</sub>, where P<sub>turbine</sub>{" "}is linear interpolation on
-          the reference 5.6 MW power curve (cut-in 3 m/s, rated ≈ 12 m/s,
-          cut-out 25 m/s). The turbine sets the profile <em>shape</em>{" "}only;
-          installed capacity scales linearly.
-        </p>
-        <p className="mt-2">
-          <strong>Air-density correction (improved mode).</strong>{" "}A power curve
-          is defined at sea-level density ρ₀ = 1.225 kg/m³; thinner air at
-          elevation produces less power at a given speed. The lookup can be
-          normalised (IEC 61400-12) using the site elevation and hourly air
-          temperature:
-        </p>
-        <F>
-          ρ = p(z) / (287.05 · T_hour) , p(z) = 101325·(1 − 0.0065·z/288.15)^5.25588
-          <br />
-          v_eq = v_hub · (ρ / 1.225)^(1/3) ; CF = P_turbine(v_eq) / P_rated
-        </F>
-        <p className="mt-2">
-          Without it, wind is overstated ~22–33% at 2500–4000 m — biasing
-          against exactly the high-elevation high-resource sites the map exists
-          to surface. Reference profiles apply no correction.
-        </p>
-        <p className="mt-2">
-          <strong>Turbine-class selection (improved mode).</strong>{" "}One
-          mid-market machine applied everywhere penalises low-wind sites, where
-          a developer would deploy a lower IEC wind class — same generator,
-          larger rotor, so a lower <em>specific power</em>{" "}(rated kW per m² of
-          swept area) that reaches rated power at a lower wind speed and yields
-          far more energy in light winds. The improved path selects the class
-          from the site&rsquo;s annual-mean hub-height speed (IEC classes are
-          defined on wind speed, so the <em>uncorrected</em>{" "}mean is used):
-          ≥9.5 m/s → Class I (rated ≈12.5 m/s), 7.5–9.5 → Class II (≈11.5),
-          &lt;7.5 → Class III (≈10.5, largest rotor). The three curves are
-          repositioned from the digitised generic curve; the selected class is
-          exposed as a per-cell diagnostic. Reference mode keeps the single
-          generic curve.
-        </p>
-        <p className="mt-3 font-medium">Typical Meteorological Year</p>
-        <p className="mt-2">
-          For each calendar month, the source year whose daily-mean
-          distribution is closest to the long-term distribution is selected
-          (Finkelstein–Schafer statistic — the mean absolute difference between
-          the month&apos;s empirical cumulative distribution and the pooled
-          long-term one), and the twelve selected months are stitched into one
-          8760-hour year. Leap days are trimmed; provider gaps are
-          linearly interpolated; a year with &gt; 5% missing hours is dropped.
-        </p>
-
-        {/* 17 */}
-        <H id="m-dispatch">26. Hourly dispatch</H>
-        <p className="mt-2">
-          Each hour, renewables serve the electrolyzer first; the grid/PPA (if
-          configured) tops up the shortfall up to its hourly cap and the
-          electrolyzer&apos;s capacity. Available renewable power is{" "}
-          <code>CF × capacity</code>{" "}per source. If total available renewable
-          power exceeds the electrolyzer demand, both sources are scaled down
-          pro-rata by the same factor:
-        </p>
-        <F>
-          s = min(1, electrolyzer_kW / (availPV + availWind))
-          <br />
-          consumed_source = avail_source × s ; curtailed_source = avail_source ×
-          (1 − s)
-        </F>
-        <p className="mt-2">
-          Pro-rata scaling guarantees, per source,{" "}
-          <code>generated = consumed + curtailed</code>{" "}exactly. Because the TMY
-          repeats, the 8760-hour dispatch is computed once; only per-year scalar
-          quantities (efficiency, hydrogen) change over the project life.
-        </p>
-
-        {/* 18 */}
-        <H id="m-degradation">27. Degradation &amp; stack replacement</H>
-        <p className="mt-2">
-          Electrolyzer efficiency degrades geometrically each year (reference
-          mode; d = degradation rate, default 1%/yr):
-        </p>
-        <F>η_t = η₀ × (1 − d)^t , for operating years t = 1 … N</F>
-        <p className="mt-2">
-          The stack is replaced whenever cumulative operating hours (hours with
-          load &gt; 0) cross a multiple of its rated life (default 50 000 h —
-          IEA&apos;s economic optimum); each replacement is a capital event costing
-          a fraction of electrolyzer CAPEX (default 13%, which holds the event
-          at ~$300/kW). A replacement falling in the final operating year
-          is skipped. In reference mode efficiency is not reset on replacement.
-        </p>
-
-        {/* 19 */}
-        <H id="m-lcoh">28. The LCOH formula</H>
-        <p className="mt-2">
-          All cashflows are discounted with the project discount rate r
-          (default 8%). Investment occurs at year 0 (undiscounted); production
-          and operating costs occur in years 1 … N:
-        </p>
-        <p className="mt-2">
-          <strong>The rate is REAL, and this matters more than it looks.</strong>{" "}
-          Costs here are constant-USD — there is no inflation or escalation
-          term anywhere in the engine — which makes this a real DCF, so it
-          must be given a real rate. Most published cost-of-capital surveys
-          quote <em>nominal</em>, and the two are indistinguishable at the
-          point of use: both are plausible numbers in the same range, so
-          feeding a nominal rate in fails silently and simply makes hydrogen
-          look dearer. Measured at one cell, a nominal 9.4% consumed as real
-          overstated LCOH by 7.7%. Rates entering the model therefore declare
-          their basis, currency, publication year and the technology they were
-          measured for, and are converted at the boundary via the exact Fisher
-          relation r_real = (1 + r_nominal) / (1 + i) − 1 — not the r − i
-          approximation, which is 18 bp adrift at these values and compounds
-          across a 20-year horizon.
-        </p>
-        <p className="mt-2">
-          <strong>Financing layers.</strong>{" "}The map&rsquo;s default surface
-          applies a single uniform r = 8% everywhere, so it ranks{" "}
-          <em>resource</em>, not project cost — it is labelled{" "}
-          &ldquo;resource-driven, uniform financing&rdquo; on the map itself.
-          The capital-recovery factor over 20 yr swings from 0.087 at 6% to
-          0.134 at 12% — a larger spread than the resource gap between two good
-          sites — so an optional <em>risk-adjusted</em>{" "}layer instead applies
-          each cell&rsquo;s country cost of capital, matched by
-          point-in-polygon against the Natural Earth boundaries. Two tiers
-          supply it, and the layer records which: a{" "}
-          <strong>researched</strong>{" "}rate (<code>wacc_curated</code>) where
-          an enriched profile has one, otherwise the transparent World Bank
-          income-group <em>heuristic</em>{" "}(<code>wacc_suggestion</code>, 0.06
-          OECD-high → 0.12 low-income) — a bracket, not a measurement, and
-          labelled as such wherever it appears. Curated wins — the same rule
-          the Calculator applies.
-        </p>
-        <F>df₀ = 1 ; df_t = df_(t−1) / (1 + r) ; annuity A = Σ_(t=1..N) df_t</F>
-        <p className="mt-2">
-          LCOH is defined as the <strong>sum of per-component quotients</strong>
-          — each component&apos;s discounted USD divided by discounted hydrogen
-          — so the decomposition sums to LCOH exactly by construction:
-        </p>
-        <F>
-          PV_H₂ = Σ_(t=1..N) H₂_t × df_t
-          <br />
-          LCOH = Σ_components ( PV_component / PV_H₂ )
-        </F>
-        <p className="mt-2">
-          The seven components — each row is the numerator of its PV term; the
-          denominator is discounted hydrogen throughout:
-        </p>
-        <div className="mt-2 overflow-x-auto">
-          <table className="w-full border-collapse text-[13px]">
-            <thead>
-              <tr className="border-b border-neutral-300 text-left">
-                <th className="py-1.5 pr-3">Component</th>
-                <th className="py-1.5">Discounted USD (numerator)</th>
-              </tr>
-            </thead>
-            <tbody className="align-top">
-              {[
-                ["Electrolyzer CAPEX", "CAPEX_kW × capacity_kW (at t = 0)"],
-                ["Electrolyzer OPEX", "opex_fraction × CAPEX × A"],
-                [
-                  "Stack replacements",
-                  "Σ over replacement years of (replacement_cost × df_t)",
-                ],
-                [
-                  "PV electricity",
-                  "LCOE mode: (E_consumed/1000 × price) × A · CAPEX mode: CAPEX + OPEX × A",
-                ],
-                ["Wind electricity", "same as PV electricity, wind source"],
-                ["Grid electricity", "(E_grid/1000 × grid_price) × A"],
-                [
-                  "Water",
-                  "Σ_t (water_m³_t × unit_cost × df_t), unit_cost = price + transport × dist/100",
-                ],
-              ].map(([c, f]) => (
-                <tr
-                  key={c}
-                  className="border-b border-neutral-100"
-                >
-                  <td className="py-1.5 pr-3 font-medium">{c}</td>
-                  <td className="py-1.5 font-mono text-[12px] text-neutral-600">
-                    {f}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* 20 */}
-        <H id="m-lcoe">29. Electricity pricing (LCOE)</H>
-        <p className="mt-2">
-          Renewable electricity is priced one of two ways per source. In{" "}
-          <strong>LCOE mode</strong>{" "}a flat price per MWh is charged on{" "}
-          <em>consumed</em>{" "}energy only (curtailed energy is free). In{" "}
-          <strong>CAPEX mode</strong>{" "}the electricity cost is <em>derived</em>{" "}
-          from the plant&apos;s build cost and its own generation — so a better
-          resource yields cheaper electricity:
-        </p>
-        <F>
-          LCOE = ( CAPEX + OPEX_per_year × A ) / ( (E_generated / 1000) × A )
-          [USD/MWh]
-        </F>
-        <p className="mt-2">
-          The reported <em>mix</em>{" "}LCOE is the consumed-energy-weighted average
-          of the active sources:
-        </p>
-        <F>
-          LCOE_mix = ( E_PV·LCOE_PV + E_wind·LCOE_wind + E_grid·price_grid ) /
-          E_consumed
-        </F>
-        <p className="mt-2">
-          The interactive Calculator lets you choose either mode. The world map
-          uses CAPEX mode so that resource quality drives the map (§32).
-        </p>
-        <p className="mt-2">
-          Do not multiply <code>LCOE_mix</code>{" "}by consumed energy to
-          recover the electricity cost — it under-counts by the utilization
-          ratio: in CAPEX mode the electricity component charges the full
-          plant CAPEX regardless of curtailment, while{" "}
-          <code>LCOE_mix</code>{" "}is per MWh{" "}
-          <em>generated</em>. The engine therefore also reports an{" "}
-          <strong>effective cost per consumed MWh</strong>{" "}(discounted
-          electricity cost ÷ discounted consumed MWh), which reconciles to the
-          electricity components exactly, and per-source utilization
-          (E_consumed / E_generated).
-        </p>
-
-        {/* 21 */}
-        <H id="m-emissions">30. Emissions ledger</H>
-        <p className="mt-2">
-          Emissions are tracked separately from cost. Grid electricity consumed
-          by the electrolyzer, plus the electricity attributable to water
-          (desalination 3.75 kWh/m³ if applicable; pumping 0.40 kWh/m³ per 100 m
-          of lift), are multiplied by the grid emission factor:
-        </p>
-        <F>
-          CO₂e_t [t] = ( E_grid + water_m³_t × water_elec_kWh/m³ ) / 1000 ×
-          grid_EF [tCO₂/MWh]
-        </F>
-        <p className="mt-2">
-          A renewables-only plant has a grid factor of 0 (water electricity is
-          assumed drawn from the same clean supply), so its hydrogen emission
-          factor is 0 kgCO₂e/kg. Water and desalination electricity never enter
-          the cost side.
-        </p>
-        <p className="mt-2">
-          This ledger is <strong>operational only</strong>, measured against the
-          annual-average grid emission factor. It is <strong>not an RFNBO /
-          RED II compliance assessment</strong>{" "}— that additionally requires
-          additionality and geographic (same bidding zone) and temporal
-          (monthly, then hourly) correlation against defined comparators, with a
-          3.38 kgCO₂e/kg threshold. Because dispatch is hourly, the engine does
-          report the <strong>hourly renewable-matched fraction</strong>{" "}(share
-          of consumption served hour-by-hour by the project&apos;s own
-          renewables), which is the figure a compliance-minded reader wants — but
-          a 0 here means operationally clean, not RFNBO-compliant.
-        </p>
-
-        {/* 22 */}
-        <H id="m-constants">31. Constants &amp; reference defaults</H>
+        <H id="m-constants">39. Constants &amp; reference defaults</H>
         <div className="mt-2 grid gap-4 sm:grid-cols-2">
           <div>
             <p className="font-medium">Physical constants</p>
@@ -3284,7 +3846,7 @@ export default async function DocsPage() {
               <li>
                 Water consumption: 9 L/kg H₂{" "}
                 <span className="text-neutral-500">
-                  (stoichiometric floor — a plant needs 15–30; see §24)
+                  (stoichiometric floor — a plant needs 15–30; see §19)
                 </span>
               </li>
               <li>Desalination electricity: 3.75 kWh/m³</li>
@@ -3297,7 +3859,7 @@ export default async function DocsPage() {
               <li>
                 Lifetime 20 yr · discount rate 8%/yr{" "}
                 <span className="text-neutral-500">
-                  (real — cashflows are constant-USD, see §28)
+                  (real — cashflows are constant-USD, see §23)
                 </span>
               </li>
               <li>Electrolyzer 100 MW · 2300 USD/kW · 1.3% OPEX/yr</li>
@@ -3310,544 +3872,7 @@ export default async function DocsPage() {
         </div>
 
         {/* 23 */}
-        <H id="m-map">32. The map&apos;s configuration</H>
-        <p className="mt-2">
-          Every hexagon on the Explorer is computed with a fixed reference
-          configuration so cells are comparable: a 100 MW electrolyzer at the
-          reference defaults, no grid, and a fixed 200 MW total of renewables
-          whose PV share is swept over {"{0, 25, 50, 75, 100}"}%. The lowest-cost
-          mix is the <em>Best combination</em>{" "}layer; PV-only and wind-only give
-          the <em>Solar only</em>{" "}and <em>Wind only</em>{" "}layers.
-        </p>
-        <p className="mt-2">
-          <strong>Best-achievable layer (oversizing sweep).</strong>{" "}The fixed
-          2:1 point is one arbitrary design; the true optimum also depends on the
-          renewable-to-electrolyser <em>ratio</em>, which is strongly
-          profile-dependent — flat wind wants a lower ratio than peaky solar — so
-          the cheapest mix can swap between two cells. An optional layer sweeps ratio ∈ {"{1.25, 1.5, 2.0, 2.5, 3.0}"} ×
-          PV share ∈ {"{0, 12.5, …, 100}"}% (45 configurations) and reports the
-          minimum LCOH plus the winning ratio and mix as per-cell diagnostics.
-          The fixed-2:1 layer is kept as a comparable fixed design point.
-        </p>
-        <p className="mt-2">
-          Unlike the flat-30 reference, the map prices electricity in{" "}
-          <strong>CAPEX mode</strong>{" "}so each cell&apos;s cost reflects its own
-          capacity factor. Generation costs are IRENA{" "}
-          <em>Renewable Power Generation Costs in 2024</em>{" "}global
-          weighted-average total installed cost — solar 691 USD/kWp + 1.5%
-          OPEX, onshore wind 1,041 USD/kW + 2.5% OPEX. Each cost pack carries
-          its generation-cost
-          basis year so a vintage mismatch is visible in the data rather than
-          inferred (see §33). The OPEX fractions were checked against the same
-          edition: with IRENA&apos;s own CAPEX, ~25-year life and
-          region-weighted real WACC they reproduce its published LCOE of 43
-          and 34 USD/MWh to within a few percent.
-        </p>
-        <p className="mt-2">
-          <strong>Colour domain and the non-viability ceiling.</strong>{" "}Colours
-          use a fixed per-layer domain of{" "}
-          <strong>3.5&ndash;14 USD/kg</strong>, never rescaled to the viewport,
-          so a colour means the same LCOH everywhere on that layer and across
-          layers. Both bounds are deliberate: nothing on Earth produces below
-          ~3.5 at today&apos;s costs, and real cells run to ~15.5 (Indonesia&apos;s
-          res-3 solar layer — H3 hex grid resolution 3, cells roughly 100 km
-          across — measures 9.34&ndash;15.48). Values outside the
-          domain pin to their end&apos;s own reserved colour rather than
-          extrapolating. Above{" "}<strong>25 USD/kg</strong>{" "}(configurable) a
-          cell is drawn in a neutral grey instead of a ramp colour: past that
-          point the number has stopped being a price and become a verdict —
-          Atacama wind at CF&nbsp;0.02 computes 770&ndash;1,003 USD/kg, which is
-          &ldquo;this technology does not work here&rdquo;, not &ldquo;expensive&rdquo;.
-        </p>
-        <p className="mt-2">
-          <strong>Sweep persistence.</strong>{" "}The best-achievable and
-          risk-adjusted-WACC layers arrive slightly later than the base
-          layers: a freshly added cell shows the base layers immediately and
-          gains the optional layers once the scheduled recompute pass reaches
-          it. At the last census 4,544 of 5,993 ready
-          cells carried them; the remainder are cells seeded since the last
-          pass, which the scheduled job fills as it re-fetches. Measured on that
-          population, the fixed 2:1 design point costs a median 2.5 % against
-          free sizing, and it favours <em>solar</em>: solar-led cells gain a
-          mean 2.63 % from sweeping the ratio, wind-led cells 4.21 %, because
-          flat wind saturates the electrolyser at a lower ratio (mean optimum
-          1.57&times;) than peaky solar does (2.18&times;).
-        </p>
-
-        {/* 24 */}
-        <H id="m-costyears">33. Cost-year projections (2030 / 2040 / 2050)</H>
-        <p className="mt-2">
-          The cost-year buttons re-price each cell with future technology costs.
-          The <strong>resource is held constant</strong>{" "}— same capacity factors
-          — so the change is purely the techno-economic cost-down. Absolute
-          values, with the multiplier on the 2024 base in brackets. This table
-          is <strong>generated from the engine&apos;s own cost packs</strong>,
-          not transcribed. <em>Driver</em>{" "}is the cost input that changes;
-          ×N is the multiplier against the 2024 base.
-        </p>
-        <div className="mt-2 overflow-x-auto">
-          <table className="w-full border-collapse text-[13px] tabular-nums">
-            <thead>
-              <tr className="border-b border-neutral-300 text-left">
-                <th className="py-1.5 pr-3">Driver</th>
-                {costPacks.years.map((y) => (
-                  <th key={y} className="py-1.5 pr-3">
-                    {y}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {costPacks.rows.map((r) => (
-                <tr key={r.driver} className="border-b border-neutral-100">
-                  <td className="py-1.5 pr-3 font-medium">
-                    {r.driver}
-                    <span className="ml-1 text-neutral-500">({r.unit})</span>
-                  </td>
-                  {r.values.map((v, i) => (
-                    <td key={costPacks.years[i]} className="py-1.5 pr-3">
-                      {v}
-                      {i > 0 && (
-                        <span className="ml-1 text-[11px] text-neutral-400">
-                          ×{r.multipliers[i]}
-                        </span>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-2 text-xs text-neutral-500">
-          OPEX is held flat across years at{" "}
-          {(costPacks.opex.solarFraction * 100).toFixed(1)}% of CAPEX per year
-          for solar and {(costPacks.opex.windFraction * 100).toFixed(1)}% for
-          wind. Generation-cost basis year: {costPacks.costBasisYear}.
-        </p>
-        <p className="mt-2">
-          <strong>Two drivers, two sources, each internally consistent.</strong>{" "}
-          The <strong>electrolyser</strong>{" "}trajectory comes from the IEA
-          Global Hydrogen Review 2025 Assumptions Annex (system CAPEX 2000–2600
-          → 1400–1820 USD/kW by 2030, midpoints 2300 → 1610). The{" "}
-          <strong>generation</strong>{" "}trajectory comes from IRENA{" "}
-          <em>Renewable Power Generation Costs in 2024</em>: solar PV total
-          installed cost falls ~40% over the coming decade, onshore wind ~20%
-          and then <em>stabilises</em>{" "}at USD 850–1,000/kW. Wind is therefore
-          floored at 850, which is why its 2040 and 2050 figures are equal —
-          that is the projection reaching the level the source describes, not a
-          stuck value. Both are applied globally, not per region.
-        </p>
-        <p className="mt-2">
-          Each source publishes a decade horizon, so <strong>2040 and 2050 are
-          extrapolated</strong>{" "}and are labeled &quot;projected&quot;
-          throughout the UI. Scenario for the electrolyser line: IEA Announced
-          Pledges (APS).
-        </p>
-        <p className="mt-2">
-          <strong>Durability trajectory.</strong>{" "}Stack life and degradation
-          improve alongside CAPEX across the cost years — durability is a
-          primary learning-curve target. These durability figures are a{" "}
-          <em>documented extrapolation</em>{" "}along the IEA/DOE direction, not
-          IEA-published values; the 50,000 h starting point is IEA&apos;s stated
-          economic optimum (up to 95,000 h technically achievable). Because
-          solar CAPEX falls faster than wind, the cheapest PV/wind mix{" "}
-          <strong>flips</strong>{" "}in some cells between cost years — shifting
-          toward solar by 2050.
-        </p>
-        <p className="mt-2">
-          <strong>Stack replacement is a step, not a curve.</strong>{" "}A
-          replacement happens when cumulative operating hours cross a multiple
-          of the stack life, so the <em>count</em>{" "}of replacements over the
-          20-year life is an integer that jumps (roughly: 20-year operating
-          hours ÷ stack life, rounded down). At 6,719 operating hours a
-          year, a 50,000 h stack is replaced in years 8 and 15 — two events;
-          the same cell at 40,000 h would be replaced in years 6, 12 and 18 —
-          three. Because each cost year has a different stack life, the
-          boundaries fall at different operating-hour thresholds: a 50,000 h
-          stack adds its second replacement at about 5,500 h/yr, a 75,000 h
-          stack at about 8,000 h/yr. A cell can therefore sit on one side of a
-          boundary in 2024 and the other in 2030.
-        </p>
-        <p className="mt-2">
-          <strong>Why this shows up in the rankings.</strong>{" "}Measured, the
-          largest such step is about <strong>1.4% of LCOH</strong>{" "}— small in
-          absolute terms, but the top of the solar ranking is packed far more
-          tightly than that. Median gap between adjacent cells in the top 50:{" "}
-          <strong>0.049%</strong>{" "}for solar·2030, 0.096% for solar·2024,
-          0.190% for wind·2030. So a single boundary crossing moves a cell
-          roughly 29 ranks in solar·2030, 15 in solar·2024 and 7 in wind·2030.
-          That is why rank churn concentrates in one layer-year rather than
-          appearing everywhere: solar·2030 has the least rank resolution to
-          lose, not the most instability. Read the <em>values</em>{" "}rather
-          than the ordinal positions when cells are this close — a top-50
-          ordering separated by half a tenth of a percent is not a meaningful
-          ranking, and the map&apos;s colour bins deliberately do not resolve
-          it either.
-        </p>
-
-        {/* 25 */}
-        <H id="m-defaults">34. Country defaults &amp; enriched profiles</H>
-        <p className="mt-2">
-          The Calculator&apos;s country selector fills a grid emission factor
-          and a cost of capital for every country. Two tiers supply them, and
-          the table below shows which tier each country is on and what it
-          actually carries.
-        </p>
-        <p className="mt-2">
-          <strong>Regional heuristic (the default, 172 countries).</strong>{" "}
-          Grid emission factors come from Our World in Data&apos;s
-          carbon-intensity-of-electricity dataset (built on Ember + the Energy
-          Institute), latest year, converted gCO₂/kWh ÷ 1000 → tCO₂/MWh — a
-          real measurement, refreshed automatically. The WACC is a{" "}
-          <em>suggestion</em>{" "}from a transparent World Bank income-group
-          heuristic (high-income OECD 6%, high-income non-OECD 7%,
-          upper-middle 8%, lower-middle 10%, low 12%, fallback 9%): a bracket,
-          not a country estimate, because per-country cost-of-capital data is
-          proprietary. Countries are matched to ISO2 via Natural Earth
-          boundaries.
-        </p>
-        <p className="mt-2">
-          <strong>Enriched profile.</strong>{" "}A researched country carries
-          real cost and finance inputs — cost of capital, country risk
-          premium, industrial electricity price, water price, land and
-          labour, and per-technology CAPEX overrides — each carrying its
-          source, the <em>publication year</em>{" "}of the figure (not merely
-          when it was retrieved), and a <em>basis</em>{" "}saying what kind of
-          quantity it is. Curation is <em>per field</em>: a profile may
-          research the cost of capital and still let the automated grid factor
-          keep updating, and any field it leaves empty falls back to the model
-          default. A value the research could not confirm ships marked
-          unverified rather than being quietly presented as solid.
-        </p>
-        <p className="mt-2">
-          <strong>Cost of capital is stored REAL, and says so.</strong>{" "}The
-          engine discounts constant-USD cashflows with no escalation term, so
-          it needs a real rate — but most published surveys quote{" "}
-          <em>nominal</em>. Indonesia&apos;s 9.4% from the IEA Cost of Capital
-          Observatory is nominal, local currency; deflated by Bank
-          Indonesia&apos;s 2.5% target through the exact Fisher relation it
-          becomes <strong>6.73% real</strong>, which is what the model uses.
-          Consuming the nominal figure directly would have overstated LCOH by
-          about 7.7%. Every stored rate records its basis, currency,
-          publication year and the technology it was measured for; a rate
-          without a declared basis is never consumed.
-        </p>
-        <p className="mt-2">
-          Two caveats travel with that number rather than being resolved. It
-          is a <strong>solar-PV</strong>{" "}cost of capital borrowed for a
-          hydrogen project, which carries offtake risk a contracted PPA does
-          not — if anything it understates hydrogen&apos;s true cost of
-          capital. And the literature genuinely disagrees: an Indonesian PV
-          study uses a <em>real</em>{" "}9.5%, deceptively close to the
-          IEA&apos;s nominal 9.4% but meaning something quite different. This
-          is why the model records number, basis, technology and year rather
-          than quietly picking one figure.
-        </p>
-        <p className="mt-2">
-          <strong>Curated always beats the automated refresh.</strong>{" "}The
-          ingest runs every three hours; on an enriched country it writes only
-          the fields the profile leaves empty and never touches its
-          citations. The heuristic WACC keeps refreshing underneath a
-          researched one so the comparison stays visible — the table shows
-          both.
-        </p>
-        <p className="mt-2">
-          <strong>Which field reaches which surface.</strong>{" "}The three
-          columns of the table below are the three surfaces a country value
-          feeds: the Calculator form, the map&apos;s country coloring
-          (choropleth), and the Corridor model. A country
-          field only matters where something consumes it, and not every field
-          reaches every surface — the map prices generation from CAPEX, so an
-          electricity <em>price</em>{" "}has nothing to act on there.
-        </p>
-        <div className="mt-2 overflow-x-auto">
-          <table className="w-full border-collapse text-[13px]">
-            <thead>
-              <tr className="border-b border-neutral-300 text-left">
-                <th className="py-1.5 pr-3">Field</th>
-                <th className="py-1.5 pr-3">Calculator</th>
-                <th className="py-1.5 pr-3">Map (choropleth)</th>
-                <th className="py-1.5">Corridor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                [
-                  "Cost of capital (curated, else heuristic)",
-                  "Discount rate",
-                  "Risk-adjusted layer only",
-                  "No — see divergence below",
-                ],
-                [
-                  "Grid emission factor",
-                  "Grid emissions",
-                  "Not used (no grid import)",
-                  "No",
-                ],
-                [
-                  "Industrial electricity price",
-                  "Grid import price — only when the grid is enabled",
-                  "No — generation is CAPEX-priced",
-                  "No",
-                ],
-                [
-                  "Industrial water price",
-                  "Water cost",
-                  "No — held at the model default",
-                  "No",
-                ],
-                [
-                  "Country risk premium",
-                  "Informational only",
-                  "No",
-                  "No",
-                ],
-              ].map((r) => (
-                <tr key={r[0]} className="border-b border-neutral-100">
-                  <td className="py-1.5 pr-3 font-medium">{r[0]}</td>
-                  <td className="py-1.5 pr-3">{r[1]}</td>
-                  <td className="py-1.5 pr-3">{r[2]}</td>
-                  <td className="py-1.5">{r[3]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-2">
-          The electricity row is the one that surprises. It is a{" "}
-          <strong>retail industrial tariff</strong>, so it prices grid
-          <em>imports</em>{" "}— and the calculator&apos;s PV and wind slots are{" "}
-          <em>captive</em>{" "}generation with their own LCOE or CAPEX pricing.
-          Applying a national retail tariff to a dedicated renewable plant
-          would be wrong, so it is deliberately not done; with the grid
-          switched off (the default) the field has no effect at all, and the
-          citation list says so rather than showing a number that never
-          reaches the result. Worth knowing that renewable PPAs in Indonesia
-          price <em>below</em>{" "}retail industrial power, which is the
-          relevant comparison for a captive project. A single national price
-          also glosses over the eastern-Indonesia premium — acceptable for
-          screening, but eastern Indonesia is exactly where the best solar
-          cells are.
-        </p>
-        <p className="mt-2">
-          The table below lists every country&apos;s working values: the grid
-          emission factor, the cost of capital in use (an enriched value shows
-          the heuristic it replaced beside it), electricity and water prices,
-          and the basis — enriched profile or regional heuristic, as defined
-          in the two tiers above.
-        </p>
-        <CountryDefaultsTable snapshot={countryDefaults} />
-        <p className="mt-2 text-neutral-600">
-          The table renders a committed snapshot of the live values
-          (<code>data/country-defaults/snapshot.json</code>) — so the
-          published values are dated and traceable rather than depending on a
-          live query.
-        </p>
-        <p className="mt-2">
-          <strong>Known divergence.</strong>{" "}The Green Corridor model keeps
-          its <em>own</em>{" "}seven-row country list (its own ids, all
-          marked unverified) and does not read these
-          profiles: a country outside those seven resolves to the{" "}
-          <code>other</code>{" "}row at 8%. An enriched profile therefore
-          improves the
-          Calculator and the map&apos;s risk-adjusted layer, but not the
-          corridor&apos;s discount rate.
-        </p>
-
-        {/* 26 */}
-        <H id="m-verification">35. Verification</H>
-        <p className="mt-2">
-          Verification shows the code computes what the method specifies — it is
-          not empirical grounding. Analytical cases reproduce hand-derived LCOH
-          to ≤ 1e-6 (e.g. PV at CF ≡ 1, LCOE 30 USD/MWh, no degradation → 2.507
-          USD/kg via the standard annuity); monotonicity,
-          energy closure and mass balance hold as guaranteed properties; full
-          runs are pinned against frozen references at 1e-12.
-          These say nothing about whether the assumptions match reality — that is
-          validation, below.
-        </p>
-
-        {/* 27 */}
-        <H id="m-validation">36. Validation</H>
-        <p className="mt-2">
-          <strong>Chilean 47-project parity</strong>{" "}(Tabla 3-1, Motor de Cálculo
-          LCOH, April 2024) is the one empirical comparison, and n = 32 with
-          inferred coordinates is thin — the tool&apos;s job is screening, so the
-          metrics that matter are shortlist fidelity, not a single global
-          correlation:
-        </p>
-        <ul className="mt-2 list-disc space-y-1.5 pl-5">
-          <li>
-            <strong>Rank fidelity: Spearman ρ = 0.85; Kendall τ_b = 0.66</strong>{" "}
-            with a bootstrap 95% confidence interval of roughly [0.53, 0.78].
-          </li>
-          <li>
-            <strong>⚠ The level is not like-for-like.</strong>{" "}The
-            published column is a <em>2022</em>{" "}cost basis; the engine
-            runs IEA&apos;s <em>2024</em>{" "}installed CAPEX ($2,300/kW).
-            Mean computed is 6.16 vs 4.51 published — that gap is a vintage
-            difference, not a bias estimate. Read this comparison as a
-            screening-fidelity measure until a same-vintage published dataset
-            is available.
-          </li>
-          <li>
-            <strong>Precision@5 = @10 = 1.0</strong>{" "}and top-decile retention
-            1.0: the model identifies the cheapest sites — what a user actually
-            shortlists — exactly. The discordance sits among the middle of the
-            distribution, not the top.
-          </li>
-          <li>
-            <strong>A same-vintage −0.21 offset is structural, not
-            geolocation.</strong>{" "}On a same-vintage comparison
-            (2022 basis vs the 2022 column) the model ran 4.30 vs 4.51 USD/kg.
-            Coordinate inference is symmetric noise (a sensitivity run perturbing
-            inferred coordinates ±0.2° moves a site&apos;s LCOH in either
-            direction, so it can&apos;t produce a one-directional offset); the
-            consistent gap traced to a baseline assumption differing from the
-            study (efficiency, electrolyser CAPEX, discount rate, or oversizing
-            ratio). A baseline
-            cause may not be uniform across geographies.
-          </li>
-          <li>
-            <strong>One benchmark is thin for a global tool.</strong>{" "}A second
-            published dataset with fully disclosed assumptions and coordinates
-            (e.g. an IEA/IRENA or national green-hydrogen cost study) is the
-            outstanding validation work; the comparison is dataset-agnostic,
-            so a new dataset can be added when a comparably-specified source is
-            obtained.
-          </li>
-          <li>
-            <strong>This set cannot adjudicate a solar-versus-wind bias
-            outside Chile.</strong>{" "}Worth stating plainly, because it is the
-            question the map is most often used to answer. The 32 sites sit in
-            one country, in a resource regime — Atacama solar and Magallanes
-            wind — that is close to the global extreme for both technologies,
-            and the comparison validates <em>total</em>{" "}LCOH per site rather
-            than the two single-technology layers against each other. So it
-            says nothing about whether the solar or the wind layer is
-            systematically high or low in, say, maritime Southeast Asia, where
-            both the resource physics and the data pathway (ERA5 rather than
-            SARAH3, and a wind field whose within-hex spread exceeds its mean
-            — §37) are different. A finding of the form &ldquo;wind beats
-            solar here&rdquo; in an un-benchmarked region rests on the model
-            alone, not on this validation.
-          </li>
-        </ul>
-
-        {/* 28 */}
-        <H id="m-limitations">37. Limitations</H>
-        <ul className="mt-2 list-disc space-y-1.5 pl-5">
-          <li>
-            No compression, storage, transport, or downstream conversion — the
-            boundary is the electrolyzer outlet.
-          </li>
-          <li>
-            One representative year repeated; no inter-annual variability,
-            battery buffering, or part-load efficiency curve. Oversizing is
-            swept on the map&apos;s
-            best-achievable layer (&sect;32), though the headline layers stay at
-            the fixed 2:1 design point.
-          </li>
-          <li>
-            <strong>Map cells use one representative coordinate per H3
-            hexagon — and for wind that is sometimes not enough.</strong>{" "}A
-            res-3 hex covers roughly 12,000 km², computed from a single
-            centroid. Measured against the finer res-4 cells already seeded
-            inside their parents, the wind capacity factor varies a lot{" "}
-            <em>within</em>{" "}a hex everywhere: mean spread 0.061 CF across
-            Indonesian hexes, 0.266 across Chilean ones. Note the direction —
-            the absolute spread is <em>larger</em>{" "}in Chile, so this is a
-            property of the resolution, not of any one region.
-          </li>
-          <li>
-            What differs is the spread <em>relative to the value</em>. Chilean
-            hexes average 0.15–0.42 CF, so a hex value still ranks a region
-            usefully. Indonesian hexes cluster at 0.02–0.07, where a spread of
-            0.061 <strong>exceeds the mean</strong>: the number stops being a
-            weak estimate of a site and becomes uninformative about it.
-            Indonesian wind is a ridge-siting problem, not a regional average
-            — which is why a hand-picked coordinate can imply CF 0.20–0.25
-            while the hex 65 km away reports 0.044, and <em>both are
-            right</em>. Cells below 12% wind CF therefore carry an explicit
-            note in the cell drawer telling the reader to treat the figure as
-            a typical unsited location. The threshold is on the data, not on a
-            region list, because the same condition holds anywhere wind is
-            weak and terrain-driven.
-          </li>
-          <li>
-            <strong>Wind model tiers.</strong>{" "}On the map the Open-Meteo path
-            DOES apply an air-density correction and per-site IEC turbine-class
-            selection (these cells are tagged as air-density-corrected, and the
-            selected class is recorded). The NASA POWER fallback does not: a generic
-            curve with fixed &alpha;&nbsp;=&nbsp;1/7 shear. That is a real
-            modelling difference, so those cells are outlined on the map and
-            named in the cell drawer rather than rendered as if they were
-            comparable. Measured 2026-08-15 over ready cells: 58% improved,
-            1.3% fallback — and for <strong>37%, provenance is
-            unrecorded</strong>.
-            Those are deliberately not flagged, since asserting either tier
-            would be false, but the drawer reports their provenance as
-            unrecorded rather than leaving the reader to assume. Each cell is
-            stamped as it is refreshed on the regular re-seed schedule, so
-            the unrecorded share shrinks on its own.
-          </li>
-          <li>
-            Cost-year 2040/2050 figures are extrapolations, not IEA-published
-            values.
-          </li>
-          <li>
-            Estimates are indicative, not investment-grade; they compare
-            locations and technologies on a consistent basis.
-          </li>
-        </ul>
-
-        {/* 29 */}
-        <H id="m-sources">38. Sources</H>
-        <ul className="mt-2 space-y-2">
-          <li>
-            <strong>Methodology:</strong>{" "}«Motor de Cálculo LCOH — Principales
-            características», Ministerio de Energía de Chile / Centro de Energía
-            FCFM U. de Chile / USACH / PUC, April 2024.
-          </li>
-          <li>
-            <strong>Solar:</strong>{" "}PVGIS © European Commission, Joint Research
-            Centre —{" "}
-            <a
-              href="https://re.jrc.ec.europa.eu/pvg_tools/"
-              className="text-brand underline underline-offset-2 decoration-brand/30 hover:decoration-brand"
-            >
-              re.jrc.ec.europa.eu
-            </a>
-            .
-          </li>
-          <li>
-            <strong>Wind &amp; weather:</strong>{" "}Open-Meteo.com (CC BY 4.0),
-            based on ERA5 (Copernicus Climate Change Service); NASA POWER (NASA
-            Langley Research Center) fallback.
-          </li>
-          <li>
-            <strong>Renewable CAPEX:</strong>{" "}IRENA, Renewable Power Generation
-            Costs 2023.
-          </li>
-          <li>
-            <strong>Cost projections:</strong>{" "}IEA, Global Hydrogen Review 2025
-            — Assumptions Annex (Announced Pledges Scenario).
-          </li>
-          <li>
-            <strong>Grid emission factors:</strong>{" "}Our World in Data (Ember +
-            Energy Institute), carbon intensity of electricity.
-          </li>
-          <li>
-            <strong>Boundaries:</strong>{" "}Natural Earth (public domain).
-            Basemap © CARTO, map data © OpenStreetMap contributors.
-          </li>
-        </ul>
-        <p className="mt-6 text-xs text-neutral-500">
-          Non-commercial use. Provider attributions are also shown inline with
-          each resource-profile result.
-        </p>
-
+        
         </main>
       </div>
       <Footer />
