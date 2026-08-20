@@ -1832,6 +1832,15 @@ export default async function DocsPage() {
           stored benchmarks.
         </p>
         <p className="mt-2">
+          The e-ammonia price benchmark of <strong>$900/t</strong>{" "}is
+          corroborated by the H2Global Asia tender round: at least six
+          RFNBO-compliant projects bid $850&ndash;1,000/t delivered NW
+          Europe, with the cost build-up (FOB ≈$650 plus freight and port
+          logistics) stacking to roughly $900 &mdash; S&amp;P Global
+          Commodity Insights (Platts), 12&nbsp;Aug&nbsp;2026. The source
+          sits behind a paywall, so it is cited here without a link.
+        </p>
+        <p className="mt-2">
           In the table, <strong>Price</strong>{" "}is $/t;{" "}
           <strong>Comb. EF</strong>{" "}is tCO2 per tonne of fuel burned;{" "}
           <strong>LHV</strong>{" "}is the energy content in MJ/t;{" "}
