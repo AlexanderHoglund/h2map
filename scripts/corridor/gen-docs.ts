@@ -104,7 +104,10 @@ function fieldReference(): string {
       couplingGroups: string[];
       scenarios: Record<
         string,
-        { measurable: boolean; perKpi?: Record<string, { mean: number }> }
+        {
+          measurable: boolean;
+          perKpi?: Record<string, { up: number; down: number; mean: number }>;
+        }
       >;
     }[];
     unperturbable?: { id: string; reason: string }[];
@@ -122,26 +125,39 @@ function fieldReference(): string {
     (elasticity.unperturbable ?? []).map((u) => [u.id, u.reason]),
   );
   /**
-   * The gap elasticity across archetypes, as a range.
+   * The gap elasticity across archetypes, as a SIGNED range.
    *
    * A RANGE rather than a single number because the spread is the finding:
    * corridor length measures 0.27 on a deep-sea corridor whose burns derive
    * from geometry and exactly 0 where they are typed. Collapsing that to a
    * mean would report a field as "moderately important everywhere" when it is
    * decisive on one archetype and inert on another.
+   *
+   * SIGNED (R2): the value published here is the signed central difference
+   * ((up + down) / 2 of the one-sided estimates) — the SAME quantity the
+   * Results tab's live panel displays, so the two surfaces can be compared
+   * number for number. A negative value means the gap FALLS as the input
+   * rises; the old cells collapsed that to a magnitude, which made fossil
+   * vessel CAPEX (−0.20) and green vessel CAPEX (+0.25) read as the same
+   * kind of driver when they pull in opposite directions.
    */
+  const fmtSigned = (v: number): string => {
+    const s = v.toFixed(2);
+    if (s === "0.00" || s === "-0.00") return "0.00";
+    return v > 0 ? `+${s}` : s.replace("-", "−");
+  };
   const elasticityCell = (id: string): string => {
     const row = elasticityById.get(id);
     if (!row) return "—";
     const vs = Object.values(row.scenarios)
       .filter((s) => s.measurable && s.perKpi)
-      .map((s) => s.perKpi!.gapPvUsdM!.mean);
+      .map((s) => (s.perKpi!.gapPvUsdM!.up + s.perKpi!.gapPvUsdM!.down) / 2);
     if (vs.length === 0) return "—";
     const lo = Math.min(...vs);
     const hi = Math.max(...vs);
-    return lo.toFixed(2) === hi.toFixed(2)
-      ? lo.toFixed(2)
-      : `${lo.toFixed(2)}–${hi.toFixed(2)}`;
+    return fmtSigned(lo) === fmtSigned(hi)
+      ? fmtSigned(lo)
+      : `${fmtSigned(lo)} … ${fmtSigned(hi)}`;
   };
   /**
    * Which measurement tier a field is in. Three states, and they are NOT
@@ -310,10 +326,11 @@ function fieldReference(): string {
     "  KPIs; this determines UI placement.",
     "- **Binding KPI** — the output that produced the max, so a field's",
     "  prominence is traceable to what it actually moves.",
-    "- **Elasticity (range across archetypes)** — the % change in the gap per",
-    "  1% nudge of the field (±1 percentage point for rates). Reported as a",
-    "  range across the three reference corridors because the value depends",
-    "  on the scenario.",
+    "- **Elasticity (range across archetypes)** — the SIGNED % change in the",
+    "  gap per 1% nudge of the field (±1 percentage point for rates): −0.20",
+    "  means the gap falls as the input rises. The same quantity the app's",
+    "  Results-tab panel computes live. Reported as a range across the three",
+    "  reference corridors because the value depends on the scenario.",
     "- **Coupled** — fields that move together in one group so a shared shock",
     "  is not double-counted; the group name is listed.",
     "- **Status** — `measured` = swept and elasticity measured; `swept only —",

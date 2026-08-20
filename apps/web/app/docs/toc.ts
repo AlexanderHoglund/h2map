@@ -138,7 +138,8 @@ export const TOC_PARTS: readonly TocPart[] = [
         id: "sensitivity",
         label: "29. What moves the results",
         children: [
-          { id: "sensitivity-columns", label: "How to read the table" },
+          { id: "impact-elasticity", label: "The elasticity view" },
+          { id: "sensitivity-columns", label: "The endpoint view" },
           { id: "impact-leverage-exposure", label: "Impact: leverage x exposure" },
           { id: "impact-tornado", label: "The tornado" },
           { id: "impact-monte-carlo", label: "The uncertainty band" },

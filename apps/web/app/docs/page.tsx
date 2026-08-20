@@ -2621,6 +2621,162 @@ export default async function DocsPage() {
 
 <H id="sensitivity">29. What moves the results</H>
         <p className="mt-2">
+          &ldquo;What moves the results&rdquo; is <strong>three different
+          questions</strong>, and this section answers each with its own
+          view. The <em>elasticity view</em>{" "}asks which input moves an
+          output most <em>per equal-sized change</em>{" "}&mdash; a property
+          of the model at one scenario, inheriting no assumed range. The{" "}
+          <em>endpoint view</em>{" "}(the big table below) asks where the
+          number lands at the ends of each input&apos;s <em>plausible
+          range</em>{" "}&mdash; the model times an assumption. And{" "}
+          <em>leverage &times; exposure</em>{" "}(tornado and uncertainty
+          band) asks where the <em>risk</em>{" "}is &mdash; the model times
+          the researched state of the world. They rank inputs differently{" "}
+          <strong>by design</strong>; which one to trust depends on which
+          question you are asking.
+        </p>
+        <div className="my-3 overflow-x-auto">
+          <table className="w-full border border-neutral-300 text-[13px]">
+            <thead>
+              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 font-medium">View</th>
+                <th className="px-3 py-2 font-medium">Question it answers</th>
+                <th className="px-3 py-2 font-medium">What it multiplies</th>
+                <th className="px-3 py-2 font-medium">Where</th>
+              </tr>
+            </thead>
+            <tbody className="align-top">
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2 font-medium">Elasticity</td>
+                <td className="px-3 py-2">
+                  Which input moves the output most, per equal nudge, on{" "}
+                  <em>my</em>{" "}scenario?
+                </td>
+                <td className="px-3 py-2">The model alone, at my point</td>
+                <td className="px-3 py-2">
+                  Results tab (&ldquo;What moves this corridor&rdquo;, live);
+                  the worked example below; &sect;38&apos;s Elasticity column
+                </td>
+              </tr>
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2 font-medium">Endpoints</td>
+                <td className="px-3 py-2">
+                  If I am wrong about this input, where does my number land?
+                </td>
+                <td className="px-3 py-2">Model &times; assumed range</td>
+                <td className="px-3 py-2">The ranking table below</td>
+              </tr>
+              <tr className="border-b border-neutral-200 last:border-0">
+                <td className="px-3 py-2 font-medium">
+                  Leverage &times; exposure
+                </td>
+                <td className="px-3 py-2">
+                  Where is the risk, given the researched uncertainty?
+                </td>
+                <td className="px-3 py-2">Model &times; the world (cited ranges)</td>
+                <td className="px-3 py-2">The tornado and the uncertainty band</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <H3 id="impact-elasticity">What moves it most: the elasticity view</H3>
+        <p className="mt-2">
+          Every input gets the <strong>same standard nudge</strong>{" "}&mdash;
+          &plusmn;10% of its own value, or &plusmn;1 percentage point for
+          rates and fractions &mdash; and the reported figure is the signed
+          central difference: the % change in the output per 1% change in the
+          input. <strong>&minus;0.34 means the output falls 0.34% when the
+          input rises 1%.</strong>{" "}Because the nudge is equal-sized, the
+          ranking cannot be bought by a generous assumed range (the endpoint
+          table&apos;s known flaw &mdash; see the list below); because it is
+          signed, an input that closes the gap can never be confused with one
+          that widens it. The app computes this <strong>live on the open
+          scenario</strong>{" "}in the Results tab; the same arithmetic run on
+          the frozen 500&nbsp;nm reference corridor gives the static worked
+          example here:
+        </p>
+        <div className="my-3 overflow-x-auto">
+          <table className="w-full border border-neutral-300 text-[13px]">
+            <thead>
+              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
+                <th className="px-3 py-2 font-medium">Input (reference corridor)</th>
+                <th className="px-3 py-2 text-right font-medium">Cost gap</th>
+                <th className="px-3 py-2 text-right font-medium">
+                  CO&#8322; abatement cost
+                </th>
+              </tr>
+            </thead>
+            <tbody className="tabular-nums">
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2">Fuel plant build cost</td>
+                <td className="px-3 py-2 text-right">+0.33</td>
+                <td className="px-3 py-2 text-right">+0.33</td>
+              </tr>
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2">Years modelled</td>
+                <td className="px-3 py-2 text-right">+0.24</td>
+                <td className="px-3 py-2 text-right">&minus;0.76</td>
+              </tr>
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2">Green fuel price</td>
+                <td className="px-3 py-2 text-right">+0.21</td>
+                <td className="px-3 py-2 text-right">+0.21</td>
+              </tr>
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2">Fossil fuel climate intensity (WtW)</td>
+                <td className="px-3 py-2 text-right">&minus;0.16</td>
+                <td className="px-3 py-2 text-right">&minus;1.50</td>
+              </tr>
+              <tr className="border-b border-neutral-200">
+                <td className="px-3 py-2">Corridor length</td>
+                <td className="px-3 py-2 text-right">+0.09</td>
+                <td className="px-3 py-2 text-right">&minus;0.92</td>
+              </tr>
+              <tr className="border-b border-neutral-200 last:border-0">
+                <td className="px-3 py-2">
+                  Discount rate (WACC){" "}
+                  <span className="text-neutral-500">&mdash; per &plusmn;1pp</span>
+                </td>
+                <td className="px-3 py-2 text-right">&minus;0.18</td>
+                <td className="px-3 py-2 text-right">&minus;0.18</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2">
+          Three reading rules, each visible in the table. <strong>The sign
+          flips between outputs</strong>: corridor length is +0.09 on the gap
+          and &minus;0.92 on the abatement cost of the same corridor, because
+          longer voyages cost a little more and abate far more tonnes &mdash;
+          both numbers are true, and the app renders the sign per output tab.{" "}
+          <strong>Rates rank in their own family</strong>{" "}(&plusmn;1
+          percentage point): a 1-point move on a small rate is a large
+          relative change, so the two families are never merged into one
+          ordering. <strong>Coupled inputs rank as one row</strong>: the two
+          burns, the two vessel prices and the two operating costs move
+          together (a one-sided burn move is a state the model itself rejects
+          via the energy-parity check), and the members are shown as
+          unranked detail explaining the mechanism.
+        </p>
+        <p className="mt-2">
+          The views are expected to disagree, and the clearest case is{" "}
+          <strong>distance versus WACC</strong>. On the Simplified starter
+          corridor (5,000&nbsp;nm, five vessels), the elasticity view ranks
+          corridor length (&minus;0.37 on the abatement cost) <em>above</em>{" "}
+          the discount rate (&minus;0.28): per equal nudge, geometry beats
+          financing. The uncertainty band on the reference corridors names
+          WACC the top <em>risk</em>{" "}driver &mdash; because the researched
+          spread on discount rates is wide while nobody is uncertain about a
+          corridor&apos;s length. Both are intended behaviour: one is a
+          statement about the model, the other about the world.
+        </p>
+
+        <H3 id="sensitivity-columns">
+          The endpoint view: where does my number land at the ends of the
+          plausible range
+        </H3>
+        <p className="mt-2">
           Every numeric input is moved across its plausible range, one at a
           time, and every option of every selector is tried. The effect is
           measured on <strong>all six headline outputs</strong>: the cost gap,
@@ -2636,8 +2792,6 @@ export default async function DocsPage() {
           outrank a physical input: $0&ndash;50m/yr of public money over twenty
           years genuinely is that large.
         </p>
-
-        <H3 id="sensitivity-columns">How to read the table</H3>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px]">
             <thead>
@@ -3505,11 +3659,18 @@ export default async function DocsPage() {
         <p className="mt-2">
           The <strong>Elasticity</strong>{" "}and <strong>Coupled</strong>{" "}
           columns carry the leverage measurements defined in §29: elasticity
-          is the model&apos;s response to a small standard nudge, reported as
-          a range across the three archetypes because the spread is the
-          finding, and coupled fields are grouped because their individual
-          figures overstate them — §29 explains both mechanisms and their
-          limits (one input at a time; interactions invisible).
+          is the model&apos;s <strong>signed</strong>{" "}response to a small
+          standard nudge (±10%, rates ±1 percentage point) — the same
+          quantity the Results tab&apos;s &ldquo;What moves this
+          corridor&rdquo; panel computes live on an open scenario, so the two
+          surfaces compare number for number. A negative value means the gap{" "}
+          <em>falls</em>{" "}as the input rises; the range across the three
+          archetypes is reported because the spread is the finding (corridor
+          length reads &minus;0.27&nbsp;…&nbsp;+0.29: decisive with derived
+          burns, inert with typed ones, opposite in sign across corridors).
+          Coupled fields are grouped because their individual figures
+          overstate them — §29 explains both mechanisms and their limits (one
+          input at a time; interactions invisible).
         </p>
         <p className="mt-2">
           <strong>Placement</strong>{" "}says which view mode shows the

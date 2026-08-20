@@ -120,6 +120,31 @@ describe("acceptance 3 — the reference corridor, end to end", () => {
   });
 });
 
+describe("the worked example §29 quotes is the measurement", () => {
+  it("pins every number in the docs' reference-corridor elasticity table", () => {
+    // §29's elasticity subsection prints these six rows. If a regeneration
+    // or an engine change moves them, the docs' worked example lies — the
+    // same contract sweepParams.test.ts holds over the endpoint dollars.
+    const rows: [string, ElasticityKpi, number][] = [
+      ["green.prodCapexUsdM", "gapPvUsdM", 0.33],
+      ["green.prodCapexUsdM", "costPerTonneCo2Usd", 0.33],
+      ["cargo.horizonYears", "gapPvUsdM", 0.24],
+      ["cargo.horizonYears", "costPerTonneCo2Usd", -0.76],
+      ["green.priceUsdPerTonne", "gapPvUsdM", 0.21],
+      ["green.priceUsdPerTonne", "costPerTonneCo2Usd", 0.21],
+      ["fossil.wtwGco2PerMj", "gapPvUsdM", -0.16],
+      ["fossil.wtwGco2PerMj", "costPerTonneCo2Usd", -1.5],
+      ["cargo.oneWayDistanceNm", "gapPvUsdM", 0.09],
+      ["cargo.oneWayDistanceNm", "costPerTonneCo2Usd", -0.92],
+      ["cargo.wacc", "gapPvUsdM", -0.18],
+      ["cargo.wacc", "costPerTonneCo2Usd", -0.18],
+    ];
+    for (const [id, kpi, expected] of rows) {
+      expect(val(reference, id, kpi), `${id} ${kpi}`).toBeCloseTo(expected, 2);
+    }
+  });
+});
+
 describe("acceptance 4 — the log-derivative identity ties the three tabs together", () => {
   // abatement = gap / tonnes, so E_abatement = E_gap − E_tonnes exactly in
   // the limit and to O(step²) across the finite step. Where the finite step
