@@ -151,9 +151,10 @@ describe("the corridor-length row's signed figures obey their own arithmetic", (
 });
 
 describe("the absolute dollar display is the signed data's own arithmetic", () => {
-  // §29's table now shows the KPI values the model computes at the swept
-  // endpoints — numbers a reader reproduces by typing the endpoint into the
-  // app. Those absolutes and the signed relative movements describe the SAME
+  // §29's endpoint table (demoted below the elasticity lead table, but still
+  // the section's range reference) shows the KPI values the model computes at
+  // the swept endpoints — numbers a reader reproduces by typing the endpoint
+  // into the app. Those absolutes and the signed relative movements describe the SAME
   // sweep, so each must be recoverable from the other against the artifact's
   // own baseline; a regenerated artifact that violates this mixed up its
   // baseline, and the docs table would show dollars the app cannot print.
@@ -186,7 +187,7 @@ describe("the absolute dollar display is the signed data's own arithmetic", () =
   });
 
   it("records a worst option that IS the movement figure, per choice and KPI", () => {
-    // A choice cell reads "e.g. lh2: $X". The named option must be one the
+    // A choice cell reads "lh2: $X". The named option must be one the
     // choice offers, and its distance from that choice's own baseline must be
     // exactly the relative movement the ranking uses — the dollar display and
     // the rank order can never disagree.

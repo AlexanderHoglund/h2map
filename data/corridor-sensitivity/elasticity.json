@@ -5329,5 +5329,2065 @@
    "id": "cargo.unit",
    "reason": "enum — see discreteImpact in sensitivity.json"
   }
- ]
+ ],
+ "referenceCorridor": {
+  "note": "The frozen 500 nm sweep-baseline corridor (the 'docs baseline' preset) measured by the LIVE elasticity module — the same code path as the in-app 'What moves this corridor' panel. `effect` is value × fraction: the fractional output move under one nudge (+10%, or +1pp for rates). Entries are in §29 display order: ±10% family ranked by |abatement effect|, then the ±1pp family, then unranked group-member detail.",
+  "refBundleId": "2026-07-30-excel-v1",
+  "relativeStep": 0.1,
+  "absolutePpStep": 0.01,
+  "base": {
+   "gapPvUsdM": 167.459068425216,
+   "costPerUnitUsd": 377.7215419885776,
+   "costPerTonneCo2Usd": 2506.008034666359,
+   "greenTotalPvUsdM": 205.5242097680965,
+   "fossilTotalPvUsdM": 38.065141342880494,
+   "co2AbatedTonnes": 66823.03732019395
+  },
+  "entries": [
+   {
+    "id": "fossil.wtwGco2PerMj",
+    "label": "Fossil fuel WTW intensity (gCO2e/MJ)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.16102259880441272,
+      "up": -0.17576645078701458,
+      "down": -0.14627874682181086,
+      "nonlinear": false,
+      "effect": -0.016102259880441273
+     },
+     "costPerUnitUsd": {
+      "value": -0.1610225988044131,
+      "up": -0.17576645078701328,
+      "down": -0.14627874682181294,
+      "nonlinear": false,
+      "effect": -0.01610225988044131
+     },
+     "costPerTonneCo2Usd": {
+      "value": -1.503218009468267,
+      "up": -1.319833979058286,
+      "down": -1.6866020398782482,
+      "nonlinear": true,
+      "effect": -0.1503218009468267
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.7083828784005699,
+      "up": 0.7732451547747939,
+      "down": 0.6435206020263459,
+      "nonlinear": false,
+      "effect": 0.070838287840057
+     },
+     "co2AbatedTonnes": {
+      "value": 1.318024938130334,
+      "up": 1.3180249381303335,
+      "down": 1.3180249381303344,
+      "nonlinear": false,
+      "effect": 0.1318024938130334
+     }
+    }
+   },
+   {
+    "id": "energy-demand",
+    "label": "Delivered energy demand",
+    "kind": "relative",
+    "group": true,
+    "members": [
+     "cargo.oneWayDistanceNm",
+     "cargo.roundtripsPerYear",
+     "green.fuelTonnesPerVesselYear",
+     "fossil.fuelTonnesPerVesselYear"
+    ],
+    "memberLabels": [
+     "Corridor length (nm)",
+     "Roundtrips per year",
+     "Green fuel consumption (t/vessel/yr)",
+     "Fossil fuel consumption (t/vessel/yr)"
+    ],
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.085097081898991,
+      "up": 0.08509708189899438,
+      "down": 0.08509708189898761,
+      "nonlinear": false,
+      "effect": 0.0085097081898991
+     },
+     "costPerUnitUsd": {
+      "value": 0.08509708189899157,
+      "up": 0.08509708189899609,
+      "down": 0.08509708189898706,
+      "nonlinear": false,
+      "effect": 0.008509708189899157
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.9241443617181949,
+      "up": -0.831729925546369,
+      "down": -1.0165587978900208,
+      "nonlinear": true,
+      "effect": -0.09241443617181949
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.16818103870436965,
+      "up": 0.16818103870437243,
+      "down": 0.16818103870436688,
+      "nonlinear": false,
+      "effect": 0.016818103870436966
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.5336903082584619,
+      "up": 0.5336903082584674,
+      "down": 0.5336903082584563,
+      "nonlinear": false,
+      "effect": 0.05336903082584619
+     },
+     "co2AbatedTonnes": {
+      "value": 1.000000000000003,
+      "up": 1.0000000000000004,
+      "down": 1.0000000000000058,
+      "nonlinear": false,
+      "effect": 0.10000000000000031
+     }
+    }
+   },
+   {
+    "id": "cargo.oneWayDistanceNm",
+    "label": "Corridor length (nm)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.085097081898991,
+      "up": 0.08509708189899438,
+      "down": 0.08509708189898761,
+      "nonlinear": false,
+      "effect": 0.0085097081898991
+     },
+     "costPerUnitUsd": {
+      "value": 0.08509708189899157,
+      "up": 0.08509708189899609,
+      "down": 0.08509708189898706,
+      "nonlinear": false,
+      "effect": 0.008509708189899157
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.924144361718194,
+      "up": -0.8317299255463673,
+      "down": -1.0165587978900208,
+      "nonlinear": true,
+      "effect": -0.09241443617181941
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.16818103870436965,
+      "up": 0.16818103870437243,
+      "down": 0.16818103870436688,
+      "nonlinear": false,
+      "effect": 0.016818103870436966
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.5336903082584619,
+      "up": 0.5336903082584674,
+      "down": 0.5336903082584563,
+      "nonlinear": false,
+      "effect": 0.05336903082584619
+     },
+     "co2AbatedTonnes": {
+      "value": 1.000000000000002,
+      "up": 0.9999999999999982,
+      "down": 1.0000000000000058,
+      "nonlinear": false,
+      "effect": 0.1000000000000002
+     }
+    }
+   },
+   {
+    "id": "cargo.roundtripsPerYear",
+    "label": "Roundtrips per year",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.07091423491582527,
+      "up": 0.07091423491582696,
+      "down": 0.07091423491582358,
+      "nonlinear": false,
+      "effect": 0.007091423491582528
+     },
+     "costPerUnitUsd": {
+      "value": 0.07091423491582556,
+      "up": 0.07091423491582857,
+      "down": 0.07091423491582255,
+      "nonlinear": false,
+      "effect": 0.007091423491582556
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.7677507005043421,
+      "up": -0.7037714754623134,
+      "down": -0.8317299255463708,
+      "nonlinear": false,
+      "effect": -0.07677507005043421
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.1401508655869738,
+      "up": 0.14015086558697448,
+      "down": 0.1401508655869731,
+      "nonlinear": false,
+      "effect": 0.01401508655869738
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.44474192354871633,
+      "up": 0.44474192354871916,
+      "down": 0.44474192354871356,
+      "nonlinear": false,
+      "effect": 0.044474192354871635
+     },
+     "co2AbatedTonnes": {
+      "value": 0.8333333333333318,
+      "up": 0.833333333333334,
+      "down": 0.8333333333333296,
+      "nonlinear": false,
+      "effect": 0.08333333333333319
+     }
+    }
+   },
+   {
+    "id": "cargo.horizonYears",
+    "label": "Years modelled",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.24314493090407857,
+      "up": 0.23676864848857018,
+      "down": 0.24952121331958696,
+      "nonlinear": false,
+      "effect": 0.024314493090407858
+     },
+     "costPerUnitUsd": {
+      "value": -0.7638560008630007,
+      "up": -0.6938466831922085,
+      "down": -0.8338653185337928,
+      "nonlinear": false,
+      "effect": -0.07638560008630008
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.7638560008630007,
+      "up": -0.6938466831922085,
+      "down": -0.8338653185337928,
+      "nonlinear": false,
+      "effect": -0.07638560008630008
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.3699070520357326,
+      "up": 0.35742050315505236,
+      "down": 0.3823936009164128,
+      "nonlinear": false,
+      "effect": 0.03699070520357326
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.9275686281507384,
+      "up": 0.8882013297446454,
+      "down": 0.9669359265568314,
+      "nonlinear": false,
+      "effect": 0.09275686281507384
+     },
+     "co2AbatedTonnes": {
+      "value": 0.9999999999999993,
+      "up": 0.9999999999999982,
+      "down": 1.0000000000000004,
+      "nonlinear": false,
+      "effect": 0.09999999999999994
+     }
+    }
+   },
+   {
+    "id": "green.prodCapexUsdM",
+    "label": "Fuel production CAPEX ($m)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.32843846867906074,
+      "up": 0.32843846867906074,
+      "down": 0.32843846867906074,
+      "nonlinear": false,
+      "effect": 0.032843846867906076
+     },
+     "costPerUnitUsd": {
+      "value": 0.32843846867906124,
+      "up": 0.32843846867906124,
+      "down": 0.32843846867906124,
+      "nonlinear": false,
+      "effect": 0.032843846867906125
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.32843846867906124,
+      "up": 0.32843846867906035,
+      "down": 0.3284384686790621,
+      "nonlinear": false,
+      "effect": 0.032843846867906125
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.2676083759770166,
+      "up": 0.2676083759770166,
+      "down": 0.2676083759770166,
+      "nonlinear": false,
+      "effect": 0.02676083759770166
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "green.wtwGco2PerMj",
+    "label": "Green fuel WTW intensity (gCO2e/MJ)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "costPerUnitUsd": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.3183469137572721,
+      "up": 0.32847113951244056,
+      "down": 0.30822268800210356,
+      "nonlinear": false,
+      "effect": 0.03183469137572721
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": -0.3180249381303314,
+      "up": -0.3180249381303363,
+      "down": -0.31802493813032645,
+      "nonlinear": false,
+      "effect": -0.03180249381303314
+     }
+    }
+   },
+   {
+    "id": "green.prodOpexUsdMPerYear",
+    "label": "Fuel production O&M ($m/yr)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.26499228278018894,
+      "up": 0.2649922827801923,
+      "down": 0.2649922827801855,
+      "nonlinear": false,
+      "effect": 0.026499228278018896
+     },
+     "costPerUnitUsd": {
+      "value": 0.26499228278018894,
+      "up": 0.26499228278019343,
+      "down": 0.26499228278018444,
+      "nonlinear": false,
+      "effect": 0.026499228278018896
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.26499228278018966,
+      "up": 0.26499228278019327,
+      "down": 0.26499228278018605,
+      "nonlinear": false,
+      "effect": 0.02649922827801897
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.21591305892533524,
+      "up": 0.21591305892533733,
+      "down": 0.2159130589253332,
+      "nonlinear": false,
+      "effect": 0.021591305892533524
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "green.lhvMjPerTonne",
+    "label": "Green energy density, LHV (MJ/t)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.20849524363614594,
+      "up": -0.1876457192725288,
+      "down": -0.22934476799976308,
+      "nonlinear": true,
+      "effect": -0.020849524363614595
+     },
+     "costPerUnitUsd": {
+      "value": -0.20849524363614647,
+      "up": -0.18764571927252935,
+      "down": -0.2293447679997636,
+      "nonlinear": true,
+      "effect": -0.020849524363614647
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.20849524363614563,
+      "up": -0.18764571927252888,
+      "down": -0.22934476799976236,
+      "nonlinear": true,
+      "effect": -0.020849524363614563
+     },
+     "greenTotalPvUsdM": {
+      "value": -0.16987983707512205,
+      "up": -0.15289185336760777,
+      "down": -0.18686782078263633,
+      "nonlinear": true,
+      "effect": -0.016987983707512207
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "green.priceUsdPerTonne",
+    "label": "Green fuel price ($/t)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.205155315700792,
+      "up": 0.20515531570079712,
+      "down": 0.2051553157007869,
+      "nonlinear": false,
+      "effect": 0.020515531570079203
+     },
+     "costPerUnitUsd": {
+      "value": 0.2051553157007926,
+      "up": 0.20515531570079784,
+      "down": 0.20515531570078732,
+      "nonlinear": false,
+      "effect": 0.02051553157007926
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.20515531570079285,
+      "up": 0.2051553157007974,
+      "down": 0.2051553157007883,
+      "nonlinear": false,
+      "effect": 0.020515531570079286
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.16715849723251686,
+      "up": 0.16715849723252033,
+      "down": 0.16715849723251341,
+      "nonlinear": false,
+      "effect": 0.016715849723251686
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "regulation.fuelEuBaselineGco2PerMj",
+    "label": "FuelEU baseline intensity (gCO2e/MJ)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.16546749673609562,
+      "up": 0.13759189760647653,
+      "down": 0.1933430958657147,
+      "nonlinear": true,
+      "effect": 0.016546749673609563
+     },
+     "costPerUnitUsd": {
+      "value": 0.16546749673609495,
+      "up": 0.13759189760647605,
+      "down": 0.19334309586571385,
+      "nonlinear": true,
+      "effect": 0.016546749673609498
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.16546749673609418,
+      "up": 0.13759189760647544,
+      "down": 0.19334309586571294,
+      "nonlinear": true,
+      "effect": 0.016546749673609418
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": -0.7279372118569998,
+      "up": -0.6053047534617265,
+      "down": -0.850569670252273,
+      "nonlinear": true,
+      "effect": -0.07279372118569997
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "fleet-capital",
+    "label": "Fleet capital",
+    "kind": "relative",
+    "group": true,
+    "members": [
+     "vessel.green.capexUsdM",
+     "vessel.fossil.capexUsdM"
+    ],
+    "memberLabels": [
+     "Green vessel CAPEX ($m)",
+     "Fossil vessel CAPEX ($m)"
+    ],
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.1492902130359367,
+      "up": 0.1492902130359367,
+      "down": 0.1492902130359367,
+      "nonlinear": false,
+      "effect": 0.014929021303593672
+     },
+     "costPerUnitUsd": {
+      "value": 0.14929021303593706,
+      "up": 0.14929021303593706,
+      "down": 0.14929021303593706,
+      "nonlinear": false,
+      "effect": 0.014929021303593706
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.14929021303593668,
+      "up": 0.14929021303593668,
+      "down": 0.14929021303593668,
+      "nonlinear": false,
+      "effect": 0.014929021303593668
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.1216401708986439,
+      "up": 0.1216401708986439,
+      "down": 0.1216401708986439,
+      "nonlinear": false,
+      "effect": 0.012164017089864391
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "fossil.lhvMjPerTonne",
+    "label": "Fossil energy density, LHV (MJ/t)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.08706283041133817,
+      "up": 0.07835654737020485,
+      "down": 0.09576911345247147,
+      "nonlinear": false,
+      "effect": 0.008706283041133817
+     },
+     "costPerUnitUsd": {
+      "value": 0.08706283041133792,
+      "up": 0.07835654737020466,
+      "down": 0.09576911345247119,
+      "nonlinear": false,
+      "effect": 0.008706283041133791
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.0870628304113384,
+      "up": 0.07835654737020438,
+      "down": 0.09576911345247242,
+      "nonlinear": true,
+      "effect": 0.00870628304113384
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": -0.3830134333094256,
+      "up": -0.3447120899784787,
+      "down": -0.42131477664037253,
+      "nonlinear": true,
+      "effect": -0.03830134333094257
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "port.storageCapexUsdM",
+    "label": "Green port storage CAPEX ($m)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.07165930225724894,
+      "up": 0.07165930225724894,
+      "down": 0.07165930225724894,
+      "nonlinear": false,
+      "effect": 0.0071659302257248945
+     },
+     "costPerUnitUsd": {
+      "value": 0.07165930225724831,
+      "up": 0.07165930225724906,
+      "down": 0.07165930225724756,
+      "nonlinear": false,
+      "effect": 0.007165930225724832
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.07165930225724873,
+      "up": 0.07165930225724873,
+      "down": 0.07165930225724873,
+      "nonlinear": false,
+      "effect": 0.007165930225724874
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.058387282031349214,
+      "up": 0.05838728203134852,
+      "down": 0.05838728203134991,
+      "nonlinear": false,
+      "effect": 0.005838728203134922
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "fossil.priceUsdPerTonne",
+    "label": "Fossil fuel price ($/t)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.062184855692417676,
+      "up": -0.062184855692417676,
+      "down": -0.062184855692417676,
+      "nonlinear": false,
+      "effect": -0.006218485569241768
+     },
+     "costPerUnitUsd": {
+      "value": -0.062184855692416253,
+      "up": -0.062184855692415504,
+      "down": -0.062184855692417,
+      "nonlinear": false,
+      "effect": -0.006218485569241625
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.06218485569241619,
+      "up": -0.06218485569241619,
+      "down": -0.06218485569241619,
+      "nonlinear": false,
+      "effect": -0.006218485569241619
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.27356835248836897,
+      "up": 0.2735683524883718,
+      "down": 0.2735683524883662,
+      "nonlinear": false,
+      "effect": 0.0273568352488369
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "regulation.eurUsd",
+    "label": "EUR/USD",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.05787337810938079,
+      "up": -0.05787337810938334,
+      "down": -0.057873378109378246,
+      "nonlinear": false,
+      "effect": -0.00578733781093808
+     },
+     "costPerUnitUsd": {
+      "value": -0.057873378109380244,
+      "up": -0.05787337810938175,
+      "down": -0.05787337810937874,
+      "nonlinear": false,
+      "effect": -0.005787337810938025
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.057873378109379724,
+      "up": -0.057873378109382444,
+      "down": -0.057873378109377004,
+      "nonlinear": false,
+      "effect": -0.005787337810937973
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.001022541471853473,
+      "up": 0.00102254147185209,
+      "down": 0.0010225414718548558,
+      "nonlinear": false,
+      "effect": 0.00010225414718534731
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.26012195577009195,
+      "up": 0.26012195577009756,
+      "down": 0.26012195577008634,
+      "nonlinear": false,
+      "effect": 0.026012195577009196
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "port.storageOpexUsdMPerYear",
+    "label": "Green port storage OPEX ($m/yr)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.044165380463363685,
+      "up": 0.04416538046336538,
+      "down": 0.044165380463361985,
+      "nonlinear": false,
+      "effect": 0.004416538046336369
+     },
+     "costPerUnitUsd": {
+      "value": 0.044165380463363824,
+      "up": 0.04416538046336533,
+      "down": 0.04416538046336232,
+      "nonlinear": false,
+      "effect": 0.004416538046336383
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.04416538046336404,
+      "up": 0.04416538046336495,
+      "down": 0.04416538046336313,
+      "nonlinear": false,
+      "effect": 0.004416538046336404
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.035985509820888176,
+      "up": 0.03598550982088956,
+      "down": 0.03598550982088679,
+      "nonlinear": false,
+      "effect": 0.0035985509820888177
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "regulation.fuelEuPenalty",
+    "label": "FuelEU penalty (€/t VLSFO-eq)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.03512100719356738,
+      "up": -0.03512100719356738,
+      "down": -0.03512100719356738,
+      "nonlinear": false,
+      "effect": -0.003512100719356738
+     },
+     "costPerUnitUsd": {
+      "value": -0.03512100719356783,
+      "up": -0.03512100719356708,
+      "down": -0.03512100719356858,
+      "nonlinear": false,
+      "effect": -0.003512100719356783
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.035121007193568546,
+      "up": -0.035121007193568546,
+      "down": -0.035121007193568546,
+      "nonlinear": false,
+      "effect": -0.0035121007193568547
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.15450700928213107,
+      "up": 0.15450700928213384,
+      "down": 0.15450700928212827,
+      "nonlinear": false,
+      "effect": 0.015450700928213108
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "port.bargeCapexUsdM",
+    "label": "Green port barge CAPEX ($m)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.02985804260718734,
+      "up": 0.02985804260718734,
+      "down": 0.02985804260718734,
+      "nonlinear": false,
+      "effect": 0.0029858042607187343
+     },
+     "costPerUnitUsd": {
+      "value": 0.02985804260718711,
+      "up": 0.02985804260718711,
+      "down": 0.02985804260718711,
+      "nonlinear": false,
+      "effect": 0.0029858042607187113
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.029858042607187878,
+      "up": 0.029858042607186972,
+      "down": 0.029858042607188787,
+      "nonlinear": false,
+      "effect": 0.002985804260718788
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.024328034179728782,
+      "up": 0.024328034179728782,
+      "down": 0.024328034179728782,
+      "nonlinear": false,
+      "effect": 0.0024328034179728784
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "port.bargeOpexUsdMPerYear",
+    "label": "Green port barge OPEX ($m/yr)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.026499228278017872,
+      "up": 0.026499228278021265,
+      "down": 0.02649922827801448,
+      "nonlinear": false,
+      "effect": 0.0026499228278017875
+     },
+     "costPerUnitUsd": {
+      "value": 0.026499228278017088,
+      "up": 0.026499228278021602,
+      "down": 0.026499228278012574,
+      "nonlinear": false,
+      "effect": 0.002649922827801709
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.026499228278016426,
+      "up": 0.026499228278020055,
+      "down": 0.026499228278012796,
+      "nonlinear": false,
+      "effect": 0.0026499228278016426
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.021591305892532626,
+      "up": 0.02159130589253539,
+      "down": 0.02159130589252986,
+      "nonlinear": false,
+      "effect": 0.0021591305892532625
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "fossil.combustionEf",
+    "label": "Fossil combustion EF (tCO2/t)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.02443052022492584,
+      "up": -0.02866225832610931,
+      "down": -0.020198782123742372,
+      "nonlinear": true,
+      "effect": -0.002443052022492584
+     },
+     "costPerUnitUsd": {
+      "value": -0.02443052022492688,
+      "up": -0.028662258326110003,
+      "down": -0.02019878212374376,
+      "nonlinear": true,
+      "effect": -0.002443052022492688
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.024430520224926724,
+      "up": -0.028662258326110447,
+      "down": -0.020198782123743,
+      "nonlinear": true,
+      "effect": -0.0024430520224926725
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.10747660493777886,
+      "up": 0.12609318943593417,
+      "down": 0.08886002043962353,
+      "nonlinear": true,
+      "effect": 0.010747660493777886
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "regulation.euaEurPerTonne",
+    "label": "EUA price (€/tCO2)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.022752370915814266,
+      "up": -0.022752370915815962,
+      "down": -0.02275237091581257,
+      "nonlinear": false,
+      "effect": -0.0022752370915814267
+     },
+     "costPerUnitUsd": {
+      "value": -0.02275237091581392,
+      "up": -0.022752370915814668,
+      "down": -0.022752370915813166,
+      "nonlinear": false,
+      "effect": -0.002275237091581392
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.022752370915813894,
+      "up": -0.02275237091581571,
+      "down": -0.02275237091581208,
+      "nonlinear": false,
+      "effect": -0.0022752370915813894
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.001022541471853473,
+      "up": 0.00102254147185209,
+      "down": 0.0010225414718548558,
+      "nonlinear": false,
+      "effect": 0.00010225414718534731
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.10561494648796277,
+      "up": 0.10561494648796557,
+      "down": 0.10561494648795997,
+      "nonlinear": false,
+      "effect": 0.010561494648796278
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "green.combustionEf",
+    "label": "Green combustion EF (tCO2/t)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.0023555173815353533,
+      "up": 0.013360936206973574,
+      "down": -0.008649901443902867,
+      "nonlinear": true,
+      "effect": 0.00023555173815353533
+     },
+     "costPerUnitUsd": {
+      "value": 0.0023555173815360715,
+      "up": 0.013360936206975108,
+      "down": -0.008649901443902965,
+      "nonlinear": true,
+      "effect": 0.00023555173815360716
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.0023555173815345875,
+      "up": 0.013360936206973095,
+      "down": -0.00864990144390392,
+      "nonlinear": true,
+      "effect": 0.00023555173815345876
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.0019192519792025358,
+      "up": 0.01088635705269524,
+      "down": -0.007047853094290168,
+      "nonlinear": true,
+      "effect": 0.00019192519792025358
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "vessel-opex",
+    "label": "Fleet operating cost",
+    "kind": "relative",
+    "group": true,
+    "members": [
+     "vessel.green.opexUsdMPerYear",
+     "vessel.fossil.opexUsdMPerYear"
+    ],
+    "memberLabels": [
+     "Green vessel OPEX ($m/yr)",
+     "Fossil vessel OPEX ($m/yr)"
+    ],
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 8.486166111421011e-16,
+      "up": 3.3944664445684043e-15,
+      "down": -1.6972332222842022e-15,
+      "nonlinear": true,
+      "effect": 8.486166111421011e-17
+     },
+     "costPerUnitUsd": {
+      "value": 7.524513767674782e-16,
+      "up": 3.009805507069913e-15,
+      "down": -1.5049027535349565e-15,
+      "nonlinear": true,
+      "effect": 7.524513767674783e-17
+     },
+     "costPerTonneCo2Usd": {
+      "value": 9.073142316301623e-16,
+      "up": 3.629256926520649e-15,
+      "down": -1.8146284632603246e-15,
+      "nonlinear": true,
+      "effect": 9.073142316301623e-17
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.08636522357013396,
+      "up": 0.08636522357013603,
+      "down": 0.08636522357013188,
+      "nonlinear": false,
+      "effect": 0.008636522357013397
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.46630969174153847,
+      "up": 0.4663096917415422,
+      "down": 0.4663096917415347,
+      "nonlinear": false,
+      "effect": 0.04663096917415385
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "cargo.unitsPerYear",
+    "label": "Cargo throughput (units/yr)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "costPerUnitUsd": {
+      "value": -1.0101010101010097,
+      "up": -0.9090909090909088,
+      "down": -1.1111111111111107,
+      "nonlinear": false,
+      "effect": -0.10101010101010098
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "cargo.vessels",
+    "label": "Number of vessels",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "costPerUnitUsd": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "green.efficiencyRatio",
+    "label": "Engine efficiency ratio (green vs fossil)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "costPerUnitUsd": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "cargo.inflation",
+    "label": "Inflation",
+    "kind": "absolutePp",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.5,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.07888187088362011,
+      "up": 0.08323247808039977,
+      "down": 0.07453126368684047,
+      "nonlinear": false,
+      "effect": 0.03944093544181006
+     },
+     "costPerUnitUsd": {
+      "value": 0.07888187088362011,
+      "up": 0.08323247808039975,
+      "down": 0.07453126368684049,
+      "nonlinear": false,
+      "effect": 0.03944093544181006
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.07888187088362006,
+      "up": 0.0832324780803995,
+      "down": 0.0745312636868406,
+      "nonlinear": false,
+      "effect": 0.03944093544181003
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.08685633668162912,
+      "up": 0.09164676316644858,
+      "down": 0.08206591019680967,
+      "nonlinear": false,
+      "effect": 0.04342816834081456
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.12193821386932827,
+      "up": 0.12866352685797516,
+      "down": 0.11521290088068138,
+      "nonlinear": false,
+      "effect": 0.06096910693466413
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "cargo.wacc",
+    "label": "Discount rate (WACC)",
+    "kind": "absolutePp",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.18181818181818182,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.177229097776822,
+      "up": -0.1663651462344206,
+      "down": -0.18809304931922338,
+      "nonlinear": false,
+      "effect": -0.03222347232305855
+     },
+     "costPerUnitUsd": {
+      "value": -0.17722909777682186,
+      "up": -0.16636514623441984,
+      "down": -0.18809304931922388,
+      "nonlinear": false,
+      "effect": -0.03222347232305852
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.17722909777682228,
+      "up": -0.1663651462344209,
+      "down": -0.1880930493192237,
+      "nonlinear": false,
+      "effect": -0.0322234723230586
+     },
+     "greenTotalPvUsdM": {
+      "value": -0.23156671707288612,
+      "up": -0.2170272929397573,
+      "down": -0.2461061412060149,
+      "nonlinear": false,
+      "effect": -0.042103039467797476
+     },
+     "fossilTotalPvUsdM": {
+      "value": -0.4706129096457363,
+      "up": -0.439904066607224,
+      "down": -0.5013217526842486,
+      "nonlinear": false,
+      "effect": -0.08556598357195207
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "regulation.fuelEuScope",
+    "label": "FuelEU scope (%)",
+    "kind": "absolutePp",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.01,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.03512100719356738,
+      "up": -0.03512100719356738,
+      "down": -0.03512100719356738,
+      "nonlinear": false,
+      "effect": -0.0003512100719356738
+     },
+     "costPerUnitUsd": {
+      "value": -0.0351210071935731,
+      "up": -0.035121007193565576,
+      "down": -0.03512100719358062,
+      "nonlinear": false,
+      "effect": -0.000351210071935731
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.03512100719357399,
+      "up": -0.03512100719357399,
+      "down": -0.03512100719357399,
+      "nonlinear": false,
+      "effect": -0.00035121007193573994
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.154507009282132,
+      "up": 0.15450700928216934,
+      "down": 0.15450700928209465,
+      "nonlinear": false,
+      "effect": 0.0015450700928213202
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "regulation.etsScope",
+    "label": "ETS scope (%)",
+    "kind": "absolutePp",
+    "group": false,
+    "detailOnly": false,
+    "fraction": 0.01,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.02275237091580578,
+      "up": -0.02275237091576335,
+      "down": -0.02275237091584821,
+      "nonlinear": false,
+      "effect": -0.0002275237091580578
+     },
+     "costPerUnitUsd": {
+      "value": -0.02275237091580564,
+      "up": -0.02275237091576802,
+      "down": -0.022752370915843263,
+      "nonlinear": false,
+      "effect": -0.0002275237091580564
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.022752370915808454,
+      "up": -0.02275237091577216,
+      "down": -0.022752370915844748,
+      "nonlinear": false,
+      "effect": -0.00022752370915808456
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.0010225414718673018,
+      "up": 0.001022541471901874,
+      "down": 0.0010225414718327296,
+      "nonlinear": false,
+      "effect": 0.000010225414718673019
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.1056149464879805,
+      "up": 0.10561494648801784,
+      "down": 0.10561494648794317,
+      "nonlinear": false,
+      "effect": 0.0010561494648798052
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "vessel.green.capexUsdM",
+    "label": "Green vessel CAPEX ($m)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": true,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.1492902130359367,
+      "up": 0.1492902130359367,
+      "down": 0.1492902130359367,
+      "nonlinear": false,
+      "effect": 0.014929021303593672
+     },
+     "costPerUnitUsd": {
+      "value": 0.14929021303593706,
+      "up": 0.14929021303593706,
+      "down": 0.14929021303593706,
+      "nonlinear": false,
+      "effect": 0.014929021303593706
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.14929021303593668,
+      "up": 0.14929021303593668,
+      "down": 0.14929021303593668,
+      "nonlinear": false,
+      "effect": 0.014929021303593668
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.1216401708986439,
+      "up": 0.1216401708986439,
+      "down": 0.1216401708986439,
+      "nonlinear": false,
+      "effect": 0.012164017089864391
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "vessel.green.opexUsdMPerYear",
+    "label": "Green vessel OPEX ($m/yr)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": true,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.10599691311207488,
+      "up": 0.10599691311207828,
+      "down": 0.10599691311207149,
+      "nonlinear": false,
+      "effect": 0.010599691311207488
+     },
+     "costPerUnitUsd": {
+      "value": 0.10599691311207513,
+      "up": 0.10599691311207889,
+      "down": 0.10599691311207138,
+      "nonlinear": false,
+      "effect": 0.010599691311207513
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.10599691311207478,
+      "up": 0.10599691311207841,
+      "down": 0.10599691311207114,
+      "nonlinear": false,
+      "effect": 0.010599691311207478
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.08636522357013396,
+      "up": 0.08636522357013603,
+      "down": 0.08636522357013188,
+      "nonlinear": false,
+      "effect": 0.008636522357013397
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "vessel.fossil.opexUsdMPerYear",
+    "label": "Fossil vessel OPEX ($m/yr)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": true,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.10599691311207488,
+      "up": -0.10599691311207488,
+      "down": -0.10599691311207488,
+      "nonlinear": false,
+      "effect": -0.010599691311207488
+     },
+     "costPerUnitUsd": {
+      "value": -0.10599691311207513,
+      "up": -0.10599691311207438,
+      "down": -0.10599691311207589,
+      "nonlinear": false,
+      "effect": -0.010599691311207513
+     },
+     "costPerTonneCo2Usd": {
+      "value": -0.10599691311207478,
+      "up": -0.10599691311207478,
+      "down": -0.10599691311207478,
+      "nonlinear": false,
+      "effect": -0.010599691311207478
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.46630969174153847,
+      "up": 0.4663096917415422,
+      "down": 0.4663096917415347,
+      "nonlinear": false,
+      "effect": 0.04663096917415385
+     },
+     "co2AbatedTonnes": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     }
+    }
+   },
+   {
+    "id": "green.fuelTonnesPerVesselYear",
+    "label": "Green fuel consumption (t/vessel/yr)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": true,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": 0.20641029119978305,
+      "up": 0.20641029119978813,
+      "down": 0.20641029119977797,
+      "nonlinear": false,
+      "effect": 0.020641029119978307
+     },
+     "costPerUnitUsd": {
+      "value": 0.20641029119978363,
+      "up": 0.20641029119978965,
+      "down": 0.2064102911997776,
+      "nonlinear": false,
+      "effect": 0.020641029119978366
+     },
+     "costPerTonneCo2Usd": {
+      "value": 0.5249661793956855,
+      "up": 0.5416614130679782,
+      "down": 0.5082709457233927,
+      "nonlinear": false,
+      "effect": 0.05249661793956855
+     },
+     "greenTotalPvUsdM": {
+      "value": 0.16818103870436965,
+      "up": 0.16818103870437243,
+      "down": 0.16818103870436688,
+      "nonlinear": false,
+      "effect": 0.016818103870436966
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "co2AbatedTonnes": {
+      "value": -0.3180249381303314,
+      "up": -0.3180249381303363,
+      "down": -0.31802493813032645,
+      "nonlinear": false,
+      "effect": -0.03180249381303314
+     }
+    }
+   },
+   {
+    "id": "fossil.fuelTonnesPerVesselYear",
+    "label": "Fossil fuel consumption (t/vessel/yr)",
+    "kind": "relative",
+    "group": false,
+    "detailOnly": true,
+    "fraction": 0.1,
+    "perKpi": {
+     "gapPvUsdM": {
+      "value": -0.12131320930079117,
+      "up": -0.12131320930079204,
+      "down": -0.12131320930079033,
+      "nonlinear": false,
+      "effect": -0.012131320930079119
+     },
+     "costPerUnitUsd": {
+      "value": -0.12131320930079056,
+      "up": -0.12131320930079056,
+      "down": -0.12131320930079056,
+      "nonlinear": false,
+      "effect": -0.012131320930079056
+     },
+     "costPerTonneCo2Usd": {
+      "value": -1.464784228729624,
+      "up": -1.271722014485059,
+      "down": -1.657846442974189,
+      "nonlinear": true,
+      "effect": -0.1464784228729624
+     },
+     "greenTotalPvUsdM": {
+      "value": 0,
+      "up": 0,
+      "down": 0,
+      "nonlinear": false,
+      "effect": 0
+     },
+     "fossilTotalPvUsdM": {
+      "value": 0.5336903082584619,
+      "up": 0.5336903082584674,
+      "down": 0.5336903082584563,
+      "nonlinear": false,
+      "effect": 0.05336903082584619
+     },
+     "co2AbatedTonnes": {
+      "value": 1.318024938130334,
+      "up": 1.3180249381303335,
+      "down": 1.3180249381303344,
+      "nonlinear": false,
+      "effect": 0.1318024938130334
+     }
+    }
+   }
+  ],
+  "skipped": [
+   {
+    "id": "cargo.unitWeightTonnes",
+    "reason": "absent",
+    "label": "Cargo unit weight (t/unit)"
+   },
+   {
+    "id": "vessel.fossil.capexUsdM",
+    "reason": "zero",
+    "label": "Fossil vessel CAPEX ($m)"
+   },
+   {
+    "id": "green.certifiedWttGco2ePerMj",
+    "reason": "absent",
+    "label": "Green certified pathway WtT (gCO2e/MJ)"
+   },
+   {
+    "id": "green.pilotShare",
+    "reason": "absent",
+    "label": "Pilot fuel share of energy (0–1)"
+   },
+   {
+    "id": "fossil.sulphurPercent",
+    "reason": "absent",
+    "label": "Fossil sulphur content (% S, IMO accounting; 0.5 = default)"
+   },
+   {
+    "id": "port.fossilStorageCapexUsdM",
+    "reason": "zero",
+    "label": "Fossil port storage CAPEX ($m)"
+   },
+   {
+    "id": "port.fossilStorageOpexUsdMPerYear",
+    "reason": "zero",
+    "label": "Fossil port storage OPEX ($m/yr)"
+   },
+   {
+    "id": "port.fossilBargeCapexUsdM",
+    "reason": "zero",
+    "label": "Fossil port barge CAPEX ($m)"
+   },
+   {
+    "id": "port.fossilBargeOpexUsdMPerYear",
+    "reason": "zero",
+    "label": "Fossil port barge OPEX ($m/yr)"
+   },
+   {
+    "id": "financing.greenRate",
+    "reason": "absent",
+    "label": "Green cost of debt (fraction)"
+   },
+   {
+    "id": "financing.baseRate",
+    "reason": "absent",
+    "label": "Base cost of debt (module on, green 6%)"
+   },
+   {
+    "id": "financing.debtShare",
+    "reason": "absent",
+    "label": "Debt share of green CAPEX (module on)"
+   },
+   {
+    "id": "financing.tenorYears",
+    "reason": "absent",
+    "label": "Loan tenor (yr, module on)"
+   },
+   {
+    "id": "regulation.euaEscalation",
+    "reason": "absent",
+    "label": "EUA price escalation (/yr)"
+   },
+   {
+    "id": "regulation.selfCo2PriceUsdPerTonne",
+    "reason": "zero",
+    "label": "Self-designed CO2 price ($/t, module on)"
+   },
+   {
+    "id": "regulation.selfSupportUsdPerKg",
+    "reason": "zero",
+    "label": "H2 fuel support ($/kg, module on)"
+   },
+   {
+    "id": "regulation.selfOtherUsdM",
+    "reason": "zero",
+    "label": "Other support ($m/yr, module on)"
+   },
+   {
+    "id": "regulation.selfCapexSupport",
+    "reason": "zero",
+    "label": "CAPEX support (fraction, module on)"
+   },
+   {
+    "id": "regulation.selfOpexSupport",
+    "reason": "zero",
+    "label": "OPEX support (fraction, module on)"
+   },
+   {
+    "id": "regulation.selfCo2PriceEscalation",
+    "reason": "absent",
+    "label": "Self-designed CO2 escalation (/yr, at $280)"
+   },
+   {
+    "id": "regulation.imoScope",
+    "reason": "absent",
+    "label": "IMO NZF scope (module on)"
+   },
+   {
+    "id": "regulation.imoPriceEscalation",
+    "reason": "absent",
+    "label": "IMO price escalation (/yr, module on)"
+   }
+  ],
+  "excluded": [
+   {
+    "id": "cargo.startYear",
+    "reason": "calendar anchor — ±10% of a year number is not a perturbation",
+    "label": "Start year (calendar anchoring)"
+   },
+   {
+    "id": "capitalPhasing.years",
+    "reason": "composite setter (deployment profile) — no single value to nudge",
+    "label": "Capital deployment years (30/40/30 at 3)"
+   },
+   {
+    "id": "regulation.fuelEuVlsfoMjPerTonne",
+    "reason": "no per-unit elasticity in the offline harness either — kept aligned",
+    "label": "FuelEU VLSFO energy (MJ/t)"
+   },
+   {
+    "id": "regulation.fuelEuCreditSurplusValue",
+    "reason": "module-enabling setter — nudging it would switch the credit on",
+    "label": "FuelEU credit value (€/t VLSFO-eq, credit on)"
+   },
+   {
+    "id": "regulation.ira45zCreditUsdPerGallon",
+    "reason": "module-enabling setter — nudging it would switch 45Z on",
+    "label": "45Z credit ($/gal, module on, US-produced)"
+   },
+   {
+    "id": "regulation.imoRewardUsdPerTonneCo2e",
+    "reason": "module-enabling setter — nudging it would parameterise the reward",
+    "label": "IMO ZNZ reward ($/tCO2e, module on)"
+   }
+  ]
+ }
 }

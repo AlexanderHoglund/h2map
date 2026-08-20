@@ -4,8 +4,13 @@ import TopBar from "@/components/shell/TopBar";
 import CountryDefaultsTable from "@/components/docs/CountryDefaultsTable";
 import DocsNav from "@/components/docs/DocsNav";
 import DocsImpactTable from "@/components/docs/DocsImpactTable";
+import DocsElasticityTable, {
+  type ElasticityBlock,
+} from "@/components/docs/DocsElasticityTable";
+import { usdM, usdPerT } from "@/components/docs/format";
 import DocsTornado from "@/components/docs/DocsTornado";
 import uncertaintyArtifact from "../../../../data/corridor-sensitivity/uncertainty.json";
+import elasticityArtifact from "../../../../data/corridor-sensitivity/elasticity.json";
 import { TOC_IDS, TOC_PARTS } from "./toc";
 import countryDefaults from "../../../../data/country-defaults/snapshot.json";
 import fieldReference from "../../../../data/corridor-sensitivity/field-reference.json";
@@ -196,6 +201,27 @@ const SENSITIVITY_ROWS = (
     gapWorst: r.worstOptionByKpi?.gapPvUsdM ?? null,
     abatementWorst: r.worstOptionByKpi?.costPerTonneCo2Usd ?? null,
   }));
+
+/**
+ * §29's LEAD table: the full per-input elasticity ranking on the frozen
+ * 500 nm reference corridor, from the elasticity artifact's
+ * `referenceCorridor` block — produced by the SAME live module the in-app
+ * "What moves this corridor" panel runs, and drift-gated in CI like every
+ * other generated artifact. Entries arrive already in display order.
+ */
+const ELASTICITY_BLOCK = (
+  elasticityArtifact as unknown as { referenceCorridor: ElasticityBlock }
+).referenceCorridor;
+
+/**
+ * The choices block under the lead table: decisions, not dials. A
+ * categorical input has no proportional nudge, so it can never appear in an
+ * elasticity ranking — its impact is the sweep's worst option-to-option
+ * move, reused here from the same rows the endpoint table renders.
+ */
+const CHOICE_ROWS = SENSITIVITY_ROWS.filter((r) => r.isChoice).sort(
+  (a, b) => b.abatement - a.abatement || b.gap - a.gap,
+);
 
 
 
@@ -2623,12 +2649,14 @@ export default async function DocsPage() {
         <p className="mt-2">
           &ldquo;What moves the results&rdquo; is <strong>three different
           questions</strong>, and this section answers each with its own
-          view. The <em>elasticity view</em>{" "}asks which input moves an
-          output most <em>per equal-sized change</em>{" "}&mdash; a property
-          of the model at one scenario, inheriting no assumed range. The{" "}
-          <em>endpoint view</em>{" "}(the big table below) asks where the
-          number lands at the ends of each input&apos;s <em>plausible
-          range</em>{" "}&mdash; the model times an assumption. And{" "}
+          view. The <em>elasticity view</em>{" "}(the lead table below) asks
+          which input moves an output most <em>per equal-sized change</em>
+          {" "}&mdash; a property of the model at one scenario, inheriting no
+          assumed range. The{" "}
+          <em>endpoint view</em>{" "}(a compact reference further down) asks
+          where the number lands at the ends of each input&apos;s{" "}
+          <em>plausible range</em>{" "}&mdash; the model times an assumption.
+          And{" "}
           <em>leverage &times; exposure</em>{" "}(tornado and uncertainty
           band) asks where the <em>risk</em>{" "}is &mdash; the model times
           the researched state of the world. They rank inputs differently{" "}
@@ -2654,8 +2682,9 @@ export default async function DocsPage() {
                 </td>
                 <td className="px-3 py-2">The model alone, at my point</td>
                 <td className="px-3 py-2">
-                  Results tab (&ldquo;What moves this corridor&rdquo;, live);
-                  the worked example below; &sect;38&apos;s Elasticity column
+                  The lead table below; live in the Results tab (&ldquo;What
+                  moves this corridor&rdquo;); &sect;38&apos;s Elasticity
+                  column
                 </td>
               </tr>
               <tr className="border-b border-neutral-200">
@@ -2664,7 +2693,10 @@ export default async function DocsPage() {
                   If I am wrong about this input, where does my number land?
                 </td>
                 <td className="px-3 py-2">Model &times; assumed range</td>
-                <td className="px-3 py-2">The ranking table below</td>
+                <td className="px-3 py-2">
+                  The endpoint reference under &ldquo;The endpoint
+                  view&rdquo; below
+                </td>
               </tr>
               <tr className="border-b border-neutral-200 last:border-0">
                 <td className="px-3 py-2 font-medium">
@@ -2682,95 +2714,110 @@ export default async function DocsPage() {
 
         <H3 id="impact-elasticity">What moves it most: the elasticity view</H3>
         <p className="mt-2">
-          Every input gets the <strong>same standard nudge</strong>{" "}&mdash;
-          &plusmn;10% of its own value, or &plusmn;1 percentage point for
-          rates and fractions &mdash; and the reported figure is the signed
-          central difference: the % change in the output per 1% change in the
-          input. <strong>&minus;0.34 means the output falls 0.34% when the
-          input rises 1%.</strong>{" "}Because the nudge is equal-sized, the
+          <strong>Which input moves the result most?</strong>{" "}The table
+          below answers with one signed number per input: the effect of the{" "}
+          <strong>same standard nudge</strong>{" "}&mdash; the input 10%
+          higher &mdash; on each of the two headline figures, measured on the
+          frozen 500&nbsp;nm reference corridor and ranked by the abatement
+          column. Read a row as a sentence: corridor length at{" "}
+          <strong>&minus;9.2%</strong>{" "}means{" "}
+          <em>a 10% longer corridor lowers the CO&#8322; abatement cost by
+          9.2%</em>. Because every input gets an equal-sized nudge, the
           ranking cannot be bought by a generous assumed range (the endpoint
-          table&apos;s known flaw &mdash; see the list below); because it is
-          signed, an input that closes the gap can never be confused with one
-          that widens it. The app computes this <strong>live on the open
-          scenario</strong>{" "}in the Results tab; the same arithmetic run on
-          the frozen 500&nbsp;nm reference corridor gives the static worked
-          example here:
+          view&apos;s known flaw &mdash; see the list below); because the
+          number is signed, an input that closes the gap can never be
+          confused with one that widens it.
+        </p>
+        <DocsElasticityTable block={ELASTICITY_BLOCK} />
+        <p className="mt-2">
+          Two readings worth pausing on. <strong>The sign flips between
+          outputs</strong>: years modelled raises the gap (+2.4%) while
+          lowering the abatement cost (&minus;7.6%), because more years cost
+          more <em>and</em>{" "}abate far more tonnes &mdash; both numbers
+          are true of the same corridor. <strong>Coupled inputs rank as one
+          row</strong>: the two burns, the two vessel prices and the two
+          operating costs move together (a one-sided burn move is a state
+          the model itself rejects via the energy-parity check), so a
+          yard-price shock or an energy-demand shock is one honest figure
+          rather than a double count.
+        </p>
+        <p className="mt-2">
+          The app computes the same measurement <strong>live on the open
+          scenario</strong>{" "}in the Results tab (&ldquo;What moves this
+          corridor&rdquo;), because elasticity is scenario-dependent: on the
+          Simplified starter corridor (5,000&nbsp;nm, five vessels) a 10%
+          longer corridor lowers the abatement cost by about{" "}
+          <strong>3.7%</strong>, not this table&apos;s 9.2% &mdash; and the
+          curvature flag is why the app&apos;s own figure can read anywhere
+          from &minus;3.4% to &minus;4% depending on which side of the nudge
+          you look at. The views are also expected to disagree with the risk
+          ranking: per equal nudge, geometry beats financing on the starter
+          corridor, yet the uncertainty band names WACC the top{" "}
+          <em>risk</em>{" "}driver &mdash; the researched spread on discount
+          rates is wide while nobody is uncertain about a corridor&apos;s
+          length. Both are intended behaviour: one is a statement about the
+          model, the other about the world.
+        </p>
+        <p className="mt-3">
+          <strong>Choices are decisions, not dials.</strong>{" "}A fuel, a
+          hull class or a sourcing model has no &ldquo;+10%&rdquo;, so
+          choices never enter the ranking above. Their impact is the biggest
+          option-to-option move: each row names the option that moves the
+          figure furthest, evaluated against the current catalogue from that
+          choice&apos;s own baseline.
         </p>
         <div className="my-3 overflow-x-auto">
-          <table className="w-full border border-neutral-300 text-[13px]">
+          <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
             <thead>
               <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
-                <th className="px-3 py-2 font-medium">Input (reference corridor)</th>
-                <th className="px-3 py-2 text-right font-medium">Cost gap</th>
+                <th className="px-3 py-2 font-medium">Choice</th>
                 <th className="px-3 py-2 text-right font-medium">
-                  CO&#8322; abatement cost
+                  Biggest move on CO&#8322; abatement cost
+                </th>
+                <th className="px-3 py-2 text-right font-medium">
+                  &hellip;on cost gap
                 </th>
               </tr>
             </thead>
-            <tbody className="tabular-nums">
-              <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2">Fuel plant build cost</td>
-                <td className="px-3 py-2 text-right">+0.33</td>
-                <td className="px-3 py-2 text-right">+0.33</td>
-              </tr>
-              <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2">Years modelled</td>
-                <td className="px-3 py-2 text-right">+0.24</td>
-                <td className="px-3 py-2 text-right">&minus;0.76</td>
-              </tr>
-              <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2">Green fuel price</td>
-                <td className="px-3 py-2 text-right">+0.21</td>
-                <td className="px-3 py-2 text-right">+0.21</td>
-              </tr>
-              <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2">Fossil fuel climate intensity (WtW)</td>
-                <td className="px-3 py-2 text-right">&minus;0.16</td>
-                <td className="px-3 py-2 text-right">&minus;1.50</td>
-              </tr>
-              <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2">Corridor length</td>
-                <td className="px-3 py-2 text-right">+0.09</td>
-                <td className="px-3 py-2 text-right">&minus;0.92</td>
-              </tr>
-              <tr className="border-b border-neutral-200 last:border-0">
-                <td className="px-3 py-2">
-                  Discount rate (WACC){" "}
-                  <span className="text-neutral-500">&mdash; per &plusmn;1pp</span>
-                </td>
-                <td className="px-3 py-2 text-right">&minus;0.18</td>
-                <td className="px-3 py-2 text-right">&minus;0.18</td>
-              </tr>
+            <tbody>
+              {CHOICE_ROWS.map((r) => (
+                <tr key={r.id} className="border-b border-neutral-200 last:border-0">
+                  <td className="px-3 py-1.5">
+                    {r.label}
+                    <span className="ml-1.5 whitespace-nowrap text-[11px] text-neutral-500">
+                      · {r.optionCount} options
+                    </span>
+                  </td>
+                  <td className="px-3 py-1.5 text-right text-neutral-700">
+                    {r.abatementWorst &&
+                    usdPerT(r.abatementWorst.value) !==
+                      usdPerT(r.abatementWorst.base) ? (
+                      <>
+                        <code className="text-[12px]">
+                          {r.abatementWorst.option}
+                        </code>
+                        : {usdPerT(r.abatementWorst.value)}
+                      </>
+                    ) : (
+                      "no option moves it"
+                    )}
+                  </td>
+                  <td className="px-3 py-1.5 text-right text-neutral-700">
+                    {r.gapWorst &&
+                    usdM(r.gapWorst.value) !== usdM(r.gapWorst.base) ? (
+                      <>
+                        <code className="text-[12px]">{r.gapWorst.option}</code>
+                        : {usdM(r.gapWorst.value)}
+                      </>
+                    ) : (
+                      "no option moves it"
+                    )}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-        <p className="mt-2">
-          Three reading rules, each visible in the table. <strong>The sign
-          flips between outputs</strong>: corridor length is +0.09 on the gap
-          and &minus;0.92 on the abatement cost of the same corridor, because
-          longer voyages cost a little more and abate far more tonnes &mdash;
-          both numbers are true, and the app renders the sign per output tab.{" "}
-          <strong>Rates rank in their own family</strong>{" "}(&plusmn;1
-          percentage point): a 1-point move on a small rate is a large
-          relative change, so the two families are never merged into one
-          ordering. <strong>Coupled inputs rank as one row</strong>: the two
-          burns, the two vessel prices and the two operating costs move
-          together (a one-sided burn move is a state the model itself rejects
-          via the energy-parity check), and the members are shown as
-          unranked detail explaining the mechanism.
-        </p>
-        <p className="mt-2">
-          The views are expected to disagree, and the clearest case is{" "}
-          <strong>distance versus WACC</strong>. On the Simplified starter
-          corridor (5,000&nbsp;nm, five vessels), the elasticity view ranks
-          corridor length (&minus;0.37 on the abatement cost) <em>above</em>{" "}
-          the discount rate (&minus;0.28): per equal nudge, geometry beats
-          financing. The uncertainty band on the reference corridors names
-          WACC the top <em>risk</em>{" "}driver &mdash; because the researched
-          spread on discount rates is wide while nobody is uncertain about a
-          corridor&apos;s length. Both are intended behaviour: one is a
-          statement about the model, the other about the world.
-        </p>
 
         <H3 id="sensitivity-columns">
           The endpoint view: where does my number land at the ends of the
@@ -2781,7 +2828,13 @@ export default async function DocsPage() {
           time, and every option of every selector is tried. The effect is
           measured on <strong>all six headline outputs</strong>: the cost gap,
           cost per cargo unit, cost per tonne of CO&#8322; abated, the green
-          and fossil totals, and lifetime CO&#8322; abated.
+          and fossil totals, and lifetime CO&#8322; abated. This is the
+          reference to consult when you distrust one input:{" "}
+          <strong>each row is a reproducible experiment</strong>{" "}&mdash;
+          the two cells are the model&apos;s own outputs at the ends of the
+          range, so open the app, set the input to the endpoint shown, and
+          the result is the number in the cell. Nothing here is a percentage
+          of an invisible reference.
         </p>
         <p className="mt-2">
           Where a scheme is switched off by default &mdash; self-designed
@@ -2792,90 +2845,20 @@ export default async function DocsPage() {
           outrank a physical input: $0&ndash;50m/yr of public money over twenty
           years genuinely is that large.
         </p>
-        <div className="my-3 overflow-x-auto">
-          <table className="w-full border border-neutral-300 text-[13px]">
-            <thead>
-              <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-[11px] uppercase tracking-wider text-neutral-500">
-                <th className="px-3 py-2 font-medium">Column</th>
-                <th className="px-3 py-2 font-medium">What it tells you</th>
-              </tr>
-            </thead>
-            <tbody className="align-top">
-              <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2 font-medium">
-                  CO&#8322; abatement cost ($/t)
-                </td>
-                <td className="px-3 py-2">
-                  What the model computes for the{" "}
-                  <em>cost per tonne of CO&#8322; abated</em>{" "}&mdash; the
-                  figure funders and policy comparisons quote &mdash; at the
-                  two ends of the input&apos;s plausible range, on the
-                  reference corridor. Read &ldquo;$11,677/t &rarr;
-                  $443/t&rdquo; on the corridor-length row as: set the length
-                  to 100&nbsp;nm and the app shows $11,677 per tonne; set it
-                  to 5,000&nbsp;nm and it shows $443. The swept range sits
-                  beside each input&apos;s name, and a green &darr; means the
-                  figure <em>falls</em>{" "}as the input rises. Use it to
-                  answer: <em>if I am wrong about this input, where does my
-                  number land?</em>
-                </td>
-              </tr>
-              <tr className="border-b border-neutral-200">
-                <td className="px-3 py-2 font-medium">Cost gap ($m)</td>
-                <td className="px-3 py-2">
-                  The same two endpoint readings for the <em>cost gap</em>{" "}
-                  &mdash; the headline dollar difference between running green
-                  and running fossil. The two columns rank very differently,
-                  and corridor length shows why: its gap moves modestly
-                  ($156.1m at 100&nbsp;nm, $295.7m at 5,000&nbsp;nm) while
-                  its abatement cost swings from $11,677/t down to $443/t,
-                  because longer voyages cost more <em>and</em>{" "}abate far
-                  more tonnes &mdash; the tonnes move faster than the
-                  dollars.
-                </td>
-              </tr>
-              <tr className="border-b border-neutral-200 last:border-0">
-                <td className="px-3 py-2 font-medium">(choice)</td>
-                <td className="px-3 py-2">
-                  Rows marked <em>choice</em>{" "}are decisions, not dials &mdash;
-                  which fuel, which hull, buy or build. The cell names the
-                  option that moves the figure furthest and the value it
-                  produces, so read it as{" "}
-                  <em>&ldquo;how much does this decision matter&rdquo;</em>,
-                  not as a range on one number. Choices are evaluated against
-                  the current reference data, each against its own baseline
-                  &mdash; the arrow&apos;s direction is measured from there.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
         <p className="mt-2">
-          The tabs pick which figure the table is ranked by — the{" "}
-          <strong>cost gap</strong>{" "}by default — and the
-          ranking column is shown in bold. Every value is the model&apos;s own
-          output on the frozen 500&nbsp;nm reference corridor, whose baseline
-          reads a cost gap of $167.5m and an abatement cost of $2,506/t.
-          Nothing in the table is a percentage of an invisible reference:{" "}
-          <strong>each row is a reproducible experiment</strong>{" "}&mdash;
-          open the app, set the input to the endpoint shown, and the result is
-          the number in the cell. The abatement cost still needs care when
-          reading: it divides the gap by the tonnes abated, and any input that
-          also changes the tonnes moves the denominator of its own
-          measurement &mdash; which is why corridor length&apos;s abatement
-          figure balloons at the short end. A row that reads{" "}
-          <em>no change</em>{" "}is a measurement, not a gap in coverage
-          &mdash; the input was swept and the figure did not move: cargo unit
-          choice really cannot move either figure, and the table says so
-          instead of omitting it. The other four measured outputs (per-unit
-          cost, both side totals, tonnes abated) still decide field placement
-          in the form &mdash; &sect;38 carries those details per field.
-        </p>
-        <p className="mt-2">
-          <strong>Every swept input is listed below.</strong>{" "}A field absent
-          from this table was not swept at all; &sect;38 lists all
-          {" "}scenario fields and says which of the three measurement tiers
-          each falls into, and why.
+          The abatement cost needs care when reading: it divides the gap by
+          the tonnes abated, so any input that also changes the tonnes moves
+          the denominator of its own measurement. Corridor length shows the
+          effect at full size &mdash; its gap moves modestly ($156.1m at
+          100&nbsp;nm, $295.7m at 5,000&nbsp;nm) while its abatement cost
+          swings from $11,677/t down to $443/t, a denominator artifact the
+          flaw list below takes apart, not a physical response. A row that
+          reads <em>no change</em>{" "}is a measurement, not a gap in
+          coverage &mdash; the input was swept and the figure did not move.{" "}
+          <strong>Every swept input is listed below</strong>; a field absent
+          from this table was not swept at all, and &sect;38 says which of
+          the three measurement tiers each scenario field falls into, and
+          why.
         </p>
         <DocsImpactTable rows={SENSITIVITY_ROWS} />
         <p className="mt-2">
@@ -2885,20 +2868,12 @@ export default async function DocsPage() {
           that choice&apos;s $140.2m baseline); self-designed public support
           at $50m/yr takes the gap from $167.5m to{" "}
           <em>minus</em>{" "}$462.9m &mdash; twenty years of that much public
-          money makes the green corridor outright cheaper than fossil; a
-          fifth vessel pushes the gap to $324.5m; and a FuelEU credit worth
-          &euro;2,400/t nearly closes it, at $17.9m. Corridor length moves
-          the gap modestly ($156.1m at 100&nbsp;nm, $295.7m at
-          5,000&nbsp;nm), but its abatement cost swings from $11,677/t to
-          $443/t across the same range &mdash; a denominator artifact the
-          flaw list below takes apart, not a physical response. Some inputs
-          matter to one answer and not the other: the N&#8322;O slip
-          scenario barely touches the gap ($168.3m at its worst) yet doubles
-          the abatement cost to $5,024/t, and vessel count does the reverse
-          &mdash; switch tabs to see the other ranking. The named EU scheme
-          parameters (ETS price and scope, FuelEU penalty and scope) move
-          the gap by under $10m each under defaults; they matter far more at
-          high carbon prices or late start years.
+          money makes the green corridor outright cheaper than fossil; and a
+          FuelEU credit worth &euro;2,400/t nearly closes it, at $17.9m.
+          Some inputs matter to one answer and not the other: the N&#8322;O
+          slip scenario barely touches the gap ($168.3m at its worst) yet
+          doubles the abatement cost to $5,024/t, and vessel count does the
+          reverse.
         </p>
 
         <H3 id="impact-leverage-exposure">Impact: leverage &times; exposure</H3>
@@ -3018,8 +2993,8 @@ export default async function DocsPage() {
         <p className="mt-2">
           The three reference corridors, drawn from the same measured
           results. The bars measure the{" "}
-          <strong>cost gap</strong>{" "}&mdash; the same output the ranking
-          table above ranks by, by default. A tornado is drawn for one
+          <strong>cost gap</strong>{" "}&mdash; the same output the endpoint
+          table above ranks by. A tornado is drawn for one
           output at a time, and the gap in dollars is the one a bar chart can
           carry across three corridors:
         </p>

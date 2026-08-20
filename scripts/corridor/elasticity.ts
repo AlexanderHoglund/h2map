@@ -28,6 +28,18 @@
  * archetype and the SPREAD is part of the output. Corridor length measures
  * -0.267 on Chile and exactly 0 on a corridor whose burns are typed.
  *
+ * THE REFERENCE-CORRIDOR BLOCK (`referenceCorridor`) is the fourth scenario:
+ * the frozen 500 nm sweep-baseline corridor — the same corridor every §29
+ * endpoint dollar describes and the "docs baseline" preset loads. §29's lead
+ * table renders this block directly. It is computed with the LIVE module
+ * (`apps/web/lib/corridor/elasticityLive.ts`) rather than this file's own
+ * loop, deliberately: the drift test already proves the two implementations
+ * agree on the three archetypes, and using the live module here means the
+ * docs table and the in-app panel are the same code path measured on the
+ * same corridor. Each cell also carries `effect` = value × fraction — the
+ * fractional output move under ONE nudge (+10%, or +1pp for rates), the
+ * number the docs print as "−9.2%".
+ *
  * The engine is untouched: this only evaluates it.
  */
 
@@ -55,6 +67,12 @@ import {
   type Param,
 } from "./lib/params";
 import { ARCHETYPES } from "./lib/archetypes";
+import {
+  computeLiveElasticity,
+  ELASTICITY_KPIS,
+  type LiveElasticityEntry,
+} from "../../apps/web/lib/corridor/elasticityLive";
+import { referenceCorridorScenario } from "../../apps/web/lib/corridor/scenarioDefaults";
 
 const ROOT = new URL("../../", import.meta.url);
 const OUT_DIR = new URL("data/corridor-sensitivity/", ROOT);
@@ -313,6 +331,89 @@ function exposureBlock(
   };
 }
 
+/** Human label for an id — group label, sweep-param label, or the id itself. */
+const labelOf = (() => {
+  const params = new Map(PARAMS.map((p) => [p.id, p.label]));
+  const groups = new Map(COUPLING_GROUPS.map((g) => [g.id, g.label]));
+  return (id: string): string => groups.get(id) ?? params.get(id) ?? id;
+})();
+
+/**
+ * §29's lead table: the FULL per-input elasticity table on the frozen 500 nm
+ * reference corridor, via the tested live module. Entries are stored in
+ * display order — the ±10% family ranked by |abatement effect|, then the
+ * ±1pp family ranked the same way, then the group members whose solo rows
+ * are explanatory detail and never rank.
+ */
+function referenceCorridorBlock(): Record<string, unknown> {
+  const frozen = parseRefBundle(
+    JSON.parse(
+      readFileSync(new URL("data/corridor-ref/2026-07-30-excel-v1.json", ROOT), "utf8"),
+    ),
+  );
+  const input = migrateScenarioInput(
+    JSON.parse(JSON.stringify(referenceCorridorScenario())),
+  ).input;
+  const result = computeLiveElasticity(input, frozen);
+  if (!result) throw new Error("elasticity: the reference corridor did not resolve");
+
+  const toRow = (e: LiveElasticityEntry) => ({
+    id: e.id,
+    label: labelOf(e.id),
+    kind: e.kind,
+    group: e.group,
+    ...(e.members
+      ? { members: e.members, memberLabels: e.members.map(labelOf) }
+      : {}),
+    detailOnly: e.detailOnly,
+    fraction: e.fraction,
+    perKpi: Object.fromEntries(
+      ELASTICITY_KPIS.map((k) => {
+        const v = e.perKpi[k];
+        return [
+          k,
+          {
+            value: v.value,
+            up: v.up,
+            down: v.down,
+            nonlinear: v.nonlinear,
+            // The number a person reads: the fractional output move under
+            // ONE nudge (+10% relative, or +1pp for rates). ×100 is the "%".
+            effect: v.value * e.fraction,
+          },
+        ];
+      }),
+    ),
+  });
+  const abatementEffect = (e: LiveElasticityEntry): number =>
+    Math.abs(e.perKpi.costPerTonneCo2Usd.value * e.fraction);
+  const ranked = (kind: LiveElasticityEntry["kind"]) =>
+    result.entries
+      .filter((e) => !e.detailOnly && e.kind === kind)
+      .sort((a, b) => abatementEffect(b) - abatementEffect(a));
+
+  return {
+    note:
+      "The frozen 500 nm sweep-baseline corridor (the 'docs baseline' preset) " +
+      "measured by the LIVE elasticity module — the same code path as the " +
+      "in-app 'What moves this corridor' panel. `effect` is value × fraction: " +
+      "the fractional output move under one nudge (+10%, or +1pp for rates). " +
+      "Entries are in §29 display order: ±10% family ranked by |abatement " +
+      "effect|, then the ±1pp family, then unranked group-member detail.",
+    refBundleId: frozen.bundleId,
+    relativeStep: RELATIVE_STEP,
+    absolutePpStep: ABSOLUTE_PP_STEP,
+    base: result.base,
+    entries: [
+      ...ranked("relative").map(toRow),
+      ...ranked("absolutePp").map(toRow),
+      ...result.entries.filter((e) => e.detailOnly).map(toRow),
+    ],
+    skipped: result.skipped.map((s) => ({ ...s, label: labelOf(s.id) })),
+    excluded: result.excluded.map((x) => ({ ...x, label: labelOf(x.id) })),
+  };
+}
+
 function main(): void {
   // A row whose id joins to nothing parses perfectly and is silently excluded
   // from every impact figure — invisible to a build, a typecheck and a lint.
@@ -492,6 +593,7 @@ function main(): void {
         rows,
         groups: groupRows,
         unperturbable,
+        referenceCorridor: referenceCorridorBlock(),
       },
       null,
       1,

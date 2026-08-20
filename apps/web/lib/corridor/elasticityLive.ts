@@ -483,6 +483,13 @@ export interface LiveElasticityEntry {
   members?: string[];
   /** Solo rows that belong to a group and must never rank. */
   detailOnly: boolean;
+  /**
+   * Relative size of ONE nudge — 0.1 for the ±10% family, step/value for the
+   * ±1pp family. `value × fraction` is the fractional move of the output
+   * under one nudge ("the effect of +10%" / "of +1pp"): the number a person
+   * can read, which is what the docs' lead table prints.
+   */
+  fraction: number;
   perKpi: Record<ElasticityKpi, LiveElasticityValue>;
 }
 
@@ -625,6 +632,7 @@ export function computeLiveElasticity(
       kind: p.kind,
       group: false,
       detailOnly: DETAIL_ONLY.has(p.id),
+      fraction: n.up.fraction,
       perKpi: toEntryValues(
         elasticityOf(base, up, n.up.fraction),
         elasticityOf(base, down, -n.down.fraction),
@@ -652,6 +660,7 @@ export function computeLiveElasticity(
       group: true,
       members: [...g.members],
       detailOnly: false,
+      fraction: RELATIVE_STEP,
       perKpi: toEntryValues(
         elasticityOf(base, up, RELATIVE_STEP),
         elasticityOf(base, down, -RELATIVE_STEP),

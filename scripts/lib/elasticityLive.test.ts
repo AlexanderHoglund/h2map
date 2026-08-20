@@ -17,6 +17,7 @@ import {
   emptyScenario,
   referenceCorridorScenario,
 } from "../../apps/web/lib/corridor/scenarioDefaults";
+import { effectPercent } from "../../apps/web/components/docs/format";
 import { ARCHETYPES } from "../corridor/lib/archetypes";
 import { COUPLING_GROUPS, PARAMS, perturbationType } from "../corridor/lib/params";
 
@@ -145,11 +146,13 @@ describe("the loadable preset IS the corridor §29 measured", () => {
   });
 });
 
-describe("the worked example §29 quotes is the measurement", () => {
-  it("pins every number in the docs' reference-corridor elasticity table", () => {
-    // §29's elasticity subsection prints these six rows. If a regeneration
-    // or an engine change moves them, the docs' worked example lies — the
-    // same contract sweepParams.test.ts holds over the endpoint dollars.
+describe("the lead table §29 renders is the measurement", () => {
+  it("pins the elasticities behind §29's headline rows", () => {
+    // §29's lead table is rendered from these measurements (via the
+    // artifact's referenceCorridor block — the drift test below proves the
+    // block IS this measurement). If a regeneration or an engine change
+    // moves them, the docs' figures lie — the same contract
+    // sweepParams.test.ts holds over the endpoint dollars.
     const rows: [string, ElasticityKpi, number][] = [
       ["green.prodCapexUsdM", "gapPvUsdM", 0.33],
       ["green.prodCapexUsdM", "costPerTonneCo2Usd", 0.33],
@@ -166,6 +169,100 @@ describe("the worked example §29 quotes is the measurement", () => {
     ];
     for (const [id, kpi, expected] of rows) {
       expect(val(reference, id, kpi), `${id} ${kpi}`).toBeCloseTo(expected, 2);
+    }
+  });
+
+  it("renders the plan's pinned cells: distance −9.2% abatement / +0.9% gap", () => {
+    // The cell the docs print is effect = value × fraction, formatted as a
+    // signed percent — the "% change a person can read" the plan specifies.
+    const d = entry(reference, "cargo.oneWayDistanceNm")!;
+    expect(effectPercent(d.perKpi.costPerTonneCo2Usd.value * d.fraction)).toBe("−9.2%");
+    expect(effectPercent(d.perKpi.gapPvUsdM.value * d.fraction)).toBe("+0.9%");
+    // The prose's sign-flip example: years modelled, +2.4% gap / −7.6% abatement.
+    const h = entry(reference, "cargo.horizonYears")!;
+    expect(effectPercent(h.perKpi.gapPvUsdM.value * h.fraction)).toBe("+2.4%");
+    expect(effectPercent(h.perKpi.costPerTonneCo2Usd.value * h.fraction)).toBe("−7.6%");
+  });
+});
+
+describe("drift guard — §29's lead table block IS the live measurement", () => {
+  // The docs page renders the artifact's `referenceCorridor` block; this
+  // recomputes the same corridor with the live module and compares. CI's
+  // regenerate-and-diff gate ties the block to the generator; this test ties
+  // it to the module the in-app panel runs, closing the triangle.
+  interface BlockCell {
+    value: number;
+    up: number;
+    down: number;
+    nonlinear: boolean;
+    effect: number;
+  }
+  interface BlockEntry {
+    id: string;
+    label: string;
+    kind: string;
+    group: boolean;
+    detailOnly: boolean;
+    fraction: number;
+    perKpi: Record<string, BlockCell>;
+  }
+  const block = (
+    JSON.parse(
+      readFileSync(`${ROOT}data/corridor-sensitivity/elasticity.json`, "utf8"),
+    ) as {
+      referenceCorridor: {
+        base: Record<string, number>;
+        entries: BlockEntry[];
+        skipped: { id: string }[];
+      };
+    }
+  ).referenceCorridor;
+
+  it("matches every committed cell to 1e-9, and covers every live entry", () => {
+    expect(block.entries.length).toBe(reference.entries.length);
+    for (const row of block.entries) {
+      const e = entry(reference, row.id);
+      expect(e, `${row.id} missing from the live table`).toBeDefined();
+      expect(e!.kind, row.id).toBe(row.kind);
+      expect(e!.detailOnly, row.id).toBe(row.detailOnly);
+      expect(e!.fraction, row.id).toBeCloseTo(row.fraction, 9);
+      for (const kpi of ELASTICITY_KPIS) {
+        const c = row.perKpi[kpi]!;
+        expect(e!.perKpi[kpi].value, `${row.id} ${kpi}`).toBeCloseTo(c.value, 9);
+        expect(e!.perKpi[kpi].nonlinear, `${row.id} ${kpi} flag`).toBe(c.nonlinear);
+        // effect is DERIVED, not separately measured — it must be exactly
+        // value × fraction or the printed percent lies about the elasticity.
+        expect(c.effect, `${row.id} ${kpi} effect`).toBeCloseTo(c.value * row.fraction, 12);
+      }
+    }
+    for (const kpi of ELASTICITY_KPIS) {
+      expect(block.base[kpi], kpi).toBeCloseTo(reference.base[kpi], 9);
+    }
+  });
+
+  it("stores display order: ±10% family ranked by |abatement effect|, then ±1pp, then detail", () => {
+    const rank = { relative: 0, absolutePp: 1, detail: 2 } as const;
+    const families = block.entries.map(
+      (e) => rank[(e.detailOnly ? "detail" : e.kind) as keyof typeof rank],
+    );
+    // Non-decreasing: the three blocks are contiguous, never interleaved.
+    expect(families).toEqual([...families].sort((a, b) => a - b));
+    expect(new Set(families).size).toBe(3);
+    for (const kind of ["relative", "absolutePp"]) {
+      const effects = block.entries
+        .filter((e) => !e.detailOnly && e.kind === kind)
+        .map((e) => Math.abs(e.perKpi.costPerTonneCo2Usd!.effect));
+      expect(effects, kind).toEqual([...effects].sort((a, b) => b - a));
+    }
+  });
+
+  it("reports every not-measurable input rather than dropping it", () => {
+    const present = new Set([
+      ...block.entries.map((e) => e.id),
+      ...block.skipped.map((s) => s.id),
+    ]);
+    for (const p of LIVE_PARAMS) {
+      expect(present.has(p.id), p.id).toBe(true);
     }
   });
 });
