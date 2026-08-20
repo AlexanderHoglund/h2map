@@ -578,7 +578,6 @@ export function computeLiveElasticity(
   bundle: RefBundle,
 ): LiveElasticityResult | null {
   let resolved: ResolvedScenario;
-  let base: KpiVector;
   let evaluations = 0;
 
   const evaluate = (edit?: (s: ScenarioInput) => void): KpiVector | null => {
@@ -600,9 +599,8 @@ export function computeLiveElasticity(
   } catch {
     return null;
   }
-  const baseMaybe = evaluate();
-  if (!baseMaybe) return null;
-  base = baseMaybe;
+  const base = evaluate();
+  if (!base) return null;
 
   const entries: LiveElasticityEntry[] = [];
   const skipped: { id: string; reason: "absent" | "zero" | "error" }[] = [];

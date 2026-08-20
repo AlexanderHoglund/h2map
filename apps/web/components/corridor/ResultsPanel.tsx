@@ -44,6 +44,7 @@ import {
 } from "./results/charts";
 import type { WfStep } from "./results/charts";
 import { warnIfDominated } from "./results/guard";
+import { ElasticitySection } from "./results/elasticity";
 import { ProbabilisticSection } from "./results/probabilistic";
 
 /**
@@ -1003,6 +1004,11 @@ export default function ResultsPanel({
         rest of the tab means, and a distribution rendered alongside it invites
         reading one as a correction of the other.
       */}
+      {/* What moves it most, per equal nudge — the live signed elasticity
+          ranking, in the slot the removed tornado vacated. Above the
+          probabilistic curve: it names WHICH inputs matter, which is the
+          question a reader has before "how wide is the answer". */}
+      <ElasticitySection scenario={result ? scenario : null} />
       <ProbabilisticSection summary={result?.summary ?? null} />
     </div>
   );

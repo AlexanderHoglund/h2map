@@ -277,6 +277,33 @@ describe("drift guard — the live table IS the offline harness, measured", () =
   });
 });
 
+describe("the panel cannot crash on a missing label", () => {
+  it("has an i18n label for every live param, group and excluded id, and every reason", () => {
+    // next-intl THROWS on a missing key from the root layout (see
+    // tornado.test.ts on the shipped incident), so every id the panel can
+    // ever render must carry a label under its slugified name.
+    const messages = JSON.parse(
+      readFileSync(`${ROOT}apps/web/messages/en/corridor.json`, "utf8"),
+    ) as { corridor: { results: Record<string, Record<string, string>> } };
+    const results = messages.corridor.results;
+    const messageKey = (id: string) => id.replace(/\./g, "-");
+    const ids = [
+      ...LIVE_PARAMS.map((p) => p.id),
+      ...LIVE_GROUPS.map((g) => g.id),
+      ...LIVE_EXCLUDED.map((e) => e.id),
+    ];
+    for (const id of ids) {
+      expect(results.elasticityRow?.[messageKey(id)], `elasticityRow.${messageKey(id)}`).toBeDefined();
+    }
+    for (const reason of ["absent", "zero", "error", "excluded"]) {
+      expect(results.elasticityReason?.[reason], `elasticityReason.${reason}`).toBeDefined();
+    }
+    for (const k of ELASTICITY_KPIS) {
+      expect(results.kpi?.[k], `kpi.${k}`).toBeDefined();
+    }
+  });
+});
+
 describe("cost — cheap enough to memoize on scenario change", () => {
   it("stays around two evaluations per measurable input", () => {
     // 51 live params + 3 groups, ×2 nudges, +1 base, minus the skipped ones.
