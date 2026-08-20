@@ -52,9 +52,11 @@ export const TOC_PARTS: readonly TocPart[] = [
     title: "Part B · Building a scenario, tab by tab",
     sections: [
       { id: "tab-intro", label: "5. Tab 01 — Intro" },
+      { id: "tab-vessels", label: "6. Tab 02 — Vessels" },
+      { id: "tab-cargo", label: "7. Tab 03 — Cargo" },
       {
         id: "tab-energy",
-        label: "6. Tab 02 — Energy",
+        label: "8. Tab 04 — Energy",
         children: [
           { id: "energy-sourcing", label: "Sourcing modes" },
           { id: "energy-buildhere", label: "Build-here: site to cost structure" },
@@ -62,8 +64,6 @@ export const TOC_PARTS: readonly TocPart[] = [
           { id: "energy-perfuel", label: "Per-fuel fields" },
         ],
       },
-      { id: "tab-vessels", label: "7. Tab 03 — Vessels" },
-      { id: "tab-cargo", label: "8. Tab 04 — Cargo" },
       { id: "tab-ports", label: "9. Tab 05 — Ports" },
       {
         id: "tab-financing",

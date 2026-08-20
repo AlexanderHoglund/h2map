@@ -74,7 +74,7 @@ test("a zeroed phasing weight lights the field red instead of blanking the form"
   await expect(wacc).toBeVisible();
 
   // The other tabs keep their forms too (they bail out without `resolved`).
-  await page.getByRole("button", { name: "03 Vessels" }).click();
+  await page.getByRole("button", { name: "02 Vessels" }).click();
   await expect(page.getByLabel(/Roundtrips per year/)).toBeVisible();
   await page.getByRole("button", { name: "06 Financing" }).click();
 

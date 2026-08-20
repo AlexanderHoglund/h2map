@@ -49,15 +49,18 @@ const ExplorerWorkspace = dynamic(
 );
 
 /**
- * The MMMCZCS Phase II domain sequence: Energy · Vessels · Cargo · Ports,
- * with Regulation & Funding beneath. Intro fronts the walk (route, ports,
- * timeline, model options). The keys are semantic and PURELY client state —
- * never in a URL or stored anywhere — so they name the domain, not the
- * scenario group a tab happens to render (the Cargo tab shows `cargo.*`
+ * The model's causal sequence: Vessels · Cargo · Energy · Ports, with
+ * Regulation & Funding beneath. Intro fronts the walk (route, ports,
+ * timeline, model options). Vessels comes before Energy because the hull
+ * sets the energy per mile and count × roundtrips sets the total energy —
+ * the fuel tab derives consumption from a vessel already chosen, so no tab
+ * forward-references a later one. The keys are semantic and PURELY client
+ * state — never in a URL or stored anywhere — so they name the domain, not
+ * the scenario group a tab happens to render (the Cargo tab shows `cargo.*`
  * cargo-identity fields, but so does Intro's timeline: storage and
  * presentation are deliberately decoupled).
  */
-const STEPS = ["intro", "energy", "vessels", "cargo", "ports", "financing", "regulation"] as const;
+const STEPS = ["intro", "vessels", "cargo", "energy", "ports", "financing", "regulation"] as const;
 type StepKey = (typeof STEPS)[number];
 /** Tab 00 (projects) sits before the seven input steps; results closes. */
 type View = "projects" | StepKey | "results";
@@ -74,9 +77,9 @@ type View = "projects" | StepKey | "results";
 const TONES: Record<View, string> = {
   projects: "82 81 78",
   intro: "33 113 181", // no domain, brand tone
-  energy: "78 167 46", // Energy
   vessels: "15 158 213", // Vessels
   cargo: "21 96 130", // Cargo
+  energy: "78 167 46", // Energy
   ports: "233 113 50", // Ports
   financing: "160 43 147", // same domain family as Regulation ("Regulation & Funding")
   regulation: "160 43 147", // Regulation & Funding
@@ -98,9 +101,9 @@ type ViewMode = "simplified" | "standard";
 const TONE_TEXT: Record<View, string> = {
   projects: "#52514e",
   intro: "var(--color-brand-strong)",
-  energy: "var(--domain-energy-text)",
   vessels: "var(--domain-vessels-text)",
   cargo: "var(--domain-cargo-text)",
+  energy: "var(--domain-energy-text)",
   ports: "var(--domain-ports-text)",
   financing: "var(--domain-regulation-text)",
   regulation: "var(--domain-regulation-text)",
@@ -260,9 +263,9 @@ export default function CorridorClient() {
   };
   const stepBody: Record<StepKey, React.ReactNode> = {
     intro: <CargoStep {...stepProps} />,
-    energy: <FuelStep {...stepProps} />,
     vessels: <VesselStep {...stepProps} />,
     cargo: <CargoTabStep {...stepProps} />,
+    energy: <FuelStep {...stepProps} />,
     ports: <PortStep {...stepProps} />,
     financing: <FinancingStep {...stepProps} />,
     regulation: <RegulationStep {...stepProps} />,

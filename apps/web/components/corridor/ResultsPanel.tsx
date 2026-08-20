@@ -773,9 +773,52 @@ export default function ResultsPanel({
       {/* ===== Results by tab: one section per input step, equal frames ===== */}
       {resolved && (
         <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {/* 02 Energy */}
+          {/* 02 Vessels */}
           <Card as="section">
-            <SectionLabel className="mb-2">02 · {ts("energy")}</SectionLabel>
+            <SectionLabel className="mb-2">02 · {ts("vessels")}</SectionLabel>
+            <TabTable
+              green={t("sideGreen")}
+              fossil={t("sideFossil")}
+              rows={[
+                [
+                  t("tabFleetCapex"),
+                  resolved.green.vesselCapexUsdM.value,
+                  resolved.fossil.vesselCapexUsdM.value,
+                ],
+                [
+                  t("tabFleetOpex"),
+                  resolved.green.vesselOpexUsdMPerYear.value,
+                  resolved.fossil.vesselOpexUsdMPerYear.value,
+                ],
+              ]}
+            />
+            {/* The INPUT is per-ship (v7) and this card reports the fleet
+                total, so say which is which — the two differing by a factor
+                of the vessel count is exactly the confusion that made the
+                old benchmark mismatch invisible. */}
+            <p className="mt-2 text-xs text-neutral-500">
+              {t("tabPerShipNote", { vessels: resolved.vessels })}
+            </p>
+          </Card>
+
+          {/* 03 Cargo */}
+          <Card as="section">
+            <SectionLabel className="mb-2">03 · {ts("cargo")}</SectionLabel>
+            <dl className="text-xs">
+              <TabRow label={t("tabCargoPerYear")} value={int(resolved.unitsPerYear)} />
+              <TabRow label={t("snapCargoLifetime")} value={formatSig(s.cargoUnitsLifetime)} />
+              <TabRow
+                label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")}
+                value={usd(s.costPerUnitUsd)}
+                sub={`${usd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`}
+              />
+              <TabRow label={t("co2")} value={`${formatSig(s.co2AbatedTonnes)} t`} />
+            </dl>
+          </Card>
+
+          {/* 04 Energy */}
+          <Card as="section">
+            <SectionLabel className="mb-2">04 · {ts("energy")}</SectionLabel>
             <TabTable
               green={t("sideGreen")}
               fossil={t("sideFossil")}
@@ -818,49 +861,6 @@ export default function ResultsPanel({
                 })}
               </Note>
             )}
-          </Card>
-
-          {/* 03 Vessels */}
-          <Card as="section">
-            <SectionLabel className="mb-2">03 · {ts("vessels")}</SectionLabel>
-            <TabTable
-              green={t("sideGreen")}
-              fossil={t("sideFossil")}
-              rows={[
-                [
-                  t("tabFleetCapex"),
-                  resolved.green.vesselCapexUsdM.value,
-                  resolved.fossil.vesselCapexUsdM.value,
-                ],
-                [
-                  t("tabFleetOpex"),
-                  resolved.green.vesselOpexUsdMPerYear.value,
-                  resolved.fossil.vesselOpexUsdMPerYear.value,
-                ],
-              ]}
-            />
-            {/* The INPUT is per-ship (v7) and this card reports the fleet
-                total, so say which is which — the two differing by a factor
-                of the vessel count is exactly the confusion that made the
-                old benchmark mismatch invisible. */}
-            <p className="mt-2 text-xs text-neutral-500">
-              {t("tabPerShipNote", { vessels: resolved.vessels })}
-            </p>
-          </Card>
-
-          {/* 04 Cargo */}
-          <Card as="section">
-            <SectionLabel className="mb-2">04 · {ts("cargo")}</SectionLabel>
-            <dl className="text-xs">
-              <TabRow label={t("tabCargoPerYear")} value={int(resolved.unitsPerYear)} />
-              <TabRow label={t("snapCargoLifetime")} value={formatSig(s.cargoUnitsLifetime)} />
-              <TabRow
-                label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")}
-                value={usd(s.costPerUnitUsd)}
-                sub={`${usd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`}
-              />
-              <TabRow label={t("co2")} value={`${formatSig(s.co2AbatedTonnes)} t`} />
-            </dl>
           </Card>
 
           {/* 05 Ports */}

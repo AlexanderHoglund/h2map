@@ -566,17 +566,124 @@ export default async function DocsPage() {
         <p className="mt-2 text-neutral-600">
           The financial frame — discount rate (WACC), inflation and the rate
           basis — lives on the Financing tab (§10); the cargo identity on the
-          Cargo tab (§8). In an exported scenario file these fields are
+          Cargo tab (§7). In an exported scenario file these fields are
           stored under{" "}
           <code>cargo.*</code>{" "}— the field names inside the file do not
           follow the tab that renders them.
         </p>
 
-        <H id="tab-energy">6. Tab 02 — Energy</H>
+        <H id="tab-vessels">6. Tab 02 — Vessels</H>
+        <p className="mt-2">
+          The ships that serve the corridor — and the tab the rest of the
+          walk builds on: the hull sets the energy per mile, and the vessel
+          count × roundtrips sets the total energy the corridor moves, which
+          is what the Energy tab (§8) turns into fuel. One vessel type is
+          shared by both sides.{" "}
+          <strong>The CAPEX/OPEX cells are PER SHIP</strong>{" "}—
+          enter per-ship costs, and the vessel count multiplies them into
+          the fleet total, along with fuel burn and every regulation term.
+          The benchmark underneath each cell is per-ship too (type CAPEX ×
+          (1 + premium)), so the field and the value offered by
+          &ldquo;restore&rdquo; are always the same dimension. The default
+          scenario costs both fleets as newbuilds: green 10 × $44m = $440m,
+          fossil 10 × $35m = $350m.
+        </p>
+        <Fields
+          rows={[
+            [
+              "Vessel type",
+              "—",
+              "Handymax bulk (58k dwt), default",
+              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. 35 researched classes from Handysize bulk to 174k-m³ LNG carrier (§17). Some retired classes are hidden from the picker but still resolve if a saved scenario names one; they carry older energy figures, so do not use them for new work.",
+            ],
+            [
+              "Number of vessels",
+              "ships",
+              "10 (default)",
+              "Multiplies fuel burn, every regulation term, and the per-ship vessel CAPEX/OPEX into fleet totals.",
+            ],
+            [
+              "Roundtrips per year",
+              "1/yr",
+              "3 (default)",
+              "Multiplies fuel burn: consumption is 2 × corridor length × roundtrips × GJ/nm ÷ the fuel's energy density.",
+            ],
+            [
+              "Service speed",
+              "kn",
+              "the vessel type's own (optional)",
+              "Corrects the vessel's energy for sailing faster or slower than its DESIGN speed, at the SQUARE of the ratio — GJ per day scales with v³, but nm/day scales with v, so GJ per nm scales with v². Leave unset unless speed is a choice you are modelling: several catalogue rows take their energy from a published study, and that figure is already the burn at that study's speeds, so correcting it again double-counts.",
+            ],
+            [
+              "Port days per round trip",
+              "days",
+              "none (optional)",
+              "Fuel burned alongside at zero miles, from the vessel's port and cargo-system day rates. A distance-only formula cannot express this at all, and it is not always small — GMF's cycle is 24 laden + 7 port + 22 ballast days. Every day rate behind it is a sector ESTIMATE, so the Results panel reports the share of round-trip energy it accounts for and warns past ~10%.",
+            ],
+            [
+              "Green vessel CAPEX",
+              "$m",
+              "derived: type CAPEX × (1 + fuel premium)",
+              "Per ship. New-build premium for the green fuel (e-ammonia +25%, LH2 +30%, e-methanol +15%…). Tanker 35k × e-ammonia benchmark: 20 × 1.25 = 25 — a single-hull figure, matching the field.",
+            ],
+            [
+              "Green vessel OPEX",
+              "$m/yr",
+              "type OPEX (1.2)",
+              "Per ship, annual operating cost excl. fuel; inflated.",
+            ],
+            [
+              "Fossil vessel CAPEX",
+              "$m",
+              "benchmark 0 · default 350",
+              "The reference benchmark encodes 'existing baseline fleet' (zero). The Chilean default OVERRIDES it: the study costs a fossil newbuild fleet too.",
+            ],
+            [
+              "Fossil vessel OPEX",
+              "$m/yr",
+              "type OPEX (1.2)",
+              "Same benchmark as green — operating a ship costs the same either way.",
+            ],
+          ]}
+        />
+
+        <H id="tab-cargo">7. Tab 03 — Cargo</H>
+        <p className="mt-2">
+          Deliberately thin: the cargo identity only. The engine counts
+          units — throughput feeds the per-unit figures and lifetime cargo,
+          never fuel burn or vessel counts.
+        </p>
+        <Fields
+          rows={[
+            [
+              "Cargo unit",
+              "tonne | TEU",
+              "by vessel type",
+              "What one cargo unit IS. Defaults to tonne for tankers/bulk/Ro-Ro and TEU for container vessels. Switching writes the weight: TEU sets it to the 10 t benchmark, tonne pins it to 1 (and the weight field hides).",
+            ],
+            [
+              "Weight per unit",
+              "t",
+              "1 (tonne) / 10 (TEU)",
+              "Renders only for TEU; used to derive cost per tonne of cargo. A stored tonne scenario with a different weight still computes with its stored value — nothing is rewritten on load.",
+            ],
+            [
+              "Annual cargo throughput",
+              "units/yr",
+              "1,650,000 (default)",
+              "Only feeds the per-unit figures and lifetime cargo — the sweep measures exactly 0.0% headline movement (§29). Standard view only.",
+            ],
+          ]}
+        />
+
+        <H id="tab-energy">8. Tab 04 — Energy</H>
         <p className="mt-2">
           The heart of the comparison: what each side burns and where it comes
-          from. Both sides carry the same field set; the interesting choice is
-          the green side&apos;s <strong>sourcing</strong>{" "}mode.
+          from. Fuel consumption derives from the vessel already chosen — the
+          class&apos;s energy per mile and the fleet&apos;s count × roundtrips
+          (§6) — so this tab only has to price and characterise the fuel
+          itself. Both sides carry the same field set; the interesting choice
+          is the green side&apos;s <strong>sourcing</strong>{" "}mode.
         </p>
         <H3 id="energy-sourcing">Sourcing modes</H3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
@@ -792,7 +899,7 @@ export default async function DocsPage() {
               "Fuel consumption",
               "t/vessel/yr",
               "default: 5,700 green / 2,638 fossil (study)",
-              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV, with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 2.334 GJ/nm, 9,500 nm × 3) implies 7,152.6 and 3,284.9 — that scenario states its burns as overrides instead, to reproduce the study.",
+              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV — distance from the Intro tab, roundtrips and the vessel class's GJ/nm from the Vessels tab (§6) — with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 2.334 GJ/nm, 9,500 nm × 3) implies 7,152.6 and 3,284.9 — that scenario states its burns as overrides instead, to reproduce the study.",
             ],
             [
               "CO2 emission factor, combustion",
@@ -823,106 +930,6 @@ export default async function DocsPage() {
               "$m/yr",
               "e-ammonia 3 · LSFO 0",
               "Build-plant/build-here modes (under build-here: H2 + synthesis operating + logistics components); inflated; forced to 0 otherwise.",
-            ],
-          ]}
-        />
-
-        <H id="tab-vessels">7. Tab 03 — Vessels</H>
-        <p className="mt-2">
-          The ships that serve the corridor. One vessel type is shared by
-          both sides. <strong>The CAPEX/OPEX cells are PER SHIP</strong>{" "}—
-          enter per-ship costs, and the vessel count multiplies them into
-          the fleet total, along with fuel burn and every regulation term.
-          The benchmark underneath each cell is per-ship too (type CAPEX ×
-          (1 + premium)), so the field and the value offered by
-          &ldquo;restore&rdquo; are always the same dimension. The default
-          scenario costs both fleets as newbuilds: green 10 × $44m = $440m,
-          fossil 10 × $35m = $350m.
-        </p>
-        <Fields
-          rows={[
-            [
-              "Vessel type",
-              "—",
-              "Handymax bulk (58k dwt), default",
-              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. 35 researched classes from Handysize bulk to 174k-m³ LNG carrier (§17). Some retired classes are hidden from the picker but still resolve if a saved scenario names one; they carry older energy figures, so do not use them for new work.",
-            ],
-            [
-              "Number of vessels",
-              "ships",
-              "10 (default)",
-              "Multiplies fuel burn, every regulation term, and the per-ship vessel CAPEX/OPEX into fleet totals.",
-            ],
-            [
-              "Roundtrips per year",
-              "1/yr",
-              "3 (default)",
-              "Multiplies fuel burn: consumption is 2 × corridor length × roundtrips × GJ/nm ÷ the fuel's energy density.",
-            ],
-            [
-              "Service speed",
-              "kn",
-              "the vessel type's own (optional)",
-              "Corrects the vessel's energy for sailing faster or slower than its DESIGN speed, at the SQUARE of the ratio — GJ per day scales with v³, but nm/day scales with v, so GJ per nm scales with v². Leave unset unless speed is a choice you are modelling: several catalogue rows take their energy from a published study, and that figure is already the burn at that study's speeds, so correcting it again double-counts.",
-            ],
-            [
-              "Port days per round trip",
-              "days",
-              "none (optional)",
-              "Fuel burned alongside at zero miles, from the vessel's port and cargo-system day rates. A distance-only formula cannot express this at all, and it is not always small — GMF's cycle is 24 laden + 7 port + 22 ballast days. Every day rate behind it is a sector ESTIMATE, so the Results panel reports the share of round-trip energy it accounts for and warns past ~10%.",
-            ],
-            [
-              "Green vessel CAPEX",
-              "$m",
-              "derived: type CAPEX × (1 + fuel premium)",
-              "Per ship. New-build premium for the green fuel (e-ammonia +25%, LH2 +30%, e-methanol +15%…). Tanker 35k × e-ammonia benchmark: 20 × 1.25 = 25 — a single-hull figure, matching the field.",
-            ],
-            [
-              "Green vessel OPEX",
-              "$m/yr",
-              "type OPEX (1.2)",
-              "Per ship, annual operating cost excl. fuel; inflated.",
-            ],
-            [
-              "Fossil vessel CAPEX",
-              "$m",
-              "benchmark 0 · default 350",
-              "The reference benchmark encodes 'existing baseline fleet' (zero). The Chilean default OVERRIDES it: the study costs a fossil newbuild fleet too.",
-            ],
-            [
-              "Fossil vessel OPEX",
-              "$m/yr",
-              "type OPEX (1.2)",
-              "Same benchmark as green — operating a ship costs the same either way.",
-            ],
-          ]}
-        />
-
-        <H id="tab-cargo">8. Tab 04 — Cargo</H>
-        <p className="mt-2">
-          Deliberately thin: the cargo identity only. The engine counts
-          units — throughput feeds the per-unit figures and lifetime cargo,
-          never fuel burn or vessel counts.
-        </p>
-        <Fields
-          rows={[
-            [
-              "Cargo unit",
-              "tonne | TEU",
-              "by vessel type",
-              "What one cargo unit IS. Defaults to tonne for tankers/bulk/Ro-Ro and TEU for container vessels. Switching writes the weight: TEU sets it to the 10 t benchmark, tonne pins it to 1 (and the weight field hides).",
-            ],
-            [
-              "Weight per unit",
-              "t",
-              "1 (tonne) / 10 (TEU)",
-              "Renders only for TEU; used to derive cost per tonne of cargo. A stored tonne scenario with a different weight still computes with its stored value — nothing is rewritten on load.",
-            ],
-            [
-              "Annual cargo throughput",
-              "units/yr",
-              "1,650,000 (default)",
-              "Only feeds the per-unit figures and lifetime cargo — the sweep measures exactly 0.0% headline movement (§29). Standard view only.",
             ],
           ]}
         />
@@ -1455,18 +1462,18 @@ export default async function DocsPage() {
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>02 Energy</strong>{" "}— fuel use per vessel-year,
-            production CAPEX/O&amp;M, fuel price and WTW intensity for both
-            fuels.
-          </li>
-          <li>
-            <strong>03 Vessels</strong>{" "}— fleet CAPEX and OPEX, green vs
+            <strong>02 Vessels</strong>{" "}— fleet CAPEX and OPEX, green vs
             fossil.
           </li>
           <li>
-            <strong>04 Cargo</strong>{" "}— cargo per year, lifetime cargo,
+            <strong>03 Cargo</strong>{" "}— cargo per year, lifetime cargo,
             cost per unit (pre- and post-regulation), CO2 abated on the
             active basis.
+          </li>
+          <li>
+            <strong>04 Energy</strong>{" "}— fuel use per vessel-year,
+            production CAPEX/O&amp;M, fuel price and WTW intensity for both
+            fuels.
           </li>
           <li>
             <strong>05 Ports</strong>{" "}— storage and barge CAPEX/OPEX per
@@ -3175,7 +3182,7 @@ export default async function DocsPage() {
           <li>
             <strong>D4 — sourcing modes</strong>: green fuel can be
             purchased, built as a dedicated plant, or built at an evaluated
-            map site, rather than the study&apos;s one fixed construct (§6).
+            map site, rather than the study&apos;s one fixed construct (§8).
           </li>
           <li>
             <strong>D5 — 45Z sunset</strong>: the credit can end after 2027
@@ -3190,7 +3197,7 @@ export default async function DocsPage() {
             <strong>D7 — production-country WACC</strong>: a build-here plant
             is financed at the production country&apos;s cost of capital, a
             deliberately separate number from the corridor&apos;s discount
-            rate (§6).
+            rate (§8).
           </li>
         </ul>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">

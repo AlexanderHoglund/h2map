@@ -17,7 +17,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const STEPS = ["Intro", "Energy", "Vessels", "Cargo", "Ports", "Financing", "Regulation"];
+const STEPS = ["Intro", "Vessels", "Cargo", "Energy", "Ports", "Financing", "Regulation"];
 // v6 refined default (the legacy $1,762.21m study calibration is pinned
 // in reporting.test.ts).
 const GAP = "$1,819.48m";
@@ -192,7 +192,9 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     await expectNoSeriousViolations(page, `step ${label}`);
   }
 
-  // Sprint 2.1: the tab bar is the MMMCZCS domain order, exactly.
+  // The tab bar is the model's causal sequence, exactly: the hull sets
+  // energy per mile and count × roundtrips sets total energy, so Vessels
+  // and Cargo precede Energy — no tab forward-references a later one.
   {
     const nav = page.getByRole("navigation").first();
     const labels = (await nav.getByRole("button").allInnerTexts()).map((s) =>
@@ -202,9 +204,9 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     expect(labels).toEqual([
       "00 Projects",
       "01 Intro",
-      "02 Energy",
-      "03 Vessels",
-      "04 Cargo",
+      "02 Vessels",
+      "03 Cargo",
+      "04 Energy",
       "05 Ports",
       "06 Financing",
       "07 Regulation",
@@ -233,7 +235,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
 
   // Sprint 1.3: Fleet OPEX states its fuel-inclusion boundary on BOTH
   // vessel blocks (one label key serves green and fossil).
-  await page.getByRole("button", { name: "03 Vessels" }).click();
+  await page.getByRole("button", { name: "02 Vessels" }).click();
   await expect(page.getByText("Fleet OPEX (excluding fuel)")).toHaveCount(2);
 
   // Sprint 1.7: the year fields are bounded selectors carrying the
@@ -293,7 +295,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await expect(page.getByLabel("Annual cargo throughput")).toHaveCount(0);
 
   // Cargo tab: unit + throughput; weight per unit exists only for TEU.
-  await page.getByRole("button", { name: "04 Cargo" }).click();
+  await page.getByRole("button", { name: "03 Cargo" }).click();
   await expect(page.getByLabel("Cargo unit", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Annual cargo throughput")).toBeVisible();
   await expect(page.getByLabel("Weight per unit")).toHaveCount(0); // tonne default
@@ -323,7 +325,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   // A live-model probe: under v3 the green side (build-plant) has NO
   // merchant price row — probe the production CAPEX the mode is built on
   // (the fossil price now lives in the Advanced fold, rank #19).
-  await page.getByRole("button", { name: "02 Energy" }).click();
+  await page.getByRole("button", { name: "04 Energy" }).click();
   const prodCapex = page.getByLabel("Fuel production CAPEX (year 1)").first();
   await prodCapex.fill("2000");
   await expect(page.getByText(GAP)).toHaveCount(0);
@@ -409,7 +411,7 @@ test("the Standard upgrade is one-way and output-neutral", async ({ page }) => {
   expect(draftAfter).not.toContain("simple");
 
   // The full field set is open now (fossil fuel price renders in Standard).
-  await page.getByRole("button", { name: "02 Energy" }).click();
+  await page.getByRole("button", { name: "04 Energy" }).click();
   await expect(page.getByLabel("Fuel price")).toHaveCount(2); // both sides, purchase
   // Reloading keeps the upgraded level (persisted; locally at minimum).
   await page.reload();
@@ -433,7 +435,7 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
 
   // Break it: build-here without a site → Energy red, Results blocked, and
   // the Results message names the tab and links to it.
-  await page.getByRole("button", { name: "02 Energy" }).click();
+  await page.getByRole("button", { name: "04 Energy" }).click();
   await page.getByLabel("Fuel sourcing").first().selectOption("build-here");
   await expect(nav.getByRole("img", { name: /Energy: blocks results/ })).toBeVisible();
   await expect(page.getByText("$1,762.21m")).toHaveCount(0);
@@ -443,7 +445,7 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   await expect(fix).toBeVisible();
   await fix.click();
   // Landing on the red tab focuses the offending control.
-  await expect(page.getByRole("button", { name: "02 Energy" })).toHaveAttribute(
+  await expect(page.getByRole("button", { name: "04 Energy" })).toHaveAttribute(
     "aria-current",
     "step",
   );
@@ -633,7 +635,7 @@ test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", asy
   await page.getByRole("button", { name: "Continue editing" }).click();
   // The weight field hides for tonnes, but the stored value must survive:
   // no load-time rewrite, even after the debounced autosave runs.
-  await page.getByRole("button", { name: "04 Cargo" }).click();
+  await page.getByRole("button", { name: "03 Cargo" }).click();
   await expect(page.getByLabel("Weight per unit")).toHaveCount(0);
   await page.waitForTimeout(1200); // let the autosave cycle write back
   const stored = await page.evaluate(() => {
@@ -744,7 +746,7 @@ test("Simplified shows only essential inputs, defaults carry the rest", async ({
   // Energy: NO sourcing selector (purchase is the only Simplified mode);
   // fuel-property constants and every fossil numeric hidden; the green
   // purchase price + consumption stay.
-  await page.getByRole("button", { name: "02 Energy" }).click();
+  await page.getByRole("button", { name: "04 Energy" }).click();
   await expect(page.getByLabel("Fuel sourcing")).toHaveCount(0);
   await expect(page.getByLabel("Energy density, LHV")).toHaveCount(0);
   // Exact label: the certified-pathway field's help text mentions
@@ -757,7 +759,7 @@ test("Simplified shows only essential inputs, defaults carry the rest", async ({
   await expect(page.getByLabel("Fuel production CAPEX (year 1)")).toHaveCount(0);
 
   // Vessels: fossil fleet pair runs on benchmarks behind the strip.
-  await page.getByRole("button", { name: "03 Vessels" }).click();
+  await page.getByRole("button", { name: "02 Vessels" }).click();
   await expect(page.getByLabel("Fleet CAPEX (year 1)")).toHaveCount(1);
 
   // Regulation: ONLY the self-designed scheme renders — one switch, and the
