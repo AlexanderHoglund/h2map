@@ -442,7 +442,7 @@ export default async function DocsPage() {
           <strong>The table above is the study-calibration variant — the
           study&apos;s own emission accounting, reproduced exactly.</strong>{" "}
           The current default scenario derives its factors from the emission
-          method (§15–§30) instead, and the two variants therefore differ
+          method (§14–§16) instead, and the two variants therefore differ
           deliberately: the current default computes a post-regulation gap
           of{" "}
           <strong>$1,819.48m</strong>{" "}where the study-calibration variant
@@ -1064,7 +1064,7 @@ export default async function DocsPage() {
           row and 94.90 under the IMO&apos;s 0.10–0.50%-sulphur band
           (MEPC.391(81)), and each framework fixes its own GWP set (AR4 vs
           AR5). Green fuels derive as certified pathway WtT + N2O slip +
-          pilot blend from the fuel-emissions dataset (§15–§30). Two rules
+          pilot blend from the fuel-emissions dataset (§14–§16). Two rules
           keep it honest: the FuelEU and IMO <em>compliance modules</em>{" "}
           each price with their OWN framework regardless of this selection
           (the selector moves the reported intensities, abatement and the
