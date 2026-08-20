@@ -1757,9 +1757,8 @@ export default async function DocsPage() {
         <H3 id="ref-vessels">Vessel types</H3>
         <p className="mt-2">
           The catalogue behind the vessel selector, rendered from the
-          reference bundle itself (<code>{vesselCatalogue.bundleId}</code>{" "}—
-          a bundle is a dated, versioned set of reference data),
-          so it cannot go stale when the data changes.{" "}
+          reference bundle itself — a dated, versioned set of reference
+          data — so it cannot go stale when the data changes.{" "}
           <strong>CAPEX and OPEX are PER SHIP</strong>; the
           engine multiplies both by the vessel count. GJ/nm is a
           <em>service-speed</em>{" "}figure and means little without the speed
@@ -1939,7 +1938,7 @@ export default async function DocsPage() {
           Each location gets an 8760-hour <strong>capacity-factor</strong>{" "}
           profile (kWh generated per kW installed, per hour, 0–1) for solar and
           wind, built as a Typical Meteorological Year (TMY) from roughly a
-          decade of data and cached per 0.1° grid cell.
+          decade of data and stored per 0.1° grid cell.
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
@@ -2298,11 +2297,9 @@ export default async function DocsPage() {
           <strong>Sweep persistence.</strong>{" "}The best-achievable and
           risk-adjusted-WACC layers arrive slightly later than the base
           layers: a freshly added cell shows the base layers immediately and
-          gains the optional layers once the scheduled recompute pass reaches
-          it. At the last census 4,544 of 5,993 ready
-          cells carried them; the remainder are cells seeded since the last
-          pass, which the scheduled job fills as it re-fetches. Measured on that
-          population, the fixed 2:1 design point costs a median 2.5 % against
+          gains the optional layers once they have been computed for it.
+          Measured on the cells that carry
+          them, the fixed 2:1 design point costs a median 2.5 % against
           free sizing, and it favours <em>solar</em>: solar-led cells gain a
           mean 2.63 % from sweeping the ratio, wind-led cells 4.21 %, because
           flat wind saturates the electrolyser at a lower ratio (mean optimum
@@ -2316,8 +2313,8 @@ export default async function DocsPage() {
           The <strong>resource is held constant</strong>{" "}— same capacity factors
           — so the change is purely the techno-economic cost-down. Absolute
           values, with the multiplier on the 2024 base in brackets. This table
-          is <strong>generated from the engine&apos;s own cost packs</strong>,
-          not transcribed. <em>Driver</em>{" "}is the cost input that changes;
+          reads <strong>the engine&apos;s own cost packs</strong>,
+          not a transcription. <em>Driver</em>{" "}is the cost input that changes;
           ×N is the multiplier against the 2024 base.
         </p>
         <div className="mt-2 overflow-x-auto">
@@ -2462,12 +2459,11 @@ export default async function DocsPage() {
           nominal survey rates are converted at the boundary.
         </p>
         <p className="mt-2">
-          <strong>Curated always beats the automated refresh.</strong>{" "}The
-          ingest runs every three hours; on an enriched country it writes only
-          the fields the profile leaves empty and never touches its
-          citations. The heuristic WACC keeps refreshing underneath a
-          researched one so the comparison stays visible — the table shows
-          both.
+          <strong>Curated always beats the automated refresh.</strong>{" "}On
+          an enriched country the refresh writes only the fields the profile
+          leaves empty and never touches its citations. The heuristic WACC
+          keeps updating underneath a researched one so the comparison stays
+          visible — the table shows both.
         </p>
         <p className="mt-2">
           <strong>Which field reaches which surface.</strong>{" "}The three
@@ -2556,10 +2552,9 @@ export default async function DocsPage() {
         </p>
         <CountryDefaultsTable snapshot={countryDefaults} />
         <p className="mt-2 text-neutral-600">
-          The table renders a committed snapshot of the live values
-          (<code>data/country-defaults/snapshot.json</code>) — so the
-          published values are dated and traceable rather than depending on a
-          live query.
+          The table renders a dated snapshot of the live values, so the
+          published figures are traceable rather than depending on a live
+          query.
         </p>
         <p className="mt-2">
           <strong>Known divergence.</strong>{" "}The Green Corridor model keeps
@@ -2784,8 +2779,8 @@ export default async function DocsPage() {
         </p>
 
         <p className="mt-2">
-          The three reference corridors, drawn from the committed artifact.
-          The bars measure the{" "}
+          The three reference corridors, drawn from the same measured
+          results. The bars measure the{" "}
           <strong>cost gap</strong>{" "}&mdash; unlike the ranking table above,
           which defaults to the abatement cost, a tornado is drawn for one
           output at a time, and the gap in dollars is the one a bar chart can
@@ -2832,10 +2827,10 @@ export default async function DocsPage() {
           over.
         </p>
         <p className="mt-2">
-          The band is <strong>reproducible</strong>: the random seed is fixed
-          and the results are version-controlled, so an engine change that
-          moves the band is always a deliberate, recorded change. Only the
-          summary is stored; the draws are reproducible from the fixed seed.
+          The band is <strong>reproducible</strong>: the random seed is
+          fixed and the summary is stored with the model, so an engine
+          change that moves the band is always a deliberate, visible change;
+          the draws themselves are reproducible from the fixed seed.
         </p>
 
 
@@ -3285,9 +3280,8 @@ export default async function DocsPage() {
           </table>
         </div>
         <p className="mt-2 text-neutral-600">
-          The reference dataset (
-          <code>data/fuel-emissions-ref/2026-08-17-ets-carbon-4.json</code>) carries
-          these citations row by row — every factor in the calculator&apos;s
+          The reference dataset — a dated reference bundle — carries these
+          citations row by row: every factor in the calculator&apos;s
           decomposition table surfaces its own source and derivation in a
           tooltip, and rows pending primary-source verification render with
           the unverified badge.
@@ -3317,8 +3311,8 @@ export default async function DocsPage() {
             Langley Research Center) fallback.
           </li>
           <li>
-            <strong>Renewable CAPEX:</strong>{" "}IRENA, Renewable Power Generation
-            Costs 2023.
+            <strong>Renewable CAPEX:</strong>{" "}IRENA, Renewable Power
+            Generation Costs in 2024.
           </li>
           <li>
             <strong>Cost projections:</strong>{" "}IEA, Global Hydrogen Review 2025
@@ -3356,16 +3350,14 @@ export default async function DocsPage() {
             Writing a scenario file by hand?
           </p>
           <p className="mt-1 text-[13px] leading-snug text-neutral-700">
-            For desk research and AI-assisted data entry there is a generated{" "}
-            <strong>JSON input template</strong>{" "}at{" "}
-            <code>docs/corridor/input-template.md</code>. It carries the complete
-            object to copy, the legal id values for every field the importer
-            will reject you for, the unit and bound of every number, a{" "}
-            <em>what you must not do</em>{" "}table, and the minimum set of
-            decisions that yields a meaningful scenario. It is generated from
-            this same schema and reference bundle, and the published template
-            always imports and computes — it cannot
-            drift from the model it describes.
+            Start from the app&apos;s own <strong>Export</strong>{" "}button
+            (§13): it downloads the complete scenario form — every field
+            present, in a fixed order, unset fields an explicit{" "}
+            <code>null</code>{" "}— which makes it the reliable template for
+            desk research and AI-assisted data entry. Edit the file and
+            bring it back with <strong>Import</strong>; the table below
+            lists every field&apos;s path, type, unit context and whether it
+            is required.
           </p>
           <p className="mt-2 text-[13px] leading-snug text-neutral-700">
             The three rules that cause the most silent damage:{" "}
@@ -3381,9 +3373,9 @@ export default async function DocsPage() {
           </p>
         </div>
         <p className="mt-2">
-          Every field a scenario can carry. The table is generated from the
+          Every field a scenario can carry. The table comes from the
           model itself — the same definitions that validate an imported file,
-          joined to the measurements in §29 — and rebuilt on every change, so
+          joined to the measurements in §29 — so
           it cannot fall out of step with the model it describes. In the
           table, <strong>#</strong>{" "}is the row number,{" "}
           <strong>Field</strong>{" "}is the dot-path the field uses in a
@@ -3529,12 +3521,6 @@ export default async function DocsPage() {
             factor), surplus, distance.
           </li>
         </ul>
-        <p className="mt-2 text-neutral-600">
-          This table and its markdown twin{" "}
-          <code>docs/corridor/field-reference.md</code>{" "}are written by the
-          same generator from the same artifacts, so the two cannot drift
-          apart from the model.
-        </p>
         <H id="m-constants">39. Constants &amp; reference defaults</H>
         <div className="mt-2 grid gap-4 sm:grid-cols-2">
           <div>
