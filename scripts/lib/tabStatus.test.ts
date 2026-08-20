@@ -68,7 +68,16 @@ describe("blue is the honest starting state", () => {
 });
 
 describe("a warning is never masked by a visit", () => {
-  it("keeps financing amber after visiting when WACC runs on an unverified benchmark", () => {
+  it("keeps energy amber after visiting while parity diverges, then clears to green", () => {
+    const diverged = fakeModel({ result: { energyParity: { diverged: true } } });
+    expect(tabStatuses(diverged, new Set(["energy"])).energy.state).toBe("amber");
+    // Resolved warning on a visited tab returns to green, not blue.
+    expect(tabStatuses(fakeModel(), new Set(["energy"])).energy.state).toBe("green");
+  });
+
+  it("keeps unverified benchmarks OFF the tab: field badges carry provenance", () => {
+    // An unverified country row in use is a data-quality fact about the
+    // reference table, not a fault in the user's input — no triangle.
     const m = fakeModel({
       scenario: {
         cargo: { countryId: "other", oneWayDistanceNm: 9500 },
@@ -77,25 +86,7 @@ describe("a warning is never masked by a visit", () => {
         fossil: { fuelId: "lsfo" },
       },
     });
-    const unvisited = tabStatuses(m, NONE);
-    expect(unvisited.financing.state).toBe("amber");
-    expect(unvisited.financing.targetFieldId).toBe("cargo.wacc");
-    const visited = tabStatuses(m, new Set(["financing"]));
-    expect(visited.financing.state).toBe("amber");
-    expect(visited.financing.reasonKeys).toContain("waccUnverified");
-  });
-
-  it("clears to green (not blue) once the warning is resolved on a visited tab", () => {
-    const m = fakeModel({
-      resolved: {
-        wacc: { source: "override" },
-        green: {
-          vesselCapexUsdMPerShip: { source: "derived" },
-          priceUsdPerTonne: { source: "benchmark" },
-        },
-        fossil: { priceUsdPerTonne: { source: "benchmark" } },
-      },
-    });
+    expect(tabStatuses(m, NONE).financing.state).toBe("blue");
     expect(tabStatuses(m, new Set(["financing"])).financing.state).toBe("green");
   });
 
@@ -149,17 +140,12 @@ describe("red attribution", () => {
 
   it("red beats amber, which beats visited-green", () => {
     const m = fakeModel({
-      error: "capitalPhasing.green.weights must sum to 1 (got 1.1)",
-      scenario: {
-        cargo: { countryId: "other", oneWayDistanceNm: 9500 },
-        vessel: { typeId: "tanker-35k" },
-        green: { fuelId: "e-ammonia" },
-        fossil: { fuelId: "lsfo" },
-      },
+      error: 'vessel type "x" not found',
+      result: { energyParity: { diverged: false }, portEnergy: { material: true } },
     });
-    // financing carries BOTH the unverified-WACC amber and the phasing red:
-    // red must win, visited or not.
-    const s = tabStatuses(m, new Set(["financing"]));
-    expect(s.financing.state).toBe("red");
+    // vessels carries BOTH the port-share amber and the vessel red: red
+    // must win, visited or not.
+    const s = tabStatuses(m, new Set(["vessels"]));
+    expect(s.vessels.state).toBe("red");
   });
 });

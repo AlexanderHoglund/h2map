@@ -401,9 +401,11 @@ export default async function DocsPage() {
             <strong>Status marks</strong>{" "}— every tab carries one of four
             marks: <strong>○</strong>{" "}not yet reviewed (you have not
             opened and left this tab for this project),{" "}
-            <strong>▲</strong>{" "}worth checking (an unverified reference
-            value in use, or one of the model&apos;s own cautions — a warning
-            is never hidden by moving on), <strong>✕</strong>{" "}a fault that
+            <strong>▲</strong>{" "}worth checking (one of the model&apos;s own
+            cautions, such as the two sides no longer delivering the same
+            energy — a warning is never hidden by moving on; unverified
+            reference values are flagged on the field itself, not on the
+            tab), <strong>✕</strong>{" "}a fault that
             blocks results, and <strong>✓</strong>{" "}reviewed with nothing
             flagged. Hovering the mark says why; landing on a flagged tab
             focuses the offending control. Reviewed marks are remembered per

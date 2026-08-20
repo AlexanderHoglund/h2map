@@ -12,11 +12,13 @@ import type { CorridorModel } from "./state";
  *           attributed to this tab (`model.error` via the ordered matchers).
  *  - amber: worth checking, visited or not — and it is NEVER masked by a
  *           visit: a tab with a live warning stays amber after "Next".
- *           Sources: high-impact fields running on UNVERIFIED reference
- *           benchmarks (the WACC country table, unverified vessel or fuel
- *           rows), plus the model's own advisory signals promoted to tab
- *           level (delivered-energy parity divergence, material port-energy
- *           share, routed-vs-typed distance divergence).
+ *           Sources are the model's own advisory signals only (delivered-
+ *           energy parity divergence, material port-energy share, routed-
+ *           vs-typed distance divergence). Data-quality provenance —
+ *           unverified benchmarks — stays on the FIELD's badge and never
+ *           reaches the tab: a triangle for "the reference row is
+ *           unverified" read as a problem with the user's input, which it
+ *           is not.
  *  - green: reviewed and nothing flagged. Green is a claim the user made
  *           (they moved on) combined with a claim the model makes (no
  *           warning) — never a default.
@@ -62,52 +64,11 @@ const WARNINGS: readonly {
   when: (model: CorridorModel) => boolean;
 }[] = [
   {
-    // The unverified country-WACC table, actually in use (no override).
-    tab: "financing",
-    reasonKey: "waccUnverified",
-    targetFieldId: "cargo.wacc",
-    when: (m) => {
-      if (!m.resolved) return false;
-      const country =
-        m.bundle.countries.find((c) => c.id === m.scenario.cargo.countryId) ??
-        m.bundle.countries.find((c) => c.id === "other");
-      return m.resolved.wacc.source === "benchmark" && country?.verified === false;
-    },
-  },
-  {
-    // An unverified vessel row supplying the fleet costs, no override.
-    tab: "vessels",
-    reasonKey: "vesselUnverified",
-    when: (m) => {
-      if (!m.resolved) return false;
-      const row = m.bundle.vesselTypes.find((v) => v.id === m.scenario.vessel.typeId);
-      return (
-        row?.verified === false &&
-        m.resolved.green.vesselCapexUsdMPerShip.source !== "override"
-      );
-    },
-  },
-  {
     // Port days account for a material share (>10%) of round-trip energy —
     // and every day rate behind that share is an estimate.
     tab: "vessels",
     reasonKey: "portShare",
     when: (m) => m.result?.portEnergy?.material === true,
-  },
-  {
-    // An unverified fuel row supplying a purchase price, no override.
-    tab: "energy",
-    reasonKey: "fuelUnverified",
-    when: (m) => {
-      if (!m.resolved) return false;
-      return (["green", "fossil"] as const).some((side) => {
-        const row = m.bundle.fuels.find((f) => f.id === m.scenario[side].fuelId);
-        return (
-          row?.verified === false &&
-          m.resolved![side].priceUsdPerTonne.source === "benchmark"
-        );
-      });
-    },
   },
   {
     // The two sides no longer deliver the same energy (one-sided burn

@@ -562,10 +562,7 @@
       "priceZero": "no merchant price under build sourcing - production cost is CAPEX + O&M"
     },
     "tabStatusReason": {
-      "waccUnverified": "the discount rate runs on an unverified country benchmark",
-      "vesselUnverified": "the vessel costs run on an unverified reference row",
       "portShare": "port days account for a material share of round-trip energy, on estimated day rates",
-      "fuelUnverified": "a fuel price runs on an unverified reference row",
       "energyParity": "the two sides no longer deliver the same energy — check the fuel burn overrides",
       "routedDivergence": "the typed distance disagrees with the routed shipping-lane distance by more than 15%"
     }
