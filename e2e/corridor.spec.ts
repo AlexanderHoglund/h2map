@@ -17,7 +17,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const STEPS = ["Intro", "Vessels", "Cargo", "Energy", "Ports", "Financing", "Regulation"];
+const STEPS = ["Intro", "Cargo", "Vessels", "Energy", "Ports", "Financing", "Regulation"];
 // v6 refined default (the legacy $1,762.21m study calibration is pinned
 // in reporting.test.ts).
 const GAP = "$1,819.48m";
@@ -192,9 +192,11 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     await expectNoSeriousViolations(page, `step ${label}`);
   }
 
-  // The tab bar is the model's causal sequence, exactly: the hull sets
-  // energy per mile and count × roundtrips sets total energy, so Vessels
-  // and Cargo precede Energy — no tab forward-references a later one.
+  // The tab bar is the model's causal sequence, exactly: the task before
+  // the fleet, the fleet before the fuel — Cargo names the work, the hull
+  // sets energy per mile and count × roundtrips sets total energy, so
+  // Cargo and Vessels precede Energy — no tab forward-references a later
+  // one.
   {
     const nav = page.getByRole("navigation").first();
     const labels = (await nav.getByRole("button").allInnerTexts()).map((s) =>
@@ -204,8 +206,8 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     expect(labels).toEqual([
       "00 Projects",
       "01 Intro",
-      "02 Vessels",
-      "03 Cargo",
+      "02 Cargo",
+      "03 Vessels",
       "04 Energy",
       "05 Ports",
       "06 Financing",
@@ -235,7 +237,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
 
   // Sprint 1.3: Fleet OPEX states its fuel-inclusion boundary on BOTH
   // vessel blocks (one label key serves green and fossil).
-  await page.getByRole("button", { name: "02 Vessels" }).click();
+  await page.getByRole("button", { name: "03 Vessels" }).click();
   await expect(page.getByText("Fleet OPEX (excluding fuel)")).toHaveCount(2);
 
   // Sprint 1.7: the year fields are bounded selectors carrying the
@@ -295,7 +297,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await expect(page.getByLabel("Annual cargo throughput")).toHaveCount(0);
 
   // Cargo tab: unit + throughput; weight per unit exists only for TEU.
-  await page.getByRole("button", { name: "03 Cargo" }).click();
+  await page.getByRole("button", { name: "02 Cargo" }).click();
   await expect(page.getByLabel("Cargo unit", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Annual cargo throughput")).toBeVisible();
   await expect(page.getByLabel("Weight per unit")).toHaveCount(0); // tonne default
@@ -635,7 +637,7 @@ test("a stored tonne scenario with weight ≠ 1 is never rewritten on load", asy
   await page.getByRole("button", { name: "Continue editing" }).click();
   // The weight field hides for tonnes, but the stored value must survive:
   // no load-time rewrite, even after the debounced autosave runs.
-  await page.getByRole("button", { name: "03 Cargo" }).click();
+  await page.getByRole("button", { name: "02 Cargo" }).click();
   await expect(page.getByLabel("Weight per unit")).toHaveCount(0);
   await page.waitForTimeout(1200); // let the autosave cycle write back
   const stored = await page.evaluate(() => {
@@ -759,7 +761,7 @@ test("Simplified shows only essential inputs, defaults carry the rest", async ({
   await expect(page.getByLabel("Fuel production CAPEX (year 1)")).toHaveCount(0);
 
   // Vessels: fossil fleet pair runs on benchmarks behind the strip.
-  await page.getByRole("button", { name: "02 Vessels" }).click();
+  await page.getByRole("button", { name: "03 Vessels" }).click();
   await expect(page.getByLabel("Fleet CAPEX (year 1)")).toHaveCount(1);
 
   // Regulation: ONLY the self-designed scheme renders — one switch, and the

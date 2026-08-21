@@ -52,8 +52,8 @@ export const TOC_PARTS: readonly TocPart[] = [
     title: "Part B · Building a scenario, tab by tab",
     sections: [
       { id: "tab-intro", label: "5. Tab 01 — Intro" },
-      { id: "tab-vessels", label: "6. Tab 02 — Vessels" },
-      { id: "tab-cargo", label: "7. Tab 03 — Cargo" },
+      { id: "tab-cargo", label: "6. Tab 02 — Cargo" },
+      { id: "tab-vessels", label: "7. Tab 03 — Vessels" },
       {
         id: "tab-energy",
         label: "8. Tab 04 — Energy",

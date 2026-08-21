@@ -34,7 +34,7 @@ export interface TabStatus {
 }
 
 export type InputTab =
-  | "intro" | "vessels" | "cargo" | "energy" | "ports" | "financing" | "regulation";
+  | "intro" | "cargo" | "vessels" | "energy" | "ports" | "financing" | "regulation";
 export type TabKey = InputTab | "projects" | "results";
 
 /** Ordered error→tab attribution; the first match wins. Every resolve/
@@ -95,7 +95,7 @@ const WARNINGS: readonly {
 ];
 
 const ALL_TABS: readonly TabKey[] = [
-  "projects", "intro", "vessels", "cargo", "energy", "ports",
+  "projects", "intro", "cargo", "vessels", "energy", "ports",
   "financing", "regulation", "results",
 ];
 
@@ -140,7 +140,7 @@ export function firstBlockedTab(
   statuses: ReturnType<typeof tabStatuses>,
 ): InputTab | null {
   const tabs: InputTab[] = [
-    "intro", "vessels", "cargo", "energy", "ports", "financing", "regulation",
+    "intro", "cargo", "vessels", "energy", "ports", "financing", "regulation",
   ];
   return tabs.find((k) => statuses[k].state === "red") ?? null;
 }

@@ -566,19 +566,47 @@ export default async function DocsPage() {
         <p className="mt-2 text-neutral-600">
           The financial frame — discount rate (WACC), inflation and the rate
           basis — lives on the Financing tab (§10); the cargo identity on the
-          Cargo tab (§7). In an exported scenario file these fields are
+          Cargo tab (§6). In an exported scenario file these fields are
           stored under{" "}
           <code>cargo.*</code>{" "}— the field names inside the file do not
           follow the tab that renders them.
         </p>
 
-        <H id="tab-vessels">6. Tab 02 — Vessels</H>
+        <H id="tab-cargo">6. Tab 02 — Cargo</H>
         <p className="mt-2">
-          The ships that serve the corridor — and the tab the rest of the
-          walk builds on: the hull sets the energy per mile, and the vessel
-          count × roundtrips sets the total energy the corridor moves, which
-          is what the Energy tab (§8) turns into fuel. One vessel type is
-          shared by both sides.{" "}
+          Deliberately thin: the cargo identity only. The engine counts
+          units — throughput feeds the per-unit figures and lifetime cargo,
+          never fuel burn or vessel counts.
+        </p>
+        <Fields
+          rows={[
+            [
+              "Cargo unit",
+              "tonne | TEU",
+              "by vessel type",
+              "What one cargo unit IS. Defaults to tonne for tankers/bulk/Ro-Ro and TEU for container vessels. Switching writes the weight: TEU sets it to the 10 t benchmark, tonne pins it to 1 (and the weight field hides).",
+            ],
+            [
+              "Weight per unit",
+              "t",
+              "1 (tonne) / 10 (TEU)",
+              "Renders only for TEU; used to derive cost per tonne of cargo. A stored tonne scenario with a different weight still computes with its stored value — nothing is rewritten on load.",
+            ],
+            [
+              "Annual cargo throughput",
+              "units/yr",
+              "1,650,000 (default)",
+              "Only feeds the per-unit figures and lifetime cargo — the sweep measures exactly 0.0% headline movement (§29). Standard view only.",
+            ],
+          ]}
+        />
+
+        <H id="tab-vessels">7. Tab 03 — Vessels</H>
+        <p className="mt-2">
+          The ships that serve the cargo task: the hull sets the energy per
+          mile, and the vessel count × roundtrips sets the total energy the
+          corridor moves, which is what the Energy tab (§8) turns into fuel.
+          One vessel type is shared by both sides.{" "}
           <strong>The CAPEX/OPEX cells are PER SHIP</strong>{" "}—
           enter per-ship costs, and the vessel count multiplies them into
           the fleet total, along with fuel burn and every regulation term.
@@ -647,41 +675,12 @@ export default async function DocsPage() {
           ]}
         />
 
-        <H id="tab-cargo">7. Tab 03 — Cargo</H>
-        <p className="mt-2">
-          Deliberately thin: the cargo identity only. The engine counts
-          units — throughput feeds the per-unit figures and lifetime cargo,
-          never fuel burn or vessel counts.
-        </p>
-        <Fields
-          rows={[
-            [
-              "Cargo unit",
-              "tonne | TEU",
-              "by vessel type",
-              "What one cargo unit IS. Defaults to tonne for tankers/bulk/Ro-Ro and TEU for container vessels. Switching writes the weight: TEU sets it to the 10 t benchmark, tonne pins it to 1 (and the weight field hides).",
-            ],
-            [
-              "Weight per unit",
-              "t",
-              "1 (tonne) / 10 (TEU)",
-              "Renders only for TEU; used to derive cost per tonne of cargo. A stored tonne scenario with a different weight still computes with its stored value — nothing is rewritten on load.",
-            ],
-            [
-              "Annual cargo throughput",
-              "units/yr",
-              "1,650,000 (default)",
-              "Only feeds the per-unit figures and lifetime cargo — the sweep measures exactly 0.0% headline movement (§29). Standard view only.",
-            ],
-          ]}
-        />
-
         <H id="tab-energy">8. Tab 04 — Energy</H>
         <p className="mt-2">
           The heart of the comparison: what each side burns and where it comes
           from. Fuel consumption derives from the vessel already chosen — the
           class&apos;s energy per mile and the fleet&apos;s count × roundtrips
-          (§6) — so this tab only has to price and characterise the fuel
+          (§7) — so this tab only has to price and characterise the fuel
           itself. Both sides carry the same field set; the interesting choice
           is the green side&apos;s <strong>sourcing</strong>{" "}mode.
         </p>
@@ -899,7 +898,7 @@ export default async function DocsPage() {
               "Fuel consumption",
               "t/vessel/yr",
               "default: 5,700 green / 2,638 fossil (study)",
-              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV — distance from the Intro tab, roundtrips and the vessel class's GJ/nm from the Vessels tab (§6) — with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 2.334 GJ/nm, 9,500 nm × 3) implies 7,152.6 and 3,284.9 — that scenario states its burns as overrides instead, to reproduce the study.",
+              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV — distance from the Intro tab, roundtrips and the vessel class's GJ/nm from the Vessels tab (§7) — with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 2.334 GJ/nm, 9,500 nm × 3) implies 7,152.6 and 3,284.9 — that scenario states its burns as overrides instead, to reproduce the study.",
             ],
             [
               "CO2 emission factor, combustion",
@@ -1462,13 +1461,13 @@ export default async function DocsPage() {
         </p>
         <ul className="mt-2 list-disc space-y-1.5 pl-5">
           <li>
-            <strong>02 Vessels</strong>{" "}— fleet CAPEX and OPEX, green vs
-            fossil.
-          </li>
-          <li>
-            <strong>03 Cargo</strong>{" "}— cargo per year, lifetime cargo,
+            <strong>02 Cargo</strong>{" "}— cargo per year, lifetime cargo,
             cost per unit (pre- and post-regulation), CO2 abated on the
             active basis.
+          </li>
+          <li>
+            <strong>03 Vessels</strong>{" "}— fleet CAPEX and OPEX, green vs
+            fossil.
           </li>
           <li>
             <strong>04 Energy</strong>{" "}— fuel use per vessel-year,
