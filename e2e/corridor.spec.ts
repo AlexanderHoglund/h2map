@@ -483,6 +483,12 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(9);
 });
 
+// ADOPTION-ONLY has one carve-out (see RoutedDistanceField's docblock): a
+// route derived from country anchors ALONE — no typed coordinates — writes
+// its routed distance automatically, covered by the country-level spec
+// below. This test drives the Chilean example, whose coordinates are
+// typed, so the stricter contract pinned here is unchanged: nothing but
+// the "use this" click may move the value.
 test("routed distance follows override > derived(routed), adoption-only", async ({ page }) => {
   await openExample(page);
   const results = page.getByRole("complementary");
@@ -547,6 +553,99 @@ test("routed distance follows override > derived(routed), adoption-only", async 
   await expect(page.getByText("routed: 9,146 nm")).toBeVisible({ timeout: 20000 });
   await expect(page.getByText(/Typed distance differs/)).toHaveCount(0);
   await expect(results.getByText(GAP)).toBeVisible();
+});
+
+test("country-level route: two countries draw the line and fill the distance", async ({ page }) => {
+  // The country-anchor feature end-to-end, in SIMPLIFIED mode deliberately
+  // (the anchors must work in both modes; Standard is covered everywhere
+  // else). A fresh project has no coordinates and generic countries — the
+  // map is a placeholder. Picking Chile and Japan alone must draw the
+  // routed corridor from their port-area anchors and AUTO-FILL the routed
+  // distance (the carve-out: both ends anchor-derived, distance still the
+  // starter default) — then each typed input takes its precedence back.
+  await page.goto("/corridor");
+  await page.getByRole("button", { name: /Start|Resume draft/ }).click();
+  await page.getByRole("button", { name: "New project" }).click();
+  await page.getByPlaceholder("My corridor").fill("Country route corridor");
+  await page.getByRole("radio", { name: "Simplified" }).check();
+  await page.getByRole("button", { name: "Create", exact: true }).click();
+  await expect(page.getByRole("button", { name: "01 Intro" })).toHaveAttribute(
+    "aria-current",
+    "step",
+    { timeout: 15000 },
+  );
+
+  // No coordinates, no known countries: the placeholder invites either.
+  await expect(page.getByText(/Pick a country for each end/)).toBeVisible();
+
+  // Two countries, nothing else. The corridor draws from the anchors,
+  // both ends labelled "<Country> (country)", captions marking the
+  // country-level port areas — and the distance fills in as DERIVED with
+  // its provenance sidecar (Chile → Japan anchors route 9,555 nm across
+  // the Pacific; the anchor test pins the same figure on the graph).
+  await page.getByLabel("Country (port A)").selectOption("chile");
+  await page.getByLabel("Country (port B)").selectOption("japan");
+  const map = page.getByRole("img", { name: "Corridor route map" });
+  await expect(map).toBeVisible();
+  await expect(page.getByText(/indicative route/)).toBeVisible({ timeout: 20000 });
+  await expect(map.getByText("Chile (country)")).toBeVisible();
+  await expect(map.getByText("Japan (country)")).toBeVisible();
+  await expect(page.getByText(/Country-level port area in use/)).toHaveCount(2);
+  const distance = page.getByLabel("Corridor length, one-way");
+  await expect(distance).toHaveValue("9,555");
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const raw = localStorage.getItem("corridor-draft-v3");
+        if (!raw) return null;
+        const draft = JSON.parse(raw) as {
+          cargo: { oneWayDistanceNm: number; routedDistance?: { nm: number } };
+        };
+        return `${draft.cargo.oneWayDistanceNm}|${draft.cargo.routedDistance?.nm ?? ""}`;
+      }),
+      { timeout: 10000 },
+    )
+    .toBe("9555|9555");
+
+  // A typed distance wins: the auto-fill stands down (the value is no
+  // longer un-overridden), the sidecar clears, and the routed figure
+  // reverts to an offered benchmark — adoption-gated, exactly as on a
+  // typed-coordinate corridor.
+  await distance.fill("8000");
+  await expect(page.getByText("routed: 9,555 nm")).toBeVisible();
+  await expect(page.getByRole("button", { name: "use this" })).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const raw = localStorage.getItem("corridor-draft-v3");
+        if (!raw) return null;
+        const draft = JSON.parse(raw) as {
+          cargo: { oneWayDistanceNm: number; routedDistance?: unknown };
+        };
+        return `${draft.cargo.oneWayDistanceNm}|${draft.cargo.routedDistance === undefined}`;
+      }),
+      { timeout: 10000 },
+    )
+    .toBe("8000|true");
+
+  // Typed coordinates overwrite the anchor: pin port B on Rotterdam and
+  // the route re-derives from the typed point (via Panama, 7,564 nm from
+  // the Chilean anchor), while port B's country-level caption disappears.
+  await page.getByLabel("Port B latitude").fill("51.9");
+  await page.getByLabel("Port B longitude").fill("4.47");
+  await expect(page.getByText("routed: 7,564 nm")).toBeVisible({ timeout: 20000 });
+  await expect(page.getByText(/Country-level port area in use/)).toHaveCount(1);
+  await expect(distance).toHaveValue("8000"); // still the user's figure
+
+  // Clean up the created project so reruns stay deterministic.
+  await page.getByRole("button", { name: "00 Projects" }).click();
+  const created = page.getByRole("row", { name: /Country route corridor/ }).first();
+  await created.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(created.getByText("Delete permanently?")).toBeVisible();
+  await created.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(page.getByRole("row", { name: /Country route corridor/ })).toHaveCount(0, {
+    timeout: 15000,
+  });
 });
 
 test("provenance badges answer where a number comes from", async ({ page }) => {
