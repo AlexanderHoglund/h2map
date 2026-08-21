@@ -27,7 +27,7 @@ import React, { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ScenarioInput } from "@h2map/corridor-schema";
 import { Card } from "@/components/ui/Card";
-import { Note, SectionLabel } from "@/components/ui/Stat";
+import { SectionLabel } from "@/components/ui/Stat";
 import {
   computeLiveElasticity,
   rankedEntries,
