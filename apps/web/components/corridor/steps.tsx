@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { FUEL_EMISSIONS_DATASET, type ScenarioInput } from "@h2map/corridor-schema";
 import { NumberInput } from "@/components/ui/NumberInput";
@@ -17,7 +16,7 @@ import { useSeaRoute } from "./useSeaRoute";
 import BuildHerePanel from "./BuildHerePanel";
 import { CORRIDOR_COUNTRIES } from "@/lib/corridor-countries";
 import { anchorForCountry } from "@/lib/corridor/countryAnchors";
-import { defaultScenario, emptyScenario, isAdvanced, type CorridorModel } from "./state";
+import { defaultScenario, isAdvanced, type CorridorModel } from "./state";
 
 /**
  * The five wizard steps of the corridor model (build-plan 3.1).
@@ -112,17 +111,6 @@ const CARGO_DEFAULTS = defaultScenario().cargo;
 const REG_DEFAULTS = defaultScenario().regulation;
 /** Model-option defaults (emissions/rate basis) for the Intro strip count. */
 const FLAGS_DEFAULTS = defaultScenario().flags;
-/**
- * Distances a scenario can carry WITHOUT the user having typed them: the
- * two scenario-builder defaults (the Chilean example's 9,500 nm and the
- * empty starter's 5,000 nm). The country-route auto-fill may overwrite
- * exactly these — or its own previous routed figure — and nothing else;
- * a user-typed distance is never clobbered.
- */
-const UNTYPED_DISTANCES = new Set([
-  CARGO_DEFAULTS.oneWayDistanceNm,
-  emptyScenario().cargo.oneWayDistanceNm,
-]);
 
 /** The (0,0) unset sentinel the coordinate inputs write for absent values
  *  (see CorridorRouteMap) — only OTHER coordinates count as typed. */
@@ -158,37 +146,12 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
   const anchorAInUse = !typedA && anchorA !== undefined;
   const anchorBInUse = !typedB && anchorB !== undefined;
 
+  // The routed figure from an anchor-derived pair enters exactly like any
+  // other: as the DERIVED benchmark beside the distance field, adopted
+  // only by the user's "use this" click. Country anchors change where the
+  // route STARTS, never who writes the distance (adoption-only contract,
+  // RoutedDistanceField's docblock).
   const route = useSeaRoute(effectiveA, twoPorts ? effectiveB : undefined);
-
-  // AUTO-FILL CARVE-OUT (the adoption contract's one exception — see the
-  // RoutedDistanceField docblock): when BOTH ends are anchor-derived the
-  // routed distance is the scenario's only meaningful figure, so it is
-  // written automatically — but only over an un-overridden distance (the
-  // previous routed figure, or a scenario-builder default). The moment the
-  // user types a distance or a coordinate, this effect stands down and the
-  // adoption-gated flow owns the field again.
-  const bothAnchorDerived = twoPorts && anchorAInUse && anchorBInUse;
-  const currentNm = scenario.cargo.oneWayDistanceNm;
-  const sidecarNm = scenario.cargo.routedDistance?.nm;
-  const routed = route.status === "ok" && route.data ? route.data : undefined;
-  const routedNm = routed ? Math.round(routed.nm) : undefined;
-  const autoFillNm =
-    bothAnchorDerived &&
-    routed !== undefined &&
-    routedNm !== undefined &&
-    routedNm !== currentNm &&
-    (sidecarNm === currentNm || UNTYPED_DISTANCES.has(currentNm))
-      ? routedNm
-      : undefined;
-  const graphVersion = routed?.graphVersion;
-  const via = routed?.via ?? null;
-  useEffect(() => {
-    if (autoFillNm === undefined || graphVersion === undefined) return;
-    update((d) => {
-      d.cargo.oneWayDistanceNm = autoFillNm;
-      d.cargo.routedDistance = { nm: autoFillNm, graphVersion, via };
-    });
-  }, [autoFillNm, graphVersion, via, update]);
 
   const fields = splitByManifest([
     {

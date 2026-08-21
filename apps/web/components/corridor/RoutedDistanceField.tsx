@@ -17,18 +17,10 @@ import type { SeaRouteState } from "./useSeaRoute";
  * changes, and it is user-initiated"); the test wins. The field shows
  * DERIVED exactly when the stored value equals the current routed figure —
  * so it reverts to override if coordinates later move the route, and no
- * stored scenario is ever rewritten.
- *
- * THE COUNTRY-ROUTE CARVE-OUT (the contract's one exception, owned by
- * CargoStep, not this field): when BOTH corridor ends are country-anchor
- * derived — no typed coordinates anywhere — the routed figure IS the
- * scenario's only meaningful distance, and CargoStep writes it (plus the
- * routedDistance sidecar) automatically on route resolution. Even then it
- * only ever overwrites an un-overridden value: the previous routed figure
- * or a scenario-builder default. A user-typed distance is never clobbered,
- * and the moment any coordinate is typed the adoption-gated flow above is
- * the only writer again. Auto-filled values satisfy the DERIVED equality,
- * so the badge needs no extra state to read correctly.
+ * stored scenario is ever rewritten. The contract is UNIFORM: routes
+ * derived from country-level anchors (CargoStep's effective coordinates)
+ * surface their routed figure through this same benchmark row — the
+ * "use this" click is the only writer there too.
  */
 export default function RoutedDistanceField({
   label,

@@ -511,10 +511,11 @@ export default async function DocsPage() {
           Standard alike: each country carries a representative port-area
           anchor (landlocked countries anchor to the nearest reasonable
           coast), the sea route draws from anchor to anchor, and the routed
-          distance fills in automatically, marked derived. Precedence is
-          strict — typed coordinates overwrite the country anchor, and a
-          typed distance overrides the auto-filled one; the anchor itself is
-          a display-time fallback, never written into the scenario. In every
+          distance appears beside the distance field as a derived benchmark.
+          Precedence is strict — typed coordinates overwrite the country
+          anchor, while the distance always stays your typed figure until
+          you adopt the routed one with an explicit click; the anchor itself
+          is a display-time fallback, never written into the scenario. In every
           field table below, <em>Benchmark / default</em>{" "}is the value the
           model uses until you override it; <em>What it does</em>{" "}explains
           the effect on the result.
@@ -549,7 +550,7 @@ export default async function DocsPage() {
               "Corridor length, one-way",
               "nm",
               "9,500 (default)",
-              "One-way distance; drives fuel consumption (×2 per roundtrip) — among the strongest inputs in the model (§29). With both ports pinned, the model also computes an INDICATIVE sea route on the maritime network (canal transits labelled Panama/Suez) and shows it as a derived benchmark: adoption is an explicit click — automatic only for a country-anchored route with no typed coordinates and no typed distance, the one case where the routed figure is the only meaningful one — and a typed distance diverging >15% from the routed figure gets an amber note.",
+              "One-way distance; drives fuel consumption (×2 per roundtrip) — among the strongest inputs in the model (§29). With both ports pinned (typed coordinates or country anchors), the model also computes an INDICATIVE sea route on the maritime network (canal transits labelled Panama/Suez) and shows it as a derived benchmark: adoption is an explicit click, never automatic, and a typed distance diverging >15% from the routed figure gets an amber note.",
             ],
             [
               "Model start year",
