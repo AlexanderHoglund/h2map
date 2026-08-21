@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { FUEL_EMISSIONS_DATASET, type ScenarioInput } from "@h2map/corridor-schema";
 import { NumberInput } from "@/components/ui/NumberInput";
@@ -15,7 +16,8 @@ import RoutedDistanceField from "./RoutedDistanceField";
 import { useSeaRoute } from "./useSeaRoute";
 import BuildHerePanel from "./BuildHerePanel";
 import { CORRIDOR_COUNTRIES } from "@/lib/corridor-countries";
-import { defaultScenario, isAdvanced, type CorridorModel } from "./state";
+import { anchorForCountry } from "@/lib/corridor/countryAnchors";
+import { defaultScenario, emptyScenario, isAdvanced, type CorridorModel } from "./state";
 
 /**
  * The five wizard steps of the corridor model (build-plan 3.1).
@@ -110,6 +112,30 @@ const CARGO_DEFAULTS = defaultScenario().cargo;
 const REG_DEFAULTS = defaultScenario().regulation;
 /** Model-option defaults (emissions/rate basis) for the Intro strip count. */
 const FLAGS_DEFAULTS = defaultScenario().flags;
+/**
+ * Distances a scenario can carry WITHOUT the user having typed them: the
+ * two scenario-builder defaults (the Chilean example's 9,500 nm and the
+ * empty starter's 5,000 nm). The country-route auto-fill may overwrite
+ * exactly these — or its own previous routed figure — and nothing else;
+ * a user-typed distance is never clobbered.
+ */
+const UNTYPED_DISTANCES = new Set([
+  CARGO_DEFAULTS.oneWayDistanceNm,
+  emptyScenario().cargo.oneWayDistanceNm,
+]);
+
+/** The (0,0) unset sentinel the coordinate inputs write for absent values
+ *  (see CorridorRouteMap) — only OTHER coordinates count as typed. */
+function typedCoords(
+  c: { lat: number; lon: number } | undefined,
+): { lat: number; lon: number } | undefined {
+  return c && (c.lat !== 0 || c.lon !== 0) ? c : undefined;
+}
+
+/** Map label for an anchor-derived corridor end: the country's name. */
+function countryName(id: string | undefined): string | undefined {
+  return CORRIDOR_COUNTRIES.find((c) => c.value === id)?.label;
+}
 
 export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
   const t = useTranslations("corridor.cargo");
@@ -118,10 +144,51 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
   const { scenario, update } = model;
 
   const twoPorts = scenario.cargo.routeType === "point-to-point";
-  const route = useSeaRoute(
-    scenario.cargo.portACoords,
-    twoPorts ? scenario.cargo.portBCoords : undefined,
-  );
+
+  // Country-level routing (render-time fallback, never stored): each end's
+  // effective position is the typed coordinates when they exist, else the
+  // country's port-area anchor — so picking two countries is enough to see
+  // the corridor, and typing lat/lon overwrites the anchor automatically.
+  const typedA = typedCoords(scenario.cargo.portACoords);
+  const typedB = typedCoords(scenario.cargo.portBCoords);
+  const anchorA = anchorForCountry(scenario.cargo.countryId);
+  const anchorB = anchorForCountry(scenario.cargo.countryBId ?? scenario.cargo.countryId);
+  const effectiveA = typedA ?? anchorA;
+  const effectiveB = typedB ?? anchorB;
+  const anchorAInUse = !typedA && anchorA !== undefined;
+  const anchorBInUse = !typedB && anchorB !== undefined;
+
+  const route = useSeaRoute(effectiveA, twoPorts ? effectiveB : undefined);
+
+  // AUTO-FILL CARVE-OUT (the adoption contract's one exception — see the
+  // RoutedDistanceField docblock): when BOTH ends are anchor-derived the
+  // routed distance is the scenario's only meaningful figure, so it is
+  // written automatically — but only over an un-overridden distance (the
+  // previous routed figure, or a scenario-builder default). The moment the
+  // user types a distance or a coordinate, this effect stands down and the
+  // adoption-gated flow owns the field again.
+  const bothAnchorDerived = twoPorts && anchorAInUse && anchorBInUse;
+  const currentNm = scenario.cargo.oneWayDistanceNm;
+  const sidecarNm = scenario.cargo.routedDistance?.nm;
+  const routed = route.status === "ok" && route.data ? route.data : undefined;
+  const routedNm = routed ? Math.round(routed.nm) : undefined;
+  const autoFillNm =
+    bothAnchorDerived &&
+    routed !== undefined &&
+    routedNm !== undefined &&
+    routedNm !== currentNm &&
+    (sidecarNm === currentNm || UNTYPED_DISTANCES.has(currentNm))
+      ? routedNm
+      : undefined;
+  const graphVersion = routed?.graphVersion;
+  const via = routed?.via ?? null;
+  useEffect(() => {
+    if (autoFillNm === undefined || graphVersion === undefined) return;
+    update((d) => {
+      d.cargo.oneWayDistanceNm = autoFillNm;
+      d.cargo.routedDistance = { nm: autoFillNm, graphVersion, via };
+    });
+  }, [autoFillNm, graphVersion, via, update]);
 
   const fields = splitByManifest([
     {
@@ -248,6 +315,11 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
               options={CORRIDOR_COUNTRIES}
               onChange={(v) => update((d) => void (d.cargo.countryId = v))}
             />
+            {anchorAInUse && (
+              <p className="text-[11px] leading-snug text-neutral-500">
+                {t("countryAnchorCaption")}
+              </p>
+            )}
             <TextInput
               label={twoPorts ? t("portA") : t("singlePort")}
               help={t("portNameHelp")}
@@ -301,6 +373,11 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
                 options={CORRIDOR_COUNTRIES}
                 onChange={(v) => update((d) => void (d.cargo.countryBId = v))}
               />
+              {anchorBInUse && (
+                <p className="text-[11px] leading-snug text-neutral-500">
+                  {t("countryAnchorCaption")}
+                </p>
+              )}
               <TextInput
                 label={t("portB")}
                 help={t("portNameHelp")}
@@ -346,11 +423,34 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
         </div>
         {/* The corridor as the ship actually sails it (slide 3's reserved
             block): routed over the maritime network, canal transits marked,
-            degrading to a great-circle schematic when routing cannot. */}
+            degrading to a great-circle schematic when routing cannot.
+            Anchor-derived ends draw at the country's port-area anchor and
+            label as "<Country> (country)" until a port name or typed
+            coordinates pin a real port. */}
         <CorridorRouteMap
           routeType={scenario.cargo.routeType}
-          portA={{ name: scenario.cargo.portAName, coords: scenario.cargo.portACoords }}
-          portB={{ name: scenario.cargo.portBName, coords: scenario.cargo.portBCoords }}
+          portA={{
+            name:
+              scenario.cargo.portAName ??
+              (anchorAInUse
+                ? t("countryAnchorMapLabel", {
+                    country: countryName(scenario.cargo.countryId) ?? "",
+                  })
+                : undefined),
+            coords: effectiveA,
+          }}
+          portB={{
+            name:
+              scenario.cargo.portBName ??
+              (anchorBInUse
+                ? t("countryAnchorMapLabel", {
+                    country:
+                      countryName(scenario.cargo.countryBId ?? scenario.cargo.countryId) ??
+                      "",
+                  })
+                : undefined),
+            coords: effectiveB,
+          }}
           route={route}
           typedDistanceNm={scenario.cargo.oneWayDistanceNm}
           site={

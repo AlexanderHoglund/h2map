@@ -506,10 +506,18 @@ export default async function DocsPage() {
           Defines the trade lane: route, countries, ports and the model
           horizon. Each end of the corridor is its own boxed group — country
           first (the constraining choice), then the port name and the
-          coordinates that drive the map and the sea routing. In every field
-          table below, <em>Benchmark / default</em>{" "}is the value the model
-          uses until you override it; <em>What it does</em>{" "}explains the
-          effect on the result.
+          coordinates that drive the map and the sea routing. Picking the two
+          countries is already enough to see the corridor, in Simplified and
+          Standard alike: each country carries a representative port-area
+          anchor (landlocked countries anchor to the nearest reasonable
+          coast), the sea route draws from anchor to anchor, and the routed
+          distance fills in automatically, marked derived. Precedence is
+          strict — typed coordinates overwrite the country anchor, and a
+          typed distance overrides the auto-filled one; the anchor itself is
+          a display-time fallback, never written into the scenario. In every
+          field table below, <em>Benchmark / default</em>{" "}is the value the
+          model uses until you override it; <em>What it does</em>{" "}explains
+          the effect on the result.
         </p>
         <Fields
           rows={[
@@ -535,13 +543,13 @@ export default async function DocsPage() {
               "Port coordinates (lat/lon, both ends)",
               "°",
               "−23.10/−70.45 → 35.45/139.65",
-              "Drive the route map, the sea-routed distance benchmark below, and the plant→port logistics leg of a build-here site. Clearing them simply removes the route drawing — the cost model still works from the typed distance.",
+              "Drive the route map, the sea-routed distance benchmark below, and the plant→port logistics leg of a build-here site. Typed values overwrite the country's port-area anchor; cleared, the end falls back to that anchor, so the route drawing stays.",
             ],
             [
               "Corridor length, one-way",
               "nm",
               "9,500 (default)",
-              "One-way distance; drives fuel consumption (×2 per roundtrip) — among the strongest inputs in the model (§29). With both ports pinned, the model also computes an INDICATIVE sea route on the maritime network (canal transits labelled Panama/Suez) and shows it as a derived benchmark: adoption is an explicit click, never automatic, and a typed distance diverging >15% from the routed figure gets an amber note.",
+              "One-way distance; drives fuel consumption (×2 per roundtrip) — among the strongest inputs in the model (§29). With both ports pinned, the model also computes an INDICATIVE sea route on the maritime network (canal transits labelled Panama/Suez) and shows it as a derived benchmark: adoption is an explicit click — automatic only for a country-anchored route with no typed coordinates and no typed distance, the one case where the routed figure is the only meaningful one — and a typed distance diverging >15% from the routed figure gets an amber note.",
             ],
             [
               "Model start year",
