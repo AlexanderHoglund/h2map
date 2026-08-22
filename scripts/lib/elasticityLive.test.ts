@@ -32,17 +32,20 @@ import { COUPLING_GROUPS, PARAMS, perturbationType } from "../corridor/lib/param
  * ("reference corridor").
  *
  * ONE DELIBERATE DEVIATION from the plan's quoted figures: the plan expected
- * the user corridor's distance→abatement elasticity at −0.34. That figure is
- * the one-sided UP estimate; the plan's own definition (the signed central
- * difference, (f(1.1x)−f(0.9x))/0.2) measures −0.372 here, and its own
- * identity test (E_abatement = E_gap − E_tonnes = 0.632 − 1.000 ≈ −0.37)
- * forces the same value — −0.34 and the identity cannot both hold. The
- * central value is pinned; the one-sided −0.335/−0.409 pair is what the
- * nonlinearity flag exists to disclose.
+ * the user corridor's distance→abatement elasticity as a one-sided UP
+ * estimate; the plan's own definition (the signed central difference,
+ * (f(1.1x)−f(0.9x))/0.2) and its identity test
+ * (E_abatement = E_gap − E_tonnes = 0.593 − 1.000 ≈ −0.41) force the
+ * central value, which is what is pinned. The one-sided −0.370/−0.453 pair
+ * is what the nonlinearity flag exists to disclose.
+ *
+ * MEASURED PINS, re-measured 2026-08-21 after the verified inflation
+ * default moved 0.02 → 0.023 (bundle verified-v5): distance→abatement
+ * −0.411 (was −0.372), WACC→abatement −0.341, distance→gap +0.593.
  */
 
 const bundleCurrent = parseRefBundle(
-  JSON.parse(readFileSync(`${ROOT}data/corridor-ref/2026-08-18-fuel-v4.json`, "utf8")),
+  JSON.parse(readFileSync(`${ROOT}data/corridor-ref/2026-08-21-cruise-v6.json`, "utf8")),
 );
 const bundleFrozen = parseRefBundle(
   JSON.parse(readFileSync(`${ROOT}data/corridor-ref/2026-07-30-excel-v1.json`, "utf8")),
@@ -81,11 +84,11 @@ describe("acceptance 1 — the user corridor ranks distance above WACC on abatem
     expect(res.intermediates.fossilFuelTonnesPerVesselYear).toBeCloseTo(5763.0, 1);
   });
 
-  it("measures distance −0.372 and WACC −0.284 on the abatement cost", () => {
-    // Central differences (see the header on why −0.372, not the plan's
+  it("measures distance −0.411 and WACC −0.341 on the abatement cost", () => {
+    // Central differences (see the header on why −0.411, not the plan's
     // one-sided −0.34). Signed: both FALL as the input rises.
-    expect(val(user, "cargo.oneWayDistanceNm", "costPerTonneCo2Usd")).toBeCloseTo(-0.372, 2);
-    expect(val(user, "cargo.wacc", "costPerTonneCo2Usd")).toBeCloseTo(-0.284, 2);
+    expect(val(user, "cargo.oneWayDistanceNm", "costPerTonneCo2Usd")).toBeCloseTo(-0.411, 2);
+    expect(val(user, "cargo.wacc", "costPerTonneCo2Usd")).toBeCloseTo(-0.341, 2);
   });
 
   it("ranks distance above WACC", () => {
@@ -98,18 +101,18 @@ describe("acceptance 1 — the user corridor ranks distance above WACC on abatem
   });
 
   it("flags the distance→abatement curvature instead of averaging it away", () => {
-    // Up −0.335 vs down −0.409: the tonnes denominator makes 1/x curvature,
+    // Up −0.370 vs down −0.453: the tonnes denominator makes 1/x curvature,
     // and a single number cannot carry that honestly.
     const d = entry(user, "cargo.oneWayDistanceNm")!.perKpi.costPerTonneCo2Usd;
     expect(d.nonlinear).toBe(true);
-    expect(d.up).toBeCloseTo(-0.335, 2);
-    expect(d.down).toBeCloseTo(-0.409, 2);
+    expect(d.up).toBeCloseTo(-0.370, 2);
+    expect(d.down).toBeCloseTo(-0.453, 2);
   });
 });
 
 describe("acceptance 2 — the sign flips across output tabs and is preserved", () => {
-  it("measures distance +0.632 on the gap of the same scenario", () => {
-    expect(val(user, "cargo.oneWayDistanceNm", "gapPvUsdM")).toBeCloseTo(0.632, 2);
+  it("measures distance +0.593 on the gap of the same scenario", () => {
+    expect(val(user, "cargo.oneWayDistanceNm", "gapPvUsdM")).toBeCloseTo(0.593, 2);
   });
 
   it("renders opposite signs for the same input on different tabs", () => {

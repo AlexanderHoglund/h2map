@@ -8,19 +8,19 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 |---|---|---|---|---|---|---|---|---|---|---|
 | `schemaVersion` | = 7 | yes | — | — | — | — | — | — | not swept | — |
 | `refBundleId` | string | yes | — | — | — | — | — | — | not swept | — |
-| `cargo.countryId` | string | yes | #17 | 11.4% | 36.0% | `fossilTotalPvUsdM` | — | — | choice — impact from options | — |
+| `cargo.countryId` | string | yes | #18 | 6.2% | 22.2% | `fossilTotalPvUsdM` | — | — | choice — impact from options | — |
 | `cargo.routeType` | "point-to-point", "single-point" | yes | — | — | — | — | — | — | not swept | — |
-| `cargo.oneWayDistanceNm` | number | yes | #6 | 76.6% | 900.0% | `co2AbatedTonnes` | −0.27 … +0.29 | `energy-demand` | measured | top-level |
-| `cargo.startYear` | integer | yes | #46 | 4.9% | 24.6% | `fossilTotalPvUsdM` | −2.71 … 0.00 | — | measured | — |
-| `cargo.horizonYears` | integer | yes | #21 | 18.7% | 100.0% | `co2AbatedTonnes` | +0.16 … +0.40 | — | measured | top-level |
+| `cargo.oneWayDistanceNm` | number | yes | #6 | 76.6% | 900.0% | `co2AbatedTonnes` | −0.27 … +0.31 | `energy-demand` | measured | top-level |
+| `cargo.startYear` | integer | yes | #46 | 4.9% | 24.6% | `fossilTotalPvUsdM` | −2.63 … 0.00 | — | measured | — |
+| `cargo.horizonYears` | integer | yes | #26 | 18.7% | 100.0% | `co2AbatedTonnes` | +0.17 … +0.44 | — | measured | top-level |
 | `cargo.unitsPerYear` | number | yes | #70 | 0.0% | 100.0% | `costPerUnitUsd` | 0.00 | — | measured | top-level |
-| `cargo.inflation` | number | yes | #31 | 14.0% | 21.7% | `fossilTotalPvUsdM` | +0.04 … +0.21 | — | measured | top-level |
-| `cargo.vessels` | integer | yes | #3 | 93.8% | 400.0% | `fossilTotalPvUsdM` | −0.19 … +0.65 | — | measured | top-level |
-| `cargo.roundtripsPerYear` | number | yes | #41 | 8.5% | 100.0% | `co2AbatedTonnes` | 0.00 … +0.48 | `energy-demand` | measured | top-level |
+| `cargo.inflation` | number | yes | #31 | 14.0% | 21.7% | `fossilTotalPvUsdM` | +0.05 … +0.24 | — | measured | top-level |
+| `cargo.vessels` | integer | yes | #3 | 93.8% | 400.0% | `fossilTotalPvUsdM` | −0.19 … +0.67 | — | measured | top-level |
+| `cargo.roundtripsPerYear` | number | yes | #41 | 8.5% | 100.0% | `co2AbatedTonnes` | 0.00 … +0.51 | `energy-demand` | measured | top-level |
 | `cargo.serviceSpeedKn` | number | no | — | — | — | — | — | — | not swept | — |
 | `cargo.portDaysPerRoundTrip` | number | no | — | — | — | — | — | — | not swept | — |
-| `cargo.waccOverride` | number, null | yes | #30 | 14.6% | 38.0% | `fossilTotalPvUsdM` | −0.23 … −0.11 | — | measured | top-level |
-| `cargo.unit` | "tonne", "teu" | no | #28 | 0.0% | 0.0% | `gapPvUsdM` | — | — | choice — impact from options | — |
+| `cargo.waccOverride` | number, null | yes | #30 | 14.6% | 38.0% | `fossilTotalPvUsdM` | −0.25 … −0.11 | — | measured | top-level |
+| `cargo.unit` | "tonne", "teu", "passenger" | no | #23 | 0.0% | 0.0% | `gapPvUsdM` | — | — | choice — impact from options | — |
 | `cargo.unitWeightTonnes` | number | no | #72 | 0.0% | 0.0% | `gapPvUsdM` | 0.00 | — | measured | — |
 | `cargo.portAName` | string | no | — | — | — | — | — | — | not swept | — |
 | `cargo.portACoords.lat` | number | yes | — | — | — | — | — | — | not swept | — |
@@ -32,21 +32,21 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `cargo.routedDistance.nm` | number | yes | — | — | — | — | — | — | not swept | — |
 | `cargo.routedDistance.graphVersion` | string | yes | — | — | — | — | — | — | not swept | — |
 | `cargo.routedDistance.via` | string, null | yes | — | — | — | — | — | — | not swept | — |
-| `vessel.typeId` | string | yes | #2 | 446.2% | 446.9% | `co2AbatedTonnes` | — | — | choice — impact from options | — |
-| `vessel.green.capexUsdMPerShip` | number, null | yes | #9 | 56.7% | 56.7% | `gapPvUsdM` | +0.05 … +0.79 | `fleet-capital` | measured | top-level |
+| `vessel.typeId` | string | yes | #2 | 426.5% | 446.9% | `co2AbatedTonnes` | — | — | choice — impact from options | — |
+| `vessel.green.capexUsdMPerShip` | number, null | yes | #9 | 56.7% | 56.7% | `gapPvUsdM` | +0.05 … +0.76 | `fleet-capital` | measured | top-level |
 | `vessel.green.opexUsdMPerShipPerYear` | number, null | yes | #10 | 42.4% | 42.4% | `costPerTonneCo2Usd` | +0.04 … +0.59 | `vessel-opex` | measured | top-level |
-| `vessel.fossil.capexUsdMPerShip` | number, null | yes | #7 | 59.7% | 262.7% | `fossilTotalPvUsdM` | −0.63 … −0.04 | `fleet-capital` | measured | — |
-| `vessel.fossil.opexUsdMPerShipPerYear` | number, null | yes | #12 | 33.6% | 147.7% | `fossilTotalPvUsdM` | −0.52 … −0.03 | `vessel-opex` | measured | — |
-| `green.fuelId` | string | yes | #5 | 76.5% | 76.6% | `costPerTonneCo2Usd` | — | — | choice — impact from options | — |
-| `green.sourcing` | "purchase", "build-plant", "build-here" | yes | #8 | 51.4% | 51.4% | `gapPvUsdM` | — | — | choice — impact from options | — |
+| `vessel.fossil.capexUsdMPerShip` | number, null | yes | #8 | 59.7% | 262.7% | `fossilTotalPvUsdM` | −0.61 … −0.04 | `fleet-capital` | measured | — |
+| `vessel.fossil.opexUsdMPerShipPerYear` | number, null | yes | #12 | 33.6% | 147.7% | `fossilTotalPvUsdM` | −0.51 … −0.03 | `vessel-opex` | measured | — |
+| `green.fuelId` | string | yes | #5 | 74.8% | 74.9% | `costPerTonneCo2Usd` | — | — | choice — impact from options | — |
+| `green.sourcing` | "purchase", "build-plant", "build-here" | yes | #7 | 51.5% | 51.5% | `gapPvUsdM` | — | — | choice — impact from options | — |
 | `green.buildHere` | object, null | no | — | — | — | — | — | — | not swept | — |
-| `green.overrides.priceUsdPerTonne` | number, null | yes | #32 | 13.7% | 13.7% | `costPerUnitUsd` | +2.36 | `fuel-cost-green` | measured | top-level |
+| `green.overrides.priceUsdPerTonne` | number, null | yes | #32 | 13.7% | 13.7% | `costPerUnitUsd` | +2.33 | `fuel-cost-green` | measured | top-level |
 | `green.overrides.combustionEfTco2PerTonne` | number, null | yes | #58 | 1.6% | 1.6% | `costPerUnitUsd` | 0.00 … +0.02 | — | measured | — |
-| `green.overrides.lhvMjPerTonne` | number, null | yes | #52 | 3.4% | 3.4% | `costPerUnitUsd` | −2.39 … +0.01 | — | measured | — |
-| `green.overrides.wtwGco2PerMj` | number, null | yes | #65 | 0.2% | 34.8% | `costPerTonneCo2Usd` | +0.01 … +0.27 | — | measured | top-level |
-| `green.overrides.fuelTonnesPerVesselYear` | number, null | yes | #19 | 21.0% | 78.6% | `costPerTonneCo2Usd` | +0.01 … +2.63 | `energy-demand`, `fuel-cost-green` | measured | top-level |
-| `green.overrides.prodCapexUsdM` | number, null | yes | #13 | 32.8% | 32.8% | `gapPvUsdM` | 0.00 … +0.64 | — | measured | top-level |
-| `green.overrides.prodOpexUsdMPerYear` | number, null | yes | #16 | 26.5% | 26.5% | `costPerUnitUsd` | 0.00 … +0.43 | — | measured | top-level |
+| `green.overrides.lhvMjPerTonne` | number, null | yes | #52 | 3.4% | 3.4% | `costPerUnitUsd` | −2.35 … +0.01 | — | measured | — |
+| `green.overrides.wtwGco2PerMj` | number, null | yes | #65 | 0.2% | 34.8% | `costPerTonneCo2Usd` | +0.01 … +0.26 | — | measured | top-level |
+| `green.overrides.fuelTonnesPerVesselYear` | number, null | yes | #24 | 21.0% | 78.6% | `costPerTonneCo2Usd` | +0.01 … +2.59 | `energy-demand`, `fuel-cost-green` | measured | top-level |
+| `green.overrides.prodCapexUsdM` | number, null | yes | #13 | 32.8% | 32.8% | `gapPvUsdM` | 0.00 … +0.63 | — | measured | top-level |
+| `green.overrides.prodOpexUsdMPerYear` | number, null | yes | #17 | 26.5% | 26.5% | `costPerUnitUsd` | 0.00 … +0.44 | — | measured | top-level |
 | `green.overrides.portStorageCapexUsdM` | number, null | yes | #36 | 10.7% | 10.7% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | top-level |
 | `green.overrides.portStorageOpexUsdMPerYear` | number, null | yes | #40 | 8.8% | 8.8% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | top-level |
 | `green.overrides.bargeCapexUsdM` | number, null | yes | #48 | 4.2% | 4.2% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | advanced |
@@ -55,20 +55,20 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `green.emissions.n2oScenarioId` | string, null | yes | #63 | 0.5% | 100.5% | `costPerTonneCo2Usd` | — | — | choice — impact from options | — |
 | `green.emissions.pilotShare` | number, null | yes | #67 | 0.1% | 5.2% | `co2AbatedTonnes` | — | — | swept only — not measurable on any archetype | — |
 | `green.emissions.pilotFuelId` | string, null | yes | — | — | — | — | — | — | not swept | — |
-| `green.emissions.engineType` | string, null | yes | #27 | 0.0% | 0.0% | `gapPvUsdM` | — | — | choice — impact from options | — |
+| `green.emissions.engineType` | string, null | yes | #22 | 0.0% | 0.0% | `gapPvUsdM` | — | — | choice — impact from options | — |
 | `green.emissions.sulphurPercent` | number, null | yes | — | — | — | — | — | — | not swept | — |
 | `green.emissions.efficiencyRatio` | number, null | yes | #71 | 0.0% | 0.0% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | — |
-| `fossil.fuelId` | string | yes | #18 | 8.1% | 29.7% | `fossilTotalPvUsdM` | — | — | choice — impact from options | — |
-| `fossil.sourcing` | "purchase", "build-plant", "build-here" | yes | #25 | 0.0% | 0.0% | `gapPvUsdM` | — | — | choice — impact from options | — |
+| `fossil.fuelId` | string | yes | #16 | 8.5% | 36.2% | `fossilTotalPvUsdM` | — | — | choice — impact from options | — |
+| `fossil.sourcing` | "purchase", "build-plant", "build-here" | yes | #20 | 0.0% | 0.0% | `gapPvUsdM` | — | — | choice — impact from options | — |
 | `fossil.buildHere` | object, null | no | — | — | — | — | — | — | not swept | — |
-| `fossil.overrides.priceUsdPerTonne` | number, null | yes | #53 | 3.2% | 14.1% | `fossilTotalPvUsdM` | −0.78 … −0.04 | `fuel-cost-fossil` | measured | top-level |
+| `fossil.overrides.priceUsdPerTonne` | number, null | yes | #53 | 3.2% | 14.1% | `fossilTotalPvUsdM` | −0.77 … −0.04 | `fuel-cost-fossil` | measured | top-level |
 | `fossil.overrides.combustionEfTco2PerTonne` | number, null | yes | #64 | 0.5% | 2.1% | `fossilTotalPvUsdM` | −0.02 … 0.00 | — | measured | — |
-| `fossil.overrides.lhvMjPerTonne` | number, null | yes | #62 | 0.6% | 2.5% | `fossilTotalPvUsdM` | −0.06 … +0.79 | — | measured | — |
-| `fossil.overrides.wtwGco2PerMj` | number, null | yes | #57 | 1.7% | 22.4% | `costPerTonneCo2Usd` | −2.62 … −0.06 | — | measured | top-level |
-| `fossil.overrides.fuelTonnesPerVesselYear` | number, null | yes | #11 | 41.1% | 446.5% | `co2AbatedTonnes` | −2.35 … −0.12 | `energy-demand`, `fuel-cost-fossil` | measured | — |
+| `fossil.overrides.lhvMjPerTonne` | number, null | yes | #62 | 0.6% | 2.5% | `fossilTotalPvUsdM` | −0.06 … +0.78 | — | measured | — |
+| `fossil.overrides.wtwGco2PerMj` | number, null | yes | #57 | 1.7% | 22.4% | `costPerTonneCo2Usd` | −2.53 … −0.06 | — | measured | top-level |
+| `fossil.overrides.fuelTonnesPerVesselYear` | number, null | yes | #11 | 41.1% | 446.5% | `co2AbatedTonnes` | −2.29 … −0.12 | `energy-demand`, `fuel-cost-fossil` | measured | — |
 | `fossil.overrides.prodCapexUsdM` | number, null | yes | — | — | — | — | — | — | not swept | — |
 | `fossil.overrides.prodOpexUsdMPerYear` | number, null | yes | — | — | — | — | — | — | not swept | — |
-| `fossil.overrides.portStorageCapexUsdM` | number, null | yes | #23 | 17.9% | 78.8% | `fossilTotalPvUsdM` | — | — | swept only — not measurable on any archetype | — |
+| `fossil.overrides.portStorageCapexUsdM` | number, null | yes | #28 | 17.9% | 78.8% | `fossilTotalPvUsdM` | — | — | swept only — not measurable on any archetype | — |
 | `fossil.overrides.portStorageOpexUsdMPerYear` | number, null | yes | #33 | 13.2% | 58.3% | `fossilTotalPvUsdM` | — | — | swept only — not measurable on any archetype | — |
 | `fossil.overrides.bargeCapexUsdM` | number, null | yes | #43 | 7.2% | 31.5% | `fossilTotalPvUsdM` | — | — | swept only — not measurable on any archetype | — |
 | `fossil.overrides.bargeOpexUsdMPerYear` | number, null | yes | #34 | 13.2% | 58.3% | `fossilTotalPvUsdM` | — | — | swept only — not measurable on any archetype | — |
@@ -107,20 +107,20 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `regulation.ira45z.creditUsdPerGallon` | number | yes | #45 | 5.2% | 5.2% | `costPerTonneCo2Usd` | — | — | swept only — no declared value path | — |
 | `regulation.ira45z.effectiveUntil` | integer, null | no | — | — | — | — | — | — | not swept | — |
 | `regulation.selfDesigned.enabled` | boolean | yes | — | — | — | — | — | — | not swept | — |
-| `regulation.selfDesigned.co2PriceUsdPerTonne` | number | yes | #35 | 12.6% | 72.9% | `fossilTotalPvUsdM` | −0.85 … −0.05 | — | measured | — |
+| `regulation.selfDesigned.co2PriceUsdPerTonne` | number | yes | #35 | 12.6% | 72.9% | `fossilTotalPvUsdM` | −0.82 … −0.04 | — | measured | — |
 | `regulation.selfDesigned.co2PriceEscalation` | number | no | #37 | 10.7% | 62.0% | `fossilTotalPvUsdM` | — | — | swept only — not measurable on any archetype | — |
-| `regulation.selfDesigned.supportUsdPerKg` | number | yes | #20 | 19.4% | 19.4% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | — |
+| `regulation.selfDesigned.supportUsdPerKg` | number | yes | #25 | 19.4% | 19.4% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | — |
 | `regulation.selfDesigned.capexSupport` | number | yes | #15 | 29.0% | 29.0% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | — |
 | `regulation.selfDesigned.opexSupport` | number | yes | #14 | 32.3% | 32.3% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | — |
 | `regulation.selfDesigned.otherUsdM` | number | yes | #1 | 376.4% | 376.4% | `costPerUnitUsd` | — | — | swept only — not measurable on any archetype | — |
 | `regulation.imoNetZero.enabled` | boolean | yes | — | — | — | — | — | — | not swept | — |
-| `regulation.imoNetZero.scope` | number | yes | #54 | 3.1% | 13.8% | `fossilTotalPvUsdM` | −0.44 | — | measured | — |
+| `regulation.imoNetZero.scope` | number | yes | #54 | 3.1% | 13.8% | `fossilTotalPvUsdM` | −0.43 | — | measured | — |
 | `regulation.imoNetZero.rewardUsdPerTonneCo2e` | number | no | #47 | 4.5% | 13.8% | `fossilTotalPvUsdM` | — | — | swept only — no declared value path | — |
 | `regulation.imoNetZero.priceEscalation` | number | no | #44 | 5.3% | 23.4% | `fossilTotalPvUsdM` | — | — | swept only — not measurable on any archetype | — |
-| `regulation.emissions.framework` | "fueleu", "imo" | yes | #24 | 0.0% | 5.1% | `co2AbatedTonnes` | — | — | choice — impact from options | — |
+| `regulation.emissions.framework` | "fueleu", "imo" | yes | #19 | 0.0% | 5.1% | `co2AbatedTonnes` | — | — | choice — impact from options | — |
 | `financing.enabled` | boolean | yes | — | — | — | — | — | — | not swept | — |
 | `financing.greenRate` | number | yes | #29 | 14.7% | 14.7% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | top-level |
-| `financing.baseRate` | number | yes | #22 | 18.4% | 18.4% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | — |
+| `financing.baseRate` | number | yes | #27 | 18.4% | 18.4% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | — |
 | `financing.debtShare` | number | yes | #42 | 7.4% | 7.4% | `gapPvUsdM` | — | — | swept only — not measurable on any archetype | — |
 | `financing.tenorYears` | integer | yes | #39 | 10.1% | 10.1% | `costPerTonneCo2Usd` | — | — | swept only — not measurable on any archetype | — |
 | `financing.structure` | "amortizing", "bullet" | yes | — | — | — | — | — | — | not swept | — |
@@ -128,7 +128,7 @@ ui-manifest. Do not edit by hand — CI fails on drift.
 | `capitalPhasing.enabled` | boolean | yes | — | — | — | — | — | — | not swept | — |
 | `capitalPhasing.green.weights` | array | yes | #55 | 3.0% | 3.0% | `costPerTonneCo2Usd` | — | — | swept only — no declared value path | advanced |
 | `capitalPhasing.fossil.weights` | array | yes | #55 | 3.0% | 3.0% | `costPerTonneCo2Usd` | — | — | swept only — no declared value path | advanced |
-| `flags.emissionsBasis` | "combustion", "wellToWake" | no | #26 | 0.0% | 1.6% | `co2AbatedTonnes` | — | — | choice — impact from options | — |
+| `flags.emissionsBasis` | "combustion", "wellToWake" | no | #21 | 0.0% | 1.6% | `co2AbatedTonnes` | — | — | choice — impact from options | — |
 | `flags.rateBasis` | "nominal", "real" | no | — | — | — | — | — | — | not swept | — |
 | `flags.legacyExcelConstruct` | boolean | no | — | — | — | — | — | — | not swept | — |
 | `flags.migratedVesselBenchmarkBurn` | boolean | no | — | — | — | — | — | — | not swept | — |

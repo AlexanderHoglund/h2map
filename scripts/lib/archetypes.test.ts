@@ -23,7 +23,7 @@ import { ARCHETYPES, TYPED_BURN_C } from "../corridor/lib/archetypes";
  */
 
 const bundle = parseRefBundle(
-  JSON.parse(readFileSync(`${ROOT}data/corridor-ref/2026-08-18-fuel-v4.json`, "utf8")),
+  JSON.parse(readFileSync(`${ROOT}data/corridor-ref/2026-08-21-cruise-v6.json`, "utf8")),
 );
 
 const input = (key: "A" | "B" | "C"): ScenarioInput =>

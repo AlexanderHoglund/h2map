@@ -38,7 +38,49 @@ const vesselTypeSchema = z.object({
   family: z.string().optional(),
   dwtTonnes: z.number().positive().optional(),
   teuCapacity: z.number().positive().optional(),
-  defaultCargoUnit: z.enum(["tonne", "teu"]).optional(),
+  defaultCargoUnit: z.enum(["tonne", "teu", "passenger"]).optional(),
+
+  // --- 2026-08-21 cruise catalogue (waves C1-C5), all OPTIONAL ----------
+  // Additive per the same extension rule. Passenger vessels are priced and
+  // costed per GROSS TON, not per deadweight tonne, and carry a hotel that
+  // burns fuel every day of the year regardless of speed.
+
+  /**
+   * Gross tonnage — the denominator cruise capex and technical opex were
+   * researched on ($/GT is near-flat across the 190-5,610-berth ladder,
+   * elasticity −0.11; technical opex converges at $195/GT/yr across
+   * Carnival, RCL and NCLH filings). Reference data; not consumed by the
+   * engine.
+   */
+  grossTonnage: z.number().positive().optional(),
+  /**
+   * Lower berths — the passenger-capacity identity (occupancy runs
+   * 105-110% of it; mega-ships carry up to 1.35x in upper berths).
+   * Presentational: the engine does not couple throughput to capacity for
+   * any cargo unit.
+   */
+  lowerBerths: z.number().positive().optional(),
+  /**
+   * Fuel energy for hotel services (accommodation, galleys, HVAC, reefer),
+   * GJ/day, for ALL 365 days — at sea and at berth alike — and
+   * SPEED-INDEPENDENT. The third energy term: consumption derivation adds
+   * `hotelLoadGjPerDay x 365` per vessel-year OUTSIDE the v² speed factor,
+   * because hotel energy does not fall when the ship slows (the MRV closure
+   * test puts the 2-term model at −20% under slow steaming for exactly this
+   * reason). A row carrying this field MUST ship `portGjPerDay = 0`: berth
+   * hotel load is inside this term, and a separate port rate would count it
+   * twice.
+   */
+  hotelLoadGjPerDay: z.number().nonnegative().optional(),
+  /**
+   * Hotel operating cost (crew hotel payroll, food, onboard COGS), $m/yr.
+   * DATA ONLY — excluded from the engine by designation: it is
+   * fuel-invariant, so it cancels in the corridor gap and in the
+   * incremental cost per passenger, and including it would turn a
+   * fuel-transition comparator into a cruise P&L. Carried so the number is
+   * on the row with its provenance, not lost.
+   */
+  hotelOpexUsdMPerYear: z.number().nonnegative().optional(),
   /**
    * The speed `gjPerNm` was measured at. NOT decoration — a GJ/nm figure is
    * uninterpretable without it, and its absence in the first research pass

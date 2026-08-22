@@ -4,6 +4,7 @@ import type {
   ScenarioResult,
 } from "@h2map/corridor-schema";
 import { CORRIDOR_ENGINE_VERSION } from "@h2map/corridor-engine";
+import { cargoUnitOf } from "@/lib/corridor/cargoUnit";
 import { DEFAULT_BUNDLE } from "./state";
 
 /**
@@ -314,8 +315,13 @@ export async function downloadResultsXlsx(
     ["Barge OPEX", side.bargeOpexUsdMPerYear.value, "$m/yr", side.bargeOpexUsdMPerYear.source],
   ];
   section("04 · Cargo", [
-    ["Cargo unit", scenario.cargo.unit ?? "tonne", "—", "—"],
-    ["Weight per unit", scenario.cargo.unitWeightTonnes ?? 1, "t", "—"],
+    ["Cargo unit", cargoUnitOf(scenario, DEFAULT_BUNDLE).unit, "—", "—"],
+    [
+      "Weight per unit",
+      cargoUnitOf(scenario, DEFAULT_BUNDLE).unitWeightTonnes ?? "n/a (passenger)",
+      "t",
+      "—",
+    ],
     ["Cargo per year", resolved.unitsPerYear, "units/yr", "—"],
   ]);
 

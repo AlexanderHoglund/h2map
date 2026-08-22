@@ -359,6 +359,11 @@ export const PARAMS: Param[] = [
       "cont-ulcv-18000", "cont-ulcv-24000",
       "gas-lng-174k", "gas-vlgc-84k", "vlac-93k", "pctc-7000ceu",
       "roro-cargo-12k", "ropax-8k", "genc-12k", "genc-25k",
+      // Cruise classes are deliberately excluded: the sweep baseline is a
+      // CARGO corridor, and substituting a cruise liner onto it is a change
+      // of product, not a sensitivity (it measured 2889% headline movement
+      // and swamped the ranking). Documented in sweepParams.test.ts, which
+      // asserts this list equals the non-retired CARGO classes exactly.
     ],
     setOption: (s, v) => { s.vessel.typeId = v; },
   },

@@ -31,7 +31,7 @@
   },
   "disclaimer": {
     "title": "Disclaimer",
-    "body": "Thaduberg is a techno-economic model. Every output is an estimate assembled from public benchmarks and your inputs — not investment, legal or regulatory advice. Benchmarks marked unverified have not been independently confirmed. Verify against primary sources before committing capital."
+    "body": "Thaduberg is a techno-economic model. Every output is an estimate assembled from public benchmarks and your inputs — not investment, legal or regulatory advice. Reference data is verified, pooled, or designated, with provenance on every row; any row whose provenance is unverified is flagged in the UI. Verify against primary sources before committing capital."
   },
   "landing": {
     "heading": "Green corridors, priced end to end.",

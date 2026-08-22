@@ -116,7 +116,7 @@ describe("the published input template", () => {
     // file needs to know why it is absent and that it still resolves.
     expect(md).toContain("handymax-bulk-58k");
     expect(md).toMatch(/retired/i);
-    expect(md).toMatch(/Do not use them\s*\n?>?\s*for new work/i);
+    expect(md).toMatch(/do not use them\s*\n?>?\s*for new (work|scenarios)/i);
   });
 
   it("seeds the starter scenario with a current class", () => {

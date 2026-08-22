@@ -156,6 +156,12 @@ export function evaluateScenario(resolved: ResolvedScenario): ScenarioResult {
   //
   // Absent day rates report NO share rather than a share computed from
   // zero: "unknown" and "negligible" must not look alike.
+  //
+  // The cruise hotel term (hotelLoadGjPerDay, resolve.ts) is DELIBERATELY
+  // outside this share: this advisory exists because the port DAY RATES are
+  // tier-C estimates, while the hotel load is MRV-measured and verified.
+  // Cruise rows ship portGjPerDay = 0, so the share reads 0 and the
+  // advisory stays silent for them — correctly.
   const voyage = resolved.voyage;
   const portDayRateGjPerDay =
     voyage === undefined

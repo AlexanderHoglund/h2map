@@ -142,9 +142,13 @@ Named as the cheapest remaining wins, in its order:
 ## One directional note worth keeping
 
 The model discounts **cost** flows, so a **higher** WACC produces a **smaller**
-gap. If the model's 6% OECD benchmark is low — and the OECD
-energy-infrastructure evidence suggests it may be — then corridor gaps are
-being **overstated**, not understated.
+gap. At the time of writing the model carried a 6% OECD benchmark, which the
+OECD energy-infrastructure evidence suggested was low — meaning corridor gaps
+were being **overstated**, not understated. (Since bundle
+`2026-08-21-verified-v5` the country WACC benchmarks are verified nominal
+rates — Denmark/Netherlands/Singapore 8.0%, US 8.3%, India 10.2%, Brazil
+10.5%, all other countries 11.6% — which resolves the level concern; the
+directional sign below still holds.)
 
 This is the same counterintuitive sign that governs the green-financing
 question, and it means the WACC row is not a symmetric risk.

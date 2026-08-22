@@ -1,5 +1,5 @@
 import { box, caption as libCaption, chevron, crosshair, dashed, gridLines as libGridLines, labelPlate as libLabelPlate, monoLabel, polyline, shape, ticks } from "@/lib/animation/draw";
-import { berthEase } from "@/lib/animation/ease";
+import { berthEase, smoothstep } from "@/lib/animation/ease";
 import { measure, poseAt, type MeasuredPath } from "@/lib/animation/polyline";
 import type { DesignSpace, Frame, Point, Scene } from "@/lib/animation/types";
 
@@ -17,6 +17,11 @@ type Ink = "ink" | "inkSoft" | "land" | "ship" | "label" | "grid";
  * monochrome, straight lines and right angles only, every element on a shared
  * grid so the geometry actually connects. PV array → NH3 synthesis → Port A
  * crane → quay → angular dashed route (ships under way) → Port B quay → crane.
+ *
+ * Beside the two cargo trades runs a passenger tier: cruise ships on their
+ * own dotted circuit between a terminal on Port A's north-east coast and
+ * Rotterdam's west quay, a boarding bridge at each that extends only while a
+ * ship is alongside, and buses (with walkways) serving both terminals.
  *
  * SCALE. The ship is the yardstick: 22 units LOA = a ~180 m carrier, so one
  * unit is ~8 m. Shore plant is drawn at 3x that, uniformly — true scale would
@@ -238,9 +243,102 @@ const FLEET: readonly (readonly [offset: number, kind: CargoKind])[] = [
 /** One full circuit: out laden, back in ballast. */
 export const VOYAGE_S = 36;
 
+// --- passengers -------------------------------------------------------------
+/**
+ * The passenger tier, alongside the two cargo trades. Each port gets a cruise
+ * quay AWAY from the working berths — people and grabs do not mix on a real
+ * waterfront: Port A's is the empty north-east coast (x=600), Rotterdam's is
+ * the west quay (x=790) that already carried berth ticks and nothing else.
+ *
+ * Cruise ships run their own circuit on their own lanes, a terminal building
+ * faces each berth, a boarding bridge reaches over the quay only while a ship
+ * is alongside, and buses bring the passengers in — at A on a shore road that
+ * branches off the freight road, at B on the existing distribution road.
+ */
+export const BERTH_A_CRUISE = { x: 612, y: 512 } as const;
+export const BERTH_B_CRUISE = { x: 778, y: 268 } as const;
+
+/** A → B. Final leg vertical, alongside Rotterdam's west quay. */
+export const CRUISE_ROUTE: readonly Point[] = [
+  [612, 512], [612, 440], [648, 400], [700, 330], [740, 300], [778, 290], [778, 268],
+];
+/** B → A, offset west of the outbound track. Final leg vertical at quay A. */
+export const CRUISE_ROUTE_BACK: readonly Point[] = [
+  [778, 268], [778, 296], [736, 320], [688, 360], [652, 420], [612, 460], [612, 512],
+];
+
+/** Slower than the cargo circuit — a liner keeps schedule, not pace. */
+const CRUISE_S = 48;
+const CRUISE_SAIL = 0.3; // of the cycle, each way
+const CRUISE_DWELL = 0.2; // alongside, each end — passengers walk, boxes fly
+/**
+ * Two ships half a cycle apart: while one loads at A the other is at B.
+ * `green` — the fleet runs on the corridor's fuel and is drawn green like
+ * the freighters; one liner is still on conventional bunkers and stays white.
+ */
+const CRUISES: readonly (readonly [offset: number, green: boolean])[] = [
+  [0, true],
+  [24, false],
+];
+
+/** Terminal buildings, one per port, each facing its cruise berth. */
+const TERMINAL_A = { x: 556, y: 492, w: 40, h: 24 } as const;
+const TERMINAL_B = { x: 794, y: 256, w: 34, h: 24 } as const;
+
+/**
+ * Port A's shore road: up from the freight road, then east along the coast to
+ * the terminal. Buses fade in near the junction, exactly as the trucks fade
+ * at the frame border — traffic comes from somewhere, it does not pop.
+ */
+const BUS_PATH_A_PTS: readonly Point[] = [[390, 924], [390, 482], [544, 482]];
+const BUS_A_S = 40;
+/**
+ * Two buses, not a stream of them: passenger exchange is an EVENT. Each call
+ * releases one offload group and collects one boarding group, and the
+ * walkway must visibly fall quiet between calls — which it cannot do if a
+ * bus is always at the kerb.
+ */
+const BUSES_A: readonly number[] = [0, 20];
+/** Rotterdam's buses share the distribution road with the trucks. */
+const BUS_B_S = 46;
+const BUSES_B: readonly number[] = [4, 27];
+/** Where a bus stops on road B: abreast of the walkway to the terminal. */
+const BUS_B_STOP_Y = 268;
+/** The bus schedule, as cycle fractions: drive in, dwell at the stop, drive
+ *  out. Shared by the buses and the passenger exchange, so the walkers are
+ *  synchronised to the door, not to a clock of their own. */
+const BUS_ARRIVE = 0.45;
+const BUS_DEPART = 0.55;
+
+/** The walkways people actually use: bus stop → terminal door, each port. */
+const WALKWAY_A_PTS: readonly Point[] = [[548, 486], [548, 500], [556, 500]];
+const WALKWAY_B_PTS: readonly Point[] = [[847, 268], [828, 268]];
+
+/**
+ * Dwell progress of whichever cruise ship is alongside the given quay, or
+ * null when the berth is empty. The boarding bridge reads this to extend on
+ * arrival and retract before departure.
+ */
+function cruiseBerthProgress(time: number, quay: "a" | "b"): number | null {
+  for (const [offset] of CRUISES) {
+    const cycle = ((time + offset) % CRUISE_S) / CRUISE_S;
+    const p =
+      quay === "b"
+        ? (cycle - CRUISE_SAIL) / CRUISE_DWELL
+        : (cycle - (CRUISE_SAIL * 2 + CRUISE_DWELL)) / CRUISE_DWELL;
+    if (p >= 0 && p < 1) return p;
+  }
+  return null;
+}
+
 /** Precomputed once in setup(); the fleet needs arc length, not vertices. */
 let routePath: MeasuredPath | null = null;
 let returnPath: MeasuredPath | null = null;
+let cruisePath: MeasuredPath | null = null;
+let cruiseReturnPath: MeasuredPath | null = null;
+let busPathA: MeasuredPath | null = null;
+let walkwayAPath: MeasuredPath | null = null;
+let walkwayBPath: MeasuredPath | null = null;
 
 // ===== Graticule ============================================================
 function gridLines(ctx: CanvasRenderingContext2D, wavy: boolean, time: number): void {
@@ -758,8 +856,10 @@ function drawFlow(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
       ctx.moveTo(362, 686); ctx.lineTo(378, 686);
       ctx.moveTo(362, 772); ctx.lineTo(378, 772); ctx.lineTo(378, 656);
       // Desalination → electrolyser: the fresh water the stacks consume.
-      ctx.moveTo(504, 560); ctx.lineTo(504, 620); ctx.lineTo(392, 620);
-      ctx.lineTo(392, 686);
+      // The drop sits at x=398 — east of the shore road (x 386-394), west of
+      // the hall — so the water line does not run down the middle of a road.
+      ctx.moveTo(504, 560); ctx.lineTo(504, 620); ctx.lineTo(398, 620);
+      ctx.lineTo(398, 686);
       // Busbar → electrolyser hall.
       ctx.moveTo(378, 656); ctx.lineTo(402, 656); ctx.lineTo(402, 686);
       // Electrolyser → synthesis (hydrogen).
@@ -1389,6 +1489,353 @@ function drawSeaMarks(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   for (const [x, y] of SEA_MARKS) chevron(ctx, x, y);
 }
 
+// ===== Passengers ===========================================================
+/**
+ * Cruise terminal: a glazed hall drawn with mullion lines, plus berth ticks
+ * on its quay. The building faces the water because that is what it is for.
+ */
+function drawCruiseTerminal(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  t: { readonly x: number; readonly y: number; readonly w: number; readonly h: number },
+): void {
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1.3;
+  box(ctx, t.x, t.y, t.w, t.h, frame.palette.land);
+  // Mullions: the repeated bay that says "glass hall", not "warehouse".
+  ctx.lineWidth = 0.7;
+  ctx.beginPath();
+  for (let mx = t.x + 8; mx < t.x + t.w; mx += 8) {
+    ctx.moveTo(mx, t.y + 2);
+    ctx.lineTo(mx, t.y + t.h - 2);
+  }
+  ctx.stroke();
+}
+
+function drawCruiseQuays(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1.5;
+  // Port A's cruise quay on the north-east coast. Rotterdam's west quay
+  // already carries ticks (drawQuayTicks) — that quay IS the cruise berth.
+  ticks(ctx, 600, [495, 510, 525], 8);
+}
+
+/**
+ * The boarding bridge: two rails from the terminal face out over the quay to
+ * the ship's rail. It exists only while a ship is alongside, easing out after
+ * arrival and back in before departure — a gangway to open water would be the
+ * pedestrian version of a crane loading the sea.
+ */
+function drawBoardingBridge(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  fromX: number,
+  y: number,
+  toX: number,
+  quay: "a" | "b",
+): void {
+  const p = cruiseBerthProgress(frame.time, quay);
+  if (p === null) return;
+  const RAMP = 0.12; // of the dwell spent extending / retracting
+  const ext = smoothstep(Math.min(p / RAMP, (1 - p) / RAMP, 1));
+  if (ext <= 0.02) return;
+  const tip = fromX + (toX - fromX) * ext;
+
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(fromX, y - 2.2); ctx.lineTo(tip, y - 2.2);
+  ctx.moveTo(fromX, y + 2.2); ctx.lineTo(tip, y + 2.2);
+  // End cap, so the extended bridge reads as a deck rather than two wires.
+  ctx.moveTo(tip, y - 2.2); ctx.lineTo(tip, y + 2.2);
+  ctx.stroke();
+}
+
+/**
+ * A cruise ship in plan: longer and finer than the freighters, a full-length
+ * superstructure with window bays, and a funnel aft — the silhouette that
+ * says "people", not "boxes". `green` hulls run on the corridor's fuel; the
+ * white one is still on conventional bunkers.
+ */
+function drawCruiseShip(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  x: number,
+  y: number,
+  angle: number,
+  green: boolean,
+): void {
+  const L = 30;
+  const B = 8;
+  const half = B / 2;
+  const bow = L * 0.5;
+  const stern = -L * 0.5;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+
+  ctx.beginPath();
+  ctx.moveTo(stern, -half);
+  ctx.lineTo(bow - 7, -half);
+  ctx.lineTo(bow, 0);
+  ctx.lineTo(bow - 7, half);
+  ctx.lineTo(stern, half);
+  ctx.closePath();
+  ctx.fillStyle = green ? frame.palette.ship : frame.palette.land;
+  ctx.fill();
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // Superstructure nearly stem to stern — the liner's giveaway from above.
+  ctx.lineWidth = 0.9;
+  box(ctx, stern + 4, -half + 1.3, L - 12, B - 2.6, frame.palette.land);
+  ctx.lineWidth = 0.7;
+  ctx.beginPath();
+  for (let i = 1; i < 5; i += 1) {
+    const wx = stern + 4 + (i * (L - 12)) / 5;
+    ctx.moveTo(wx, -half + 1.6);
+    ctx.lineTo(wx, half - 1.6);
+  }
+  ctx.stroke();
+
+  // Funnel aft, solid — the one filled mark on an otherwise open hull.
+  ctx.fillStyle = frame.palette.ink;
+  ctx.fillRect(stern + 6.5, -1.1, 2.4, 2.2);
+
+  ctx.restore();
+}
+
+/** Passenger lanes: dotted, lighter than the trade lanes — a different traffic. */
+function drawCruiseLanes(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  ctx.strokeStyle = frame.palette.inkSoft;
+  ctx.lineWidth = 1;
+  dashed(ctx, () => {
+    polyline(ctx, CRUISE_ROUTE);
+    polyline(ctx, CRUISE_ROUTE_BACK);
+  }, [2, 5]);
+}
+
+/**
+ * The liners: [A → B | alongside at B | B → A | alongside at A], with
+ * `berthEase` arrivals like the freighters. No laden state — a ship full of
+ * people looks the same in both directions.
+ */
+function drawCruiseFleet(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  if (!cruisePath || !cruiseReturnPath) return;
+
+  for (const [offset, green] of CRUISES) {
+    const cycle = ((frame.time + offset) % CRUISE_S) / CRUISE_S;
+    let path = cruisePath;
+    let u: number;
+    if (cycle < CRUISE_SAIL) {
+      u = berthEase(cycle / CRUISE_SAIL);
+    } else if (cycle < CRUISE_SAIL + CRUISE_DWELL) {
+      u = 1;
+    } else if (cycle < CRUISE_SAIL * 2 + CRUISE_DWELL) {
+      path = cruiseReturnPath;
+      u = berthEase((cycle - CRUISE_SAIL - CRUISE_DWELL) / CRUISE_SAIL);
+    } else {
+      path = cruiseReturnPath;
+      u = 1;
+    }
+    const { x, y, angle } = poseAt(path, u);
+    drawCruiseShip(ctx, frame, x, y, angle, green);
+  }
+}
+
+/**
+ * Port A's shore road: a spur off the freight road, north along the plant's
+ * edge, then east along the coast to the terminal forecourt.
+ */
+function drawBusRoadA(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 1.2;
+  polyline(ctx, [[386, 927], [386, 478], [548, 478]]);
+  polyline(ctx, [[394, 927], [394, 486], [548, 486]]);
+  // Terminus cap at the forecourt.
+  ctx.beginPath();
+  ctx.moveTo(548, 478); ctx.lineTo(548, 486);
+  ctx.stroke();
+  ctx.lineWidth = 0.8;
+  dashed(
+    ctx,
+    () => polyline(ctx, [[390, 927], [390, 482], [544, 482]]),
+    [10, 10],
+  );
+}
+
+/** A bus in plan: one long body, window bays, a windscreen line up front. */
+function drawBus(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  x: number,
+  y: number,
+  angle: number,
+  fade: number,
+): void {
+  ctx.save();
+  ctx.globalAlpha = fade;
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+
+  ctx.strokeStyle = frame.palette.ink;
+  ctx.lineWidth = 0.9;
+  box(ctx, -5.5, -2.3, 11, 4.6, frame.palette.land);
+  ctx.lineWidth = 0.6;
+  ctx.beginPath();
+  for (const wx of [-2.75, 0, 2.75] as const) {
+    ctx.moveTo(wx, -2.3);
+    ctx.lineTo(wx, 2.3);
+  }
+  ctx.moveTo(4.1, -2.3);
+  ctx.lineTo(4.1, 2.3); // windscreen
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+/**
+ * Port A's buses: out to the terminal, a pause on the forecourt while the
+ * passengers walk, back to the freight-road junction. Each direction keeps to
+ * its own side of the centreline so meeting buses pass rather than merge.
+ */
+function drawBusesA(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  if (!busPathA) return;
+  for (const offset of BUSES_A) {
+    const cycle = ((frame.time + offset) % BUS_A_S) / BUS_A_S;
+    let u: number;
+    let forward: boolean;
+    if (cycle < BUS_ARRIVE) {
+      u = cycle / BUS_ARRIVE;
+      forward = true;
+    } else if (cycle < BUS_DEPART) {
+      u = 1;
+      forward = true;
+    } else {
+      u = 1 - (cycle - BUS_DEPART) / (1 - BUS_DEPART);
+      forward = false;
+    }
+    const pose = poseAt(busPathA, u);
+    const heading = forward ? pose.angle : pose.angle + Math.PI;
+    // Keep-right offset, perpendicular to the direction of travel.
+    const lx = Math.cos(heading + Math.PI / 2) * 1.8;
+    const ly = Math.sin(heading + Math.PI / 2) * 1.8;
+    // Fade in near the junction, as the trucks do at the frame border.
+    const fade = Math.min(1, Math.max(0, (905 - pose.y) / 55));
+    if (fade <= 0.02) continue;
+    drawBus(ctx, frame, pose.x + lx, pose.y + ly, heading, fade);
+  }
+}
+
+/** Rotterdam's buses, sharing the distribution road with the trucks. */
+function drawBusesB(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  const FADE = 70;
+  for (const offset of BUSES_B) {
+    const cycle = ((frame.time + offset) % BUS_B_S) / BUS_B_S;
+    let y: number;
+    let southbound: boolean;
+    if (cycle < BUS_ARRIVE) {
+      y = ROAD_B_NORTH + (BUS_B_STOP_Y - ROAD_B_NORTH) * (cycle / BUS_ARRIVE);
+      southbound = true;
+    } else if (cycle < BUS_DEPART) {
+      y = BUS_B_STOP_Y; // at the stop, doors open toward the walkway
+      southbound = true;
+    } else {
+      y = BUS_B_STOP_Y - (BUS_B_STOP_Y - ROAD_B_NORTH) * ((cycle - BUS_DEPART) / (1 - BUS_DEPART));
+      southbound = false;
+    }
+    const x = ROAD_B_X + (southbound ? 4.5 : -4.5);
+    const fade = Math.min(1, (y - ROAD_B_NORTH) / FADE);
+    if (fade <= 0.02) continue;
+    drawBus(ctx, frame, x, y, southbound ? Math.PI / 2 : -Math.PI / 2, fade);
+  }
+}
+
+/** Walkways, bus stop → terminal: dotted, the pedestrian mark. */
+function drawWalkways(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  ctx.strokeStyle = frame.palette.inkSoft;
+  ctx.lineWidth = 0.9;
+  dashed(ctx, () => {
+    polyline(ctx, WALKWAY_A_PTS);
+    polyline(ctx, WALKWAY_B_PTS);
+  }, [1.5, 2.5]);
+}
+
+/** Walking pace, well under the trucks' haul speed. */
+const WALK_SPEED = 4.5;
+/** Seconds between successive walkers through the same door. */
+const WALK_STAGGER = 0.5;
+const OFFLOAD_GROUP = 5;
+const BOARDING_GROUP = 4;
+
+/**
+ * Passenger exchange at one stop — an event, not a stream.
+ *
+ * The moment a bus pulls in, its load files off toward the terminal; the
+ * boarding group walks the other way, having left the terminal early enough
+ * to be at the kerb while the bus is still there (people know the
+ * timetable). Between calls the walkway is empty. Every walker is clocked
+ * off the SAME schedule the bus itself runs on, so the dots pour out of a
+ * door that is actually open.
+ */
+function drawStopExchange(
+  ctx: CanvasRenderingContext2D,
+  frame: Frame<Ink>,
+  path: MeasuredPath,
+  cycleS: number,
+  offsets: readonly number[],
+): void {
+  const L = path.length;
+  if (L === 0) return;
+  const walkT = L / WALK_SPEED;
+  const dwellStart = BUS_ARRIVE * cycleS;
+
+  const dot = (u: number, side: number): void => {
+    const { x, y, angle } = poseAt(path, u);
+    ctx.beginPath();
+    ctx.arc(
+      x + Math.cos(angle + Math.PI / 2) * side,
+      y + Math.sin(angle + Math.PI / 2) * side,
+      0.9,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
+  };
+
+  ctx.fillStyle = frame.palette.ink;
+  for (const busOffset of offsets) {
+    /** Seconds since the given moment of this bus's cycle, wrap-safe. */
+    const since = (t0: number): number =>
+      (((frame.time + busOffset - t0) % cycleS) + cycleS) % cycleS;
+
+    // Offload: the bus empties the moment the doors open, one walker at a
+    // time, each at a slightly different pace so the file loosens en route.
+    for (let i = 0; i < OFFLOAD_GROUP; i += 1) {
+      const d = since(dwellStart + i * WALK_STAGGER) * WALK_SPEED * (1 + (i % 3) * 0.05);
+      if (d <= 0 || d >= L) continue;
+      dot(d / L, 0.9); // stop → terminal, on their side of the path
+    }
+
+    // Boarding: leaves the terminal (walkT - 1.2)s before the bus arrives,
+    // so the group reaches the kerb just after the doors open and is aboard
+    // well before departure.
+    for (let i = 0; i < BOARDING_GROUP; i += 1) {
+      const d = since(dwellStart - (walkT - 1.2) + i * WALK_STAGGER) * WALK_SPEED;
+      if (d <= 0 || d >= L) continue;
+      dot(1 - d / L, -0.9); // terminal → stop, keeping to the other side
+    }
+  }
+}
+
+/** The passengers at both terminals, each synced to their own bus service. */
+function drawPassengers(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
+  if (walkwayAPath) drawStopExchange(ctx, frame, walkwayAPath, BUS_A_S, BUSES_A);
+  if (walkwayBPath) drawStopExchange(ctx, frame, walkwayBPath, BUS_B_S, BUSES_B);
+}
+
 // ===== Chrome ===============================================================
 function drawCompass(ctx: CanvasRenderingContext2D, frame: Frame<Ink>): void {
   ctx.save();
@@ -1453,7 +1900,7 @@ export const shippingScene: Scene<Ink> = {
     { key: "ink", prop: "--anim-ink", fallback: "#3f3e3a" },
     { key: "inkSoft", prop: "--anim-ink-soft", fallback: "#9b9a90" },
     { key: "land", prop: "--anim-land", fallback: "#f2f2ed" },
-    { key: "ship", prop: "--anim-ship", fallback: "#b2182b" },
+    { key: "ship", prop: "--anim-ship", fallback: "#4ea72e" },
     { key: "label", prop: "--viz-ink-secondary", fallback: "#52514e" },
     { key: "grid", prop: "--viz-grid", fallback: "#e1e0d9" },
   ],
@@ -1461,6 +1908,11 @@ export const shippingScene: Scene<Ink> = {
   setup() {
     routePath = measure(ROUTE);
     returnPath = measure(ROUTE_BACK);
+    cruisePath = measure(CRUISE_ROUTE);
+    cruiseReturnPath = measure(CRUISE_ROUTE_BACK);
+    busPathA = measure(BUS_PATH_A_PTS);
+    walkwayAPath = measure(WALKWAY_A_PTS);
+    walkwayBPath = measure(WALKWAY_B_PTS);
   },
 
   draw(ctx, frame) {
@@ -1484,12 +1936,21 @@ export const shippingScene: Scene<Ink> = {
     drawGantry(ctx, frame, 700, BERTH_CONTAINER.y - 26, 1, BERTH_CARGO.container, BERTH_CONTAINER, "container");
     drawGantry(ctx, frame, 700, BERTH_BULK.y + 26, 1, BERTH_CARGO.bulk, BERTH_BULK, "bulk");
 
+    // --- passengers, Port A side --------------------------------------------
+    drawBusRoadA(ctx, frame);
+    drawCruiseQuays(ctx, frame);
+    drawCruiseTerminal(ctx, frame, TERMINAL_A);
+    drawWalkways(ctx, frame);
+    drawPassengers(ctx, frame);
+    drawBusesA(ctx, frame);
+
     caption(ctx, frame, "[ WIND ]", 128, 570, 120, 600);
     caption(ctx, frame, "[ PV ARRAY ]", 128, 794, 120, 826);
     caption(ctx, frame, "[ DESALINATION ]", 500, 560, 472, 600);
     caption(ctx, frame, "[ ELECTROLYSIS ]", 408, 710, 402, 772);
     caption(ctx, frame, "[ NH3 SYNTHESIS ]", 470, 710, 402, 812);
     caption(ctx, frame, "[ FREIGHT ROAD ]", 300, 945, 292, 978);
+    caption(ctx, frame, "[ CRUISE TERMINAL ]", 566, 488, 450, 458);
     ctx.fillStyle = frame.palette.label;
     labelPlate(ctx, frame, "[ PECEM · BR ]", 128, 420);
     ctx.fillStyle = frame.palette.label;
@@ -1500,13 +1961,17 @@ export const shippingScene: Scene<Ink> = {
     drawContainersB(ctx, frame);
     drawGantrySouth(ctx, frame, 330, 846, IMPORT_CRANE_STAGGER, BERTH_IMPORT, "container");
     drawImportTrucks(ctx, frame);
+    drawCruiseTerminal(ctx, frame, TERMINAL_B);
+    drawBusesB(ctx, frame);
     caption(ctx, frame, "[ DISTRIBUTION ]", 722, 190, 700, 232);
+    caption(ctx, frame, "[ CRUISE TERMINAL ]", 796, 252, 760, 262, "end");
     ctx.fillStyle = frame.palette.label;
     labelPlate(ctx, frame, "[ ROTTERDAM · NL ]", 878, 66, "end");
     ctx.fillStyle = frame.palette.label;
     monoLabel(ctx, "[ ROTTERDAM · NL ]", 878, 66, frame.font, { anchor: "end" });
 
     // --- The corridor -------------------------------------------------------
+    drawCruiseLanes(ctx, frame);
     drawReturnLane(ctx, frame);
     drawRoute(ctx, frame);
     drawWaypoints(ctx, frame);
@@ -1516,6 +1981,10 @@ export const shippingScene: Scene<Ink> = {
     monoLabel(ctx, "4600 NM", 800, 560, frame.font);
 
     drawFleet(ctx, frame);
+    drawCruiseFleet(ctx, frame);
+    // Bridges after the ships, so an extended gangway rests ON the deck edge.
+    drawBoardingBridge(ctx, frame, 596, 506, 609, "a");
+    drawBoardingBridge(ctx, frame, 794, 266, 781, "b");
     drawSeaMarks(ctx, frame);
     drawCompass(ctx, frame);
   },

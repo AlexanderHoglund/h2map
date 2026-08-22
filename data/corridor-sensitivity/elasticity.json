@@ -1,6 +1,6 @@
 {
  "generatedBy": "scripts/corridor/elasticity.ts",
- "refBundleId": "2026-08-18-fuel-v4",
+ "refBundleId": "2026-08-21-cruise-v6",
  "uncertaintyDatasetVersion": "2026-08-19-uncertainty-v1",
  "relativeStep": 0.1,
  "absolutePpStep": 0.01,
@@ -34,27 +34,27 @@
  ],
  "archetypeBase": {
   "A": {
-   "gapPvUsdM": 1729.169459250379,
-   "costPerUnitUsd": 69.86543269698501,
-   "costPerTonneCo2Usd": 1244.8459513095004,
-   "greenTotalPvUsdM": 2926.8930897247906,
-   "fossilTotalPvUsdM": 1197.7236304744115,
+   "gapPvUsdM": 1740.4740798468251,
+   "costPerUnitUsd": 70.32218504431617,
+   "costPerTonneCo2Usd": 1252.9842578851187,
+   "greenTotalPvUsdM": 2947.430867801147,
+   "fossilTotalPvUsdM": 1206.956787954322,
    "co2AbatedTonnes": 1389063.006094369
   },
   "B": {
-   "gapPvUsdM": 445.884979497755,
-   "costPerUnitUsd": 2.948974732128009,
-   "costPerTonneCo2Usd": 203.226084780546,
-   "greenTotalPvUsdM": 2024.2992740726067,
-   "fossilTotalPvUsdM": 1578.4142945748517,
+   "gapPvUsdM": 460.21606892731756,
+   "costPerUnitUsd": 3.043757069625116,
+   "costPerTonneCo2Usd": 209.75792893167764,
+   "greenTotalPvUsdM": 2049.1055974439937,
+   "fossilTotalPvUsdM": 1588.8895285166761,
    "co2AbatedTonnes": 2194034.1958525875
   },
   "C": {
-   "gapPvUsdM": 1890.4902654297439,
-   "costPerUnitUsd": 583.484649823995,
-   "costPerTonneCo2Usd": 3812.9898687689033,
-   "greenTotalPvUsdM": 2257.2205063000997,
-   "fossilTotalPvUsdM": 366.73024087035594,
+   "gapPvUsdM": 1903.7900603164064,
+   "costPerUnitUsd": 587.5895247890144,
+   "costPerTonneCo2Usd": 3839.8146475508356,
+   "greenTotalPvUsdM": 2273.0639351018604,
+   "fossilTotalPvUsdM": 369.273874785454,
    "co2AbatedTonnes": 495802.59337015357
   }
  },
@@ -92,33 +92,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.26658199218825407,
-       "down": -0.2665819921882607,
-       "mean": 0.2665819921882574,
+       "up": -0.26710008761592546,
+       "down": -0.26710008761592674,
+       "mean": 0.2671000876159261,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.26658199218825335,
-       "down": -0.2665819921882615,
-       "mean": 0.2665819921882574,
+       "up": -0.26710008761592474,
+       "down": -0.26710008761592474,
+       "mean": 0.26710008761592474,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -1.151438174716597,
-       "down": -1.407313324653621,
-       "mean": 1.279375749685109,
-       "asymmetric": true
+       "up": -1.1519091705599325,
+       "down": -1.4078889862399173,
+       "mean": 1.279899078399925,
+       "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.02604438492555425,
-       "down": 0.026044384925551143,
-       "mean": 0.026044384925552697,
+       "up": 0.025862906946347287,
+       "down": 0.025862906946347287,
+       "mean": 0.025862906946347287,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.44851295897869997,
-       "down": 0.4485129589787019,
-       "mean": 0.4485129589787009,
+       "up": 0.4483258347651346,
+       "down": 0.4483258347651365,
+       "mean": 0.44832583476513554,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -134,33 +134,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.2874769514836319,
-       "down": 0.28747695148362173,
-       "mean": 0.28747695148362684,
+       "up": 0.30560067054294165,
+       "down": 0.3056006705429466,
+       "mean": 0.30560067054294415,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.28747695148363356,
-       "down": 0.28747695148362,
-       "mean": 0.2874769514836268,
+       "up": 0.30560067054294277,
+       "down": 0.30560067054294565,
+       "mean": 0.3056006705429442,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.6477482259239739,
-       "down": -0.7916922761293153,
-       "mean": 0.7197202510266445,
-       "asymmetric": true
+       "up": -0.6312721176882375,
+       "down": -0.7715548105078429,
+       "mean": 0.7014134640980403,
+       "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.5800032145802597,
-       "down": 0.580003214580253,
-       "mean": 0.5800032145802563,
+       "up": 0.5820808247612399,
+       "down": 0.5820808247612388,
+       "mean": 0.5820808247612393,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.6626387224261432,
-       "down": 0.6626387224261374,
-       "mean": 0.6626387224261403,
+       "up": 0.6621622951385736,
+       "down": 0.6621622951385706,
+       "mean": 0.6621622951385722,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -227,33 +227,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.20307970099763054,
-       "down": 0.10910686125059119,
-       "mean": 0.15609328112411086,
+       "up": 0.21535735056394112,
+       "down": 0.11507691158621007,
+       "mean": 0.1652171310750756,
        "asymmetric": true
       },
       "costPerUnitUsd": {
-       "up": -0.9972826167667962,
-       "down": -0.5973855058029379,
-       "mean": 0.7973340612848671,
+       "up": -0.9864493965612288,
+       "down": -0.590989023300489,
+       "mean": 0.7887192099308589,
        "asymmetric": true
       },
       "costPerTonneCo2Usd": {
-       "up": -0.9972826167667979,
-       "down": -0.597385505802937,
-       "mean": 0.7973340612848674,
+       "up": -0.9864493965612278,
+       "down": -0.5909890233004877,
+       "mean": 0.7887192099308578,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
-       "up": 0.33278939941405683,
-       "down": 0.18149405286667702,
-       "mean": 0.2571417261403669,
+       "up": 0.3450571210364015,
+       "down": 0.18739436578696644,
+       "mean": 0.266225743411684,
        "asymmetric": true
       },
       "fossilTotalPvUsdM": {
-       "up": 0.5200530079490422,
-       "down": 0.28600039957193635,
-       "mean": 0.40302670376048927,
+       "up": 0.5320887454676344,
+       "down": 0.2916786747308338,
+       "mean": 0.4118837100992341,
        "asymmetric": true
       },
       "co2AbatedTonnes": {
@@ -269,33 +269,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.5318764053250594,
-       "down": 0.27478959722046226,
-       "mean": 0.40333300127276084,
+       "up": 0.5805009528039309,
+       "down": 0.298252712961444,
+       "mean": 0.4393768328826875,
        "asymmetric": true
       },
       "costPerUnitUsd": {
-       "up": -0.7071678776543584,
-       "down": -0.419868288692363,
-       "mean": 0.5635180831733607,
+       "up": -0.6642638651730026,
+       "down": -0.39472923611273947,
+       "mean": 0.529496550642871,
        "asymmetric": true
       },
       "costPerTonneCo2Usd": {
-       "up": -0.7071678776543588,
-       "down": -0.4198682886923625,
-       "mean": 0.5635180831733606,
+       "up": -0.6642638651730016,
+       "down": -0.39472923611274013,
+       "mean": 0.5294965506428708,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
-       "up": 0.5903719491581819,
-       "down": 0.32211391993727484,
-       "mean": 0.45624293454772835,
+       "up": 0.6085670445212165,
+       "down": 0.33066251626019233,
+       "mean": 0.46961478039070437,
        "asymmetric": true
       },
       "fossilTotalPvUsdM": {
-       "up": 0.6068963081001841,
-       "down": 0.3354825296469422,
-       "mean": 0.47118941887356314,
+       "up": 0.6166962858362757,
+       "down": 0.34004989782521655,
+       "mean": 0.4783730918307461,
        "asymmetric": true
       },
       "co2AbatedTonnes": {
@@ -311,33 +311,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.2751160645638498,
-       "down": 0.149139343789453,
-       "mean": 0.2121277041766514,
+       "up": 0.28781825599171323,
+       "down": 0.15528086755105328,
+       "mean": 0.22154956177138324,
        "asymmetric": true
       },
       "costPerUnitUsd": {
-       "up": -0.9337211195024849,
-       "down": -0.5544935602255846,
-       "mean": 0.7441073398640348,
+       "up": -0.9225133035367239,
+       "down": -0.5479133561952987,
+       "mean": 0.7352133298660113,
        "asymmetric": true
       },
       "costPerTonneCo2Usd": {
-       "up": -0.9337211195024828,
-       "down": -0.5544935602255862,
-       "mean": 0.7441073398640345,
+       "up": -0.9225133035367218,
+       "down": -0.5479133561953001,
+       "mean": 0.735213329866011,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
-       "up": 0.3227175729525016,
-       "down": 0.17584456507780108,
-       "mean": 0.24928106901515135,
+       "up": 0.3350591035885612,
+       "down": 0.18178599048603813,
+       "mean": 0.25842254703729967,
        "asymmetric": true
       },
       "fossilTotalPvUsdM": {
-       "up": 0.568102813108711,
-       "down": 0.3135096803460501,
-       "mean": 0.44080624672738056,
+       "up": 0.5786091141276304,
+       "down": 0.3184330512086661,
+       "mean": 0.4485210826681483,
        "asymmetric": true
       },
       "co2AbatedTonnes": {
@@ -368,9 +368,9 @@
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.9090909090909096,
-       "down": -1.111111111111111,
-       "mean": 1.0101010101010104,
+       "up": -0.9090909090909105,
+       "down": -1.1111111111111098,
+       "mean": 1.0101010101010102,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
@@ -410,10 +410,10 @@
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.9090909090909085,
-       "down": -1.1111111111111107,
-       "mean": 1.0101010101010095,
-       "asymmetric": true
+       "up": -0.9090909090909097,
+       "down": -1.1111111111111116,
+       "mean": 1.0101010101010106,
+       "asymmetric": false
       },
       "costPerTonneCo2Usd": {
        "up": 0,
@@ -452,9 +452,9 @@
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.9090909090909113,
-       "down": -1.111111111111111,
-       "mean": 1.010101010101011,
+       "up": -0.9090909090909106,
+       "down": -1.1111111111111105,
+       "mean": 1.0101010101010106,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
@@ -497,33 +497,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.10053584990793243,
-       "down": -0.1104048310730011,
-       "mean": 0.10547034049046677,
+       "up": -0.10398952477446198,
+       "down": -0.11425155144528344,
+       "mean": 0.10912053810987271,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.10053584990793211,
-       "down": -0.11040483107300166,
-       "mean": 0.10547034049046689,
+       "up": -0.10398952477446258,
+       "down": -0.11425155144528366,
+       "mean": 0.10912053810987313,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.10053584990793316,
-       "down": -0.11040483107299949,
-       "mean": 0.10547034049046633,
+       "up": -0.1039895247744615,
+       "down": -0.11425155144528339,
+       "mean": 0.10912053810987243,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": -0.17721329709501304,
-       "down": -0.19433339917604914,
-       "mean": 0.1857733481355311,
+       "up": -0.18038413142783913,
+       "down": -0.1978753692770977,
+       "mean": 0.18912975035246843,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": -0.28791354255703683,
-       "down": -0.31550218388552537,
-       "mean": 0.30170786322128107,
+       "up": -0.29054783740910806,
+       "down": -0.3184638516873012,
+       "mean": 0.3045058445482046,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -543,40 +543,40 @@
       "verified": false,
       "uncertaintyBasis": "Utility-scale renewable project WACCs in a large emerging market run 8-10% nominal in 2026 having fallen from 14-15% in 2010 as offtake contracts standardised, with higher-risk project categories at 10-12%; the band is set slightly wider at both ends to span the range between a strongly-rated upper-middle-income sovereign such as Chile and a weaker one. INDIA IS A PROXY, NOT CHILE: Chile is a stronger sovereign credit and would plausibly finance nearer the OECD band, so this row should be replaced with Chile-specific project-finance evidence before it drives a published figure.",
       "relativeHalfWidth": 0.275,
-      "impact": 0.029004343634878364
+      "impact": 0.030008147980215
      }
     },
     "B": {
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.2215396927656672,
-       "down": -0.24382203262980334,
-       "mean": 0.23268086269773527,
+       "up": -0.23432974125813918,
+       "down": -0.25810992469664495,
+       "mean": 0.24621983297739208,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.2215396927656667,
-       "down": -0.24382203262980354,
-       "mean": 0.23268086269773514,
+       "up": -0.23432974125813893,
+       "down": -0.258109924696644,
+       "mean": 0.24621983297739147,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.2215396927656663,
-       "down": -0.24382203262980368,
-       "mean": 0.23268086269773497,
+       "up": -0.23432974125813902,
+       "down": -0.2581099246966453,
+       "mean": 0.24621983297739214,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": -0.31503182208977265,
-       "down": -0.34545275701220773,
-       "mean": 0.3302422895509902,
+       "up": -0.3188722616599553,
+       "down": -0.3497769717500071,
+       "mean": 0.3343246167049812,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": -0.3414423382072211,
-       "down": -0.3741623382757227,
-       "mean": 0.3578023382414719,
+       "up": -0.3433596949888502,
+       "down": -0.376327998292713,
+       "mean": 0.3598438466407816,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -596,40 +596,40 @@
       "verified": false,
       "uncertaintyBasis": "Published 2026 cost-of-capital work for OECD energy infrastructure gives real WACCs of 6.5-7.5% for unregulated electricity and gas transmission and 7.0-7.5% for utility-scale solar and onshore wind, which at a 2% inflation assumption is roughly 8.5-9.6% nominal; a 2026 US midstream energy assessment gives 9.8% nominal. The band is set below those figures at its lower end because shipping assets are mobile, liquid collateral that supports cheaper senior debt than fixed energy infrastructure.",
       "relativeHalfWidth": 0.26666666666666666,
-      "impact": 0.06204823005272941
+      "impact": 0.06565862212730456
      }
     },
     "C": {
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.14233995370847832,
-       "down": -0.15617665912668202,
-       "mean": 0.14925830641758017,
+       "up": -0.14576257066197057,
+       "down": -0.15999430449412672,
+       "mean": 0.15287843757804864,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.1423399537084779,
-       "down": -0.1561766591266823,
-       "mean": 0.1492583064175801,
+       "up": -0.14576257066197199,
+       "down": -0.15999430449412694,
+       "mean": 0.15287843757804948,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.14233995370847738,
-       "down": -0.15617665912668274,
-       "mean": 0.14925830641758006,
+       "up": -0.14576257066197126,
+       "down": -0.15999430449412722,
+       "mean": 0.15287843757804925,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": -0.1711268645298129,
-       "down": -0.1876738494853579,
-       "mean": 0.1794003570075854,
+       "up": -0.17434105422073143,
+       "down": -0.19126327875584068,
+       "mean": 0.18280216648828607,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": -0.31952306591852214,
-       "down": -0.3500415113944107,
-       "mean": 0.3347822886564664,
+       "up": -0.32167731777226255,
+       "down": -0.3524703569178849,
+       "mean": 0.33707383734507373,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -649,7 +649,7 @@
       "verified": false,
       "uncertaintyBasis": "Published 2026 cost-of-capital work for OECD energy infrastructure gives real WACCs of 6.5-7.5% for unregulated electricity and gas transmission and 7.0-7.5% for utility-scale solar and onshore wind, which at a 2% inflation assumption is roughly 8.5-9.6% nominal; a 2026 US midstream energy assessment gives 9.8% nominal. The band is set below those figures at its lower end because shipping assets are mobile, liquid collateral that supports cheaper senior debt than fixed energy infrastructure.",
       "relativeHalfWidth": 0.26666666666666666,
-      "impact": 0.03980221504468805
+      "impact": 0.040767583354146306
      }
     }
    }
@@ -665,33 +665,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.04480625381145686,
-       "down": 0.04143739282259024,
-       "mean": 0.04312182331702355,
+       "up": 0.05241163354712265,
+       "down": 0.048464469599677894,
+       "mean": 0.05043805157340027,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.044806253811456774,
-       "down": 0.04143739282258999,
-       "mean": 0.04312182331702338,
+       "up": 0.052411633547122534,
+       "down": 0.048464469599677935,
+       "mean": 0.050438051573400235,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.04480625381145647,
-       "down": 0.04143739282259045,
-       "mean": 0.04312182331702346,
+       "up": 0.0524116335471225,
+       "down": 0.04846446959967786,
+       "mean": 0.05043805157340018,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.048091331029269054,
-       "down": 0.044475473973045285,
-       "mean": 0.04628340250115717,
+       "up": 0.05622754137038638,
+       "down": 0.0519929982140263,
+       "mean": 0.054110269792206345,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.05283404049227769,
-       "down": 0.04886159194419217,
-       "mean": 0.050847816218234934,
+       "up": 0.06173021447663067,
+       "down": 0.057081260407472516,
+       "mean": 0.05940573744205159,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -711,40 +711,40 @@
       "verified": false,
       "uncertaintyBasis": "Anchored on published central-bank target bands across the corridor set - 2% symmetric for the euro area and 2-3% for Australia - widened to reflect that a 15-year average smooths single-year shocks but that the 2021-23 episode demonstrates sustained overshoots are possible. No inflation-swap forward curve or historical dispersion study of 15-year realised averages was retrieved.",
       "relativeHalfWidth": 0.45454545454545453,
-      "impact": 0.01960082878046525
+      "impact": 0.022926387078818302
      }
     },
     "B": {
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.22028075859144394,
-       "down": 0.2037184443810456,
-       "mean": 0.21199960148624478,
+       "up": 0.25127928764627794,
+       "down": 0.23235523438155434,
+       "mean": 0.24181726101391615,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.22028075859144433,
-       "down": 0.20371844438104558,
-       "mean": 0.21199960148624497,
+       "up": 0.2512792876462779,
+       "down": 0.23235523438155445,
+       "mean": 0.24181726101391615,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.2202807585914442,
-       "down": 0.20371844438104544,
-       "mean": 0.2119996014862448,
+       "up": 0.2512792876462779,
+       "down": 0.2323552343815543,
+       "mean": 0.2418172610139161,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.08398619022323758,
-       "down": 0.07767149582729435,
-       "mean": 0.08082884302526597,
+       "up": 0.09768712442995398,
+       "down": 0.09033022540613793,
+       "mean": 0.09400867491804596,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.04548444766338449,
-       "down": 0.04206459511382724,
-       "mean": 0.043774521388605867,
+       "up": 0.053199713376619884,
+       "down": 0.04919319847824783,
+       "mean": 0.051196455927433854,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -764,40 +764,40 @@
       "verified": false,
       "uncertaintyBasis": "Anchored on published central-bank target bands across the corridor set - 2% symmetric for the euro area and 2-3% for Australia - widened to reflect that a 15-year average smooths single-year shocks but that the 2021-23 episode demonstrates sustained overshoots are possible. No inflation-swap forward curve or historical dispersion study of 15-year realised averages was retrieved.",
       "relativeHalfWidth": 0.45454545454545453,
-      "impact": 0.09636345522102036
+      "impact": 0.10991693682450734
      }
     },
     "C": {
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.04821594661624425,
-       "down": 0.04459072005121634,
-       "mean": 0.0464033333337303,
+       "up": 0.056372221888179336,
+       "down": 0.05212678272104631,
+       "mean": 0.054249502304612826,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.04821594661624444,
-       "down": 0.04459072005121641,
-       "mean": 0.04640333333373042,
+       "up": 0.05637222188817927,
+       "down": 0.0521267827210465,
+       "mean": 0.05424950230461288,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.048215946616244384,
-       "down": 0.0445907200512162,
-       "mean": 0.04640333333373029,
+       "up": 0.05637222188817931,
+       "down": 0.05212678272104638,
+       "mean": 0.05424950230461284,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.04810557269696351,
-       "down": 0.04448864484828039,
-       "mean": 0.04629710877262195,
+       "up": 0.056244076419155846,
+       "down": 0.0520082879944463,
+       "mean": 0.05412618220680107,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.047536596384939935,
-       "down": 0.04396244832564269,
-       "mean": 0.04574952235529131,
+       "up": 0.05558342293982832,
+       "down": 0.05139738888106657,
+       "mean": 0.053490405910447444,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -817,7 +817,7 @@
       "verified": false,
       "uncertaintyBasis": "Anchored on published central-bank target bands across the corridor set - 2% symmetric for the euro area and 2-3% for Australia - widened to reflect that a 15-year average smooths single-year shocks but that the 2021-23 episode demonstrates sustained overshoots are possible. No inflation-swap forward curve or historical dispersion study of 15-year realised averages was retrieved.",
       "relativeHalfWidth": 0.45454545454545453,
-      "impact": 0.02109242424260468
+      "impact": 0.02465886468391492
      }
     }
    }
@@ -833,33 +833,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.19056151683043415,
-       "down": -0.19056151683045258,
-       "mean": 0.19056151683044337,
+       "up": -0.19115194344579362,
+       "down": -0.19115194344579886,
+       "mean": 0.19115194344579622,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.19056151683043435,
-       "down": -0.1905615168304526,
-       "mean": 0.19056151683044348,
+       "up": -0.19115194344579403,
+       "down": -0.19115194344579806,
+       "mean": 0.19115194344579606,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -1.0823286516640303,
-       "down": -1.3228461298116125,
-       "mean": 1.2025873907378215,
+       "up": -1.0828654031325395,
+       "down": -1.3235021593842202,
+       "mean": 1.2031837812583799,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
-       "up": 0.2896748799512542,
-       "down": 0.2896748799512464,
-       "mean": 0.2896748799512503,
+       "up": 0.2896472824233927,
+       "down": 0.2896472824233912,
+       "mean": 0.289647282423392,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.9829985227405527,
-       "down": 0.9829985227405602,
-       "mean": 0.9829985227405564,
+       "up": 0.9829766531078783,
+       "down": 0.9829766531078821,
+       "mean": 0.9829766531078802,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -875,33 +875,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.654158282855642,
-       "down": 0.6541582828556471,
-       "mean": 0.6541582828556446,
+       "up": 0.6692263073994384,
+       "down": 0.6692263073994483,
+       "mean": 0.6692263073994433,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.6541582828556431,
-       "down": 0.6541582828556461,
-       "mean": 0.6541582828556447,
+       "up": 0.6692263073994381,
+       "down": 0.6692263073994482,
+       "mean": 0.6692263073994431,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.5296370819060962,
-       "down": -0.6809619624506908,
-       "mean": 0.6052995221783934,
+       "up": -0.5162432823116111,
+       "down": -0.6637413629720602,
+       "mean": 0.5899923226418357,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
-       "up": 1.1061819813923264,
-       "down": 1.1061819813923242,
-       "mean": 1.1061819813923253,
+       "up": 1.1070281389026997,
+       "down": 1.1070281389026997,
+       "mean": 1.1070281389026997,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 1.2338737909807698,
-       "down": 1.2338737909807656,
-       "mean": 1.2338737909807675,
+       "up": 1.2338358459505945,
+       "down": 1.2338358459505916,
+       "mean": 1.2338358459505931,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -1012,33 +1012,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.479128252472725,
-       "down": 0.4791282524727148,
-       "mean": 0.4791282524727199,
+       "up": 0.5093344509048878,
+       "down": 0.5093344509048878,
+       "mean": 0.5093344509048878,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.47912825247272567,
-       "down": 0.4791282524727136,
-       "mean": 0.4791282524727196,
+       "up": 0.5093344509048885,
+       "down": 0.5093344509048885,
+       "mean": 0.5093344509048885,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -1.0178900693090946,
-       "down": -1.42504609703274,
-       "mean": 1.2214680831709175,
+       "up": -0.9919990420815263,
+       "down": -1.388798658914131,
+       "mean": 1.1903988504978287,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
-       "up": 0.9666720243004276,
-       "down": 0.9666720243004253,
-       "mean": 0.9666720243004265,
+       "up": 0.9701347079353969,
+       "down": 0.9701347079353947,
+       "mean": 0.9701347079353958,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 1.1043978707102304,
-       "down": 1.1043978707102304,
-       "mean": 1.1043978707102304,
+       "up": 1.1036038252309563,
+       "down": 1.1036038252309537,
+       "mean": 1.103603825230955,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -1107,27 +1107,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.25445742037957725,
-       "down": 0.25445742037957725,
-       "mean": 0.25445742037957725,
+       "up": 0.2528046841345223,
+       "down": 0.2528046841345223,
+       "mean": 0.2528046841345223,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.25445742037957836,
-       "down": 0.25445742037957636,
-       "mean": 0.25445742037957736,
+       "up": 0.2528046841345214,
+       "down": 0.2528046841345234,
+       "mean": 0.2528046841345224,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.2544574203795763,
-       "down": 0.25445742037957814,
-       "mean": 0.2544574203795772,
+       "up": 0.25280468413452134,
+       "down": 0.25280468413452317,
+       "mean": 0.2528046841345223,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.15033005528786575,
-       "down": 0.15033005528786575,
-       "mean": 0.15033005528786575,
+       "up": 0.1492825513930545,
+       "down": 0.1492825513930545,
+       "mean": 0.1492825513930545,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1149,27 +1149,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.7894412599332132,
-       "down": 0.7894412599332132,
-       "mean": 0.7894412599332132,
+       "up": 0.7648581259243133,
+       "down": 0.7648581259243034,
+       "mean": 0.7648581259243084,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.789441259933214,
-       "down": 0.7894412599332125,
-       "mean": 0.7894412599332132,
+       "up": 0.7648581259243139,
+       "down": 0.7648581259243037,
+       "mean": 0.7648581259243088,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.7894412599332137,
-       "down": 0.7894412599332123,
-       "mean": 0.789441259933213,
+       "up": 0.7648581259243137,
+       "down": 0.7648581259243028,
+       "mean": 0.7648581259243082,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.17388733203061815,
-       "down": 0.17388733203061815,
-       "mean": 0.17388733203061815,
+       "up": 0.17178226463247148,
+       "down": 0.17178226463246926,
+       "mean": 0.17178226463247037,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1191,27 +1191,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.046548771823481334,
-       "down": 0.046548771823478934,
-       "mean": 0.046548771823480134,
+       "up": 0.04622358412007697,
+       "down": 0.04622358412007697,
+       "mean": 0.04622358412007697,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.0465487718234804,
-       "down": 0.04654877182347845,
-       "mean": 0.046548771823479426,
+       "up": 0.04622358412007603,
+       "down": 0.046223584120077967,
+       "mean": 0.046223584120077,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.0465487718234821,
-       "down": 0.046548771823478524,
-       "mean": 0.046548771823480314,
+       "up": 0.046223584120076544,
+       "down": 0.046223584120077724,
+       "mean": 0.046223584120077134,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.03898600059426455,
-       "down": 0.038986000594262535,
-       "mean": 0.03898600059426354,
+       "up": 0.038714265199961635,
+       "down": 0.038714265199961635,
+       "mean": 0.038714265199961635,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1244,27 +1244,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.19177893315049233,
-       "down": 0.19177893315048447,
-       "mean": 0.19177893315048838,
+       "up": 0.19390476114093758,
+       "down": 0.19390476114093758,
+       "mean": 0.19390476114093758,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.19177893315049283,
-       "down": 0.19177893315048467,
-       "mean": 0.19177893315048875,
+       "up": 0.1939047611409367,
+       "down": 0.19390476114093871,
+       "mean": 0.1939047611409377,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.19177893315049163,
-       "down": 0.19177893315048616,
-       "mean": 0.19177893315048888,
+       "up": 0.19390476114093663,
+       "down": 0.19390476114093844,
+       "mean": 0.19390476114093752,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.11330043973783573,
-       "down": 0.11330043973783108,
-       "mean": 0.11330043973783341,
+       "up": 0.11450182408399097,
+       "down": 0.11450182408399097,
+       "mean": 0.11450182408399097,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1286,27 +1286,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.5949844276072885,
-       "down": 0.5949844276072783,
-       "mean": 0.5949844276072834,
+       "up": 0.5866569787731387,
+       "down": 0.5866569787731337,
+       "mean": 0.5866569787731362,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.5949844276072893,
-       "down": 0.5949844276072772,
-       "mean": 0.5949844276072833,
+       "up": 0.5866569787731384,
+       "down": 0.586656978773134,
+       "mean": 0.5866569787731362,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.5949844276072885,
-       "down": 0.5949844276072774,
-       "mean": 0.594984427607283,
+       "up": 0.5866569787731389,
+       "down": 0.5866569787731335,
+       "mean": 0.5866569787731362,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.13105503850298958,
-       "down": 0.13105503850298733,
-       "mean": 0.13105503850298844,
+       "up": 0.13175942172845,
+       "down": 0.1317594217284489,
+       "mean": 0.13175942172844946,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1328,27 +1328,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.03508278039781969,
-       "down": 0.03508278039781729,
-       "mean": 0.03508278039781849,
+       "up": 0.03545414147908652,
+       "down": 0.03545414147908652,
+       "mean": 0.03545414147908652,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.035082780397819716,
-       "down": 0.035082780397817766,
-       "mean": 0.035082780397818744,
+       "up": 0.0354541414790858,
+       "down": 0.035454141479087736,
+       "mean": 0.035454141479086765,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.0350827803978197,
-       "down": 0.03508278039781612,
-       "mean": 0.03508278039781791,
+       "up": 0.03545414147908537,
+       "down": 0.03545414147908656,
+       "mean": 0.03545414147908596,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.029382886891720347,
-       "down": 0.02938288689171833,
-       "mean": 0.02938288689171934,
+       "up": 0.029694387871193714,
+       "down": 0.029694387871193714,
+       "mean": 0.029694387871193714,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1385,27 +1385,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 2.3631557907875513,
-       "down": 2.363155790787531,
-       "mean": 2.363155790787541,
+       "up": 2.3300808765178838,
+       "down": 2.3300808765178935,
+       "mean": 2.3300808765178886,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 2.3631557907875527,
-       "down": 2.36315579078753,
-       "mean": 2.363155790787541,
+       "up": 2.3300808765178838,
+       "down": 2.330080876517894,
+       "mean": 2.330080876517889,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 2.3631557907875513,
-       "down": 2.363155790787531,
-       "mean": 2.363155790787541,
+       "up": 2.3300808765178846,
+       "down": 2.3300808765178926,
+       "mean": 2.3300808765178886,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.5205236620993398,
-       "down": 0.5205236620993353,
-       "mean": 0.5205236620993375,
+       "up": 0.5233213274178703,
+       "down": 0.5233213274178725,
+       "mean": 0.5233213274178714,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1443,27 +1443,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.04408424510214764,
-       "down": 0.04408424510213974,
-       "mean": 0.04408424510214369,
+       "up": 0.04379791181460251,
+       "down": 0.04379791181460251,
+       "mean": 0.04379791181460251,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.04408424510214825,
-       "down": 0.04408424510214012,
-       "mean": 0.04408424510214418,
+       "up": 0.04379791181460228,
+       "down": 0.04379791181460228,
+       "mean": 0.04379791181460228,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.3740034248369144,
-       "down": 0.35094815665185525,
-       "mean": 0.36247579074438485,
+       "up": 0.3737076863272457,
+       "down": 0.3506706488058734,
+       "mean": 0.36218916756655956,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.026044384925555806,
-       "down": 0.026044384925551143,
-       "mean": 0.026044384925553474,
+       "up": 0.025862906946347287,
+       "down": 0.025862906946347287,
+       "mean": 0.025862906946347287,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1485,27 +1485,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 2.6331904868316047,
-       "down": 2.633190486831584,
-       "mean": 2.6331904868315945,
+       "up": 2.5917067149853144,
+       "down": 2.5917067149853046,
+       "mean": 2.5917067149853095,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 2.633190486831607,
-       "down": 2.633190486831584,
-       "mean": 2.6331904868315954,
+       "up": 2.591706714985314,
+       "down": 2.591706714985305,
+       "mean": 2.5917067149853095,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 3.048154334320337,
-       "down": 2.860252269846413,
-       "mean": 2.954203302083375,
+       "up": 3.005307940293082,
+       "down": 2.8200471219668257,
+       "mean": 2.9126775311299538,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.5800032145802575,
-       "down": 0.580003214580253,
-       "mean": 0.5800032145802552,
+       "up": 0.5820808247612399,
+       "down": 0.5820808247612377,
+       "mean": 0.5820808247612388,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1527,27 +1527,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.01261639193883023,
-       "down": 0.012616391938825418,
-       "mean": 0.012616391938827824,
+       "up": 0.0125282543712996,
+       "down": 0.0125282543712996,
+       "mean": 0.0125282543712996,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.012616391938829989,
-       "down": 0.012616391938824143,
-       "mean": 0.012616391938827066,
+       "up": 0.012528254371298333,
+       "down": 0.012528254371300267,
+       "mean": 0.0125282543712993,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.27728822258955044,
-       "down": 0.26336474325173165,
-       "mean": 0.27032648292064104,
+       "up": 0.2771977552082689,
+       "down": 0.26327881851097074,
+       "mean": 0.2702382868596198,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.010566608835350447,
-       "down": 0.010566608835346417,
-       "mean": 0.010566608835348431,
+       "up": 0.010492958766743589,
+       "down": 0.010492958766743589,
+       "mean": 0.010492958766743589,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1578,27 +1578,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.636143550948943,
-       "down": 0.636143550948943,
-       "mean": 0.636143550948943,
+       "up": 0.6320117103363058,
+       "down": 0.6320117103363083,
+       "mean": 0.632011710336307,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.6361435509489429,
-       "down": 0.6361435509489429,
-       "mean": 0.6361435509489429,
+       "up": 0.6320117103363055,
+       "down": 0.6320117103363095,
+       "mean": 0.6320117103363075,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.6361435509489425,
-       "down": 0.6361435509489444,
-       "mean": 0.6361435509489435,
+       "up": 0.6320117103363052,
+       "down": 0.6320117103363089,
+       "mean": 0.632011710336307,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.37582513821966435,
-       "down": 0.37582513821966435,
-       "mean": 0.37582513821966435,
+       "up": 0.37320637848263627,
+       "down": 0.3732063784826378,
+       "mean": 0.37320637848263705,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1662,27 +1662,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.5818596477935071,
-       "down": 0.5818596477935023,
-       "mean": 0.5818596477935047,
+       "up": 0.5777948015009501,
+       "down": 0.5777948015009525,
+       "mean": 0.5777948015009513,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.581859647793506,
-       "down": 0.5818596477935021,
-       "mean": 0.5818596477935041,
+       "up": 0.5777948015009494,
+       "down": 0.5777948015009533,
+       "mean": 0.5777948015009513,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.5818596477935066,
-       "down": 0.5818596477935019,
-       "mean": 0.5818596477935043,
+       "up": 0.5777948015009496,
+       "down": 0.5777948015009532,
+       "mean": 0.5777948015009514,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.4873250074282988,
-       "down": 0.4873250074282948,
-       "mean": 0.4873250074282968,
+       "up": 0.4839283149995105,
+       "down": 0.4839283149995125,
+       "mean": 0.4839283149995115,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1713,27 +1713,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.43150259958859993,
-       "down": 0.43150259958859993,
-       "mean": 0.43150259958859993,
+       "up": 0.43628571256710696,
+       "down": 0.4362857125671122,
+       "mean": 0.4362857125671096,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.43150259958859966,
-       "down": 0.43150259958859966,
-       "mean": 0.43150259958859966,
+       "up": 0.4362857125671061,
+       "down": 0.4362857125671121,
+       "mean": 0.43628571256710913,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.4315025995885989,
-       "down": 0.43150259958860077,
-       "mean": 0.4315025995885998,
+       "up": 0.4362857125671066,
+       "down": 0.43628571256711196,
+       "mean": 0.43628571256710924,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.25492598941012573,
-       "down": 0.25492598941012573,
-       "mean": 0.25492598941012573,
+       "up": 0.2576291041889781,
+       "down": 0.2576291041889812,
+       "mean": 0.25762910418897966,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1797,27 +1797,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.3946812794754829,
-       "down": 0.3946812794754757,
-       "mean": 0.3946812794754793,
+       "up": 0.3988590916397317,
+       "down": 0.3988590916397293,
+       "mean": 0.39885909163973055,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.394681279475483,
-       "down": 0.39468127947547516,
-       "mean": 0.39468127947547904,
+       "up": 0.3988590916397317,
+       "down": 0.39885909163972977,
+       "mean": 0.39885909163973077,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.39468127947548265,
-       "down": 0.3946812794754755,
-       "mean": 0.39468127947547904,
+       "up": 0.39885909163973177,
+       "down": 0.39885909163972944,
+       "mean": 0.3988590916397306,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.3305574775318635,
-       "down": 0.33055747753185744,
-       "mean": 0.3305574775318605,
+       "up": 0.33406186355093626,
+       "down": 0.3340618635509342,
+       "mean": 0.33406186355093526,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1848,27 +1848,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.04408424510214764,
-       "down": 0.04408424510213974,
-       "mean": 0.04408424510214369,
+       "up": 0.04379791181460251,
+       "down": 0.04379791181460251,
+       "mean": 0.04379791181460251,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.04408424510214825,
-       "down": 0.04408424510214012,
-       "mean": 0.04408424510214418,
+       "up": 0.04379791181460228,
+       "down": 0.04379791181460228,
+       "mean": 0.04379791181460228,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.3740034248369144,
-       "down": 0.350948156651857,
-       "mean": 0.36247579074438574,
+       "up": 0.3737076863272457,
+       "down": 0.3506706488058753,
+       "mean": 0.3621891675665605,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.026044384925555806,
-       "down": 0.026044384925551143,
-       "mean": 0.026044384925553474,
+       "up": 0.025862906946347287,
+       "down": 0.025862906946347287,
+       "mean": 0.025862906946347287,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1890,27 +1890,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.27003469604407354,
-       "down": 0.27003469604405317,
-       "mean": 0.2700346960440634,
+       "up": 0.2616258384674107,
+       "down": 0.2616258384674206,
+       "mean": 0.26162583846741566,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.2700346960440735,
-       "down": 0.2700346960440524,
-       "mean": 0.27003469604406294,
+       "up": 0.2616258384674114,
+       "down": 0.26162583846742016,
+       "mean": 0.26162583846741577,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.6073756959882636,
-       "down": 0.5699343020593092,
-       "mean": 0.5886549990237864,
+       "up": 0.5986906317085812,
+       "down": 0.5617846245512073,
+       "mean": 0.5802376281298942,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.05947955248092216,
-       "down": 0.05947955248091767,
-       "mean": 0.05947955248091992,
+       "up": 0.05875949734336522,
+       "down": 0.05875949734336744,
+       "mean": 0.05875949734336633,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1932,27 +1932,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.011654707442749547,
-       "down": 0.011654707442742331,
-       "mean": 0.011654707442745939,
+       "up": 0.01157328816144948,
+       "down": 0.011573288161444702,
+       "mean": 0.011573288161447091,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.011654707442750632,
-       "down": 0.011654707442742837,
-       "mean": 0.011654707442746735,
+       "up": 0.011573288161449072,
+       "down": 0.011573288161445204,
+       "mean": 0.011573288161447138,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.2763011170860012,
-       "down": 0.26242720329753805,
-       "mean": 0.2693641601917696,
+       "up": 0.2762175455810059,
+       "down": 0.26234782817028046,
+       "mean": 0.26928268687564316,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.009761169059670187,
-       "down": 0.009761169059664142,
-       "mean": 0.009761169059667164,
+       "up": 0.009693132967664508,
+       "down": 0.009693132967660506,
+       "mean": 0.009693132967662506,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -1985,21 +1985,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.1279631613465163,
-       "down": -0.1279631613465163,
-       "mean": 0.1279631613465163,
+       "up": -0.12938160531044648,
+       "down": -0.1293816053104478,
+       "mean": 0.12938160531044712,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.1279631613465151,
-       "down": -0.1279631613465171,
-       "mean": 0.12796316134651609,
+       "up": -0.12938160531044657,
+       "down": -0.1293816053104486,
+       "mean": 0.12938160531044757,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.1279631613465177,
-       "down": -0.12796316134651584,
-       "mean": 0.12796316134651675,
+       "up": -0.12938160531044665,
+       "down": -0.12938160531044846,
+       "mean": 0.12938160531044757,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -2009,9 +2009,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.184742109848731,
-       "down": 0.184742109848731,
-       "mean": 0.184742109848731,
+       "up": 0.18657281909277992,
+       "down": 0.1865728190927818,
+       "mean": 0.18657281909278087,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -2027,21 +2027,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.7838286285492896,
-       "down": -0.7838286285492793,
-       "mean": 0.7838286285492844,
+       "up": -0.7728581014293961,
+       "down": -0.7728581014293863,
+       "mean": 0.7728581014293912,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.783828628549289,
-       "down": -0.7838286285492799,
-       "mean": 0.7838286285492845,
+       "up": -0.7728581014293963,
+       "down": -0.7728581014293862,
+       "mean": 0.7728581014293912,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.783828628549289,
-       "down": -0.7838286285492805,
-       "mean": 0.7838286285492848,
+       "up": -0.7728581014293956,
+       "down": -0.7728581014293862,
+       "mean": 0.7728581014293909,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -2051,9 +2051,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.22142311633371964,
-       "down": 0.22142311633371675,
-       "mean": 0.2214231163337182,
+       "up": 0.22385553614323142,
+       "down": 0.2238555361432286,
+       "mean": 0.22385553614323,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -2069,21 +2069,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.03985932368782341,
-       "down": -0.03985932368782222,
-       "mean": 0.039859323687822815,
+       "up": -0.04028124582100047,
+       "down": -0.04028124582100166,
+       "mean": 0.040281245821001066,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.03985932368782436,
-       "down": -0.039859323687822405,
-       "mean": 0.039859323687823384,
+       "up": -0.040281245821001156,
+       "down": -0.040281245821001156,
+       "mean": 0.040281245821001156,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.039859323687822835,
-       "down": -0.039859323687822835,
-       "mean": 0.039859323687822835,
+       "up": -0.040281245821001,
+       "down": -0.040281245821001,
+       "mean": 0.040281245821001,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -2093,9 +2093,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.20547436513445366,
-       "down": 0.20547436513445524,
-       "mean": 0.20547436513445444,
+       "up": 0.20766980999058543,
+       "down": 0.2076698099905901,
+       "mean": 0.20766980999058776,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -2120,21 +2120,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.1827030759438828,
-       "down": -0.1827030759438828,
-       "mean": 0.1827030759438828,
+       "up": -0.1815163941200815,
+       "down": -0.18151639412008277,
+       "mean": 0.18151639412008214,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.18270307594388246,
-       "down": -0.18270307594388246,
-       "mean": 0.18270307594388246,
+       "up": -0.18151639412008244,
+       "down": -0.18151639412008244,
+       "mean": 0.18151639412008244,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -1.325962809127832,
-       "down": -1.7285560064152423,
-       "mean": 1.5272594077715371,
+       "up": -1.3249143206943033,
+       "down": -1.7271891724686539,
+       "mean": 1.5260517465814787,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
@@ -2144,9 +2144,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.263770849129969,
-       "down": 0.263770849129969,
-       "mean": 0.263770849129969,
+       "up": 0.26175301567235465,
+       "down": 0.26175301567235654,
+       "mean": 0.2617530156723556,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -2162,21 +2162,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -2.115311054429101,
-       "down": -3.117505441236861,
-       "mean": 2.6164082478329806,
+       "up": -2.049440447253158,
+       "down": -3.0204265856904904,
+       "mean": 2.534933516471824,
        "asymmetric": true
       },
       "costPerUnitUsd": {
-       "up": -2.1153110544291,
-       "down": -3.117505441236863,
-       "mean": 2.6164082478329815,
+       "up": -2.0494404472531578,
+       "down": -3.0204265856904913,
+       "mean": 2.5349335164718245,
        "asymmetric": true
       },
       "costPerTonneCo2Usd": {
-       "up": -3.0335115988237087,
-       "down": -5.108895554016942,
-       "mean": 4.071203576420325,
+       "up": -2.9753118620887014,
+       "down": -4.997078997467808,
+       "mean": 3.9861954297782547,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
@@ -2186,9 +2186,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.5975525116424155,
-       "down": 0.8806615946952312,
-       "mean": 0.7391070531688233,
+       "up": 0.5936129662935171,
+       "down": 0.8748555672386685,
+       "mean": 0.7342342667660928,
        "asymmetric": true
       },
       "co2AbatedTonnes": {
@@ -2204,21 +2204,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.05691029329204935,
-       "down": -0.05691029329204935,
-       "mean": 0.05691029329204935,
+       "up": -0.05651272044854041,
+       "down": -0.05651272044854041,
+       "mean": 0.05651272044854041,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.056910293292048775,
-       "down": -0.056910293292048775,
-       "mean": 0.056910293292048775,
+       "up": -0.05651272044854176,
+       "down": -0.056512720448539826,
+       "mean": 0.05651272044854079,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -1.1676104830008533,
-       "down": -1.5035124158568152,
-       "mean": 1.3355614494288344,
+       "up": -1.1672573213258792,
+       "down": -1.5030576554972077,
+       "mean": 1.3351574884115434,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
@@ -2228,9 +2228,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.29337192159564585,
-       "down": 0.29337192159564895,
-       "mean": 0.2933719215956474,
+       "up": 0.2913511158456015,
+       "down": 0.2913511158456031,
+       "mean": 0.2913511158456023,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -2339,33 +2339,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.01775936029749262,
-       "down": -0.017759360297501036,
-       "mean": 0.017759360297496828,
+       "up": -0.017635294175813353,
+       "down": -0.01763529417581813,
+       "mean": 0.01763529417581574,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.01775936029749216,
-       "down": -0.0177593602975019,
-       "mean": 0.01775936029749703,
+       "up": -0.01763529417581483,
+       "down": -0.017635294175816767,
+       "mean": 0.0176352941758158,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.01775936029749267,
-       "down": -0.017759360297502212,
-       "mean": 0.01775936029749744,
+       "up": -0.01763529417581459,
+       "down": -0.017635294175818144,
+       "mean": 0.017635294175816368,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.0008054397756842894,
-       "down": 0.0008054397756762308,
-       "mean": 0.0008054397756802601,
+       "up": 0.0007998257990850838,
+       "down": 0.0007998257990810825,
+       "mean": 0.0007998257990830832,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.09650677527148353,
-       "down": 0.09650677527148509,
-       "mean": 0.09650677527148431,
+       "up": 0.09584201688108704,
+       "down": 0.0958420168810901,
+       "mean": 0.09584201688108857,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -2474,33 +2474,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.017759360297491415,
-       "down": -0.017759360297501036,
-       "mean": 0.017759360297496224,
+       "up": -0.01763529417581216,
+       "down": -0.01763529417581813,
+       "mean": 0.017635294175815143,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.01775936029749216,
-       "down": -0.0177593602975019,
-       "mean": 0.01775936029749703,
+       "up": -0.017635294175812898,
+       "down": -0.017635294175816767,
+       "mean": 0.01763529417581483,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.017759360297490288,
-       "down": -0.017759360297502212,
-       "mean": 0.01775936029749625,
+       "up": -0.01763529417581222,
+       "down": -0.017635294175818144,
+       "mean": 0.017635294175815185,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.0008054397756842894,
-       "down": 0.0008054397756762308,
-       "mean": 0.0008054397756802601,
+       "up": 0.0007998257990850838,
+       "down": 0.0007998257990810825,
+       "mean": 0.0007998257990830832,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.09650677527148044,
-       "down": 0.09650677527148509,
-       "mean": 0.09650677527148277,
+       "up": 0.0958420168810855,
+       "down": 0.0958420168810901,
+       "mean": 0.0958420168810878,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -2744,33 +2744,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.01775936029743609,
-       "down": -0.017759360297508256,
-       "mean": 0.017759360297472174,
+       "up": -0.017635294175816937,
+       "down": -0.017635294175852766,
+       "mean": 0.01763529417583485,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.017759360297451246,
-       "down": -0.017759360297509696,
-       "mean": 0.017759360297480473,
+       "up": -0.01763529417583031,
+       "down": -0.01763529417583031,
+       "mean": 0.01763529417583031,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.01775936029743543,
-       "down": -0.017759360297506986,
-       "mean": 0.01775936029747121,
+       "up": -0.017635294175815778,
+       "down": -0.01763529417583946,
+       "mean": 0.01763529417582762,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.0008054397757286114,
-       "down": 0.0008054397756681724,
-       "mean": 0.0008054397756983918,
+       "up": 0.0007998257990890849,
+       "down": 0.0007998257990490731,
+       "mean": 0.000799825799069079,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.09650677527145253,
-       "down": 0.09650677527151454,
-       "mean": 0.09650677527148353,
+       "up": 0.09584201688110397,
+       "down": 0.09584201688110397,
+       "mean": 0.09584201688110397,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -2972,21 +2972,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.9997248871547583,
-       "down": -4.427510878003323,
-       "mean": 2.7136178825790407,
+       "up": -0.9685935387944751,
+       "down": -4.2896385640467125,
+       "mean": 2.629116051420594,
        "asymmetric": true
       },
       "costPerUnitUsd": {
-       "up": -0.9997248871547582,
-       "down": -4.427510878003324,
-       "mean": 2.713617882579041,
+       "up": -0.9685935387944739,
+       "down": -4.289638564046713,
+       "mean": 2.629116051420594,
        "asymmetric": true
       },
       "costPerTonneCo2Usd": {
-       "up": -0.9997248871547574,
-       "down": -4.427510878003324,
-       "mean": 2.7136178825790407,
+       "up": -0.9685935387944736,
+       "down": -4.289638564046715,
+       "mean": 2.6291160514205942,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
@@ -2996,9 +2996,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.2824114760899714,
-       "down": 1.2507239726920631,
-       "mean": 0.7665677243910173,
+       "up": 0.2805495931668317,
+       "down": 1.242478197277566,
+       "mean": 0.7615138952221989,
        "asymmetric": true
       },
       "co2AbatedTonnes": {
@@ -3015,32 +3015,32 @@
      "perKpi": {
       "gapPvUsdM": {
        "up": 0,
-       "down": -0.17759360297496704,
-       "mean": 0.08879680148748352,
+       "down": -0.17635294175816818,
+       "mean": 0.08817647087908409,
        "asymmetric": true
       },
       "costPerUnitUsd": {
        "up": 0,
-       "down": -0.17759360297496837,
-       "mean": 0.08879680148748419,
+       "down": -0.17635294175816765,
+       "mean": 0.08817647087908383,
        "asymmetric": true
       },
       "costPerTonneCo2Usd": {
        "up": 0,
-       "down": -0.17759360297496848,
-       "mean": 0.08879680148748424,
+       "down": -0.17635294175816724,
+       "mean": 0.08817647087908362,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
        "up": 0,
-       "down": 0.008054397756802601,
-       "mean": 0.0040271988784013005,
+       "down": 0.007998257990814826,
+       "mean": 0.003999128995407413,
        "asymmetric": true
       },
       "fossilTotalPvUsdM": {
        "up": 0,
-       "down": 0.9650677527148291,
-       "mean": 0.48253387635741457,
+       "down": 0.958420168810878,
+       "mean": 0.479210084405439,
        "asymmetric": true
       },
       "co2AbatedTonnes": {
@@ -3067,21 +3067,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.2024093116655728,
-       "down": -0.2024093116655728,
-       "mean": 0.2024093116655728,
+       "up": -0.2010946351070077,
+       "down": -0.20109463510700637,
+       "mean": 0.20109463510700704,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.20240931166557247,
-       "down": -0.20240931166557247,
-       "mean": 0.20240931166557247,
+       "up": -0.20109463510700804,
+       "down": -0.20109463510700604,
+       "mean": 0.20109463510700704,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.2024093116655728,
-       "down": -0.2024093116655728,
-       "mean": 0.2024093116655728,
+       "up": -0.20109463510700817,
+       "down": -0.20109463510700637,
+       "mean": 0.20109463510700726,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -3091,9 +3091,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.29222100248733257,
-       "down": 0.29222100248733257,
-       "mean": 0.29222100248733257,
+       "up": 0.2899855268167631,
+       "down": 0.2899855268167612,
+       "mean": 0.28998552681676215,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3109,21 +3109,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.6279646385832329,
-       "down": -0.6279646385832329,
-       "mean": 0.6279646385832329,
+       "up": -0.6084098728943355,
+       "down": -0.6084098728943355,
+       "mean": 0.6084098728943355,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.6279646385832328,
-       "down": -0.6279646385832328,
-       "mean": 0.6279646385832328,
+       "up": -0.6084098728943352,
+       "down": -0.6084098728943352,
+       "mean": 0.6084098728943352,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.6279646385832335,
-       "down": -0.6279646385832335,
-       "mean": 0.6279646385832335,
+       "up": -0.6084098728943346,
+       "down": -0.6084098728943359,
+       "mean": 0.6084098728943352,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -3133,9 +3133,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.17739322366908647,
-       "down": 0.17739322366908647,
-       "mean": 0.17739322366908647,
+       "up": 0.17622370528264278,
+       "down": 0.17622370528264278,
+       "mean": 0.17622370528264278,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3151,21 +3151,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.03702743213231394,
-       "down": -0.03702743213231394,
-       "mean": 0.03702743213231394,
+       "up": -0.03676876009551501,
+       "down": -0.03676876009551501,
+       "mean": 0.03676876009551501,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.03702743213231417,
-       "down": -0.03702743213231417,
-       "mean": 0.03702743213231417,
+       "up": -0.036768760095515246,
+       "down": -0.036768760095515246,
+       "mean": 0.036768760095515246,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.03702743213231366,
-       "down": -0.03702743213231366,
-       "mean": 0.03702743213231366,
+       "up": -0.03676876009551473,
+       "down": -0.03676876009551473,
+       "mean": 0.03676876009551473,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -3175,9 +3175,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.19087599602877017,
-       "down": 0.19087599602877017,
-       "mean": 0.19087599602877017,
+       "up": 0.1895612031603091,
+       "down": 0.1895612031603091,
+       "mean": 0.1895612031603091,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3204,21 +3204,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.16780656650667686,
-       "down": -0.16780656650667686,
-       "mean": 0.16780656650667686,
+       "up": -0.1696666659983204,
+       "down": -0.16966666599831906,
+       "mean": 0.16966666599831973,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.1678065665066756,
-       "down": -0.16780656650667763,
-       "mean": 0.16780656650667664,
+       "up": -0.16966666599832136,
+       "down": -0.16966666599831734,
+       "mean": 0.16966666599831937,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.16780656650667747,
-       "down": -0.1678065665066756,
-       "mean": 0.16780656650667652,
+       "up": -0.16966666599832,
+       "down": -0.1696666659983182,
+       "mean": 0.1696666659983191,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -3228,9 +3228,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.24226456127452384,
-       "down": 0.24226456127452384,
-       "mean": 0.24226456127452384,
+       "up": 0.24466529152598054,
+       "down": 0.24466529152597868,
+       "mean": 0.2446652915259796,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3246,21 +3246,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.5206113741563698,
-       "down": -0.5206113741563698,
-       "mean": 0.5206113741563698,
+       "up": -0.5133248564265025,
+       "down": -0.5133248564264827,
+       "mean": 0.5133248564264926,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.5206113741563687,
-       "down": -0.5206113741563703,
-       "mean": 0.5206113741563695,
+       "up": -0.5133248564265036,
+       "down": -0.5133248564264832,
+       "mean": 0.5133248564264934,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.5206113741563682,
-       "down": -0.520611374156371,
-       "mean": 0.5206113741563696,
+       "up": -0.5133248564265023,
+       "down": -0.5133248564264833,
+       "mean": 0.5133248564264927,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -3270,9 +3270,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.1470670866893893,
-       "down": 0.1470670866893893,
-       "mean": 0.1470670866893893,
+       "up": 0.1486826763392602,
+       "down": 0.14868267633925447,
+       "mean": 0.14868267633925733,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3288,21 +3288,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.03069743284809373,
-       "down": -0.03069743284809253,
-       "mean": 0.03069743284809313,
+       "up": -0.0310223737942013,
+       "down": -0.0310223737942013,
+       "mean": 0.0310223737942013,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.030697432848093467,
-       "down": -0.030697432848093467,
-       "mean": 0.030697432848093467,
+       "up": -0.031022373794202494,
+       "down": -0.03102237379420056,
+       "mean": 0.031022373794201526,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.030697432848092687,
-       "down": -0.030697432848092687,
-       "mean": 0.030697432848092687,
+       "up": -0.031022373794201478,
+       "down": -0.031022373794200295,
+       "mean": 0.031022373794200885,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -3312,9 +3312,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.15824492094045142,
-       "down": 0.15824492094045606,
-       "mean": 0.15824492094045373,
+       "up": 0.1599357303874627,
+       "down": 0.15993573038746425,
+       "mean": 0.15993573038746348,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3423,27 +3423,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.1828145917806899,
-       "down": -0.1478270578276894,
-       "mean": 0.16532082480418964,
+       "up": 0.18153745696227797,
+       "down": -0.14679434440577158,
+       "mean": 0.16416590068402476,
        "asymmetric": true
       },
       "costPerUnitUsd": {
-       "up": 0.18281459178068935,
-       "down": -0.14782705782769068,
-       "mean": 0.16532082480419003,
+       "up": 0.1815374569622759,
+       "down": -0.14679434440577044,
+       "mean": 0.16416590068402317,
        "asymmetric": true
       },
       "costPerTonneCo2Usd": {
-       "up": 0.1828145917806901,
-       "down": -0.14782705782769,
-       "mean": 0.16532082480419005,
+       "up": 0.18153745696227694,
+       "down": -0.14679434440577213,
+       "mean": 0.16416590068402453,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
-       "up": 0.15311273540856166,
-       "down": -0.12380962028758541,
-       "mean": 0.13846117784807355,
+       "up": 0.1520455279778194,
+       "down": -0.12294665780170755,
+       "mean": 0.13749609288976347,
        "asymmetric": true
       },
       "fossilTotalPvUsdM": {
@@ -3516,27 +3516,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -2.148323446170494,
-       "down": -2.6257286564306015,
-       "mean": 2.3870260513005475,
+       "up": -2.1182553422890003,
+       "down": -2.588978751686554,
+       "mean": 2.353617046987777,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -2.1483234461704934,
-       "down": -2.625728656430603,
-       "mean": 2.3870260513005483,
+       "up": -2.1182553422890007,
+       "down": -2.5889787516865534,
+       "mean": 2.353617046987777,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -2.1483234461704934,
-       "down": -2.6257286564306015,
-       "mean": 2.3870260513005475,
+       "up": -2.1182553422890003,
+       "down": -2.5889787516865534,
+       "mean": 2.353617046987777,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": -0.4732033291812164,
-       "down": -0.5783596245548195,
-       "mean": 0.5257814768680179,
+       "up": -0.47574666128897636,
+       "down": -0.5814681415754152,
+       "mean": 0.5286074014321958,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -3558,27 +3558,27 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.011654707442749547,
-       "down": 0.011654707442742331,
-       "mean": 0.011654707442745939,
+       "up": 0.01157328816144948,
+       "down": 0.011573288161444702,
+       "mean": 0.011573288161447091,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.011654707442750632,
-       "down": 0.011654707442742837,
-       "mean": 0.011654707442746735,
+       "up": 0.011573288161449072,
+       "down": 0.011573288161445204,
+       "mean": 0.011573288161447138,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.2763011170860012,
-       "down": 0.26242720329753805,
-       "mean": 0.2693641601917696,
+       "up": 0.2762175455810059,
+       "down": 0.26234782817028046,
+       "mean": 0.26928268687564316,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.009761169059670187,
-       "down": 0.009761169059664142,
-       "mean": 0.009761169059667164,
+       "up": 0.009693132967664508,
+       "down": 0.009693132967660506,
+       "mean": 0.009693132967662506,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
@@ -3612,21 +3612,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.3106662372903991,
-       "down": -0.3106662372904004,
-       "mean": 0.31066623729039977,
+       "up": -0.310897999430528,
+       "down": -0.3108979994305306,
+       "mean": 0.3108979994305293,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.3106662372903996,
-       "down": -0.3106662372904016,
-       "mean": 0.3106662372904006,
+       "up": -0.31089799943052904,
+       "down": -0.31089799943052904,
+       "mean": 0.31089799943052904,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -1.4390241975291023,
-       "down": -1.8759454661114823,
-       "mean": 1.6574848318202924,
+       "up": -1.439228970129795,
+       "down": -1.876212412443945,
+       "mean": 1.6577206912868698,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
@@ -3636,9 +3636,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.44851295897869997,
-       "down": 0.4485129589787019,
-       "mean": 0.4485129589787009,
+       "up": 0.4483258347651346,
+       "down": 0.4483258347651384,
+       "mean": 0.4483258347651365,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3654,21 +3654,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -2.3457135353479726,
-       "down": -2.345713535347952,
-       "mean": 2.3457135353479623,
+       "up": -2.2861060444423726,
+       "down": -2.286106044442363,
+       "mean": 2.2861060444423678,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -2.3457135353479717,
-       "down": -2.3457135353479535,
-       "mean": 2.3457135353479623,
+       "up": -2.2861060444423726,
+       "down": -2.2861060444423624,
+       "mean": 2.2861060444423673,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -3.237082877539175,
-       "down": -4.219936647329292,
-       "mean": 3.728509762434234,
+       "up": -3.184416894532916,
+       "down": -4.151280045023005,
+       "mean": 3.6678484697779603,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
@@ -3678,9 +3678,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.6626387224261402,
-       "down": 0.6626387224261345,
-       "mean": 0.6626387224261374,
+       "up": 0.6621622951385736,
+       "down": 0.6621622951385706,
+       "mean": 0.6621622951385722,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3696,21 +3696,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.11549066177345088,
-       "down": -0.11549066177344969,
-       "mean": 0.11549066177345028,
+       "up": -0.11538422665521152,
+       "down": -0.11538422665521152,
+       "mean": 0.11538422665521152,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.11549066177345049,
-       "down": -0.11549066177345049,
-       "mean": 0.11549066177345049,
+       "up": -0.11538422665521281,
+       "down": -0.11538422665521089,
+       "mean": 0.11538422665521185,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -1.2196470880943322,
-       "down": -1.5705190785890781,
-       "mean": 1.3950830833417052,
+       "up": -1.2195525423896976,
+       "down": -1.5703973336725536,
+       "mean": 1.3949749380311256,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
@@ -3720,9 +3720,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.5953530620015862,
-       "down": 0.5953530620015877,
-       "mean": 0.595353062001587,
+       "up": 0.5948629427172801,
+       "down": 0.5948629427172786,
+       "mean": 0.5948629427172794,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3831,21 +3831,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.021963814813109658,
-       "down": -0.015478274774045361,
-       "mean": 0.01872104479357751,
+       "up": -0.02181037655432683,
+       "down": -0.015370144217012058,
+       "mean": 0.018590260385669445,
        "asymmetric": true
       },
       "costPerUnitUsd": {
-       "up": -0.021963814813110136,
-       "down": -0.01547827477404459,
-       "mean": 0.018721044793577363,
+       "up": -0.02181037655432731,
+       "down": -0.01537014421701055,
+       "mean": 0.01859026038566893,
        "asymmetric": true
       },
       "costPerTonneCo2Usd": {
-       "up": -0.02196381481310945,
-       "down": -0.015478274774046083,
-       "mean": 0.018721044793577765,
+       "up": -0.021810376554327805,
+       "down": -0.015370144217011598,
+       "mean": 0.018590260385669702,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
@@ -3855,9 +3855,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.1132232182362173,
-       "down": 0.07979033230674823,
-       "mean": 0.09650677527148277,
+       "up": 0.11244331357047424,
+       "down": 0.07924072019169982,
+       "mean": 0.09584201688108704,
        "asymmetric": true
       },
       "co2AbatedTonnes": {
@@ -3882,22 +3882,22 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.11633014667865288,
-       "down": 0.14218129038501726,
-       "mean": 0.12925571853183507,
+       "up": 0.11761964119131725,
+       "down": 0.14375733923383147,
+       "mean": 0.13068849021257437,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": 0.11633014667865359,
-       "down": 0.14218129038501565,
-       "mean": 0.12925571853183462,
+       "up": 0.11761964119131692,
+       "down": 0.14375733923383133,
+       "mean": 0.13068849021257412,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": 0.1163301466786526,
-       "down": 0.142181290385017,
-       "mean": 0.12925571853183482,
-       "asymmetric": false
+       "up": 0.11761964119131631,
+       "down": 0.14375733923383185,
+       "mean": 0.1306884902125741,
+       "asymmetric": true
       },
       "greenTotalPvUsdM": {
        "up": 0,
@@ -3906,9 +3906,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": -0.1679473725897579,
-       "down": -0.20526901094303318,
-       "mean": 0.18660819176639554,
+       "up": -0.16961165372071227,
+       "down": -0.20730313232531397,
+       "mean": 0.18845739302301312,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -3924,22 +3924,22 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.7125714804993422,
-       "down": 0.8709206983880847,
-       "mean": 0.7917460894437134,
-       "asymmetric": false
+       "up": 0.7025982740267152,
+       "down": 0.8587312238104406,
+       "mean": 0.7806647489185778,
+       "asymmetric": true
       },
       "costPerUnitUsd": {
-       "up": 0.7125714804993429,
-       "down": 0.8709206983880847,
-       "mean": 0.7917460894437138,
-       "asymmetric": false
+       "up": 0.7025982740267145,
+       "down": 0.8587312238104412,
+       "mean": 0.7806647489185778,
+       "asymmetric": true
       },
       "costPerTonneCo2Usd": {
-       "up": 0.7125714804993434,
-       "down": 0.8709206983880841,
-       "mean": 0.7917460894437137,
-       "asymmetric": false
+       "up": 0.7025982740267153,
+       "down": 0.8587312238104403,
+       "mean": 0.7806647489185778,
+       "asymmetric": true
       },
       "greenTotalPvUsdM": {
        "up": 0,
@@ -3948,9 +3948,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": -0.20129374212155987,
-       "down": -0.24602568481523987,
-       "mean": 0.22365971346839986,
+       "up": -0.20350503285748064,
+       "down": -0.2487283734924795,
+       "mean": 0.22611670317498006,
        "asymmetric": true
       },
       "co2AbatedTonnes": {
@@ -3966,21 +3966,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.05691029329204935,
-       "down": -0.05691029329204935,
-       "mean": 0.05691029329204935,
+       "up": -0.05651272044854041,
+       "down": -0.05651272044854041,
+       "mean": 0.05651272044854041,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.056910293292048775,
-       "down": -0.056910293292048775,
-       "mean": 0.056910293292048775,
+       "up": -0.05651272044854176,
+       "down": -0.056512720448539826,
+       "mean": 0.05651272044854079,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -1.1676104830008451,
-       "down": -1.5035124158568152,
-       "mean": 1.3355614494288301,
+       "up": -1.1672573213258708,
+       "down": -1.5030576554972077,
+       "mean": 1.3351574884115394,
        "asymmetric": true
       },
       "greenTotalPvUsdM": {
@@ -3990,9 +3990,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.29337192159564585,
-       "down": 0.29337192159564895,
-       "mean": 0.2933719215956474,
+       "up": 0.2913511158456015,
+       "down": 0.2913511158456031,
+       "mean": 0.2913511158456023,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -4152,33 +4152,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.13861883084173515,
-       "down": -0.13861883084174303,
-       "mean": 0.1386188308417391,
+       "up": -0.13771848230547898,
+       "down": -0.13771848230548028,
+       "mean": 0.13771848230547962,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.1386188308417342,
-       "down": -0.1386188308417444,
-       "mean": 0.13861883084173932,
+       "up": -0.13771848230548014,
+       "down": -0.13771848230548014,
+       "mean": 0.13771848230548014,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.13861883084173543,
-       "down": -0.13861883084174276,
-       "mean": 0.1386188308417391,
+       "up": -0.13771848230547895,
+       "down": -0.13771848230547895,
+       "mean": 0.13771848230547895,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.026044384925555806,
-       "down": 0.026044384925551143,
-       "mean": 0.026044384925553474,
+       "up": 0.025862906946347287,
+       "down": 0.025862906946347287,
+       "mean": 0.025862906946347287,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.263770849129969,
-       "down": 0.263770849129969,
-       "mean": 0.263770849129969,
+       "up": 0.26175301567235465,
+       "down": 0.26175301567235654,
+       "mean": 0.2617530156723556,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -4194,33 +4194,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.8490991229542849,
-       "down": -0.84909912295429,
-       "mean": 0.8490991229542875,
+       "up": -0.8226582481409025,
+       "down": -0.8226582481408828,
+       "mean": 0.8226582481408926,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.849099122954285,
-       "down": -0.849099122954291,
-       "mean": 0.849099122954288,
+       "up": -0.8226582481409037,
+       "down": -0.8226582481408818,
+       "mean": 0.8226582481408928,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.849099122954284,
-       "down": -0.8490991229542896,
-       "mean": 0.8490991229542868,
+       "up": -0.822658248140903,
+       "down": -0.8226582481408826,
+       "mean": 0.8226582481408928,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.05947955248092216,
-       "down": 0.05947955248091767,
-       "mean": 0.05947955248091992,
+       "up": 0.05875949734336522,
+       "down": 0.05875949734336744,
+       "mean": 0.05875949734336633,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.3161432088232165,
-       "down": 0.31614320882321223,
-       "mean": 0.31614320882321434,
+       "up": 0.3140589392675878,
+       "down": 0.314058939267585,
+       "mean": 0.31405893926758643,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -4236,33 +4236,33 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.045255585849299805,
-       "down": -0.04525558584930702,
-       "mean": 0.04525558584930341,
+       "up": -0.04493943228709092,
+       "down": -0.0449394322870957,
+       "mean": 0.04493943228709331,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.045255585849300096,
-       "down": -0.04525558584930594,
-       "mean": 0.04525558584930302,
+       "up": -0.04493943228709075,
+       "down": -0.04493943228709463,
+       "mean": 0.044939432287092684,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.045255585849299874,
-       "down": -0.045255585849307035,
-       "mean": 0.045255585849303455,
+       "up": -0.04493943228709097,
+       "down": -0.04493943228709571,
+       "mean": 0.04493943228709334,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
-       "up": 0.009761169059670187,
-       "down": 0.009761169059664142,
-       "mean": 0.009761169059667164,
+       "up": 0.009693132967664508,
+       "down": 0.009693132967660506,
+       "mean": 0.009693132967662506,
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.29337192159564585,
-       "down": 0.29337192159564895,
-       "mean": 0.2933719215956474,
+       "up": 0.2913511158456015,
+       "down": 0.2913511158456031,
+       "mean": 0.2913511158456023,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -4291,21 +4291,21 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.44275108780038586,
-       "down": -0.44275108780023287,
-       "mean": 0.44275108780030936,
+       "up": -0.4289638564047227,
+       "down": -0.4289638564046732,
+       "mean": 0.4289638564046979,
        "asymmetric": false
       },
       "costPerUnitUsd": {
-       "up": -0.4427510878003753,
-       "down": -0.4427510878002398,
-       "mean": 0.4427510878003076,
+       "up": -0.428963856404727,
+       "down": -0.4289638564046686,
+       "mean": 0.4289638564046978,
        "asymmetric": false
       },
       "costPerTonneCo2Usd": {
-       "up": -0.4427510878003766,
-       "down": -0.44275108780025074,
-       "mean": 0.4427510878003137,
+       "up": -0.42896385640472723,
+       "down": -0.42896385640467305,
+       "mean": 0.42896385640470014,
        "asymmetric": false
       },
       "greenTotalPvUsdM": {
@@ -4315,9 +4315,9 @@
        "asymmetric": false
       },
       "fossilTotalPvUsdM": {
-       "up": 0.12507239726922145,
-       "down": 0.12507239726917824,
-       "mean": 0.12507239726919983,
+       "up": 0.12424781972777148,
+       "down": 0.12424781972775717,
+       "mean": 0.12424781972776433,
        "asymmetric": false
       },
       "co2AbatedTonnes": {
@@ -4487,29 +4487,29 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.26658199218825146,
-       "down": -0.2665819921882607,
-       "mean": 0.26658199218825607
+       "up": -0.26710008761592546,
+       "down": -0.2671000876159281,
+       "mean": 0.26710008761592674
       },
       "costPerUnitUsd": {
-       "up": -0.26658199218825135,
-       "down": -0.2665819921882615,
-       "mean": 0.2665819921882564
+       "up": -0.26710008761592474,
+       "down": -0.26710008761592674,
+       "mean": 0.26710008761592574
       },
       "costPerTonneCo2Usd": {
-       "up": -1.1514381747165932,
-       "down": -1.407313324653621,
-       "mean": 1.279375749685107
+       "up": -1.1519091705599325,
+       "down": -1.4078889862399173,
+       "mean": 1.279899078399925
       },
       "greenTotalPvUsdM": {
-       "up": 0.026044384925555806,
-       "down": 0.026044384925551143,
-       "mean": 0.026044384925553474
+       "up": 0.025862906946347287,
+       "down": 0.025862906946347287,
+       "mean": 0.025862906946347287
       },
       "fossilTotalPvUsdM": {
-       "up": 0.44851295897869997,
-       "down": 0.4485129589787019,
-       "mean": 0.4485129589787009
+       "up": 0.4483258347651346,
+       "down": 0.4483258347651384,
+       "mean": 0.4483258347651365
       },
       "co2AbatedTonnes": {
        "up": 1.0000000000000009,
@@ -4527,7 +4527,7 @@
       "verified": true,
       "uncertaintyBasis": "London maritime arbitration customarily allows a margin of 0.5 knots on speed and 5% on fuel consumption where the warranty is qualified by 'about', which fixes the symmetric contractual tolerance; the upside is skewed because performance warranties apply only on good-weather days (Beaufort 4 / Douglas Sea State 3 or better) and therefore exclude heavy-weather passages and progressive hull fouling between dry-dockings, both of which raise realised annual consumption above the warranted figure.",
       "relativeHalfWidth": 0.08499999999999999,
-      "impact": 0.022659469336001763
+      "impact": 0.02270350744735377
      },
      "parityHeld": true
     },
@@ -4535,29 +4535,29 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.2874769514836319,
-       "down": 0.2874769514836319,
-       "mean": 0.2874769514836319
+       "up": 0.30560067054294165,
+       "down": 0.30560067054294165,
+       "mean": 0.30560067054294165
       },
       "costPerUnitUsd": {
-       "up": 0.28747695148363356,
-       "down": 0.2874769514836321,
-       "mean": 0.28747695148363284
+       "up": 0.30560067054294277,
+       "down": 0.3056006705429413,
+       "mean": 0.30560067054294204
       },
       "costPerTonneCo2Usd": {
-       "up": -0.6477482259239739,
-       "down": -0.7916922761292999,
-       "mean": 0.719720251026637
+       "up": -0.6312721176882375,
+       "down": -0.7715548105078457,
+       "mean": 0.7014134640980416
       },
       "greenTotalPvUsdM": {
-       "up": 0.5800032145802575,
-       "down": 0.580003214580253,
-       "mean": 0.5800032145802552
+       "up": 0.5820808247612399,
+       "down": 0.5820808247612377,
+       "mean": 0.5820808247612388
       },
       "fossilTotalPvUsdM": {
-       "up": 0.6626387224261402,
-       "down": 0.6626387224261345,
-       "mean": 0.6626387224261374
+       "up": 0.6621622951385736,
+       "down": 0.6621622951385706,
+       "mean": 0.6621622951385722
       },
       "co2AbatedTonnes": {
        "up": 1.000000000000004,
@@ -4575,7 +4575,7 @@
       "verified": true,
       "uncertaintyBasis": "London maritime arbitration customarily allows a margin of 0.5 knots on speed and 5% on fuel consumption where the warranty is qualified by 'about', which fixes the symmetric contractual tolerance; the upside is skewed because performance warranties apply only on good-weather days (Beaufort 4 / Douglas Sea State 3 or better) and therefore exclude heavy-weather passages and progressive hull fouling between dry-dockings, both of which raise realised annual consumption above the warranted figure.",
       "relativeHalfWidth": 0.08499999999999999,
-      "impact": 0.02443554087610871
+      "impact": 0.02597605699615004
      },
      "parityHeld": true
     },
@@ -4583,29 +4583,29 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.10287426983462065,
-       "down": -0.10287426983462426,
-       "mean": 0.10287426983462246
+       "up": -0.10285597228391191,
+       "down": -0.10285597228391191,
+       "mean": 0.10285597228391191
       },
       "costPerUnitUsd": {
-       "up": -0.10287426983462052,
-       "down": -0.1028742698346244,
-       "mean": 0.10287426983462246
+       "up": -0.10285597228391255,
+       "down": -0.10285597228391255,
+       "mean": 0.10285597228391255
       },
       "costPerTonneCo2Usd": {
-       "up": -1.002612972576927,
-       "down": -1.225415855371808,
-       "mean": 1.1140144139743675
+       "up": -1.0025963384399201,
+       "down": -1.2253955247599053,
+       "mean": 1.1139959315999128
       },
       "greenTotalPvUsdM": {
-       "up": 0.010566608835350447,
-       "down": 0.010566608835346417,
-       "mean": 0.010566608835348431
+       "up": 0.010492958766743589,
+       "down": 0.010492958766743589,
+       "mean": 0.010492958766743589
       },
       "fossilTotalPvUsdM": {
-       "up": 0.5953530620015862,
-       "down": 0.5953530620015877,
-       "mean": 0.595353062001587
+       "up": 0.5948629427172801,
+       "down": 0.5948629427172786,
+       "mean": 0.5948629427172794
       },
       "co2AbatedTonnes": {
        "up": 0.9999999999999994,
@@ -4623,7 +4623,7 @@
       "verified": false,
       "uncertaintyBasis": "Widened from the deep-sea range because a short-sea feeder spends a materially larger share of its annual energy in port, manoeuvring and pilotage - none of which falls inside the good-weather sea-passage envelope that the +/-5% charter-party tolerance describes. The widening is a judgement, not a measurement: no source quantifying the port-energy share of a 1,800 TEU feeder's annual consumption was found.",
       "relativeHalfWidth": 0.12,
-      "impact": 0.012344912380154694
+      "impact": 0.012342716674069429
      },
      "parityHeld": true
     }
@@ -4642,24 +4642,24 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.04408424510214764,
-       "down": 0.04408424510213974,
-       "mean": 0.04408424510214369
+       "up": 0.04379791181460251,
+       "down": 0.04379791181460251,
+       "mean": 0.04379791181460251
       },
       "costPerUnitUsd": {
-       "up": 0.04408424510214825,
-       "down": 0.04408424510214012,
-       "mean": 0.04408424510214418
+       "up": 0.04379791181460228,
+       "down": 0.04379791181460228,
+       "mean": 0.04379791181460228
       },
       "costPerTonneCo2Usd": {
-       "up": 0.3740034248369144,
-       "down": 0.35094815665185525,
-       "mean": 0.36247579074438485
+       "up": 0.3737076863272457,
+       "down": 0.3506706488058734,
+       "mean": 0.36218916756655956
       },
       "greenTotalPvUsdM": {
-       "up": 0.026044384925555806,
-       "down": 0.026044384925551143,
-       "mean": 0.026044384925553474
+       "up": 0.025862906946347287,
+       "down": 0.025862906946347287,
+       "mean": 0.025862906946347287
       },
       "fossilTotalPvUsdM": {
        "up": 0,
@@ -4678,24 +4678,24 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 5.232661856697908,
-       "down": 4.760030698540368,
-       "mean": 4.996346277619138
+       "up": 5.154795679155002,
+       "down": 4.688779503851405,
+       "mean": 4.921787591503204
       },
       "costPerUnitUsd": {
-       "up": 5.232661856697911,
-       "down": 4.760030698540367,
-       "mean": 4.996346277619139
+       "up": 5.154795679155,
+       "down": 4.688779503851405,
+       "mean": 4.921787591503202
       },
       "costPerTonneCo2Usd": {
-       "up": 5.7330108364856365,
-       "down": 4.92153844085481,
-       "mean": 5.327274638670223
+       "up": 5.652586979736027,
+       "down": 4.852483369640887,
+       "mean": 5.252535174688457
       },
       "greenTotalPvUsdM": {
-       "up": 1.1525792428895305,
-       "down": 1.0484745104696562,
-       "mean": 1.1005268766795933
+       "up": 1.1577342849209005,
+       "down": 1.0530700194373221,
+       "mean": 1.1054021521791113
       },
       "fossilTotalPvUsdM": {
        "up": 0,
@@ -4714,24 +4714,24 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.01261639193883023,
-       "down": 0.012616391938825418,
-       "mean": 0.012616391938827824
+       "up": 0.0125282543712996,
+       "down": 0.0125282543712996,
+       "mean": 0.0125282543712996
       },
       "costPerUnitUsd": {
-       "up": 0.012616391938829989,
-       "down": 0.012616391938824143,
-       "mean": 0.012616391938827066
+       "up": 0.012528254371298333,
+       "down": 0.012528254371300267,
+       "mean": 0.0125282543712993
       },
       "costPerTonneCo2Usd": {
-       "up": 0.27728822258955044,
-       "down": 0.26336474325173165,
-       "mean": 0.27032648292064104
+       "up": 0.2771977552082689,
+       "down": 0.26327881851097074,
+       "mean": 0.2702382868596198
       },
       "greenTotalPvUsdM": {
-       "up": 0.010566608835350447,
-       "down": 0.010566608835346417,
-       "mean": 0.010566608835348431
+       "up": 0.010492958766743589,
+       "down": 0.010492958766743589,
+       "mean": 0.010492958766743589
       },
       "fossilTotalPvUsdM": {
        "up": 0,
@@ -4761,19 +4761,19 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.45142571477156535,
-       "down": -0.4258330825022655,
-       "mean": 0.4386293986369154
+       "up": -0.45321776527202223,
+       "down": -0.42734144420993714,
+       "mean": 0.4402796047409797
       },
       "costPerUnitUsd": {
-       "up": -0.45142571477156657,
-       "down": -0.42583308250226687,
-       "mean": 0.43862939863691675
+       "up": -0.4532177652720221,
+       "down": -0.42734144420993725,
+       "mean": 0.4402796047409797
       },
       "costPerTonneCo2Usd": {
-       "up": -1.563391724770495,
-       "down": -2.0085959798380957,
-       "mean": 1.7859938523042953
+       "up": -1.5649750845088328,
+       "down": -2.010333328421709,
+       "mean": 1.787654206465271
       },
       "greenTotalPvUsdM": {
        "up": 0,
@@ -4781,9 +4781,9 @@
        "mean": 0
       },
       "fossilTotalPvUsdM": {
-       "up": 0.6517292798123017,
-       "down": 0.6147808578425604,
-       "mean": 0.633255068827431
+       "up": 0.653555935767197,
+       "down": 0.616241371948647,
+       "mean": 0.634898653857922
       },
       "co2AbatedTonnes": {
        "up": 1.3180249381303388,
@@ -4797,19 +4797,19 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -3.2079250267521795,
-       "down": -3.051159301042309,
-       "mean": 3.129542163897244
+       "up": -3.1362499560147015,
+       "down": -2.981678335728816,
+       "mean": 3.0589641458717587
       },
       "costPerUnitUsd": {
-       "up": -3.207925026752179,
-       "down": -3.0511593010423126,
-       "mean": 3.129542163897246
+       "up": -3.136249956014701,
+       "down": -2.981678335728817,
+       "mean": 3.0589641458717587
       },
       "costPerTonneCo2Usd": {
-       "up": -3.998886722395024,
-       "down": -5.032477296970874,
-       "mean": 4.515682009682949
+       "up": -3.93555847287332,
+       "down": -4.952448311839775,
+       "mean": 4.444003392356548
       },
       "greenTotalPvUsdM": {
        "up": 0,
@@ -4817,9 +4817,9 @@
        "mean": 0
       },
       "fossilTotalPvUsdM": {
-       "up": 0.9062041503932285,
-       "down": 0.8619195271264812,
-       "mean": 0.8840618387598549
+       "up": 0.9084033848961262,
+       "down": 0.8636322776674782,
+       "mean": 0.8860178312818021
       },
       "co2AbatedTonnes": {
        "up": 1.318024938130338,
@@ -4833,19 +4833,19 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": -0.15933591783005555,
-       "down": -0.15136405309249062,
-       "mean": 0.1553499854612731
+       "up": -0.1596935970583125,
+       "down": -0.15163734789411146,
+       "mean": 0.15566547247621199
       },
       "costPerUnitUsd": {
-       "up": -0.15933591783005552,
-       "down": -0.15136405309249026,
-       "mean": 0.15534998546127288
+       "up": -0.15969359705831235,
+       "down": -0.15163734789411173,
+       "mean": 0.15566547247621204
       },
       "costPerTonneCo2Usd": {
-       "up": -1.2585945773946896,
-       "down": -1.6115525561087845,
-       "mean": 1.4350735667517371
+       "up": -1.2589123018002104,
+       "down": -1.6118651620734326,
+       "mean": 1.4353887319368215
       },
       "greenTotalPvUsdM": {
        "up": 0,
@@ -4853,9 +4853,9 @@
        "mean": 0
       },
       "fossilTotalPvUsdM": {
-       "up": 0.8213748636494863,
-       "down": 0.780279990622598,
-       "mean": 0.8008274271360422
+       "up": 0.8232997337069251,
+       "down": 0.7817657717088061,
+       "mean": 0.8025327527078656
       },
       "co2AbatedTonnes": {
        "up": 1.257530804739873,
@@ -4880,29 +4880,29 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.052048108714004435,
-       "down": 0.052048108714004435,
-       "mean": 0.052048108714004435
+       "up": 0.05171004902751462,
+       "down": 0.05171004902751593,
+       "mean": 0.051710049027515276
       },
       "costPerUnitUsd": {
-       "up": 0.05204810871400388,
-       "down": 0.05204810871400388,
-       "mean": 0.05204810871400388
+       "up": 0.051710049027513354,
+       "down": 0.05171004902751739,
+       "mean": 0.05171004902751537
       },
       "costPerTonneCo2Usd": {
-       "up": 0.05204810871400349,
-       "down": 0.05204810871400532,
-       "mean": 0.05204810871400441
+       "up": 0.05171004902751318,
+       "down": 0.0517100490275168,
+       "mean": 0.05171004902751499
       },
       "greenTotalPvUsdM": {
-       "up": 0.15033005528786575,
-       "down": 0.15033005528786575,
-       "mean": 0.15033005528786575
+       "up": 0.1492825513930545,
+       "down": 0.1492825513930545,
+       "mean": 0.1492825513930545
       },
       "fossilTotalPvUsdM": {
-       "up": 0.29222100248733257,
-       "down": 0.29222100248733257,
-       "mean": 0.29222100248733257
+       "up": 0.2899855268167631,
+       "down": 0.2899855268167612,
+       "mean": 0.28998552681676215
       },
       "co2AbatedTonnes": {
        "up": 0,
@@ -4920,36 +4920,36 @@
       "verified": true,
       "uncertaintyBasis": "Five reported 2026 Supramax/Ultramax newbuilding contracts span USD 33.5m to USD 39.2m, with the spread driven almost entirely by build country: Chinese yards cluster at USD 33.5-35m and the one Japanese order (Nihon Shipyard/Imabari) sits at USD 39.2m, a 17% premium for the same deadweight.",
       "relativeHalfWidth": 0.11428571428571428,
-      "impact": 0.005948355281600507
+      "impact": 0.005909719888858888
      }
     },
     "B": {
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.16147662134998034,
-       "down": 0.16147662134998034,
-       "mean": 0.16147662134998034
+       "up": 0.1564482530299779,
+       "down": 0.156448253029968,
+       "mean": 0.15644825302997295
       },
       "costPerUnitUsd": {
-       "up": 0.16147662134998117,
-       "down": 0.16147662134997967,
-       "mean": 0.16147662134998042
+       "up": 0.1564482530299787,
+       "down": 0.1564482530299685,
+       "mean": 0.15644825302997362
       },
       "costPerTonneCo2Usd": {
-       "up": 0.1614766213499816,
-       "down": 0.1614766213499788,
-       "mean": 0.1614766213499802
+       "up": 0.15644825302997914,
+       "down": 0.1564482530299683,
+       "mean": 0.15644825302997373
       },
       "greenTotalPvUsdM": {
-       "up": 0.17388733203061815,
-       "down": 0.17388733203061815,
-       "mean": 0.17388733203061815
+       "up": 0.17178226463247148,
+       "down": 0.17178226463246926,
+       "mean": 0.17178226463247037
       },
       "fossilTotalPvUsdM": {
-       "up": 0.17739322366908647,
-       "down": 0.17739322366908647,
-       "mean": 0.17739322366908647
+       "up": 0.17622370528264278,
+       "down": 0.17622370528264278,
+       "mean": 0.17622370528264278
       },
       "co2AbatedTonnes": {
        "up": 0,
@@ -4967,36 +4967,36 @@
       "verified": true,
       "uncertaintyBasis": "Reported 2026 Newcastlemax and large Capesize contracts cluster USD 73.5-78.25m, with a 2024 assessed value of USD 69.63m for 180,000 dwt setting the floor of the recent cycle; the model's current USD 80.5m point sits above every conventional contract found.",
       "relativeHalfWidth": 0.07894736842105263,
-      "impact": 0.01274815431710371
+      "impact": 0.012351177870787338
      }
     },
     "C": {
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.009521339691167403,
-       "down": 0.009521339691164997,
-       "mean": 0.0095213396911662
+       "up": 0.009454824024561957,
+       "down": 0.009454824024561957,
+       "mean": 0.009454824024561957
       },
       "costPerUnitUsd": {
-       "up": 0.009521339691166223,
-       "down": 0.009521339691164275,
-       "mean": 0.00952133969116525
+       "up": 0.009454824024560786,
+       "down": 0.00945482402456272,
+       "mean": 0.009454824024561752
       },
       "costPerTonneCo2Usd": {
-       "up": 0.009521339691167256,
-       "down": 0.009521339691163677,
-       "mean": 0.009521339691165465
+       "up": 0.009454824024560625,
+       "down": 0.00945482402456181,
+       "mean": 0.009454824024561218
       },
       "greenTotalPvUsdM": {
-       "up": 0.03898600059426455,
-       "down": 0.038986000594262535,
-       "mean": 0.03898600059426354
+       "up": 0.038714265199961635,
+       "down": 0.038714265199961635,
+       "mean": 0.038714265199961635
       },
       "fossilTotalPvUsdM": {
-       "up": 0.19087599602877017,
-       "down": 0.19087599602877017,
-       "mean": 0.19087599602877017
+       "up": 0.1895612031603091,
+       "down": 0.1895612031603091,
+       "mean": 0.1895612031603091
       },
       "co2AbatedTonnes": {
        "up": 0,
@@ -5014,7 +5014,7 @@
       "verified": false,
       "uncertaintyBasis": "One reported 2026 feeder programme prices three 1,800 TEU vessels at USD 93-99m in total, i.e. USD 31-33m each, and the source itself expresses the figure as a range rather than a contract price; the band is widened modestly at both ends because this is a single datapoint.",
       "relativeHalfWidth": 0.109375,
-      "impact": 0.0010413965287213033
+      "impact": 0.001034121377686464
      }
     }
    }
@@ -5032,29 +5032,29 @@
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.02397236664381549,
-       "down": 0.0239723666438076,
-       "mean": 0.023972366643811544
+       "up": 0.024238095142617197,
+       "down": 0.0242380951426185,
+       "mean": 0.02423809514261785
       },
       "costPerUnitUsd": {
-       "up": 0.02397236664381516,
-       "down": 0.023972366643807023,
-       "mean": 0.02397236664381109
+       "up": 0.02423809514261734,
+       "down": 0.024238095142619362,
+       "mean": 0.02423809514261835
       },
       "costPerTonneCo2Usd": {
-       "up": 0.023972366643814195,
-       "down": 0.02397236664380872,
-       "mean": 0.023972366643811457
+       "up": 0.024238095142616628,
+       "down": 0.024238095142620254,
+       "mean": 0.02423809514261844
       },
       "greenTotalPvUsdM": {
-       "up": 0.11330043973783573,
-       "down": 0.11330043973783108,
-       "mean": 0.11330043973783341
+       "up": 0.11450182408399097,
+       "down": 0.11450182408399097,
+       "mean": 0.11450182408399097
       },
       "fossilTotalPvUsdM": {
-       "up": 0.24226456127452384,
-       "down": 0.24226456127452384,
-       "mean": 0.24226456127452384
+       "up": 0.24466529152598054,
+       "down": 0.24466529152597868,
+       "mean": 0.2446652915259796
       },
       "co2AbatedTonnes": {
        "up": 0,
@@ -5072,36 +5072,36 @@
       "verified": true,
       "uncertaintyBasis": "Four listed dry bulk owners with similar average fleet deadweight disclosed daily operating expenses spanning USD 5,180 to USD 6,805 per vessel in Q2 2026 - a 31% cross-sectional spread between well-run public operators - to which a dry-dock accrual of roughly USD 450-800/day must be added, since the disclosed figures report dry docking separately.",
       "relativeHalfWidth": 0.17021276595744678,
-      "impact": 0.004080402832989198
+      "impact": 0.0041256332157647395
      }
     },
     "B": {
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.07437305345091871,
-       "down": 0.07437305345090851,
-       "mean": 0.0743730534509136
+       "up": 0.07333212234663616,
+       "down": 0.07333212234665099,
+       "mean": 0.07333212234664357
       },
       "costPerUnitUsd": {
-       "up": 0.07437305345091907,
-       "down": 0.07437305345090701,
-       "mean": 0.07437305345091305
+       "up": 0.07333212234663629,
+       "down": 0.07333212234665087,
+       "mean": 0.07333212234664357
       },
       "costPerTonneCo2Usd": {
-       "up": 0.07437305345091894,
-       "down": 0.07437305345090775,
-       "mean": 0.07437305345091334
+       "up": 0.07333212234663661,
+       "down": 0.07333212234665015,
+       "mean": 0.07333212234664338
       },
       "greenTotalPvUsdM": {
-       "up": 0.13105503850298958,
-       "down": 0.13105503850298733,
-       "mean": 0.13105503850298844
+       "up": 0.13175942172845,
+       "down": 0.1317594217284489,
+       "mean": 0.13175942172844946
       },
       "fossilTotalPvUsdM": {
-       "up": 0.1470670866893893,
-       "down": 0.1470670866893893,
-       "mean": 0.1470670866893893
+       "up": 0.1486826763392602,
+       "down": 0.14868267633925447,
+       "mean": 0.14868267633925733
       },
       "co2AbatedTonnes": {
        "up": 0,
@@ -5119,36 +5119,36 @@
       "verified": false,
       "uncertaintyBasis": "Same disclosed operator band as the Supramax row, shifted upward by a class premium of roughly 1.15-1.25x. Vessel operating cost scales far more weakly than deadweight because crew - about 42% of the total - is essentially flat between the classes (both carry some 20-22 seafarers, and minimum safe manning steps by gross tonnage are small). Only hull-and-machinery insurance (tracking a 2.2x hull value), lubricants (tracking engine power) and repairs scale materially, giving a weighted ratio near 1.24x against a deadweight ratio of 3.6x. No operator publishes opex split by class, so the premium is inferred from cost structure, not measured.",
       "relativeHalfWidth": 0.18750000000000006,
-      "impact": 0.013944947522046305
+      "impact": 0.013749772939995674
      }
     },
     "C": {
      "measurable": true,
      "perKpi": {
       "gapPvUsdM": {
-       "up": 0.004385347549725958,
-       "down": 0.004385347549724755,
-       "mean": 0.004385347549725357
+       "up": 0.004431767684885218,
+       "down": 0.004431767684885218,
+       "mean": 0.004431767684885218
       },
       "costPerUnitUsd": {
-       "up": 0.004385347549726247,
-       "down": 0.004385347549724298,
-       "mean": 0.004385347549725272
+       "up": 0.004431767684885241,
+       "down": 0.004431767684885241,
+       "mean": 0.004431767684885241
       },
       "costPerTonneCo2Usd": {
-       "up": 0.004385347549727015,
-       "down": 0.00438534754972463,
-       "mean": 0.0043853475497258225
+       "up": 0.004431767684885079,
+       "down": 0.004431767684885079,
+       "mean": 0.004431767684885079
       },
       "greenTotalPvUsdM": {
-       "up": 0.029382886891720347,
-       "down": 0.02938288689171833,
-       "mean": 0.02938288689171934
+       "up": 0.029694387871193714,
+       "down": 0.029694387871193714,
+       "mean": 0.029694387871193714
       },
       "fossilTotalPvUsdM": {
-       "up": 0.15824492094045142,
-       "down": 0.15824492094045606,
-       "mean": 0.15824492094045373
+       "up": 0.1599357303874627,
+       "down": 0.15993573038746425,
+       "mean": 0.15993573038746348
       },
       "co2AbatedTonnes": {
        "up": 0,
@@ -5166,7 +5166,7 @@
       "verified": false,
       "uncertaintyBasis": "No listed feeder container owner discloses technical operating cost separately: the largest pure feeder owner guides on USD 8,510 per vessel-day but that figure bundles voyage expenditure, G&A and ship management alongside OPEX, so it bounds the answer from above without giving it. The band is the dry bulk range widened at both ends.",
       "relativeHalfWidth": 0.2173913043478261,
-      "impact": 0.0009533364238533385
+      "impact": 0.000963427757583743
      }
     }
    }

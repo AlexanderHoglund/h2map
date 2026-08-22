@@ -48,7 +48,7 @@ const bundle = parseRefBundle(
  * historical figure are untouched.
  */
 const bundleCurrent = parseRefBundle(
-  JSON.parse(readFileSync(new URL("data/corridor-ref/2026-08-18-fuel-v4.json", ROOT), "utf8")),
+  JSON.parse(readFileSync(new URL("data/corridor-ref/2026-08-21-cruise-v6.json", ROOT), "utf8")),
 );
 /** Repin: resolveScenario refuses a scenario pinned to a different bundle. */
 const repinCurrent = (s: { refBundleId?: string }): void => {

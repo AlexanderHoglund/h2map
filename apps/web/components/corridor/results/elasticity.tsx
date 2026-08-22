@@ -144,7 +144,9 @@ export function ElasticitySection({ scenario }: { scenario: ScenarioInput | null
   ];
 
   return (
-    <Card as="section" className="mt-4">
+    // No own margin: the card sits in the Appendix split's grid, which
+    // spaces and aligns the two panes.
+    <Card as="section">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <SectionLabel>{t("elasticity")}</SectionLabel>
         <label className="flex items-center gap-2 text-xs text-neutral-600">

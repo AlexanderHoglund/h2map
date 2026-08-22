@@ -210,6 +210,22 @@ function resolveFuelSide(
     );
   })();
 
+  // THE THIRD TERM (cruise, 2026-08-21): hotel services burn fuel every day
+  // of the year, at sea and at berth, INDEPENDENT of speed — which is why it
+  // sits outside the speedFactor product below. Folding it into gjPerNm (the
+  // 2-term construction) makes hotel energy scale with v², and the MRV
+  // closure test on MSC World Europa puts that at −20% under slow steaming —
+  // the exact scenario a decarbonisation model exists to price. Per-roundtrip
+  // share of the ANNUAL hotel energy, so the yearly total is exactly
+  // hotelLoadGjPerDay × 365 regardless of itinerary. Rows carrying this
+  // field ship portGjPerDay = 0 (berth hotel is inside this term).
+  const hotelGjPerRoundTrip =
+    vesselType.hotelLoadGjPerDay !== undefined &&
+    vesselType.hotelLoadGjPerDay > 0 &&
+    scenario.cargo.roundtripsPerYear > 0
+      ? (vesselType.hotelLoadGjPerDay * 365) / scenario.cargo.roundtripsPerYear
+      : 0;
+
   const tonnes = resolve(o.fuelTonnesPerVesselYear, tonnesPerVesselYear, () =>
     derived(
       tonnesPerVesselYear(
@@ -217,7 +233,8 @@ function resolveFuelSide(
           2 *
           vesselType.gjPerNm *
           speedFactor +
-          portGjPerRoundTrip) *
+          portGjPerRoundTrip +
+          hotelGjPerRoundTrip) *
           scenario.cargo.roundtripsPerYear *
           1000) /
           (lhv.value as MjPerTonne),

@@ -44,7 +44,7 @@ const DRAWS = 4000;
 const SEED = 20260819;
 
 const bundle = parseRefBundle(
-  JSON.parse(readFileSync(new URL("data/corridor-ref/2026-08-18-fuel-v4.json", ROOT), "utf8")),
+  JSON.parse(readFileSync(new URL("data/corridor-ref/2026-08-21-cruise-v6.json", ROOT), "utf8")),
 );
 const uncertainty = parseUncertaintyDataset(
   JSON.parse(

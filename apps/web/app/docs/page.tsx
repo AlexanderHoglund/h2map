@@ -319,9 +319,13 @@ export default async function DocsPage() {
             can always get back.
           </li>
           <li>
-            <strong>unverified benchmark</strong>{" "}— the reference data flags
-            the value as illustrative, not sourced (all country WACCs carry
-            this).
+            <strong>unverified benchmark</strong>{" "}— an amber badge shown
+            when the reference data flags a row&apos;s provenance as
+            unverified. Since bundle 2026-08-21-verified-v5 every active
+            reference row is verified, pooled with a stated basis, or
+            designated as a modelling choice — see the verification research
+            (2026-08-21) — so the badge appears only on scenarios pinning
+            older reference bundles.
           </li>
         </ul>
         <p className="mt-2">
@@ -391,6 +395,12 @@ export default async function DocsPage() {
           <br />
           $/tCO2 = gap × 10⁶ / Σ CO2 abated
         </F>
+        <p className="mt-2 text-sm">
+          The Results tab&apos;s <strong>Appendix</strong> writes this chain
+          out live for the open scenario — once symbolically, shaped by the
+          scenario&apos;s own selections, and once with the values
+          substituted, closing on the exact headline abatement cost.
+        </p>
         <p className="mt-2">
           Derived benchmarks (the DERIVED badges): fuel consumption{" "}
           <code className="mx-1">
@@ -402,6 +412,24 @@ export default async function DocsPage() {
           vessel/storage/barge CAPEX = 0 and logistics OPEX × 0.3
           (existing-infrastructure rules). Purchase-type sourcing forces
           production lines to zero with precedence over overrides.
+        </p>
+        <p className="mt-2">
+          <strong>Cruise ships add a third energy term.</strong>{" "}A
+          passenger vessel&apos;s hotel — accommodation, galleys, HVAC —
+          burns fuel every day of the year regardless of speed, so cruise
+          rows carry a propulsion-only GJ/nm plus a separate{" "}
+          <code className="mx-1">hotel GJ/day × 365</code>{" "}term that sits
+          outside the v² speed correction. Folding hotel energy into GJ/nm
+          looks exact on a fixed itinerary but mis-prices any scenario that
+          moves speed: the EU-MRV closure test on a mega-class ship puts the
+          folded model at −20% under 20% slow steaming, precisely because
+          hotel load does not fall when the ship slows. A cruise
+          &quot;corridor&quot; is read as a deployment loop — distance is
+          the itinerary length, roundtrips the loops per year, and the cargo
+          unit is passenger-trips. Hotel <em>operating cost</em>{" "}is
+          carried on the rows as reference data but excluded from the
+          comparison by designation: it is fuel-invariant, so it cancels in
+          the gap.
         </p>
         <p className="mt-2">
           <strong>Delivered-energy parity.</strong>{" "}CO₂ abated is a{" "}
@@ -452,10 +480,10 @@ export default async function DocsPage() {
             <tbody>
               {(
                 [
-                  ["Green corridor NPV", "$2,850m", "$2,850.66m", "+0.02%"],
-                  ["Fossil corridor NPV (ex-regulation)", "$850m", "$838.22m", "−1.4%"],
-                  ["Gap NPV (pre-regulation)", "$2,000m", "$2,012.44m", "+0.6%"],
-                  ["Incremental cost per cargo tonne (pre-reg.)", "$80/t", "$81.31/t", "+1.6%"],
+                  ["Green corridor NPV", "$2,850m", "$2,871.20m", "+0.7%"],
+                  ["Fossil corridor NPV (ex-regulation)", "$850m", "$846.69m", "−0.4%"],
+                  ["Gap NPV (pre-regulation)", "$2,000m", "$2,024.51m", "+1.2%"],
+                  ["Incremental cost per cargo tonne (pre-reg.)", "$80/t", "$81.80/t", "+2.2%"],
                   ["CO2 abated (15 yr, well-to-wake)", "1.45 Mt", "1,450,095 t", "exact"],
                   ["Regulatory benefit (IMO NZF proxy)", "≈$250m", "$250.23m", "≈exact"],
                 ] as const
@@ -477,12 +505,13 @@ export default async function DocsPage() {
           method (§14–§16) instead, and the two variants therefore differ
           deliberately: the current default computes a post-regulation gap
           of{" "}
-          <strong>$1,819.48m</strong>{" "}where the study-calibration variant
-          pins $1,762.21m; CO2 abated of{" "}
+          <strong>$1,831.55m</strong>{" "}where the study-calibration variant
+          reads $1,774.29m (the engine tests pin its legacy 2%-inflation
+          calibration at $1,762.21m); CO2 abated of{" "}
           <strong>1,118,236 t</strong>{" "}against the variant&apos;s
           study-exact 1,450,095 (a WtW=0 green ammonia is not a certifiable
-          value; the derived blend is 22.14 gCO2e/MJ, §15); and $1,627/tCO2 against
-          the variant&apos;s $1,215. Under the current default the green side
+          value; the derived blend is 22.14 gCO2e/MJ, §15); and $1,638/tCO2 against
+          the variant&apos;s $1,224. Under the current default the green side
           also pays the self-designed CO2 price
           ($60.75m PV; fossil $253.71m on the Annex II 91.744/40,500
           row). The pre-regulation figures are factor-independent and
@@ -532,7 +561,7 @@ export default async function DocsPage() {
               "Country (port A)",
               "—",
               "Chile (default)",
-              "THE anchor input: selects the financing (WACC) benchmark. Denmark, Netherlands, India, Brazil, Singapore and the United States carry their own reference benchmarks (5.5–11.5%); any other country silently falls back to the generic 8% benchmark. All are flagged unverified.",
+              "THE anchor input: selects the financing (WACC) benchmark. Denmark, Netherlands, India, Brazil, Singapore and the United States carry their own researched benchmarks (8.0–11.6% nominal); any other country silently falls back to the generic 11.6% benchmark, deliberately conservative — floored above every listed country. All are verified (component build, Damodaran + FRED + IEA Observatory cross-check).",
             ],
             [
               "Port A / Port B",
@@ -591,15 +620,15 @@ export default async function DocsPage() {
           rows={[
             [
               "Cargo unit",
-              "tonne | TEU",
+              "tonne | TEU | passenger",
               "by vessel type",
-              "What one cargo unit IS. Defaults to tonne for tankers/bulk/Ro-Ro and TEU for container vessels. Switching writes the weight: TEU sets it to the 10 t benchmark, tonne pins it to 1 (and the weight field hides).",
+              "What one cargo unit IS. When not chosen explicitly it derives from the vessel row's defaultCargoUnit (container classes → TEU, cruise archetypes → passenger, everything else tonne). Switching writes the weight: TEU sets it to 10 t — the GLEC Framework's default average payload per TEU — tonne pins it to 1, and a passenger carries no cargo weight (the weight field hides for both tonne and passenger).",
             ],
             [
               "Weight per unit",
               "t",
-              "1 (tonne) / 10 (TEU)",
-              "Renders only for TEU; used to derive cost per tonne of cargo. A stored tonne scenario with a different weight still computes with its stored value — nothing is rewritten on load.",
+              "1 (tonne) / 10 (TEU, GLEC default)",
+              "Renders only for TEU; used to derive cost per tonne of cargo. A passenger-trip has no weight, so no per-tonne figure derives from it. A stored tonne scenario with a different weight still computes with its stored value — nothing is rewritten on load.",
             ],
             [
               "Annual cargo throughput",
@@ -631,7 +660,7 @@ export default async function DocsPage() {
               "Vessel type",
               "—",
               "Handymax bulk (58k dwt), default",
-              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. 35 researched classes from Handysize bulk to 174k-m³ LNG carrier (§17). Some retired classes are hidden from the picker but still resolve if a saved scenario names one; they carry older energy figures, so do not use them for new work.",
+              "Sets the per-ship benchmark CAPEX/OPEX and the energy-per-mile figure (GJ/nm) that consumption derives from. 41 active researched classes — 35 cargo classes from Handysize bulk to 174k-m³ LNG carrier, plus six ocean-cruise archetypes (§17); cruise rows add a speed-independent hotel GJ/day third term. Some retired classes are hidden from the picker but still resolve if a saved scenario names one; they carry older energy figures, so do not use them for new work.",
             ],
             [
               "Number of vessels",
@@ -643,7 +672,7 @@ export default async function DocsPage() {
               "Roundtrips per year",
               "1/yr",
               "3 (default)",
-              "Multiplies fuel burn: consumption is 2 × corridor length × roundtrips × GJ/nm ÷ the fuel's energy density.",
+              "Multiplies fuel burn: consumption is 2 × corridor length × roundtrips × GJ/nm ÷ the fuel's energy density (cruise rows add a speed-independent hotel GJ/day × 365 term on top; their GJ/nm is propulsion-only). On a cruise deployment loop, roundtrips are the itinerary loops sailed per year.",
             ],
             [
               "Service speed",
@@ -655,7 +684,7 @@ export default async function DocsPage() {
               "Port days per round trip",
               "days",
               "none (optional)",
-              "Fuel burned alongside at zero miles, from the vessel's port and cargo-system day rates. A distance-only formula cannot express this at all, and it is not always small — GMF's cycle is 24 laden + 7 port + 22 ballast days. Every day rate behind it is a sector ESTIMATE, so the Results panel reports the share of round-trip energy it accounts for and warns past ~10%.",
+              "Fuel burned alongside at zero miles, from the vessel's port and cargo-system day rates. A distance-only formula cannot express this at all, and it is not always small — GMF's cycle is 24 laden + 7 port + 22 ballast days. Every day rate behind it is a sector ESTIMATE, so the Results panel reports the share of round-trip energy it accounts for and warns past ~10%. Cruise rows set the port day rates to zero by construction: their hotel GJ/day × 365 term already covers every day of the year, in port or at sea.",
             ],
             [
               "Green vessel CAPEX",
@@ -907,7 +936,7 @@ export default async function DocsPage() {
               "Fuel consumption",
               "t/vessel/yr",
               "default: 5,700 green / 2,638 fossil (study)",
-              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV — distance from the Intro tab, roundtrips and the vessel class's GJ/nm from the Vessels tab (§7) — with a direct override as the escape hatch. The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 2.334 GJ/nm, 9,500 nm × 3) implies 7,152.6 and 3,284.9 — that scenario states its burns as overrides instead, to reproduce the study.",
+              "Always derived: 2 × distance × roundtrips × GJ/nm × 1000 / LHV — distance from the Intro tab, roundtrips and the vessel class's GJ/nm from the Vessels tab (§7) — with a direct override as the escape hatch; cruise rows add a speed-independent hotel GJ/day × 365 term (their GJ/nm is propulsion-only, §3). The green side needs ~2.2× the mass because ammonia carries less energy per tonne. Worked example (tanker-35k at 4.0 GJ/nm, 500 nm × 12 roundtrips): green 2,580.6 t, fossil 1,194.0 t. The Chilean corridor's geometry (Handymax at 2.334 GJ/nm, 9,500 nm × 3) implies 7,152.6 and 3,284.9 — that scenario states its burns as overrides instead, to reproduce the study.",
             ],
             [
               "CO2 emission factor, combustion",
@@ -982,8 +1011,10 @@ export default async function DocsPage() {
         <H id="tab-financing">10. Tab 06 — Financing</H>
         <p className="mt-2">
           Everything about the cost of money. The corridor discount rate
-          (WACC, with its unverified-benchmark badge — the amber tab dot
-          lives here), the inflation rate (stored under{" "}
+          (WACC — since bundle 2026-08-21-verified-v5 its country benchmark
+          is a verified nominal rate; a row whose provenance is unverified
+          would be flagged on the field itself, never as a tab dot), the
+          inflation rate (stored under{" "}
           <code>cargo.*</code>{" "}in the scenario file, §5) and the{" "}
           <strong>rate basis</strong>{" "}— nominal (inflation escalates
           costs, the nominal WACC discounts them) or real (deflates the OPEX
@@ -1024,9 +1055,9 @@ export default async function DocsPage() {
           This is a cost model: the discount rate expresses time preference
           over costs, so lowering it makes future costs LARGER in present
           value. On the reference corridor, green operating cost of $112.00m/yr
-          inflated at 2% discounts to $1,160.7m at 8% but $1,301.2m at 6% —
+          inflated at 2.3% discounts to $1,181.2m at 8% but $1,325.6m at 6% —
           &quot;cheap green financing&quot; implemented as a rate swap makes
-          the green corridor $140.6m WORSE, the exact inversion of the benefit
+          the green corridor $144.4m WORSE, the exact inversion of the benefit
           it is meant to represent. No per-side discount rate exists anywhere
           in this code, and none should be added.
         </p>
@@ -1328,9 +1359,11 @@ export default async function DocsPage() {
             discounted green cost minus total discounted fossil cost.
           </li>
           <li>
-            <strong>Per tonne / per TEU of cargo</strong>{" "}— gap × 10⁶ ÷
-            lifetime cargo units. The label follows your cargo unit; with TEUs
-            the snapshot adds a derived per-tonne-of-cargo figure.
+            <strong>Per cargo unit</strong>{" "}— gap × 10⁶ ÷
+            lifetime cargo units. The label follows your cargo unit — per
+            tonne, per TEU, or per passenger-trip; with TEUs the snapshot adds
+            a derived per-tonne-of-cargo figure (a passenger has no weight, so
+            no per-tonne line derives).
           </li>
           <li>
             <strong>Per tonne CO2 abated</strong>{" "}— gap × 10⁶ ÷ CO2 abated on
@@ -1558,8 +1591,9 @@ export default async function DocsPage() {
             <strong>▲</strong>{" "}worth checking (one of the model&apos;s own
             cautions, such as the two sides no longer delivering the same
             energy — a warning is never hidden by moving on; unverified
-            reference values are flagged on the field itself, not on the
-            tab), <strong>✕</strong>{" "}a fault that
+            reference values are flagged on the field itself, never on the
+            tab — and since bundle 2026-08-21-verified-v5 no active
+            reference row is unverified), <strong>✕</strong>{" "}a fault that
             blocks results, and <strong>✓</strong>{" "}reviewed with nothing
             flagged. Hovering the mark says why; landing on a flagged tab
             focuses the offending control. Reviewed marks are remembered per
@@ -1783,8 +1817,9 @@ export default async function DocsPage() {
             NH3). Between best and worst, avoided emissions fall ~48% and
             the fuel stops qualifying as ZNZ (51.69 gCO2e/MJ at the highest
             observed value). Neither framework fixes an ammonia N2O
-            default, so the parameter carries the unverified badge, ships
-            as three cited scenarios, and the UI always shows the range —
+            default, so the parameter ships as three cited scenarios —
+            pooled with a stated basis rather than pinned to a single
+            verified point — and the UI always shows the range —
             never a bare point. A methodological note: moving AR4 → AR5
             raises the reduction (N2O&apos;s GWP falls 298 → 265, and N2O
             is a larger share of ammonia&apos;s footprint than of the
@@ -1815,7 +1850,13 @@ export default async function DocsPage() {
           kept so a saved scenario pinning one still reproduces the numbers it
           was saved with — they are not offered for new scenarios.{" "}
           <strong>Size</strong>{" "}is TEU for container ships and dwt
-          (deadweight tonnes) for the others.
+          (deadweight tonnes) for the others; the six ocean-cruise archetypes
+          are sized in gross tons and lower berths (12,000 GT / 190 berths up
+          to 237,000 GT / 5,610), priced per gross ton, and carry a
+          speed-independent hotel GJ/day besides the propulsion-only GJ/nm
+          shown here (§3). The AFIR/FuelEU shore-power obligation for
+          passenger ships ≥5,000 GT at berth from 2030 is recorded on those
+          rows as a designation — it is not modelled.
         </p>
         <div className="my-3 overflow-x-auto">
           <table className="w-full border border-neutral-300 text-[13px] tabular-nums">
@@ -1846,11 +1887,13 @@ export default async function DocsPage() {
                     ) : null}
                   </td>
                   <td className="px-3 py-1.5 text-right">
-                    {r.teuCapacity
-                      ? `${r.teuCapacity.toLocaleString("en-US")} TEU`
-                      : r.dwtTonnes
-                        ? `${r.dwtTonnes.toLocaleString("en-US")} dwt`
-                        : "—"}
+                    {r.grossTonnage && r.lowerBerths
+                      ? `${r.grossTonnage.toLocaleString("en-US")} GT · ${r.lowerBerths.toLocaleString("en-US")} berths`
+                      : r.teuCapacity
+                        ? `${r.teuCapacity.toLocaleString("en-US")} TEU`
+                        : r.dwtTonnes
+                          ? `${r.dwtTonnes.toLocaleString("en-US")} dwt`
+                          : "—"}
                   </td>
                   <td className="px-3 py-1.5 text-right">{r.capexUsdM}</td>
                   <td className="px-3 py-1.5 text-right">{r.opexUsdMPerYear}</td>
@@ -1935,9 +1978,13 @@ export default async function DocsPage() {
         <p className="mt-2">
           Fuel tables also carry per-fuel production CAPEX/O&amp;M and
           storage/barge cost benchmarks (e.g. e-ammonia: 55 / 3 / 12 / 0.5 / 5
-          / 0.3 $m-terms). Country WACC benchmarks: Denmark and Netherlands
-          5.5%, Singapore 6%, United States 7%, generic/other 8%, India 9.5%,
-          Brazil 11.5% — all flagged <em>unverified</em>.
+          / 0.3 $m-terms). Country WACC benchmarks — researched real
+          post-tax USD values shipped <em>nominal</em>{" "}(+2.30pp T10YIE
+          breakeven, because the engine discounts inflation-escalated cash
+          flows by default): Denmark and Netherlands
+          8.0%, Singapore 8.0%, United States 8.3%, India 10.2%, Brazil
+          10.5%, generic/other 11.6% (a Ba3-notch fallback, deliberately
+          floored above every listed country) — all <em>verified</em>.
           Regulation defaults: EUA €80/t, EUR/USD 1.08, FuelEU penalty
           €2,400/t VLSFO-eq, VLSFO 41,000 MJ/t, baseline 91.16 gCO2e/MJ, 45Z
           $1/gal at 122.5 MJ/gal.
@@ -2616,10 +2663,12 @@ export default async function DocsPage() {
         </p>
         <p className="mt-2">
           <strong>Known divergence.</strong>{" "}The Green Corridor model keeps
-          its <em>own</em>{" "}seven-row country list (its own ids, all
-          marked unverified) and does not read these
+          its <em>own</em>{" "}seven-row country list (its own ids —
+          researched nominal benchmarks, all verified since bundle
+          2026-08-21-verified-v5) and does not read these
           profiles: a country outside those seven resolves to the{" "}
-          <code>other</code>{" "}row at 8%. An enriched profile therefore
+          <code>other</code>{" "}row at 11.6% nominal, deliberately floored
+          above every listed country. An enriched profile therefore
           improves the
           Calculator and the map&apos;s risk-adjusted layer, but not the
           corridor&apos;s discount rate.
@@ -2952,9 +3001,11 @@ export default async function DocsPage() {
           range for its region is centred on 10%, so nearly every draw
           discounts harder than the scenario does. The band is the model
           saying the scenario&apos;s own discount rate is optimistic relative
-          to the research &mdash; and the row driving it is among the least
-          verified in the dataset, which is recorded rather than smoothed
-          over.
+          to the research &mdash; and the exposure <em>range</em>{" "}driving
+          it is among the least verified in the uncertainty dataset (an
+          emerging-market proxy, recorded rather than smoothed over &mdash;
+          distinct from the reference-bundle WACC benchmarks, which are
+          verified).
         </p>
         <p className="mt-2">
           The band is <strong>reproducible</strong>: the random seed is
@@ -3251,7 +3302,9 @@ export default async function DocsPage() {
           <li>
             <strong>Disclaimer</strong>{" "}— outputs are estimates from public
             benchmarks and your inputs, not investment, legal or regulatory
-            advice; unverified benchmarks are flagged in the UI. Verify
+            advice; reference data is verified, pooled, or designated, with
+            provenance on every row, and any row whose provenance is
+            unverified is flagged in the UI. Verify
             against primary sources before committing capital.
           </li>
         </ul>
@@ -3267,8 +3320,8 @@ export default async function DocsPage() {
         <p className="mt-2">
           <em>As published</em>{" "}adopts the report&apos;s own emission
           accounting and brings every published figure back, all six within
-          1.7%. It lands bit-identical to the shipped default ($1,762.21m /
-          1,450,095 t / $1,215 per tCO2) while resolving against the{" "}
+          1.7%. It lands bit-identical to the shipped default ($1,774.29m /
+          1,450,095 t / $1,224 per tCO2) while resolving against the{" "}
           <em>current</em>{" "}vessel catalogue rather than the dated
           reference bundle the default pins — the same answers out of two
           different reference datasets, which is what distinguishes a
@@ -3413,8 +3466,10 @@ export default async function DocsPage() {
           The reference dataset — a dated reference bundle — carries these
           citations row by row: every factor in the calculator&apos;s
           decomposition table surfaces its own source and derivation in a
-          tooltip, and rows pending primary-source verification render with
-          the unverified badge.
+          tooltip. Since bundle 2026-08-21-verified-v5 every row is
+          verified, pooled with a stated basis, or designated as a modelling
+          choice; a row whose provenance is unverified — possible only under
+          an older pinned bundle — renders with the unverified badge.
         </p>
 
         <H id="m-sources">37. Sources</H>

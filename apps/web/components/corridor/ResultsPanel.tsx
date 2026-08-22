@@ -20,6 +20,7 @@ import type {
 import { buildCostBridge, withFunding } from "@h2map/corridor-engine";
 import { formatSig } from "@h2map/units";
 import { Card } from "@/components/ui/Card";
+import { cargoUnitOf } from "@/lib/corridor/cargoUnit";
 import { Note, SectionLabel, Stat, ValueChip } from "@/components/ui/Stat";
 import {
   idLabel,
@@ -44,7 +45,7 @@ import {
 } from "./results/charts";
 import type { WfStep } from "./results/charts";
 import { warnIfDominated } from "./results/guard";
-import { ElasticitySection } from "./results/elasticity";
+import { AppendixSection } from "./results/appendix";
 import { ProbabilisticSection } from "./results/probabilistic";
 
 /**
@@ -292,11 +293,12 @@ export default function ResultsPanel({
   const div = result.divergences?.emissionsBasis;
   const netReg = result.reporting.netRegulatoryEffectUsdM;
 
-  // Cargo-unit identity (presentation): explicit, else vessel-derived.
-  const cargoUnit =
-    scenario.cargo.unit ??
-    (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
-  const unitWeight = scenario.cargo.unitWeightTonnes ?? (cargoUnit === "teu" ? 14 : 1);
+  // Cargo-unit identity (presentation): explicit, else the vessel row's
+  // defaultCargoUnit — one shared resolution (lib/corridor/cargoUnit).
+  const { unit: cargoUnit, unitWeightTonnes: unitWeight } = cargoUnitOf(
+    scenario,
+    DEFAULT_BUNDLE,
+  );
 
   const rep = result.reporting;
   const imo =
@@ -322,7 +324,12 @@ export default function ResultsPanel({
       strong: true,
     },
     {
-      label: cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne"),
+      label:
+        cargoUnit === "teu"
+          ? t("perUnitTeu")
+          : cargoUnit === "passenger"
+            ? t("perUnitPassenger")
+            : t("perUnitTonne"),
       value: usd(s.costPerUnitUsd),
       sub: `${usd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`,
     },
@@ -452,9 +459,13 @@ export default function ResultsPanel({
     ...(portB ? ([[t("snapPortB"), portB]] as [string, string][]) : []),
     [
       t("snapUnit"),
-      `${cargoUnit === "teu" ? "TEU" : "Tonne"} · ${unitWeight} t`,
+      cargoUnit === "passenger"
+        ? t("snapUnitPassenger")
+        : `${cargoUnit === "teu" ? "TEU" : "Tonne"} · ${unitWeight} t`,
     ],
-    ...(cargoUnit === "teu"
+    // Weight-derived $/tonne exists only where the unit HAS a weight — a
+    // passenger-trip has no tonnage to divide by.
+    ...(cargoUnit === "teu" && unitWeight !== null
       ? ([[t("perTonneCargo"), usd(s.costPerUnitUsd / unitWeight)]] as [string, string][])
       : []),
     [t("snapDistance"), `${int(scenario.cargo.oneWayDistanceNm)} nm`],
@@ -780,7 +791,13 @@ export default function ResultsPanel({
               <TabRow label={t("tabCargoPerYear")} value={int(resolved.unitsPerYear)} />
               <TabRow label={t("snapCargoLifetime")} value={formatSig(s.cargoUnitsLifetime)} />
               <TabRow
-                label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")}
+                label={
+                  cargoUnit === "teu"
+                    ? t("perUnitTeu")
+                    : cargoUnit === "passenger"
+                      ? t("perUnitPassenger")
+                      : t("perUnitTonne")
+                }
                 value={usd(s.costPerUnitUsd)}
                 sub={`${usd(rep.costPerUnitPreRegulationUsd)} ${t("preRegLabel")}`}
               />
@@ -1004,11 +1021,13 @@ export default function ResultsPanel({
         rest of the tab means, and a distribution rendered alongside it invites
         reading one as a correction of the other.
       */}
-      {/* What moves it most, per equal nudge — the live signed elasticity
-          ranking, in the slot the removed tornado vacated. Above the
-          probabilistic curve: it names WHICH inputs matter, which is the
-          question a reader has before "how wide is the answer". */}
-      <ElasticitySection scenario={result ? scenario : null} />
+      {/* The Appendix closes the DETERMINISTIC report as a two-pane split:
+          the live elasticity tornado on the left (what moves it most, per
+          equal nudge — it names WHICH inputs matter, which is the question
+          a reader has before "how wide is the answer"), the worked
+          abatement-cost formula on the right. Before the probabilistic
+          closer, whose last-position rationale stays intact. */}
+      <AppendixSection result={result} resolved={resolved} scenario={scenario} />
       <ProbabilisticSection summary={result?.summary ?? null} />
     </div>
   );

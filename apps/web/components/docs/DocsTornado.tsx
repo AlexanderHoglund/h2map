@@ -49,14 +49,20 @@ function BarRows({
         const drawn = effectPercent(effect) !== "0.0%";
         return (
           <tr key={e.id} className="border-b border-neutral-200 last:border-0">
-            <td className="whitespace-nowrap px-3 py-1.5">
-              {e.label}
-              {e.group && e.memberLabels && (
-                <span className="ml-1.5 text-[11px] text-neutral-500">
-                  (one bar: {e.memberLabels.join(", ").toLowerCase()} move
-                  together)
-                </span>
-              )}
+            {/* Bounded label column: the group's member list breaks to its
+                own small line and WRAPS — nowrap here once let one long
+                coupling label squeeze the bar track to its minimum, which
+                is backwards on a figure whose whole point is the bars. */}
+            <td className="px-3 py-1.5 align-top">
+              <div className="min-w-44 max-w-72">
+                {e.label}
+                {e.group && e.memberLabels && (
+                  <span className="block text-[11px] leading-snug text-neutral-500">
+                    (one bar: {e.memberLabels.join(", ").toLowerCase()} move
+                    together)
+                  </span>
+                )}
+              </div>
             </td>
             <td className="w-full min-w-50 px-3 py-1.5">
               <span className="relative block h-4 w-full bg-neutral-100">

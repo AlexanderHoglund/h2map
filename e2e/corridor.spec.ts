@@ -5,11 +5,11 @@
  * axe-core pass (serious/critical) over the entry screen and all tabs.
  *
  * The DEFAULT scenario is the MMMCZCS Chilean copper-concentrate corridor
- * (Mejillones → Japan), v6 refined factors: gap $1,819.48m, green total
- * $2,911.41m, fossil total incl. the IMO-NZF proxy $1,091.93m ($280/tCO2
- * priced on the WTW basis the model reports, fix #2), $71/t cargo,
- * $1,627/tCO2 (WTW), CO2 abated 1,118,236 t (the study-exact 1.45 Mt
- * survives as the legacy calibration),
+ * (Mejillones → Japan), on bundle 2026-08-21-verified-v5 with the verified
+ * inflation default 0.023: gap $1,831.55m, green total $2,931.95m, fossil
+ * total incl. the IMO-NZF proxy $1,100.40m ($280/tCO2 priced on the WTW
+ * basis the model reports), $74/t cargo, $1,638/tCO2 (WTW), CO2 abated
+ * 1,118,236 t (the study-exact 1.45 Mt survives as the legacy calibration),
  * lifetime cargo 24,750,000 t. The WORKBOOK golden ($166.95m…) still pins
  * the engine via the frozen fixture in the package tests.
  */
@@ -20,7 +20,7 @@ import { expect, test, type Page } from "@playwright/test";
 const STEPS = ["Intro", "Cargo", "Vessels", "Energy", "Ports", "Financing", "Regulation"];
 // v6 refined default (the legacy $1,762.21m study calibration is pinned
 // in reporting.test.ts).
-const GAP = "$1,819.48m";
+const GAP = "$1,831.55m";
 
 async function expectNoSeriousViolations(page: Page, context: string) {
   const results = await new AxeBuilder({ page }).analyze();
@@ -113,14 +113,14 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   const results = page.getByRole("complementary");
   await expect(results.getByText(GAP)).toBeVisible();
   await expect(results.getByText("$74", { exact: true })).toBeVisible();
-  await expect(results.getByText("$1,627", { exact: true })).toBeVisible();
+  await expect(results.getByText("$1,638", { exact: true })).toBeVisible();
   await expect(results.getByText("well-to-wake basis")).toBeVisible();
   // Side totals: green ≈ the study's $2,850m; fossil incl. the NZF proxy.
-  await expect(results.getByText("$2,911.41m")).toBeVisible();
-  await expect(results.getByText("$1,091.93m")).toBeVisible();
+  await expect(results.getByText("$2,931.95m")).toBeVisible();
+  await expect(results.getByText("$1,100.40m")).toBeVisible();
   // Fix #1: the PRE-regulation gap (the study's $2,000m quantity) is shown
   // as a secondary line under the headline.
-  await expect(results.getByText(/\$2,012\.44m/)).toBeVisible();
+  await expect(results.getByText(/\$2,024\.51m/)).toBeVisible();
 
   // The FULL panel lives in its own Results tab (06): lifetime cargo and
   // the study-exact CO2 abatement render there.
@@ -160,8 +160,8 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
     ]) {
       await expect(chart.getByText(label, { exact: false }).first()).toBeVisible();
     }
-    await expect(chart.getByText("$2,012m", { exact: true })).toBeVisible(); // gross
-    await expect(chart.getByText("$1,819m", { exact: true })).toBeVisible(); // incremental
+    await expect(chart.getByText("$2,025m", { exact: true })).toBeVisible(); // gross
+    await expect(chart.getByText("$1,832m", { exact: true })).toBeVisible(); // incremental
     await expect(chart.getByText(/before regulatory instruments/)).toBeVisible();
   }
 
@@ -174,7 +174,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
       .last();
     await expect(chart.getByText("well-to-wake", { exact: false }).first()).toBeVisible();
     await expect(chart.getByText("$1,800", { exact: true })).toBeVisible(); // gross /t
-    await expect(chart.getByText("$1,627", { exact: true })).toBeVisible(); // incremental /t
+    await expect(chart.getByText("$1,638", { exact: true })).toBeVisible(); // incremental /t
   }
 
   // The emissions & abatement diagram: pre/post bars per basis.
@@ -304,7 +304,7 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await page.getByLabel("Cargo unit", { exact: true }).selectOption("teu");
   const unitWeight = page.getByLabel("Weight per unit");
   await expect(unitWeight).toBeVisible();
-  await expect(unitWeight).toHaveValue("14"); // the TEU benchmark
+  await expect(unitWeight).toHaveValue("10"); // the GLEC default TEU payload
   await page.getByLabel("Cargo unit", { exact: true }).selectOption("tonne");
   await expect(page.getByLabel("Weight per unit")).toHaveCount(0);
   await expect(results.getByText(GAP)).toBeVisible(); // tonne weight back to 1
@@ -316,12 +316,14 @@ test("default scenario reproduces the Chilean corridor numbers", async ({ page }
   await page.getByRole("button", { name: "05 Ports" }).click();
   await expect(page.getByText("Port storage — CAPEX (year 1)").first()).toBeVisible();
 
-  // Financing: WACC (with its unverified badge) + inflation + rate basis.
+  // Financing: WACC + inflation + rate basis. Since bundle
+  // 2026-08-21-verified-v5 every reference row is verified — the amber
+  // "unverified benchmark" badge must be GONE everywhere.
   await page.getByRole("button", { name: "06 Financing" }).click();
   await expect(page.getByLabel("Discount rate (WACC)")).toBeVisible();
   await expect(page.getByLabel("Inflation rate")).toBeVisible();
   await expect(page.getByLabel("Rate basis")).toBeVisible();
-  await expect(page.getByText("unverified benchmark")).toBeVisible();
+  await expect(page.getByText("unverified benchmark")).toHaveCount(0);
   await expect(results.getByText(GAP)).toBeVisible();
 
   // A live-model probe: under v3 the green side (build-plant) has NO
@@ -372,7 +374,7 @@ test("the Standard upgrade is one-way and output-neutral", async ({ page }) => {
   // back to Simplified may exist afterwards.
   await openStarter(page);
   const results = page.getByRole("complementary");
-  await expect(results.getByText("$110.87m").first()).toBeVisible();
+  await expect(results.getByText("$580.69m").first()).toBeVisible();
   const banner = page.getByRole("banner");
 
   const summaryBefore = await results.innerText();
@@ -403,7 +405,7 @@ test("the Standard upgrade is one-way and output-neutral", async ({ page }) => {
   await expect(page.getByRole("button", { name: /Simplified/ })).toHaveCount(0);
 
   // Output-neutral: same results text, byte-identical draft, no mode key.
-  await expect(results.getByText("$110.87m").first()).toBeVisible();
+  await expect(results.getByText("$580.69m").first()).toBeVisible();
   expect(await results.innerText()).toBe(summaryBefore);
   const draftAfter = await page.evaluate(() =>
     localStorage.getItem("corridor-draft-v3"),
@@ -431,16 +433,17 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   await expect(results.getByText(GAP)).toBeVisible();
   const nav = page.getByRole("navigation").first();
 
-  // Reference Chilean scenario: every tab green (the WACC is overridden, so
-  // the unverified benchmark is not in use — no amber).
-  await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(9);
+  // Reference Chilean scenario: nothing warns and nothing blocks — no amber
+  // triangle, no red cross anywhere on the stepper.
+  await expect(nav.getByRole("img", { name: /worth checking/ })).toHaveCount(0);
+  await expect(nav.getByRole("img", { name: /blocks results/ })).toHaveCount(0);
 
   // Break it: build-here without a site → Energy red, Results blocked, and
   // the Results message names the tab and links to it.
   await page.getByRole("button", { name: "04 Energy" }).click();
   await page.getByLabel("Fuel sourcing").first().selectOption("build-here");
   await expect(nav.getByRole("img", { name: /Energy: blocks results/ })).toBeVisible();
-  await expect(page.getByText("$1,762.21m")).toHaveCount(0);
+  await expect(page.getByText(GAP)).toHaveCount(0);
   await page.getByRole("button", { name: "08 Results" }).click();
   await expect(nav.getByRole("img", { name: /Results: blocks results/ })).toBeVisible();
   const fix = page.getByRole("button", { name: "Fix on Energy" });
@@ -462,25 +465,22 @@ test("per-tab completion indicators derive from validation", async ({ page }) =>
   await page.getByLabel("Fuel sourcing").first().selectOption("build-plant");
   await expect(results.getByText(GAP)).toBeVisible();
 
-  // Amber: clear the WACC override so the UNVERIFIED country benchmark is
-  // actually in use — the Financing tab warns without blocking.
+  // Clearing the WACC override puts the country benchmark in use. Under the
+  // verified v5 bundle that raises NO warning of any kind: no unverified
+  // badge (nothing is unverified), no amber tab (benchmark values are the
+  // model's own, and only user-typed implausible values warn).
   await page.getByRole("button", { name: "06 Financing" }).click();
   const wacc = page.getByLabel("Discount rate (WACC)");
   await wacc.fill("");
   await wacc.blur();
-  await expect(
-    nav.getByRole("img", { name: /Financing: running on an unverified benchmark/ }),
-  ).toBeVisible();
-  // NOT blocking: the summary still shows a computed headline (the generic
-  // "other" WACC row may or may not equal the override, so no exact value).
+  await expect(page.getByText("unverified benchmark")).toHaveCount(0);
+  await expect(nav.getByRole("img", { name: /Financing: worth checking/ })).toHaveCount(0);
+  // Still computing on the benchmark (the generic "other" row, 0.116).
   await expect(results.getByText(/\$[0-9,.]+m/).first()).toBeVisible();
-  // Restore the override. (The generic benchmark happens to equal 0.08, so
-  // filling the same digits fires no input event — go via a distinct value.)
-  await wacc.fill("0.07");
+  // Restore the reference override.
   await wacc.fill("0.08");
   await wacc.blur();
   await expect(results.getByText(GAP)).toBeVisible();
-  await expect(nav.getByRole("img", { name: /complete/ })).toHaveCount(9);
 });
 
 // The contract is UNIFORM: country-anchored routes surface their routed
@@ -662,28 +662,31 @@ test("provenance badges answer where a number comes from", async ({ page }) => {
   ).toBeVisible();
 
   // WACC (overridden by default): the badge names what the value replaces
-  // and which reference row it came from.
+  // — under v5 the Chile→"other" benchmark is the verified nominal 0.116 —
+  // and cites the component build.
   await page.getByRole("button", { name: "06 Financing" }).click();
   const overrideBadge = page.getByRole("button", {
-    name: /replaces the benchmark 0\.08.*2026-07-30-excel-v1/,
+    name: /replaces the benchmark 0\.116.*Real post-tax USD WACC/,
   });
   await expect(overrideBadge).toBeVisible();
 
-  // Cleared to the benchmark: the badge cites the bundle row and carries
-  // the unverified marker; keyboard focus opens the tooltip.
+  // Cleared to the benchmark: the badge cites the verified reference row —
+  // and carries NO unverified marker; keyboard focus opens the tooltip.
   const wacc = page.getByLabel("Discount rate (WACC)");
   await wacc.fill("");
   await wacc.blur();
   const benchmarkBadge = page.getByRole("button", {
-    name: /Reference benchmark: 2026-07-30-excel-v1.*unverified/,
+    name: /Reference benchmark: Real post-tax USD WACC/,
   });
   await expect(benchmarkBadge).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Reference benchmark:.*unverified/ }),
+  ).toHaveCount(0);
   await benchmarkBadge.focus();
   await expect(page.getByRole("tooltip")).toBeVisible();
   await expectNoSeriousViolations(page, "provenance tooltip open");
 
-  // Restore the reference override (benchmark equals it, so via 0.07).
-  await wacc.fill("0.07");
+  // Restore the reference override.
   await wacc.fill("0.08");
   await wacc.blur();
   await expect(results.getByText(GAP)).toBeVisible();
@@ -768,7 +771,7 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
   await expect(toggle).toBeVisible();
   await toggle.click();
   await expect(results.getByText(GAP)).toHaveCount(0);
-  await expect(results.getByText("$1,623.56m")).toBeVisible(); // 1,762.21 − 195.92
+  await expect(results.getByText("$1,635.63m")).toBeVisible(); // 1,831.55 − 195.92
 
   // Results: the waterfall gains the financing float between the gross
   // incremental bar and the regulation bar, with the sign in the label.
@@ -783,8 +786,8 @@ test("green financing: explicit line, sign-readable, defaults untouched", async 
     // "Optimized financing" and sits beside a single "Regulations" bar.
     await expect(chart.getByText("Optimizedfinancing", { exact: false }).first()).toBeVisible();
     await expect(chart.getByText("\u2212$196m", { exact: true })).toBeVisible();
-    await expect(chart.getByText("$2,012m", { exact: true })).toBeVisible(); // gross unchanged
-    await expect(chart.getByText("$1,624m", { exact: true })).toBeVisible(); // incremental after
+    await expect(chart.getByText("$2,025m", { exact: true })).toBeVisible(); // gross unchanged
+    await expect(chart.getByText("$1,636m", { exact: true })).toBeVisible(); // incremental after
   }
   // The decomposition table gains a green-only "Green financing effect" row.
   await expect(page.getByText("Green financing effect").first()).toBeVisible();
@@ -811,7 +814,7 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
   await expect(results.getByText(GAP)).toBeVisible();
 
   await page.getByRole("button", { name: "30/40/30 preset" }).click();
-  await expect(results.getByText("$1,723.15m")).toBeVisible();
+  await expect(results.getByText("$1,735.22m")).toBeVisible();
 
   // The annual chart's caption recomputes (year-1 capital 0.3 × $1,690m)
   // and switches to the phased wording — "charged in full up front" would
@@ -829,7 +832,7 @@ test("capital phasing: 30/40/30 re-times capital, refuses bad sums", async ({ pa
   await expect(page.getByText(/Green shares must sum to 1 \(currently 0\.70\)/)).toBeVisible();
   await expect(page.getByText(/capitalPhasing\.green\.weights must sum to 1/)).toBeVisible();
   await y3.fill("0.3");
-  await expect(results.getByText("$1,723.15m")).toBeVisible();
+  await expect(results.getByText("$1,735.22m")).toBeVisible();
 
   // Off again → the golden default returns.
   await page.getByRole("switch", { name: "Capital deployment schedule" }).click();
@@ -842,7 +845,7 @@ test("Simplified shows only essential inputs, defaults carry the rest", async ({
   // counted strips.
   await openStarter(page);
   const results = page.getByRole("complementary");
-  await expect(results.getByText("$110.87m").first()).toBeVisible();
+  await expect(results.getByText("$580.69m").first()).toBeVisible();
   const banner = page.getByRole("banner");
   await expect(banner.getByText("Simplified", { exact: true })).toBeVisible();
 
@@ -881,10 +884,10 @@ test("Simplified shows only essential inputs, defaults carry the rest", async ({
   await expect(page.getByLabel("CO2 price", { exact: true })).toHaveCount(1);
   await expect(page.getByLabel("CAPEX support")).toHaveCount(0);
   // The scheme moved the HEADLINE; the pre-regulation secondary line keeps
-  // showing the unchanged $110.87m — so exactly one match remains.
-  await expect(results.getByText("$110.87m")).toHaveCount(1);
+  // showing the unchanged $580.69m — so exactly one match remains.
+  await expect(results.getByText("$580.69m")).toHaveCount(1);
   await page.getByRole("switch").click();
-  await expect(results.getByText("$110.87m").first()).toBeVisible(); // restored
+  await expect(results.getByText("$580.69m").first()).toBeVisible(); // restored
 });
 
 test("projects-first: tabs lock until a project is chosen; create picks the mode", async ({ page }) => {

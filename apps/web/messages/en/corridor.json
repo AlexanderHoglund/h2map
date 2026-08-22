@@ -56,7 +56,10 @@
       "provDerived": "Derived:",
       "provOverride": "Your value - replaces the benchmark {benchmark}",
       "provUnverified": "unverified",
-      "provDocs": "Read the method"
+      "provDocs": "Read the method",
+      "plaus_zero": "zero, against a benchmark of {benchmark} {unit} - if the cost truly is zero, leave it; otherwise restore",
+      "plaus_low": "far below the benchmark {benchmark} {unit} - check the unit",
+      "plaus_high": "far above the benchmark {benchmark} {unit} - check the unit"
     },
     "cargo": {
       "country": "Country",
@@ -79,8 +82,9 @@
       "unit": "Cargo unit",
       "unitTonne": "Tonne",
       "unitTeu": "TEU (container)",
+      "unitPassenger": "Passengers (cruise)",
       "unitWeight": "Weight per unit",
-      "unitWeightHelp": "What one cargo unit weighs. TEU defaults to 10 t; tonne is 1 by definition. Used to derive cost per tonne of cargo; the model itself counts units.",
+      "unitWeightHelp": "What one cargo unit weighs. TEU defaults to 10 t - the GLEC Framework's default average payload per TEU; tonne is 1 by definition; a passenger-trip has no weight. Used to derive cost per tonne of cargo; the model itself counts units.",
       "routedPrefix": "routed:",
       "routedAdopt": "use this",
       "routedHelp": "Routed over the maritime shipping-lane network ({graph}), {via}, one-way. Indicative - screening grade, within roughly 5-10% of published tables.",
@@ -99,15 +103,16 @@
       "horizonHelp": "How many years of operation the comparison covers. Costs are summed over this window, so a longer horizon gives fuel bills and support schemes more years to weigh against the up-front ships.",
       "portNameHelp": "A display name for this port. It labels the map and exports — it does not change any cost. Without one, an end riding the country-level anchor is labelled with the country's name.",
       "unitsHelp": "How many cargo units the corridor delivers per year. Ships and roundtrips drive the costs, so this mainly sets the denominator of cost per unit shipped.",
-      "unitHelp": "What one unit of cargo is — a tonne, or a TEU container. It names the per-unit figures; choosing TEU reveals the weight per container.",
+      "unitHelp": "What one unit is — a tonne, a TEU container, or a passenger-trip (cruise deployment loops). It names the per-unit figures; choosing TEU reveals the weight per container; a passenger has no cargo weight.",
       "inflationHelp": "How fast costs rise each year. Future fuel, crew and maintenance bills grow at this rate before discounting brings them back to today's money.",
-      "distanceHelp": "The one-way sailing distance between the ports, in nautical miles. It drives the fuel burned per roundtrip - the dominant physical lever in the model. Once both ports have coordinates, the routed shipping-lane distance is offered for adoption."
+      "distanceHelp": "The one-way sailing distance between the ports, in nautical miles — for a cruise deployment, the length of the itinerary loop. It drives the fuel burned per roundtrip - the dominant physical lever in the model. Once both ports have coordinates, the routed shipping-lane distance is offered for adoption."
     },
     "vessel": {
       "type": "Vessel type (same class for both fleets)",
       "vessels": "Number of vessels",
       "roundtrips": "Roundtrips per year (per vessel)",
       "energyBasis": "Energy use {gj} GJ/nm at {kn} kn service speed.",
+      "hotelBasis": "Plus {gj} GJ/day hotel load - every day of the year, independent of speed (the GJ/nm above is propulsion only).",
       "portShare": "Port and cargo-system energy: {pct}% of a round trip ({days} port days).",
       "portShareWarn": "Port and cargo-system energy is {pct}% of a round trip ({days} port days) — a material share resting on estimated day rates.",
       "green": "Green vessel",
@@ -116,9 +121,9 @@
       "capexGreenHelp": "What one green-fuelled ship costs to buy; the fleet total is this times the vessel count. The benchmark is the vessel class price plus a premium for green-fuel readiness.",
       "capexFossilHelp": "What one fossil ship costs to buy. The benchmark is 0 because the fossil fleet already exists — no new capital is needed. Set a value if your comparison would build new fossil ships too.",
       "opex": "OPEX per ship (excluding fuel)",
-      "typeHelp": "The ship class both sides of the comparison sail. It sets the energy needed per nautical mile — measured at service speed; steaming slower burns less per mile, roughly with the square of speed — and the benchmark price and running cost per ship. The single most decisive choice in the model.",
+      "typeHelp": "The ship class both sides of the comparison sail. It sets the energy needed per nautical mile — measured at service speed; steaming slower burns less per mile, roughly with the square of speed — and the benchmark price and running cost per ship. Cruise classes add a hotel load burned every day of the year regardless of speed. The single most decisive choice in the model.",
       "vesselsHelp": "How many ships the corridor runs. Every ship adds its full purchase and running cost on both sides, and together with roundtrips it sets how much fuel is burned.",
-      "roundtripsHelp": "Voyages per ship per year. More roundtrips burn more fuel without adding ships, shifting the cost balance from capital toward fuel.",
+      "roundtripsHelp": "Voyages per ship per year — for a cruise deployment, the itinerary loops sailed per year. More roundtrips burn more fuel without adding ships, shifting the cost balance from capital toward fuel.",
       "opexHelp": "The yearly cost of running one ship — crew, maintenance, insurance — before fuel. Fuel is priced separately from consumption and fuel price."
     },
     "fuel": {
@@ -295,6 +300,21 @@
       "gapShort": "Gap (PV)",
       "viewFull": "Full results",
       "decomposition": "Cost decomposition (PV)",
+      "appendix": "Appendix - the abatement cost, worked",
+      "appendixIntro": "The headline $/tCO2, derived. First the formula exactly as this scenario resolves it - your selections decide which terms exist - then the same formula with this scenario's values substituted. The final quotient is the engine's own number, not a reconstruction.",
+      "appendixSymbolic": "Row 1 - the formula, as this scenario resolves it",
+      "appendixSubstituted": "Row 2 - the same formula, with this scenario's values",
+      "appendixOmitted": "Omitted (disabled, term = 0): {names}",
+      "appendixSourceOverride": "(your override)",
+      "appendixSourceBenchmark": "(benchmark)",
+      "appendixSourceDerived": "(derived)",
+      "appendixRealBasis": "real basis: no OPEX escalation",
+      "appendixUnphased": "100% in year 1",
+      "appendixOverrideNote": "typed directly - the derivation is replaced by your number",
+      "appendixSunk": "(all zero: the existing fleet and incumbent infrastructure are sunk, by designation)",
+      "appendixHotelOpex": "Hotel opex ({value} $m/yr on the vessel row) is reference data, excluded from the comparison by designation: fuel-invariant, it cancels in the gap.",
+      "appendixHeadlineNote": "headline shows {rounded}",
+      "appendixNote": "Totals are the engine's own present-value sums; the component lines beneath them agree with the totals to floating-point association order (better than 1e-12 relative), which is invisible at the precision shown. Values are printed to 6 decimals so the arithmetic can be re-run by hand.",
       "delta": "Δ",
       "rowCapex": "CAPEX",
       "rowOpex": "Operating cost",
@@ -320,6 +340,8 @@
       "snapUnit": "Cargo unit",
       "perUnitTonne": "per tonne of cargo",
       "perUnitTeu": "per TEU",
+      "perUnitPassenger": "per passenger-trip",
+      "snapUnitPassenger": "Passengers (per passenger-trip)",
       "preRegLabel": "before regulatory instruments",
       "subtotalPreReg": "Subtotal before regulation",
       "refEts": "EU ETS allowance",
@@ -654,9 +676,8 @@
       "vesselTable": "the vessel reference table"
     },
     "tabStatusReason": {
-      "portShare": "port days account for a material share of round-trip energy, on estimated day rates",
-      "energyParity": "the two sides no longer deliver the same energy — check the fuel burn overrides",
-      "routedDivergence": "the typed distance disagrees with the routed shipping-lane distance by more than 15%"
+      "routedDivergence": "the typed distance disagrees with the routed shipping-lane distance by more than 15%",
+      "implausible": "an input sits far off its benchmark — see the amber note on the field"
     }
   }
 }

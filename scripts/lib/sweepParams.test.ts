@@ -251,10 +251,10 @@ describe("choice option lists match the bundle catalogue", () => {
   // option added to the bundle but absent from the sweep would silently
   // vanish from the impact ranking — these fail loudly instead.
   const bundle = JSON.parse(
-    readFileSync(`${ROOT}data/corridor-ref/2026-08-18-fuel-v4.json`, "utf8"),
+    readFileSync(`${ROOT}data/corridor-ref/2026-08-21-cruise-v6.json`, "utf8"),
   ) as {
     fuels: { id: string; family: string }[];
-    vesselTypes: { id: string; deprecated?: boolean }[];
+    vesselTypes: { id: string; family?: string; deprecated?: boolean }[];
     countries: { id: string }[];
   };
   const options = (id: string) =>
@@ -272,9 +272,18 @@ describe("choice option lists match the bundle catalogue", () => {
     );
   });
 
-  it("non-retired vessel classes", () => {
+  it("non-retired CARGO vessel classes (cruise excluded, by name)", () => {
+    // Cruise rows are deliberately NOT swept: the reference corridor is a
+    // CARGO corridor, and substituting a cruise liner onto it is a change
+    // of product, not a sensitivity — it measured 2889% headline movement
+    // and would swamp every real ranking. The exclusion is stated here so
+    // it can never become a silent cap; a future cruise reference loop
+    // gets its own sweep baseline.
     expect(options("vessel.typeId")).toEqual(
-      bundle.vesselTypes.filter((v) => !v.deprecated).map((v) => v.id).sort(),
+      bundle.vesselTypes
+        .filter((v) => !v.deprecated && v.family !== "cruise")
+        .map((v) => v.id)
+        .sort(),
     );
   });
 

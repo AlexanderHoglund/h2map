@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { Source } from "@h2map/corridor-schema";
 import { formatSig } from "@h2map/units";
 import { Help } from "@/components/ui/Help";
+import { plausibility } from "@/lib/corridor/plausibility";
 import { ProvenanceBadge } from "./ProvenanceBadge";
 
 /**
@@ -15,8 +16,10 @@ import { ProvenanceBadge } from "./ProvenanceBadge";
  * - value + unit label (from the branded type's unit, passed as a string)
  * - source badge: override / derived / benchmark
  * - the benchmark stays visible while overridden ("benchmark: 900 — restore")
- * - unverified benchmarks carry an explicit badge (the country-
- *   WACC footnote becomes UI, not a footnote)
+ * - an unverified reference row carries an explicit badge, derived from
+ *   `provenance.verified` (since bundle 2026-08-21-verified-v5 every active
+ *   row is verified, pooled with a stated basis, or designated — the badge
+ *   machinery stays for older pinned bundles and future data)
  * - overridden values render blue ("blue = your input")
  */
 export default function ResolvedField({
@@ -28,7 +31,8 @@ export default function ResolvedField({
   benchmark,
   onChange,
   help,
-  unverified,
+  expectZero,
+  baseline,
   disabled,
   disabledNote,
   provenance,
@@ -45,15 +49,22 @@ export default function ResolvedField({
   onChange: (next: number | null) => void;
   /** REQUIRED pedagogic explanation — see NumberInput. */
   help: string;
-  /**
-   * Force the amber badge on. Normally unnecessary — the badge is derived
-   * from `provenance.verified === false` — but kept for the WACC field,
-   * whose unverified status comes from the country row rather than from a
-   * provenance object.
-   */
-  unverified?: boolean;
   /** Accepted for call-site compatibility; the text input has no stepper. */
   step?: number | "any";
+  /**
+   * Zero is CANONICAL for this field — never note it as implausible. Exists
+   * for the double-count remedy: under a legacy plant-mode scenario, zeroing
+   * the price (or a production line) is the documented fix, not a mistake.
+   */
+  expectZero?: boolean;
+  /**
+   * The override this SESSION started with (model.loaded). A value equal to
+   * it never earns the plausibility note: loaded data — curated study
+   * overrides included — is the scenario's own, not a user slip. Only what
+   * the user changed since load can warn, so reopening a project clears
+   * every note.
+   */
+  baseline?: number | null;
   disabled?: boolean;
   /** Shown instead of the benchmark line when the field is force-disabled. */
   disabledNote?: string;
@@ -82,6 +93,16 @@ export default function ResolvedField({
   // why the input is type="text": "9,806" is not a valid number-input value.
   const shown = draft ?? (override !== null ? String(override) : formatSig(effective));
   const overridden = override !== null;
+
+  // Plausibility note (advisory, never blocking): the user's committed number
+  // against the benchmark — but only where it DEPARTS from what this session
+  // loaded (`baseline`): stored values are the scenario's own data. Suppressed
+  // mid-edit (`draft !== null`) so it appears once the field is left —
+  // validate after entry, never mid-keystroke.
+  const warn =
+    disabled || expectZero || draft !== null || override === (baseline ?? null)
+      ? null
+      : plausibility(override, benchmark);
 
   const badgeStyles: Record<Source, string> = {
     override: "bg-brand-tint text-brand-deep",
@@ -200,12 +221,24 @@ export default function ResolvedField({
             is using, so it earns the badge automatically — a tooltip alone
             is too quiet for it. An override is the user's own number, so
             the row's status no longer applies. */}
-        {unverified || (provenance?.verified === false && !overridden) ? (
+        {provenance?.verified === false && !overridden ? (
           <span className="bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
             {t("unverified")}
           </span>
         ) : null}
       </div>
+      {/* The amber tier, applied to the input's own magnitude: legal, computes,
+          but far off the cited benchmark — worth a look, never a block. The
+          "restore" affordance above is the one-click fix; a deliberate value
+          is simply left standing. */}
+      {warn ? (
+        <p className="mt-1 bg-amber-500/10 px-2.5 py-1.5 text-[11px] leading-snug text-amber-800">
+          {t(`plaus_${warn}`, {
+            benchmark: formatSig(benchmark),
+            unit: unit ?? "",
+          })}
+        </p>
+      ) : null}
     </div>
   );
 }

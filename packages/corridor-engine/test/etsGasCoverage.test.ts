@@ -34,7 +34,7 @@ const load = (v: string) =>
       ),
     ),
   );
-const bundle = load("2026-08-18-fuel-v4");
+const bundle = load("2026-08-21-cruise-v6");
 
 /** ETS on, factors derived, nothing about gases stated by the scenario. */
 function scenario(

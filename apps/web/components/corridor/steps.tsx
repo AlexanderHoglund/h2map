@@ -14,6 +14,7 @@ import CorridorRouteMap from "./CorridorRouteMap";
 import RoutedDistanceField from "./RoutedDistanceField";
 import { useSeaRoute } from "./useSeaRoute";
 import BuildHerePanel from "./BuildHerePanel";
+import { cargoUnitOf, TEU_WEIGHT_TONNES } from "@/lib/corridor/cargoUnit";
 import { CORRIDOR_COUNTRIES } from "@/lib/corridor-countries";
 import { anchorForCountry } from "@/lib/corridor/countryAnchors";
 import { defaultScenario, isAdvanced, type CorridorModel } from "./state";
@@ -440,12 +441,10 @@ export function CargoStep({ model, viewMode, revealStandard }: StepProps) {
 export function CargoTabStep({ model, viewMode, revealStandard }: StepProps) {
   const t = useTranslations("corridor.cargo");
   const ts = useTranslations("corridor.steps");
-  const { scenario, update } = model;
-  // Cargo-unit identity: explicit choice, else derived from the vessel
-  // (container → TEU, everything else → tonne). Presentation-only.
-  const cargoUnit =
-    scenario.cargo.unit ??
-    (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
+  const { scenario, update, bundle } = model;
+  // Cargo-unit identity: explicit choice, else the vessel row's
+  // defaultCargoUnit (container → TEU, cruise → passenger). Presentation-only.
+  const { unit: cargoUnit, unitWeightTonnes } = cargoUnitOf(scenario, bundle);
 
   // Throughput moved here from Intro's Advanced fold, but its sensitivity
   // rank still governs Simple mode — the manifest stays the source of truth.
@@ -476,28 +475,31 @@ export function CargoTabStep({ model, viewMode, revealStandard }: StepProps) {
         options={[
           { value: "tonne", label: t("unitTonne") },
           { value: "teu", label: t("unitTeu") },
+          { value: "passenger", label: t("unitPassenger") },
         ]}
         onChange={(v) =>
           update((d) => {
-            d.cargo.unit = v as "tonne" | "teu";
+            d.cargo.unit = v as "tonne" | "teu" | "passenger";
             // The user's own switch sets the weight — a visible consequence,
             // never a load-time rewrite. Tonne pins it to 1 by definition;
-            // TEU reveals the field on its 10 t benchmark (the previous
-            // value was the tonne pin, meaningless for TEU).
-            d.cargo.unitWeightTonnes = v === "teu" ? 10 : 1;
+            // TEU reveals the field on the GLEC default 10 t payload. A
+            // passenger has no cargo weight — pinned 1 so the stored value
+            // is never a stale TEU figure.
+            d.cargo.unitWeightTonnes = v === "teu" ? TEU_WEIGHT_TONNES : 1;
           })
         }
       />
-      {/* Weight per unit exists only for TEU — for tonnes it is 1 by
-          definition and the field hides. A stored tonne scenario with a
-          different weight still computes with its stored value. */}
+      {/* Weight per unit exists only for TEU — tonnes are 1 by definition
+          and weight is not a property of a passenger; the field hides for
+          both. A stored tonne scenario with a different weight still
+          computes with its stored value. */}
       {cargoUnit === "teu" ? (
         <NumberInput
           label={t("unitWeight")}
           unit="t"
           step={0.5}
           help={t("unitWeightHelp")}
-          value={scenario.cargo.unitWeightTonnes ?? 10}
+          value={unitWeightTonnes ?? TEU_WEIGHT_TONNES}
           onChange={(v) => update((d) => void (d.cargo.unitWeightTonnes = Math.max(0.01, v)))}
         />
       ) : (
@@ -520,7 +522,7 @@ export function CargoTabStep({ model, viewMode, revealStandard }: StepProps) {
 export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
   const t = useTranslations("corridor.vessel");
   const tp = useTranslations("corridor.provenance");
-  const { scenario, update, resolved, benchmarks, bundle } = model;
+  const { scenario, loaded, update, resolved, benchmarks, bundle } = model;
   if (!resolved || !benchmarks) return null;
 
   const vesselRow = bundle.vesselTypes.find((v) => v.id === scenario.vessel.typeId);
@@ -561,6 +563,11 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
         }}
         override={
           scenario.vessel[side][
+            isCapex ? "capexUsdMPerShip" : "opexUsdMPerShipPerYear"
+          ]
+        }
+        baseline={
+          loaded.vessel[side][
             isCapex ? "capexUsdMPerShip" : "opexUsdMPerShipPerYear"
           ]
         }
@@ -641,6 +648,14 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
           })}
         </p>
       )}
+      {/* The cruise third term must be visible, not silent: hotel services
+          burn every day of the year regardless of speed, and for these rows
+          gjPerNm is propulsion-only. */}
+      {vesselRow?.hotelLoadGjPerDay ? (
+        <p className="text-[11px] text-neutral-500">
+          {t("hotelBasis", { gj: vesselRow.hotelLoadGjPerDay })}
+        </p>
+      ) : null}
       {/* Port load is a property of the CORRIDOR, not the vessel: the same
           ship spends under 1% of its energy in port on a 9,500 nm run and a
           third of it on a short one. The day rates behind this are all
@@ -702,7 +717,7 @@ export function VesselStep({ model, viewMode, revealStandard }: StepProps) {
 function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side: "green" | "fossil" }) {
   const t = useTranslations("corridor.fuel");
   const tp = useTranslations("corridor.provenance");
-  const { scenario, update, resolved, benchmarks, bundle } = model;
+  const { scenario, loaded, update, resolved, benchmarks, bundle } = model;
   if (!resolved || !benchmarks) return null;
   const s = scenario[side];
   const fuelRow = bundle.fuels.find((f) => f.id === s.fuelId);
@@ -779,6 +794,8 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
       help: string;
       disabled?: boolean;
       disabledNote?: string;
+      /** Zero is canonical here (double-count remedy) — no plausibility note. */
+      expectZero?: boolean;
       provenance?: { citation?: string; verified?: boolean; derivation?: string };
     },
   ) => (
@@ -789,6 +806,8 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
       help={opts.help}
       disabled={opts.disabled}
       disabledNote={opts.disabledNote}
+      expectZero={opts.expectZero}
+      baseline={loaded[side].overrides[key]}
       provenance={opts.provenance ?? fuelCite}
       override={s.overrides[key]}
       effective={r[resolvedKey].value}
@@ -806,6 +825,11 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
             overridden: s.overrides.priceUsdPerTonne !== null,
             node: overrideField("priceUsdPerTonne", "priceUsdPerTonne", t("price"), "$/t", {
               help: t("priceHelp"),
+              // Under plant sourcing the price line is zero by definition
+              // (the cost lives in the production lines), so a typed 0 is
+              // the documented remedy, never a mistake. Under purchase a
+              // $0/t price still earns the plausibility note.
+              expectZero: plantMode,
               provenance: { ...fuelCite, derivation: plantMode ? tp("priceZero") : undefined },
             }),
           },
@@ -965,6 +989,9 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
               help: t("prodCapexHelp"),
               disabled: prodZeroed,
               disabledNote: t("prodZeroNote"),
+              // Zeroing a production line is the other half of the legacy
+              // double-count remedy — the guard itself suggests it.
+              expectZero: legacy,
             }),
           },
           {
@@ -976,7 +1003,12 @@ function FuelSide({ model, viewMode, revealStandard, side }: StepProps & { side:
               "prodOpexUsdMPerYear",
               t("prodOpex"),
               "$m/yr",
-              { help: t("prodOpexHelp"), disabled: prodZeroed, disabledNote: t("prodZeroNote") },
+              {
+                help: t("prodOpexHelp"),
+                disabled: prodZeroed,
+                disabledNote: t("prodZeroNote"),
+                expectZero: legacy,
+              },
             ),
           },
         ]),
@@ -1060,7 +1092,7 @@ export function FuelStep({ model, viewMode, revealStandard }: StepProps) {
 function PortSide({ model, viewMode, revealStandard, side }: StepProps & { side: "green" | "fossil" }) {
   const t = useTranslations("corridor.port");
   const tp = useTranslations("corridor.provenance");
-  const { scenario, update, resolved, benchmarks, bundle } = model;
+  const { scenario, loaded, update, resolved, benchmarks, bundle } = model;
   if (!resolved || !benchmarks) return null;
   const fuelRow = bundle.fuels.find((f) => f.id === scenario[side].fuelId);
   const portProvenance = {
@@ -1088,6 +1120,7 @@ function PortSide({ model, viewMode, revealStandard, side }: StepProps & { side:
       unit={unit}
       help={help}
       override={scenario[side].overrides[key]}
+      baseline={loaded[side].overrides[key]}
       effective={r[key].value}
       source={r[key].source}
       benchmark={b[key].value}
@@ -1185,10 +1218,10 @@ export function FinancingStep({ model, viewMode, revealStandard }: StepProps) {
             step={0.005}
             help={tc("waccHelp")}
             override={scenario.cargo.waccOverride}
+            baseline={model.loaded.cargo.waccOverride}
             effective={resolved.wacc.value}
             source={resolved.wacc.source}
             benchmark={benchmarks.wacc.value}
-            unverified
             provenance={
               countryRow
                 ? {

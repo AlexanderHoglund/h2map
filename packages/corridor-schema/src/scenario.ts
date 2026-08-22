@@ -163,8 +163,8 @@ export interface CargoInput {
    * the engine counts units). Absent = legacy generic "unit"; the UI
    * defaults tonne for bulk/tanker and TEU for container vessels.
    */
-  unit?: "tonne" | "teu";
-  /** Weight of one unit in tonnes (TEU ≈ 14 t loaded). Absent = 1. */
+  unit?: "tonne" | "teu" | "passenger";
+  /** Weight of one unit in tonnes (TEU: 10 t, the GLEC Framework default payload). Absent = 1. */
   unitWeightTonnes?: number;
   /** Port A (the anchor country's port) — descriptive. */
   portAName?: string;

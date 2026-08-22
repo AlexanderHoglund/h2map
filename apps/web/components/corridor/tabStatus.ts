@@ -1,3 +1,6 @@
+// Relative, not the "@/" alias: this module is imported by the scripts
+// vitest suite (lib/tabStatus.test.ts), which resolves without Next's paths.
+import { plausibility } from "../../lib/corridor/plausibility";
 import type { CorridorModel } from "./state";
 
 /**
@@ -12,13 +15,17 @@ import type { CorridorModel } from "./state";
  *           attributed to this tab (`model.error` via the ordered matchers).
  *  - amber: worth checking, visited or not — and it is NEVER masked by a
  *           visit: a tab with a live warning stays amber after "Next".
- *           Sources are the model's own advisory signals only (delivered-
- *           energy parity divergence, material port-energy share, routed-
- *           vs-typed distance divergence). Data-quality provenance —
- *           unverified benchmarks — stays on the FIELD's badge and never
- *           reaches the tab: a triangle for "the reference row is
- *           unverified" read as a problem with the user's input, which it
- *           is not.
+ *           THE RULE: a tab is amber exactly when some FIELD on it carries
+ *           its own amber note — an implausible override (the plausibility
+ *           tier) or the routed-distance divergence. No field warning, no
+ *           tab warning: a triangle the user cannot clear by fixing a field
+ *           is a forever-indication, which is why the old result-derived
+ *           signals (port-energy share, energy parity) no longer reach the
+ *           tab — their notes stay in the tab BODY as information.
+ *           Data-quality provenance — unverified benchmarks — likewise
+ *           stays on the FIELD's badge and never reaches the tab: a
+ *           triangle for "the reference row is unverified" read as a
+ *           problem with the user's input, which it is not.
  *  - green: reviewed and nothing flagged. Green is a claim the user made
  *           (they moved on) combined with a claim the model makes (no
  *           warning) — never a default.
@@ -59,6 +66,8 @@ const ERROR_MATCHERS: readonly [RegExp, InputTab | "projects", string | undefine
 /**
  * Advisory signals, attributed to the tab whose controls govern them.
  * Several tabs can be amber at once; a tab can carry several reasons.
+ * Every entry MUST mirror a warning some field on that tab shows itself —
+ * see the amber doctrine above.
  */
 const WARNINGS: readonly {
   tab: InputTab;
@@ -66,20 +75,6 @@ const WARNINGS: readonly {
   targetFieldId?: string;
   when: (model: CorridorModel) => boolean;
 }[] = [
-  {
-    // Port days account for a material share (>10%) of round-trip energy —
-    // and every day rate behind that share is an estimate.
-    tab: "vessels",
-    reasonKey: "portShare",
-    when: (m) => m.result?.portEnergy?.material === true,
-  },
-  {
-    // The two sides no longer deliver the same energy (one-sided burn
-    // override) — abatement compares unequal transport work.
-    tab: "energy",
-    reasonKey: "energyParity",
-    when: (m) => m.result?.energyParity.diverged === true,
-  },
   {
     // Typed distance disagrees with the routed shipping-lane distance by
     // more than 15% — same threshold as the inline note on the field.
@@ -93,6 +88,84 @@ const WARNINGS: readonly {
     },
   },
 ];
+
+/**
+ * The plausibility notes ResolvedField renders, rolled up per tab: same
+ * pure check (`plausibility`), same benchmarks, same session baseline, same
+ * exemptions as the call sites in steps.tsx — a tab goes amber exactly when
+ * one of its fields is showing the note. A value equal to what the session
+ * LOADED never warns (curated study overrides are the scenario's own data,
+ * not user slips), so reopening a project clears every triangle. Kept as a
+ * WALK over the scenario's override slots rather than DOM inspection; if a
+ * slot is added to the form it should be added here with the tab it renders
+ * on.
+ */
+function implausibleTabs(model: CorridorModel): Set<InputTab> {
+  const out = new Set<InputTab>();
+  const { scenario, loaded, benchmarks } = model;
+  if (!benchmarks) return out;
+  const legacy = scenario.flags?.legacyExcelConstruct === true;
+  const mark = (
+    tab: InputTab,
+    override: number | null | undefined,
+    baseline: number | null | undefined,
+    benchmark: number,
+  ) => {
+    const o = override ?? null;
+    if (o === (baseline ?? null)) return; // unchanged since load — theirs, not a slip
+    if (plausibility(o, benchmark) !== null) out.add(tab);
+  };
+  for (const side of ["green", "fossil"] as const) {
+    const s = scenario[side];
+    const o = s.overrides;
+    const l = loaded[side].overrides;
+    const b = benchmarks[side];
+    // Price: only under purchase — plant modes zero it by definition, and
+    // the legacy double-count remedy is exactly a typed 0 (expectZero).
+    if (s.sourcing === "purchase") {
+      mark("energy", o.priceUsdPerTonne, l.priceUsdPerTonne, b.priceUsdPerTonne.value);
+    }
+    // Production lines: live only under build-plant; under legacy, zeroing
+    // one is the documented remedy (expectZero at the call site).
+    if (s.sourcing === "build-plant" && !legacy) {
+      mark("energy", o.prodCapexUsdM, l.prodCapexUsdM, b.prodCapexUsdM.value);
+      mark("energy", o.prodOpexUsdMPerYear, l.prodOpexUsdMPerYear, b.prodOpexUsdMPerYear.value);
+    }
+    if (s.sourcing === "build-here" && s.buildHere) {
+      const lc = loaded[side].buildHere?.components;
+      for (const [k, c] of Object.entries(s.buildHere.components)) {
+        mark(
+          "energy",
+          c.overrideUsdM,
+          lc?.[k as keyof NonNullable<typeof lc>]?.overrideUsdM,
+          c.derivedUsdM,
+        );
+      }
+    }
+    mark("energy", o.combustionEfTco2PerTonne, l.combustionEfTco2PerTonne, b.combustionEf.value);
+    mark("energy", o.lhvMjPerTonne, l.lhvMjPerTonne, b.lhv.value);
+    mark("energy", o.wtwGco2PerMj, l.wtwGco2PerMj, b.wtw.value);
+    mark("energy", o.fuelTonnesPerVesselYear, l.fuelTonnesPerVesselYear, b.tonnesPerVesselYear.value);
+    mark("ports", o.portStorageCapexUsdM, l.portStorageCapexUsdM, b.portStorageCapexUsdM.value);
+    mark("ports", o.portStorageOpexUsdMPerYear, l.portStorageOpexUsdMPerYear, b.portStorageOpexUsdMPerYear.value);
+    mark("ports", o.bargeCapexUsdM, l.bargeCapexUsdM, b.bargeCapexUsdM.value);
+    mark("ports", o.bargeOpexUsdMPerYear, l.bargeOpexUsdMPerYear, b.bargeOpexUsdMPerYear.value);
+    mark(
+      "vessels",
+      scenario.vessel[side].capexUsdMPerShip,
+      loaded.vessel[side].capexUsdMPerShip,
+      b.vesselCapexUsdMPerShip.value,
+    );
+    mark(
+      "vessels",
+      scenario.vessel[side].opexUsdMPerShipPerYear,
+      loaded.vessel[side].opexUsdMPerShipPerYear,
+      b.vesselOpexUsdMPerShipPerYear.value,
+    );
+  }
+  mark("financing", scenario.cargo.waccOverride, loaded.cargo.waccOverride, benchmarks.wacc.value);
+  return out;
+}
 
 const ALL_TABS: readonly TabKey[] = [
   "projects", "intro", "cargo", "vessels", "energy", "ports",
@@ -121,6 +194,14 @@ export function tabStatuses(
       state: "amber",
       targetFieldId: s.state === "amber" ? s.targetFieldId : w.targetFieldId,
       reasonKeys: [...s.reasonKeys, w.reasonKey],
+    };
+  }
+  for (const tab of implausibleTabs(model)) {
+    const s = statuses[tab];
+    statuses[tab] = {
+      state: "amber",
+      targetFieldId: s.targetFieldId,
+      reasonKeys: [...s.reasonKeys, "implausible"],
     };
   }
 

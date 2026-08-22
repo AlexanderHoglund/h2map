@@ -3,7 +3,9 @@
 import { useTranslations } from "next-intl";
 import type { ScenarioInput, ScenarioResult } from "@h2map/corridor-schema";
 import { Button } from "@/components/ui/Button";
+import { cargoUnitOf } from "@/lib/corridor/cargoUnit";
 import { usd, usdM } from "@/lib/corridor/format";
+import { DEFAULT_BUNDLE } from "./state";
 
 /**
  * Compact live summary docked on the five input steps: the headline numbers
@@ -33,9 +35,7 @@ export default function ResultsSummary({
 
   const s = result.summary;
   const basis = scenario.flags?.emissionsBasis ?? "combustion";
-  const cargoUnit =
-    scenario.cargo.unit ??
-    (scenario.vessel.typeId.startsWith("container") ? "teu" : "tonne");
+  const { unit: cargoUnit } = cargoUnitOf(scenario, DEFAULT_BUNDLE);
 
   return (
     <div className="border border-neutral-300 bg-white p-3">
@@ -49,7 +49,16 @@ export default function ResultsSummary({
         {usdM(result.reporting.gapPvPreRegulationUsdM)} {t("preRegLabel")}
       </p>
       <dl className="mt-3 space-y-1.5 border-t border-neutral-200 pt-2 text-xs">
-        <Row label={cargoUnit === "teu" ? t("perUnitTeu") : t("perUnitTonne")} value={usd(s.costPerUnitUsd)} />
+        <Row
+          label={
+            cargoUnit === "teu"
+              ? t("perUnitTeu")
+              : cargoUnit === "passenger"
+                ? t("perUnitPassenger")
+                : t("perUnitTonne")
+          }
+          value={usd(s.costPerUnitUsd)}
+        />
         <Row
           label={
             <>

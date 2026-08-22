@@ -22,7 +22,7 @@ import { defaultScenario, emptyScenario, clearOverrides } from "../../../apps/we
 const bundle = parseRefBundle(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/corridor-ref/2026-08-18-fuel-v4.json", import.meta.url),
+      new URL("../../../data/corridor-ref/2026-08-21-cruise-v6.json", import.meta.url),
       "utf8",
     ),
   ),

@@ -73,7 +73,7 @@ export function referenceCorridorScenario(): ScenarioInput {
  * carry: resolution rejects a mismatch outright rather than silently
  * re-pricing them against newer reference data.
  */
-const LIVE_BUNDLE_ID = "2026-08-18-fuel-v4";
+const LIVE_BUNDLE_ID = "2026-08-21-cruise-v6";
 
 export function defaultScenario(): ScenarioInput {
   const input = workbookScenario();
@@ -96,7 +96,10 @@ export function defaultScenario(): ScenarioInput {
     unitsPerYear: 1_650_000, // [S] 1.65 Mt/yr × 15 ≈ 25 Mt
     vessels: 10, // [S]
     roundtripsPerYear: 3, // [S] 165 kt/vessel/yr ÷ 55 kt/voyage
-    inflation: 0.02, // [A]
+    // [V] FRED T10YIE 10y breakeven 2.30% (19 Aug 2026) + IMF WEO Apr-2026
+    // US 2031 projection 2.2% — the same instrument the nominal WACC
+    // benchmarks are converted with (verification apply sheet, Group D).
+    inflation: 0.023,
     waccOverride: 0.08, // [F] base rate implied by the financing benefit
   };
 
@@ -459,7 +462,7 @@ export function emptyScenario(): ScenarioInput {
     unitsPerYear: 1_000_000,
     vessels: 5,
     roundtripsPerYear: 10,
-    inflation: 0.02,
+    inflation: 0.023, // [V] T10YIE breakeven — see defaultScenario
   };
   delete input.cargo.portACoords;
   delete input.cargo.portBCoords;

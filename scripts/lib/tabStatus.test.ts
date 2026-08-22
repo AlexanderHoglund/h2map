@@ -67,12 +67,67 @@ describe("blue is the honest starting state", () => {
   });
 });
 
+/** A full side for the plausibility roll-up: overrides + benchmarks. */
+const sideOverrides = (price: number | null = null) => ({
+  priceUsdPerTonne: price,
+  combustionEfTco2PerTonne: null,
+  lhvMjPerTonne: null,
+  wtwGco2PerMj: null,
+  fuelTonnesPerVesselYear: null,
+  prodCapexUsdM: null,
+  prodOpexUsdMPerYear: null,
+  portStorageCapexUsdM: null,
+  portStorageOpexUsdMPerYear: null,
+  bargeCapexUsdM: null,
+  bargeOpexUsdMPerYear: null,
+});
+const sideBench = () => ({
+  priceUsdPerTonne: { value: 900 },
+  combustionEf: { value: 1 },
+  lhv: { value: 18600 },
+  wtw: { value: 15 },
+  tonnesPerVesselYear: { value: 5000 },
+  prodCapexUsdM: { value: 55 },
+  prodOpexUsdMPerYear: { value: 3 },
+  portStorageCapexUsdM: { value: 12 },
+  portStorageOpexUsdMPerYear: { value: 1 },
+  bargeCapexUsdM: { value: 5 },
+  bargeOpexUsdMPerYear: { value: 0.3 },
+  vesselCapexUsdMPerShip: { value: 42.5 },
+  vesselOpexUsdMPerShipPerYear: { value: 2.47 },
+});
+/** A model whose green price override the USER typed to 0 this session. */
+function implausibleModel(price: number | null): CorridorModel {
+  const scenario = {
+    cargo: { countryId: "cl", oneWayDistanceNm: 9500, waccOverride: null },
+    vessel: {
+      typeId: "tanker-35k",
+      green: { capexUsdMPerShip: null, opexUsdMPerShipPerYear: null },
+      fossil: { capexUsdMPerShip: null, opexUsdMPerShipPerYear: null },
+    },
+    green: { fuelId: "e-ammonia", sourcing: "purchase", overrides: sideOverrides(price) },
+    fossil: { fuelId: "lsfo", sourcing: "purchase", overrides: sideOverrides() },
+  };
+  const loaded = JSON.parse(JSON.stringify(scenario)) as typeof scenario;
+  loaded.green.overrides.priceUsdPerTonne = null; // session started clean
+  return fakeModel({
+    scenario,
+    loaded,
+    benchmarks: { wacc: { value: 0.08 }, green: sideBench(), fossil: sideBench() },
+  });
+}
+
 describe("a warning is never masked by a visit", () => {
-  it("keeps energy amber after visiting while parity diverges, then clears to green", () => {
-    const diverged = fakeModel({ result: { energyParity: { diverged: true } } });
-    expect(tabStatuses(diverged, new Set(["energy"])).energy.state).toBe("amber");
-    // Resolved warning on a visited tab returns to green, not blue.
-    expect(tabStatuses(fakeModel(), new Set(["energy"])).energy.state).toBe("green");
+  it("keeps energy amber across visits while a typed override is implausible, then clears", () => {
+    // The amber doctrine after the 2026-08-20 redesign: a tab is amber
+    // exactly when a FIELD on it shows its own warning. A $0 price typed
+    // against a $900 benchmark is such a field warning — and a visit never
+    // masks it.
+    const bad = implausibleModel(0);
+    expect(tabStatuses(bad, new Set(["energy"])).energy.state).toBe("amber");
+    expect(tabStatuses(bad, new Set(["energy"])).energy.reasonKeys).toContain("implausible");
+    // Restoring the benchmark clears the field warning and the tab with it.
+    expect(tabStatuses(implausibleModel(null), new Set(["energy"])).energy.state).toBe("green");
   });
 
   it("keeps unverified benchmarks OFF the tab: field badges carry provenance", () => {
@@ -90,7 +145,11 @@ describe("a warning is never masked by a visit", () => {
     expect(tabStatuses(m, new Set(["financing"])).financing.state).toBe("green");
   });
 
-  it("marks energy on parity divergence and vessels on material port share", () => {
+  it("keeps result-derived advisories OFF the tabs: no field warning, no triangle", () => {
+    // Parity divergence and material port share were removed from tab level
+    // in the 2026-08-20 redesign: neither maps to a field a user can fix,
+    // so a triangle for them was an un-clearable forever-indication. Their
+    // notes stay in the tab BODIES; the tabs stay clean.
     const m = fakeModel({
       result: {
         energyParity: { diverged: true },
@@ -98,10 +157,8 @@ describe("a warning is never masked by a visit", () => {
       },
     });
     const s = tabStatuses(m, NONE);
-    expect(s.energy.state).toBe("amber");
-    expect(s.energy.reasonKeys).toContain("energyParity");
-    expect(s.vessels.state).toBe("amber");
-    expect(s.vessels.reasonKeys).toContain("portShare");
+    expect(s.energy.state).toBe("blue");
+    expect(s.vessels.state).toBe("blue");
   });
 
   it("flags intro when the typed distance diverges >15% from the routed one", () => {

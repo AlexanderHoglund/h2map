@@ -2,8 +2,14 @@
 
 **Deliverable:** one JSON file (`fuel-benchmarks-v1.json`), schema in §6.
 **Audience:** desk researcher or research-capable model with web access.
-**Status of this document:** hand-written brief. The figures in §2 were
-measured against bundle `2026-08-17-vessel-v3` on 2026-08-16.
+**Status of this document:** hand-written brief, now EXECUTED — kept as the
+record of why the research was commissioned. The figures in §2 were measured
+against bundle `2026-08-17-vessel-v3` on 2026-08-16. The research landed in
+bundle `2026-08-21-verified-v5` (and the cruise catalogue in
+`2026-08-21-cruise-v6`, the live bundle): since v5 every active row is
+verified, pooled with a stated basis, or designated — the present-tense
+defects described in §2 (spreadsheet-cell sourceNotes, unsupported
+`verified: true` flags, the $917/tpa production scalar) are historical.
 
 ---
 

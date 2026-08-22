@@ -44,7 +44,7 @@ export default function BuildHerePanel({
   side: "green" | "fossil";
 }) {
   const t = useTranslations("corridor.buildHere");
-  const { scenario, update, resolved } = model;
+  const { scenario, loaded, update, resolved } = model;
   const s = scenario[side];
   const site = s.buildHere;
 
@@ -258,6 +258,7 @@ export default function BuildHerePanel({
               unit={capex ? "$m" : "$m/yr"}
               help={t(`componentHelp.${key}`)}
               override={c.overrideUsdM}
+              baseline={loaded[side].buildHere?.components[key]?.overrideUsdM ?? null}
               effective={comp(c)}
               source={c.overrideUsdM !== null ? "override" : "derived"}
               benchmark={c.derivedUsdM}

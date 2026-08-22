@@ -26,7 +26,7 @@ import type { ScenarioResult } from "@h2map/corridor-schema";
 // The live catalogue. Scenarios pin their own refBundleId, so an older
 // saved scenario still resolves against the bundle it names — this is only
 // what a NEW scenario gets.
-import bundleJson from "../../../../data/corridor-ref/2026-08-18-fuel-v4.json";
+import bundleJson from "../../../../data/corridor-ref/2026-08-21-cruise-v6.json";
 import uiManifest from "../../../../data/corridor-sensitivity/ui-manifest.json";
 import {
   clearOverrides,
@@ -302,6 +302,14 @@ function applyPickToScenario(
 export interface CorridorModel {
   bundle: RefBundle;
   scenario: ScenarioInput;
+  /**
+   * The scenario as this SESSION received it (restored draft, loaded
+   * project, or the defaults) — the plausibility layer's baseline. A value
+   * that arrived with the scenario is the scenario's own data (curated
+   * study overrides included) and never warns; only what the user changed
+   * since load can. Reopening a project therefore clears every note.
+   */
+  loaded: ScenarioInput;
   /** Mutate a deep clone; the model re-evaluates synchronously. */
   update: (mutate: (draft: ScenarioInput) => void) => void;
   reset: () => void;
@@ -346,6 +354,8 @@ export function useCorridorModel(): CorridorModel {
     return base;
   });
   const [scenario, setScenario] = useState<ScenarioInput>(init.scenario);
+  // Plausibility baseline: what this session started from (see CorridorModel).
+  const [loaded, setLoaded] = useState<ScenarioInput>(init.scenario);
 
   // Debounced draft autosave.
   useEffect(() => {
@@ -369,12 +379,16 @@ export function useCorridorModel(): CorridorModel {
 
   const reset = useCallback(() => {
     localStorage.removeItem(DRAFT_KEY);
-    setScenario(defaultScenario());
+    const next = defaultScenario();
+    setScenario(next);
+    setLoaded(next);
   }, []);
 
   /** Replace the whole draft (loading a saved/shared scenario). Validates. */
   const load = useCallback((payload: unknown) => {
-    setScenario(repinToCurrentBundle(migrateScenarioInput(payload).input).input);
+    const next = repinToCurrentBundle(migrateScenarioInput(payload).input).input;
+    setScenario(next);
+    setLoaded(next);
   }, []);
 
   const pickSite = useCallback((pick: SitePickPayload) => {
@@ -452,6 +466,7 @@ export function useCorridorModel(): CorridorModel {
   return {
     bundle: DEFAULT_BUNDLE,
     scenario,
+    loaded,
     update,
     reset,
     load,

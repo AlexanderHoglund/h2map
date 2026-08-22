@@ -54,7 +54,10 @@ export function SwitchRow({
         {label}
         <Help text={help} />
       </span>
-      <Switch checked={checked} onChange={onChange} />
+      {/* A wrapping <label> does NOT name a role="switch" button in the
+          accessibility tree — pass the label through so the switch is
+          addressable by name (screen readers and tests alike). */}
+      <Switch checked={checked} onChange={onChange} label={label} />
     </label>
   );
 }

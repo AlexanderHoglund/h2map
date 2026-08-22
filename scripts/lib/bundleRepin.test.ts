@@ -56,8 +56,10 @@ describe("stored scenarios are re-pinned to the shipped bundle", () => {
     expect(state, "localStorage draft").toMatch(
       /localStorage\.getItem\(DRAFT_KEY\)[\s\S]{0,400}repinToCurrentBundle/,
     );
+    // load() re-pins into a local before setScenario/setLoaded (the
+    // plausibility baseline needs the same re-pinned value twice).
     expect(state, "imported payload").toMatch(
-      /setScenario\(repinToCurrentBundle\(/,
+      /repinToCurrentBundle\(migrateScenarioInput\(payload\)[\s\S]{0,160}setScenario\(next\)/,
     );
     expect(projects, "saved project row").toMatch(
       /migrateScenarioInput\(row\.inputs\)[\s\S]{0,400}repinToCurrentBundle/,

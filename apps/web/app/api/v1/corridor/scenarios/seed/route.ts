@@ -208,11 +208,12 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   // The same corridor with NOTHING asserted — every figure a bundle
-  // benchmark or derived from the route. It lands 24% below the study, and
-  // the remaining distance is the point: it measures what the model's own
-  // researched data says about a real corridor when nobody types a number
-  // in. (It was 83% below until the fuel rows were re-based in
-  // 2026-08-18-fuel-v4 and production capex started scaling with demand.)
+  // benchmark or derived from the route. On 2026-08-21-verified-v5 it lands
+  // 22% below the study ($1,379m vs $1,774m), and the remaining distance is
+  // the point: it measures what the model's own verified data says about a
+  // real corridor when nobody types a number in. (It was 83% below until
+  // the fuel rows were re-based in 2026-08-18-fuel-v4 and production capex
+  // started scaling with demand.)
   const benchmark = await ensureByName(
     BENCHMARK_EXAMPLE_NAME,
     benchmarkChileScenario(),

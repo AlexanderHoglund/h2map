@@ -23,7 +23,7 @@ import {
 import { emptyScenario } from "../../apps/web/lib/corridor/scenarioDefaults";
 
 const ROOT = new URL("../../", import.meta.url);
-const BUNDLE_ID = "2026-08-18-fuel-v4";
+const BUNDLE_ID = "2026-08-21-cruise-v6";
 
 const bundle = parseRefBundle(
   JSON.parse(

@@ -9,7 +9,7 @@
  * THIS TEST INVERTED ON 2026-08-17, deliberately. It used to assert that the
  * model did NOT reproduce that figure, and carried the warning "anyone who
  * later makes this test pass has changed the model, and should say why".
- * The model did change: bundle 2026-08-18-fuel-v4 takes this hull's energy
+ * The model did change: bundle 2026-08-21-cruise-v6 takes this hull's energy
  * from the study itself rather than from the EEDI reference line, because
  * four independent studies all disagreed with the line in the same
  * direction. So reproduction is now BY CONSTRUCTION, and what these tests
@@ -19,6 +19,11 @@
  * the SIZE of the disagreement: the raw reference line still gives 6.275
  * GJ/nm where the study measures 4.130, +52%. That gap is the evidence that
  * `k` is mis-fitted, and it is pinned below.
+ *
+ * Re-measured 2026-08-21 on 2026-08-21-cruise-v6: verified-v5 benchmarks +
+ * inflation default 0.023 (docs/corridor/research/verification-apply-sheet-v5.md).
+ * Verification moved this hull's serviceSpeedKn 13 -> 11.3, so the
+ * double-count trap below shrinks from -26% to -2.5%.
  */
 
 import { describe, expect, it } from "vitest";
@@ -28,7 +33,7 @@ import { gjPerNmFromEedi, parseRefBundle } from "@h2map/corridor-schema";
 const bundle = parseRefBundle(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/corridor-ref/2026-08-18-fuel-v4.json", import.meta.url),
+      new URL("../../../data/corridor-ref/2026-08-21-cruise-v6.json", import.meta.url),
       "utf8",
     ),
   ),
@@ -74,15 +79,17 @@ describe("GMF Newcastlemax reproduction", () => {
   it("must not ALSO be slow-steam corrected — that double-counts", () => {
     // A trap worth pinning. GMF's ships steam at ~10.7/11.68 kn, and it is
     // tempting to apply that correction on top. But the 4.130 GJ/nm already
-    // IS the burn at those speeds, so correcting again drops it 26% below
-    // the published figure. The speed correction is for sailing a catalogue
+    // IS the burn at those speeds, so correcting again drops it below the
+    // published figure — measured -2.5% now that the verified design speed
+    // (11.3 kn) sits close to GMF's effective speeds, where the old 13 kn
+    // row dropped 26%. The speed correction is for sailing a catalogue
     // hull faster or slower than ITS design point, not for re-applying the
     // conditions a study figure was measured under.
     const t = derivedTonnes(
       GMF.effectiveSpeeds.laden,
       GMF.effectiveSpeeds.ballast,
     );
-    expect(t / GMF.targetTonnesPerVesselYear - 1).toBeLessThan(-0.2);
+    expect(t / GMF.targetTonnesPerVesselYear - 1).toBeLessThan(-0.02);
   });
 
   it("keeps the laden/ballast split averaging back to the scalar", () => {

@@ -115,12 +115,12 @@
   /* Technical-schematic artwork (the corridor chart on the entry panel, and
      its canvas port at /animate). Deliberately NOT --viz-*: those carry
      data-legibility contracts, these are a draughtsman's palette. `ship` is
-     the dark end of a RdBu ramp, not --color-danger — it marks a vessel, it
-     does not signal an error. */
+     the corridor's clean-fuel green (--viz-series-green), not a status
+     colour — it marks a vessel running on the corridor's product. */
   --anim-ink: #3f3e3a; /* primary linework */
   --anim-ink-soft: #9b9a90; /* secondary: dashed pipes, sea marks */
   --anim-land: #f2f2ed; /* landmass fill */
-  --anim-ship: #b2182b; /* fleet marks */
+  --anim-ship: #4ea72e; /* fleet marks */
 
   /* MMMCZCS process-model domain palette (sampled from the reference slide's
      Phase II shape fills). Deliberately NOT --viz-*: these identify the five

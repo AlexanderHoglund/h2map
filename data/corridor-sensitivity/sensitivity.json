@@ -123,16 +123,16 @@
     "genc-12k",
     "genc-25k"
    ],
-   "gapAtLow": 107.8574607008035,
-   "gapAtHigh": 136.47966747763843,
-   "maxAbsDeltaUsdM": 598.4201014434007,
-   "relHeadlineMovement": 4.461505461506658,
+   "gapAtLow": 103.17292383223756,
+   "gapAtHigh": 129.54309545281657,
+   "maxAbsDeltaUsdM": 528.9217069327201,
+   "relHeadlineMovement": 4.26484847306566,
    "movementByKpi": {
-    "gapPvUsdM": 4.461505461506658,
-    "costPerUnitUsd": 4.461505461506659,
-    "costPerTonneCo2Usd": 1.8567174353895364,
-    "greenTotalPvUsdM": 4.2969903331648585,
-    "fossilTotalPvUsdM": 3.6920416675364787,
+    "gapPvUsdM": 4.26484847306566,
+    "costPerUnitUsd": 4.264848473065659,
+    "costPerTonneCo2Usd": 2.876871056912479,
+    "greenTotalPvUsdM": 4.055252993268862,
+    "fossilTotalPvUsdM": 3.1661276504958074,
     "co2AbatedTonnes": 4.468749999999999
    },
    "bindingKpi": "co2AbatedTonnes",
@@ -142,13 +142,13 @@
    "worstOptionByKpi": {
     "gapPvUsdM": {
      "option": "cont-ulcv-24000",
-     "value": 765.8791698686166,
-     "base": 140.23224461947797
+     "value": 696.380775357936,
+     "base": 132.269860931523
     },
     "costPerTonneCo2Usd": {
-     "option": "vlac-93k",
-     "value": 5994.996849495354,
-     "base": 2098.561368103208
+     "option": "ropax-8k",
+     "value": 7673.8983457175755,
+     "base": 1979.4051009344196
     }
    }
   },
@@ -250,32 +250,32 @@
     "biodiesel-hvo",
     "lh2"
    ],
-   "gapAtLow": 140.23224461947797,
-   "gapAtHigh": 101.56627949941016,
-   "maxAbsDeltaUsdM": 134.4448166087171,
-   "relHeadlineMovement": 0.7645744607020767,
+   "gapAtLow": 132.269860931523,
+   "gapAtHigh": 92.2810162839418,
+   "maxAbsDeltaUsdM": 134.07832692195717,
+   "relHeadlineMovement": 0.747631537009476,
    "movementByKpi": {
-    "gapPvUsdM": 0.7645744607020767,
-    "costPerUnitUsd": 0.7645744607020768,
-    "costPerTonneCo2Usd": 0.7662484780228088,
-    "greenTotalPvUsdM": 0.601104695763222,
+    "gapPvUsdM": 0.747631537009476,
+    "costPerUnitUsd": 0.747631537009476,
+    "costPerTonneCo2Usd": 0.7494260287180331,
+    "greenTotalPvUsdM": 0.6050109663496751,
     "fossilTotalPvUsdM": 0,
     "co2AbatedTonnes": 0.11634542742282945
    },
    "bindingKpi": "costPerTonneCo2Usd",
-   "maxRelMovement": 0.7662484780228088,
+   "maxRelMovement": 0.7494260287180331,
    "signedByKpi": null,
    "absoluteByKpi": null,
    "worstOptionByKpi": {
     "gapPvUsdM": {
      "option": "biodiesel-hvo",
-     "value": 33.0142518164989,
-     "base": 140.23224461947797
+     "value": 33.38074150325882,
+     "base": 132.269860931523
     },
     "costPerTonneCo2Usd": {
      "option": "biodiesel-hvo",
-     "value": 490.5419137566613,
-     "base": 2098.561368103208
+     "value": 495.98739691692015,
+     "base": 1979.4051009344196
     }
    }
   },
@@ -324,6 +324,43 @@
    "worstOptionByKpi": null
   },
   {
+   "id": "green.sourcing",
+   "label": "Green fuel sourcing choice",
+   "step": 3,
+   "range": [
+    "purchase",
+    "build-plant"
+   ],
+   "gapAtLow": 64.15266901126736,
+   "gapAtHigh": 132.269860931523,
+   "maxAbsDeltaUsdM": 103.30639941394864,
+   "relHeadlineMovement": 0.5149864938281017,
+   "movementByKpi": {
+    "gapPvUsdM": 0.5149864938281017,
+    "costPerUnitUsd": 0.5149864938281017,
+    "costPerTonneCo2Usd": 0.5149864938281017,
+    "greenTotalPvUsdM": 0.41674603178761,
+    "fossilTotalPvUsdM": 0,
+    "co2AbatedTonnes": 0
+   },
+   "bindingKpi": "gapPvUsdM",
+   "maxRelMovement": 0.5149864938281017,
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "purchase",
+     "value": 64.15266901126736,
+     "base": 132.269860931523
+    },
+    "costPerTonneCo2Usd": {
+     "option": "purchase",
+     "value": 960.0382081387431,
+     "base": 1979.4051009344196
+    }
+   }
+  },
+  {
    "id": "vessel.fossil.capexUsdM",
    "label": "Fossil vessel CAPEX ($m)",
    "step": 2,
@@ -366,43 +403,6 @@
     }
    },
    "worstOptionByKpi": null
-  },
-  {
-   "id": "green.sourcing",
-   "label": "Green fuel sourcing choice",
-   "step": 3,
-   "range": [
-    "purchase",
-    "build-plant"
-   ],
-   "gapAtLow": 68.19713903736357,
-   "gapAtHigh": 140.23224461947797,
-   "maxAbsDeltaUsdM": 99.26192938785243,
-   "relHeadlineMovement": 0.513684322586311,
-   "movementByKpi": {
-    "gapPvUsdM": 0.513684322586311,
-    "costPerUnitUsd": 0.5136843225863109,
-    "costPerTonneCo2Usd": 0.513684322586311,
-    "greenTotalPvUsdM": 0.40385609815300827,
-    "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0
-   },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0.513684322586311,
-   "signedByKpi": null,
-   "absoluteByKpi": null,
-   "worstOptionByKpi": {
-    "gapPvUsdM": {
-     "option": "purchase",
-     "value": 68.19713903736357,
-     "base": 140.23224461947797
-    },
-    "costPerTonneCo2Usd": {
-     "option": "purchase",
-     "value": 1020.5632933233097,
-     "base": 2098.561368103208
-    }
-   }
   },
   {
    "id": "vessel.green.capexUsdM",
@@ -713,6 +713,43 @@
    "worstOptionByKpi": null
   },
   {
+   "id": "fossil.fuelId",
+   "label": "Fossil fuel choice",
+   "step": 3,
+   "range": [
+    "lsfo",
+    "lng"
+   ],
+   "gapAtLow": 132.269860931523,
+   "gapAtHigh": 120.99072727905136,
+   "maxAbsDeltaUsdM": 46.46834114616465,
+   "relHeadlineMovement": 0.0852736486833605,
+   "movementByKpi": {
+    "gapPvUsdM": 0.0852736486833605,
+    "costPerUnitUsd": 0.08527364868336067,
+    "costPerTonneCo2Usd": 0.029234317636783677,
+    "greenTotalPvUsdM": 0,
+    "fossilTotalPvUsdM": 0.3617394907018433,
+    "co2AbatedTonnes": 0.11125548804383535
+   },
+   "bindingKpi": "fossilTotalPvUsdM",
+   "maxRelMovement": 0.3617394907018433,
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "lng",
+     "value": 120.99072727905136,
+     "base": 132.269860931523
+    },
+    "costPerTonneCo2Usd": {
+     "option": "lng",
+     "value": 2037.2716583870063,
+     "base": 1979.4051009344196
+    }
+   }
+  },
+  {
    "id": "green.prodOpexUsdMPerYear",
    "label": "Fuel production O&M ($m/yr)",
    "step": 3,
@@ -769,69 +806,220 @@
     "united-states",
     "other"
    ],
-   "gapAtLow": 140.23224461947797,
-   "gapAtHigh": 132.269860931523,
-   "maxAbsDeltaUsdM": 43.16056095857391,
-   "relHeadlineMovement": 0.11362391863634701,
+   "gapAtLow": 132.269860931523,
+   "gapAtHigh": 124.11162222314795,
+   "maxAbsDeltaUsdM": 43.347446202068056,
+   "relHeadlineMovement": 0.06167874261694905,
    "movementByKpi": {
-    "gapPvUsdM": 0.11362391863634701,
-    "costPerUnitUsd": 0.11362391863634687,
-    "costPerTonneCo2Usd": 0.1136239186363469,
-    "greenTotalPvUsdM": 0.16633699142868055,
-    "fossilTotalPvUsdM": 0.36017146348186024,
+    "gapPvUsdM": 0.06167874261694905,
+    "costPerUnitUsd": 0.06167874261694911,
+    "costPerTonneCo2Usd": 0.06167874261694903,
+    "greenTotalPvUsdM": 0.0923479639321967,
+    "fossilTotalPvUsdM": 0.22244992004756375,
     "co2AbatedTonnes": 0
    },
    "bindingKpi": "fossilTotalPvUsdM",
-   "maxRelMovement": 0.36017146348186024,
+   "maxRelMovement": 0.22244992004756375,
    "signedByKpi": null,
    "absoluteByKpi": null,
    "worstOptionByKpi": {
     "gapPvUsdM": {
-     "option": "brazil",
-     "value": 124.29850746664209,
-     "base": 140.23224461947797
+     "option": "other",
+     "value": 124.11162222314795,
+     "base": 132.269860931523
     },
     "costPerTonneCo2Usd": {
-     "option": "brazil",
-     "value": 1860.1146019604685,
-     "base": 2098.561368103208
+     "option": "other",
+     "value": 1857.3178831792095,
+     "base": 1979.4051009344196
     }
    }
   },
   {
-   "id": "fossil.fuelId",
-   "label": "Fossil fuel choice",
-   "step": 3,
+   "id": "regulation.emissions.framework",
+   "label": "Emission accounting framework",
+   "step": 5,
    "range": [
-    "lsfo",
-    "lng"
+    "fueleu",
+    "imo"
    ],
-   "gapAtLow": 140.23224461947797,
-   "gapAtHigh": 128.89088655712283,
-   "maxAbsDeltaUsdM": 38.56818186809318,
-   "relHeadlineMovement": 0.08087553681487496,
+   "gapAtLow": 132.269860931523,
+   "gapAtHigh": 132.25866939344883,
+   "maxAbsDeltaUsdM": 35.200399031767176,
+   "relHeadlineMovement": 0.00008461139971989532,
    "movementByKpi": {
-    "gapPvUsdM": 0.08087553681487496,
-    "costPerUnitUsd": 0.08087553681487486,
-    "costPerTonneCo2Usd": 0.034182997273415415,
-    "greenTotalPvUsdM": 0,
-    "fossilTotalPvUsdM": 0.2973923952846989,
-    "co2AbatedTonnes": 0.11125548804383535
+    "gapPvUsdM": 0.00008461139971989532,
+    "costPerUnitUsd": 0.00008461139971986735,
+    "costPerTonneCo2Usd": 0.04840604787680611,
+    "greenTotalPvUsdM": 0.00010693396157702654,
+    "fossilTotalPvUsdM": 0.0002016285393514934,
+    "co2AbatedTonnes": 0.05077946992966021
    },
-   "bindingKpi": "fossilTotalPvUsdM",
-   "maxRelMovement": 0.2973923952846989,
+   "bindingKpi": "co2AbatedTonnes",
+   "maxRelMovement": 0.05077946992966021,
    "signedByKpi": null,
    "absoluteByKpi": null,
    "worstOptionByKpi": {
     "gapPvUsdM": {
-     "option": "lng",
-     "value": 128.89088655712283,
-     "base": 140.23224461947797
+     "option": "imo",
+     "value": 132.25866939344883,
+     "base": 132.269860931523
     },
     "costPerTonneCo2Usd": {
-     "option": "lng",
-     "value": 2170.296485627175,
-     "base": 2098.561368103208
+     "option": "imo",
+     "value": 1883.5899228509938,
+     "base": 1979.4051009344196
+    }
+   }
+  },
+  {
+   "id": "fossil.sourcing",
+   "label": "Fossil fuel sourcing choice",
+   "step": 3,
+   "range": [
+    "purchase",
+    "build-plant"
+   ],
+   "gapAtLow": 132.269860931523,
+   "gapAtHigh": 132.269860931523,
+   "maxAbsDeltaUsdM": 35.189207493693004,
+   "relHeadlineMovement": 0,
+   "movementByKpi": {
+    "gapPvUsdM": 0,
+    "costPerUnitUsd": 0,
+    "costPerTonneCo2Usd": 0,
+    "greenTotalPvUsdM": 0,
+    "fossilTotalPvUsdM": 0,
+    "co2AbatedTonnes": 0
+   },
+   "bindingKpi": "gapPvUsdM",
+   "maxRelMovement": 0,
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "purchase",
+     "value": 132.269860931523,
+     "base": 132.269860931523
+    },
+    "costPerTonneCo2Usd": {
+     "option": "purchase",
+     "value": 1979.4051009344196,
+     "base": 1979.4051009344196
+    }
+   }
+  },
+  {
+   "id": "flags.emissionsBasis",
+   "label": "Emissions basis (abatement accounting)",
+   "step": 5,
+   "range": [
+    "combustion",
+    "wellToWake"
+   ],
+   "gapAtLow": 132.269860931523,
+   "gapAtHigh": 132.269860931523,
+   "maxAbsDeltaUsdM": 35.189207493693004,
+   "relHeadlineMovement": 0,
+   "movementByKpi": {
+    "gapPvUsdM": 0,
+    "costPerUnitUsd": 0,
+    "costPerTonneCo2Usd": 0.015456782333842786,
+    "greenTotalPvUsdM": 0,
+    "fossilTotalPvUsdM": 0,
+    "co2AbatedTonnes": 0.015699445241705936
+   },
+   "bindingKpi": "co2AbatedTonnes",
+   "maxRelMovement": 0.015699445241705936,
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "combustion",
+     "value": 132.269860931523,
+     "base": 132.269860931523
+    },
+    "costPerTonneCo2Usd": {
+     "option": "combustion",
+     "value": 1948.8098671387781,
+     "base": 1979.4051009344196
+    }
+   }
+  },
+  {
+   "id": "green.emissions.engineType",
+   "label": "Engine type (methane slip)",
+   "step": 3,
+   "range": [
+    "lng-otto-df-medium-speed",
+    "lng-otto-df-slow-speed",
+    "lng-diesel-df-slow-speed",
+    "lng-lbsi",
+    "steam-turbine-boiler"
+   ],
+   "gapAtLow": 132.269860931523,
+   "gapAtHigh": 132.269860931523,
+   "maxAbsDeltaUsdM": 35.189207493693004,
+   "relHeadlineMovement": 0,
+   "movementByKpi": {
+    "gapPvUsdM": 0,
+    "costPerUnitUsd": 0,
+    "costPerTonneCo2Usd": 0,
+    "greenTotalPvUsdM": 0,
+    "fossilTotalPvUsdM": 0,
+    "co2AbatedTonnes": 0
+   },
+   "bindingKpi": "gapPvUsdM",
+   "maxRelMovement": 0,
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "lng-otto-df-medium-speed",
+     "value": 132.269860931523,
+     "base": 132.269860931523
+    },
+    "costPerTonneCo2Usd": {
+     "option": "lng-otto-df-medium-speed",
+     "value": 1979.4051009344196,
+     "base": 1979.4051009344196
+    }
+   }
+  },
+  {
+   "id": "cargo.unit",
+   "label": "Cargo unit choice (tonne vs TEU)",
+   "step": 1,
+   "range": [
+    "tonne",
+    "teu"
+   ],
+   "gapAtLow": 132.269860931523,
+   "gapAtHigh": 132.269860931523,
+   "maxAbsDeltaUsdM": 35.189207493693004,
+   "relHeadlineMovement": 0,
+   "movementByKpi": {
+    "gapPvUsdM": 0,
+    "costPerUnitUsd": 0,
+    "costPerTonneCo2Usd": 0,
+    "greenTotalPvUsdM": 0,
+    "fossilTotalPvUsdM": 0,
+    "co2AbatedTonnes": 0
+   },
+   "bindingKpi": "gapPvUsdM",
+   "maxRelMovement": 0,
+   "signedByKpi": null,
+   "absoluteByKpi": null,
+   "worstOptionByKpi": {
+    "gapPvUsdM": {
+     "option": "tonne",
+     "value": 132.269860931523,
+     "base": 132.269860931523
+    },
+    "costPerTonneCo2Usd": {
+     "option": "tonne",
+     "value": 1979.4051009344196,
+     "base": 1979.4051009344196
     }
    }
   },
@@ -1054,194 +1242,6 @@
     }
    },
    "worstOptionByKpi": null
-  },
-  {
-   "id": "regulation.emissions.framework",
-   "label": "Emission accounting framework",
-   "step": 5,
-   "range": [
-    "fueleu",
-    "imo"
-   ],
-   "gapAtLow": 140.23224461947797,
-   "gapAtHigh": 140.21893790807266,
-   "maxAbsDeltaUsdM": 27.240130517143342,
-   "relHeadlineMovement": 0.00009489052565202958,
-   "movementByKpi": {
-    "gapPvUsdM": 0.00009489052565202958,
-    "costPerUnitUsd": 0.00009489052565195683,
-    "costPerTonneCo2Usd": 0.048415830258577264,
-    "greenTotalPvUsdM": 0.00011651030224272349,
-    "fossilTotalPvUsdM": 0.00019600970835558702,
-    "co2AbatedTonnes": 0.05077946992966021
-   },
-   "bindingKpi": "co2AbatedTonnes",
-   "maxRelMovement": 0.05077946992966021,
-   "signedByKpi": null,
-   "absoluteByKpi": null,
-   "worstOptionByKpi": {
-    "gapPvUsdM": {
-     "option": "imo",
-     "value": 140.21893790807266,
-     "base": 140.23224461947797
-    },
-    "costPerTonneCo2Usd": {
-     "option": "imo",
-     "value": 1996.9577771179156,
-     "base": 2098.561368103208
-    }
-   }
-  },
-  {
-   "id": "fossil.sourcing",
-   "label": "Fossil fuel sourcing choice",
-   "step": 3,
-   "range": [
-    "purchase",
-    "build-plant"
-   ],
-   "gapAtLow": 140.23224461947797,
-   "gapAtHigh": 140.23224461947797,
-   "maxAbsDeltaUsdM": 27.226823805738036,
-   "relHeadlineMovement": 0,
-   "movementByKpi": {
-    "gapPvUsdM": 0,
-    "costPerUnitUsd": 0,
-    "costPerTonneCo2Usd": 0,
-    "greenTotalPvUsdM": 0,
-    "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0
-   },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0,
-   "signedByKpi": null,
-   "absoluteByKpi": null,
-   "worstOptionByKpi": {
-    "gapPvUsdM": {
-     "option": "purchase",
-     "value": 140.23224461947797,
-     "base": 140.23224461947797
-    },
-    "costPerTonneCo2Usd": {
-     "option": "purchase",
-     "value": 2098.561368103208,
-     "base": 2098.561368103208
-    }
-   }
-  },
-  {
-   "id": "flags.emissionsBasis",
-   "label": "Emissions basis (abatement accounting)",
-   "step": 5,
-   "range": [
-    "combustion",
-    "wellToWake"
-   ],
-   "gapAtLow": 140.23224461947797,
-   "gapAtHigh": 140.23224461947797,
-   "maxAbsDeltaUsdM": 27.226823805738036,
-   "relHeadlineMovement": 0,
-   "movementByKpi": {
-    "gapPvUsdM": 0,
-    "costPerUnitUsd": 0,
-    "costPerTonneCo2Usd": 0.015456782333842772,
-    "greenTotalPvUsdM": 0,
-    "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0.015699445241705936
-   },
-   "bindingKpi": "co2AbatedTonnes",
-   "maxRelMovement": 0.015699445241705936,
-   "signedByKpi": null,
-   "absoluteByKpi": null,
-   "worstOptionByKpi": {
-    "gapPvUsdM": {
-     "option": "combustion",
-     "value": 140.23224461947797,
-     "base": 140.23224461947797
-    },
-    "costPerTonneCo2Usd": {
-     "option": "combustion",
-     "value": 2066.1243618222256,
-     "base": 2098.561368103208
-    }
-   }
-  },
-  {
-   "id": "green.emissions.engineType",
-   "label": "Engine type (methane slip)",
-   "step": 3,
-   "range": [
-    "lng-otto-df-medium-speed",
-    "lng-otto-df-slow-speed",
-    "lng-diesel-df-slow-speed",
-    "lng-lbsi",
-    "steam-turbine-boiler"
-   ],
-   "gapAtLow": 140.23224461947797,
-   "gapAtHigh": 140.23224461947797,
-   "maxAbsDeltaUsdM": 27.226823805738036,
-   "relHeadlineMovement": 0,
-   "movementByKpi": {
-    "gapPvUsdM": 0,
-    "costPerUnitUsd": 0,
-    "costPerTonneCo2Usd": 0,
-    "greenTotalPvUsdM": 0,
-    "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0
-   },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0,
-   "signedByKpi": null,
-   "absoluteByKpi": null,
-   "worstOptionByKpi": {
-    "gapPvUsdM": {
-     "option": "lng-otto-df-medium-speed",
-     "value": 140.23224461947797,
-     "base": 140.23224461947797
-    },
-    "costPerTonneCo2Usd": {
-     "option": "lng-otto-df-medium-speed",
-     "value": 2098.561368103208,
-     "base": 2098.561368103208
-    }
-   }
-  },
-  {
-   "id": "cargo.unit",
-   "label": "Cargo unit choice (tonne vs TEU)",
-   "step": 1,
-   "range": [
-    "tonne",
-    "teu"
-   ],
-   "gapAtLow": 140.23224461947797,
-   "gapAtHigh": 140.23224461947797,
-   "maxAbsDeltaUsdM": 27.226823805738036,
-   "relHeadlineMovement": 0,
-   "movementByKpi": {
-    "gapPvUsdM": 0,
-    "costPerUnitUsd": 0,
-    "costPerTonneCo2Usd": 0,
-    "greenTotalPvUsdM": 0,
-    "fossilTotalPvUsdM": 0,
-    "co2AbatedTonnes": 0
-   },
-   "bindingKpi": "gapPvUsdM",
-   "maxRelMovement": 0,
-   "signedByKpi": null,
-   "absoluteByKpi": null,
-   "worstOptionByKpi": {
-    "gapPvUsdM": {
-     "option": "tonne",
-     "value": 140.23224461947797,
-     "base": 140.23224461947797
-    },
-    "costPerTonneCo2Usd": {
-     "option": "tonne",
-     "value": 2098.561368103208,
-     "base": 2098.561368103208
-    }
-   }
   },
   {
    "id": "financing.greenRate",

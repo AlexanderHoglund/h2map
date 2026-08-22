@@ -15,6 +15,11 @@ import { migrateScenarioInput } from "../src/migrate";
  * no-op — a scenario written before these inputs existed must compute what
  * it always computed, which is what lets this ship without a schema bump or
  * a migration.
+ *
+ * Re-measured 2026-08-21 on 2026-08-21-cruise-v6: verified-v5 benchmarks +
+ * inflation default 0.023 (docs/corridor/research/verification-apply-sheet-v5.md).
+ * Verification moved the Newcastlemax design speed 13 -> 11.3 kn and zeroed
+ * every catalogue cargoSystemGjPerDay (heating folded into portGjPerDay).
  */
 
 const load = (id: string) =>
@@ -27,7 +32,7 @@ const load = (id: string) =>
     ),
   );
 
-const v3 = load("2026-08-18-fuel-v4");
+const v3 = load("2026-08-21-cruise-v6");
 
 const fixture = () =>
   migrateScenarioInput(
@@ -67,14 +72,18 @@ describe("speed correction", () => {
 
   it("scales with the SQUARE of speed, not the cube", () => {
     // Power ~ v^3 so GJ/DAY does, but nm/day ~ v, so GJ/NM ~ v^2. The cube
-    // law on a per-nm quantity understates by ~12% at 11.5 vs 13 kn — this
-    // test is what stops that error coming back.
+    // law on a per-nm quantity misstates the burn (~1.8% at 11.5 vs the
+    // verified 11.3 kn design speed) — this test is what stops that error
+    // coming back.
+    const design = v3.vesselTypes.find(
+      (v) => v.id === "bulk-newcastlemax-210k",
+    )!.serviceSpeedKn!;
     const base = burn();
-    const slow = burn((s) => {
+    const adjusted = burn((s) => {
       s.cargo.serviceSpeedKn = 11.5;
     });
-    expect(slow / base).toBeCloseTo((11.5 / 13) ** 2, 6);
-    expect(slow / base).not.toBeCloseTo((11.5 / 13) ** 3, 3);
+    expect(adjusted / base).toBeCloseTo((11.5 / design) ** 2, 6);
+    expect(adjusted / base).not.toBeCloseTo((11.5 / design) ** 3, 3);
   });
 
   it("burns more when faster, less when slower", () => {
@@ -122,17 +131,28 @@ describe("port days", () => {
   it("uses port AND cargo-system rates together", () => {
     // A chemical tanker heats its cargo in port; a bulker does not. The two
     // rates are summed, so a heated-cargo ship gains more per port day.
-    const chem = (days: number) =>
+    // The verified catalogue folds the heating load into portGjPerDay and
+    // zeroes cargoSystemGjPerDay on every row, so the summation is exercised
+    // on a copy of the live row with the pre-verification rate restored.
+    const heated = {
+      ...v3,
+      vesselTypes: v3.vesselTypes.map((v) =>
+        v.id === "chem-imo2-25k" ? { ...v, cargoSystemGjPerDay: 160.8 } : v,
+      ),
+    };
+    const chem = (days: number, b = heated) =>
       resolveScenario(
         scenario((s) => {
           s.vessel.typeId = "chem-imo2-25k";
           s.cargo.portDaysPerRoundTrip = days;
         }),
-        v3,
+        b,
       ).green.tonnesPerVesselYear.value as number;
-    const row = v3.vesselTypes.find((v) => v.id === "chem-imo2-25k")!;
+    const row = heated.vesselTypes.find((v) => v.id === "chem-imo2-25k")!;
     expect(row.cargoSystemGjPerDay!).toBeGreaterThan(0);
     expect(chem(4)).toBeGreaterThan(chem(0));
+    // ...and the cargo-system rate itself is what makes the difference.
+    expect(chem(4)).toBeGreaterThan(chem(4, v3));
   });
 });
 

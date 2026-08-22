@@ -9,7 +9,7 @@
  * someone typed the study's own number into it proves nothing.
  *
  * The catalogue's energy figures for these hulls now come from the studies
- * themselves (bundle 2026-08-18-fuel-v4), so reproduction is by
+ * themselves (bundle 2026-08-21-cruise-v6), so reproduction is by
  * construction and these tests are guards that it STAYS reproduced — not
  * evidence that the EEDI derivation was right. That separate finding, that
  * the raw reference line runs 37-52% high against every study, is pinned in
@@ -28,7 +28,7 @@ import {
 const bundle = parseRefBundle(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/corridor-ref/2026-08-18-fuel-v4.json", import.meta.url),
+      new URL("../../../data/corridor-ref/2026-08-21-cruise-v6.json", import.meta.url),
       "utf8",
     ),
   ),

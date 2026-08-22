@@ -18,7 +18,7 @@
  * Atacama facility, because production capex was an unsourced flat $55m that
  * did not scale with the corridor at all.
  *
- * Bundle 2026-08-18-fuel-v4 re-based those rows from researched data and made
+ * Bundle 2026-08-21-cruise-v6 re-based those rows from researched data and made
  * them scale with demand, so the benchmark plant is now $827m — 75% of the
  * study's figure rather than 5% — and the gap is $1,520m, 76% of the study.
  *
@@ -44,7 +44,7 @@ import {
 const bundle = parseRefBundle(
   JSON.parse(
     readFileSync(
-      new URL("../../../data/corridor-ref/2026-08-18-fuel-v4.json", import.meta.url),
+      new URL("../../../data/corridor-ref/2026-08-21-cruise-v6.json", import.meta.url),
       "utf8",
     ),
   ),

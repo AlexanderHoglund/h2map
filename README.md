@@ -13,12 +13,16 @@ Re-implements the published methodology of the Chilean **"Motor de Cálculo LCOH
 ## Structure
 
 ```
-apps/web              Next.js App Router application
-packages/lcoh-engine  Pure-TypeScript LCOH engine (zero deps, fully tested)
-scripts/providers     Resource-data provider spike scripts
-data/                 Turbine curves, spike outputs
-supabase/             Migrations + seed (applied manually — see docs/SUPABASE_SETUP.md)
-docs/                 Setup guides and engine methodology notes
+apps/web                  Next.js App Router application (LCOH explorer + corridor comparison tool)
+packages/lcoh-engine      Pure-TypeScript LCOH engine (zero deps, fully tested)
+packages/corridor-engine  Green-vs-fossil corridor cost model (NPV gap, regulation modules)
+packages/corridor-schema  Corridor scenario schema + reference bundles (live: 2026-08-21-cruise-v6 —
+                          48 vessel rows, 41 active: 35 cargo classes + 6 ocean-cruise archetypes)
+packages/fuel-emissions   Fuel emission-factor dataset and derivation
+scripts/providers         Resource-data provider spike scripts
+data/                     Turbine curves, corridor reference bundles, spike outputs
+supabase/                 Migrations + seed (applied manually — see docs/SUPABASE_SETUP.md)
+docs/                     Setup guides, engine methodology notes, corridor research (docs/corridor/)
 ```
 
 ## Commands

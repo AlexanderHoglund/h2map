@@ -23,6 +23,12 @@
  */
 
 /**
+ * A non-finite figure (a zeroed denominator upstream — LHV 0, WACC edge
+ * cases) must read as "no figure", never as a literal "$NaN" or "$∞m".
+ */
+const NO_FIGURE = "—";
+
+/**
  * Full-precision $m: always 2dp. Tables, KPIs, tooltips.
  *
  * The sign goes OUTSIDE the currency symbol. Every previous copy of this
@@ -30,6 +36,7 @@
  * visible today in the decomposition table's delta column.
  */
 export function usdM(n: number): string {
+  if (!Number.isFinite(n)) return NO_FIGURE;
   return `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", {
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
@@ -45,6 +52,7 @@ export function usdM(n: number): string {
  * this module exists to remove. It only ever had a maximum before.
  */
 export function usdMShort(n: number): string {
+  if (!Number.isFinite(n)) return NO_FIGURE;
   const whole = Math.abs(n) >= 100;
   return `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", {
     maximumFractionDigits: whole ? 0 : 2,
@@ -59,6 +67,7 @@ export function usdMSigned(n: number): string {
 
 /** Whole dollars — $/tonne and $/tCO2. Never sub-dollar. */
 export function usd(n: number): string {
+  if (!Number.isFinite(n)) return NO_FIGURE;
   return `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", {
     maximumFractionDigits: 0,
   })}`;
@@ -66,7 +75,22 @@ export function usd(n: number): string {
 
 /** Whole number with thousands separators. */
 export function int(n: number): string {
+  if (!Number.isFinite(n)) return NO_FIGURE;
   return Math.round(n).toLocaleString("en-US");
+}
+
+/**
+ * Full-precision operand for DERIVATION DISPLAYS ONLY (the Results
+ * appendix): up to 6dp, no padding, grouped. The whole point of a worked
+ * formula is that the reader can re-run the arithmetic and land on the
+ * exact headline — 2dp operands cannot do that on a $1,800m numerator.
+ * NEVER use this in a KPI, table or tooltip position: the card-vs-tooltip
+ * mismatch this module's header describes is exactly what leaks of this
+ * helper would recreate.
+ */
+export function exact(n: number, maxDp = 6): string {
+  if (!Number.isFinite(n)) return "—";
+  return n.toLocaleString("en-US", { maximumFractionDigits: maxDp });
 }
 
 /** Readable form of a benchmark id ("e-ammonia" -> "E-ammonia"). */

@@ -79,7 +79,7 @@ const OUT_DIR = new URL("data/corridor-sensitivity/", ROOT);
 const OUT_PATH = new URL("elasticity.json", OUT_DIR);
 
 const bundle = parseRefBundle(
-  JSON.parse(readFileSync(new URL("data/corridor-ref/2026-08-18-fuel-v4.json", ROOT), "utf8")),
+  JSON.parse(readFileSync(new URL("data/corridor-ref/2026-08-21-cruise-v6.json", ROOT), "utf8")),
 );
 
 /**
